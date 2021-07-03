@@ -1,0 +1,10 @@
+.cache/
+.pytest_cache/
+.benchmarks/
+build/
+__pycache__
+*.cpp
+*.so
+*.pyc
+*.pyd
+*.dll
