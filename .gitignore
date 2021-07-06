@@ -3,8 +3,9 @@
 .benchmarks/
 build/
 __pycache__
-*.cpp
 *.so
 *.pyc
 *.pyd
 *.dll
+*.cpp
+!cudapython/_lib/param_packer.cpp
