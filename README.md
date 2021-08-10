@@ -7,9 +7,9 @@
 Dependencies of the CUDA-Python bindings and some versions that are known to
 work are as follows:
 
-* CUDA Toolkit 11.0 to 11.4- e.g. 11.4.48
+* CUDA Toolkit 11.0 to 11.4 - e.g. 11.4.48
 * Cython - e.g. 0.29.21
-* versioneer - e.g. 0.20
+* Versioneer - e.g. 0.20
 
 ### Compilation
 
