@@ -9,7 +9,7 @@ import ctypes
 import math
 import numpy as np
 import sys
-from cudapython import cuda
+from cuda import cuda
 from examples.common import common
 from examples.common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
 

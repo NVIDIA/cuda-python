@@ -1,0 +1,83 @@
+# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+#
+# Please refer to the NVIDIA end user license agreement (EULA) associated
+# with this source code for terms and conditions that govern your use of
+# this software. Any use, reproduction, disclosure, or distribution of
+# this software and related documentation outside the terms of the EULA
+# is strictly prohibited.
+cimport cuda.cuda as cuda
+cimport cuda.ccuda as ccuda
+from libcpp.vector cimport vector
+
+cdef class HelperKernelParams:
+    cdef Py_buffer _pybuffer
+    cdef bint _pyobj_acquired
+    cdef void** _ckernelParams
+    cdef char* _ckernelParamsData
+    cdef int _length
+    cdef bint _malloc_list_created
+
+cdef class HelperInputVoidPtr:
+    cdef Py_buffer _pybuffer
+    cdef void* _cptr
+    cdef bint _pyobj_acquired
+
+cdef class HelperCUmemPool_attribute:
+    cdef void* _cptr
+    cdef ccuda.CUmemPool_attribute_enum _attr
+    cdef bint _is_getter
+
+    # Return values
+    cdef int _int_val
+    cdef cuda.cuuint64_t _cuuint64_t_val
+
+cdef class HelperCUmem_range_attribute:
+    cdef void* _cptr
+    cdef ccuda.CUmem_range_attribute_enum _attr
+    cdef size_t _data_size
+
+    # Return values
+    cdef int _int_val # 32 bit integer
+    cdef int* _int_val_list # 32 bit integer array
+
+cdef class HelperCUpointer_attribute:
+    cdef void* _cptr
+    cdef ccuda.CUpointer_attribute_enum _attr
+    cdef bint _is_getter
+
+    # Return values
+    cdef cuda.CUcontext _ctx
+    cdef unsigned int _uint
+    cdef cuda.CUdeviceptr _devptr
+    cdef void** _void
+    cdef cuda.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS _token
+    cdef bint _bool
+    cdef unsigned long long _ull
+    cdef size_t _size
+    cdef cuda.CUmemoryPool _mempool
+
+cdef class HelperCUgraphMem_attribute:
+    cdef void* _cptr
+    cdef ccuda.CUgraphMem_attribute_enum _attr
+    cdef bint _is_getter
+
+    # Return values
+    cdef cuda.cuuint64_t _cuuint64_t_val
+
+cdef class HelperCUjit_option:
+    cdef void* _cptr
+    cdef ccuda.CUjit_option_enum _attr
+
+    # Return values
+    cdef unsigned int _uint
+    cdef float _float
+    cdef char* _charstar
+    cdef ccuda.CUjit_target_enum _target
+    cdef ccuda.CUjit_fallback_enum _fallback
+    cdef int _int
+    cdef ccuda.CUjit_cacheMode_enum _cacheMode
+    cdef vector[char*] _charstarstar # list of names
+    cdef InputVoidPtrPtrHelper _voidstarstar # list of addresses
+
+cdef class InputVoidPtrPtrHelper:
+    cdef void** _cptr

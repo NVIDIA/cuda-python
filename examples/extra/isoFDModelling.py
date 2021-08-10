@@ -7,7 +7,7 @@
 # is strictly prohibited.
 import numpy as np
 import time
-from cudapython import cuda, cudart
+from cuda import cuda, cudart
 from examples.common import common
 from examples.common.helper_cuda import checkCudaErrors
 

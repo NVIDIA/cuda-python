@@ -6,7 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 import numpy as np
-from cudapython import cuda
+from cuda import cuda
 from examples.common import common
 from examples.common.helper_cuda import checkCudaErrors, findCudaDevice
 

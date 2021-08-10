@@ -56,7 +56,7 @@ from numba import cuda
 from numba.cuda import (HostOnlyCUDAMemoryManager, GetIpcHandleMixin,
                         MemoryPointer, MemoryInfo)
 
-from cudapython import cuda as cuda_driver
+from cuda import cuda as cuda_driver
 
 from ctypes import c_size_t
 

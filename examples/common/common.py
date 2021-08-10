@@ -8,7 +8,7 @@
 import ctypes
 import numpy as np
 import os
-from cudapython import cuda, cudart, nvrtc
+from cuda import cuda, cudart, nvrtc
 from examples.common.helper_cuda import checkCudaErrors
 
 class KernelHelper:

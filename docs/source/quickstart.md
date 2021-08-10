@@ -44,7 +44,7 @@ Python package. In this example, you copy data from the host to device. You need
 [NumPy](https://numpy.org/doc/stable/contents.html) to store data on the host.
 
 ```{code-cell} python
-from cudapython import cuda, nvrtc
+from cuda import cuda, nvrtc
 import numpy as np
 ```
 

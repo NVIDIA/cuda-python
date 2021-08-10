@@ -4,15 +4,15 @@ CUDA Python API Reference
 
 cuda
 ----
-.. automodule:: cudapython.cuda
+.. automodule:: cuda.cuda
     :members:
 
 cudart
 ------
-.. automodule:: cudapython.cudart
+.. automodule:: cuda.cudart
     :members:
 
 nvrtc
 -----
-.. automodule:: cudapython.nvrtc
+.. automodule:: cuda.nvrtc
     :members:

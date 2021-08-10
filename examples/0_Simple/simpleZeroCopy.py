@@ -10,7 +10,7 @@ import math
 import numpy as np
 import random as rnd
 import sys
-from cudapython import cuda, cudart
+from cuda import cuda, cudart
 from examples.common import common
 from examples.common.helper_cuda import checkCudaErrors
 from examples.common.helper_string import checkCmdLineFlag

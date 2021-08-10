@@ -7,7 +7,7 @@
 # is strictly prohibited.
 import ctypes
 import numpy as np
-from cudapython import cuda, nvrtc
+from cuda import cuda, nvrtc
 
 def ASSERT_DRV(err):
     if isinstance(err, cuda.CUresult):

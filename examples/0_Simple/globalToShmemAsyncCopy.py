@@ -9,7 +9,7 @@ import ctypes
 import math
 import numpy as np
 import sys
-from cudapython import cuda, cudart
+from cuda import cuda, cudart
 from enum import Enum
 from examples.common import common
 from examples.common.helper_cuda import checkCudaErrors, findCudaDevice

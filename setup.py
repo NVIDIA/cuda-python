@@ -51,7 +51,7 @@ extensions = cythonize(
     [
         Extension(
             "*",
-            sources=["cudapython/_cuda/*.pyx"],
+            sources=["cuda/_cuda/*.pyx"],
             include_dirs=[],
             library_dirs=[],
             runtime_library_dirs=[],
@@ -72,7 +72,7 @@ extensions += cythonize(
     [
         Extension(
             "*",
-            sources=["cudapython/_lib/*.pyx", "cudapython/_lib/param_packer.cpp"],
+            sources=["cuda/_lib/*.pyx", "cuda/_lib/param_packer.cpp"],
             include_dirs=include_dirs,
             library_dirs=library_dirs,
             runtime_library_dirs=[],
@@ -91,7 +91,7 @@ extensions += cythonize(
     [
         Extension(
             "*",
-            sources=["cudapython/_lib/ccudart/*.pyx"],
+            sources=["cuda/_lib/ccudart/*.pyx"],
             include_dirs=include_dirs,
             library_dirs=library_dirs,
             runtime_library_dirs=[],
@@ -112,7 +112,7 @@ extensions += cythonize(
     [
         Extension(
             "*",
-            sources=["cudapython/*.pyx"],
+            sources=["cuda/*.pyx"],
             include_dirs=include_dirs,
             library_dirs=library_dirs,
             runtime_library_dirs=[],
@@ -133,7 +133,7 @@ extensions += cythonize(
     [
         Extension(
             "*",
-            sources=["cudapython/tests/*.pyx"],
+            sources=["cuda/tests/*.pyx"],
             include_dirs=include_dirs,
             library_dirs=library_dirs,
             runtime_library_dirs=[],
@@ -149,9 +149,9 @@ extensions += cythonize(
 )
 
 setup(
-    name="cudapython",
+    name="cuda",
     version=versioneer.get_version(),
-    description="CUDA Python",
+    description="CUDA for Python",
     url="",
     author="NVIDIA Corporation",
     license="Other",
@@ -175,9 +175,9 @@ setup(
     # Include the separately-compiled shared library
     setup_requires=["cython"],
     ext_modules=extensions,
-    packages=find_packages(include=["cudapython", "cudapython.*"]),
+    packages=find_packages(include=["cuda", "cuda.*"]),
     package_data=dict.fromkeys(
-        find_packages(include=["cudapython", "cudapython.*"]),
+        find_packages(include=["cuda", "cuda.*"]),
         ["*.pxd", "*.pyx", "*.h", "*.cpp"],
     ),
     cmdclass=versioneer.get_cmdclass(),

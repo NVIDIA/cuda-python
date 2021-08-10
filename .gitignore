@@ -11,7 +11,7 @@ __pycache__/
 .pytest_cache/
 .benchmarks/
 *.cpp
-!cudapython/_lib/param_packer.cpp
+!cuda/_lib/param_packer.cpp
 
 # Distribution / packaging
 .Python

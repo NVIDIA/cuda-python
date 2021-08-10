@@ -5,7 +5,7 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
-from cudapython import cuda, cudart, nvrtc
+from cuda import cuda, cudart, nvrtc
 from examples.common.helper_string import getCmdLineArgumentInt, checkCmdLineFlag
 
 def _cudaGetErrorEnum(error):
