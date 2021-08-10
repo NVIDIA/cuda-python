@@ -44,17 +44,23 @@ def main():
     ASSERT_DRV(err)
 
     # Create program
+    err, prog = nvrtc.nvrtcCreateProgram(str.encode(saxpy), b'saxpy.cu', 0, [], [])
+    ASSERT_DRV(err)
+
+    # Get target architecture
     err, major = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice)
     ASSERT_DRV(err)
     err, minor = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice)
     ASSERT_DRV(err)
-
-    err, prog = nvrtc.nvrtcCreateProgram(str.encode(saxpy), b'saxpy.cu', 0, [], [])
+    err, nvrtc_major, nvrtc_minor = nvrtc.nvrtcVersion()
     ASSERT_DRV(err)
+    use_cubin = (nvrtc_minor >= 1)
+    prefix = 'sm' if use_cubin else 'compute'
+    arch_arg = bytes(f'--gpu-architecture={prefix}_{major}{minor}', 'ascii')
 
     # Compile program
-    opts = [b'--fmad=false', bytes('--gpu-architecture=sm_' + str(major) + str(minor), 'ascii')]
-    err, = nvrtc.nvrtcCompileProgram(prog, 2, opts)
+    opts = [b'--fmad=false', arch_arg]
+    err, = nvrtc.nvrtcCompileProgram(prog, len(opts), opts)
     ASSERT_DRV(err)
 
     # Get log from compilation
@@ -65,16 +71,23 @@ def main():
     ASSERT_DRV(err)
     print(log.decode())
 
-    # Get CUBIN from compilation
-    err, cubinSize = nvrtc.nvrtcGetCUBINSize(prog)
-    ASSERT_DRV(err)
-    cubin = b' ' * cubinSize
-    err, = nvrtc.nvrtcGetCUBIN(prog, cubin)
-    ASSERT_DRV(err)
+    # Get data from compilation
+    if use_cubin:
+        err, dataSize = nvrtc.nvrtcGetCUBINSize(prog)
+        ASSERT_DRV(err)
+        data = b' ' * dataSize
+        err, = nvrtc.nvrtcGetCUBIN(prog, data)
+        ASSERT_DRV(err)
+    else:
+        err, dataSize = nvrtc.nvrtcGetPTXSize(prog)
+        ASSERT_DRV(err)
+        data = b' ' * dataSize
+        err, = nvrtc.nvrtcGetPTX(prog, data)
+        ASSERT_DRV(err)
 
-    # Load cubin as module data and retrieve function
-    cubin = np.char.array(cubin)
-    err, module = cuda.cuModuleLoadData(cubin)
+    # Load data as module data and retrieve function
+    data = np.char.array(data)
+    err, module = cuda.cuModuleLoadData(data)
     ASSERT_DRV(err)
     err, kernel = cuda.cuModuleGetFunction(module, b'saxpy')
     ASSERT_DRV(err)

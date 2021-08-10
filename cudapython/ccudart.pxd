@@ -155,17 +155,27 @@ cdef struct cudaChannelFormatDesc:
     int w
     cudaChannelFormatKind f
 
-ctypedef void* cudaArray_t
+cdef extern from "":
+    cdef struct cudaArray:
+        pass
+ctypedef cudaArray* cudaArray_t
 
-ctypedef void* cudaArray_const_t
+cdef extern from "":
+    cdef struct cudaArray:
+        pass
+ctypedef cudaArray* cudaArray_const_t
 
-cdef struct cudaArray
 
-ctypedef void* cudaMipmappedArray_t
+cdef extern from "":
+    cdef struct cudaMipmappedArray:
+        pass
+ctypedef cudaMipmappedArray* cudaMipmappedArray_t
 
-ctypedef void* cudaMipmappedArray_const_t
+cdef extern from "":
+    cdef struct cudaMipmappedArray:
+        pass
+ctypedef cudaMipmappedArray* cudaMipmappedArray_const_t
 
-cdef struct cudaMipmappedArray
 
 cdef struct _cudaArraySparseProperties_tileExtent_s:
     unsigned int width
@@ -289,7 +299,6 @@ cdef enum cudaUserObjectFlags:
 cdef enum cudaUserObjectRetainFlags:
     cudaGraphUserObjectMove = 0x1
 
-cdef struct cudaGraphicsResource
 
 cdef enum cudaGraphicsRegisterFlags:
     cudaGraphicsRegisterFlagsNone = 0
@@ -877,27 +886,57 @@ cdef struct cudaExternalSemaphoreWaitParams:
 
 ctypedef cudaError cudaError_t
 
-ctypedef void* cudaStream_t
+cdef extern from "":
+    cdef struct CUstream_st:
+        pass
+ctypedef CUstream_st* cudaStream_t
 
-ctypedef void* cudaEvent_t
+cdef extern from "":
+    cdef struct CUevent_st:
+        pass
+ctypedef CUevent_st* cudaEvent_t
 
-ctypedef void* cudaGraphicsResource_t
+cdef extern from "":
+    cdef struct cudaGraphicsResource:
+        pass
+ctypedef cudaGraphicsResource* cudaGraphicsResource_t
 
 ctypedef cudaOutputMode cudaOutputMode_t
 
-ctypedef void* cudaExternalMemory_t
+cdef extern from "":
+    cdef struct CUexternalMemory_st:
+        pass
+ctypedef CUexternalMemory_st* cudaExternalMemory_t
 
-ctypedef void* cudaExternalSemaphore_t
+cdef extern from "":
+    cdef struct CUexternalSemaphore_st:
+        pass
+ctypedef CUexternalSemaphore_st* cudaExternalSemaphore_t
 
-ctypedef void* cudaGraph_t
+cdef extern from "":
+    cdef struct CUgraph_st:
+        pass
+ctypedef CUgraph_st* cudaGraph_t
 
-ctypedef void* cudaGraphNode_t
+cdef extern from "":
+    cdef struct CUgraphNode_st:
+        pass
+ctypedef CUgraphNode_st* cudaGraphNode_t
 
-ctypedef void* cudaUserObject_t
+cdef extern from "":
+    cdef struct CUuserObject_st:
+        pass
+ctypedef CUuserObject_st* cudaUserObject_t
 
-ctypedef void* cudaFunction_t
+cdef extern from "":
+    cdef struct CUfunc_st:
+        pass
+ctypedef CUfunc_st* cudaFunction_t
 
-ctypedef void* cudaMemPool_t
+cdef extern from "":
+    cdef struct CUmemPoolHandle_st:
+        pass
+ctypedef CUmemPoolHandle_st* cudaMemPool_t
 
 cdef enum cudaCGScope:
     cudaCGScopeInvalid = 0
@@ -937,7 +976,10 @@ cdef enum cudaGraphNodeType:
     cudaGraphNodeTypeMemFree = 0x0b
     cudaGraphNodeTypeCount
 
-ctypedef void* cudaGraphExec_t
+cdef extern from "":
+    cdef struct CUgraphExec_st:
+        pass
+ctypedef CUgraphExec_st* cudaGraphExec_t
 
 cdef enum cudaGraphExecUpdateResult:
     cudaGraphExecUpdateSuccess = 0x0
@@ -1011,34 +1053,34 @@ cdef struct cudaTextureDesc:
 ctypedef unsigned long long cudaTextureObject_t
 
 cdef enum cudaDataType_t:
-    CUDA_R_16F
-    CUDA_C_16F
-    CUDA_R_16BF
-    CUDA_C_16BF
-    CUDA_R_32F
-    CUDA_C_32F
-    CUDA_R_64F
-    CUDA_C_64F
-    CUDA_R_4I
-    CUDA_C_4I
-    CUDA_R_4U
-    CUDA_C_4U
-    CUDA_R_8I
-    CUDA_C_8I
-    CUDA_R_8U
-    CUDA_C_8U
-    CUDA_R_16I
-    CUDA_C_16I
-    CUDA_R_16U
-    CUDA_C_16U
-    CUDA_R_32I
-    CUDA_C_32I
-    CUDA_R_32U
-    CUDA_C_32U
-    CUDA_R_64I
-    CUDA_C_64I
-    CUDA_R_64U
-    CUDA_C_64U
+    CUDA_R_16F = 2
+    CUDA_C_16F = 6
+    CUDA_R_16BF = 14
+    CUDA_C_16BF = 15
+    CUDA_R_32F = 0
+    CUDA_C_32F = 4
+    CUDA_R_64F = 1
+    CUDA_C_64F = 5
+    CUDA_R_4I = 16
+    CUDA_C_4I = 17
+    CUDA_R_4U = 18
+    CUDA_C_4U = 19
+    CUDA_R_8I = 3
+    CUDA_C_8I = 7
+    CUDA_R_8U = 8
+    CUDA_C_8U = 9
+    CUDA_R_16I = 20
+    CUDA_C_16I = 21
+    CUDA_R_16U = 22
+    CUDA_C_16U = 23
+    CUDA_R_32I = 10
+    CUDA_C_32I = 11
+    CUDA_R_32U = 12
+    CUDA_C_32U = 13
+    CUDA_R_64I = 24
+    CUDA_C_64I = 25
+    CUDA_R_64U = 26
+    CUDA_C_64U = 27
 
 ctypedef cudaDataType_t cudaDataType
 

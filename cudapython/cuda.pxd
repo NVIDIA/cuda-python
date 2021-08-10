@@ -79,6 +79,7 @@ cdef class CUuserObject:
 cdef class CUlinkState:
     cdef ccuda.CUlinkState* _ptr
     cdef bint _ptr_owner
+    cdef list _keepalive
 
 cdef class CUhostFn:
     cdef ccuda.CUhostFn* _ptr
@@ -271,7 +272,6 @@ cdef class CUDA_ARRAY3D_DESCRIPTOR_st:
 
 cdef class _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s:
     cdef ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st* _ptr
-    
 
 cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
     cdef ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st* _ptr
@@ -296,7 +296,6 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
 
 cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_reserved_s:
     cdef ccuda.CUDA_RESOURCE_DESC_st* _ptr
-    
 
 cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_u:
     cdef ccuda.CUDA_RESOURCE_DESC_st* _ptr
@@ -371,7 +370,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_fence_s:
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
-    
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_nvSciSync_u:
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
@@ -379,7 +377,6 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIG
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_keyedMutex_s:
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
-    
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_s:
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
@@ -394,7 +391,6 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_fence_s:
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
-    
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_nvSciSync_u:
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
@@ -402,7 +398,6 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_keyedMutex_s:
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
-    
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_s:
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
@@ -438,11 +433,9 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u:
 
 cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_sparseLevel_s:
     cdef ccuda.CUarrayMapInfo_st* _ptr
-    
 
 cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_miptail_s:
     cdef ccuda.CUarrayMapInfo_st* _ptr
-    
 
 cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u:
     cdef ccuda.CUarrayMapInfo_st* _ptr
@@ -466,7 +459,6 @@ cdef class CUmemLocation_st:
 
 cdef class _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s:
     cdef ccuda.CUmemAllocationProp_st* _ptr
-    
 
 cdef class CUmemAllocationProp_st:
     cdef ccuda.CUmemAllocationProp_st* _ptr

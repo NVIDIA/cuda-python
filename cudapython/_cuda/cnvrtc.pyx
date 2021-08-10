@@ -7,6 +7,7 @@
 # is strictly prohibited.
 IF UNAME_SYSNAME == "Windows":
     import win32api
+    import struct
 ELSE:
     cimport cudapython._lib.dlfcn as dlfcn
 cdef bint __cuPythonInit = False

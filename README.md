@@ -7,8 +7,9 @@
 Dependencies of the CUDA-Python bindings and some versions that are known to
 work are as follows:
 
-* CUDA Toolkit 11.4 - e.g. 11.4.48
+* CUDA Toolkit 11.0 to 11.4- e.g. 11.4.48
 * Cython - e.g. 0.29.21
+* versioneer - e.g. 0.20
 
 ### Compilation
 
@@ -20,14 +21,6 @@ python setup.py build_ext --inplace
 
 To compile for debugging the extension modules with gdb, pass the `--debug`
 argument to setup.py.
-
-The CUDA location is assumed to be the parent directory of where `cuda-gdb` is
-located - to suggest an alternative location, use the `CUDA_HOME` environment
-variable, e.g.:
-
-```
-CUDA_HOME=/opt/cuda/11.4 python setup.py <args>
-```
 
 
 ### Develop installation
@@ -41,6 +34,20 @@ python setup.py develop
 to use the module in-place in your current Python environment (e.g. for testing
 of porting other libraries to use the binding).
 
+
+### Build the Docs
+
+```
+conda env create -f docs/environment-docs.yml
+conda activate cuda-python-docs
+```
+Then compile and install `cuda-python` following the steps above.
+
+```
+cd docs
+make html
+open build/html/index.html
+```
 
 ## Testing
 

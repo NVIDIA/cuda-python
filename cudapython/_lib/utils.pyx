@@ -369,22 +369,23 @@ cdef class HelperCUjit_option:
                           ccuda.CUjit_option_enum.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES,
                           ccuda.CUjit_option_enum.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,
                           ccuda.CUjit_option_enum.CU_JIT_OPTIMIZATION_LEVEL,
-                          ccuda.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_COUNT):
+                          ccuda.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_COUNT,
+                          ccuda.CUjit_option_enum.CU_JIT_TARGET_FROM_CUCONTEXT,):
             self._uint = init_value
-            self._cptr = <void*>&self._uint
+            self._cptr = <void*><void_ptr>self._uint
         elif self._attr in (ccuda.CUjit_option_enum.CU_JIT_WALL_TIME,):
             self._float = init_value
-            self._cptr = <void*>&self._float
+            self._cptr = <void*><void_ptr>self._float
         elif self._attr in (ccuda.CUjit_option_enum.CU_JIT_INFO_LOG_BUFFER,
                             ccuda.CUjit_option_enum.CU_JIT_ERROR_LOG_BUFFER):
             self._charstar = init_value
-            self._cptr = <void*>&self._charstar
+            self._cptr = <void*><void_ptr>self._charstar
         elif self._attr in (ccuda.CUjit_option_enum.CU_JIT_TARGET,):
             self._target = init_value.value
-            self._cptr = <void*>&self._target
+            self._cptr = <void*><void_ptr>self._target
         elif self._attr in (ccuda.CUjit_option_enum.CU_JIT_FALLBACK_STRATEGY,):
             self._fallback = init_value.value
-            self._cptr = <void*>&self._fallback
+            self._cptr = <void*><void_ptr>self._fallback
         elif self._attr in (ccuda.CUjit_option_enum.CU_JIT_GENERATE_DEBUG_INFO,
                             ccuda.CUjit_option_enum.CU_JIT_LOG_VERBOSE,
                             ccuda.CUjit_option_enum.CU_JIT_GENERATE_LINE_INFO,
@@ -394,20 +395,17 @@ cdef class HelperCUjit_option:
                             ccuda.CUjit_option_enum.CU_JIT_PREC_SQRT,
                             ccuda.CUjit_option_enum.CU_JIT_FMA):
             self._int = init_value
-            self._cptr = <void*>&self._int
+            self._cptr = <void*><void_ptr>self._int
         elif self._attr in (ccuda.CUjit_option_enum.CU_JIT_CACHE_MODE,):
             self._cacheMode = init_value.value
-            self._cptr = <void*>&self._cacheMode
+            self._cptr = <void*><void_ptr>self._cacheMode
         elif self._attr in (ccuda.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_NAMES,):
             self._charstarstar = init_value
-            self._cptr = <void*>&self._charstarstar
+            self._cptr = <void*>&self._charstarstar[0]
         elif self._attr in (ccuda.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_ADDRESSES,):
             pylist = [HelperInputVoidPtr(val) for val in init_value]
             self._voidstarstar = InputVoidPtrPtrHelper(pylist)
             self._cptr = <void*><void_ptr>self._voidstarstar.cptr
-        elif self._attr in (ccuda.CUjit_option_enum.CU_JIT_TARGET_FROM_CUCONTEXT,):
-            self._uint = 0
-            self._cptr = <void*>&self._uint
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 

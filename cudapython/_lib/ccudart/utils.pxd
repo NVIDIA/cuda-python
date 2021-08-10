@@ -20,8 +20,8 @@ cdef class cudaPythonGlobal:
     cdef cudaError_t _lastError
     cdef int CUDART_VERSION
 
-    cdef void lazyInit(self) nogil
-    cdef void _populateDeviceProperties(self, int deviceOrdinal) nogil
+    cdef cudaError_t lazyInit(self) nogil
+    cdef cudaError_t _populateDeviceProperties(self, int deviceOrdinal) nogil
 
 cdef cudaPythonGlobal globalGetInstance()
 cdef cudaError_t _setLastError(cudaError_t err) nogil

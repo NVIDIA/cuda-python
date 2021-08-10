@@ -20,25 +20,55 @@ ctypedef int CUdevice_v1
 
 ctypedef CUdevice_v1 CUdevice
 
-ctypedef void* CUcontext
+cdef extern from "":
+    cdef struct CUctx_st:
+        pass
+ctypedef CUctx_st* CUcontext
 
-ctypedef void* CUmodule
+cdef extern from "":
+    cdef struct CUmod_st:
+        pass
+ctypedef CUmod_st* CUmodule
 
-ctypedef void* CUfunction
+cdef extern from "":
+    cdef struct CUfunc_st:
+        pass
+ctypedef CUfunc_st* CUfunction
 
-ctypedef void* CUarray
+cdef extern from "":
+    cdef struct CUarray_st:
+        pass
+ctypedef CUarray_st* CUarray
 
-ctypedef void* CUmipmappedArray
+cdef extern from "":
+    cdef struct CUmipmappedArray_st:
+        pass
+ctypedef CUmipmappedArray_st* CUmipmappedArray
 
-ctypedef void* CUtexref
+cdef extern from "":
+    cdef struct CUtexref_st:
+        pass
+ctypedef CUtexref_st* CUtexref
 
-ctypedef void* CUsurfref
+cdef extern from "":
+    cdef struct CUsurfref_st:
+        pass
+ctypedef CUsurfref_st* CUsurfref
 
-ctypedef void* CUevent
+cdef extern from "":
+    cdef struct CUevent_st:
+        pass
+ctypedef CUevent_st* CUevent
 
-ctypedef void* CUstream
+cdef extern from "":
+    cdef struct CUstream_st:
+        pass
+ctypedef CUstream_st* CUstream
 
-ctypedef void* CUgraphicsResource
+cdef extern from "":
+    cdef struct CUgraphicsResource_st:
+        pass
+ctypedef CUgraphicsResource_st* CUgraphicsResource
 
 ctypedef unsigned long long CUtexObject_v1
 
@@ -48,19 +78,40 @@ ctypedef unsigned long long CUsurfObject_v1
 
 ctypedef CUsurfObject_v1 CUsurfObject
 
-ctypedef void* CUexternalMemory
+cdef extern from "":
+    cdef struct CUextMemory_st:
+        pass
+ctypedef CUextMemory_st* CUexternalMemory
 
-ctypedef void* CUexternalSemaphore
+cdef extern from "":
+    cdef struct CUextSemaphore_st:
+        pass
+ctypedef CUextSemaphore_st* CUexternalSemaphore
 
-ctypedef void* CUgraph
+cdef extern from "":
+    cdef struct CUgraph_st:
+        pass
+ctypedef CUgraph_st* CUgraph
 
-ctypedef void* CUgraphNode
+cdef extern from "":
+    cdef struct CUgraphNode_st:
+        pass
+ctypedef CUgraphNode_st* CUgraphNode
 
-ctypedef void* CUgraphExec
+cdef extern from "":
+    cdef struct CUgraphExec_st:
+        pass
+ctypedef CUgraphExec_st* CUgraphExec
 
-ctypedef void* CUmemoryPool
+cdef extern from "":
+    cdef struct CUmemPoolHandle_st:
+        pass
+ctypedef CUmemPoolHandle_st* CUmemoryPool
 
-ctypedef void* CUuserObject
+cdef extern from "":
+    cdef struct CUuserObject_st:
+        pass
+ctypedef CUuserObject_st* CUuserObject
 
 cdef struct CUuuid_st:
     char bytes[16]
@@ -536,7 +587,10 @@ cdef enum CUjitInputType_enum:
 
 ctypedef CUjitInputType_enum CUjitInputType
 
-ctypedef void* CUlinkState
+cdef extern from "":
+    cdef struct CUlinkState_st:
+        pass
+ctypedef CUlinkState_st* CUlinkState
 
 cdef enum CUgraphicsRegisterFlags_enum:
     CU_GRAPHICS_REGISTER_FLAGS_NONE = 0x00

@@ -28,11 +28,16 @@ def common_nvrtc(allKernelStrings, dev):
     ASSERT_DRV(err)
     err, minor = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, dev)
     ASSERT_DRV(err)
+    err, _, nvrtc_minor = nvrtc.nvrtcVersion()
+    ASSERT_DRV(err)
+    use_cubin = (nvrtc_minor >= 1)
+    prefix = 'sm' if use_cubin else 'compute'
+    arch_arg = bytes(f'--gpu-architecture={prefix}_{major}{minor}', 'ascii')
 
     err, prog = nvrtc.nvrtcCreateProgram(str.encode(allKernelStrings), b'allKernelStrings.cu', 0, [], [])
     ASSERT_DRV(err)
-    opts = [b'--fmad=false', bytes('--gpu-architecture=sm_' + str(major) + str(minor), 'ascii')]
-    err, = nvrtc.nvrtcCompileProgram(prog, 2, opts)
+    opts = [b'--fmad=false', arch_arg]
+    err, = nvrtc.nvrtcCompileProgram(prog, len(opts), opts)
 
     err_log, logSize = nvrtc.nvrtcGetProgramLogSize(prog)
     ASSERT_DRV(err_log)
@@ -42,15 +47,22 @@ def common_nvrtc(allKernelStrings, dev):
     result = log.decode()
     if len(result) > 1:
         print(result)
+    ASSERT_DRV(err)
 
-    ASSERT_DRV(err)
-    err, cubinSize = nvrtc.nvrtcGetCUBINSize(prog)
-    ASSERT_DRV(err)
-    cubin = b' ' * cubinSize
-    err, = nvrtc.nvrtcGetCUBIN(prog, cubin)
-    ASSERT_DRV(err)
-    cubin = np.char.array(cubin)
-    err, module = cuda.cuModuleLoadData(cubin)
+    if use_cubin:
+        err, dataSize = nvrtc.nvrtcGetCUBINSize(prog)
+        ASSERT_DRV(err)
+        data = b' ' * dataSize
+        err, = nvrtc.nvrtcGetCUBIN(prog, data)
+        ASSERT_DRV(err)
+    else:
+        err, dataSize = nvrtc.nvrtcGetPTXSize(prog)
+        ASSERT_DRV(err)
+        data = b' ' * dataSize
+        err, = nvrtc.nvrtcGetPTX(prog, data)
+        ASSERT_DRV(err)
+
+    err, module = cuda.cuModuleLoadData(np.char.array(data))
     ASSERT_DRV(err)
 
     return module

@@ -15,6 +15,12 @@ def ASSERT_DRV(err):
     else:
         raise RuntimeError('Unknown error type: {}'.format(err))
 
+def nvrtcVersionLessThan(major, minor):
+    err, major_version, minor_version = nvrtc.nvrtcVersion()
+    ASSERT_DRV(err)
+    return major_version < major or (major == major_version and minor_version < minor)
+
+@pytest.mark.skipif(nvrtcVersionLessThan(11, 3), reason='When nvrtcGetSupportedArchs was introduced')
 def test_nvrtcGetSupportedArchs():
     err, supportedArchs = nvrtc.nvrtcGetSupportedArchs()
     ASSERT_DRV(err)

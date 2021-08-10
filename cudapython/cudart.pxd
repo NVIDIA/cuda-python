@@ -63,7 +63,6 @@ cdef class cudaChannelFormatDesc:
 
 cdef class _cudaArraySparseProperties_tileExtent_s:
     cdef ccudart.cudaArraySparseProperties* _ptr
-    
 
 cdef class cudaArraySparseProperties:
     cdef ccudart.cudaArraySparseProperties* _ptr
@@ -261,7 +260,6 @@ cdef class cudaExternalSemaphoreHandleDesc:
 
 cdef class _cudaExternalSemaphoreSignalParams_params_params_fence_s:
     cdef ccudart.cudaExternalSemaphoreSignalParams* _ptr
-    
 
 cdef class _cudaExternalSemaphoreSignalParams_params_params_nvSciSync_u:
     cdef ccudart.cudaExternalSemaphoreSignalParams* _ptr
@@ -269,7 +267,6 @@ cdef class _cudaExternalSemaphoreSignalParams_params_params_nvSciSync_u:
 
 cdef class _cudaExternalSemaphoreSignalParams_params_params_keyedMutex_s:
     cdef ccudart.cudaExternalSemaphoreSignalParams* _ptr
-    
 
 cdef class _cudaExternalSemaphoreSignalParams_params_s:
     cdef ccudart.cudaExternalSemaphoreSignalParams* _ptr
@@ -284,7 +281,6 @@ cdef class cudaExternalSemaphoreSignalParams:
 
 cdef class _cudaExternalSemaphoreWaitParams_params_params_fence_s:
     cdef ccudart.cudaExternalSemaphoreWaitParams* _ptr
-    
 
 cdef class _cudaExternalSemaphoreWaitParams_params_params_nvSciSync_u:
     cdef ccudart.cudaExternalSemaphoreWaitParams* _ptr
@@ -292,7 +288,6 @@ cdef class _cudaExternalSemaphoreWaitParams_params_params_nvSciSync_u:
 
 cdef class _cudaExternalSemaphoreWaitParams_params_params_keyedMutex_s:
     cdef ccudart.cudaExternalSemaphoreWaitParams* _ptr
-    
 
 cdef class _cudaExternalSemaphoreWaitParams_params_s:
     cdef ccudart.cudaExternalSemaphoreWaitParams* _ptr

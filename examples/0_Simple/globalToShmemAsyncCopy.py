@@ -960,6 +960,11 @@ def MatrixMultiply(dimsA, dimsB, kernel_number):
 def main():
     print("[globalToShmemAsyncCopy] - Starting...")
 
+    version = checkCudaErrors(cuda.cuDriverGetVersion())
+    if version < 11010:
+        print("CUDA Toolkit 11.1 or greater is required")
+        return
+
     if (checkCmdLineFlag("help") or checkCmdLineFlag("?")):
         print("Usage device=n (n >= 0 for deviceID)")
         print("      wA=WidthA hA=HeightA (Width x Height of Matrix A)")

@@ -7,18 +7,18 @@
 # is strictly prohibited.
 
 ctypedef enum nvrtcResult:
-    NVRTC_SUCCESS
-    NVRTC_ERROR_OUT_OF_MEMORY
-    NVRTC_ERROR_PROGRAM_CREATION_FAILURE
-    NVRTC_ERROR_INVALID_INPUT
-    NVRTC_ERROR_INVALID_PROGRAM
-    NVRTC_ERROR_INVALID_OPTION
-    NVRTC_ERROR_COMPILATION
-    NVRTC_ERROR_BUILTIN_OPERATION_FAILURE
-    NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION
-    NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
-    NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID
-    NVRTC_ERROR_INTERNAL_ERROR
+    NVRTC_SUCCESS = 0
+    NVRTC_ERROR_OUT_OF_MEMORY = 1
+    NVRTC_ERROR_PROGRAM_CREATION_FAILURE = 2
+    NVRTC_ERROR_INVALID_INPUT = 3
+    NVRTC_ERROR_INVALID_PROGRAM = 4
+    NVRTC_ERROR_INVALID_OPTION = 5
+    NVRTC_ERROR_COMPILATION = 6
+    NVRTC_ERROR_BUILTIN_OPERATION_FAILURE = 7
+    NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION = 8
+    NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION = 9
+    NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID = 10
+    NVRTC_ERROR_INTERNAL_ERROR = 11
 
 cdef const char* nvrtcGetErrorString(nvrtcResult result) nogil except ?NULL
 
@@ -28,7 +28,10 @@ cdef nvrtcResult nvrtcGetNumSupportedArchs(int* numArchs) nogil except ?NVRTC_ER
 
 cdef nvrtcResult nvrtcGetSupportedArchs(int* supportedArchs) nogil except ?NVRTC_ERROR_INVALID_INPUT
 
-ctypedef void* nvrtcProgram
+cdef extern from "":
+    cdef struct _nvrtcProgram:
+        pass
+ctypedef _nvrtcProgram* nvrtcProgram
 
 cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) nogil except ?NVRTC_ERROR_INVALID_INPUT
 

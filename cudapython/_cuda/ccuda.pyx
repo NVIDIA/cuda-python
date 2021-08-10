@@ -7,6 +7,7 @@
 # is strictly prohibited.
 IF UNAME_SYSNAME == "Windows":
     import win32api
+    import struct
 ELSE:
     cimport cudapython._lib.dlfcn as dlfcn
 cdef bint __cuPythonInit = False
@@ -369,7 +370,13 @@ cdef int cuPythonInit() nogil except -1:
     IF UNAME_SYSNAME == "Windows":
         LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
         with gil:
-            handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
+            if 8 * struct.calcsize("P") == 32:
+                try:
+                    handle = win32api.LoadLibraryEx('nvcuda32.dll', 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
+                except:
+                    handle = win32api.LoadLibraryEx('nvcuda.dll', 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
+            else:
+                handle = win32api.LoadLibraryEx('nvcuda.dll', 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
     ELSE:
         handle = dlfcn.dlopen('libcuda.so', dlfcn.RTLD_NOW)
         if (handle == NULL):

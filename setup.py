@@ -6,6 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 import os
+import shutil
 import sys
 import sysconfig
 
@@ -14,6 +15,7 @@ from setuptools.extension import Extension
 from Cython.Build import cythonize
 
 from distutils.sysconfig import get_python_lib
+import versioneer
 
 install_requires = ["cython"]
 
@@ -148,18 +150,37 @@ extensions += cythonize(
 
 setup(
     name="cudapython",
-    version="0.0.1",
+    version=versioneer.get_version(),
     description="CUDA Python",
     url="",
     author="NVIDIA Corporation",
-    license="",
+    license="Other",
+    license_files = ('LICENCE',),
+    classifiers=[
+        "Intended Audience :: Developers",
+        "Topic :: Database",
+        "Topic :: Scientific/Engineering",
+        "License :: Other/Proprietary License",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Environment :: GPU :: NVIDIA CUDA",
+        "Environment :: GPU :: NVIDIA CUDA :: 11.0",
+        "Environment :: GPU :: NVIDIA CUDA :: 11.1",
+        "Environment :: GPU :: NVIDIA CUDA :: 11.2",
+        "Environment :: GPU :: NVIDIA CUDA :: 11.3",
+        "Environment :: GPU :: NVIDIA CUDA :: 11.4",
+
+    ],
+    # Include the separately-compiled shared library
     setup_requires=["cython"],
     ext_modules=extensions,
     packages=find_packages(include=["cudapython", "cudapython.*"]),
     package_data=dict.fromkeys(
         find_packages(include=["cudapython", "cudapython.*"]),
-        ["*.pxd"],
+        ["*.pxd", "*.pyx", "*.h", "*.cpp"],
     ),
+    cmdclass=versioneer.get_cmdclass(),
     install_requires=install_requires,
     zip_safe=False,
 )

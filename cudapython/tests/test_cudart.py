@@ -420,6 +420,7 @@ def test_cudart_cudaStreamGetCaptureInfo():
     err, pgraph = cudart.cudaStreamEndCapture(stream)
     assertSuccess(err)
 
+@pytest.mark.skipif(driverVersionLessThan(11030), reason='When cudaStreamGetCaptureInfo_v2 was introduced')
 def test_cudart_cudaStreamGetCaptureInfo_v2():
     # create stream
     err, stream = cudart.cudaStreamCreate()

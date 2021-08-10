@@ -11,6 +11,7 @@
 #include <map>
 #include <functional>
 #include <stdexcept>
+#include <string>
 
 PyObject* enum_module = nullptr;
 PyTypeObject* enum_Enum = nullptr;

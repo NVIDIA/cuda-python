@@ -12,7 +12,7 @@ from libcpp cimport bool
 cimport cudapython._cuda.ccuda as ccuda
 
 cdef struct cudaArrayLocalState:
-    cudaArray_t array
+    ccuda.CUarray array
     cudaChannelFormatDesc desc
     size_t depth
     size_t height
@@ -42,445 +42,454 @@ cdef class cudaPythonGlobal:
         if self._deviceProperties is not NULL:
             free(self._deviceProperties)
 
-    cdef void lazyInit(self) nogil:
+    cdef cudaError_t lazyInit(self) nogil:
+        cdef ccuda.CUcontext context
         if self._cudaPythonInit:
-            return
+            err = ccuda._cuCtxGetCurrent(&context)
+            if err == ccuda.cudaError_enum.CUDA_ERROR_INVALID_CONTEXT or (err == ccuda.cudaError_enum.CUDA_SUCCESS and context == NULL):
+                if self._numDevices > 0:
+                    ccuda._cuCtxSetCurrent(self._driverContext[0])
+            return cudaSuccess
         self._cudaPythonInit = True
         err = ccuda._cuInit(0)
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return <cudaError_t>err
         err = ccuda._cuDeviceGetCount(&self._numDevices)
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         self._driverDevice = <ccuda.CUdevice *>malloc(self._numDevices*sizeof(ccuda.CUdevice))
         if self._driverDevice == NULL:
-            raise RuntimeError('OOM')
+            return cudaErrorMemoryAllocation
         self._driverContext = <ccuda.CUcontext *>malloc(self._numDevices*sizeof(ccuda.CUcontext))
         if self._driverContext == NULL:
-            raise RuntimeError('OOM')
+            return cudaErrorMemoryAllocation
         self._deviceProperties = <cudaDeviceProp *>malloc(self._numDevices*sizeof(cudaDeviceProp))
+        if self._deviceProperties == NULL:
+            return cudaErrorMemoryAllocation
 
         cdef int deviceOrdinal = 0
         for deviceOrdinal in range(self._numDevices):
             err = ccuda._cuDeviceGet(&self._driverDevice[deviceOrdinal], deviceOrdinal)
             if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-                raise RuntimeError('')
+                return cudaErrorInitializationError
             err = ccuda._cuDevicePrimaryCtxRetain(&self._driverContext[deviceOrdinal], self._driverDevice[deviceOrdinal])
             if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-                raise RuntimeError('')
-            self._populateDeviceProperties(deviceOrdinal)
+                return cudaErrorInitializationError
+            err_rt = self._populateDeviceProperties(deviceOrdinal)
+            if err_rt != cudaSuccess:
+                return err_rt
         err = ccuda._cuCtxSetCurrent(self._driverContext[0])
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
-    cdef void _populateDeviceProperties(self, int deviceOrdinal) nogil:
+    cdef cudaError_t _populateDeviceProperties(self, int deviceOrdinal) nogil:
         err = ccuda._cuDeviceGetName(self._deviceProperties[deviceOrdinal].name, sizeof(self._deviceProperties[deviceOrdinal].name), <ccuda.CUdevice>deviceOrdinal)
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceTotalMem_v2(&(self._deviceProperties[deviceOrdinal].totalGlobalMem), <ccuda.CUdevice>deviceOrdinal)
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceTotalMem_v2(&(self._deviceProperties[deviceOrdinal].totalGlobalMem), <ccuda.CUdevice>deviceOrdinal)
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].major), ccuda.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].minor), ccuda.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].deviceOverlap), ccuda.CU_DEVICE_ATTRIBUTE_GPU_OVERLAP, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].asyncEngineCount), ccuda.CU_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].multiProcessorCount), ccuda.CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].kernelExecTimeoutEnabled), ccuda.CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].integrated), ccuda.CU_DEVICE_ATTRIBUTE_INTEGRATED, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].canMapHostMemory), ccuda.CU_DEVICE_ATTRIBUTE_CAN_MAP_HOST_MEMORY, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture1D), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture1DMipmap), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_MIPMAPPED_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture1DLinear), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LINEAR_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2D[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2D[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_HEIGHT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2DMipmap[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2DMipmap[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_HEIGHT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2DLinear[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2DLinear[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_HEIGHT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2DLinear[2]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2DGather[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2DGather[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_HEIGHT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture3D[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture3D[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture3D[2]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture3DAlt[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH_ALTERNATE, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture3DAlt[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT_ALTERNATE, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture3DAlt[2]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH_ALTERNATE, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTextureCubemap), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture1DLayered[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture1DLayered[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_LAYERS, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2DLayered[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2DLayered[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTexture2DLayered[2]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTextureCubemapLayered[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxTextureCubemapLayered[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_LAYERS, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface1D), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface2D[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface2D[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_HEIGHT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface3D[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface3D[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_HEIGHT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface3D[2]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_DEPTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface1DLayered[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface1DLayered[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_LAYERS, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface2DLayered[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface2DLayered[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_HEIGHT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurface2DLayered[2]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_LAYERS, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurfaceCubemap), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurfaceCubemapLayered[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxSurfaceCubemapLayered[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_LAYERS, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].concurrentKernels), ccuda.CU_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].ECCEnabled), ccuda.CU_DEVICE_ATTRIBUTE_ECC_ENABLED, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].pciBusID), ccuda.CU_DEVICE_ATTRIBUTE_PCI_BUS_ID, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].pciDeviceID), ccuda.CU_DEVICE_ATTRIBUTE_PCI_DEVICE_ID, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].pciDomainID), ccuda.CU_DEVICE_ATTRIBUTE_PCI_DOMAIN_ID, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].tccDriver), ccuda.CU_DEVICE_ATTRIBUTE_TCC_DRIVER, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].unifiedAddressing), ccuda.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].memoryClockRate), ccuda.CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].memoryBusWidth), ccuda.CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].l2CacheSize), ccuda.CU_DEVICE_ATTRIBUTE_L2_CACHE_SIZE, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].persistingL2CacheMaxSize), ccuda.CU_DEVICE_ATTRIBUTE_MAX_PERSISTING_L2_CACHE_SIZE, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxThreadsPerMultiProcessor), ccuda.CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_MULTIPROCESSOR, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         cdef int surfaceAlignment
         err = ccuda._cuDeviceGetAttribute(&(surfaceAlignment), ccuda.CU_DEVICE_ATTRIBUTE_SURFACE_ALIGNMENT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         self._deviceProperties[deviceOrdinal].surfaceAlignment = surfaceAlignment
 
         cdef int texturePitchAlignment
         err = ccuda._cuDeviceGetAttribute(&texturePitchAlignment, ccuda.CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         self._deviceProperties[deviceOrdinal].texturePitchAlignment = texturePitchAlignment
 
         cdef int sharedMemPerBlock
         err = ccuda._cuDeviceGetAttribute(&sharedMemPerBlock, ccuda.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         self._deviceProperties[deviceOrdinal].sharedMemPerBlock = sharedMemPerBlock
 
         cdef int sharedMemPerBlockOptin
         err = ccuda._cuDeviceGetAttribute(&sharedMemPerBlockOptin, ccuda.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         self._deviceProperties[deviceOrdinal].sharedMemPerBlockOptin = sharedMemPerBlockOptin
 
         cdef int sharedMemPerMultiprocessor
         err = ccuda._cuDeviceGetAttribute(&sharedMemPerMultiprocessor, ccuda.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         self._deviceProperties[deviceOrdinal].sharedMemPerMultiprocessor = sharedMemPerMultiprocessor
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].regsPerBlock), ccuda.CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].regsPerMultiprocessor), ccuda.CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_MULTIPROCESSOR, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].warpSize), ccuda.CU_DEVICE_ATTRIBUTE_WARP_SIZE, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         cdef int memPitch
         err = ccuda._cuDeviceGetAttribute(&memPitch, ccuda.CU_DEVICE_ATTRIBUTE_MAX_PITCH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         self._deviceProperties[deviceOrdinal].memPitch = memPitch
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxThreadsPerBlock), ccuda.CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxThreadsDim[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxThreadsDim[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxThreadsDim[2]), ccuda.CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Z, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxGridSize[0]), ccuda.CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_X, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxGridSize[1]), ccuda.CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxGridSize[2]), ccuda.CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         cdef int totalConstMem
         err = ccuda._cuDeviceGetAttribute(&totalConstMem, ccuda.CU_DEVICE_ATTRIBUTE_TOTAL_CONSTANT_MEMORY, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         self._deviceProperties[deviceOrdinal].totalConstMem = totalConstMem
 
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].clockRate), ccuda.CU_DEVICE_ATTRIBUTE_CLOCK_RATE, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         cdef int textureAlignment
         err = ccuda._cuDeviceGetAttribute(&textureAlignment, ccuda.CU_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         self._deviceProperties[deviceOrdinal].textureAlignment = textureAlignment
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].streamPrioritiesSupported), ccuda.CU_DEVICE_ATTRIBUTE_STREAM_PRIORITIES_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].globalL1CacheSupported), ccuda.CU_DEVICE_ATTRIBUTE_GLOBAL_L1_CACHE_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].localL1CacheSupported), ccuda.CU_DEVICE_ATTRIBUTE_LOCAL_L1_CACHE_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].managedMemory), ccuda.CU_DEVICE_ATTRIBUTE_MANAGED_MEMORY, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].isMultiGpuBoard), ccuda.CU_DEVICE_ATTRIBUTE_MULTI_GPU_BOARD, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].multiGpuBoardGroupID), ccuda.CU_DEVICE_ATTRIBUTE_MULTI_GPU_BOARD_GROUP_ID, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].hostNativeAtomicSupported), ccuda.CU_DEVICE_ATTRIBUTE_HOST_NATIVE_ATOMIC_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].singleToDoublePrecisionPerfRatio), ccuda.CU_DEVICE_ATTRIBUTE_SINGLE_TO_DOUBLE_PRECISION_PERF_RATIO, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].pageableMemoryAccess), ccuda.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].concurrentManagedAccess), ccuda.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].computePreemptionSupported), ccuda.CU_DEVICE_ATTRIBUTE_COMPUTE_PREEMPTION_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].canUseHostPointerForRegisteredMem), ccuda.CU_DEVICE_ATTRIBUTE_CAN_USE_HOST_POINTER_FOR_REGISTERED_MEM, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].cooperativeLaunch), ccuda.CU_DEVICE_ATTRIBUTE_COOPERATIVE_LAUNCH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].cooperativeMultiDeviceLaunch), ccuda.CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].pageableMemoryAccessUsesHostPageTables), ccuda.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].directManagedMemAccessFromHost), ccuda.CU_DEVICE_ATTRIBUTE_DIRECT_MANAGED_MEM_ACCESS_FROM_HOST, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
 
         err = ccuda._cuDeviceGetUuid(<ccuda.CUuuid_st*>(&(self._deviceProperties[deviceOrdinal].uuid)), <ccuda.CUdevice>deviceOrdinal)
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].maxBlocksPerMultiProcessor), ccuda.CU_DEVICE_ATTRIBUTE_MAX_BLOCKS_PER_MULTIPROCESSOR, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         err = ccuda._cuDeviceGetAttribute(&(self._deviceProperties[deviceOrdinal].accessPolicyMaxWindowSize), ccuda.CU_DEVICE_ATTRIBUTE_MAX_ACCESS_POLICY_WINDOW_SIZE, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         cdef int reservedSharedMemPerBlock
 
         err = ccuda._cuDeviceGetAttribute(&reservedSharedMemPerBlock, ccuda.CU_DEVICE_ATTRIBUTE_RESERVED_SHARED_MEMORY_PER_BLOCK, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            raise RuntimeError('')
+            return cudaErrorInitializationError
         self._deviceProperties[deviceOrdinal].reservedSharedMemPerBlock = reservedSharedMemPerBlock        # prop->reservedSharedMemPerBlock = reservedSharedMemPerBlock
 
 cdef cudaPythonGlobal m_global = cudaPythonGlobal()

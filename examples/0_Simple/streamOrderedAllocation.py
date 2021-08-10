@@ -174,7 +174,11 @@ def main():
 
     dev = findCudaDevice()
 
-    isMemPoolSupported = checkCudaErrors(cudart.cudaDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev))
+    version = checkCudaErrors(cudart.cudaDriverGetVersion())
+    if version < 11030:
+        isMemPoolSupported = False
+    else:
+        isMemPoolSupported = checkCudaErrors(cudart.cudaDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev))
     if not isMemPoolSupported:
         print("Waiving execution as device does not support Memory Pools")
         return

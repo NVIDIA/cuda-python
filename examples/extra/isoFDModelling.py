@@ -11,16 +11,6 @@ from cudapython import cuda, cudart
 from examples.common import common
 from examples.common.helper_cuda import checkCudaErrors
 
-##
-## those are to plot results
-##
-import matplotlib.pyplot as plt
-from matplotlib.pylab import *
-
-import matplotlib.cm as cm
-import matplotlib.pyplot as plt
-from matplotlib import pyplot, image, transforms
-
 isoPropagator = '''\
 extern "C"
 __global__ void injectSource(float *__restrict__ in, float *__restrict__ src, int it)
@@ -165,6 +155,9 @@ __global__ void fwd_3D_orderX2k(float *g_curr_1, float *g_prev_1, float *g_vsq_1
 }
 '''
 
+display_graph = False
+verbose_prints = False
+
 def align_nx(nx, blk, nops):
     n_align = (int)((nx - 1)/blk) + 1
     n_align *= blk
@@ -235,15 +228,28 @@ class propagator:
         checkCudaErrors(cuda.cuInit(0))
         self.cuDevice = checkCudaErrors(cuda.cuDeviceGet(_dev))
         self.context = checkCudaErrors(cuda.cuCtxCreate(0, self.cuDevice))
-        self.streamCenter = checkCudaErrors(cuda.cuStreamCreate(_dev))
-        self.streamHalo = checkCudaErrors(cuda.cuStreamCreate(_dev))
+        self.waveOut = 0
+        self.waveIn = 0
+        self.streamCenter = checkCudaErrors(cuda.cuStreamCreate(0))
+        self.streamHalo = checkCudaErrors(cuda.cuStreamCreate(0))
         self.params = params
+
+    def __del__(self):
+        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
+        checkCudaErrors(cuda.cuStreamDestroy(self.streamHalo))
+        checkCudaErrors(cuda.cuStreamDestroy(self.streamCenter))
+        if self.waveIn != 0:
+            checkCudaErrors(cuda.cuMemFree(self.waveIn))
+        if self.waveOut != 0:
+            checkCudaErrors(cuda.cuMemFree(self.waveOut))
+        checkCudaErrors(cuda.cuCtxDestroy(self.context))
 
     #
     # swap waveIn with waveOut
     #
     def swap(self):
-        print("swap in out ", int(self.waveIn), " " , int(self.waveOut))
+        if verbose_prints:
+            print("swap in out ", int(self.waveIn), " " , int(self.waveOut))
         i = int(self.waveIn)
         j = int(self.waveOut)
         a = i
@@ -362,7 +368,8 @@ class propagator:
     # execute the center part of propagation
     #
     def executeCenter(self,  kernel):
-        print("running center on device ", self.dev)
+        if verbose_prints:
+            print("running center on device ", self.dev)
         checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
         offset_velocity = 2* self.params.FD_ORDER * self.params.nx * self.params.ny + \
                              self.params.FD_ORDER * self.params.nx + self.params.FD_ORDER
@@ -395,7 +402,8 @@ class propagator:
     # execute the halo part of propagation
     #
     def executeHalo(self, kernel):
-        print("running halos on device ", self.dev)
+        if verbose_prints:
+            print("running halos on device ", self.dev)
         checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
 
         offset_velocity = self.params.FD_ORDER * self.params.nx * self.params.ny + \
@@ -445,7 +453,8 @@ class propagator:
     # exchange the halos
     #
     def exchangeHalo(self, propag):
-        print("exchange  halos on device ", self.dev, "with dev ", propag.dev)
+        if verbose_prints:
+            print("exchange  halos on device ", self.dev, "with dev ", propag.dev)
         checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
 
         #
@@ -491,14 +500,6 @@ class propagator:
         checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
         checkCudaErrors(cuda.cuStreamSynchronize(stream))
 
-    def delete(self):
-        checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
-        checkCudaErrors(cuda.cuStreamDestroy(self.streamHalo))
-        checkCudaErrors(cuda.cuStreamDestroy(self.streamCenter))
-        checkCudaErrors(cuda.cuMemFree(self.waveIn))
-        checkCudaErrors(cuda.cuMemFree(self.waveOut))
-        checkCudaErrors(cuda.cuCtxDestroy(context))
-
 def main():
     checkCudaErrors(cuda.cuInit(0))
 
@@ -533,7 +534,7 @@ def main():
         if p2pCapableGPUs[1] != -1:
             break
 
-    if p2pCapableGPUs[0] == -1 or p2pCapableGPUs == -1:
+    if p2pCapableGPUs[0] == -1 or p2pCapableGPUs[1] == -1:
         print("Two or more GPUs with Peer-to-Peer access capability are required.")
         print("Peer to Peer access is not available amongst GPUs in the system, waiving test.")
         return
@@ -602,7 +603,7 @@ def main():
     end = time.time()
     npoints = (pars.nz - 2 * pars.FD_ORDER) * (pars.blkx * 2 * pars.BDIMX) * (pars.blky * pars.BDIMY)
 
-    nops = 1.0e-9 * pars.nt  *  npoints / (double) ( end - start)
+    nops = 1.0e-9 * pars.nt * npoints / (end - start)
 
     print("this code generates " , nops , " GPoints/sec / device ")
 
@@ -630,24 +631,34 @@ def main():
     #
     #  delete kernels and propagatrs
     #
-    del kerns
-    del propag
-    nrows = nz
-    ncols = pars.nx
-    dbz = hOut
-    dbz = np.reshape(dbz,(nrows, ncols))
-    fig, ax = plt.subplots()
-    title = "test fd kernels up to " + str(pars.tmax_propag) + " ms "
-    plt.title(title, fontsize=20)
-    im = ax.imshow(dbz, interpolation='bilinear', cmap=plt.get_cmap('Greys'), aspect='auto',
-                   origin='upper',extent=[1, pars.nx, nz, 1],
-                   vmax=abs(dbz).max(), vmin=-abs(dbz).max())
+    for propag in propags:
+        del propag
 
-    fig.colorbar(im, ax=ax)
+    if display_graph:
+        nrows = nz
+        ncols = pars.nx
+        dbz = hOut
+        dbz = np.reshape(dbz,(nrows, ncols))
 
-    plt.show()
+        ##
+        ## those are to plot results
+        ##
+        import matplotlib.pyplot as plt
+        import matplotlib.cm as cm
+        fig, ax = plt.subplots()
+        title = "test fd kernels up to " + str(pars.tmax_propag) + " ms "
+        plt.title(title, fontsize=20)
+        im = ax.imshow(dbz, interpolation='bilinear', cmap=plt.get_cmap('Greys'), aspect='auto',
+                       origin='upper',extent=[1, pars.nx, nz, 1],
+                       vmax=abs(dbz).max(), vmin=-abs(dbz).max())
+
+        fig.colorbar(im, ax=ax)
+
+        plt.show()
 
     print("Done")
 
 if __name__ == "__main__":
+    display_graph = True
+    verbose_prints = True
     main()

@@ -140,6 +140,7 @@ def test_interop_graphNode():
     err_dr, = cuda.cuCtxDestroy(ctx)
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
 
+
 @pytest.mark.skipif(not supportsMemoryPool(), reason='Requires mempool operations')
 def test_interop_memPool():
     err_dr, = cuda.cuInit(0)
@@ -157,10 +158,10 @@ def test_interop_memPool():
     assert(cerr_rt == ccudart.cudaSuccess)
 
     # RT to DRV
-    cdef ccudart.cudaMemPool_t mempool_rt = <ccudart.cudaMemPool_t*>calloc(1, sizeof(ccudart.cudaMemPool_t))
-    cerr_rt = ccudart.cudaDeviceGetDefaultMemPool(mempool_dr, 0)
+    cdef ccudart.cudaMemPool_t* mempool_rt = <ccudart.cudaMemPool_t*>calloc(1, sizeof(ccudart.cudaMemPool_t))
+    cerr_rt = ccudart.cudaDeviceGetDefaultMemPool(mempool_rt, 0)
     assert(cerr_rt == ccudart.cudaSuccess)
-    cerr_dr = ccuda.cuDeviceSetMemPool(cuda.CUdevice(0), mempool_dr[0])
+    cerr_dr = ccuda.cuDeviceSetMemPool(cuda.CUdevice(0), mempool_rt[0])
     assert(cerr_dr == ccuda.CUDA_SUCCESS)
 
     free(mempool_dr)

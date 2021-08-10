@@ -57,7 +57,7 @@ def main():
         if p2pCapableGPUs[1] != -1:
             break
 
-    if p2pCapableGPUs[0] == -1 or p2pCapableGPUs == -1:
+    if p2pCapableGPUs[0] == -1 or p2pCapableGPUs[1] == -1:
         print("Two or more GPUs with Peer-to-Peer access capability are required.")
         print("Peer to Peer access is not available amongst GPUs in the system, waiving test.")
         return
