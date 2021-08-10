@@ -8,8 +8,9 @@
 Dependencies of the CUDA-Python bindings and some versions that are known to
 work are as follows:
 
-* CUDA Toolkit 11.x
+* CUDA Toolkit 11.0 to 11.4 - e.g. 11.4.48
 * Cython - e.g. 0.29.21
+* Versioneer - e.g. 0.20
 
 ## Compilation
 
@@ -59,6 +60,7 @@ open build/html/index.html
 ### Publish the Docs
 
 ```{code-block} shell
+git checkout gh-pages
 cd docs_src
 make html
 cp -a build/html/. ../docs/

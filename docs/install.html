@@ -200,8 +200,9 @@
 <p>Dependencies of the CUDA-Python bindings and some versions that are known to
 work are as follows:</p>
 <ul class="simple">
-<li><p>CUDA Toolkit 11.x</p></li>
+<li><p>CUDA Toolkit 11.0 to 11.4 - e.g. 11.4.48</p></li>
 <li><p>Cython - e.g. 0.29.21</p></li>
+<li><p>Versioneer - e.g. 0.20</p></li>
 </ul>
 </div>
 <div class="section" id="compilation">
@@ -242,7 +243,8 @@ open build/html/index.html
 </div>
 <div class="section" id="publish-the-docs">
 <h3>Publish the Docs<a class="headerlink" href="#publish-the-docs" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> docs_src
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git checkout gh-pages
+<span class="nb">cd</span> docs_src
 make html
 cp -a build/html/. ../docs/
 </pre></div>

@@ -49,6 +49,29 @@ make html
 open build/html/index.html
 ```
 
+### Build the Docs
+
+```
+conda env create -f docs_src/environment-docs.yml
+conda activate cuda-python-docs
+```
+Then compile and install `cuda-python` following the steps above.
+
+```
+cd docs_src
+make html
+open build/html/index.html
+```
+
+### Publish the Docs
+
+```
+git checkout gh-pages
+cd docs_src
+make html
+cp -a build/html/. ../docs/
+```
+
 ## Testing
 
 ### Requirements
