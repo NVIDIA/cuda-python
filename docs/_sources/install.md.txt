@@ -8,8 +8,9 @@
 Dependencies of the CUDA-Python bindings and some versions that are known to
 work are as follows:
 
-* CUDA Toolkit 11.4 - e.g. 11.4.48
+* CUDA Toolkit 11.0 to 11.4 - e.g. 11.4.48
 * Cython - e.g. 0.29.21
+* Versioneer - e.g. 0.20
 
 ## Compilation
 
@@ -41,3 +42,27 @@ python setup.py develop
 
 to use the module in-place in your current Python environment (e.g. for testing
 of porting other libraries to use the binding).
+
+## Build the Docs
+
+```{code-block} shell
+conda env create -f docs_src/environment-docs.yml
+conda activate cuda-python-docs
+```
+Then compile and install `cuda-python` following the steps above.
+
+```{code-block} shell
+cd docs_src
+make html
+open build/html/index.html
+```
+
+### Publish the Docs
+
+```{code-block} shell
+git checkout gh-pages
+cd docs_src
+make html
+cp -a build/html/. ../docs/
+```
+

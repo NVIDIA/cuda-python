@@ -6,6 +6,7 @@ kernelspec:
   display_name: Python 3
   name: python3
 ---
+
 # Quickstart
 Python plays a key role within the science, engineering, data analytics, and
 deep learning application ecosystem. NVIDIA has long been committed to helping

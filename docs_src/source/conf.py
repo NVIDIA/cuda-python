@@ -22,7 +22,7 @@ copyright = '2021, NVIDIA'
 author = 'NVIDIA'
 
 # The full version, including alpha/beta/rc tags
-release = '21.08.00'
+release = '11.4'
 
 
 # -- General configuration ---------------------------------------------------
@@ -52,7 +52,9 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'pydata_sphinx_theme'
+html_baseurl = 'docs'
+html_theme = 'furo'
+# html_theme = 'pydata_sphinx_theme'
 html_logo = '_static/images/logo.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,

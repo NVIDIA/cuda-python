@@ -7,10 +7,12 @@ dependencies:
   - matplotlib
   - numba
   - numpy
+  - numpydoc
   - pip
   - pydata-sphinx-theme
   - pytest
   - scipy
   - sphinx
   - pip:
+    - furo
     - myst-nb
