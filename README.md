@@ -33,7 +33,7 @@ python setup.py develop
 ```
 
 to use the module in-place in your current Python environment (e.g. for testing
-of porting other libraries to use the binding).
+of porting other libraries to use the binding). Note that this command may need to be run with sudo if the python library directory is not writable by an unprivileged user.
 
 
 ### Build the Docs
@@ -101,6 +101,8 @@ You can run the included tests with:
 ```
 pytest examples
 ```
+
+Note:  If you want to run samples individually, set the CUDA_HOME environment variable to point to the directory where cuda-python has been checked out.
 
 ### Benchmark
 
