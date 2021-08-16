@@ -34,7 +34,8 @@ python setup.py develop
 
 to use the module in-place in your current Python environment (e.g. for testing
 of porting other libraries to use the binding).
-<br></strong>Note that this command may need to be run with sudo if the python library directory is not writable by an unprivileged user.</strong>
+<br>
+<strong>Note: This command may need to be run with sudo if the python library directory is not writable by an unprivileged user.</strong>
 
 
 ### Build the Docs
