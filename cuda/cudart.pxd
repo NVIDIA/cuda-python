@@ -10,79 +10,315 @@ cimport cuda._lib.utils as utils
 cimport cuda.cuda as cuda
 
 cdef class cudaArray_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaArray_t* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaArray_const_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaArray_const_t* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaMipmappedArray_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaMipmappedArray_t* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaMipmappedArray_const_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaMipmappedArray_const_t* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaGraphicsResource_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaGraphicsResource_t* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaExternalMemory_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalMemory_t* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaExternalSemaphore_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphore_t* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaHostFn_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaHostFn_t* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaStreamCallback_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaStreamCallback_t* _ptr
     cdef bint _ptr_owner
 
-cdef class cudaSurfaceObject_t:
-    cdef ccudart.cudaSurfaceObject_t* _ptr
-    cdef bint _ptr_owner
-
-cdef class cudaTextureObject_t:
-    cdef ccudart.cudaTextureObject_t* _ptr
-    cdef bint _ptr_owner
-
 cdef class dim3:
+    """
+
+    Attributes
+    ----------
+    x : unsigned int
+
+    y : unsigned int
+
+    z : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.dim3* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaChannelFormatDesc:
+    """
+    CUDA Channel format descriptor
+
+    Attributes
+    ----------
+    x : int
+        x
+    y : int
+        y
+    z : int
+        z
+    w : int
+        w
+    f : cudaChannelFormatKind
+        Channel format kind
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaChannelFormatDesc* _ptr
     cdef bint _ptr_owner
 
 cdef class _cudaArraySparseProperties_tileExtent_s:
+    """
+
+    Attributes
+    ----------
+    width : unsigned int
+
+    height : unsigned int
+
+    depth : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaArraySparseProperties* _ptr
 
 cdef class cudaArraySparseProperties:
+    """
+    Sparse CUDA array and CUDA mipmapped array properties
+
+    Attributes
+    ----------
+    tileExtent : _cudaArraySparseProperties_tileExtent_s
+
+    miptailFirstLevel : unsigned int
+        First mip level at which the mip tail begins
+    miptailSize : unsigned long long
+        Total size of the mip tail.
+    flags : unsigned int
+        Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaArraySparseProperties* _ptr
     cdef bint _ptr_owner
     cdef _cudaArraySparseProperties_tileExtent_s _tileExtent
 
 cdef class cudaPitchedPtr:
+    """
+    CUDA Pitched memory pointer ::make_cudaPitchedPtr
+
+    Attributes
+    ----------
+    ptr : Any
+        Pointer to allocated memory
+    pitch : size_t
+        Pitch of allocated memory in bytes
+    xsize : size_t
+        Logical width of allocation in elements
+    ysize : size_t
+        Logical height of allocation in elements
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaPitchedPtr* _ptr
     cdef bint _ptr_owner
     cdef utils.HelperInputVoidPtr _cptr
 
 cdef class cudaExtent:
+    """
+    CUDA extent ::make_cudaExtent
+
+    Attributes
+    ----------
+    width : size_t
+        Width in elements when referring to array memory, in bytes when
+        referring to linear memory
+    height : size_t
+        Height in elements
+    depth : size_t
+        Depth in elements
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExtent* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaPos:
+    """
+    CUDA 3D position ::make_cudaPos
+
+    Attributes
+    ----------
+    x : size_t
+        x
+    y : size_t
+        y
+    z : size_t
+        z
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaPos* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaMemcpy3DParms:
+    """
+    CUDA 3D memory copying parameters
+
+    Attributes
+    ----------
+    srcArray : cudaArray_t
+        Source memory address
+    srcPos : cudaPos
+        Source position offset
+    srcPtr : cudaPitchedPtr
+        Pitched source memory address
+    dstArray : cudaArray_t
+        Destination memory address
+    dstPos : cudaPos
+        Destination position offset
+    dstPtr : cudaPitchedPtr
+        Pitched destination memory address
+    extent : cudaExtent
+        Requested memory copy size
+    kind : cudaMemcpyKind
+        Type of transfer
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaMemcpy3DParms* _ptr
     cdef bint _ptr_owner
     cdef cudaArray_t _srcArray
@@ -94,6 +330,36 @@ cdef class cudaMemcpy3DParms:
     cdef cudaExtent _extent
 
 cdef class cudaMemcpy3DPeerParms:
+    """
+    CUDA 3D cross-device memory copying parameters
+
+    Attributes
+    ----------
+    srcArray : cudaArray_t
+        Source memory address
+    srcPos : cudaPos
+        Source position offset
+    srcPtr : cudaPitchedPtr
+        Pitched source memory address
+    srcDevice : int
+        Source device
+    dstArray : cudaArray_t
+        Destination memory address
+    dstPos : cudaPos
+        Destination position offset
+    dstPtr : cudaPitchedPtr
+        Pitched destination memory address
+    dstDevice : int
+        Destination device
+    extent : cudaExtent
+        Requested memory copy size
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaMemcpy3DPeerParms* _ptr
     cdef bint _ptr_owner
     cdef cudaArray_t _srcArray
@@ -105,50 +371,235 @@ cdef class cudaMemcpy3DPeerParms:
     cdef cudaExtent _extent
 
 cdef class cudaMemsetParams:
+    """
+    CUDA Memset node parameters
+
+    Attributes
+    ----------
+    dst : Any
+        Destination device pointer
+    pitch : size_t
+        Pitch of destination device pointer. Unused if height is 1
+    value : unsigned int
+        Value to be set
+    elementSize : unsigned int
+        Size of each element in bytes. Must be 1, 2, or 4.
+    width : size_t
+        Width of the row in elements
+    height : size_t
+        Number of rows
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaMemsetParams* _ptr
     cdef bint _ptr_owner
     cdef utils.HelperInputVoidPtr _cdst
 
 cdef class cudaAccessPolicyWindow:
+    """
+    Specifies an access policy for a window, a contiguous extent of
+    memory beginning at base_ptr and ending at base_ptr + num_bytes.
+    Partition into many segments and assign segments such that. sum of
+    "hit segments" / window == approx. ratio. sum of "miss segments" /
+    window == approx 1-ratio. Segments and ratio specifications are
+    fitted to the capabilities of the architecture. Accesses in a hit
+    segment apply the hitProp access policy. Accesses in a miss segment
+    apply the missProp access policy.
+
+    Attributes
+    ----------
+    base_ptr : Any
+        Starting address of the access policy window. CUDA driver may align
+        it.
+    num_bytes : size_t
+        Size in bytes of the window policy. CUDA driver may restrict the
+        maximum size and alignment.
+    hitRatio : float
+        hitRatio specifies percentage of lines assigned hitProp, rest are
+        assigned missProp.
+    hitProp : cudaAccessProperty
+        CUaccessProperty set for hit.
+    missProp : cudaAccessProperty
+        CUaccessProperty set for miss. Must be either NORMAL or STREAMING.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaAccessPolicyWindow* _ptr
     cdef bint _ptr_owner
     cdef utils.HelperInputVoidPtr _cbase_ptr
 
 cdef class cudaHostNodeParams:
+    """
+    CUDA host node parameters
+
+    Attributes
+    ----------
+    fn : cudaHostFn_t
+        The function to call when the node executes
+    userData : Any
+        Argument to pass to the function
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaHostNodeParams* _ptr
     cdef bint _ptr_owner
     cdef cudaHostFn_t _fn
     cdef utils.HelperInputVoidPtr _cuserData
 
 cdef class cudaStreamAttrValue:
+    """
+
+    Attributes
+    ----------
+    accessPolicyWindow : cudaAccessPolicyWindow
+
+    syncPolicy : cudaSynchronizationPolicy
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaStreamAttrValue* _ptr
     cdef bint _ptr_owner
     cdef cudaAccessPolicyWindow _accessPolicyWindow
 
 cdef class cudaKernelNodeAttrValue:
+    """
+
+    Attributes
+    ----------
+    accessPolicyWindow : cudaAccessPolicyWindow
+
+    cooperative : int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaKernelNodeAttrValue* _ptr
     cdef bint _ptr_owner
     cdef cudaAccessPolicyWindow _accessPolicyWindow
 
 cdef class _cudaResourceDesc_res_res_array_s:
+    """
+
+    Attributes
+    ----------
+    array : cudaArray_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaResourceDesc* _ptr
     cdef cudaArray_t _array
 
 cdef class _cudaResourceDesc_res_res_mipmap_s:
+    """
+
+    Attributes
+    ----------
+    mipmap : cudaMipmappedArray_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaResourceDesc* _ptr
     cdef cudaMipmappedArray_t _mipmap
 
 cdef class _cudaResourceDesc_res_res_linear_s:
+    """
+
+    Attributes
+    ----------
+    devPtr : void
+
+    desc : cudaChannelFormatDesc
+
+    sizeInBytes : size_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaResourceDesc* _ptr
     cdef utils.HelperInputVoidPtr _cdevPtr
     cdef cudaChannelFormatDesc _desc
 
 cdef class _cudaResourceDesc_res_res_pitch2D_s:
+    """
+
+    Attributes
+    ----------
+    devPtr : void
+
+    desc : cudaChannelFormatDesc
+
+    width : size_t
+
+    height : size_t
+
+    pitchInBytes : size_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaResourceDesc* _ptr
     cdef utils.HelperInputVoidPtr _cdevPtr
     cdef cudaChannelFormatDesc _desc
 
 cdef class _cudaResourceDesc_res_u:
+    """
+
+    Attributes
+    ----------
+    array : _cudaResourceDesc_res_res_array_s
+
+    mipmap : _cudaResourceDesc_res_res_mipmap_s
+
+    linear : _cudaResourceDesc_res_res_linear_s
+
+    pitch2D : _cudaResourceDesc_res_res_pitch2D_s
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaResourceDesc* _ptr
     cdef _cudaResourceDesc_res_res_array_s _array
     cdef _cudaResourceDesc_res_res_mipmap_s _mipmap
@@ -156,44 +607,270 @@ cdef class _cudaResourceDesc_res_u:
     cdef _cudaResourceDesc_res_res_pitch2D_s _pitch2D
 
 cdef class cudaResourceDesc:
+    """
+    CUDA resource descriptor
+
+    Attributes
+    ----------
+    resType : cudaResourceType
+        Resource type
+    res : _cudaResourceDesc_res_u
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaResourceDesc* _ptr
     cdef bint _ptr_owner
     cdef _cudaResourceDesc_res_u _res
 
 cdef class cudaResourceViewDesc:
+    """
+    CUDA resource view descriptor
+
+    Attributes
+    ----------
+    format : cudaResourceViewFormat
+        Resource view format
+    width : size_t
+        Width of the resource view
+    height : size_t
+        Height of the resource view
+    depth : size_t
+        Depth of the resource view
+    firstMipmapLevel : unsigned int
+        First defined mipmap level
+    lastMipmapLevel : unsigned int
+        Last defined mipmap level
+    firstLayer : unsigned int
+        First layer index
+    lastLayer : unsigned int
+        Last layer index
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaResourceViewDesc* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaPointerAttributes:
+    """
+    CUDA pointer attributes
+
+    Attributes
+    ----------
+    type : cudaMemoryType
+        The type of memory - cudaMemoryTypeUnregistered,
+        cudaMemoryTypeHost, cudaMemoryTypeDevice or cudaMemoryTypeManaged.
+    device : int
+        The device against which the memory was allocated or registered. If
+        the memory type is cudaMemoryTypeDevice then this identifies the
+        device on which the memory referred physically resides. If the
+        memory type is cudaMemoryTypeHost or::cudaMemoryTypeManaged then
+        this identifies the device which was current when the memory was
+        allocated or registered (and if that device is deinitialized then
+        this allocation will vanish with that device's state).
+    devicePointer : Any
+        The address which may be dereferenced on the current device to
+        access the memory or NULL if no such address exists.
+    hostPointer : Any
+        The address which may be dereferenced on the host to access the
+        memory or NULL if no such address exists. CUDA doesn't check if
+        unregistered memory is allocated so this field may contain invalid
+        pointer if an invalid pointer has been passed to CUDA.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaPointerAttributes* _ptr
     cdef bint _ptr_owner
     cdef utils.HelperInputVoidPtr _cdevicePointer
     cdef utils.HelperInputVoidPtr _chostPointer
 
 cdef class cudaFuncAttributes:
+    """
+    CUDA function attributes
+
+    Attributes
+    ----------
+    sharedSizeBytes : size_t
+        The size in bytes of statically-allocated shared memory per block
+        required by this function. This does not include dynamically-
+        allocated shared memory requested by the user at runtime.
+    constSizeBytes : size_t
+        The size in bytes of user-allocated constant memory required by
+        this function.
+    localSizeBytes : size_t
+        The size in bytes of local memory used by each thread of this
+        function.
+    maxThreadsPerBlock : int
+        The maximum number of threads per block, beyond which a launch of
+        the function would fail. This number depends on both the function
+        and the device on which the function is currently loaded.
+    numRegs : int
+        The number of registers used by each thread of this function.
+    ptxVersion : int
+        The PTX virtual architecture version for which the function was
+        compiled. This value is the major PTX version * 10 + the minor PTX
+        version, so a PTX version 1.3 function would return the value 13.
+    binaryVersion : int
+        The binary architecture version for which the function was
+        compiled. This value is the major binary version * 10 + the minor
+        binary version, so a binary version 1.3 function would return the
+        value 13.
+    cacheModeCA : int
+        The attribute to indicate whether the function has been compiled
+        with user specified option "-Xptxas --dlcm=ca" set.
+    maxDynamicSharedSizeBytes : int
+        The maximum size in bytes of dynamic shared memory per block for
+        this function. Any launch must have a dynamic shared memory size
+        smaller than this value.
+    preferredShmemCarveout : int
+        On devices where the L1 cache and shared memory use the same
+        hardware resources, this sets the shared memory carveout
+        preference, in percent of the maximum shared memory. Refer to
+        cudaDevAttrMaxSharedMemoryPerMultiprocessor. This is only a hint,
+        and the driver can choose a different ratio if required to execute
+        the function. See cudaFuncSetAttribute
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaFuncAttributes* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaMemLocation:
+    """
+    Specifies a memory location. To specify a gpu, set type =
+    ::cudaMemLocationTypeDevice and set id = the gpu's device ordinal.
+
+    Attributes
+    ----------
+    type : cudaMemLocationType
+        Specifies the location type, which modifies the meaning of id.
+    id : int
+        identifier for a given this location's CUmemLocationType.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaMemLocation* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaMemAccessDesc:
+    """
+    Memory access descriptor
+
+    Attributes
+    ----------
+    location : cudaMemLocation
+        Location on which the request is to change it's accessibility
+    flags : cudaMemAccessFlags
+        ::CUmemProt accessibility flags to set on the request
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaMemAccessDesc* _ptr
     cdef bint _ptr_owner
     cdef cudaMemLocation _location
 
 cdef class cudaMemPoolProps:
+    """
+    Specifies the properties of allocations made from the pool.
+
+    Attributes
+    ----------
+    allocType : cudaMemAllocationType
+        Allocation type. Currently must be specified as
+        cudaMemAllocationTypePinned
+    handleTypes : cudaMemAllocationHandleType
+        Handle types that will be supported by allocations from the pool.
+    location : cudaMemLocation
+        Location allocations should reside.
+    win32SecurityAttributes : Any
+        Windows-specific LPSECURITYATTRIBUTES required when
+        cudaMemHandleTypeWin32 is specified. This security attribute
+        defines the scope of which exported allocations may be tranferred
+        to other processes. In all other cases, this field is required to
+        be zero.
+    reserved : bytes
+        reserved for future use, must be 0
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaMemPoolProps* _ptr
     cdef bint _ptr_owner
     cdef cudaMemLocation _location
     cdef utils.HelperInputVoidPtr _cwin32SecurityAttributes
 
 cdef class cudaMemPoolPtrExportData:
+    """
+    Opaque data for exporting a pool allocation
+
+    Attributes
+    ----------
+    reserved : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaMemPoolPtrExportData* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaMemAllocNodeParams:
+    """
+    Memory allocation node parameters
+
+    Attributes
+    ----------
+    poolProps : cudaMemPoolProps
+        in: location where the allocation should reside (specified in
+        location). handleTypes must be cudaMemHandleTypeNone. IPC is not
+        supported. in: array of memory access descriptors. Used to describe
+        peer GPU access
+    accessDescs : cudaMemAccessDesc
+        in: number of memory access descriptors. Must not exceed the number
+        of GPUs.
+    accessDescCount : size_t
+        in: Number of `accessDescs`s
+    bytesize : size_t
+        in: size in bytes of the requested allocation
+    dptr : Any
+        out: address of the allocation returned by CUDA
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaMemAllocNodeParams* _ptr
     cdef bint _ptr_owner
     cdef cudaMemPoolProps _poolProps
@@ -202,105 +879,674 @@ cdef class cudaMemAllocNodeParams:
     cdef utils.HelperInputVoidPtr _cdptr
 
 cdef class CUuuid_st:
+    """
+
+    Attributes
+    ----------
+    bytes : bytes
+        < CUDA definition of UUID
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.CUuuid_st* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaDeviceProp:
+    """
+    CUDA device properties
+
+    Attributes
+    ----------
+    name : char
+        ASCII string identifying device
+    uuid : cudaUUID_t
+        16-byte unique identifier
+    luid : bytes
+        8-byte locally unique identifier. Value is undefined on TCC and
+        non-Windows platforms
+    luidDeviceNodeMask : unsigned int
+        LUID device node mask. Value is undefined on TCC and non-Windows
+        platforms
+    totalGlobalMem : size_t
+        Global memory available on device in bytes
+    sharedMemPerBlock : size_t
+        Shared memory available per block in bytes
+    regsPerBlock : int
+        32-bit registers available per block
+    warpSize : int
+        Warp size in threads
+    memPitch : size_t
+        Maximum pitch in bytes allowed by memory copies
+    maxThreadsPerBlock : int
+        Maximum number of threads per block
+    maxThreadsDim : int
+        Maximum size of each dimension of a block
+    maxGridSize : int
+        Maximum size of each dimension of a grid
+    clockRate : int
+        Clock frequency in kilohertz
+    totalConstMem : size_t
+        Constant memory available on device in bytes
+    major : int
+        Major compute capability
+    minor : int
+        Minor compute capability
+    textureAlignment : size_t
+        Alignment requirement for textures
+    texturePitchAlignment : size_t
+        Pitch alignment requirement for texture references bound to pitched
+        memory
+    deviceOverlap : int
+        Device can concurrently copy memory and execute a kernel.
+        Deprecated. Use instead asyncEngineCount.
+    multiProcessorCount : int
+        Number of multiprocessors on device
+    kernelExecTimeoutEnabled : int
+        Specified whether there is a run time limit on kernels
+    integrated : int
+        Device is integrated as opposed to discrete
+    canMapHostMemory : int
+        Device can map host memory with
+        cudaHostAlloc/cudaHostGetDevicePointer
+    computeMode : int
+        Compute mode (See cudaComputeMode)
+    maxTexture1D : int
+        Maximum 1D texture size
+    maxTexture1DMipmap : int
+        Maximum 1D mipmapped texture size
+    maxTexture1DLinear : int
+        Deprecated, do not use. Use cudaDeviceGetTexture1DLinearMaxWidth()
+        or cuDeviceGetTexture1DLinearMaxWidth() instead.
+    maxTexture2D : int
+        Maximum 2D texture dimensions
+    maxTexture2DMipmap : int
+        Maximum 2D mipmapped texture dimensions
+    maxTexture2DLinear : int
+        Maximum dimensions (width, height, pitch) for 2D textures bound to
+        pitched memory
+    maxTexture2DGather : int
+        Maximum 2D texture dimensions if texture gather operations have to
+        be performed
+    maxTexture3D : int
+        Maximum 3D texture dimensions
+    maxTexture3DAlt : int
+        Maximum alternate 3D texture dimensions
+    maxTextureCubemap : int
+        Maximum Cubemap texture dimensions
+    maxTexture1DLayered : int
+        Maximum 1D layered texture dimensions
+    maxTexture2DLayered : int
+        Maximum 2D layered texture dimensions
+    maxTextureCubemapLayered : int
+        Maximum Cubemap layered texture dimensions
+    maxSurface1D : int
+        Maximum 1D surface size
+    maxSurface2D : int
+        Maximum 2D surface dimensions
+    maxSurface3D : int
+        Maximum 3D surface dimensions
+    maxSurface1DLayered : int
+        Maximum 1D layered surface dimensions
+    maxSurface2DLayered : int
+        Maximum 2D layered surface dimensions
+    maxSurfaceCubemap : int
+        Maximum Cubemap surface dimensions
+    maxSurfaceCubemapLayered : int
+        Maximum Cubemap layered surface dimensions
+    surfaceAlignment : size_t
+        Alignment requirements for surfaces
+    concurrentKernels : int
+        Device can possibly execute multiple kernels concurrently
+    ECCEnabled : int
+        Device has ECC support enabled
+    pciBusID : int
+        PCI bus ID of the device
+    pciDeviceID : int
+        PCI device ID of the device
+    pciDomainID : int
+        PCI domain ID of the device
+    tccDriver : int
+        1 if device is a Tesla device using TCC driver, 0 otherwise
+    asyncEngineCount : int
+        Number of asynchronous engines
+    unifiedAddressing : int
+        Device shares a unified address space with the host
+    memoryClockRate : int
+        Peak memory clock frequency in kilohertz
+    memoryBusWidth : int
+        Global memory bus width in bits
+    l2CacheSize : int
+        Size of L2 cache in bytes
+    persistingL2CacheMaxSize : int
+        Device's maximum l2 persisting lines capacity setting in bytes
+    maxThreadsPerMultiProcessor : int
+        Maximum resident threads per multiprocessor
+    streamPrioritiesSupported : int
+        Device supports stream priorities
+    globalL1CacheSupported : int
+        Device supports caching globals in L1
+    localL1CacheSupported : int
+        Device supports caching locals in L1
+    sharedMemPerMultiprocessor : size_t
+        Shared memory available per multiprocessor in bytes
+    regsPerMultiprocessor : int
+        32-bit registers available per multiprocessor
+    managedMemory : int
+        Device supports allocating managed memory on this system
+    isMultiGpuBoard : int
+        Device is on a multi-GPU board
+    multiGpuBoardGroupID : int
+        Unique identifier for a group of devices on the same multi-GPU
+        board
+    hostNativeAtomicSupported : int
+        Link between the device and the host supports native atomic
+        operations
+    singleToDoublePrecisionPerfRatio : int
+        Ratio of single precision performance (in floating-point operations
+        per second) to double precision performance
+    pageableMemoryAccess : int
+        Device supports coherently accessing pageable memory without
+        calling cudaHostRegister on it
+    concurrentManagedAccess : int
+        Device can coherently access managed memory concurrently with the
+        CPU
+    computePreemptionSupported : int
+        Device supports Compute Preemption
+    canUseHostPointerForRegisteredMem : int
+        Device can access host registered memory at the same virtual
+        address as the CPU
+    cooperativeLaunch : int
+        Device supports launching cooperative kernels via
+        cudaLaunchCooperativeKernel
+    cooperativeMultiDeviceLaunch : int
+        Deprecated, cudaLaunchCooperativeKernelMultiDevice is deprecated.
+    sharedMemPerBlockOptin : size_t
+        Per device maximum shared memory per block usable by special opt in
+    pageableMemoryAccessUsesHostPageTables : int
+        Device accesses pageable memory via the host's page tables
+    directManagedMemAccessFromHost : int
+        Host can directly access managed memory on the device without
+        migration.
+    maxBlocksPerMultiProcessor : int
+        Maximum number of resident blocks per multiprocessor
+    accessPolicyMaxWindowSize : int
+        The maximum value of cudaAccessPolicyWindow::num_bytes.
+    reservedSharedMemPerBlock : size_t
+        Shared memory reserved by CUDA driver per block in bytes
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaDeviceProp* _ptr
     cdef bint _ptr_owner
     cdef cudaUUID_t _uuid
 
 cdef class cudaIpcEventHandle_st:
+    """
+    CUDA IPC event handle
+
+    Attributes
+    ----------
+    reserved : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaIpcEventHandle_st* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaIpcMemHandle_st:
+    """
+    CUDA IPC memory handle
+
+    Attributes
+    ----------
+    reserved : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaIpcMemHandle_st* _ptr
     cdef bint _ptr_owner
 
 cdef class _cudaExternalMemoryHandleDesc_handle_handle_win32_s:
+    """
+
+    Attributes
+    ----------
+    handle : void
+
+    name : void
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalMemoryHandleDesc* _ptr
     cdef utils.HelperInputVoidPtr _chandle
     cdef utils.HelperInputVoidPtr _cname
 
 cdef class _cudaExternalMemoryHandleDesc_handle_u:
+    """
+
+    Attributes
+    ----------
+    fd : int
+
+    win32 : _cudaExternalMemoryHandleDesc_handle_handle_win32_s
+
+    nvSciBufObject : void
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalMemoryHandleDesc* _ptr
     cdef _cudaExternalMemoryHandleDesc_handle_handle_win32_s _win32
     cdef utils.HelperInputVoidPtr _cnvSciBufObject
 
 cdef class cudaExternalMemoryHandleDesc:
+    """
+    External memory handle descriptor
+
+    Attributes
+    ----------
+    type : cudaExternalMemoryHandleType
+        Type of the handle
+    handle : _cudaExternalMemoryHandleDesc_handle_u
+
+    size : unsigned long long
+        Size of the memory allocation
+    flags : unsigned int
+        Flags must either be zero or cudaExternalMemoryDedicated
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalMemoryHandleDesc* _ptr
     cdef bint _ptr_owner
     cdef _cudaExternalMemoryHandleDesc_handle_u _handle
 
 cdef class cudaExternalMemoryBufferDesc:
+    """
+    External memory buffer descriptor
+
+    Attributes
+    ----------
+    offset : unsigned long long
+        Offset into the memory object where the buffer's base is
+    size : unsigned long long
+        Size of the buffer
+    flags : unsigned int
+        Flags reserved for future use. Must be zero.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalMemoryBufferDesc* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaExternalMemoryMipmappedArrayDesc:
+    """
+    External memory mipmap descriptor
+
+    Attributes
+    ----------
+    offset : unsigned long long
+        Offset into the memory object where the base level of the mipmap
+        chain is.
+    formatDesc : cudaChannelFormatDesc
+        Format of base level of the mipmap chain
+    extent : cudaExtent
+        Dimensions of base level of the mipmap chain
+    flags : unsigned int
+        Flags associated with CUDA mipmapped arrays. See
+        cudaMallocMipmappedArray
+    numLevels : unsigned int
+        Total number of levels in the mipmap chain
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalMemoryMipmappedArrayDesc* _ptr
     cdef bint _ptr_owner
     cdef cudaChannelFormatDesc _formatDesc
     cdef cudaExtent _extent
 
 cdef class _cudaExternalSemaphoreHandleDesc_handle_handle_win32_s:
+    """
+
+    Attributes
+    ----------
+    handle : void
+
+    name : void
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreHandleDesc* _ptr
     cdef utils.HelperInputVoidPtr _chandle
     cdef utils.HelperInputVoidPtr _cname
 
 cdef class _cudaExternalSemaphoreHandleDesc_handle_u:
+    """
+
+    Attributes
+    ----------
+    fd : int
+
+    win32 : _cudaExternalSemaphoreHandleDesc_handle_handle_win32_s
+
+    nvSciSyncObj : void
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreHandleDesc* _ptr
     cdef _cudaExternalSemaphoreHandleDesc_handle_handle_win32_s _win32
     cdef utils.HelperInputVoidPtr _cnvSciSyncObj
 
 cdef class cudaExternalSemaphoreHandleDesc:
+    """
+    External semaphore handle descriptor
+
+    Attributes
+    ----------
+    type : cudaExternalSemaphoreHandleType
+        Type of the handle
+    handle : _cudaExternalSemaphoreHandleDesc_handle_u
+
+    flags : unsigned int
+        Flags reserved for the future. Must be zero.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreHandleDesc* _ptr
     cdef bint _ptr_owner
     cdef _cudaExternalSemaphoreHandleDesc_handle_u _handle
 
 cdef class _cudaExternalSemaphoreSignalParams_params_params_fence_s:
+    """
+
+    Attributes
+    ----------
+    value : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreSignalParams* _ptr
 
 cdef class _cudaExternalSemaphoreSignalParams_params_params_nvSciSync_u:
+    """
+
+    Attributes
+    ----------
+    fence : void
+
+    reserved : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreSignalParams* _ptr
     cdef utils.HelperInputVoidPtr _cfence
 
 cdef class _cudaExternalSemaphoreSignalParams_params_params_keyedMutex_s:
+    """
+
+    Attributes
+    ----------
+    key : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreSignalParams* _ptr
 
 cdef class _cudaExternalSemaphoreSignalParams_params_s:
+    """
+
+    Attributes
+    ----------
+    fence : _cudaExternalSemaphoreSignalParams_params_params_fence_s
+
+    nvSciSync : _cudaExternalSemaphoreSignalParams_params_params_nvSciSync_u
+
+    keyedMutex : _cudaExternalSemaphoreSignalParams_params_params_keyedMutex_s
+
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreSignalParams* _ptr
     cdef _cudaExternalSemaphoreSignalParams_params_params_fence_s _fence
     cdef _cudaExternalSemaphoreSignalParams_params_params_nvSciSync_u _nvSciSync
     cdef _cudaExternalSemaphoreSignalParams_params_params_keyedMutex_s _keyedMutex
 
 cdef class cudaExternalSemaphoreSignalParams:
+    """
+    External semaphore signal parameters, compatible with driver type
+
+    Attributes
+    ----------
+    params : _cudaExternalSemaphoreSignalParams_params_s
+
+    flags : unsigned int
+        Only when cudaExternalSemaphoreSignalParams is used to signal a
+        cudaExternalSemaphore_t of type
+        cudaExternalSemaphoreHandleTypeNvSciSync, the valid flag is
+        cudaExternalSemaphoreSignalSkipNvSciBufMemSync: which indicates
+        that while signaling the cudaExternalSemaphore_t, no memory
+        synchronization operations should be performed for any external
+        memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
+        all other types of cudaExternalSemaphore_t, flags must be zero.
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreSignalParams* _ptr
     cdef bint _ptr_owner
     cdef _cudaExternalSemaphoreSignalParams_params_s _params
 
 cdef class _cudaExternalSemaphoreWaitParams_params_params_fence_s:
+    """
+
+    Attributes
+    ----------
+    value : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreWaitParams* _ptr
 
 cdef class _cudaExternalSemaphoreWaitParams_params_params_nvSciSync_u:
+    """
+
+    Attributes
+    ----------
+    fence : void
+
+    reserved : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreWaitParams* _ptr
     cdef utils.HelperInputVoidPtr _cfence
 
 cdef class _cudaExternalSemaphoreWaitParams_params_params_keyedMutex_s:
+    """
+
+    Attributes
+    ----------
+    key : unsigned long long
+
+    timeoutMs : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreWaitParams* _ptr
 
 cdef class _cudaExternalSemaphoreWaitParams_params_s:
+    """
+
+    Attributes
+    ----------
+    fence : _cudaExternalSemaphoreWaitParams_params_params_fence_s
+
+    nvSciSync : _cudaExternalSemaphoreWaitParams_params_params_nvSciSync_u
+
+    keyedMutex : _cudaExternalSemaphoreWaitParams_params_params_keyedMutex_s
+
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreWaitParams* _ptr
     cdef _cudaExternalSemaphoreWaitParams_params_params_fence_s _fence
     cdef _cudaExternalSemaphoreWaitParams_params_params_nvSciSync_u _nvSciSync
     cdef _cudaExternalSemaphoreWaitParams_params_params_keyedMutex_s _keyedMutex
 
 cdef class cudaExternalSemaphoreWaitParams:
+    """
+    External semaphore wait parameters, compatible with driver type
+
+    Attributes
+    ----------
+    params : _cudaExternalSemaphoreWaitParams_params_s
+
+    flags : unsigned int
+        Only when cudaExternalSemaphoreSignalParams is used to signal a
+        cudaExternalSemaphore_t of type
+        cudaExternalSemaphoreHandleTypeNvSciSync, the valid flag is
+        cudaExternalSemaphoreSignalSkipNvSciBufMemSync: which indicates
+        that while waiting for the cudaExternalSemaphore_t, no memory
+        synchronization operations should be performed for any external
+        memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
+        all other types of cudaExternalSemaphore_t, flags must be zero.
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreWaitParams* _ptr
     cdef bint _ptr_owner
     cdef _cudaExternalSemaphoreWaitParams_params_s _params
 
 cdef class cudaKernelNodeParams:
+    """
+    CUDA GPU kernel node parameters
+
+    Attributes
+    ----------
+    func : Any
+        Kernel to launch
+    gridDim : dim3
+        Grid dimensions
+    blockDim : dim3
+        Block dimensions
+    sharedMemBytes : unsigned int
+        Dynamic shared-memory size per thread block in bytes
+    kernelParams : Any
+        Array of pointers to individual kernel arguments
+    extra : Any
+        Pointer to kernel arguments in the "extra" format
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaKernelNodeParams* _ptr
     cdef bint _ptr_owner
     cdef utils.HelperInputVoidPtr _cfunc
@@ -309,6 +1555,25 @@ cdef class cudaKernelNodeParams:
     cdef utils.HelperKernelParams _ckernelParams
 
 cdef class cudaExternalSemaphoreSignalNodeParams:
+    """
+    External semaphore signal node parameters
+
+    Attributes
+    ----------
+    extSemArray : cudaExternalSemaphore_t
+        Array of external semaphore handles.
+    paramsArray : cudaExternalSemaphoreSignalParams
+        Array of external semaphore signal parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreSignalNodeParams* _ptr
     cdef bint _ptr_owner
     cdef size_t _extSemArray_length
@@ -317,6 +1582,25 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     cdef ccudart.cudaExternalSemaphoreSignalParams* _paramsArray
 
 cdef class cudaExternalSemaphoreWaitNodeParams:
+    """
+    External semaphore wait node parameters
+
+    Attributes
+    ----------
+    extSemArray : cudaExternalSemaphore_t
+        Array of external semaphore handles.
+    paramsArray : cudaExternalSemaphoreWaitParams
+        Array of external semaphore wait parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaExternalSemaphoreWaitNodeParams* _ptr
     cdef bint _ptr_owner
     cdef size_t _extSemArray_length
@@ -325,41 +1609,229 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     cdef ccudart.cudaExternalSemaphoreWaitParams* _paramsArray
 
 cdef class cudaTextureDesc:
+    """
+    CUDA texture descriptor
+
+    Attributes
+    ----------
+    addressMode : List[cudaTextureAddressMode]
+        Texture address mode for up to 3 dimensions
+    filterMode : cudaTextureFilterMode
+        Texture filter mode
+    readMode : cudaTextureReadMode
+        Texture read mode
+    sRGB : int
+        Perform sRGB->linear conversion during texture read
+    borderColor : float
+        Texture Border Color
+    normalizedCoords : int
+        Indicates whether texture reads are normalized or not
+    maxAnisotropy : unsigned int
+        Limit to the anisotropy ratio
+    mipmapFilterMode : cudaTextureFilterMode
+        Mipmap filter mode
+    mipmapLevelBias : float
+        Offset applied to the supplied mipmap level
+    minMipmapLevelClamp : float
+        Lower end of the mipmap level range to clamp access to
+    maxMipmapLevelClamp : float
+        Upper end of the mipmap level range to clamp access to
+    disableTrilinearOptimization : int
+        Disable any trilinear filtering optimizations.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     cdef ccudart.cudaTextureDesc* _ptr
     cdef bint _ptr_owner
 
 cdef class CUuuid(CUuuid_st):
+    """
+
+    Attributes
+    ----------
+    bytes : bytes
+        < CUDA definition of UUID
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaUUID_t(CUuuid_st):
+    """
+
+    Attributes
+    ----------
+    bytes : bytes
+        < CUDA definition of UUID
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaIpcEventHandle_t(cudaIpcEventHandle_st):
+    """
+    CUDA IPC event handle
+
+    Attributes
+    ----------
+    reserved : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaIpcMemHandle_t(cudaIpcMemHandle_st):
+    """
+    CUDA IPC memory handle
+
+    Attributes
+    ----------
+    reserved : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaStream_t(cuda.CUstream):
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaEvent_t(cuda.CUevent):
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaGraph_t(cuda.CUgraph):
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaGraphNode_t(cuda.CUgraphNode):
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaUserObject_t(cuda.CUuserObject):
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaFunction_t(cuda.CUfunction):
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaMemPool_t(cuda.CUmemoryPool):
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
 
 cdef class cudaGraphExec_t(cuda.CUgraphExec):
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     pass
+
+cdef class cudaSurfaceObject_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaSurfaceObject_t* _ptr
+    cdef bint _ptr_owner
+
+cdef class cudaTextureObject_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaTextureObject_t* _ptr
+    cdef bint _ptr_owner

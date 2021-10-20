@@ -38,7 +38,8 @@ else:
         '-std=c++14',
         '-fpermissive',
         '-Wno-deprecated-declarations',
-        '-D _GLIBCXX_ASSERTIONS'
+        '-D _GLIBCXX_ASSERTIONS',
+        '-fno-var-tracking-assignments'
     ]
     if '--debug' in sys.argv:
         extra_cythonize_kwargs['gdb_debug'] = True
@@ -51,7 +52,7 @@ extensions = cythonize(
     [
         Extension(
             "*",
-            sources=["cuda/_cuda/*.pyx"],
+            sources=["cuda/_cuda/*.pyx", "cuda/_cuda/loader.cpp"],
             include_dirs=[],
             library_dirs=[],
             runtime_library_dirs=[],
@@ -149,13 +150,14 @@ extensions += cythonize(
 )
 
 setup(
-    name="cuda",
+    name="cuda-python",
     version=versioneer.get_version(),
-    description="CUDA for Python",
-    url="",
+    description="Python bindings for CUDA",
+    url="https://github.com/NVIDIA/cuda-python",
     author="NVIDIA Corporation",
+    author_email="cuda-python-conduct@nvidia.com",
     license="Other",
-    license_files = ('LICENCE',),
+    license_files = ('LICENSE',),
     classifiers=[
         "Intended Audience :: Developers",
         "Topic :: Database",
@@ -164,13 +166,14 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Environment :: GPU :: NVIDIA CUDA",
         "Environment :: GPU :: NVIDIA CUDA :: 11.0",
         "Environment :: GPU :: NVIDIA CUDA :: 11.1",
         "Environment :: GPU :: NVIDIA CUDA :: 11.2",
         "Environment :: GPU :: NVIDIA CUDA :: 11.3",
         "Environment :: GPU :: NVIDIA CUDA :: 11.4",
-
+        "Environment :: GPU :: NVIDIA CUDA :: 11.5",
     ],
     # Include the separately-compiled shared library
     setup_requires=["cython"],

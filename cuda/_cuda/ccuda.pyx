@@ -8,8 +8,11 @@
 IF UNAME_SYSNAME == "Windows":
     import win32api
     import struct
+    from pywintypes import error
 ELSE:
     cimport cuda._lib.dlfcn as dlfcn
+import sys
+cimport cuda._cuda.loader as loader
 cdef bint __cuPythonInit = False
 cdef void *__cuGetErrorString = NULL
 cdef void *__cuGetErrorName = NULL
@@ -28,6 +31,7 @@ cdef void *__cuDeviceGetNvSciSyncAttributes = NULL
 cdef void *__cuDeviceSetMemPool = NULL
 cdef void *__cuDeviceGetMemPool = NULL
 cdef void *__cuDeviceGetDefaultMemPool = NULL
+cdef void *__cuFlushGPUDirectRDMAWrites = NULL
 cdef void *__cuDeviceGetProperties = NULL
 cdef void *__cuDeviceComputeCapability = NULL
 cdef void *__cuDevicePrimaryCtxRetain = NULL
@@ -360,29 +364,34 @@ cdef void *__cuGraphicsMapResources = NULL
 cdef void *__cuGraphicsUnmapResources = NULL
 cdef void *__cuGetProcAddress = NULL
 cdef void *__cuGetExportTable = NULL
-cdef void *__cuFlushGPUDirectRDMAWrites = NULL
 
 cdef int cuPythonInit() nogil except -1:
     global __cuPythonInit
     if __cuPythonInit:
         return 0
     __cuPythonInit = True
-    IF UNAME_SYSNAME == "Windows":
-        LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
-        with gil:
-            if 8 * struct.calcsize("P") == 32:
-                try:
-                    handle = win32api.LoadLibraryEx('nvcuda32.dll', 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
-                except:
-                    handle = win32api.LoadLibraryEx('nvcuda.dll', 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
-            else:
-                handle = win32api.LoadLibraryEx('nvcuda.dll', 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
-    ELSE:
-        handle = dlfcn.dlopen('libcuda.so', dlfcn.RTLD_NOW)
-        if (handle == NULL):
-            with gil:
-                raise RuntimeError('Failed to dlopen libcuda.so')
+    cdef char libPath[260]
+    libPath[0] = 0
+    with gil:
+        status = loader.getCUDALibraryPath(libPath, sys.maxsize > 2**32)
+        if status == 0 and len(libPath) != 0:
+            path = libPath.decode('utf-8')
+        else:
+            IF UNAME_SYSNAME == "Windows":
+                path = 'nvcuda.dll'
+            ELSE:
+                path = 'libcuda.so'
 
+        IF UNAME_SYSNAME == "Windows":
+            LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
+            try:
+                handle = win32api.LoadLibraryEx(path, 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
+            except error as e:
+                raise RuntimeError('Failed to LoadLibraryEx ' + path)
+        ELSE:
+            handle = dlfcn.dlopen(bytes(path, encoding='utf-8'), dlfcn.RTLD_NOW)
+            if (handle == NULL):
+                raise RuntimeError('Failed to dlopen libcuda.so')
     # All Globals
     global __cuGetErrorString
     global __cuGetErrorName
@@ -401,6 +410,7 @@ cdef int cuPythonInit() nogil except -1:
     global __cuDeviceSetMemPool
     global __cuDeviceGetMemPool
     global __cuDeviceGetDefaultMemPool
+    global __cuFlushGPUDirectRDMAWrites
     global __cuDeviceGetProperties
     global __cuDeviceComputeCapability
     global __cuDevicePrimaryCtxRetain
@@ -733,7 +743,6 @@ cdef int cuPythonInit() nogil except -1:
     global __cuGraphicsUnmapResources
     global __cuGetProcAddress
     global __cuGetExportTable
-    global __cuFlushGPUDirectRDMAWrites
     # Get latest __cuGetProcAddress
     IF UNAME_SYSNAME == "Windows":
         with gil:
@@ -763,6 +772,7 @@ cdef int cuPythonInit() nogil except -1:
         _cuGetProcAddress('cuDeviceSetMemPool', &__cuDeviceSetMemPool, 11020, 0)
         _cuGetProcAddress('cuDeviceGetMemPool', &__cuDeviceGetMemPool, 11020, 0)
         _cuGetProcAddress('cuDeviceGetDefaultMemPool', &__cuDeviceGetDefaultMemPool, 11020, 0)
+        _cuGetProcAddress('cuFlushGPUDirectRDMAWrites', &__cuFlushGPUDirectRDMAWrites, 11030, 0)
         _cuGetProcAddress('cuDeviceGetProperties', &__cuDeviceGetProperties, 2000, 0)
         _cuGetProcAddress('cuDeviceComputeCapability', &__cuDeviceComputeCapability, 2000, 0)
         _cuGetProcAddress('cuDevicePrimaryCtxRetain', &__cuDevicePrimaryCtxRetain, 7000, 0)
@@ -1095,7 +1105,6 @@ cdef int cuPythonInit() nogil except -1:
         _cuGetProcAddress('cuGraphicsUnmapResources', &__cuGraphicsUnmapResources, 3000, 0)
         _cuGetProcAddress('cuGetProcAddress', &__cuGetProcAddress, 11030, 0)
         _cuGetProcAddress('cuGetExportTable', &__cuGetExportTable, 3000, 0)
-        _cuGetProcAddress('cuFlushGPUDirectRDMAWrites', &__cuFlushGPUDirectRDMAWrites, 11030, 0)
         return 0
     # dlsym calls
     IF UNAME_SYSNAME == "Windows":
@@ -1166,6 +1175,10 @@ cdef int cuPythonInit() nogil except -1:
                 pass
             try:
                 __cuDeviceGetDefaultMemPool = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetDefaultMemPool')
+            except:
+                pass
+            try:
+                __cuFlushGPUDirectRDMAWrites = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFlushGPUDirectRDMAWrites')
             except:
                 pass
             try:
@@ -2496,10 +2509,6 @@ cdef int cuPythonInit() nogil except -1:
                 __cuGetExportTable = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetExportTable')
             except:
                 pass
-            try:
-                __cuFlushGPUDirectRDMAWrites = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFlushGPUDirectRDMAWrites')
-            except:
-                pass
     ELSE:
         __cuGetErrorString = dlfcn.dlsym(handle, 'cuGetErrorString')
         __cuGetErrorName = dlfcn.dlsym(handle, 'cuGetErrorName')
@@ -2518,6 +2527,7 @@ cdef int cuPythonInit() nogil except -1:
         __cuDeviceSetMemPool = dlfcn.dlsym(handle, 'cuDeviceSetMemPool')
         __cuDeviceGetMemPool = dlfcn.dlsym(handle, 'cuDeviceGetMemPool')
         __cuDeviceGetDefaultMemPool = dlfcn.dlsym(handle, 'cuDeviceGetDefaultMemPool')
+        __cuFlushGPUDirectRDMAWrites = dlfcn.dlsym(handle, 'cuFlushGPUDirectRDMAWrites')
         __cuDeviceGetProperties = dlfcn.dlsym(handle, 'cuDeviceGetProperties')
         __cuDeviceComputeCapability = dlfcn.dlsym(handle, 'cuDeviceComputeCapability')
         __cuDevicePrimaryCtxRetain = dlfcn.dlsym(handle, 'cuDevicePrimaryCtxRetain')
@@ -2850,7 +2860,6 @@ cdef int cuPythonInit() nogil except -1:
         __cuGraphicsUnmapResources = dlfcn.dlsym(handle, 'cuGraphicsUnmapResources')
         __cuGetProcAddress = dlfcn.dlsym(handle, 'cuGetProcAddress')
         __cuGetExportTable = dlfcn.dlsym(handle, 'cuGetExportTable')
-        __cuFlushGPUDirectRDMAWrites = dlfcn.dlsym(handle, 'cuFlushGPUDirectRDMAWrites')
 
 cdef CUresult _cuGetErrorString(CUresult error, const char** pStr) nogil except ?CUDA_ERROR_NOT_FOUND:
     global __cuGetErrorString
@@ -3003,6 +3012,15 @@ cdef CUresult _cuDeviceGetDefaultMemPool(CUmemoryPool* pool_out, CUdevice dev) n
         with gil:
             raise RuntimeError('Function "cuDeviceGetDefaultMemPool" not found')
     err = (<CUresult (*)(CUmemoryPool*, CUdevice) nogil> __cuDeviceGetDefaultMemPool)(pool_out, dev)
+    return err
+
+cdef CUresult _cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuFlushGPUDirectRDMAWrites
+    cuPythonInit()
+    if __cuFlushGPUDirectRDMAWrites == NULL:
+        with gil:
+            raise RuntimeError('Function "cuFlushGPUDirectRDMAWrites" not found')
+    err = (<CUresult (*)(CUflushGPUDirectRDMAWritesTarget, CUflushGPUDirectRDMAWritesScope) nogil> __cuFlushGPUDirectRDMAWrites)(target, scope)
     return err
 
 cdef CUresult _cuDeviceGetProperties(CUdevprop* prop, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND:
@@ -5991,13 +6009,4 @@ cdef CUresult _cuGetExportTable(const void** ppExportTable, const CUuuid* pExpor
         with gil:
             raise RuntimeError('Function "cuGetExportTable" not found')
     err = (<CUresult (*)(const void**, const CUuuid*) nogil> __cuGetExportTable)(ppExportTable, pExportTableId)
-    return err
-
-cdef CUresult _cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) nogil except ?CUDA_ERROR_NOT_FOUND:
-    global __cuFlushGPUDirectRDMAWrites
-    cuPythonInit()
-    if __cuFlushGPUDirectRDMAWrites == NULL:
-        with gil:
-            raise RuntimeError('Function "cuFlushGPUDirectRDMAWrites" not found')
-    err = (<CUresult (*)(CUflushGPUDirectRDMAWritesTarget, CUflushGPUDirectRDMAWritesScope) nogil> __cuFlushGPUDirectRDMAWrites)(target, scope)
     return err

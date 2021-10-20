@@ -41,6 +41,10 @@ ctypedef unsigned long long void_ptr
 
 
 class nvrtcResult(Enum):
+    """
+    The enumerated type nvrtcResult defines API call result codes.
+    NVRTC API functions return nvrtcResult to indicate the call result.
+    """
     NVRTC_SUCCESS = cnvrtc.nvrtcResult.NVRTC_SUCCESS
     NVRTC_ERROR_OUT_OF_MEMORY = cnvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY
     NVRTC_ERROR_PROGRAM_CREATION_FAILURE = cnvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE
@@ -56,6 +60,15 @@ class nvrtcResult(Enum):
 
 
 cdef class nvrtcProgram:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -82,7 +95,7 @@ cdef class nvrtcProgram:
 
 @cython.embedsignature(True)
 def nvrtcGetErrorString(result not None : nvrtcResult):
-    """ nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to `"NVRTC_SUCCESS"`. For unrecognized enumeration values, it returns `"NVRTC_ERROR unknown"`. 
+    """ nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to `"NVRTC_SUCCESS"`. For unrecognized enumeration values, it returns `"NVRTC_ERROR unknown"`.
 
     Parameters
     ----------
@@ -92,7 +105,7 @@ def nvrtcGetErrorString(result not None : nvrtcResult):
     Returns
     -------
     nvrtcResult
-        Message string for the given nvrtcResult code. 
+        Message string for the given nvrtcResult code.
     None
         None
     """
@@ -102,13 +115,13 @@ def nvrtcGetErrorString(result not None : nvrtcResult):
 
 @cython.embedsignature(True)
 def nvrtcVersion():
-    """ nvrtcVersion sets the output parameters `major` and `minor` with the CUDA Runtime Compilation version number. 
+    """ nvrtcVersion sets the output parameters `major` and `minor` with the CUDA Runtime Compilation version number.
 
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
     major : int
         CUDA Runtime Compilation major version number.
     minor : int
@@ -121,13 +134,13 @@ def nvrtcVersion():
 
 @cython.embedsignature(True)
 def nvrtcGetNumSupportedArchs():
-    """ nvrtcGetNumSupportedArchs sets the output parameter `numArchs` with the number of architectures supported by NVRTC. This can then be used to pass an array to nvrtcGetSupportedArchs to get the supported architectures. 
+    """ nvrtcGetNumSupportedArchs sets the output parameter `numArchs` with the number of architectures supported by NVRTC. This can then be used to pass an array to nvrtcGetSupportedArchs to get the supported architectures.
 
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
     numArchs : int
         number of supported architectures.
     """
@@ -137,13 +150,13 @@ def nvrtcGetNumSupportedArchs():
 
 @cython.embedsignature(True)
 def nvrtcGetSupportedArchs():
-    """ nvrtcGetSupportedArchs populates the array passed via the output parameter `supportedArchs` with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using nvrtcGetNumSupportedArchs. 
+    """ nvrtcGetSupportedArchs populates the array passed via the output parameter `supportedArchs` with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using nvrtcGetNumSupportedArchs.
 
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
     supportedArchs : List[Int]
         sorted array of supported architectures.
     """
@@ -155,30 +168,34 @@ def nvrtcGetSupportedArchs():
 
 @cython.embedsignature(True)
 def nvrtcCreateProgram(char* src, char* name, int numHeaders, list headers, list includeNames):
-    """ nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter `prog` with it. 
+    """ nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter `prog` with it.
 
     Parameters
     ----------
-    src : char*
+    src : bytes
         CUDA program source.
-    name : char*
-        CUDA program name.
+    name : bytes
+        CUDA program name. `name` can be `NULL`; `"default_program"` is
+        used when `name` is `NULL` or "".
     numHeaders : int
-        Number of headers used.
+        Number of headers used. `numHeaders` must be greater than or equal
+        to 0.
     headers : list
-        Sources of the headers.
+        Sources of the headers. `headers` can be `NULL` when `numHeaders`
+        is 0.
     includeNames : list
         Name of each header by which they can be included in the CUDA
-        program source.
+        program source. `includeNames` can be `NULL` when `numHeaders` is
+        0.
 
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_OUT_OF_MEMORY 
-        NVRTC_ERROR_PROGRAM_CREATION_FAILURE 
-        NVRTC_ERROR_INVALID_INPUT 
-        NVRTC_ERROR_INVALID_PROGRAM 
+        NVRTC_SUCCESS
+        NVRTC_ERROR_OUT_OF_MEMORY
+        NVRTC_ERROR_PROGRAM_CREATION_FAILURE
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
     prog : nvrtcProgram
         CUDA Runtime Compilation program.
 
@@ -196,7 +213,7 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, list headers, list
 
 @cython.embedsignature(True)
 def nvrtcDestroyProgram(prog : nvrtcProgram):
-    """ nvrtcDestroyProgram destroys the given program. 
+    """ nvrtcDestroyProgram destroys the given program.
 
     Parameters
     ----------
@@ -206,8 +223,8 @@ def nvrtcDestroyProgram(prog : nvrtcProgram):
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_PROGRAM 
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_PROGRAM
     None
         None
 
@@ -221,7 +238,7 @@ def nvrtcDestroyProgram(prog : nvrtcProgram):
 
 @cython.embedsignature(True)
 def nvrtcCompileProgram(prog not None : nvrtcProgram, int numOptions, list options):
-    """ nvrtcCompileProgram compiles the given program. 
+    """ nvrtcCompileProgram compiles the given program.
 
     Parameters
     ----------
@@ -230,18 +247,19 @@ def nvrtcCompileProgram(prog not None : nvrtcProgram, int numOptions, list optio
     numOptions : int
         Number of compiler options passed.
     options : list
-        Compiler options in the form of C string array.
+        Compiler options in the form of C string array. `options` can be
+        `NULL` when `numOptions` is 0.
 
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_OUT_OF_MEMORY 
-        NVRTC_ERROR_INVALID_INPUT 
-        NVRTC_ERROR_INVALID_PROGRAM 
-        NVRTC_ERROR_INVALID_OPTION 
-        NVRTC_ERROR_COMPILATION 
-        NVRTC_ERROR_BUILTIN_OPERATION_FAILURE 
+        NVRTC_SUCCESS
+        NVRTC_ERROR_OUT_OF_MEMORY
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
+        NVRTC_ERROR_INVALID_OPTION
+        NVRTC_ERROR_COMPILATION
+        NVRTC_ERROR_BUILTIN_OPERATION_FAILURE
     None
         None
     """
@@ -252,7 +270,7 @@ def nvrtcCompileProgram(prog not None : nvrtcProgram, int numOptions, list optio
 
 @cython.embedsignature(True)
 def nvrtcGetPTXSize(prog not None : nvrtcProgram):
-    """ nvrtcGetPTXSize sets `ptxSizeRet` with the size of the PTX generated by the previous compilation of `prog` (including the trailing `NULL`). 
+    """ nvrtcGetPTXSize sets `ptxSizeRet` with the size of the PTX generated by the previous compilation of `prog` (including the trailing `NULL`).
 
     Parameters
     ----------
@@ -262,11 +280,11 @@ def nvrtcGetPTXSize(prog not None : nvrtcProgram):
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
-        NVRTC_ERROR_INVALID_PROGRAM 
-    ptxSizeRet : Int
-        Size of the generated PTX (including the trailing
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
+    ptxSizeRet : int
+        Size of the generated PTX (including the trailing `NULL`).
 
     See Also
     --------
@@ -278,21 +296,21 @@ def nvrtcGetPTXSize(prog not None : nvrtcProgram):
 
 @cython.embedsignature(True)
 def nvrtcGetPTX(prog not None : nvrtcProgram, char* ptx):
-    """ nvrtcGetPTX stores the PTX generated by the previous compilation of `prog` in the memory pointed by `ptx`. 
+    """ nvrtcGetPTX stores the PTX generated by the previous compilation of `prog` in the memory pointed by `ptx`.
 
     Parameters
     ----------
     prog : nvrtcProgram
         CUDA Runtime Compilation program.
-    ptx : char*
+    ptx : bytes
         Compiled result.
 
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
-        NVRTC_ERROR_INVALID_PROGRAM 
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
     None
         None
 
@@ -305,7 +323,7 @@ def nvrtcGetPTX(prog not None : nvrtcProgram, char* ptx):
 
 @cython.embedsignature(True)
 def nvrtcGetCUBINSize(prog not None : nvrtcProgram):
-    """ nvrtcGetCUBINSize sets `cubinSizeRet` with the size of the cubin generated by the previous compilation of `prog`. The value of cubinSizeRet is set to 0 if the value specified to `-arch` is a virtual architecture instead of an actual architecture. 
+    """ nvrtcGetCUBINSize sets `cubinSizeRet` with the size of the cubin generated by the previous compilation of `prog`. The value of cubinSizeRet is set to 0 if the value specified to `-arch` is a virtual architecture instead of an actual architecture.
 
     Parameters
     ----------
@@ -315,10 +333,10 @@ def nvrtcGetCUBINSize(prog not None : nvrtcProgram):
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
-        NVRTC_ERROR_INVALID_PROGRAM 
-    cubinSizeRet : Int
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
+    cubinSizeRet : int
         Size of the generated cubin.
 
     See Also
@@ -331,21 +349,21 @@ def nvrtcGetCUBINSize(prog not None : nvrtcProgram):
 
 @cython.embedsignature(True)
 def nvrtcGetCUBIN(prog not None : nvrtcProgram, char* cubin):
-    """ nvrtcGetCUBIN stores the cubin generated by the previous compilation of `prog` in the memory pointed by `cubin`. No cubin is available if the value specified to `-arch` is a virtual architecture instead of an actual architecture. 
+    """ nvrtcGetCUBIN stores the cubin generated by the previous compilation of `prog` in the memory pointed by `cubin`. No cubin is available if the value specified to `-arch` is a virtual architecture instead of an actual architecture.
 
     Parameters
     ----------
     prog : nvrtcProgram
         CUDA Runtime Compilation program.
-    cubin : char*
+    cubin : bytes
         Compiled and assembled result.
 
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
-        NVRTC_ERROR_INVALID_PROGRAM 
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
     None
         None
 
@@ -358,7 +376,7 @@ def nvrtcGetCUBIN(prog not None : nvrtcProgram, char* cubin):
 
 @cython.embedsignature(True)
 def nvrtcGetNVVMSize(prog not None : nvrtcProgram):
-    """ nvrtcGetNVVMSize sets `nvvmSizeRet` with the size of the NVVM generated by the previous compilation of `prog`. The value of nvvmSizeRet is set to 0 if the program was not compiled with `-dlto`. 
+    """ nvrtcGetNVVMSize sets `nvvmSizeRet` with the size of the NVVM generated by the previous compilation of `prog`. The value of nvvmSizeRet is set to 0 if the program was not compiled with `-dlto`.
 
     Parameters
     ----------
@@ -368,10 +386,10 @@ def nvrtcGetNVVMSize(prog not None : nvrtcProgram):
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
-        NVRTC_ERROR_INVALID_PROGRAM 
-    nvvmSizeRet : Int
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
+    nvvmSizeRet : int
         Size of the generated NVVM.
 
     See Also
@@ -384,21 +402,21 @@ def nvrtcGetNVVMSize(prog not None : nvrtcProgram):
 
 @cython.embedsignature(True)
 def nvrtcGetNVVM(prog not None : nvrtcProgram, char* nvvm):
-    """ nvrtcGetNVVM stores the NVVM generated by the previous compilation of `prog` in the memory pointed by `nvvm`. The program must have been compiled with -dlto, otherwise will return an error. 
+    """ nvrtcGetNVVM stores the NVVM generated by the previous compilation of `prog` in the memory pointed by `nvvm`. The program must have been compiled with -dlto, otherwise will return an error.
 
     Parameters
     ----------
     prog : nvrtcProgram
         CUDA Runtime Compilation program.
-    nvvm : char*
+    nvvm : bytes
         Compiled result.
 
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
-        NVRTC_ERROR_INVALID_PROGRAM 
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
     None
         None
 
@@ -411,7 +429,7 @@ def nvrtcGetNVVM(prog not None : nvrtcProgram, char* nvvm):
 
 @cython.embedsignature(True)
 def nvrtcGetProgramLogSize(prog not None : nvrtcProgram):
-    """ nvrtcGetProgramLogSize sets `logSizeRet` with the size of the log generated by the previous compilation of `prog` (including the trailing `NULL`). 
+    """ nvrtcGetProgramLogSize sets `logSizeRet` with the size of the log generated by the previous compilation of `prog` (including the trailing `NULL`).
 
     Note that compilation log may be generated with warnings and
     informative messages, even when the compilation of `prog` succeeds.
@@ -424,11 +442,11 @@ def nvrtcGetProgramLogSize(prog not None : nvrtcProgram):
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
-        NVRTC_ERROR_INVALID_PROGRAM 
-    logSizeRet : Int
-        Size of the compilation log (including the trailing
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
+    logSizeRet : int
+        Size of the compilation log (including the trailing `NULL`).
 
     See Also
     --------
@@ -440,21 +458,21 @@ def nvrtcGetProgramLogSize(prog not None : nvrtcProgram):
 
 @cython.embedsignature(True)
 def nvrtcGetProgramLog(prog not None : nvrtcProgram, char* log):
-    """ nvrtcGetProgramLog stores the log generated by the previous compilation of `prog` in the memory pointed by `log`. 
+    """ nvrtcGetProgramLog stores the log generated by the previous compilation of `prog` in the memory pointed by `log`.
 
     Parameters
     ----------
     prog : nvrtcProgram
         CUDA Runtime Compilation program.
-    log : char*
+    log : bytes
         Compilation log.
 
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_INVALID_INPUT 
-        NVRTC_ERROR_INVALID_PROGRAM 
+        NVRTC_SUCCESS
+        NVRTC_ERROR_INVALID_INPUT
+        NVRTC_ERROR_INVALID_PROGRAM
     None
         None
 
@@ -467,7 +485,7 @@ def nvrtcGetProgramLog(prog not None : nvrtcProgram, char* log):
 
 @cython.embedsignature(True)
 def nvrtcAddNameExpression(prog not None : nvrtcProgram, char* name_expression):
-    """ nvrtcAddNameExpression notes the given name expression denoting the address of a __global__ function or __device__/__constant__ variable.
+    """ nvrtcAddNameExpression notes the given name expression denoting the address of a global function or device/__constant__ variable.
 
     The identical name expression string must be provided on a subsequent
     call to nvrtcGetLoweredName to extract the lowered name.
@@ -476,9 +494,9 @@ def nvrtcAddNameExpression(prog not None : nvrtcProgram, char* name_expression):
     ----------
     prog : nvrtcProgram
         CUDA Runtime Compilation program.
-    name_expression : char*
-        constant expression denoting the address of a __global__ function
-        or __device__/__constant__ variable.
+    name_expression : bytes
+        constant expression denoting the address of a global function or
+        device/__constant__ variable.
 
     Returns
     -------
@@ -497,22 +515,23 @@ def nvrtcAddNameExpression(prog not None : nvrtcProgram, char* name_expression):
 
 @cython.embedsignature(True)
 def nvrtcGetLoweredName(prog not None : nvrtcProgram, char* name_expression):
-    """ nvrtcGetLoweredName extracts the lowered (mangled) name for a global function or device/__constant__ variable, and updates *lowered_name to point to it. The memory containing the name is released when the NVRTC program is destroyed by nvrtcDestroyProgram. The identical name expression must have been previously provided to nvrtcAddNameExpression. 
+    """ nvrtcGetLoweredName extracts the lowered (mangled) name for a global function or device/__constant__ variable, and updates lowered_name to point to it. The memory containing the name is released when the NVRTC program is destroyed by nvrtcDestroyProgram. The identical name expression must have been previously provided to nvrtcAddNameExpression.
 
     Parameters
     ----------
     prog : nvrtcProgram
         CUDA Runtime Compilation program.
-    name_expression : char*
-        constant expression denoting the address of a
+    name_expression : bytes
+        constant expression denoting the address of a global function or
+        device/__constant__ variable.
 
     Returns
     -------
     nvrtcResult
-        NVRTC_SUCCESS 
-        NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION 
-        NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID 
-    lowered_name : Bytes
+        NVRTC_SUCCESS
+        NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
+        NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID
+    lowered_name : bytes
         initialized by the function to point to a C string containing the
         lowered (mangled) name corresponding to the provided name
         expression.
@@ -527,6 +546,18 @@ def nvrtcGetLoweredName(prog not None : nvrtcProgram, char* name_expression):
 
 @cython.embedsignature(True)
 def sizeof(objType):
+    """ Returns the size of provided CUDA Python structure in bytes
+
+    Parameters
+    ----------
+    objType : Any
+        CUDA Python object
+
+    Returns
+    -------
+    lowered_name : int
+        The size of `objType` in bytes
+    """
     if objType == nvrtcProgram:
         return sizeof(cnvrtc.nvrtcProgram)
     raise TypeError("Unknown type: " + str(objType))

@@ -471,6 +471,8 @@ cdef const char* cudaGetErrorName(cudaError_t error) nogil except ?NULL:
         return "cudaErrorTimeout"
     if error == cudaErrorGraphExecUpdateFailure:
         return "cudaErrorGraphExecUpdateFailure"
+    if error == cudaErrorExternalDevice:
+        return "cudaErrorExternalDevice"
     if error == cudaErrorUnknown:
         return "cudaErrorUnknown"
     if error == cudaErrorApiFailureBase:
@@ -806,89 +808,13 @@ cdef cudaError_t cudaEventElapsedTime(float* ms, cudaEvent_t start, cudaEvent_t 
     return err
 
 cdef cudaError_t cudaImportExternalMemory(cudaExternalMemory_t* extMem_out, const cudaExternalMemoryHandleDesc* memHandleDesc) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInit()
-    cdef ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC _driver_memHandleDesc
-    memset(&_driver_memHandleDesc, 0, sizeof(_driver_memHandleDesc))
-
-    if memHandleDesc[0].type == cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueFd:
-        _driver_memHandleDesc.type = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD
-        _driver_memHandleDesc.handle.fd = memHandleDesc[0].handle.fd
-    elif memHandleDesc[0].type == cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueWin32:
-        _driver_memHandleDesc.type = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32
-        _driver_memHandleDesc.handle.win32.handle = memHandleDesc[0].handle.win32.handle
-        _driver_memHandleDesc.handle.win32.name = memHandleDesc[0].handle.win32.name
-    elif memHandleDesc[0].type == cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueWin32Kmt:
-        _driver_memHandleDesc.type = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT
-        _driver_memHandleDesc.handle.win32.handle = memHandleDesc[0].handle.win32.handle
-        _driver_memHandleDesc.handle.win32.name = memHandleDesc[0].handle.win32.name
-    elif memHandleDesc[0].type == cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeD3D12Heap:
-        _driver_memHandleDesc.type = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP
-        _driver_memHandleDesc.handle.win32.handle = memHandleDesc[0].handle.win32.handle
-        _driver_memHandleDesc.handle.win32.name = memHandleDesc[0].handle.win32.name
-    elif memHandleDesc[0].type == cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeD3D12Resource:
-        _driver_memHandleDesc.type = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE
-        _driver_memHandleDesc.handle.win32.handle = memHandleDesc[0].handle.win32.handle
-        _driver_memHandleDesc.handle.win32.name = memHandleDesc[0].handle.win32.name
-    elif memHandleDesc[0].type == cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeD3D11Resource:
-        _driver_memHandleDesc.type = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE
-        _driver_memHandleDesc.handle.win32.handle = memHandleDesc[0].handle.win32.handle
-        _driver_memHandleDesc.handle.win32.name = memHandleDesc[0].handle.win32.name
-    elif memHandleDesc[0].type == cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeD3D11ResourceKmt:
-        _driver_memHandleDesc.type = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE_KMT
-        _driver_memHandleDesc.handle.win32.handle = memHandleDesc[0].handle.win32.handle
-        _driver_memHandleDesc.handle.win32.name = memHandleDesc[0].handle.win32.name
-    elif memHandleDesc[0].type == cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf:
-        _driver_memHandleDesc.type = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF
-        _driver_memHandleDesc.handle.nvSciBufObject = memHandleDesc[0].handle.nvSciBufObject
-    _driver_memHandleDesc.size = memHandleDesc[0].size
-    _driver_memHandleDesc.flags = memHandleDesc[0].flags
-
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuImportExternalMemory(<ccuda.CUexternalMemory*>extMem_out, &_driver_memHandleDesc)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaImportExternalMemory(extMem_out, memHandleDesc)
 
 cdef cudaError_t cudaExternalMemoryGetMappedBuffer(void** devPtr, cudaExternalMemory_t extMem, const cudaExternalMemoryBufferDesc* bufferDesc) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInit()
-    cdef ccuda.CUDA_EXTERNAL_MEMORY_BUFFER_DESC _driver_bufferDesc
-    memset(&_driver_bufferDesc, 0, sizeof(_driver_bufferDesc))
-    _driver_bufferDesc.offset = bufferDesc[0].offset
-    _driver_bufferDesc.size = bufferDesc[0].size
-    _driver_bufferDesc.flags = bufferDesc[0].flags
-
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuExternalMemoryGetMappedBuffer(<ccuda.CUdeviceptr*>devPtr, <ccuda.CUexternalMemory>extMem, &_driver_bufferDesc)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaExternalMemoryGetMappedBuffer(devPtr, extMem, bufferDesc)
 
 cdef cudaError_t cudaExternalMemoryGetMappedMipmappedArray(cudaMipmappedArray_t* mipmap, cudaExternalMemory_t extMem, const cudaExternalMemoryMipmappedArrayDesc* mipmapDesc) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInit()
-    cdef ccuda.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC _driver_mipmapDesc
-    memset(&_driver_mipmapDesc, 0, sizeof(_driver_mipmapDesc))
-    _driver_mipmapDesc.offset = mipmapDesc[0].offset
-    _driver_mipmapDesc.arrayDesc.Width = mipmapDesc[0].extent.width
-    _driver_mipmapDesc.arrayDesc.Height = mipmapDesc[0].extent.height
-    _driver_mipmapDesc.arrayDesc.Depth = mipmapDesc[0].extent.depth
-    err_rt = getDescInfo(&mipmapDesc[0].formatDesc, <int *>&_driver_mipmapDesc.arrayDesc.NumChannels, &_driver_mipmapDesc.arrayDesc.Format)
-    if err_rt != cudaError.cudaSuccess:
-        _setLastError(err_rt)
-        return err_rt
-    _driver_mipmapDesc.arrayDesc.Flags = mipmapDesc[0].flags
-    _driver_mipmapDesc.numLevels = mipmapDesc[0].numLevels
-
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuExternalMemoryGetMappedMipmappedArray(<ccuda.CUmipmappedArray*>mipmap, <ccuda.CUexternalMemory>extMem, &_driver_mipmapDesc)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaExternalMemoryGetMappedMipmappedArray(mipmap, extMem, mipmapDesc)
 
 cdef cudaError_t cudaDestroyExternalMemory(cudaExternalMemory_t extMem) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaError_t err
@@ -1525,51 +1451,7 @@ cdef cudaError_t cudaDestroyTextureObject(cudaTextureObject_t texObject) nogil e
     return err
 
 cdef cudaError_t cudaGetTextureObjectResourceDesc(cudaResourceDesc* pResDesc, cudaTextureObject_t texObject) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInit()
-    cdef ccuda.CUDA_RESOURCE_DESC _driver_pResDesc
-    cdef int numChannels
-    cdef ccuda.CUarray_format format
-    memset(&_driver_pResDesc, 0, sizeof(_driver_pResDesc))
-    if pResDesc[0].resType == cudaResourceType.cudaResourceTypeArray:
-        _driver_pResDesc.resType          = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_ARRAY
-        _driver_pResDesc.res.array.hArray = <ccuda.CUarray>pResDesc[0].res.array.array
-    elif pResDesc[0].resType == cudaResourceType.cudaResourceTypeMipmappedArray:
-        _driver_pResDesc.resType                    = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
-        _driver_pResDesc.res.mipmap.hMipmappedArray = <ccuda.CUmipmappedArray>pResDesc[0].res.mipmap.mipmap
-    elif pResDesc[0].resType == cudaResourceType.cudaResourceTypeLinear:
-        _driver_pResDesc.resType                = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_LINEAR
-        _driver_pResDesc.res.linear.devPtr      = <ccuda.CUdeviceptr>pResDesc[0].res.linear.devPtr
-        _driver_pResDesc.res.linear.sizeInBytes = pResDesc[0].res.linear.sizeInBytes
-        err_rt = getDescInfo(&pResDesc[0].res.linear.desc, &numChannels, &format)
-        if err_rt != cudaError.cudaSuccess:
-            _setLastError(err_rt)
-            return err_rt
-        _driver_pResDesc.res.linear.format      = format
-        _driver_pResDesc.res.linear.numChannels = numChannels
-    elif pResDesc[0].resType == cudaResourceType.cudaResourceTypePitch2D:
-        _driver_pResDesc.resType                  = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_PITCH2D
-        _driver_pResDesc.res.pitch2D.devPtr       = <ccuda.CUdeviceptr>pResDesc[0].res.pitch2D.devPtr
-        _driver_pResDesc.res.pitch2D.pitchInBytes = pResDesc[0].res.pitch2D.pitchInBytes
-        _driver_pResDesc.res.pitch2D.width        = pResDesc[0].res.pitch2D.width
-        _driver_pResDesc.res.pitch2D.height       = pResDesc[0].res.pitch2D.height
-        err_rt = getDescInfo(&pResDesc[0].res.linear.desc, &numChannels, &format)
-        if err_rt != cudaError.cudaSuccess:
-            _setLastError(err_rt)
-            return err_rt
-        _driver_pResDesc.res.pitch2D.format       = format
-        _driver_pResDesc.res.pitch2D.numChannels  = numChannels
-    else:
-        _setLastError(cudaError.cudaErrorInvalidValue)
-        return cudaError.cudaErrorInvalidValue
-    _driver_pResDesc.flags = 0
-
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuTexObjectGetResourceDesc(&_driver_pResDesc, <ccuda.CUtexObject>texObject)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGetTextureObjectResourceDesc(pResDesc, texObject)
 
 cdef cudaError_t cudaGetTextureObjectTextureDesc(cudaTextureDesc* pTexDesc, cudaTextureObject_t texObject) nogil except ?cudaErrorCallRequiresNewerDriver:
     return _cudaGetTextureObjectTextureDesc(pTexDesc, texObject)
@@ -1578,51 +1460,7 @@ cdef cudaError_t cudaGetTextureObjectResourceViewDesc(cudaResourceViewDesc* pRes
     return _cudaGetTextureObjectResourceViewDesc(pResViewDesc, texObject)
 
 cdef cudaError_t cudaCreateSurfaceObject(cudaSurfaceObject_t* pSurfObject, const cudaResourceDesc* pResDesc) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInit()
-    cdef ccuda.CUDA_RESOURCE_DESC _driver_pResDesc
-    cdef int numChannels
-    cdef ccuda.CUarray_format format
-    memset(&_driver_pResDesc, 0, sizeof(_driver_pResDesc))
-    if pResDesc[0].resType == cudaResourceType.cudaResourceTypeArray:
-        _driver_pResDesc.resType          = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_ARRAY
-        _driver_pResDesc.res.array.hArray = <ccuda.CUarray>pResDesc[0].res.array.array
-    elif pResDesc[0].resType == cudaResourceType.cudaResourceTypeMipmappedArray:
-        _driver_pResDesc.resType                    = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
-        _driver_pResDesc.res.mipmap.hMipmappedArray = <ccuda.CUmipmappedArray>pResDesc[0].res.mipmap.mipmap
-    elif pResDesc[0].resType == cudaResourceType.cudaResourceTypeLinear:
-        _driver_pResDesc.resType                = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_LINEAR
-        _driver_pResDesc.res.linear.devPtr      = <ccuda.CUdeviceptr>pResDesc[0].res.linear.devPtr
-        _driver_pResDesc.res.linear.sizeInBytes = pResDesc[0].res.linear.sizeInBytes
-        err_rt = getDescInfo(&pResDesc[0].res.linear.desc, &numChannels, &format)
-        if err_rt != cudaError.cudaSuccess:
-            _setLastError(err_rt)
-            return err_rt
-        _driver_pResDesc.res.linear.format      = format
-        _driver_pResDesc.res.linear.numChannels = numChannels
-    elif pResDesc[0].resType == cudaResourceType.cudaResourceTypePitch2D:
-        _driver_pResDesc.resType                  = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_PITCH2D
-        _driver_pResDesc.res.pitch2D.devPtr       = <ccuda.CUdeviceptr>pResDesc[0].res.pitch2D.devPtr
-        _driver_pResDesc.res.pitch2D.pitchInBytes = pResDesc[0].res.pitch2D.pitchInBytes
-        _driver_pResDesc.res.pitch2D.width        = pResDesc[0].res.pitch2D.width
-        _driver_pResDesc.res.pitch2D.height       = pResDesc[0].res.pitch2D.height
-        err_rt = getDescInfo(&pResDesc[0].res.linear.desc, &numChannels, &format)
-        if err_rt != cudaError.cudaSuccess:
-            _setLastError(err_rt)
-            return err_rt
-        _driver_pResDesc.res.pitch2D.format       = format
-        _driver_pResDesc.res.pitch2D.numChannels  = numChannels
-    else:
-        _setLastError(cudaError.cudaErrorInvalidValue)
-        return cudaError.cudaErrorInvalidValue
-    _driver_pResDesc.flags = 0
-
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuSurfObjectCreate(<ccuda.CUsurfObject*>pSurfObject, &_driver_pResDesc)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaCreateSurfaceObject(pSurfObject, pResDesc)
 
 cdef cudaError_t cudaDestroySurfaceObject(cudaSurfaceObject_t surfObject) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaError_t err
@@ -1635,81 +1473,7 @@ cdef cudaError_t cudaDestroySurfaceObject(cudaSurfaceObject_t surfObject) nogil 
     return err
 
 cdef cudaError_t cudaGetSurfaceObjectResourceDesc(cudaResourceDesc* pResDesc, cudaSurfaceObject_t surfObject) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInit()
-    cdef ccuda.CUDA_RESOURCE_DESC _driver_pResDesc
-
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuSurfObjectGetResourceDesc(&_driver_pResDesc, <ccuda.CUsurfObject>surfObject)
-    memset(pResDesc, 0, sizeof(cudaResourceDesc))
-    if _driver_pResDesc.resType == ccuda.CU_RESOURCE_TYPE_ARRAY:
-        pResDesc[0].resType         = cudaResourceType.cudaResourceTypeArray
-        pResDesc[0].res.array.array = <cudaArray_t>_driver_pResDesc.res.array.hArray
-    elif _driver_pResDesc.resType == ccuda.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY:
-        pResDesc[0].resType = cudaResourceType.cudaResourceTypeMipmappedArray
-        pResDesc[0].res.mipmap.mipmap = <cudaMipmappedArray_t>_driver_pResDesc.res.mipmap.hMipmappedArray
-    elif _driver_pResDesc.resType == ccuda.CU_RESOURCE_TYPE_LINEAR:
-        pResDesc[0].resType                = cudaResourceType.cudaResourceTypeLinear
-        pResDesc[0].res.linear.devPtr      = <void *>_driver_pResDesc.res.linear.devPtr
-        pResDesc[0].res.linear.sizeInBytes = _driver_pResDesc.res.linear.sizeInBytes
-    elif _driver_pResDesc.resType == ccuda.CU_RESOURCE_TYPE_PITCH2D:
-        pResDesc[0].resType                  = cudaResourceType.cudaResourceTypePitch2D
-        pResDesc[0].res.pitch2D.devPtr       = <void *>_driver_pResDesc.res.pitch2D.devPtr
-        pResDesc[0].res.pitch2D.pitchInBytes = _driver_pResDesc.res.pitch2D.pitchInBytes
-        pResDesc[0].res.pitch2D.width        = _driver_pResDesc.res.pitch2D.width
-        pResDesc[0].res.pitch2D.height       = _driver_pResDesc.res.pitch2D.height
-    if _driver_pResDesc.resType == ccuda.CU_RESOURCE_TYPE_LINEAR or _driver_pResDesc.resType == ccuda.CU_RESOURCE_TYPE_PITCH2D:
-        channel_size = 0
-        if _driver_pResDesc.res.linear.format == ccuda.CU_AD_FORMAT_UNSIGNED_INT8:
-            pResDesc[0].res.linear.desc.f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned
-            channel_size = 8
-        elif _driver_pResDesc.res.linear.format == ccuda.CU_AD_FORMAT_UNSIGNED_INT16:
-            pResDesc[0].res.linear.desc.f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned
-            channel_size = 16
-        elif _driver_pResDesc.res.linear.format == ccuda.CU_AD_FORMAT_UNSIGNED_INT32:
-            pResDesc[0].res.linear.desc.f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned
-            channel_size = 32
-        elif _driver_pResDesc.res.linear.format == ccuda.CU_AD_FORMAT_SIGNED_INT8:
-            pResDesc[0].res.linear.desc.f = cudaChannelFormatKind.cudaChannelFormatKindSigned
-            channel_size = 8
-        elif _driver_pResDesc.res.linear.format == ccuda.CU_AD_FORMAT_SIGNED_INT16:
-            pResDesc[0].res.linear.desc.f = cudaChannelFormatKind.cudaChannelFormatKindSigned
-            channel_size = 16
-        elif _driver_pResDesc.res.linear.format == ccuda.CU_AD_FORMAT_SIGNED_INT32:
-            pResDesc[0].res.linear.desc.f = cudaChannelFormatKind.cudaChannelFormatKindSigned
-            channel_size = 32
-        elif _driver_pResDesc.res.linear.format == ccuda.CU_AD_FORMAT_HALF:
-            pResDesc[0].res.linear.desc.f = cudaChannelFormatKind.cudaChannelFormatKindFloat
-            channel_size = 16
-        elif _driver_pResDesc.res.linear.format == ccuda.CU_AD_FORMAT_FLOAT:
-            pResDesc[0].res.linear.desc.f = cudaChannelFormatKind.cudaChannelFormatKindFloat
-            channel_size = 32
-        elif _driver_pResDesc.res.linear.format == ccuda.CU_AD_FORMAT_NV12:
-            pResDesc[0].res.linear.desc.f = cudaChannelFormatKind.cudaChannelFormatKindNV12
-            channel_size = 8
-        else:
-            _setLastError(cudaErrorInvalidChannelDescriptor)
-            return cudaError.cudaErrorInvalidChannelDescriptor
-        pResDesc[0].res.linear.desc.x = 0
-        pResDesc[0].res.linear.desc.y = 0
-        pResDesc[0].res.linear.desc.z = 0
-        pResDesc[0].res.linear.desc.w = 0
-        if _driver_pResDesc.res.linear.numChannels >= 4:
-            pResDesc[0].res.linear.desc.w = channel_size
-        if _driver_pResDesc.res.linear.numChannels >= 3:
-            pResDesc[0].res.linear.desc.z = channel_size
-        if _driver_pResDesc.res.linear.numChannels >= 2:
-            pResDesc[0].res.linear.desc.y = channel_size
-        if _driver_pResDesc.res.linear.numChannels >= 1:
-            pResDesc[0].res.linear.desc.x = channel_size
-        if _driver_pResDesc.res.linear.numChannels < 1 or _driver_pResDesc.res.linear.numChannels >= 5:
-            _setLastError(cudaErrorInvalidChannelDescriptor)
-            return cudaError.cudaErrorInvalidChannelDescriptor
-
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGetSurfaceObjectResourceDesc(pResDesc, surfObject)
 
 cdef cudaError_t cudaDriverGetVersion(int* driverVersion) nogil except ?cudaErrorCallRequiresNewerDriver:
     return _cudaDriverGetVersion(driverVersion)
@@ -1750,27 +1514,7 @@ cdef cudaError_t cudaGraphAddKernelNode(cudaGraphNode_t* pGraphNode, cudaGraph_t
     return err
 
 cdef cudaError_t cudaGraphKernelNodeGetParams(cudaGraphNode_t node, cudaKernelNodeParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInit()
-    cdef ccuda.CUDA_KERNEL_NODE_PARAMS _driver_pNodeParams
-
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphKernelNodeGetParams(<ccuda.CUgraphNode>node, &_driver_pNodeParams)
-    pNodeParams[0].func = <void*>_driver_pNodeParams.func
-    pNodeParams[0].gridDim.x = _driver_pNodeParams.gridDimX
-    pNodeParams[0].gridDim.y = _driver_pNodeParams.gridDimY
-    pNodeParams[0].gridDim.z = _driver_pNodeParams.gridDimZ
-    pNodeParams[0].blockDim.x = _driver_pNodeParams.blockDimX
-    pNodeParams[0].blockDim.y = _driver_pNodeParams.blockDimY
-    pNodeParams[0].blockDim.z = _driver_pNodeParams.blockDimZ
-    pNodeParams[0].sharedMemBytes = _driver_pNodeParams.sharedMemBytes
-    pNodeParams[0].kernelParams = _driver_pNodeParams.kernelParams
-    pNodeParams[0].extra = _driver_pNodeParams.extra
-
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphKernelNodeGetParams(node, pNodeParams)
 
 cdef cudaError_t cudaGraphKernelNodeSetParams(cudaGraphNode_t node, const cudaKernelNodeParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaError_t err

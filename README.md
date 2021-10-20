@@ -8,9 +8,8 @@ Dependencies of the CUDA-Python bindings and some versions that are known to
 work are as follows:
 
 * Driver: Linux (450.80.02 or later) Windows(456.38 or later)
-* CUDA Toolkit 11.0 to 11.4 - e.g. 11.4.48
+* CUDA Toolkit 11.0 to 11.5
 * Cython - e.g. 0.29.21
-* Versioneer - e.g. 0.20
 
 ### Compilation
 
@@ -35,20 +34,6 @@ python setup.py develop
 to use the module in-place in your current Python environment (e.g. for testing
 of porting other libraries to use the binding).
 
-
-### Build the Docs
-
-```
-conda env create -f docs/environment-docs.yml
-conda activate cuda-python-docs
-```
-Then compile and install `cuda-python` following the steps above.
-
-```
-cd docs
-make html
-open build/html/index.html
-```
 
 ### Build the Docs
 
@@ -81,7 +66,6 @@ Dependencies of the test execution and some versions that are known to
 work are as follows:
 
 * numpy-1.19.5
-* numba-0.53.1
 * matplotlib-3.3.4
 * scipy-1.6.3
 * pytest-benchmark-3.4.1
@@ -91,7 +75,14 @@ work are as follows:
 You can run the included tests with:
 
 ```
-pytest
+python -m pytest
+```
+### Benchmark
+
+You can run benchmark only tests with:
+
+```
+python -m pytest --benchmark-only
 ```
 
 ### Samples
@@ -99,22 +90,14 @@ pytest
 You can run the included tests with:
 
 ```
-pytest examples
-```
-
-### Benchmark
-
-You can run benchmark only tests with:
-
-```
-pytest --benchmark-only
+python -m pytest examples
 ```
 
 ## Examples
 
 The included examples are:
 
-- `examples/extra/jit_program.py`: Demonstrates the use of the API to compile and
+- `examples/extra/jit_program_test.py`: Demonstrates the use of the API to compile and
   launch a kernel on the device. Includes device memory allocation /
   deallocation, transfers between host and device, creation and usage of
   streams, and context management.

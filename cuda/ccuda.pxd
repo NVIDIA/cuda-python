@@ -258,6 +258,32 @@ cdef enum CUarray_format_enum:
     CU_AD_FORMAT_HALF = 0x10
     CU_AD_FORMAT_FLOAT = 0x20
     CU_AD_FORMAT_NV12 = 0xb0
+    CU_AD_FORMAT_UNORM_INT8X1 = 0xc0
+    CU_AD_FORMAT_UNORM_INT8X2 = 0xc1
+    CU_AD_FORMAT_UNORM_INT8X4 = 0xc2
+    CU_AD_FORMAT_UNORM_INT16X1 = 0xc3
+    CU_AD_FORMAT_UNORM_INT16X2 = 0xc4
+    CU_AD_FORMAT_UNORM_INT16X4 = 0xc5
+    CU_AD_FORMAT_SNORM_INT8X1 = 0xc6
+    CU_AD_FORMAT_SNORM_INT8X2 = 0xc7
+    CU_AD_FORMAT_SNORM_INT8X4 = 0xc8
+    CU_AD_FORMAT_SNORM_INT16X1 = 0xc9
+    CU_AD_FORMAT_SNORM_INT16X2 = 0xca
+    CU_AD_FORMAT_SNORM_INT16X4 = 0xcb
+    CU_AD_FORMAT_BC1_UNORM = 0x91
+    CU_AD_FORMAT_BC1_UNORM_SRGB = 0x92
+    CU_AD_FORMAT_BC2_UNORM = 0x93
+    CU_AD_FORMAT_BC2_UNORM_SRGB = 0x94
+    CU_AD_FORMAT_BC3_UNORM = 0x95
+    CU_AD_FORMAT_BC3_UNORM_SRGB = 0x96
+    CU_AD_FORMAT_BC4_UNORM = 0x97
+    CU_AD_FORMAT_BC4_SNORM = 0x98
+    CU_AD_FORMAT_BC5_UNORM = 0x99
+    CU_AD_FORMAT_BC5_SNORM = 0x9a
+    CU_AD_FORMAT_BC6H_UF16 = 0x9b
+    CU_AD_FORMAT_BC6H_SF16 = 0x9c
+    CU_AD_FORMAT_BC7_UNORM = 0x9d
+    CU_AD_FORMAT_BC7_UNORM_SRGB = 0x9e
 
 ctypedef CUarray_format_enum CUarray_format
 
@@ -877,6 +903,7 @@ cdef enum cudaError_enum:
     CUDA_ERROR_STREAM_CAPTURE_WRONG_THREAD = 908
     CUDA_ERROR_TIMEOUT = 909
     CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE = 910
+    CUDA_ERROR_EXTERNAL_DEVICE = 911
     CUDA_ERROR_UNKNOWN = 999
 
 ctypedef cudaError_enum CUresult
@@ -1599,6 +1626,8 @@ cdef CUresult cuDeviceGetMemPool(CUmemoryPool* pool, CUdevice dev) nogil except 
 
 cdef CUresult cuDeviceGetDefaultMemPool(CUmemoryPool* pool_out, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
 
+cdef CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) nogil except ?CUDA_ERROR_NOT_FOUND
+
 cdef CUresult cuDeviceGetProperties(CUdevprop* prop, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
 
 cdef CUresult cuDeviceComputeCapability(int* major, int* minor, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
@@ -2263,9 +2292,7 @@ cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, 
 
 cdef CUresult cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) nogil except ?CUDA_ERROR_NOT_FOUND
 
-cdef CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef enum: CUDA_VERSION = 11040
+cdef enum: CUDA_VERSION = 11050
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 

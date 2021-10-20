@@ -8,6 +8,7 @@
 IF UNAME_SYSNAME == "Windows":
     import win32api
     import struct
+    from pywintypes import error
 ELSE:
     cimport cuda._lib.dlfcn as dlfcn
 cdef bint __cuPythonInit = False
@@ -35,23 +36,29 @@ cdef int cuPythonInit() nogil except -1:
         return 0
     __cuPythonInit = True
     IF UNAME_SYSNAME == "Windows":
+        LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
         with gil:
             try:
-                handle = win32api.LoadLibraryEx("nvrtc64_112_0.dll", 0, 0)
+                handle = win32api.LoadLibraryEx("nvrtc64_112_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
             except:
                 try:
-                    handle = win32api.LoadLibraryEx("nvrtc64_111_0.dll", 0, 0)
+                    handle = win32api.LoadLibraryEx("nvrtc64_111_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
                 except:
                     try:
-                        handle = win32api.LoadLibraryEx("nvrtc64_110_0.dll", 0, 0)
+                        handle = win32api.LoadLibraryEx("nvrtc64_110_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
                     except:
-                        raise RuntimeError('Failed to dlopen nvrtc64_112_0.dll, or nvrtc64_111_0.dll, or nvrtc64_110_0.dll')
+                        raise RuntimeError('Failed to LoadLibraryEx nvrtc64_112_0.dll, or nvrtc64_111_0.dll, or nvrtc64_110_0.dll')
     ELSE:
-        handle = dlfcn.dlopen('libnvrtc.so', dlfcn.RTLD_NOW)
-        if (handle == NULL):
+        handle = NULL
+        if handle == NULL:
+            handle = dlfcn.dlopen('libnvrtc.so.11.2', dlfcn.RTLD_NOW)
+        if handle == NULL:
+            handle = dlfcn.dlopen('libnvrtc.so.11.1', dlfcn.RTLD_NOW)
+        if handle == NULL:
+            handle = dlfcn.dlopen('libnvrtc.so.11.0', dlfcn.RTLD_NOW)
+        if handle == NULL:
             with gil:
-                raise RuntimeError('Failed to dlopen libnvrtc.so')
-
+                raise RuntimeError('Failed to dlopen libnvrtc.so.11.2, or libnvrtc.so.11.1, or libnvrtc.so.11.0')
     # All Globals
     global __nvrtcGetErrorString
     global __nvrtcVersion

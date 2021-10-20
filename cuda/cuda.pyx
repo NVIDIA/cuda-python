@@ -80,14 +80,23 @@ CU_DEVICE_CPU = ccuda.CU_DEVICE_CPU
 CU_DEVICE_INVALID = ccuda.CU_DEVICE_INVALID
 
 class CUipcMem_flags(Enum):
+    """
+    CUDA Ipc Mem Flags
+    """
     CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS = ccuda.CUipcMem_flags_enum.CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS
 
 class CUmemAttach_flags(Enum):
+    """
+    CUDA Mem Attach Flags
+    """
     CU_MEM_ATTACH_GLOBAL = ccuda.CUmemAttach_flags_enum.CU_MEM_ATTACH_GLOBAL
     CU_MEM_ATTACH_HOST = ccuda.CUmemAttach_flags_enum.CU_MEM_ATTACH_HOST
     CU_MEM_ATTACH_SINGLE = ccuda.CUmemAttach_flags_enum.CU_MEM_ATTACH_SINGLE
 
 class CUctx_flags(Enum):
+    """
+    Context creation flags
+    """
     CU_CTX_SCHED_AUTO = ccuda.CUctx_flags_enum.CU_CTX_SCHED_AUTO
     CU_CTX_SCHED_SPIN = ccuda.CUctx_flags_enum.CU_CTX_SCHED_SPIN
     CU_CTX_SCHED_YIELD = ccuda.CUctx_flags_enum.CU_CTX_SCHED_YIELD
@@ -99,24 +108,39 @@ class CUctx_flags(Enum):
     CU_CTX_FLAGS_MASK = ccuda.CUctx_flags_enum.CU_CTX_FLAGS_MASK
 
 class CUstream_flags(Enum):
+    """
+    Stream creation flags
+    """
     CU_STREAM_DEFAULT = ccuda.CUstream_flags_enum.CU_STREAM_DEFAULT
     CU_STREAM_NON_BLOCKING = ccuda.CUstream_flags_enum.CU_STREAM_NON_BLOCKING
 
 class CUevent_flags(Enum):
+    """
+    Event creation flags
+    """
     CU_EVENT_DEFAULT = ccuda.CUevent_flags_enum.CU_EVENT_DEFAULT
     CU_EVENT_BLOCKING_SYNC = ccuda.CUevent_flags_enum.CU_EVENT_BLOCKING_SYNC
     CU_EVENT_DISABLE_TIMING = ccuda.CUevent_flags_enum.CU_EVENT_DISABLE_TIMING
     CU_EVENT_INTERPROCESS = ccuda.CUevent_flags_enum.CU_EVENT_INTERPROCESS
 
 class CUevent_record_flags(Enum):
+    """
+    Event record flags
+    """
     CU_EVENT_RECORD_DEFAULT = ccuda.CUevent_record_flags_enum.CU_EVENT_RECORD_DEFAULT
     CU_EVENT_RECORD_EXTERNAL = ccuda.CUevent_record_flags_enum.CU_EVENT_RECORD_EXTERNAL
 
 class CUevent_wait_flags(Enum):
+    """
+    Event wait flags
+    """
     CU_EVENT_WAIT_DEFAULT = ccuda.CUevent_wait_flags_enum.CU_EVENT_WAIT_DEFAULT
     CU_EVENT_WAIT_EXTERNAL = ccuda.CUevent_wait_flags_enum.CU_EVENT_WAIT_EXTERNAL
 
 class CUstreamWaitValue_flags(Enum):
+    """
+    Flags for cuStreamWaitValue32 and cuStreamWaitValue64
+    """
     CU_STREAM_WAIT_VALUE_GEQ = ccuda.CUstreamWaitValue_flags_enum.CU_STREAM_WAIT_VALUE_GEQ
     CU_STREAM_WAIT_VALUE_EQ = ccuda.CUstreamWaitValue_flags_enum.CU_STREAM_WAIT_VALUE_EQ
     CU_STREAM_WAIT_VALUE_AND = ccuda.CUstreamWaitValue_flags_enum.CU_STREAM_WAIT_VALUE_AND
@@ -124,10 +148,16 @@ class CUstreamWaitValue_flags(Enum):
     CU_STREAM_WAIT_VALUE_FLUSH = ccuda.CUstreamWaitValue_flags_enum.CU_STREAM_WAIT_VALUE_FLUSH
 
 class CUstreamWriteValue_flags(Enum):
+    """
+    Flags for cuStreamWriteValue32
+    """
     CU_STREAM_WRITE_VALUE_DEFAULT = ccuda.CUstreamWriteValue_flags_enum.CU_STREAM_WRITE_VALUE_DEFAULT
     CU_STREAM_WRITE_VALUE_NO_MEMORY_BARRIER = ccuda.CUstreamWriteValue_flags_enum.CU_STREAM_WRITE_VALUE_NO_MEMORY_BARRIER
 
 class CUstreamBatchMemOpType(Enum):
+    """
+    Operations for cuStreamBatchMemOp
+    """
     CU_STREAM_MEM_OP_WAIT_VALUE_32 = ccuda.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_WAIT_VALUE_32
     CU_STREAM_MEM_OP_WRITE_VALUE_32 = ccuda.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_WRITE_VALUE_32
     CU_STREAM_MEM_OP_WAIT_VALUE_64 = ccuda.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_WAIT_VALUE_64
@@ -135,14 +165,23 @@ class CUstreamBatchMemOpType(Enum):
     CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES = ccuda.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES
 
 class CUoccupancy_flags(Enum):
+    """
+    Occupancy calculator flag
+    """
     CU_OCCUPANCY_DEFAULT = ccuda.CUoccupancy_flags_enum.CU_OCCUPANCY_DEFAULT
     CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE = ccuda.CUoccupancy_flags_enum.CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE
 
 class CUstreamUpdateCaptureDependencies_flags(Enum):
+    """
+    Flags for cuStreamUpdateCaptureDependencies
+    """
     CU_STREAM_ADD_CAPTURE_DEPENDENCIES = ccuda.CUstreamUpdateCaptureDependencies_flags_enum.CU_STREAM_ADD_CAPTURE_DEPENDENCIES
     CU_STREAM_SET_CAPTURE_DEPENDENCIES = ccuda.CUstreamUpdateCaptureDependencies_flags_enum.CU_STREAM_SET_CAPTURE_DEPENDENCIES
 
 class CUarray_format(Enum):
+    """
+    Array formats
+    """
     CU_AD_FORMAT_UNSIGNED_INT8 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT8
     CU_AD_FORMAT_UNSIGNED_INT16 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT16
     CU_AD_FORMAT_UNSIGNED_INT32 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT32
@@ -152,18 +191,53 @@ class CUarray_format(Enum):
     CU_AD_FORMAT_HALF = ccuda.CUarray_format_enum.CU_AD_FORMAT_HALF
     CU_AD_FORMAT_FLOAT = ccuda.CUarray_format_enum.CU_AD_FORMAT_FLOAT
     CU_AD_FORMAT_NV12 = ccuda.CUarray_format_enum.CU_AD_FORMAT_NV12
+    CU_AD_FORMAT_UNORM_INT8X1 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X1
+    CU_AD_FORMAT_UNORM_INT8X2 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X2
+    CU_AD_FORMAT_UNORM_INT8X4 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X4
+    CU_AD_FORMAT_UNORM_INT16X1 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X1
+    CU_AD_FORMAT_UNORM_INT16X2 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X2
+    CU_AD_FORMAT_UNORM_INT16X4 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X4
+    CU_AD_FORMAT_SNORM_INT8X1 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X1
+    CU_AD_FORMAT_SNORM_INT8X2 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X2
+    CU_AD_FORMAT_SNORM_INT8X4 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X4
+    CU_AD_FORMAT_SNORM_INT16X1 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X1
+    CU_AD_FORMAT_SNORM_INT16X2 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X2
+    CU_AD_FORMAT_SNORM_INT16X4 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X4
+    CU_AD_FORMAT_BC1_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC1_UNORM
+    CU_AD_FORMAT_BC1_UNORM_SRGB = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC1_UNORM_SRGB
+    CU_AD_FORMAT_BC2_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC2_UNORM
+    CU_AD_FORMAT_BC2_UNORM_SRGB = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC2_UNORM_SRGB
+    CU_AD_FORMAT_BC3_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC3_UNORM
+    CU_AD_FORMAT_BC3_UNORM_SRGB = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC3_UNORM_SRGB
+    CU_AD_FORMAT_BC4_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC4_UNORM
+    CU_AD_FORMAT_BC4_SNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC4_SNORM
+    CU_AD_FORMAT_BC5_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC5_UNORM
+    CU_AD_FORMAT_BC5_SNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC5_SNORM
+    CU_AD_FORMAT_BC6H_UF16 = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC6H_UF16
+    CU_AD_FORMAT_BC6H_SF16 = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC6H_SF16
+    CU_AD_FORMAT_BC7_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC7_UNORM
+    CU_AD_FORMAT_BC7_UNORM_SRGB = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC7_UNORM_SRGB
 
 class CUaddress_mode(Enum):
+    """
+    Texture reference addressing modes
+    """
     CU_TR_ADDRESS_MODE_WRAP = ccuda.CUaddress_mode_enum.CU_TR_ADDRESS_MODE_WRAP
     CU_TR_ADDRESS_MODE_CLAMP = ccuda.CUaddress_mode_enum.CU_TR_ADDRESS_MODE_CLAMP
     CU_TR_ADDRESS_MODE_MIRROR = ccuda.CUaddress_mode_enum.CU_TR_ADDRESS_MODE_MIRROR
     CU_TR_ADDRESS_MODE_BORDER = ccuda.CUaddress_mode_enum.CU_TR_ADDRESS_MODE_BORDER
 
 class CUfilter_mode(Enum):
+    """
+    Texture reference filtering modes
+    """
     CU_TR_FILTER_MODE_POINT = ccuda.CUfilter_mode_enum.CU_TR_FILTER_MODE_POINT
     CU_TR_FILTER_MODE_LINEAR = ccuda.CUfilter_mode_enum.CU_TR_FILTER_MODE_LINEAR
 
 class CUdevice_attribute(Enum):
+    """
+    Device properties
+    """
     CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK = ccuda.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK
     CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X = ccuda.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X
     CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y = ccuda.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y
@@ -292,6 +366,9 @@ class CUdevice_attribute(Enum):
     CU_DEVICE_ATTRIBUTE_MAX = ccuda.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX
 
 class CUpointer_attribute(Enum):
+    """
+    Pointer information
+    """
     CU_POINTER_ATTRIBUTE_CONTEXT = ccuda.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_CONTEXT
     CU_POINTER_ATTRIBUTE_MEMORY_TYPE = ccuda.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE
     CU_POINTER_ATTRIBUTE_DEVICE_POINTER = ccuda.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_POINTER
@@ -311,6 +388,9 @@ class CUpointer_attribute(Enum):
     CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE = ccuda.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE
 
 class CUfunction_attribute(Enum):
+    """
+    Function properties
+    """
     CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK = ccuda.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
     CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES = ccuda.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES
     CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES = ccuda.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES
@@ -324,33 +404,52 @@ class CUfunction_attribute(Enum):
     CU_FUNC_ATTRIBUTE_MAX = ccuda.CUfunction_attribute_enum.CU_FUNC_ATTRIBUTE_MAX
 
 class CUfunc_cache(Enum):
+    """
+    Function cache configurations
+    """
     CU_FUNC_CACHE_PREFER_NONE = ccuda.CUfunc_cache_enum.CU_FUNC_CACHE_PREFER_NONE
     CU_FUNC_CACHE_PREFER_SHARED = ccuda.CUfunc_cache_enum.CU_FUNC_CACHE_PREFER_SHARED
     CU_FUNC_CACHE_PREFER_L1 = ccuda.CUfunc_cache_enum.CU_FUNC_CACHE_PREFER_L1
     CU_FUNC_CACHE_PREFER_EQUAL = ccuda.CUfunc_cache_enum.CU_FUNC_CACHE_PREFER_EQUAL
 
 class CUsharedconfig(Enum):
+    """
+    Shared memory configurations
+    """
     CU_SHARED_MEM_CONFIG_DEFAULT_BANK_SIZE = ccuda.CUsharedconfig_enum.CU_SHARED_MEM_CONFIG_DEFAULT_BANK_SIZE
     CU_SHARED_MEM_CONFIG_FOUR_BYTE_BANK_SIZE = ccuda.CUsharedconfig_enum.CU_SHARED_MEM_CONFIG_FOUR_BYTE_BANK_SIZE
     CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE = ccuda.CUsharedconfig_enum.CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE
 
 class CUshared_carveout(Enum):
+    """
+    Shared memory carveout configurations. These may be passed to
+    cuFuncSetAttribute
+    """
     CU_SHAREDMEM_CARVEOUT_DEFAULT = ccuda.CUshared_carveout_enum.CU_SHAREDMEM_CARVEOUT_DEFAULT
     CU_SHAREDMEM_CARVEOUT_MAX_SHARED = ccuda.CUshared_carveout_enum.CU_SHAREDMEM_CARVEOUT_MAX_SHARED
     CU_SHAREDMEM_CARVEOUT_MAX_L1 = ccuda.CUshared_carveout_enum.CU_SHAREDMEM_CARVEOUT_MAX_L1
 
 class CUmemorytype(Enum):
+    """
+    Memory types
+    """
     CU_MEMORYTYPE_HOST = ccuda.CUmemorytype_enum.CU_MEMORYTYPE_HOST
     CU_MEMORYTYPE_DEVICE = ccuda.CUmemorytype_enum.CU_MEMORYTYPE_DEVICE
     CU_MEMORYTYPE_ARRAY = ccuda.CUmemorytype_enum.CU_MEMORYTYPE_ARRAY
     CU_MEMORYTYPE_UNIFIED = ccuda.CUmemorytype_enum.CU_MEMORYTYPE_UNIFIED
 
 class CUcomputemode(Enum):
+    """
+    Compute Modes
+    """
     CU_COMPUTEMODE_DEFAULT = ccuda.CUcomputemode_enum.CU_COMPUTEMODE_DEFAULT
     CU_COMPUTEMODE_PROHIBITED = ccuda.CUcomputemode_enum.CU_COMPUTEMODE_PROHIBITED
     CU_COMPUTEMODE_EXCLUSIVE_PROCESS = ccuda.CUcomputemode_enum.CU_COMPUTEMODE_EXCLUSIVE_PROCESS
 
 class CUmem_advise(Enum):
+    """
+    Memory advise values
+    """
     CU_MEM_ADVISE_SET_READ_MOSTLY = ccuda.CUmem_advise_enum.CU_MEM_ADVISE_SET_READ_MOSTLY
     CU_MEM_ADVISE_UNSET_READ_MOSTLY = ccuda.CUmem_advise_enum.CU_MEM_ADVISE_UNSET_READ_MOSTLY
     CU_MEM_ADVISE_SET_PREFERRED_LOCATION = ccuda.CUmem_advise_enum.CU_MEM_ADVISE_SET_PREFERRED_LOCATION
@@ -359,12 +458,18 @@ class CUmem_advise(Enum):
     CU_MEM_ADVISE_UNSET_ACCESSED_BY = ccuda.CUmem_advise_enum.CU_MEM_ADVISE_UNSET_ACCESSED_BY
 
 class CUmem_range_attribute(Enum):
+    """
+
+    """
     CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY = ccuda.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY
     CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION = ccuda.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION
     CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY = ccuda.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY
     CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION = ccuda.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION
 
 class CUjit_option(Enum):
+    """
+    Online compiler and linker options
+    """
     CU_JIT_MAX_REGISTERS = ccuda.CUjit_option_enum.CU_JIT_MAX_REGISTERS
     CU_JIT_THREADS_PER_BLOCK = ccuda.CUjit_option_enum.CU_JIT_THREADS_PER_BLOCK
     CU_JIT_WALL_TIME = ccuda.CUjit_option_enum.CU_JIT_WALL_TIME
@@ -393,6 +498,9 @@ class CUjit_option(Enum):
     CU_JIT_NUM_OPTIONS = ccuda.CUjit_option_enum.CU_JIT_NUM_OPTIONS
 
 class CUjit_target(Enum):
+    """
+    Online compilation targets
+    """
     CU_TARGET_COMPUTE_20 = ccuda.CUjit_target_enum.CU_TARGET_COMPUTE_20
     CU_TARGET_COMPUTE_21 = ccuda.CUjit_target_enum.CU_TARGET_COMPUTE_21
     CU_TARGET_COMPUTE_30 = ccuda.CUjit_target_enum.CU_TARGET_COMPUTE_30
@@ -412,15 +520,24 @@ class CUjit_target(Enum):
     CU_TARGET_COMPUTE_86 = ccuda.CUjit_target_enum.CU_TARGET_COMPUTE_86
 
 class CUjit_fallback(Enum):
+    """
+    Cubin matching fallback strategies
+    """
     CU_PREFER_PTX = ccuda.CUjit_fallback_enum.CU_PREFER_PTX
     CU_PREFER_BINARY = ccuda.CUjit_fallback_enum.CU_PREFER_BINARY
 
 class CUjit_cacheMode(Enum):
+    """
+    Caching modes for dlcm
+    """
     CU_JIT_CACHE_OPTION_NONE = ccuda.CUjit_cacheMode_enum.CU_JIT_CACHE_OPTION_NONE
     CU_JIT_CACHE_OPTION_CG = ccuda.CUjit_cacheMode_enum.CU_JIT_CACHE_OPTION_CG
     CU_JIT_CACHE_OPTION_CA = ccuda.CUjit_cacheMode_enum.CU_JIT_CACHE_OPTION_CA
 
 class CUjitInputType(Enum):
+    """
+    Device code formats
+    """
     CU_JIT_INPUT_CUBIN = ccuda.CUjitInputType_enum.CU_JIT_INPUT_CUBIN
     CU_JIT_INPUT_PTX = ccuda.CUjitInputType_enum.CU_JIT_INPUT_PTX
     CU_JIT_INPUT_FATBINARY = ccuda.CUjitInputType_enum.CU_JIT_INPUT_FATBINARY
@@ -430,6 +547,9 @@ class CUjitInputType(Enum):
     CU_JIT_NUM_INPUT_TYPES = ccuda.CUjitInputType_enum.CU_JIT_NUM_INPUT_TYPES
 
 class CUgraphicsRegisterFlags(Enum):
+    """
+    Flags to register a graphics resource
+    """
     CU_GRAPHICS_REGISTER_FLAGS_NONE = ccuda.CUgraphicsRegisterFlags_enum.CU_GRAPHICS_REGISTER_FLAGS_NONE
     CU_GRAPHICS_REGISTER_FLAGS_READ_ONLY = ccuda.CUgraphicsRegisterFlags_enum.CU_GRAPHICS_REGISTER_FLAGS_READ_ONLY
     CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD = ccuda.CUgraphicsRegisterFlags_enum.CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD
@@ -437,11 +557,17 @@ class CUgraphicsRegisterFlags(Enum):
     CU_GRAPHICS_REGISTER_FLAGS_TEXTURE_GATHER = ccuda.CUgraphicsRegisterFlags_enum.CU_GRAPHICS_REGISTER_FLAGS_TEXTURE_GATHER
 
 class CUgraphicsMapResourceFlags(Enum):
+    """
+    Flags for mapping and unmapping interop resources
+    """
     CU_GRAPHICS_MAP_RESOURCE_FLAGS_NONE = ccuda.CUgraphicsMapResourceFlags_enum.CU_GRAPHICS_MAP_RESOURCE_FLAGS_NONE
     CU_GRAPHICS_MAP_RESOURCE_FLAGS_READ_ONLY = ccuda.CUgraphicsMapResourceFlags_enum.CU_GRAPHICS_MAP_RESOURCE_FLAGS_READ_ONLY
     CU_GRAPHICS_MAP_RESOURCE_FLAGS_WRITE_DISCARD = ccuda.CUgraphicsMapResourceFlags_enum.CU_GRAPHICS_MAP_RESOURCE_FLAGS_WRITE_DISCARD
 
 class CUarray_cubemap_face(Enum):
+    """
+    Array indices for cube faces
+    """
     CU_CUBEMAP_FACE_POSITIVE_X = ccuda.CUarray_cubemap_face_enum.CU_CUBEMAP_FACE_POSITIVE_X
     CU_CUBEMAP_FACE_NEGATIVE_X = ccuda.CUarray_cubemap_face_enum.CU_CUBEMAP_FACE_NEGATIVE_X
     CU_CUBEMAP_FACE_POSITIVE_Y = ccuda.CUarray_cubemap_face_enum.CU_CUBEMAP_FACE_POSITIVE_Y
@@ -450,6 +576,9 @@ class CUarray_cubemap_face(Enum):
     CU_CUBEMAP_FACE_NEGATIVE_Z = ccuda.CUarray_cubemap_face_enum.CU_CUBEMAP_FACE_NEGATIVE_Z
 
 class CUlimit(Enum):
+    """
+    Limits
+    """
     CU_LIMIT_STACK_SIZE = ccuda.CUlimit_enum.CU_LIMIT_STACK_SIZE
     CU_LIMIT_PRINTF_FIFO_SIZE = ccuda.CUlimit_enum.CU_LIMIT_PRINTF_FIFO_SIZE
     CU_LIMIT_MALLOC_HEAP_SIZE = ccuda.CUlimit_enum.CU_LIMIT_MALLOC_HEAP_SIZE
@@ -460,17 +589,27 @@ class CUlimit(Enum):
     CU_LIMIT_MAX = ccuda.CUlimit_enum.CU_LIMIT_MAX
 
 class CUresourcetype(Enum):
+    """
+    Resource types
+    """
     CU_RESOURCE_TYPE_ARRAY = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_ARRAY
     CU_RESOURCE_TYPE_MIPMAPPED_ARRAY = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
     CU_RESOURCE_TYPE_LINEAR = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_LINEAR
     CU_RESOURCE_TYPE_PITCH2D = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_PITCH2D
 
 class CUaccessProperty(Enum):
+    """
+    Specifies performance hint with ::CUaccessPolicyWindow for hitProp
+    and missProp members.
+    """
     CU_ACCESS_PROPERTY_NORMAL = ccuda.CUaccessProperty_enum.CU_ACCESS_PROPERTY_NORMAL
     CU_ACCESS_PROPERTY_STREAMING = ccuda.CUaccessProperty_enum.CU_ACCESS_PROPERTY_STREAMING
     CU_ACCESS_PROPERTY_PERSISTING = ccuda.CUaccessProperty_enum.CU_ACCESS_PROPERTY_PERSISTING
 
 class CUgraphNodeType(Enum):
+    """
+    Graph node types
+    """
     CU_GRAPH_NODE_TYPE_KERNEL = ccuda.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_KERNEL
     CU_GRAPH_NODE_TYPE_MEMCPY = ccuda.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_MEMCPY
     CU_GRAPH_NODE_TYPE_MEMSET = ccuda.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_MEMSET
@@ -485,39 +624,66 @@ class CUgraphNodeType(Enum):
     CU_GRAPH_NODE_TYPE_MEM_FREE = ccuda.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_MEM_FREE
 
 class CUsynchronizationPolicy(Enum):
+    """
+
+    """
     CU_SYNC_POLICY_AUTO = ccuda.CUsynchronizationPolicy_enum.CU_SYNC_POLICY_AUTO
     CU_SYNC_POLICY_SPIN = ccuda.CUsynchronizationPolicy_enum.CU_SYNC_POLICY_SPIN
     CU_SYNC_POLICY_YIELD = ccuda.CUsynchronizationPolicy_enum.CU_SYNC_POLICY_YIELD
     CU_SYNC_POLICY_BLOCKING_SYNC = ccuda.CUsynchronizationPolicy_enum.CU_SYNC_POLICY_BLOCKING_SYNC
 
 class CUkernelNodeAttrID(Enum):
+    """
+    Graph kernel node Attributes
+    """
     CU_KERNEL_NODE_ATTRIBUTE_ACCESS_POLICY_WINDOW = ccuda.CUkernelNodeAttrID_enum.CU_KERNEL_NODE_ATTRIBUTE_ACCESS_POLICY_WINDOW
     CU_KERNEL_NODE_ATTRIBUTE_COOPERATIVE = ccuda.CUkernelNodeAttrID_enum.CU_KERNEL_NODE_ATTRIBUTE_COOPERATIVE
 
 class CUstreamCaptureStatus(Enum):
+    """
+    Possible stream capture statuses returned by cuStreamIsCapturing
+    """
     CU_STREAM_CAPTURE_STATUS_NONE = ccuda.CUstreamCaptureStatus_enum.CU_STREAM_CAPTURE_STATUS_NONE
     CU_STREAM_CAPTURE_STATUS_ACTIVE = ccuda.CUstreamCaptureStatus_enum.CU_STREAM_CAPTURE_STATUS_ACTIVE
     CU_STREAM_CAPTURE_STATUS_INVALIDATED = ccuda.CUstreamCaptureStatus_enum.CU_STREAM_CAPTURE_STATUS_INVALIDATED
 
 class CUstreamCaptureMode(Enum):
+    """
+    Possible modes for stream capture thread interactions. For more
+    details see cuStreamBeginCapture and
+    cuThreadExchangeStreamCaptureMode
+    """
     CU_STREAM_CAPTURE_MODE_GLOBAL = ccuda.CUstreamCaptureMode_enum.CU_STREAM_CAPTURE_MODE_GLOBAL
     CU_STREAM_CAPTURE_MODE_THREAD_LOCAL = ccuda.CUstreamCaptureMode_enum.CU_STREAM_CAPTURE_MODE_THREAD_LOCAL
     CU_STREAM_CAPTURE_MODE_RELAXED = ccuda.CUstreamCaptureMode_enum.CU_STREAM_CAPTURE_MODE_RELAXED
 
 class CUstreamAttrID(Enum):
+    """
+    Stream Attributes
+    """
     CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW = ccuda.CUstreamAttrID_enum.CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW
     CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY = ccuda.CUstreamAttrID_enum.CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY
 
 class CUdriverProcAddress_flags(Enum):
+    """
+    Flags to specify search options. For more details see
+    cuGetProcAddress
+    """
     CU_GET_PROC_ADDRESS_DEFAULT = ccuda.CUdriverProcAddress_flags_enum.CU_GET_PROC_ADDRESS_DEFAULT
     CU_GET_PROC_ADDRESS_LEGACY_STREAM = ccuda.CUdriverProcAddress_flags_enum.CU_GET_PROC_ADDRESS_LEGACY_STREAM
     CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM = ccuda.CUdriverProcAddress_flags_enum.CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM
 
 class CUexecAffinityType(Enum):
+    """
+    Execution Affinity Types
+    """
     CU_EXEC_AFFINITY_TYPE_SM_COUNT = ccuda.CUexecAffinityType_enum.CU_EXEC_AFFINITY_TYPE_SM_COUNT
     CU_EXEC_AFFINITY_TYPE_MAX = ccuda.CUexecAffinityType_enum.CU_EXEC_AFFINITY_TYPE_MAX
 
 class CUresult(Enum):
+    """
+    Error codes
+    """
     CUDA_SUCCESS = ccuda.cudaError_enum.CUDA_SUCCESS
     CUDA_ERROR_INVALID_VALUE = ccuda.cudaError_enum.CUDA_ERROR_INVALID_VALUE
     CUDA_ERROR_OUT_OF_MEMORY = ccuda.cudaError_enum.CUDA_ERROR_OUT_OF_MEMORY
@@ -603,9 +769,13 @@ class CUresult(Enum):
     CUDA_ERROR_STREAM_CAPTURE_WRONG_THREAD = ccuda.cudaError_enum.CUDA_ERROR_STREAM_CAPTURE_WRONG_THREAD
     CUDA_ERROR_TIMEOUT = ccuda.cudaError_enum.CUDA_ERROR_TIMEOUT
     CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE = ccuda.cudaError_enum.CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE
+    CUDA_ERROR_EXTERNAL_DEVICE = ccuda.cudaError_enum.CUDA_ERROR_EXTERNAL_DEVICE
     CUDA_ERROR_UNKNOWN = ccuda.cudaError_enum.CUDA_ERROR_UNKNOWN
 
 class CUdevice_P2PAttribute(Enum):
+    """
+    P2P Attributes
+    """
     CU_DEVICE_P2P_ATTRIBUTE_PERFORMANCE_RANK = ccuda.CUdevice_P2PAttribute_enum.CU_DEVICE_P2P_ATTRIBUTE_PERFORMANCE_RANK
     CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED = ccuda.CUdevice_P2PAttribute_enum.CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED
     CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED = ccuda.CUdevice_P2PAttribute_enum.CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED
@@ -613,6 +783,9 @@ class CUdevice_P2PAttribute(Enum):
     CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED = ccuda.CUdevice_P2PAttribute_enum.CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED
 
 class CUresourceViewFormat(Enum):
+    """
+    Resource view format
+    """
     CU_RES_VIEW_FORMAT_NONE = ccuda.CUresourceViewFormat_enum.CU_RES_VIEW_FORMAT_NONE
     CU_RES_VIEW_FORMAT_UINT_1X8 = ccuda.CUresourceViewFormat_enum.CU_RES_VIEW_FORMAT_UINT_1X8
     CU_RES_VIEW_FORMAT_UINT_2X8 = ccuda.CUresourceViewFormat_enum.CU_RES_VIEW_FORMAT_UINT_2X8
@@ -650,11 +823,18 @@ class CUresourceViewFormat(Enum):
     CU_RES_VIEW_FORMAT_UNSIGNED_BC7 = ccuda.CUresourceViewFormat_enum.CU_RES_VIEW_FORMAT_UNSIGNED_BC7
 
 class CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS(Enum):
+    """
+    Access flags that specify the level of access the current context's
+    device has on the memory referenced.
+    """
     CU_POINTER_ATTRIBUTE_ACCESS_FLAG_NONE = ccuda.CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAG_NONE
     CU_POINTER_ATTRIBUTE_ACCESS_FLAG_READ = ccuda.CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAG_READ
     CU_POINTER_ATTRIBUTE_ACCESS_FLAG_READWRITE = ccuda.CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAG_READWRITE
 
 class CUexternalMemoryHandleType(Enum):
+    """
+    External memory handle types
+    """
     CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD
     CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32 = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32
     CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT
@@ -665,6 +845,9 @@ class CUexternalMemoryHandleType(Enum):
     CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF = ccuda.CUexternalMemoryHandleType_enum.CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF
 
 class CUexternalSemaphoreHandleType(Enum):
+    """
+    External semaphore handle types
+    """
     CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD = ccuda.CUexternalSemaphoreHandleType_enum.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD
     CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32 = ccuda.CUexternalSemaphoreHandleType_enum.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32
     CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT = ccuda.CUexternalSemaphoreHandleType_enum.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT
@@ -677,6 +860,9 @@ class CUexternalSemaphoreHandleType(Enum):
     CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32 = ccuda.CUexternalSemaphoreHandleType_enum.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32
 
 class CUmemAllocationHandleType(Enum):
+    """
+    Flags for specifying particular handle types
+    """
     CU_MEM_HANDLE_TYPE_NONE = ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_NONE
     CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR = ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
     CU_MEM_HANDLE_TYPE_WIN32 = ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32
@@ -684,41 +870,69 @@ class CUmemAllocationHandleType(Enum):
     CU_MEM_HANDLE_TYPE_MAX = ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_MAX
 
 class CUmemAccess_flags(Enum):
+    """
+    Specifies the memory protection flags for mapping.
+    """
     CU_MEM_ACCESS_FLAGS_PROT_NONE = ccuda.CUmemAccess_flags_enum.CU_MEM_ACCESS_FLAGS_PROT_NONE
     CU_MEM_ACCESS_FLAGS_PROT_READ = ccuda.CUmemAccess_flags_enum.CU_MEM_ACCESS_FLAGS_PROT_READ
     CU_MEM_ACCESS_FLAGS_PROT_READWRITE = ccuda.CUmemAccess_flags_enum.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
     CU_MEM_ACCESS_FLAGS_PROT_MAX = ccuda.CUmemAccess_flags_enum.CU_MEM_ACCESS_FLAGS_PROT_MAX
 
 class CUmemLocationType(Enum):
+    """
+    Specifies the type of location
+    """
     CU_MEM_LOCATION_TYPE_INVALID = ccuda.CUmemLocationType_enum.CU_MEM_LOCATION_TYPE_INVALID
     CU_MEM_LOCATION_TYPE_DEVICE = ccuda.CUmemLocationType_enum.CU_MEM_LOCATION_TYPE_DEVICE
     CU_MEM_LOCATION_TYPE_MAX = ccuda.CUmemLocationType_enum.CU_MEM_LOCATION_TYPE_MAX
 
 class CUmemAllocationType(Enum):
+    """
+    Defines the allocation types available
+    """
     CU_MEM_ALLOCATION_TYPE_INVALID = ccuda.CUmemAllocationType_enum.CU_MEM_ALLOCATION_TYPE_INVALID
     CU_MEM_ALLOCATION_TYPE_PINNED = ccuda.CUmemAllocationType_enum.CU_MEM_ALLOCATION_TYPE_PINNED
     CU_MEM_ALLOCATION_TYPE_MAX = ccuda.CUmemAllocationType_enum.CU_MEM_ALLOCATION_TYPE_MAX
 
 class CUmemAllocationGranularity_flags(Enum):
+    """
+    Flag for requesting different optimal and required granularities
+    for an allocation.
+    """
     CU_MEM_ALLOC_GRANULARITY_MINIMUM = ccuda.CUmemAllocationGranularity_flags_enum.CU_MEM_ALLOC_GRANULARITY_MINIMUM
     CU_MEM_ALLOC_GRANULARITY_RECOMMENDED = ccuda.CUmemAllocationGranularity_flags_enum.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED
 
 class CUarraySparseSubresourceType(Enum):
+    """
+    Sparse subresource types
+    """
     CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL = ccuda.CUarraySparseSubresourceType_enum.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL
     CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL = ccuda.CUarraySparseSubresourceType_enum.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL
 
 class CUmemOperationType(Enum):
+    """
+    Memory operation types
+    """
     CU_MEM_OPERATION_TYPE_MAP = ccuda.CUmemOperationType_enum.CU_MEM_OPERATION_TYPE_MAP
     CU_MEM_OPERATION_TYPE_UNMAP = ccuda.CUmemOperationType_enum.CU_MEM_OPERATION_TYPE_UNMAP
 
 class CUmemHandleType(Enum):
+    """
+    Memory handle types
+    """
     CU_MEM_HANDLE_TYPE_GENERIC = ccuda.CUmemHandleType_enum.CU_MEM_HANDLE_TYPE_GENERIC
 
 class CUmemAllocationCompType(Enum):
+    """
+    Specifies compression attribute for an allocation.
+    """
     CU_MEM_ALLOCATION_COMP_NONE = ccuda.CUmemAllocationCompType_enum.CU_MEM_ALLOCATION_COMP_NONE
     CU_MEM_ALLOCATION_COMP_GENERIC = ccuda.CUmemAllocationCompType_enum.CU_MEM_ALLOCATION_COMP_GENERIC
 
 class CUgraphExecUpdateResult(Enum):
+    """
+
+    """
     CU_GRAPH_EXEC_UPDATE_SUCCESS = ccuda.CUgraphExecUpdateResult_enum.CU_GRAPH_EXEC_UPDATE_SUCCESS
     CU_GRAPH_EXEC_UPDATE_ERROR = ccuda.CUgraphExecUpdateResult_enum.CU_GRAPH_EXEC_UPDATE_ERROR
     CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED = ccuda.CUgraphExecUpdateResult_enum.CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED
@@ -729,6 +943,9 @@ class CUgraphExecUpdateResult(Enum):
     CU_GRAPH_EXEC_UPDATE_ERROR_UNSUPPORTED_FUNCTION_CHANGE = ccuda.CUgraphExecUpdateResult_enum.CU_GRAPH_EXEC_UPDATE_ERROR_UNSUPPORTED_FUNCTION_CHANGE
 
 class CUmemPool_attribute(Enum):
+    """
+    CUDA memory pool attributes
+    """
     CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES = ccuda.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES
     CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC = ccuda.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC
     CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES = ccuda.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES
@@ -739,28 +956,47 @@ class CUmemPool_attribute(Enum):
     CU_MEMPOOL_ATTR_USED_MEM_HIGH = ccuda.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH
 
 class CUgraphMem_attribute(Enum):
+    """
+
+    """
     CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT = ccuda.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT
     CU_GRAPH_MEM_ATTR_USED_MEM_HIGH = ccuda.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH
     CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT = ccuda.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT
     CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH = ccuda.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH
 
 class CUflushGPUDirectRDMAWritesOptions(Enum):
+    """
+    Bitmasks for
+    CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_FLUSH_WRITES_OPTIONS
+    """
     CU_FLUSH_GPU_DIRECT_RDMA_WRITES_OPTION_HOST = ccuda.CUflushGPUDirectRDMAWritesOptions_enum.CU_FLUSH_GPU_DIRECT_RDMA_WRITES_OPTION_HOST
     CU_FLUSH_GPU_DIRECT_RDMA_WRITES_OPTION_MEMOPS = ccuda.CUflushGPUDirectRDMAWritesOptions_enum.CU_FLUSH_GPU_DIRECT_RDMA_WRITES_OPTION_MEMOPS
 
 class CUGPUDirectRDMAWritesOrdering(Enum):
+    """
+    Platform native ordering for GPUDirect RDMA writes
+    """
     CU_GPU_DIRECT_RDMA_WRITES_ORDERING_NONE = ccuda.CUGPUDirectRDMAWritesOrdering_enum.CU_GPU_DIRECT_RDMA_WRITES_ORDERING_NONE
     CU_GPU_DIRECT_RDMA_WRITES_ORDERING_OWNER = ccuda.CUGPUDirectRDMAWritesOrdering_enum.CU_GPU_DIRECT_RDMA_WRITES_ORDERING_OWNER
     CU_GPU_DIRECT_RDMA_WRITES_ORDERING_ALL_DEVICES = ccuda.CUGPUDirectRDMAWritesOrdering_enum.CU_GPU_DIRECT_RDMA_WRITES_ORDERING_ALL_DEVICES
 
 class CUflushGPUDirectRDMAWritesScope(Enum):
+    """
+    The scopes for cuFlushGPUDirectRDMAWrites
+    """
     CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TO_OWNER = ccuda.CUflushGPUDirectRDMAWritesScope_enum.CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TO_OWNER
     CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TO_ALL_DEVICES = ccuda.CUflushGPUDirectRDMAWritesScope_enum.CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TO_ALL_DEVICES
 
 class CUflushGPUDirectRDMAWritesTarget(Enum):
+    """
+    The targets for cuFlushGPUDirectRDMAWrites
+    """
     CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TARGET_CURRENT_CTX = ccuda.CUflushGPUDirectRDMAWritesTarget_enum.CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TARGET_CURRENT_CTX
 
 class CUgraphDebugDot_flags(Enum):
+    """
+    The additional write options for cuGraphDebugDotPrint
+    """
     CU_GRAPH_DEBUG_DOT_FLAGS_VERBOSE = ccuda.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_VERBOSE
     CU_GRAPH_DEBUG_DOT_FLAGS_RUNTIME_TYPES = ccuda.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_RUNTIME_TYPES
     CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_PARAMS = ccuda.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_PARAMS
@@ -776,16 +1012,34 @@ class CUgraphDebugDot_flags(Enum):
     CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS = ccuda.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS
 
 class CUuserObject_flags(Enum):
+    """
+    Flags for user objects for graphs
+    """
     CU_USER_OBJECT_NO_DESTRUCTOR_SYNC = ccuda.CUuserObject_flags_enum.CU_USER_OBJECT_NO_DESTRUCTOR_SYNC
 
 class CUuserObjectRetain_flags(Enum):
+    """
+    Flags for retaining user object references for graphs
+    """
     CU_GRAPH_USER_OBJECT_MOVE = ccuda.CUuserObjectRetain_flags_enum.CU_GRAPH_USER_OBJECT_MOVE
 
 class CUgraphInstantiate_flags(Enum):
+    """
+    Flags for instantiating a graph
+    """
     CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH = ccuda.CUgraphInstantiate_flags_enum.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
 
 
 cdef class CUcontext:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -811,6 +1065,15 @@ cdef class CUcontext:
         return <void_ptr>self._ptr
 
 cdef class CUmodule:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -836,6 +1099,15 @@ cdef class CUmodule:
         return <void_ptr>self._ptr
 
 cdef class CUfunction:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -861,6 +1133,15 @@ cdef class CUfunction:
         return <void_ptr>self._ptr
 
 cdef class CUarray:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -886,6 +1167,15 @@ cdef class CUarray:
         return <void_ptr>self._ptr
 
 cdef class CUmipmappedArray:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -911,6 +1201,15 @@ cdef class CUmipmappedArray:
         return <void_ptr>self._ptr
 
 cdef class CUtexref:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -936,6 +1235,15 @@ cdef class CUtexref:
         return <void_ptr>self._ptr
 
 cdef class CUsurfref:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -961,6 +1269,15 @@ cdef class CUsurfref:
         return <void_ptr>self._ptr
 
 cdef class CUevent:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -986,6 +1303,15 @@ cdef class CUevent:
         return <void_ptr>self._ptr
 
 cdef class CUstream:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1011,6 +1337,15 @@ cdef class CUstream:
         return <void_ptr>self._ptr
 
 cdef class CUgraphicsResource:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1036,6 +1371,15 @@ cdef class CUgraphicsResource:
         return <void_ptr>self._ptr
 
 cdef class CUexternalMemory:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1061,6 +1405,15 @@ cdef class CUexternalMemory:
         return <void_ptr>self._ptr
 
 cdef class CUexternalSemaphore:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1086,6 +1439,15 @@ cdef class CUexternalSemaphore:
         return <void_ptr>self._ptr
 
 cdef class CUgraph:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1111,6 +1473,15 @@ cdef class CUgraph:
         return <void_ptr>self._ptr
 
 cdef class CUgraphNode:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1136,6 +1507,15 @@ cdef class CUgraphNode:
         return <void_ptr>self._ptr
 
 cdef class CUgraphExec:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1161,6 +1541,15 @@ cdef class CUgraphExec:
         return <void_ptr>self._ptr
 
 cdef class CUmemoryPool:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1186,6 +1575,15 @@ cdef class CUmemoryPool:
         return <void_ptr>self._ptr
 
 cdef class CUuserObject:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1211,6 +1609,15 @@ cdef class CUuserObject:
         return <void_ptr>self._ptr
 
 cdef class CUlinkState:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1236,6 +1643,15 @@ cdef class CUlinkState:
         return <void_ptr>self._ptr
 
 cdef class CUhostFn:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1261,6 +1677,15 @@ cdef class CUhostFn:
         return <void_ptr>self._ptr
 
 cdef class CUstreamCallback:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1286,6 +1711,15 @@ cdef class CUstreamCallback:
         return <void_ptr>self._ptr
 
 cdef class CUoccupancyB2DSize:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1310,271 +1744,20 @@ cdef class CUoccupancyB2DSize:
     def getPtr(self):
         return <void_ptr>self._ptr
 
-cdef class cuuint32_t:
-    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.cuuint32_t *>calloc(1, sizeof(ccuda.cuuint32_t))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.cuuint32_t)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.cuuint32_t *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<cuuint32_t ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <uint32_t>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class cuuint64_t:
-    def __cinit__(self, uint64_t init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.cuuint64_t *>calloc(1, sizeof(ccuda.cuuint64_t))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.cuuint64_t)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.cuuint64_t *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<cuuint64_t ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <uint64_t>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class CUdeviceptr_v2:
-    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.CUdeviceptr_v2 *>calloc(1, sizeof(ccuda.CUdeviceptr_v2))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUdeviceptr_v2)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.CUdeviceptr_v2 *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<CUdeviceptr_v2 ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned long long>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class CUdeviceptr:
-    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.CUdeviceptr *>calloc(1, sizeof(ccuda.CUdeviceptr))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUdeviceptr)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.CUdeviceptr *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<CUdeviceptr ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned long long>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class CUdevice_v1:
-    def __cinit__(self, int init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.CUdevice_v1 *>calloc(1, sizeof(ccuda.CUdevice_v1))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUdevice_v1)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.CUdevice_v1 *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<CUdevice_v1 ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <int>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class CUdevice:
-    def __cinit__(self, int init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.CUdevice *>calloc(1, sizeof(ccuda.CUdevice))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUdevice)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.CUdevice *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<CUdevice ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <int>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class CUtexObject_v1:
-    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.CUtexObject_v1 *>calloc(1, sizeof(ccuda.CUtexObject_v1))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUtexObject_v1)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.CUtexObject_v1 *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<CUtexObject_v1 ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned long long>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class CUtexObject:
-    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.CUtexObject *>calloc(1, sizeof(ccuda.CUtexObject))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUtexObject)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.CUtexObject *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<CUtexObject ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned long long>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class CUsurfObject_v1:
-    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.CUsurfObject_v1 *>calloc(1, sizeof(ccuda.CUsurfObject_v1))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUsurfObject_v1)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.CUsurfObject_v1 *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<CUsurfObject_v1 ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned long long>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class CUsurfObject:
-    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.CUsurfObject *>calloc(1, sizeof(ccuda.CUsurfObject))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUsurfObject)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.CUsurfObject *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<CUsurfObject ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned long long>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class CUmemGenericAllocationHandle_v1:
-    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.CUmemGenericAllocationHandle_v1 *>calloc(1, sizeof(ccuda.CUmemGenericAllocationHandle_v1))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUmemGenericAllocationHandle_v1)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.CUmemGenericAllocationHandle_v1 *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<CUmemGenericAllocationHandle_v1 ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned long long>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
-cdef class CUmemGenericAllocationHandle:
-    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr_owner = True
-            self._ptr = <ccuda.CUmemGenericAllocationHandle *>calloc(1, sizeof(ccuda.CUmemGenericAllocationHandle))
-            if self._ptr is NULL:
-                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUmemGenericAllocationHandle)))
-        else:
-            self._ptr_owner = False
-            self._ptr = <ccuda.CUmemGenericAllocationHandle *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        if self._ptr_owner is True and self._ptr is not NULL:
-            free(self._ptr)
-    def __repr__(self):
-        return '<CUmemGenericAllocationHandle ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned long long>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-
 cdef class CUuuid_st:
+    """
+
+    Attributes
+    ----------
+    bytes : bytes
+        < CUDA definition of UUID
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1605,6 +1788,20 @@ cdef class CUuuid_st:
         return PyBytes_FromStringAndSize(self._ptr[0].bytes, 16)
 
 cdef class CUipcEventHandle_st:
+    """
+    CUDA IPC event handle
+
+    Attributes
+    ----------
+    reserved : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1643,6 +1840,20 @@ cdef class CUipcEventHandle_st:
             self._ptr[0].reserved[i] = b
 
 cdef class CUipcMemHandle_st:
+    """
+    CUDA IPC mem handle
+
+    Attributes
+    ----------
+    reserved : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1681,6 +1892,27 @@ cdef class CUipcMemHandle_st:
             self._ptr[0].reserved[i] = b
 
 cdef class CUstreamMemOpWaitValueParams_st:
+    """
+
+    Attributes
+    ----------
+    operation : CUstreamBatchMemOpType
+
+    address : CUdeviceptr
+
+    flags : unsigned int
+
+    value64 : cuuint64_t
+
+    alias : CUdeviceptr
+        For driver internal use. Initial value is unimportant.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1749,6 +1981,27 @@ cdef class CUstreamMemOpWaitValueParams_st:
         self._alias._ptr[0] = <ccuda.CUdeviceptr> NULL if alias == None else (<CUdeviceptr>alias)._ptr[0]
 
 cdef class CUstreamMemOpWriteValueParams_st:
+    """
+
+    Attributes
+    ----------
+    operation : CUstreamBatchMemOpType
+
+    address : CUdeviceptr
+
+    flags : unsigned int
+
+    value64 : cuuint64_t
+
+    alias : CUdeviceptr
+        For driver internal use. Initial value is unimportant.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1817,6 +2070,21 @@ cdef class CUstreamMemOpWriteValueParams_st:
         self._alias._ptr[0] = <ccuda.CUdeviceptr> NULL if alias == None else (<CUdeviceptr>alias)._ptr[0]
 
 cdef class CUstreamMemOpFlushRemoteWritesParams_st:
+    """
+
+    Attributes
+    ----------
+    operation : CUstreamBatchMemOpType
+
+    flags : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1859,6 +2127,27 @@ cdef class CUstreamMemOpFlushRemoteWritesParams_st:
         self._ptr[0].flags = flags
 
 cdef class CUstreamBatchMemOpParams_union:
+    """
+
+    Attributes
+    ----------
+    operation : CUstreamBatchMemOpType
+
+    waitValue : CUstreamMemOpWaitValueParams_st
+
+    writeValue : CUstreamMemOpWriteValueParams_st
+
+    flushRemoteWrites : CUstreamMemOpFlushRemoteWritesParams_st
+
+    pad : cuuint64_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -1940,6 +2229,38 @@ cdef class CUstreamBatchMemOpParams_union:
         self._pad._ptr[0] = <ccuda.cuuint64_t> NULL if pad == None else (<cuuint64_t>pad)._ptr[0]
 
 cdef class CUdevprop_st:
+    """
+    Legacy device properties
+
+    Attributes
+    ----------
+    maxThreadsPerBlock : int
+        Maximum number of threads per block
+    maxThreadsDim : int
+        Maximum size of each dimension of a block
+    maxGridSize : int
+        Maximum size of each dimension of a grid
+    sharedMemPerBlock : int
+        Shared memory available per block in bytes
+    totalConstantMemory : int
+        Constant memory available on device in bytes
+    SIMDWidth : int
+        Warp size in threads
+    memPitch : int
+        Maximum pitch in bytes allowed by memory copies
+    regsPerBlock : int
+        32-bit registers available per block
+    clockRate : int
+        Clock frequency in kilohertz
+    textureAlign : int
+        Alignment requirement for textures
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2046,6 +2367,40 @@ cdef class CUdevprop_st:
         self._ptr[0].textureAlign = textureAlign
 
 cdef class CUaccessPolicyWindow_st:
+    """
+    Specifies an access policy for a window, a contiguous extent of
+    memory beginning at base_ptr and ending at base_ptr + num_bytes.
+    num_bytes is limited by
+    CU_DEVICE_ATTRIBUTE_MAX_ACCESS_POLICY_WINDOW_SIZE. Partition into
+    many segments and assign segments such that: sum of "hit segments"
+    / window == approx. ratio. sum of "miss segments" / window ==
+    approx 1-ratio. Segments and ratio specifications are fitted to the
+    capabilities of the architecture. Accesses in a hit segment apply
+    the hitProp access policy. Accesses in a miss segment apply the
+    missProp access policy.
+
+    Attributes
+    ----------
+    base_ptr : Any
+        Starting address of the access policy window. CUDA driver may align
+        it.
+    num_bytes : size_t
+        Size in bytes of the window policy. CUDA driver may restrict the
+        maximum size and alignment.
+    hitRatio : float
+        hitRatio specifies percentage of lines assigned hitProp, rest are
+        assigned missProp.
+    hitProp : CUaccessProperty
+        CUaccessProperty set for hit.
+    missProp : CUaccessProperty
+        CUaccessProperty set for miss. Must be either NORMAL or STREAMING
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2112,6 +2467,38 @@ cdef class CUaccessPolicyWindow_st:
         self._ptr[0].missProp = missProp.value
 
 cdef class CUDA_KERNEL_NODE_PARAMS_st:
+    """
+    GPU kernel node parameters
+
+    Attributes
+    ----------
+    func : CUfunction
+        Kernel to launch
+    gridDimX : unsigned int
+        Width of grid in blocks
+    gridDimY : unsigned int
+        Height of grid in blocks
+    gridDimZ : unsigned int
+        Depth of grid in blocks
+    blockDimX : unsigned int
+        X dimension of each thread block
+    blockDimY : unsigned int
+        Y dimension of each thread block
+    blockDimZ : unsigned int
+        Z dimension of each thread block
+    sharedMemBytes : unsigned int
+        Dynamic shared-memory size per thread block in bytes
+    kernelParams : Any
+        Array of pointers to kernel parameters
+    extra : Any
+        Extra options
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2217,6 +2604,30 @@ cdef class CUDA_KERNEL_NODE_PARAMS_st:
         self._ptr[0].extra = <void**>extra
 
 cdef class CUDA_MEMSET_NODE_PARAMS_st:
+    """
+    Memset node parameters
+
+    Attributes
+    ----------
+    dst : CUdeviceptr
+        Destination device pointer
+    pitch : size_t
+        Pitch of destination device pointer. Unused if height is 1
+    value : unsigned int
+        Value to be set
+    elementSize : unsigned int
+        Size of each element in bytes. Must be 1, 2, or 4.
+    width : size_t
+        Width of the row in elements
+    height : size_t
+        Number of rows
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2291,6 +2702,22 @@ cdef class CUDA_MEMSET_NODE_PARAMS_st:
         self._ptr[0].height = height
 
 cdef class CUDA_HOST_NODE_PARAMS_st:
+    """
+    Host node parameters
+
+    Attributes
+    ----------
+    fn : CUhostFn
+        The function to call when the node executes
+    userData : Any
+        Argument to pass to the function
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2333,6 +2760,21 @@ cdef class CUDA_HOST_NODE_PARAMS_st:
         self._ptr[0].userData = <void*><void_ptr>_cuserData.cptr
 
 cdef class CUkernelNodeAttrValue_union:
+    """
+
+    Attributes
+    ----------
+    accessPolicyWindow : CUaccessPolicyWindow
+
+    cooperative : int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2379,6 +2821,21 @@ cdef class CUkernelNodeAttrValue_union:
         self._ptr[0].cooperative = cooperative
 
 cdef class CUstreamAttrValue_union:
+    """
+
+    Attributes
+    ----------
+    accessPolicyWindow : CUaccessPolicyWindow
+
+    syncPolicy : CUsynchronizationPolicy
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2425,6 +2882,20 @@ cdef class CUstreamAttrValue_union:
         self._ptr[0].syncPolicy = syncPolicy.value
 
 cdef class CUexecAffinitySmCount_st:
+    """
+    Value for CU_EXEC_AFFINITY_TYPE_SM_COUNT
+
+    Attributes
+    ----------
+    val : unsigned int
+        The number of SMs the context is limited to use.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2459,6 +2930,19 @@ cdef class CUexecAffinitySmCount_st:
         self._ptr[0].val = val
 
 cdef class _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st_param_u:
+    """
+
+    Attributes
+    ----------
+    smCount : CUexecAffinitySmCount
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUexecAffinityParam_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -2486,6 +2970,22 @@ cdef class _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st
                 setattr(self._smCount, _attr, getattr(smCount, _attr))
 
 cdef class CUexecAffinityParam_st:
+    """
+    Execution Affinity Parameters
+
+    Attributes
+    ----------
+    type : CUexecAffinityType
+
+    param : _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st_param_u
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2532,6 +3032,50 @@ cdef class CUexecAffinityParam_st:
                 setattr(self._param, _attr, getattr(param, _attr))
 
 cdef class CUDA_MEMCPY2D_st:
+    """
+    2D memory copy parameters
+
+    Attributes
+    ----------
+    srcXInBytes : size_t
+        Source X in bytes
+    srcY : size_t
+        Source Y
+    srcMemoryType : CUmemorytype
+        Source memory type (host, device, array)
+    srcHost : Any
+        Source host pointer
+    srcDevice : CUdeviceptr
+        Source device pointer
+    srcArray : CUarray
+        Source array reference
+    srcPitch : size_t
+        Source pitch (ignored when src is array)
+    dstXInBytes : size_t
+        Destination X in bytes
+    dstY : size_t
+        Destination Y
+    dstMemoryType : CUmemorytype
+        Destination memory type (host, device, array)
+    dstHost : Any
+        Destination host pointer
+    dstDevice : CUdeviceptr
+        Destination device pointer
+    dstArray : CUarray
+        Destination array reference
+    dstPitch : size_t
+        Destination pitch (ignored when dst is array)
+    WidthInBytes : size_t
+        Width of 2D memory copy in bytes
+    Height : size_t
+        Height of 2D memory copy
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2689,6 +3233,69 @@ cdef class CUDA_MEMCPY2D_st:
         self._ptr[0].Height = Height
 
 cdef class CUDA_MEMCPY3D_st:
+    """
+    3D memory copy parameters
+
+    Attributes
+    ----------
+    srcXInBytes : size_t
+        Source X in bytes
+    srcY : size_t
+        Source Y
+    srcZ : size_t
+        Source Z
+    srcLOD : size_t
+        Source LOD
+    srcMemoryType : CUmemorytype
+        Source memory type (host, device, array)
+    srcHost : Any
+        Source host pointer
+    srcDevice : CUdeviceptr
+        Source device pointer
+    srcArray : CUarray
+        Source array reference
+    reserved0 : Any
+        Must be NULL
+    srcPitch : size_t
+        Source pitch (ignored when src is array)
+    srcHeight : size_t
+        Source height (ignored when src is array; may be 0 if Depth==1)
+    dstXInBytes : size_t
+        Destination X in bytes
+    dstY : size_t
+        Destination Y
+    dstZ : size_t
+        Destination Z
+    dstLOD : size_t
+        Destination LOD
+    dstMemoryType : CUmemorytype
+        Destination memory type (host, device, array)
+    dstHost : Any
+        Destination host pointer
+    dstDevice : CUdeviceptr
+        Destination device pointer
+    dstArray : CUarray
+        Destination array reference
+    reserved1 : Any
+        Must be NULL
+    dstPitch : size_t
+        Destination pitch (ignored when dst is array)
+    dstHeight : size_t
+        Destination height (ignored when dst is array; may be 0 if
+        Depth==1)
+    WidthInBytes : size_t
+        Width of 3D memory copy in bytes
+    Height : size_t
+        Height of 3D memory copy
+    Depth : size_t
+        Depth of 3D memory copy
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -2918,6 +3525,70 @@ cdef class CUDA_MEMCPY3D_st:
         self._ptr[0].Depth = Depth
 
 cdef class CUDA_MEMCPY3D_PEER_st:
+    """
+    3D memory cross-context copy parameters
+
+    Attributes
+    ----------
+    srcXInBytes : size_t
+        Source X in bytes
+    srcY : size_t
+        Source Y
+    srcZ : size_t
+        Source Z
+    srcLOD : size_t
+        Source LOD
+    srcMemoryType : CUmemorytype
+        Source memory type (host, device, array)
+    srcHost : Any
+        Source host pointer
+    srcDevice : CUdeviceptr
+        Source device pointer
+    srcArray : CUarray
+        Source array reference
+    srcContext : CUcontext
+        Source context (ignored with srcMemoryType is CU_MEMORYTYPE_ARRAY)
+    srcPitch : size_t
+        Source pitch (ignored when src is array)
+    srcHeight : size_t
+        Source height (ignored when src is array; may be 0 if Depth==1)
+    dstXInBytes : size_t
+        Destination X in bytes
+    dstY : size_t
+        Destination Y
+    dstZ : size_t
+        Destination Z
+    dstLOD : size_t
+        Destination LOD
+    dstMemoryType : CUmemorytype
+        Destination memory type (host, device, array)
+    dstHost : Any
+        Destination host pointer
+    dstDevice : CUdeviceptr
+        Destination device pointer
+    dstArray : CUarray
+        Destination array reference
+    dstContext : CUcontext
+        Destination context (ignored with dstMemoryType is
+        CU_MEMORYTYPE_ARRAY)
+    dstPitch : size_t
+        Destination pitch (ignored when dst is array)
+    dstHeight : size_t
+        Destination height (ignored when dst is array; may be 0 if
+        Depth==1)
+    WidthInBytes : size_t
+        Width of 3D memory copy in bytes
+    Height : size_t
+        Height of 3D memory copy
+    Depth : size_t
+        Depth of 3D memory copy
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -3149,6 +3820,26 @@ cdef class CUDA_MEMCPY3D_PEER_st:
         self._ptr[0].Depth = Depth
 
 cdef class CUDA_ARRAY_DESCRIPTOR_st:
+    """
+    Array descriptor
+
+    Attributes
+    ----------
+    Width : size_t
+        Width of array
+    Height : size_t
+        Height of array
+    Format : CUarray_format
+        Array format
+    NumChannels : unsigned int
+        Channels per array element
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -3207,6 +3898,30 @@ cdef class CUDA_ARRAY_DESCRIPTOR_st:
         self._ptr[0].NumChannels = NumChannels
 
 cdef class CUDA_ARRAY3D_DESCRIPTOR_st:
+    """
+    3D array descriptor
+
+    Attributes
+    ----------
+    Width : size_t
+        Width of 3D array
+    Height : size_t
+        Height of 3D array
+    Depth : size_t
+        Depth of 3D array
+    Format : CUarray_format
+        Array format
+    NumChannels : unsigned int
+        Channels per array element
+    Flags : unsigned int
+        Flags
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -3281,6 +3996,23 @@ cdef class CUDA_ARRAY3D_DESCRIPTOR_st:
         self._ptr[0].Flags = Flags
 
 cdef class _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s:
+    """
+
+    Attributes
+    ----------
+    width : unsigned int
+
+    height : unsigned int
+
+    depth : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -3320,6 +4052,29 @@ cdef class _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA
         self._ptr[0].tileExtent.depth = depth
 
 cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
+    """
+    CUDA array sparse properties
+
+    Attributes
+    ----------
+    tileExtent : _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s
+
+    miptailFirstLevel : unsigned int
+        First mip level at which the mip tail begins.
+    miptailSize : unsigned long long
+        Total size of the mip tail.
+    flags : unsigned int
+        Flags will either be zero or
+        CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -3390,6 +4145,19 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
         self._ptr[0].reserved = reserved
 
 cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_array_s:
+    """
+
+    Attributes
+    ----------
+    hArray : CUarray
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_RESOURCE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -3413,6 +4181,19 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
         self._hArray._ptr[0] = <ccuda.CUarray> NULL if hArray == None else (<CUarray>hArray)._ptr[0]
 
 cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_mipmap_s:
+    """
+
+    Attributes
+    ----------
+    hMipmappedArray : CUmipmappedArray
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_RESOURCE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -3436,6 +4217,25 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
         self._hMipmappedArray._ptr[0] = <ccuda.CUmipmappedArray> NULL if hMipmappedArray == None else (<CUmipmappedArray>hMipmappedArray)._ptr[0]
 
 cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_linear_s:
+    """
+
+    Attributes
+    ----------
+    devPtr : CUdeviceptr
+
+    format : CUarray_format
+
+    numChannels : unsigned int
+
+    sizeInBytes : size_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_RESOURCE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -3483,6 +4283,29 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
         self._ptr[0].res.linear.sizeInBytes = sizeInBytes
 
 cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_pitch2D_s:
+    """
+
+    Attributes
+    ----------
+    devPtr : CUdeviceptr
+
+    format : CUarray_format
+
+    numChannels : unsigned int
+
+    width : size_t
+
+    height : size_t
+
+    pitchInBytes : size_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_RESOURCE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -3546,6 +4369,19 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
         self._ptr[0].res.pitch2D.pitchInBytes = pitchInBytes
 
 cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_reserved_s:
+    """
+
+    Attributes
+    ----------
+    reserved : int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_RESOURCE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -3569,6 +4405,27 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
         self._ptr[0].res.reserved.reserved = reserved
 
 cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_u:
+    """
+
+    Attributes
+    ----------
+    array : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_array_s
+
+    mipmap : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_mipmap_s
+
+    linear : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_linear_s
+
+    pitch2D : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_pitch2D_s
+
+    reserved : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_reserved_s
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_RESOURCE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -3648,6 +4505,24 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
                 setattr(self._reserved, _attr, getattr(reserved, _attr))
 
 cdef class CUDA_RESOURCE_DESC_st:
+    """
+    CUDA Resource descriptor
+
+    Attributes
+    ----------
+    resType : CUresourcetype
+        Resource type
+    res : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_u
+
+    flags : unsigned int
+        Flags (must be zero)
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -3702,6 +4577,38 @@ cdef class CUDA_RESOURCE_DESC_st:
         self._ptr[0].flags = flags
 
 cdef class CUDA_TEXTURE_DESC_st:
+    """
+    Texture descriptor
+
+    Attributes
+    ----------
+    addressMode : List[CUaddress_mode]
+        Address modes
+    filterMode : CUfilter_mode
+        Filter mode
+    flags : unsigned int
+        Flags
+    maxAnisotropy : unsigned int
+        Maximum anisotropy ratio
+    mipmapFilterMode : CUfilter_mode
+        Mipmap filter mode
+    mipmapLevelBias : float
+        Mipmap level bias
+    minMipmapLevelClamp : float
+        Mipmap minimum level clamp
+    maxMipmapLevelClamp : float
+        Mipmap maximum level clamp
+    borderColor : float
+        Border Color
+    reserved : int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -3807,6 +4714,36 @@ cdef class CUDA_TEXTURE_DESC_st:
         self._ptr[0].reserved = reserved
 
 cdef class CUDA_RESOURCE_VIEW_DESC_st:
+    """
+    Resource view descriptor
+
+    Attributes
+    ----------
+    format : CUresourceViewFormat
+        Resource view format
+    width : size_t
+        Width of the resource view
+    height : size_t
+        Height of the resource view
+    depth : size_t
+        Depth of the resource view
+    firstMipmapLevel : unsigned int
+        First defined mipmap level
+    lastMipmapLevel : unsigned int
+        Last defined mipmap level
+    firstLayer : unsigned int
+        First layer index
+    lastLayer : unsigned int
+        Last layer index
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -3905,6 +4842,22 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
         self._ptr[0].reserved = reserved
 
 cdef class CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st:
+    """
+    GPU Direct v3 tokens
+
+    Attributes
+    ----------
+    p2pToken : unsigned long long
+
+    vaSpaceToken : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -3947,6 +4900,38 @@ cdef class CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st:
         self._ptr[0].vaSpaceToken = vaSpaceToken
 
 cdef class CUDA_LAUNCH_PARAMS_st:
+    """
+    Kernel launch parameters
+
+    Attributes
+    ----------
+    function : CUfunction
+        Kernel to launch
+    gridDimX : unsigned int
+        Width of grid in blocks
+    gridDimY : unsigned int
+        Height of grid in blocks
+    gridDimZ : unsigned int
+        Depth of grid in blocks
+    blockDimX : unsigned int
+        X dimension of each thread block
+    blockDimY : unsigned int
+        Y dimension of each thread block
+    blockDimZ : unsigned int
+        Z dimension of each thread block
+    sharedMemBytes : unsigned int
+        Dynamic shared-memory size per thread block in bytes
+    hStream : CUstream
+        Stream identifier
+    kernelParams : Any
+        Array of pointers to kernel parameters
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -4054,6 +5039,21 @@ cdef class CUDA_LAUNCH_PARAMS_st:
         self._ptr[0].kernelParams = <void**><void_ptr>self._ckernelParams.ckernelParams
 
 cdef class _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_handle_win32_s:
+    """
+
+    Attributes
+    ----------
+    handle : void
+
+    name : void
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4085,6 +5085,23 @@ cdef class _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC
         self._ptr[0].handle.win32.name = <void*><void_ptr>_cname.cptr
 
 cdef class _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_u:
+    """
+
+    Attributes
+    ----------
+    fd : int
+
+    win32 : _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_handle_win32_s
+
+    nvSciBufObject : void
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4128,6 +5145,28 @@ cdef class _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC
         self._ptr[0].handle.nvSciBufObject = <void*><void_ptr>_cnvSciBufObject.cptr
 
 cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
+    """
+    External memory handle descriptor
+
+    Attributes
+    ----------
+    type : CUexternalMemoryHandleType
+        Type of the handle
+    handle : _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_u
+
+    size : unsigned long long
+        Size of the memory allocation
+    flags : unsigned int
+        Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -4198,6 +5237,26 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         self._ptr[0].reserved = reserved
 
 cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
+    """
+    External memory buffer descriptor
+
+    Attributes
+    ----------
+    offset : unsigned long long
+        Offset into the memory object where the buffer's base is
+    size : unsigned long long
+        Size of the buffer
+    flags : unsigned int
+        Flags reserved for future use. Must be zero.
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -4256,6 +5315,27 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
         self._ptr[0].reserved = reserved
 
 cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
+    """
+    External memory mipmap descriptor
+
+    Attributes
+    ----------
+    offset : unsigned long long
+        Offset into the memory object where the base level of the mipmap
+        chain is.
+    arrayDesc : CUDA_ARRAY3D_DESCRIPTOR
+        Format, dimension and type of base level of the mipmap chain
+    numLevels : unsigned int
+        Total number of levels in the mipmap chain
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -4318,6 +5398,21 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
         self._ptr[0].reserved = reserved
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_handle_win32_s:
+    """
+
+    Attributes
+    ----------
+    handle : void
+
+    name : void
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4349,6 +5444,23 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDL
         self._ptr[0].handle.win32.name = <void*><void_ptr>_cname.cptr
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_u:
+    """
+
+    Attributes
+    ----------
+    fd : int
+
+    win32 : _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_handle_win32_s
+
+    nvSciSyncObj : void
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4392,6 +5504,26 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDL
         self._ptr[0].handle.nvSciSyncObj = <void*><void_ptr>_cnvSciSyncObj.cptr
 
 cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
+    """
+    External semaphore handle descriptor
+
+    Attributes
+    ----------
+    type : CUexternalSemaphoreHandleType
+        Type of the handle
+    handle : _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_u
+
+    flags : unsigned int
+        Flags reserved for the future. Must be zero.
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -4454,6 +5586,19 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
         self._ptr[0].reserved = reserved
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_fence_s:
+    """
+
+    Attributes
+    ----------
+    value : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4477,6 +5622,21 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIG
         self._ptr[0].params.fence.value = value
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_nvSciSync_u:
+    """
+
+    Attributes
+    ----------
+    fence : void
+
+    reserved : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4508,6 +5668,19 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIG
         self._ptr[0].params.nvSciSync.reserved = reserved
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_keyedMutex_s:
+    """
+
+    Attributes
+    ----------
+    key : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4531,6 +5704,25 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIG
         self._ptr[0].params.keyedMutex.key = key
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_s:
+    """
+
+    Attributes
+    ----------
+    fence : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_fence_s
+
+    nvSciSync : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_nvSciSync_u
+
+    keyedMutex : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_keyedMutex_s
+
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4592,6 +5784,31 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIG
         self._ptr[0].params.reserved = reserved
 
 cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
+    """
+    External semaphore signal parameters
+
+    Attributes
+    ----------
+    params : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_s
+
+    flags : unsigned int
+        Only when CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal a
+        CUexternalSemaphore of type
+        CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC, the valid flag is
+        CUDA_EXTERNAL_SEMAPHORE_SIGNAL_SKIP_NVSCIBUF_MEMSYNC which
+        indicates that while signaling the CUexternalSemaphore, no memory
+        synchronization operations should be performed for any external
+        memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
+        For all other types of CUexternalSemaphore, flags must be zero.
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -4646,6 +5863,19 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
         self._ptr[0].reserved = reserved
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_fence_s:
+    """
+
+    Attributes
+    ----------
+    value : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4669,6 +5899,21 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_
         self._ptr[0].params.fence.value = value
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_nvSciSync_u:
+    """
+
+    Attributes
+    ----------
+    fence : void
+
+    reserved : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4700,6 +5945,21 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_
         self._ptr[0].params.nvSciSync.reserved = reserved
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_keyedMutex_s:
+    """
+
+    Attributes
+    ----------
+    key : unsigned long long
+
+    timeoutMs : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4731,6 +5991,25 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_
         self._ptr[0].params.keyedMutex.timeoutMs = timeoutMs
 
 cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_s:
+    """
+
+    Attributes
+    ----------
+    fence : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_fence_s
+
+    nvSciSync : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_nvSciSync_u
+
+    keyedMutex : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_keyedMutex_s
+
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -4792,6 +6071,31 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_
         self._ptr[0].params.reserved = reserved
 
 cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
+    """
+    External semaphore wait parameters
+
+    Attributes
+    ----------
+    params : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_s
+
+    flags : unsigned int
+        Only when CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on a
+        CUexternalSemaphore of type
+        CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC, the valid flag is
+        CUDA_EXTERNAL_SEMAPHORE_WAIT_SKIP_NVSCIBUF_MEMSYNC which indicates
+        that while waiting for the CUexternalSemaphore, no memory
+        synchronization operations should be performed for any external
+        memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
+        For all other types of CUexternalSemaphore, flags must be zero.
+    reserved : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -4846,6 +6150,25 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
         self._ptr[0].reserved = reserved
 
 cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
+    """
+    Semaphore signal node parameters
+
+    Attributes
+    ----------
+    extSemArray : CUexternalSemaphore
+        Array of external semaphore handles.
+    paramsArray : CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS
+        Array of external semaphore signal parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -4925,6 +6248,25 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
         self._ptr[0].numExtSems = numExtSems
 
 cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
+    """
+    Semaphore wait node parameters
+
+    Attributes
+    ----------
+    extSemArray : CUexternalSemaphore
+        Array of external semaphore handles.
+    paramsArray : CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS
+        Array of external semaphore wait parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -5004,6 +6346,21 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
         self._ptr[0].numExtSems = numExtSems
 
 cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u:
+    """
+
+    Attributes
+    ----------
+    mipmap : CUmipmappedArray
+
+    array : CUarray
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUarrayMapInfo_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -5036,6 +6393,33 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u:
         self._array._ptr[0] = <ccuda.CUarray> NULL if array == None else (<CUarray>array)._ptr[0]
 
 cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_sparseLevel_s:
+    """
+
+    Attributes
+    ----------
+    level : unsigned int
+
+    layer : unsigned int
+
+    offsetX : unsigned int
+
+    offsetY : unsigned int
+
+    offsetZ : unsigned int
+
+    extentWidth : unsigned int
+
+    extentHeight : unsigned int
+
+    extentDepth : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUarrayMapInfo_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -5115,6 +6499,23 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_su
         self._ptr[0].subresource.sparseLevel.extentDepth = extentDepth
 
 cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_miptail_s:
+    """
+
+    Attributes
+    ----------
+    layer : unsigned int
+
+    offset : unsigned long long
+
+    size : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUarrayMapInfo_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -5154,6 +6555,21 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_su
         self._ptr[0].subresource.miptail.size = size
 
 cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u:
+    """
+
+    Attributes
+    ----------
+    sparseLevel : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_sparseLevel_s
+
+    miptail : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_miptail_s
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUarrayMapInfo_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -5194,6 +6610,19 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u:
                 setattr(self._miptail, _attr, getattr(miptail, _attr))
 
 cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u:
+    """
+
+    Attributes
+    ----------
+    memHandle : CUmemGenericAllocationHandle
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUarrayMapInfo_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -5217,6 +6646,41 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u:
         self._memHandle._ptr[0] = <ccuda.CUmemGenericAllocationHandle> NULL if memHandle == None else (<CUmemGenericAllocationHandle>memHandle)._ptr[0]
 
 cdef class CUarrayMapInfo_st:
+    """
+    Specifies the CUDA array or CUDA mipmapped array memory mapping
+    information
+
+    Attributes
+    ----------
+    resourceType : CUresourcetype
+        Resource type
+    resource : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u
+
+    subresourceType : CUarraySparseSubresourceType
+        Sparse subresource type
+    subresource : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u
+
+    memOperationType : CUmemOperationType
+        Memory operation type
+    memHandleType : CUmemHandleType
+        Memory handle type
+    memHandle : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u
+
+    offset : unsigned long long
+        Offset within mip tail Offset within the memory
+    deviceBitMask : unsigned int
+        Device ordinal bit mask
+    flags : unsigned int
+        flags for future use, must be zero now.
+    reserved : unsigned int
+        Reserved for future use, must be zero now.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -5345,6 +6809,22 @@ cdef class CUarrayMapInfo_st:
         self._ptr[0].reserved = reserved
 
 cdef class CUmemLocation_st:
+    """
+    Specifies a memory location.
+
+    Attributes
+    ----------
+    type : CUmemLocationType
+        Specifies the location type, which modifies the meaning of id.
+    id : int
+        identifier for a given this location's CUmemLocationType.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -5387,6 +6867,25 @@ cdef class CUmemLocation_st:
         self._ptr[0].id = id
 
 cdef class _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s:
+    """
+
+    Attributes
+    ----------
+    compressionType : unsigned char
+
+    gpuDirectRDMACapable : unsigned char
+
+    usage : unsigned short
+
+    reserved : unsigned char
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr):
         self._ptr = <ccuda.CUmemAllocationProp_st *>_ptr
     def __init__(self, void_ptr _ptr):
@@ -5436,6 +6935,32 @@ cdef class _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st
             self._ptr[0].allocFlags.reserved[i] = b
 
 cdef class CUmemAllocationProp_st:
+    """
+    Specifies the allocation properties for a allocation.
+
+    Attributes
+    ----------
+    type : CUmemAllocationType
+        Allocation type
+    requestedHandleTypes : CUmemAllocationHandleType
+        requested CUmemAllocationHandleType
+    location : CUmemLocation
+        Location of allocation
+    win32HandleMetaData : Any
+        Windows-specific POBJECT_ATTRIBUTES required when
+        CU_MEM_HANDLE_TYPE_WIN32 is specified. This object atributes
+        structure includes security attributes that define the scope of
+        which exported allocations may be tranferred to other processes. In
+        all other cases, this field is required to be zero.
+    allocFlags : _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -5511,6 +7036,22 @@ cdef class CUmemAllocationProp_st:
                 setattr(self._allocFlags, _attr, getattr(allocFlags, _attr))
 
 cdef class CUmemAccessDesc_st:
+    """
+    Memory access descriptor
+
+    Attributes
+    ----------
+    location : CUmemLocation
+        Location on which the request is to change it's accessibility
+    flags : CUmemAccess_flags
+        ::CUmemProt accessibility flags to set on the request
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -5557,6 +7098,33 @@ cdef class CUmemAccessDesc_st:
         self._ptr[0].flags = flags.value
 
 cdef class CUmemPoolProps_st:
+    """
+    Specifies the properties of allocations made from the pool.
+
+    Attributes
+    ----------
+    allocType : CUmemAllocationType
+        Allocation type. Currently must be specified as
+        CU_MEM_ALLOCATION_TYPE_PINNED
+    handleTypes : CUmemAllocationHandleType
+        Handle types that will be supported by allocations from the pool.
+    location : CUmemLocation
+        Location where allocations should reside.
+    win32SecurityAttributes : Any
+        Windows-specific LPSECURITYATTRIBUTES required when
+        CU_MEM_HANDLE_TYPE_WIN32 is specified. This security attribute
+        defines the scope of which exported allocations may be tranferred
+        to other processes. In all other cases, this field is required to
+        be zero.
+    reserved : bytes
+        reserved for future use, must be 0
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -5629,6 +7197,20 @@ cdef class CUmemPoolProps_st:
             self._ptr[0].reserved[i] = b
 
 cdef class CUmemPoolPtrExportData_st:
+    """
+    Opaque data for exporting a pool allocation
+
+    Attributes
+    ----------
+    reserved : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -5665,6 +7247,32 @@ cdef class CUmemPoolPtrExportData_st:
             self._ptr[0].reserved[i] = b
 
 cdef class CUDA_MEM_ALLOC_NODE_PARAMS_st:
+    """
+    Memory allocation node parameters
+
+    Attributes
+    ----------
+    poolProps : CUmemPoolProps
+        in: location where the allocation should reside (specified in
+        location). handleTypes must be CU_MEM_HANDLE_TYPE_NONE. IPC is not
+        supported.
+    accessDescs : CUmemAccessDesc
+        in: array of memory access descriptors. Used to describe peer GPU
+        access
+    accessDescCount : size_t
+        in: number of memory access descriptors. Must not exceed the number
+        of GPUs.
+    bytesize : size_t
+        in: size in bytes of the requested allocation
+    dptr : CUdeviceptr
+        out: address of the allocation returned by CUDA
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
             self._ptr_owner = True
@@ -5749,9 +7357,381 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_st:
         pass
         self._dptr._ptr[0] = <ccuda.CUdeviceptr> NULL if dptr == None else (<CUdeviceptr>dptr)._ptr[0]
 
+cdef class cuuint32_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.cuuint32_t *>calloc(1, sizeof(ccuda.cuuint32_t))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.cuuint32_t)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.cuuint32_t *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<cuuint32_t ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <uint32_t>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class cuuint64_t:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, uint64_t init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.cuuint64_t *>calloc(1, sizeof(ccuda.cuuint64_t))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.cuuint64_t)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.cuuint64_t *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<cuuint64_t ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <uint64_t>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class CUdeviceptr_v2:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.CUdeviceptr_v2 *>calloc(1, sizeof(ccuda.CUdeviceptr_v2))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUdeviceptr_v2)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.CUdeviceptr_v2 *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<CUdeviceptr_v2 ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned long long>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class CUdeviceptr:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.CUdeviceptr *>calloc(1, sizeof(ccuda.CUdeviceptr))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUdeviceptr)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.CUdeviceptr *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<CUdeviceptr ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned long long>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class CUdevice_v1:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, int init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.CUdevice_v1 *>calloc(1, sizeof(ccuda.CUdevice_v1))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUdevice_v1)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.CUdevice_v1 *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<CUdevice_v1 ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <int>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class CUdevice:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, int init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.CUdevice *>calloc(1, sizeof(ccuda.CUdevice))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUdevice)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.CUdevice *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<CUdevice ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <int>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class CUtexObject_v1:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.CUtexObject_v1 *>calloc(1, sizeof(ccuda.CUtexObject_v1))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUtexObject_v1)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.CUtexObject_v1 *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<CUtexObject_v1 ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned long long>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class CUtexObject:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.CUtexObject *>calloc(1, sizeof(ccuda.CUtexObject))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUtexObject)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.CUtexObject *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<CUtexObject ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned long long>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class CUsurfObject_v1:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.CUsurfObject_v1 *>calloc(1, sizeof(ccuda.CUsurfObject_v1))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUsurfObject_v1)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.CUsurfObject_v1 *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<CUsurfObject_v1 ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned long long>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class CUsurfObject:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.CUsurfObject *>calloc(1, sizeof(ccuda.CUsurfObject))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUsurfObject)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.CUsurfObject *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<CUsurfObject ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned long long>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class CUmemGenericAllocationHandle_v1:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.CUmemGenericAllocationHandle_v1 *>calloc(1, sizeof(ccuda.CUmemGenericAllocationHandle_v1))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUmemGenericAllocationHandle_v1)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.CUmemGenericAllocationHandle_v1 *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<CUmemGenericAllocationHandle_v1 ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned long long>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class CUmemGenericAllocationHandle:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccuda.CUmemGenericAllocationHandle *>calloc(1, sizeof(ccuda.CUmemGenericAllocationHandle))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccuda.CUmemGenericAllocationHandle)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccuda.CUmemGenericAllocationHandle *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<CUmemGenericAllocationHandle ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned long long>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
 @cython.embedsignature(True)
 def cuGetErrorString(error not None : CUresult):
-    """ Gets the string description of an error code. 
+    """ Gets the string description of an error code.
 
     Sets `*pStr` to the address of a NULL-terminated string description of
     the error code `error`. If the error code is not recognized,
@@ -5768,7 +7748,7 @@ def cuGetErrorString(error not None : CUresult):
     CUresult
         CUDA_SUCCESS
         CUDA_ERROR_INVALID_VALUE
-    pStr : Bytes
+    pStr : bytes
         Address of the string pointer.
 
     See Also
@@ -5783,7 +7763,7 @@ def cuGetErrorString(error not None : CUresult):
 
 @cython.embedsignature(True)
 def cuGetErrorName(error not None : CUresult):
-    """ Gets the string representation of an error code enum name. 
+    """ Gets the string representation of an error code enum name.
 
     Sets `*pStr` to the address of a NULL-terminated string representation
     of the name of the enum error code `error`. If the error code is not
@@ -5800,7 +7780,7 @@ def cuGetErrorName(error not None : CUresult):
     CUresult
         CUDA_SUCCESS
         CUDA_ERROR_INVALID_VALUE
-    pStr : Bytes
+    pStr : bytes
         Address of the string pointer.
 
     See Also
@@ -5815,7 +7795,7 @@ def cuGetErrorName(error not None : CUresult):
 
 @cython.embedsignature(True)
 def cuInit(unsigned int Flags):
-    """ Initialize the CUDA driver API. 
+    """ Initialize the CUDA driver API.
 
     Initializes the driver API and must be called before any other function
     from the driver API. Currently, the `Flags` parameter must be 0. If
@@ -5834,7 +7814,7 @@ def cuInit(unsigned int Flags):
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_DEVICE
         CUDA_ERROR_SYSTEM_DRIVER_MISMATCH
-        CUDA_ERROR_COMPAT_NOT_SUPPORTED_ON_DEVICE 
+        CUDA_ERROR_COMPAT_NOT_SUPPORTED_ON_DEVICE
     None
         None
     """
@@ -5843,7 +7823,7 @@ def cuInit(unsigned int Flags):
 
 @cython.embedsignature(True)
 def cuDriverGetVersion():
-    """ Returns the latest CUDA version supported by driver. 
+    """ Returns the latest CUDA version supported by driver.
 
     Returns in `*driverVersion` the version of CUDA supported by the
     driver. The version is returned as (1000 * major + 10 * minor). For
@@ -5871,10 +7851,10 @@ def cuDriverGetVersion():
 
 @cython.embedsignature(True)
 def cuDeviceGet(int ordinal):
-    """ Returns a handle to a compute device. 
+    """ Returns a handle to a compute device.
 
     Returns in `*device` a device handle given an ordinal in the range [0,
-    .cuDeviceGetCount()-1]
+    cuDeviceGetCount()-1].
 
     Parameters
     ----------
@@ -5909,7 +7889,7 @@ def cuDeviceGet(int ordinal):
 
 @cython.embedsignature(True)
 def cuDeviceGetCount():
-    """ Returns the number of compute-capable devices. 
+    """ Returns the number of compute-capable devices.
 
     Returns in `*count` the number of devices with compute capability
     greater than or equal to 2.0 that are available for execution. If there
@@ -5943,7 +7923,7 @@ def cuDeviceGetCount():
 
 @cython.embedsignature(True)
 def cuDeviceGetName(int length, dev not None : CUdevice):
-    """ Returns an identifer string for the device. 
+    """ Returns an identifer string for the device.
 
     Returns an ASCII string identifying the device `dev` in the NULL-
     terminated string pointed to by `name`. `length` specifies the maximum
@@ -5952,7 +7932,7 @@ def cuDeviceGetName(int length, dev not None : CUdevice):
     Parameters
     ----------
     length : int
-        Maximum length of string to store in
+        Maximum length of string to store in `name`
     dev : CUdevice
         Device to get identifier string for
 
@@ -5965,7 +7945,7 @@ def cuDeviceGetName(int length, dev not None : CUdevice):
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_DEVICE
-    name : Bytes
+    name : bytes
         Returned identifier string for the device
 
     See Also
@@ -5985,7 +7965,7 @@ def cuDeviceGetName(int length, dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDeviceGetUuid(dev not None : CUdevice):
-    """ Return an UUID for the device. 
+    """ Return an UUID for the device.
 
     Note there is a later version of this API, cuDeviceGetUuid_v2. It will
     supplant this version in 12.0, which is retained for minor version
@@ -6028,7 +8008,7 @@ def cuDeviceGetUuid(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDeviceGetUuid_v2(dev not None : CUdevice):
-    """ Return an UUID for the device (11.4+) 
+    """ Return an UUID for the device (11.4+)
 
     Returns 16-octets identifing the device `dev` in the structure pointed
     by the `uuid`. If the device is in MIG mode, returns its MIG UUID which
@@ -6066,7 +8046,7 @@ def cuDeviceGetUuid_v2(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDeviceGetLuid(dev not None : CUdevice):
-    """ Return an LUID and device node mask for the device. 
+    """ Return an LUID and device node mask for the device.
 
     Return identifying information (`luid` and `deviceNodeMask`) to allow
     matching device with graphics APIs.
@@ -6084,7 +8064,7 @@ def cuDeviceGetLuid(dev not None : CUdevice):
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_DEVICE
-    luid : Bytes
+    luid : bytes
         Returned LUID
     deviceNodeMask : unsigned int
         Returned device node mask
@@ -6106,7 +8086,7 @@ def cuDeviceGetLuid(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDeviceTotalMem(dev not None : CUdevice):
-    """ Returns the total amount of memory on the device. 
+    """ Returns the total amount of memory on the device.
 
     Returns in `*bytes` the total amount of memory available on the device
     `dev` in bytes.
@@ -6125,7 +8105,7 @@ def cuDeviceTotalMem(dev not None : CUdevice):
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_DEVICE
-    numbytes : Int
+    numbytes : int
         Returned memory available on device in bytes
 
     See Also
@@ -6144,7 +8124,7 @@ def cuDeviceTotalMem(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDeviceGetTexture1DLinearMaxWidth(pformat not None : CUarray_format, unsigned numChannels, dev not None : CUdevice):
-    """ Returns the maximum number of elements allocatable in a 1D linear texture for a given texture element size. 
+    """ Returns the maximum number of elements allocatable in a 1D linear texture for a given texture element size.
 
     Returns in `maxWidthInElements` the maximum number of texture elements
     allocatable in a 1D linear texture for given `pformat` and
@@ -6168,8 +8148,9 @@ def cuDeviceGetTexture1DLinearMaxWidth(pformat not None : CUarray_format, unsign
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_DEVICE
-    maxWidthInElements : Int
+    maxWidthInElements : int
         Returned maximum number of texture elements allocatable for given
+        `pformat` and `numChannels`.
 
     See Also
     --------
@@ -6188,204 +8169,211 @@ def cuDeviceGetTexture1DLinearMaxWidth(pformat not None : CUarray_format, unsign
 
 @cython.embedsignature(True)
 def cuDeviceGetAttribute(attrib not None : CUdevice_attribute, dev not None : CUdevice):
-    """ Returns information about the device. 
+    """ Returns information about the device.
 
     Returns in `*pi` the integer value of the attribute `attrib` on device
     `dev`. The supported attributes are:
     CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK: Maximum number of threads
-    per block;CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X: Maximum x-dimension of a
-    block;CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y: Maximum y-dimension of a
-    block;CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Z: Maximum z-dimension of a
-    block;CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_X: Maximum x-dimension of a
-    grid;CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y: Maximum y-dimension of a
-    grid;CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z: Maximum z-dimension of a
-    grid;CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK: Maximum amount of
-    shared memory available to a thread block in
-    bytes;CU_DEVICE_ATTRIBUTE_TOTAL_CONSTANT_MEMORY: Memory available on
-    device for constant variables in a CUDA C kernel in
-    bytes;CU_DEVICE_ATTRIBUTE_WARP_SIZE: Warp size in
-    threads;CU_DEVICE_ATTRIBUTE_MAX_PITCH: Maximum pitch in bytes allowed
-    by the memory copy functions that involve memory regions allocated
-    through cuMemAllocPitch();CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_WIDTH:
-    Maximum 1D texture
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LINEAR_WIDTH: Maximum width
-    for a 1D texture bound to linear
-    memory;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_MIPMAPPED_WIDTH: Maximum
-    mipmapped 1D texture width;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_WIDTH:
-    Maximum 2D texture width;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_HEIGHT:
-    Maximum 2D texture
-    height;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_WIDTH: Maximum
-    width for a 2D texture bound to linear
-    memory;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_HEIGHT: Maximum
-    height for a 2D texture bound to linear
-    memory;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH: Maximum
-    pitch in bytes for a 2D texture bound to linear
-    memory;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_WIDTH: Maximum
-    mipmapped 2D texture
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_HEIGHT: Maximum
-    mipmapped 2D texture
-    height;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH: Maximum 3D texture
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT: Maximum 3D texture
-    height;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH: Maximum 3D texture
-    depth;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH_ALTERNATE: Alternate
+    per block; CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X: Maximum x-dimension of
+    a block CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y: Maximum y-dimension of a
+    block CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Z: Maximum z-dimension of a
+    block CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_X: Maximum x-dimension of a grid
+    CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y: Maximum y-dimension of a grid
+    CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z: Maximum z-dimension of a grid
+    CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK: Maximum amount of
+    shared memory available to a thread block in bytes
+    CU_DEVICE_ATTRIBUTE_TOTAL_CONSTANT_MEMORY: Memory available on device
+    for constant variables in a CUDA C kernel in bytes
+    CU_DEVICE_ATTRIBUTE_WARP_SIZE: Warp size in threads
+    CU_DEVICE_ATTRIBUTE_MAX_PITCH: Maximum pitch in bytes allowed by the
+    memory copy functions that involve memory regions allocated through
+    cuMemAllocPitch() CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_WIDTH: Maximum
+    1D texture width CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LINEAR_WIDTH:
+    Maximum width for a 1D texture bound to linear memory
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_MIPMAPPED_WIDTH: Maximum
+    mipmapped 1D texture width CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_WIDTH:
+    Maximum 2D texture width CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_HEIGHT:
+    Maximum 2D texture height
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_WIDTH: Maximum width for a
+    2D texture bound to linear memory
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_HEIGHT: Maximum height for
+    a 2D texture bound to linear memory
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH: Maximum pitch in
+    bytes for a 2D texture bound to linear memory
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_WIDTH: Maximum
+    mipmapped 2D texture width
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_HEIGHT: Maximum
+    mipmapped 2D texture height
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH: Maximum 3D texture width
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT: Maximum 3D texture height
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH: Maximum 3D texture depth
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH_ALTERNATE: Alternate
     maximum 3D texture width, 0 if no alternate maximum 3D texture size is
-    supported;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT_ALTERNATE:
+    supported CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT_ALTERNATE:
     Alternate maximum 3D texture height, 0 if no alternate maximum 3D
-    texture size is
-    supported;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH_ALTERNATE:
-    Alternate maximum 3D texture depth, 0 if no alternate maximum 3D
-    texture size is
-    supported;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_WIDTH: Maximum
-    cubemap texture width or
-    height;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_WIDTH: Maximum 1D
-    layered texture
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_LAYERS: Maximum
-    layers in a 1D layered
-    texture;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH: Maximum 2D
-    layered texture
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT: Maximum 2D
-    layered texture
-    height;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS: Maximum
-    layers in a 2D layered
-    texture;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_WIDTH:
-    Maximum cubemap layered texture width or
-    height;CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_LAYERS:
-    Maximum layers in a cubemap layered
-    texture;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_WIDTH: Maximum 1D surface
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_WIDTH: Maximum 2D surface
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_HEIGHT: Maximum 2D surface
-    height;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_WIDTH: Maximum 3D surface
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_HEIGHT: Maximum 3D surface
-    height;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_DEPTH: Maximum 3D surface
-    depth;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_WIDTH: Maximum 1D
-    layered surface
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_LAYERS: Maximum
-    layers in a 1D layered
-    surface;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_WIDTH: Maximum 2D
-    layered surface
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_HEIGHT: Maximum 2D
-    layered surface
-    height;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_LAYERS: Maximum
-    layers in a 2D layered
-    surface;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_WIDTH: Maximum
-    cubemap surface
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_WIDTH: Maximum
-    cubemap layered surface
-    width;CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_LAYERS:
-    Maximum layers in a cubemap layered
-    surface;CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK: Maximum number of
-    32-bit registers available to a thread
-    block;CU_DEVICE_ATTRIBUTE_CLOCK_RATE: The typical clock frequency in
-    kilohertz;CU_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT: Alignment requirement;
-    texture base addresses aligned to textureAlign bytes do not need an
-    offset applied to texture
-    fetches;CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT: Pitch alignment
-    requirement for 2D texture references bound to pitched
-    memory;CU_DEVICE_ATTRIBUTE_GPU_OVERLAP: 1 if the device can
+    texture size is supported
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH_ALTERNATE: Alternate
+    maximum 3D texture depth, 0 if no alternate maximum 3D texture size is
+    supported CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_WIDTH: Maximum
+    cubemap texture width or height
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_WIDTH: Maximum 1D layered
+    texture width CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_LAYERS:
+    Maximum layers in a 1D layered texture
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH: Maximum 2D layered
+    texture width CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT:
+    Maximum 2D layered texture height
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS: Maximum layers in
+    a 2D layered texture
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_WIDTH: Maximum
+    cubemap layered texture width or height
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_LAYERS: Maximum
+    layers in a cubemap layered texture
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_WIDTH: Maximum 1D surface width
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_WIDTH: Maximum 2D surface width
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_HEIGHT: Maximum 2D surface height
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_WIDTH: Maximum 3D surface width
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_HEIGHT: Maximum 3D surface height
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_DEPTH: Maximum 3D surface depth
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_WIDTH: Maximum 1D layered
+    surface width CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_LAYERS:
+    Maximum layers in a 1D layered surface
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_WIDTH: Maximum 2D layered
+    surface width CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_HEIGHT:
+    Maximum 2D layered surface height
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_LAYERS: Maximum layers in
+    a 2D layered surface CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_WIDTH:
+    Maximum cubemap surface width
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_WIDTH: Maximum
+    cubemap layered surface width
+    CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_LAYERS: Maximum
+    layers in a cubemap layered surface
+    CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK: Maximum number of 32-bit
+    registers available to a thread block CU_DEVICE_ATTRIBUTE_CLOCK_RATE:
+    The typical clock frequency in kilohertz
+    CU_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT: Alignment requirement; texture
+    base addresses aligned to textureAlign bytes do not need an offset
+    applied to texture fetches CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT:
+    Pitch alignment requirement for 2D texture references bound to pitched
+    memory CU_DEVICE_ATTRIBUTE_GPU_OVERLAP: 1 if the device can
     concurrently copy memory between host and device while executing a
-    kernel, or 0 if not;CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT: Number of
-    multiprocessors on the device;CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT:
+    kernel, or 0 if not CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT: Number of
+    multiprocessors on the device CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT:
     1 if there is a run time limit for kernels executed on the device, or 0
-    if not;CU_DEVICE_ATTRIBUTE_INTEGRATED: 1 if the device is integrated
-    with the memory subsystem, or 0 if
-    not;CU_DEVICE_ATTRIBUTE_CAN_MAP_HOST_MEMORY: 1 if the device can map
-    host memory into the CUDA address space, or 0 if
-    not;CU_DEVICE_ATTRIBUTE_COMPUTE_MODE: Compute mode that device is
-    currently in. Available modes are as follows: CU_COMPUTEMODE_DEFAULT:
-    Default mode - Device is not restricted and can have multiple CUDA
-    contexts present at a single time.CU_COMPUTEMODE_PROHIBITED: Compute-
-    prohibited mode - Device is prohibited from creating new CUDA
-    contexts.CU_COMPUTEMODE_EXCLUSIVE_PROCESS: Compute-exclusive-process
-    mode - Device can have only one context used by a single process at a
-    time.CU_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS: 1 if the device supports
+    if not CU_DEVICE_ATTRIBUTE_INTEGRATED: 1 if the device is integrated
+    with the memory subsystem, or 0 if not
+    CU_DEVICE_ATTRIBUTE_CAN_MAP_HOST_MEMORY: 1 if the device can map host
+    memory into the CUDA address space, or 0 if not
+    CU_DEVICE_ATTRIBUTE_COMPUTE_MODE: Compute mode that device is currently
+    in. Available modes are as follows: CU_COMPUTEMODE_DEFAULT: Default
+    mode - Device is not restricted and can have multiple CUDA contexts
+    present at a single time. CU_COMPUTEMODE_PROHIBITED: Compute-prohibited
+    mode - Device is prohibited from creating new CUDA contexts.
+    CU_COMPUTEMODE_EXCLUSIVE_PROCESS: Compute-exclusive-process mode -
+    Device can have only one context used by a single process at a time.
+    CU_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS: 1 if the device supports
     executing multiple kernels within the same context simultaneously, or 0
     if not. It is not guaranteed that multiple kernels will be resident on
     the device concurrently so this feature should not be relied upon for
-    correctness;CU_DEVICE_ATTRIBUTE_ECC_ENABLED: 1 if error correction is
+    correctness. CU_DEVICE_ATTRIBUTE_ECC_ENABLED: 1 if error correction is
     enabled on the device, 0 if error correction is disabled or not
-    supported by the device;CU_DEVICE_ATTRIBUTE_PCI_BUS_ID: PCI bus
-    identifier of the device;CU_DEVICE_ATTRIBUTE_PCI_DEVICE_ID: PCI device
-    (also known as slot) identifier of the
-    device;CU_DEVICE_ATTRIBUTE_PCI_DOMAIN_ID: PCI domain identifier of the
-    deviceCU_DEVICE_ATTRIBUTE_TCC_DRIVER: 1 if the device is using a TCC
-    driver. TCC is only available on Tesla hardware running Windows Vista
-    or later;CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE: Peak memory clock
-    frequency in kilohertz;CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH:
-    Global memory bus width in bits;CU_DEVICE_ATTRIBUTE_L2_CACHE_SIZE: Size
-    of L2 cache in bytes. 0 if the device doesn't have L2
-    cache;CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_MULTIPROCESSOR: Maximum
-    resident threads per
-    multiprocessor;CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING: 1 if the device
-    shares a unified address space with the host, or 0 if
-    not;CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR: Major compute
-    capability version number;CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR:
-    Minor compute capability version
-    number;CU_DEVICE_ATTRIBUTE_GLOBAL_L1_CACHE_SUPPORTED: 1 if device
-    supports caching globals in L1 cache, 0 if caching globals in L1 cache
-    is not supported by the
-    device;CU_DEVICE_ATTRIBUTE_LOCAL_L1_CACHE_SUPPORTED: 1 if device
-    supports caching locals in L1 cache, 0 if caching locals in L1 cache is
-    not supported by the
-    device;CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR:
-    Maximum amount of shared memory available to a multiprocessor in bytes;
-    this amount is shared by all thread blocks simultaneously resident on a
-    multiprocessor;CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_MULTIPROCESSOR:
+    supported by the device CU_DEVICE_ATTRIBUTE_PCI_BUS_ID: PCI bus
+    identifier of the device CU_DEVICE_ATTRIBUTE_PCI_DEVICE_ID: PCI device
+    (also known as slot) identifier of the device
+    CU_DEVICE_ATTRIBUTE_PCI_DOMAIN_ID: PCI domain identifier of the device
+    CU_DEVICE_ATTRIBUTE_TCC_DRIVER: 1 if the device is using a TCC driver.
+    TCC is only available on Tesla hardware running Windows Vista or later
+    CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE: Peak memory clock frequency in
+    kilohertz CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH: Global memory
+    bus width in bits CU_DEVICE_ATTRIBUTE_L2_CACHE_SIZE: Size of L2 cache
+    in bytes. 0 if the device doesn't have L2 cache
+    CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_MULTIPROCESSOR: Maximum resident
+    threads per multiprocessor CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING: 1 if
+    the device shares a unified address space with the host, or 0 if not
+    CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR: Major compute capability
+    version number CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR: Minor
+    compute capability version number
+    CU_DEVICE_ATTRIBUTE_GLOBAL_L1_CACHE_SUPPORTED: 1 if device supports
+    caching globals in L1 cache, 0 if caching globals in L1 cache is not
+    supported by the device CU_DEVICE_ATTRIBUTE_LOCAL_L1_CACHE_SUPPORTED: 1
+    if device supports caching locals in L1 cache, 0 if caching locals in
+    L1 cache is not supported by the device
+    CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR: Maximum
+    amount of shared memory available to a multiprocessor in bytes; this
+    amount is shared by all thread blocks simultaneously resident on a
+    multiprocessor CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_MULTIPROCESSOR:
     Maximum number of 32-bit registers available to a multiprocessor; this
     number is shared by all thread blocks simultaneously resident on a
-    multiprocessor;CU_DEVICE_ATTRIBUTE_MANAGED_MEMORY: 1 if device supports
+    multiprocessor CU_DEVICE_ATTRIBUTE_MANAGED_MEMORY: 1 if device supports
     allocating managed memory on this system, 0 if allocating managed
-    memory is not supported by the device on this
-    system.CU_DEVICE_ATTRIBUTE_MULTI_GPU_BOARD: 1 if device is on a multi-
-    GPU board, 0 if not.CU_DEVICE_ATTRIBUTE_MULTI_GPU_BOARD_GROUP_ID:
-    Unique identifier for a group of devices associated with the same
-    board. Devices on the same multi-GPU board will share the same
-    identifier.CU_DEVICE_ATTRIBUTE_HOST_NATIVE_ATOMIC_SUPPORTED: 1 if Link
-    between the device and the host supports native atomic
-    operations.CU_DEVICE_ATTRIBUTE_SINGLE_TO_DOUBLE_PRECISION_PERF_RATIO:
-    Ratio of single precision performance (in floating-point operations per
-    second) to double precision
-    performance.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS: Device
-    suppports coherently accessing pageable memory without calling
-    cudaHostRegister on it.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS:
-    Device can coherently access managed memory concurrently with the
-    CPU.CU_DEVICE_ATTRIBUTE_COMPUTE_PREEMPTION_SUPPORTED: Device supports
-    Compute
-    Preemption.CU_DEVICE_ATTRIBUTE_CAN_USE_HOST_POINTER_FOR_REGISTERED_MEM:
-    Device can access host registered memory at the same virtual address as
-    the CPU.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN: The
-    maximum per block shared memory size suported on this device. This is
-    the maximum value that can be opted into when using the
-    cuFuncSetAttribute() call. For more details see CU_FUNC_ATTRIBUTE_MAX_D
-    YNAMIC_SHARED_SIZE_BYTESCU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES
-    _HOST_PAGE_TABLES: Device accesses pageable memory via the host's page
-    tables.CU_DEVICE_ATTRIBUTE_DIRECT_MANAGED_MEM_ACCESS_FROM_HOST: The
-    host can directly access managed memory on the device without
-    migration.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED:
-    Device supports virtual memory management APIs like
-    cuMemAddressReserve, cuMemCreate, cuMemMap and related
-    APIsCU_DEVICE_ATTRIBUTE_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR_SUPPORTED:
-    Device supports exporting memory to a posix file descriptor with
-    cuMemExportToShareableHandle, if requested via
-    cuMemCreateCU_DEVICE_ATTRIBUTE_HANDLE_TYPE_WIN32_HANDLE_SUPPORTED:
-    Device supports exporting memory to a Win32 NT handle with
-    cuMemExportToShareableHandle, if requested via
-    cuMemCreateCU_DEVICE_ATTRIBUTE_HANDLE_TYPE_WIN32_KMT_HANDLE_SUPPORTED:
-    Device supports exporting memory to a Win32 KMT handle with
-    cuMemExportToShareableHandle, if requested
-    cuMemCreateCU_DEVICE_ATTRIBUTE_MAX_PERSISTING_L2_CACHE_SIZE: Maximum L2
-    persisting lines capacity setting in
-    bytes.CU_DEVICE_ATTRIBUTE_MAX_ACCESS_POLICY_WINDOW_SIZE: Maximum value
-    of CUaccessPolicyWindow::num_bytes.CU_DEVICE_ATTRIBUTE_MAX_BLOCKS_PER_M
-    ULTIPROCESSOR: Maximum number of thread blocks that can reside on a
-    multiprocessor.CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED:
-    Device supports compressible memory allocation via
-    cuMemCreateCU_DEVICE_ATTRIBUTE_RESERVED_SHARED_MEMORY_PER_BLOCK: Amount
-    of shared memory per block reserved by CUDA driver in
-    bytes.CU_DEVICE_ATTRIBUTE_READ_ONLY_HOST_REGISTER_SUPPORTED: Device
-    supports using the cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY
-    to register memory that must be mapped as read-only to the
-    GPUCU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED: Device supports using
-    the cuMemAllocAsync and cuMemPool family of APIs
+    memory is not supported by the device on this system.
+    CU_DEVICE_ATTRIBUTE_MULTI_GPU_BOARD: 1 if device is on a multi-GPU
+    board, 0 if not. CU_DEVICE_ATTRIBUTE_MULTI_GPU_BOARD_GROUP_ID: Unique
+    identifier for a group of devices associated with the same board.
+    Devices on the same multi-GPU board will share the same identifier.
+    CU_DEVICE_ATTRIBUTE_HOST_NATIVE_ATOMIC_SUPPORTED: 1 if Link between the
+    device and the host supports native atomic operations.
+    CU_DEVICE_ATTRIBUTE_SINGLE_TO_DOUBLE_PRECISION_PERF_RATIO: Ratio of
+    single precision performance (in floating-point operations per second)
+    to double precision performance.
+    CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS: Device suppports coherently
+    accessing pageable memory without calling cudaHostRegister on it.
+    CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS: Device can coherently
+    access managed memory concurrently with the CPU.
+    CU_DEVICE_ATTRIBUTE_COMPUTE_PREEMPTION_SUPPORTED: Device supports
+    Compute Preemption.
+    CU_DEVICE_ATTRIBUTE_CAN_USE_HOST_POINTER_FOR_REGISTERED_MEM: Device can
+    access host registered memory at the same virtual address as the CPU.
+    CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN: The maximum per
+    block shared memory size suported on this device. This is the maximum
+    value that can be opted into when using the cuFuncSetAttribute() call.
+    For more details see CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
+    CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES:
+    Device accesses pageable memory via the host's page tables.
+    CU_DEVICE_ATTRIBUTE_DIRECT_MANAGED_MEM_ACCESS_FROM_HOST: The host can
+    directly access managed memory on the device without migration.
+    CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED: Device
+    supports virtual memory management APIs like cuMemAddressReserve,
+    cuMemCreate, cuMemMap and related APIs
+    CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR_SUPPORTED: Device
+    supports exporting memory to a posix file descriptor with
+    cuMemExportToShareableHandle, if requested via cuMemCreate
+    CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_WIN32_HANDLE_SUPPORTED: Device supports
+    exporting memory to a Win32 NT handle with
+    cuMemExportToShareableHandle, if requested via cuMemCreate
+    CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_WIN32_KMT_HANDLE_SUPPORTED: Device
+    supports exporting memory to a Win32 KMT handle with
+    cuMemExportToShareableHandle, if requested via cuMemCreate
+    CU_DEVICE_ATTRIBUTE_MAX_BLOCKS_PER_MULTIPROCESSOR: Maximum number of
+    thread blocks that can reside on a multiprocessor
+    CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED: Device supports
+    compressible memory allocation via cuMemCreate
+    CU_DEVICE_ATTRIBUTE_MAX_PERSISTING_L2_CACHE_SIZE: Maximum L2 persisting
+    lines capacity setting in bytes
+    CU_DEVICE_ATTRIBUTE_MAX_ACCESS_POLICY_WINDOW_SIZE: Maximum value of
+    CUaccessPolicyWindow::num_bytes
+    CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_CUDA_VMM_SUPPORTED: Device
+    supports specifying the GPUDirect RDMA flag with cuMemCreate.
+    CU_DEVICE_ATTRIBUTE_RESERVED_SHARED_MEMORY_PER_BLOCK: Amount of shared
+    memory per block reserved by CUDA driver in bytes
+    CU_DEVICE_ATTRIBUTE_SPARSE_CUDA_ARRAY_SUPPORTED: Device supports sparse
+    CUDA arrays and sparse CUDA mipmapped arrays.
+    CU_DEVICE_ATTRIBUTE_READ_ONLY_HOST_REGISTER_SUPPORTED: Device supports
+    using the cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY to
+    register memory that must be mapped as read-only to the GPU
+    CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED: Device supports using the
+    cuMemAllocAsync and cuMemPool family of APIs
+    CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_SUPPORTED: Device supports
+    GPUDirect RDMA APIs, like nvidia_p2p_get_pages (see
+    https://docs.nvidia.com/cuda/gpudirect-rdma for more information)
+    CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_FLUSH_WRITES_OPTIONS: The returned
+    attribute shall be interpreted as a bitmask, where the individual bits
+    are described by the CUflushGPUDirectRDMAWritesOptions enum
+    CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING: GPUDirect RDMA
+    writes to the device do not need to be flushed for consumers within the
+    scope indicated by the returned attribute. See
+    CUGPUDirectRDMAWritesOrdering for the numerical values returned here.
+    CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES: Bitmask of handle
+    types supported with mempool based IPC
 
     Parameters
     ----------
@@ -6424,7 +8412,7 @@ def cuDeviceGetAttribute(attrib not None : CUdevice_attribute, dev not None : CU
 
 @cython.embedsignature(True)
 def cuDeviceGetNvSciSyncAttributes(dev not None : CUdevice, int flags):
-    """ Return NvSciSync attributes that this device can support. 
+    """ Return NvSciSync attributes that this device can support.
 
     Returns in `nvSciSyncAttrList`, the properties of NvSciSync that this
     CUDA device, `dev` can support. The returned `nvSciSyncAttrList` can be
@@ -6441,7 +8429,7 @@ def cuDeviceGetNvSciSyncAttributes(dev not None : CUdevice, int flags):
     The `flags` controls how applications intends to use the NvSciSync
     created from the `nvSciSyncAttrList`. The valid flags are:
     CUDA_NVSCISYNC_ATTR_SIGNAL, specifies that the applications intends to
-    signal an NvSciSync on this CUDA device.CUDA_NVSCISYNC_ATTR_WAIT,
+    signal an NvSciSync on this CUDA device. CUDA_NVSCISYNC_ATTR_WAIT,
     specifies that the applications intends to wait on an NvSciSync on this
     CUDA device.
 
@@ -6460,15 +8448,8 @@ def cuDeviceGetNvSciSyncAttributes(dev not None : CUdevice, int flags):
     Returns
     -------
     CUresult
-        CUDA_SUCCESS
-        CUDA_ERROR_DEINITIALIZED
-        CUDA_ERROR_NOT_INITIALIZED
-        CUDA_ERROR_INVALID_VALUE
-        CUDA_ERROR_INVALID_HANDLE
-        CUDA_ERROR_INVALID_DEVICE
-        CUDA_ERROR_NOT_SUPPORTED
-        CUDA_ERROR_OUT_OF_MEMORY
-    nvSciSyncAttrList : Int
+
+    nvSciSyncAttrList : int
         Return NvSciSync attributes supported.
 
     See Also
@@ -6485,7 +8466,7 @@ def cuDeviceGetNvSciSyncAttributes(dev not None : CUdevice, int flags):
 
 @cython.embedsignature(True)
 def cuDeviceSetMemPool(dev not None : CUdevice, pool not None : CUmemoryPool):
-    """ Sets the current memory pool of a device. 
+    """ Sets the current memory pool of a device.
 
     The memory pool must be local to the specified device. cuMemAllocAsync
     allocates from the current mempool of the provided stream's device. By
@@ -6510,13 +8491,14 @@ def cuDeviceSetMemPool(dev not None : CUdevice, pool not None : CUmemoryPool):
     Notes
     -----
     Use cuMemAllocFromPoolAsync to specify asynchronous allocations from a device different than the one the stream runs on.
+
     """
     err = ccuda.cuDeviceSetMemPool(dev._ptr[0], pool._ptr[0])
     return (CUresult(err),)
 
 @cython.embedsignature(True)
 def cuDeviceGetMemPool(dev not None : CUdevice):
-    """ Gets the current mempool for a device. 
+    """ Gets the current mempool for a device.
 
     Returns the last pool provided to cuDeviceSetMemPool for this device or
     the device's default memory pool if cuDeviceSetMemPool has never been
@@ -6544,7 +8526,7 @@ def cuDeviceGetMemPool(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDeviceGetDefaultMemPool(dev not None : CUdevice):
-    """ Returns the default mempool of a device. 
+    """ Returns the default mempool of a device.
 
     The default mempool of a device contains device memory from that
     device.
@@ -6553,7 +8535,8 @@ def cuDeviceGetDefaultMemPool(dev not None : CUdevice):
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_DEINITIALIZED CUDA_ERROR_NOT_INITIALIZED
+        CUDA_ERROR_DEINITIALIZED
+        CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_DEVICE
         CUDA_ERROR_NOT_SUPPORTED
@@ -6575,8 +8558,49 @@ def cuDeviceGetDefaultMemPool(dev not None : CUdevice):
     return (CUresult(err), pool_out)
 
 @cython.embedsignature(True)
+def cuFlushGPUDirectRDMAWrites(target not None : CUflushGPUDirectRDMAWritesTarget, scope not None : CUflushGPUDirectRDMAWritesScope):
+    """ Blocks until remote writes are visible to the specified scope.
+
+    Blocks until GPUDirect RDMA writes to the target context via mappings
+    created through APIs like nvidia_p2p_get_pages (see
+    https://docs.nvidia.com/cuda/gpudirect-rdma for more information), are
+    visible to the specified scope.
+
+    If the scope equals or lies within the scope indicated by
+    CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING, the call will be a
+    no-op and can be safely omitted for performance. This can be determined
+    by comparing the numerical values between the two enums, with smaller
+    scopes having smaller values.
+
+    Users may query support for this API via
+    CU_DEVICE_ATTRIBUTE_FLUSH_FLUSH_GPU_DIRECT_RDMA_OPTIONS.
+
+    Parameters
+    ----------
+    target : CUflushGPUDirectRDMAWritesTarget
+        The target of the operation, see CUflushGPUDirectRDMAWritesTarget
+    scope : CUflushGPUDirectRDMAWritesScope
+        The scope of the operation, see CUflushGPUDirectRDMAWritesScope
+
+    Returns
+    -------
+    CUresult
+        CUDA_SUCCESS
+        CUDA_ERROR_DEINITIALIZED
+        CUDA_ERROR_NOT_INITIALIZED
+        CUDA_ERROR_INVALID_CONTEXT
+        CUDA_ERROR_INVALID_VALUE
+    None
+        None
+    """
+    cdef ccuda.CUflushGPUDirectRDMAWritesTarget ctarget = target.value
+    cdef ccuda.CUflushGPUDirectRDMAWritesScope cscope = scope.value
+    err = ccuda.cuFlushGPUDirectRDMAWrites(ctarget, cscope)
+    return (CUresult(err),)
+
+@cython.embedsignature(True)
 def cuDeviceGetProperties(dev not None : CUdevice):
-    """ Returns properties for a selected device. 
+    """ Returns properties for a selected device.
 
     Deprecated
 
@@ -6586,24 +8610,23 @@ def cuDeviceGetProperties(dev not None : CUdevice):
     Returns in `*prop` the properties of device `dev`. The CUdevprop
     structure is defined as:
 
-     where:typedefstructCUdevprop_st{intmaxThreadsPerBlock;intmaxThreadsDim
-    [3];intmaxGridSize[3];intsharedMemPerBlock;inttotalConstantMemory;intSI
-    MDWidth;intmemPitch;intregsPerBlock;intclockRate;inttextureAlign}CUdevp
-    rop;
+    typedefstructCUdevprop_st{ intmaxThreadsPerBlock; intmaxThreadsDim[3];
+    intmaxGridSize[3]; intsharedMemPerBlock; inttotalConstantMemory;
+    intSIMDWidth; intmemPitch; intregsPerBlock; intclockRate;
+    inttextureAlign }CUdevprop; where:
 
-     maxThreadsPerBlock is the maximum number of threads per
-    block;maxThreadsDim[3] is the maximum sizes of each dimension of a
-    block;maxGridSize[3] is the maximum sizes of each dimension of a
-    grid;sharedMemPerBlock is the total amount of shared memory available
-    per block in bytes;totalConstantMemory is the total amount of constant
-    memory available on the device in bytes;SIMDWidth is the warp
-    size;memPitch is the maximum pitch allowed by the memory copy functions
-    that involve memory regions allocated through
-    cuMemAllocPitch();regsPerBlock is the total number of registers
-    available per block;clockRate is the clock frequency in
-    kilohertz;textureAlign is the alignment requirement; texture base
-    addresses that are aligned to textureAlign bytes do not need an offset
-    applied to texture fetches.
+    ::maxThreadsPerBlock is the maximum number of threads per block;
+    ::maxThreadsDim[3] is the maximum sizes of each dimension of a block;
+    ::maxGridSize[3] is the maximum sizes of each dimension of a grid;
+    ::sharedMemPerBlock is the total amount of shared memory available per
+    block in bytes; ::totalConstantMemory is the total amount of constant
+    memory available on the device in bytes; ::SIMDWidth is the warp size;
+    ::memPitch is the maximum pitch allowed by the memory copy functions
+    that involve memory regions allocated through cuMemAllocPitch();
+    ::regsPerBlock is the total number of registers available per block;
+    ::clockRate is the clock frequency in kilohertz; ::textureAlign is the
+    alignment requirement; texture base addresses that are aligned to
+    textureAlign bytes do not need an offset applied to texture fetches.
 
     Parameters
     ----------
@@ -6637,7 +8660,7 @@ def cuDeviceGetProperties(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDeviceComputeCapability(dev not None : CUdevice):
-    """ Returns the compute capability of the device. 
+    """ Returns the compute capability of the device.
 
     Deprecated
 
@@ -6682,7 +8705,7 @@ def cuDeviceComputeCapability(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDevicePrimaryCtxRetain(dev not None : CUdevice):
-    """ Retain the primary context on the GPU. 
+    """ Retain the primary context on the GPU.
 
     Retains the primary context on the device. Once the user successfully
     retains the primary context, the primary context will be active and
@@ -6744,7 +8767,7 @@ def cuDevicePrimaryCtxRetain(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDevicePrimaryCtxRelease(dev not None : CUdevice):
-    """ Release the primary context on the GPU. 
+    """ Release the primary context on the GPU.
 
     Releases the primary context interop on the device. A retained context
     should always be released once the user is done using it. The context
@@ -6795,7 +8818,7 @@ def cuDevicePrimaryCtxRelease(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDevicePrimaryCtxSetFlags(dev not None : CUdevice, unsigned int flags):
-    """ Set flags for the primary context. 
+    """ Set flags for the primary context.
 
     Sets the flags for the primary context on the device overwriting
     perviously set ones.
@@ -6805,32 +8828,32 @@ def cuDevicePrimaryCtxSetFlags(dev not None : CUdevice, unsigned int flags):
     interacts with the OS scheduler when waiting for results from the GPU.
     Only one of the scheduling flags can be set when creating a context.
 
-     CU_CTX_SCHED_SPIN: Instruct CUDA to actively spin when waiting for
+    CU_CTX_SCHED_SPIN: Instruct CUDA to actively spin when waiting for
     results from the GPU. This can decrease latency when waiting for the
     GPU, but may lower the performance of CPU threads if they are
-    performing work in parallel with the CUDA thread.CU_CTX_SCHED_YIELD:
+    performing work in parallel with the CUDA thread. CU_CTX_SCHED_YIELD:
     Instruct CUDA to yield its thread when waiting for results from the
     GPU. This can increase latency when waiting for the GPU, but can
     increase the performance of CPU threads performing work in parallel
-    with the GPU.CU_CTX_SCHED_BLOCKING_SYNC: Instruct CUDA to block the CPU
+    with the GPU. CU_CTX_SCHED_BLOCKING_SYNC: Instruct CUDA to block the
+    CPU thread on a synchronization primitive when waiting for the GPU to
+    finish work. CU_CTX_BLOCKING_SYNC: Instruct CUDA to block the CPU
     thread on a synchronization primitive when waiting for the GPU to
-    finish work.CU_CTX_BLOCKING_SYNC: Instruct CUDA to block the CPU thread
-    on a synchronization primitive when waiting for the GPU to finish work.
-    Deprecated: This flag was deprecated as of CUDA 4.0 and was replaced
-    with CU_CTX_SCHED_BLOCKING_SYNC.CU_CTX_SCHED_AUTO: The default value if
-    the `flags` parameter is zero, uses a heuristic based on the number of
-    active CUDA contexts in the process C and the number of logical
-    processors in the system P. If C > P, then CUDA will yield to other OS
-    threads when waiting for the GPU (CU_CTX_SCHED_YIELD), otherwise CUDA
-    will not yield while waiting for results and actively spin on the
-    processor (CU_CTX_SCHED_SPIN). Additionally, on Tegra devices,
-    CU_CTX_SCHED_AUTO uses a heuristic based on the power profile of the
-    platform and may choose CU_CTX_SCHED_BLOCKING_SYNC for low-powered
-    devices.CU_CTX_LMEM_RESIZE_TO_MAX: Instruct CUDA to not reduce local
-    memory after resizing local memory for a kernel. This can prevent
+    finish work.  Deprecated: This flag was deprecated as of CUDA 4.0 and
+    was replaced with CU_CTX_SCHED_BLOCKING_SYNC. CU_CTX_SCHED_AUTO: The
+    default value if the `flags` parameter is zero, uses a heuristic based
+    on the number of active CUDA contexts in the process C and the number
+    of logical processors in the system P. If C > P, then CUDA will yield
+    to other OS threads when waiting for the GPU (CU_CTX_SCHED_YIELD),
+    otherwise CUDA will not yield while waiting for results and actively
+    spin on the processor (CU_CTX_SCHED_SPIN). Additionally, on Tegra
+    devices, CU_CTX_SCHED_AUTO uses a heuristic based on the power profile
+    of the platform and may choose CU_CTX_SCHED_BLOCKING_SYNC for low-
+    powered devices. CU_CTX_LMEM_RESIZE_TO_MAX: Instruct CUDA to not reduce
+    local memory after resizing local memory for a kernel. This can prevent
     thrashing by local memory allocations when launching many kernels with
     high local memory usage at the cost of potentially increased memory
-    usage. Deprecated: This flag is deprecated and the behavior enabled by
+    usage.  Deprecated: This flag is deprecated and the behavior enabled by
     this flag is now the default and cannot be disabled.
 
     Parameters
@@ -6847,7 +8870,7 @@ def cuDevicePrimaryCtxSetFlags(dev not None : CUdevice, unsigned int flags):
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_DEVICE
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -6864,7 +8887,7 @@ def cuDevicePrimaryCtxSetFlags(dev not None : CUdevice, unsigned int flags):
 
 @cython.embedsignature(True)
 def cuDevicePrimaryCtxGetState(dev not None : CUdevice):
-    """ Get the state of the primary context. 
+    """ Get the state of the primary context.
 
     Returns in `*flags` the flags for the primary context of `dev`, and in
     `*active` whether it is active. See cuDevicePrimaryCtxSetFlags for flag
@@ -6882,7 +8905,7 @@ def cuDevicePrimaryCtxGetState(dev not None : CUdevice):
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_DEVICE
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     flags : unsigned int
         Pointer to store flags
     active : int
@@ -6901,7 +8924,7 @@ def cuDevicePrimaryCtxGetState(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDevicePrimaryCtxReset(dev not None : CUdevice):
-    """ Destroy all allocations and reset all state on the primary context. 
+    """ Destroy all allocations and reset all state on the primary context.
 
     Explicitly destroys and cleans up all resources associated with the
     current device in the current process.
@@ -6951,7 +8974,7 @@ def cuDevicePrimaryCtxReset(dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuDeviceGetExecAffinitySupport(typename not None : CUexecAffinityType, dev not None : CUdevice):
-    """ Returns information about the execution affinity support of the device. 
+    """ Returns information about the execution affinity support of the device.
 
     Returns in `*pi` whether execution affinity type `typename` is
     supported by device `dev`. The supported types are:
@@ -6975,7 +8998,8 @@ def cuDeviceGetExecAffinitySupport(typename not None : CUexecAffinityType, dev n
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_DEVICE
     pi : int
-        1 if the execution affinity type
+        1 if the execution affinity type `typename` is supported by the
+        device, or 0 if not
 
     See Also
     --------
@@ -6993,44 +9017,44 @@ def cuDeviceGetExecAffinitySupport(typename not None : CUexecAffinityType, dev n
 
 @cython.embedsignature(True)
 def cuCtxCreate(unsigned int flags, dev not None : CUdevice):
-    """ Create a CUDA context. 
+    """ Create a CUDA context.
 
     The three LSBs of the `flags` parameter can be used to control how the
     OS thread, which owns the CUDA context at the time of an API call,
     interacts with the OS scheduler when waiting for results from the GPU.
     Only one of the scheduling flags can be set when creating a context.
 
-     CU_CTX_SCHED_SPIN: Instruct CUDA to actively spin when waiting for
+    CU_CTX_SCHED_SPIN: Instruct CUDA to actively spin when waiting for
     results from the GPU. This can decrease latency when waiting for the
     GPU, but may lower the performance of CPU threads if they are
-    performing work in parallel with the CUDA thread.CU_CTX_SCHED_YIELD:
+    performing work in parallel with the CUDA thread. CU_CTX_SCHED_YIELD:
     Instruct CUDA to yield its thread when waiting for results from the
     GPU. This can increase latency when waiting for the GPU, but can
     increase the performance of CPU threads performing work in parallel
-    with the GPU.CU_CTX_SCHED_BLOCKING_SYNC: Instruct CUDA to block the CPU
+    with the GPU. CU_CTX_SCHED_BLOCKING_SYNC: Instruct CUDA to block the
+    CPU thread on a synchronization primitive when waiting for the GPU to
+    finish work. CU_CTX_BLOCKING_SYNC: Instruct CUDA to block the CPU
     thread on a synchronization primitive when waiting for the GPU to
-    finish work.CU_CTX_BLOCKING_SYNC: Instruct CUDA to block the CPU thread
-    on a synchronization primitive when waiting for the GPU to finish work.
-    Deprecated: This flag was deprecated as of CUDA 4.0 and was replaced
-    with CU_CTX_SCHED_BLOCKING_SYNC.CU_CTX_SCHED_AUTO: The default value if
-    the `flags` parameter is zero, uses a heuristic based on the number of
-    active CUDA contexts in the process C and the number of logical
-    processors in the system P. If C > P, then CUDA will yield to other OS
-    threads when waiting for the GPU (CU_CTX_SCHED_YIELD), otherwise CUDA
-    will not yield while waiting for results and actively spin on the
-    processor (CU_CTX_SCHED_SPIN). Additionally, on Tegra devices,
-    CU_CTX_SCHED_AUTO uses a heuristic based on the power profile of the
-    platform and may choose CU_CTX_SCHED_BLOCKING_SYNC for low-powered
-    devices.CU_CTX_MAP_HOST: Instruct CUDA to support mapped pinned
-    allocations. This flag must be set in order to allocate pinned host
-    memory that is accessible to the GPU.CU_CTX_LMEM_RESIZE_TO_MAX:
+    finish work.  Deprecated: This flag was deprecated as of CUDA 4.0 and
+    was replaced with CU_CTX_SCHED_BLOCKING_SYNC. CU_CTX_SCHED_AUTO: The
+    default value if the `flags` parameter is zero, uses a heuristic based
+    on the number of active CUDA contexts in the process C and the number
+    of logical processors in the system P. If C > P, then CUDA will yield
+    to other OS threads when waiting for the GPU (CU_CTX_SCHED_YIELD),
+    otherwise CUDA will not yield while waiting for results and actively
+    spin on the processor (CU_CTX_SCHED_SPIN). Additionally, on Tegra
+    devices, CU_CTX_SCHED_AUTO uses a heuristic based on the power profile
+    of the platform and may choose CU_CTX_SCHED_BLOCKING_SYNC for low-
+    powered devices. CU_CTX_MAP_HOST: Instruct CUDA to support mapped
+    pinned allocations. This flag must be set in order to allocate pinned
+    host memory that is accessible to the GPU. CU_CTX_LMEM_RESIZE_TO_MAX:
     Instruct CUDA to not reduce local memory after resizing local memory
     for a kernel. This can prevent thrashing by local memory allocations
     when launching many kernels with high local memory usage at the cost of
-    potentially increased memory usage. Deprecated: This flag is deprecated
-    and the behavior enabled by this flag is now the default and cannot be
-    disabled. Instead, the per-thread stack size can be controlled with
-    cuCtxSetLimit().
+    potentially increased memory usage.  Deprecated: This flag is
+    deprecated and the behavior enabled by this flag is now the default and
+    cannot be disabled. Instead, the per-thread stack size can be
+    controlled with cuCtxSetLimit().
 
     Context creation will fail with CUDA_ERROR_UNKNOWN if the compute mode
     of the device is CU_COMPUTEMODE_PROHIBITED. The function
@@ -7078,6 +9102,7 @@ def cuCtxCreate(unsigned int flags, dev not None : CUdevice):
     Notes
     -----
     In most cases it is recommended to use cuDevicePrimaryCtxRetain.
+
     """
     cdef CUcontext pctx = CUcontext()
     err = ccuda.cuCtxCreate(pctx._ptr, flags, dev._ptr[0])
@@ -7085,7 +9110,7 @@ def cuCtxCreate(unsigned int flags, dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuCtxCreate_v3(paramsArray : List[CUexecAffinityParam], int numParams, unsigned int flags, dev not None : CUdevice):
-    """ Create a CUDA context with execution affinity. 
+    """ Create a CUDA context with execution affinity.
 
     Creates a new CUDA context with execution affinity and associates it
     with the calling thread. The `paramsArray` and `flags` parameter are
@@ -7114,37 +9139,37 @@ def cuCtxCreate_v3(paramsArray : List[CUexecAffinityParam], int numParams, unsig
     interacts with the OS scheduler when waiting for results from the GPU.
     Only one of the scheduling flags can be set when creating a context.
 
-     CU_CTX_SCHED_SPIN: Instruct CUDA to actively spin when waiting for
+    CU_CTX_SCHED_SPIN: Instruct CUDA to actively spin when waiting for
     results from the GPU. This can decrease latency when waiting for the
     GPU, but may lower the performance of CPU threads if they are
-    performing work in parallel with the CUDA thread.CU_CTX_SCHED_YIELD:
+    performing work in parallel with the CUDA thread. CU_CTX_SCHED_YIELD:
     Instruct CUDA to yield its thread when waiting for results from the
     GPU. This can increase latency when waiting for the GPU, but can
     increase the performance of CPU threads performing work in parallel
-    with the GPU.CU_CTX_SCHED_BLOCKING_SYNC: Instruct CUDA to block the CPU
+    with the GPU. CU_CTX_SCHED_BLOCKING_SYNC: Instruct CUDA to block the
+    CPU thread on a synchronization primitive when waiting for the GPU to
+    finish work. CU_CTX_BLOCKING_SYNC: Instruct CUDA to block the CPU
     thread on a synchronization primitive when waiting for the GPU to
-    finish work.CU_CTX_BLOCKING_SYNC: Instruct CUDA to block the CPU thread
-    on a synchronization primitive when waiting for the GPU to finish work.
-    Deprecated: This flag was deprecated as of CUDA 4.0 and was replaced
-    with CU_CTX_SCHED_BLOCKING_SYNC.CU_CTX_SCHED_AUTO: The default value if
-    the `flags` parameter is zero, uses a heuristic based on the number of
-    active CUDA contexts in the process C and the number of logical
-    processors in the system P. If C > P, then CUDA will yield to other OS
-    threads when waiting for the GPU (CU_CTX_SCHED_YIELD), otherwise CUDA
-    will not yield while waiting for results and actively spin on the
-    processor (CU_CTX_SCHED_SPIN). Additionally, on Tegra devices,
-    CU_CTX_SCHED_AUTO uses a heuristic based on the power profile of the
-    platform and may choose CU_CTX_SCHED_BLOCKING_SYNC for low-powered
-    devices.CU_CTX_MAP_HOST: Instruct CUDA to support mapped pinned
-    allocations. This flag must be set in order to allocate pinned host
-    memory that is accessible to the GPU.CU_CTX_LMEM_RESIZE_TO_MAX:
+    finish work.  Deprecated: This flag was deprecated as of CUDA 4.0 and
+    was replaced with CU_CTX_SCHED_BLOCKING_SYNC. CU_CTX_SCHED_AUTO: The
+    default value if the `flags` parameter is zero, uses a heuristic based
+    on the number of active CUDA contexts in the process C and the number
+    of logical processors in the system P. If C > P, then CUDA will yield
+    to other OS threads when waiting for the GPU (CU_CTX_SCHED_YIELD),
+    otherwise CUDA will not yield while waiting for results and actively
+    spin on the processor (CU_CTX_SCHED_SPIN). Additionally, on Tegra
+    devices, CU_CTX_SCHED_AUTO uses a heuristic based on the power profile
+    of the platform and may choose CU_CTX_SCHED_BLOCKING_SYNC for low-
+    powered devices. CU_CTX_MAP_HOST: Instruct CUDA to support mapped
+    pinned allocations. This flag must be set in order to allocate pinned
+    host memory that is accessible to the GPU. CU_CTX_LMEM_RESIZE_TO_MAX:
     Instruct CUDA to not reduce local memory after resizing local memory
     for a kernel. This can prevent thrashing by local memory allocations
     when launching many kernels with high local memory usage at the cost of
-    potentially increased memory usage. Deprecated: This flag is deprecated
-    and the behavior enabled by this flag is now the default and cannot be
-    disabled. Instead, the per-thread stack size can be controlled with
-    cuCtxSetLimit().
+    potentially increased memory usage.  Deprecated: This flag is
+    deprecated and the behavior enabled by this flag is now the default and
+    cannot be disabled. Instead, the per-thread stack size can be
+    controlled with cuCtxSetLimit().
 
     Context creation will fail with CUDA_ERROR_UNKNOWN if the compute mode
     of the device is CU_COMPUTEMODE_PROHIBITED. The function
@@ -7193,10 +9218,11 @@ def cuCtxCreate_v3(paramsArray : List[CUexecAffinityParam], int numParams, unsig
     cuCtxSetCacheConfig
     cuCtxSetLimit
     cuCtxSynchronize
+    CUexecAffinityParam
     """
     paramsArray = [] if paramsArray is None else paramsArray
     if not all(isinstance(_x, (CUexecAffinityParam)) for _x in paramsArray):
-        raise TypeError("Argument 'paramsArray' is not instance of type (expected List[cuda.ccuda.CUexecAffinityParam]")
+        raise TypeError("Argument 'paramsArray' is not instance of type (expected List[ccuda.CUexecAffinityParam]")
     cdef CUcontext pctx = CUcontext()
     cdef ccuda.CUexecAffinityParam* cparamsArray = NULL
     if len(paramsArray) > 0:
@@ -7213,12 +9239,20 @@ def cuCtxCreate_v3(paramsArray : List[CUexecAffinityParam], int numParams, unsig
 
 @cython.embedsignature(True)
 def cuCtxDestroy(ctx not None : CUcontext):
-    """ Destroy a CUDA context. 
+    """ Destroy a CUDA context.
 
     Destroys the CUDA context specified by `ctx`. The context `ctx` will be
     destroyed regardless of how many threads it is current to. It is the
     responsibility of the calling function to ensure that no API call
     issues using `ctx` while cuCtxDestroy() is executing.
+
+    Destroys and cleans up all resources associated with the context. It is
+    the caller's responsibility to ensure that the context or its resources
+    are not accessed or passed in subsequent API calls and doing so will
+    result in undefined behavior. These resources include CUDA types such
+    as CUmodule, CUfunction, CUstream, CUevent, CUarray, CUmipmappedArray,
+    CUtexObject, CUsurfObject, CUtexref, CUsurfref, CUgraphicsResource,
+    CUlinkState, CUexternalMemory and CUexternalSemaphore.
 
     If `ctx` is current to the calling thread then `ctx` will also be
     popped from the current thread's context stack (as though
@@ -7262,7 +9296,7 @@ def cuCtxDestroy(ctx not None : CUcontext):
 
 @cython.embedsignature(True)
 def cuCtxPushCurrent(ctx not None : CUcontext):
-    """ Pushes a context on the current CPU thread. 
+    """ Pushes a context on the current CPU thread.
 
     Pushes the given context `ctx` onto the CPU thread's stack of current
     contexts. The specified context becomes the CPU thread's current
@@ -7307,7 +9341,7 @@ def cuCtxPushCurrent(ctx not None : CUcontext):
 
 @cython.embedsignature(True)
 def cuCtxPopCurrent():
-    """ Pops the current CUDA context from the current CPU thread. 
+    """ Pops the current CUDA context from the current CPU thread.
 
     Pops the current CUDA context from the CPU thread and passes back the
     old context handle in `*pctx`. That context may then be made current to
@@ -7347,7 +9381,7 @@ def cuCtxPopCurrent():
 
 @cython.embedsignature(True)
 def cuCtxSetCurrent(ctx not None : CUcontext):
-    """ Binds the specified CUDA context to the calling CPU thread. 
+    """ Binds the specified CUDA context to the calling CPU thread.
 
     Binds the specified CUDA context to the calling CPU thread. If `ctx` is
     NULL then the CUDA context previously bound to the calling CPU thread
@@ -7386,7 +9420,7 @@ def cuCtxSetCurrent(ctx not None : CUcontext):
 
 @cython.embedsignature(True)
 def cuCtxGetCurrent():
-    """ Returns the CUDA context bound to the calling CPU thread. 
+    """ Returns the CUDA context bound to the calling CPU thread.
 
     Returns in `*pctx` the CUDA context bound to the calling CPU thread. If
     no context is bound to the calling CPU thread then `*pctx` is set to
@@ -7397,7 +9431,7 @@ def cuCtxGetCurrent():
     CUresult
         CUDA_SUCCESS
         CUDA_ERROR_DEINITIALIZED
-        CUDA_ERROR_NOT_INITIALIZED,
+        CUDA_ERROR_NOT_INITIALIZED
     pctx : CUcontext
         Returned context handle
 
@@ -7414,7 +9448,7 @@ def cuCtxGetCurrent():
 
 @cython.embedsignature(True)
 def cuCtxGetDevice():
-    """ Returns the device ID for the current context. 
+    """ Returns the device ID for the current context.
 
     Returns in `*device` the ordinal of the current context's device.
 
@@ -7425,7 +9459,7 @@ def cuCtxGetDevice():
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_CONTEXT
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     device : CUdevice
         Returned device ID for the current context
 
@@ -7450,7 +9484,7 @@ def cuCtxGetDevice():
 
 @cython.embedsignature(True)
 def cuCtxGetFlags():
-    """ Returns the flags for the current context. 
+    """ Returns the flags for the current context.
 
     Returns in `*flags` the flags of the current context. See cuCtxCreate
     for flag values.
@@ -7462,7 +9496,7 @@ def cuCtxGetFlags():
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_CONTEXT
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     flags : unsigned int
         Pointer to store flags of current context
 
@@ -7484,7 +9518,7 @@ def cuCtxGetFlags():
 
 @cython.embedsignature(True)
 def cuCtxSynchronize():
-    """ Block for a context's tasks to complete. 
+    """ Block for a context's tasks to complete.
 
     Blocks until the device has completed all preceding requested tasks.
     cuCtxSynchronize() returns an error if one of the preceding tasks
@@ -7522,7 +9556,7 @@ def cuCtxSynchronize():
 
 @cython.embedsignature(True)
 def cuCtxSetLimit(limit not None : CUlimit, size_t value):
-    """ Set resource limits. 
+    """ Set resource limits.
 
     Setting `limit` to `value` is a request by the application to update
     the current limit maintained by the context. The driver is free to
@@ -7534,42 +9568,42 @@ def cuCtxSetLimit(limit not None : CUlimit, size_t value):
     Setting each CUlimit has its own specific restrictions, so each is
     discussed here.
 
-     CU_LIMIT_STACK_SIZE controls the stack size in bytes of each GPU
+    CU_LIMIT_STACK_SIZE controls the stack size in bytes of each GPU
     thread. The driver automatically increases the per-thread stack size
     for each kernel launch as needed. This size isn't reset back to the
     original value after each launch. Setting this value will take effect
     immediately, and if necessary, the device will block until all
-    preceding requested tasks are complete.CU_LIMIT_PRINTF_FIFO_SIZE
+    preceding requested tasks are complete. CU_LIMIT_PRINTF_FIFO_SIZE
     controls the size in bytes of the FIFO used by the printf() device
     system call. Setting CU_LIMIT_PRINTF_FIFO_SIZE must be performed before
     launching any kernel that uses the printf() device system call,
-    otherwise CUDA_ERROR_INVALID_VALUE will be
-    returned.CU_LIMIT_MALLOC_HEAP_SIZE controls the size in bytes of the
-    heap used by the malloc() and free() device system calls. Setting
+    otherwise CUDA_ERROR_INVALID_VALUE will be returned.
+    CU_LIMIT_MALLOC_HEAP_SIZE controls the size in bytes of the heap used
+    by the malloc() and free() device system calls. Setting
     CU_LIMIT_MALLOC_HEAP_SIZE must be performed before launching any kernel
     that uses the malloc() or free() device system calls, otherwise
-    CUDA_ERROR_INVALID_VALUE will be
-    returned.CU_LIMIT_DEV_RUNTIME_SYNC_DEPTH controls the maximum nesting
-    depth of a grid at which a thread can safely call
-    cudaDeviceSynchronize(). Setting this limit must be performed before
-    any launch of a kernel that uses the device runtime and calls
-    cudaDeviceSynchronize() above the default sync depth, two levels of
-    grids. Calls to cudaDeviceSynchronize() will fail with error code
-    cudaErrorSyncDepthExceeded if the limitation is violated. This limit
-    can be set smaller than the default or up the maximum launch depth of
-    24. When setting this limit, keep in mind that additional levels of
-    sync depth require the driver to reserve large amounts of device memory
-    which can no longer be used for user allocations. If these reservations
-    of device memory fail, cuCtxSetLimit() will return
-    CUDA_ERROR_OUT_OF_MEMORY, and the limit can be reset to a lower value.
-    This limit is only applicable to devices of compute capability 3.5 and
-    higher. Attempting to set this limit on devices of compute capability
-    less than 3.5 will result in the error CUDA_ERROR_UNSUPPORTED_LIMIT
-    being returned.CU_LIMIT_DEV_RUNTIME_PENDING_LAUNCH_COUNT controls the
-    maximum number of outstanding device runtime launches that can be made
-    from the current context. A grid is outstanding from the point of
-    launch up until the grid is known to have been completed. Device
-    runtime launches which violate this limitation fail and return
+    CUDA_ERROR_INVALID_VALUE will be returned.
+    CU_LIMIT_DEV_RUNTIME_SYNC_DEPTH controls the maximum nesting depth of a
+    grid at which a thread can safely call cudaDeviceSynchronize(). Setting
+    this limit must be performed before any launch of a kernel that uses
+    the device runtime and calls cudaDeviceSynchronize() above the default
+    sync depth, two levels of grids. Calls to cudaDeviceSynchronize() will
+    fail with error code cudaErrorSyncDepthExceeded if the limitation is
+    violated. This limit can be set smaller than the default or up the
+    maximum launch depth of 24. When setting this limit, keep in mind that
+    additional levels of sync depth require the driver to reserve large
+    amounts of device memory which can no longer be used for user
+    allocations. If these reservations of device memory fail,
+    cuCtxSetLimit() will return CUDA_ERROR_OUT_OF_MEMORY, and the limit can
+    be reset to a lower value. This limit is only applicable to devices of
+    compute capability 3.5 and higher. Attempting to set this limit on
+    devices of compute capability less than 3.5 will result in the error
+    CUDA_ERROR_UNSUPPORTED_LIMIT being returned.
+    CU_LIMIT_DEV_RUNTIME_PENDING_LAUNCH_COUNT controls the maximum number
+    of outstanding device runtime launches that can be made from the
+    current context. A grid is outstanding from the point of launch up
+    until the grid is known to have been completed. Device runtime launches
+    which violate this limitation fail and return
     cudaErrorLaunchPendingCountExceeded when cudaGetLastError() is called
     after launch. If more pending launches than the default (2048 launches)
     are needed for a module using the device runtime, this limit can be
@@ -7581,10 +9615,10 @@ def cuCtxSetLimit(limit not None : CUlimit, size_t value):
     This limit is only applicable to devices of compute capability 3.5 and
     higher. Attempting to set this limit on devices of compute capability
     less than 3.5 will result in the error CUDA_ERROR_UNSUPPORTED_LIMIT
-    being returned.CU_LIMIT_MAX_L2_FETCH_GRANULARITY controls the L2 cache
+    being returned. CU_LIMIT_MAX_L2_FETCH_GRANULARITY controls the L2 cache
     fetch granularity. Values can range from 0B to 128B. This is purely a
     performence hint and it can be ignored or clamped depending on the
-    platform.CU_LIMIT_PERSISTING_L2_CACHE_SIZE controls size in bytes
+    platform. CU_LIMIT_PERSISTING_L2_CACHE_SIZE controls size in bytes
     availabe for persisting L2 cache. This is purely a performance hint and
     it can be ignored or clamped depending on the platform.
 
@@ -7627,21 +9661,20 @@ def cuCtxSetLimit(limit not None : CUlimit, size_t value):
 
 @cython.embedsignature(True)
 def cuCtxGetLimit(limit not None : CUlimit):
-    """ Returns resource limits. 
+    """ Returns resource limits.
 
     Returns in `*pvalue` the current size of `limit`. The supported CUlimit
     values are: CU_LIMIT_STACK_SIZE: stack size in bytes of each GPU
-    thread.CU_LIMIT_PRINTF_FIFO_SIZE: size in bytes of the FIFO used by the
-    printf() device system call.CU_LIMIT_MALLOC_HEAP_SIZE: size in bytes of
-    the heap used by the malloc() and free() device system
-    calls.CU_LIMIT_DEV_RUNTIME_SYNC_DEPTH: maximum grid depth at which a
-    thread can issue the device runtime call cudaDeviceSynchronize() to
-    wait on child grid launches to
-    complete.CU_LIMIT_DEV_RUNTIME_PENDING_LAUNCH_COUNT: maximum number of
-    outstanding device runtime launches that can be made from this
-    context.CU_LIMIT_MAX_L2_FETCH_GRANULARITY: L2 cache fetch
-    granularity.CU_LIMIT_PERSISTING_L2_CACHE_SIZE: Persisting L2 cache size
-    in bytes
+    thread. CU_LIMIT_PRINTF_FIFO_SIZE: size in bytes of the FIFO used by
+    the printf() device system call. CU_LIMIT_MALLOC_HEAP_SIZE: size in
+    bytes of the heap used by the malloc() and free() device system calls.
+    CU_LIMIT_DEV_RUNTIME_SYNC_DEPTH: maximum grid depth at which a thread
+    can issue the device runtime call cudaDeviceSynchronize() to wait on
+    child grid launches to complete.
+    CU_LIMIT_DEV_RUNTIME_PENDING_LAUNCH_COUNT: maximum number of
+    outstanding device runtime launches that can be made from this context.
+    CU_LIMIT_MAX_L2_FETCH_GRANULARITY: L2 cache fetch granularity.
+    CU_LIMIT_PERSISTING_L2_CACHE_SIZE: Persisting L2 cache size in bytes
 
     Parameters
     ----------
@@ -7654,7 +9687,7 @@ def cuCtxGetLimit(limit not None : CUlimit):
         CUDA_SUCCESS
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_UNSUPPORTED_LIMIT
-    pvalue : Int
+    pvalue : int
         Returned size of limit
 
     See Also
@@ -7679,7 +9712,7 @@ def cuCtxGetLimit(limit not None : CUlimit):
 
 @cython.embedsignature(True)
 def cuCtxGetCacheConfig():
-    """ Returns the preferred cache configuration for the current context. 
+    """ Returns the preferred cache configuration for the current context.
 
     On devices where the L1 cache and shared memory use the same hardware
     resources, this function returns through `pconfig` the preferred cache
@@ -7691,11 +9724,11 @@ def cuCtxGetCacheConfig():
     where the size of the L1 cache and shared memory are fixed.
 
     The supported cache configurations are: CU_FUNC_CACHE_PREFER_NONE: no
-    preference for shared memory or L1
-    (default)CU_FUNC_CACHE_PREFER_SHARED: prefer larger shared memory and
-    smaller L1 cacheCU_FUNC_CACHE_PREFER_L1: prefer larger L1 cache and
-    smaller shared memoryCU_FUNC_CACHE_PREFER_EQUAL: prefer equal sized L1
-    cache and shared memory
+    preference for shared memory or L1 (default)
+    CU_FUNC_CACHE_PREFER_SHARED: prefer larger shared memory and smaller L1
+    cache CU_FUNC_CACHE_PREFER_L1: prefer larger L1 cache and smaller
+    shared memory CU_FUNC_CACHE_PREFER_EQUAL: prefer equal sized L1 cache
+    and shared memory
 
     Returns
     -------
@@ -7730,7 +9763,7 @@ def cuCtxGetCacheConfig():
 
 @cython.embedsignature(True)
 def cuCtxSetCacheConfig(config not None : CUfunc_cache):
-    """ Sets the preferred cache configuration for the current context. 
+    """ Sets the preferred cache configuration for the current context.
 
     On devices where the L1 cache and shared memory use the same hardware
     resources, this sets through `config` the preferred cache configuration
@@ -7750,11 +9783,11 @@ def cuCtxSetCacheConfig(config not None : CUfunc_cache):
     preference setting may insert a device-side synchronization point.
 
     The supported cache configurations are: CU_FUNC_CACHE_PREFER_NONE: no
-    preference for shared memory or L1
-    (default)CU_FUNC_CACHE_PREFER_SHARED: prefer larger shared memory and
-    smaller L1 cacheCU_FUNC_CACHE_PREFER_L1: prefer larger L1 cache and
-    smaller shared memoryCU_FUNC_CACHE_PREFER_EQUAL: prefer equal sized L1
-    cache and shared memory
+    preference for shared memory or L1 (default)
+    CU_FUNC_CACHE_PREFER_SHARED: prefer larger shared memory and smaller L1
+    cache CU_FUNC_CACHE_PREFER_L1: prefer larger L1 cache and smaller
+    shared memory CU_FUNC_CACHE_PREFER_EQUAL: prefer equal sized L1 cache
+    and shared memory
 
     Parameters
     ----------
@@ -7794,7 +9827,7 @@ def cuCtxSetCacheConfig(config not None : CUfunc_cache):
 
 @cython.embedsignature(True)
 def cuCtxGetSharedMemConfig():
-    """ Returns the current shared memory configuration for the current context. 
+    """ Returns the current shared memory configuration for the current context.
 
     This function will return in `pConfig` the current size of shared
     memory banks in the current context. On devices with configurable
@@ -7806,7 +9839,7 @@ def cuCtxGetSharedMemConfig():
 
     The returned bank configurations can be either:
     CU_SHARED_MEM_CONFIG_FOUR_BYTE_BANK_SIZE: shared memory bank width is
-    four bytes.CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE: shared memory
+    four bytes. CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE: shared memory
     bank width will eight bytes.
 
     Returns
@@ -7843,7 +9876,7 @@ def cuCtxGetSharedMemConfig():
 
 @cython.embedsignature(True)
 def cuCtxSetSharedMemConfig(config not None : CUsharedconfig):
-    """ Sets the shared memory configuration for the current context. 
+    """ Sets the shared memory configuration for the current context.
 
     On devices with configurable shared memory banks, this function will
     set the context's shared memory bank size which is used for subsequent
@@ -7863,11 +9896,10 @@ def cuCtxSetSharedMemConfig(config not None : CUsharedconfig):
 
     The supported bank configurations are:
     CU_SHARED_MEM_CONFIG_DEFAULT_BANK_SIZE: set bank width to the default
-    initial setting (currently, four
-    bytes).CU_SHARED_MEM_CONFIG_FOUR_BYTE_BANK_SIZE: set shared memory bank
-    width to be natively four
-    bytes.CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE: set shared memory bank
-    width to be natively eight bytes.
+    initial setting (currently, four bytes).
+    CU_SHARED_MEM_CONFIG_FOUR_BYTE_BANK_SIZE: set shared memory bank width
+    to be natively four bytes. CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE:
+    set shared memory bank width to be natively eight bytes.
 
     Parameters
     ----------
@@ -7908,7 +9940,7 @@ def cuCtxSetSharedMemConfig(config not None : CUsharedconfig):
 
 @cython.embedsignature(True)
 def cuCtxGetApiVersion(ctx not None : CUcontext):
-    """ Gets the context's API version. 
+    """ Gets the context's API version.
 
     Returns a version number in `version` corresponding to the capabilities
     of the context (e.g. 3010 or 3020), which library developers can use to
@@ -7956,7 +9988,7 @@ def cuCtxGetApiVersion(ctx not None : CUcontext):
 
 @cython.embedsignature(True)
 def cuCtxGetStreamPriorityRange():
-    """ Returns numerical values that correspond to the least and greatest stream priorities. 
+    """ Returns numerical values that correspond to the least and greatest stream priorities.
 
     Returns in `*leastPriority` and `*greatestPriority` the numerical
     values that correspond to the least and greatest stream priorities
@@ -7978,7 +10010,7 @@ def cuCtxGetStreamPriorityRange():
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     leastPriority : int
         Pointer to an int in which the numerical value for least stream
         priority is returned
@@ -8003,7 +10035,7 @@ def cuCtxGetStreamPriorityRange():
 
 @cython.embedsignature(True)
 def cuCtxResetPersistingL2Cache():
-    """ Resets all persisting lines in cache to normal status. 
+    """ Resets all persisting lines in cache to normal status.
 
     cuCtxResetPersistingL2Cache Resets all persisting lines in cache to
     normal status. Takes effect on function return.
@@ -8021,7 +10053,7 @@ def cuCtxResetPersistingL2Cache():
 
 @cython.embedsignature(True)
 def cuCtxGetExecAffinity(typename not None : CUexecAffinityType):
-    """ Returns the execution affinity setting for the current context. 
+    """ Returns the execution affinity setting for the current context.
 
     Returns in `*pExecAffinity` the current value of `typename`. The
     supported CUexecAffinityType values are:
@@ -8052,7 +10084,7 @@ def cuCtxGetExecAffinity(typename not None : CUexecAffinityType):
 
 @cython.embedsignature(True)
 def cuCtxAttach(unsigned int flags):
-    """ Increment a context's usage-count. 
+    """ Increment a context's usage-count.
 
     Deprecated
 
@@ -8103,7 +10135,7 @@ def cuCtxAttach(unsigned int flags):
 
 @cython.embedsignature(True)
 def cuCtxDetach(ctx not None : CUcontext):
-    """ Decrement a context's usage-count. 
+    """ Decrement a context's usage-count.
 
     Deprecated
 
@@ -8149,7 +10181,7 @@ def cuCtxDetach(ctx not None : CUcontext):
 
 @cython.embedsignature(True)
 def cuModuleLoad(char* fname):
-    """ Loads a compute module. 
+    """ Loads a compute module.
 
     Takes a filename `fname` and loads the corresponding module `module`
     into the current context. The CUDA driver API does not attempt to
@@ -8161,7 +10193,7 @@ def cuModuleLoad(char* fname):
 
     Parameters
     ----------
-    fname : char*
+    fname : bytes
         Filename of module to load
 
     Returns
@@ -8200,7 +10232,7 @@ def cuModuleLoad(char* fname):
 
 @cython.embedsignature(True)
 def cuModuleLoadData(image):
-    """ Load a module's data. 
+    """ Load a module's data.
 
     Takes a pointer `image` and loads the corresponding module `module`
     into the current context. The pointer may be obtained by mapping a
@@ -8250,7 +10282,7 @@ def cuModuleLoadData(image):
 
 @cython.embedsignature(True)
 def cuModuleLoadDataEx(image, unsigned int numOptions, options : List[CUjit_option], optionValues : List[Any]):
-    """ Load a module's data with options. 
+    """ Load a module's data with options.
 
     Takes a pointer `image` and loads the corresponding module `module`
     into the current context. The pointer may be obtained by mapping a
@@ -8303,7 +10335,7 @@ def cuModuleLoadDataEx(image, unsigned int numOptions, options : List[CUjit_opti
     """
     options = [] if options is None else options
     if not all(isinstance(_x, (CUjit_option)) for _x in options):
-        raise TypeError("Argument 'options' is not instance of type (expected List[cuda.ccuda.CUjit_option]")
+        raise TypeError("Argument 'options' is not instance of type (expected List[ccuda.CUjit_option]")
     cdef CUmodule module = CUmodule()
     cimage = utils.HelperInputVoidPtr(image)
     cdef void* cimage_ptr = <void*><void_ptr>cimage.cptr
@@ -8317,7 +10349,7 @@ def cuModuleLoadDataEx(image, unsigned int numOptions, options : List[CUjit_opti
 
 @cython.embedsignature(True)
 def cuModuleLoadFatBinary(fatCubin):
-    """ Load a module's data. 
+    """ Load a module's data.
 
     Takes a pointer `fatCubin` and loads the corresponding module `module`
     into the current context. The pointer represents a fat binary object,
@@ -8372,7 +10404,7 @@ def cuModuleLoadFatBinary(fatCubin):
 
 @cython.embedsignature(True)
 def cuModuleUnload(hmod not None : CUmodule):
-    """ Unloads a module. 
+    """ Unloads a module.
 
     Unloads a module `hmod` from the current context.
 
@@ -8407,7 +10439,7 @@ def cuModuleUnload(hmod not None : CUmodule):
 
 @cython.embedsignature(True)
 def cuModuleGetFunction(hmod not None : CUmodule, char* name):
-    """ Returns a function handle. 
+    """ Returns a function handle.
 
     Returns in `*hfunc` the handle of the function of name `name` located
     in module `hmod`. If no function of that name exists,
@@ -8417,7 +10449,7 @@ def cuModuleGetFunction(hmod not None : CUmodule, char* name):
     ----------
     hmod : CUmodule
         Module to retrieve function from
-    name : char*
+    name : bytes
         Name of function to retrieve
 
     Returns
@@ -8448,7 +10480,7 @@ def cuModuleGetFunction(hmod not None : CUmodule, char* name):
 
 @cython.embedsignature(True)
 def cuModuleGetGlobal(hmod not None : CUmodule, char* name):
-    """ Returns a global pointer from a module. 
+    """ Returns a global pointer from a module.
 
     Returns in `*dptr` and `*bytes` the base pointer and size of the global
     of name `name` located in module `hmod`. If no variable of that name
@@ -8460,7 +10492,7 @@ def cuModuleGetGlobal(hmod not None : CUmodule, char* name):
     ----------
     hmod : CUmodule
         Module to retrieve global from
-    name : char*
+    name : bytes
         Name of global to retrieve
 
     Returns
@@ -8474,7 +10506,7 @@ def cuModuleGetGlobal(hmod not None : CUmodule, char* name):
         CUDA_ERROR_NOT_FOUND
     dptr : CUdeviceptr
         Returned global device pointer
-    numbytes : Int
+    numbytes : int
         Returned global size in bytes
 
     See Also
@@ -8496,7 +10528,7 @@ def cuModuleGetGlobal(hmod not None : CUmodule, char* name):
 
 @cython.embedsignature(True)
 def cuModuleGetTexRef(hmod not None : CUmodule, char* name):
-    """ Returns a handle to a texture reference. 
+    """ Returns a handle to a texture reference.
 
     Returns in `*pTexRef` the handle of the texture reference of name
     `name` in the module `hmod`. If no texture reference of that name
@@ -8508,7 +10540,7 @@ def cuModuleGetTexRef(hmod not None : CUmodule, char* name):
     ----------
     hmod : CUmodule
         Module to retrieve texture reference from
-    name : char*
+    name : bytes
         Name of texture reference to retrieve
 
     Returns
@@ -8541,7 +10573,7 @@ def cuModuleGetTexRef(hmod not None : CUmodule, char* name):
 
 @cython.embedsignature(True)
 def cuModuleGetSurfRef(hmod not None : CUmodule, char* name):
-    """ Returns a handle to a surface reference. 
+    """ Returns a handle to a surface reference.
 
     Returns in `*pSurfRef` the handle of the surface reference of name
     `name` in the module `hmod`. If no surface reference of that name
@@ -8551,7 +10583,7 @@ def cuModuleGetSurfRef(hmod not None : CUmodule, char* name):
     ----------
     hmod : CUmodule
         Module to retrieve surface reference from
-    name : char*
+    name : bytes
         Name of surface reference to retrieve
 
     Returns
@@ -8584,7 +10616,7 @@ def cuModuleGetSurfRef(hmod not None : CUmodule, char* name):
 
 @cython.embedsignature(True)
 def cuLinkCreate(unsigned int numOptions, options : List[CUjit_option], optionValues : List[Any]):
-    """ Creates a pending JIT linker invocation. 
+    """ Creates a pending JIT linker invocation.
 
     If the call is successful, the caller owns the returned CUlinkState,
     which should eventually be destroyed with cuLinkDestroy. The device
@@ -8633,7 +10665,7 @@ def cuLinkCreate(unsigned int numOptions, options : List[CUjit_option], optionVa
     """
     options = [] if options is None else options
     if not all(isinstance(_x, (CUjit_option)) for _x in options):
-        raise TypeError("Argument 'options' is not instance of type (expected List[cuda.ccuda.CUjit_option]")
+        raise TypeError("Argument 'options' is not instance of type (expected List[ccuda.CUjit_option]")
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
     cdef vector[ccuda.CUjit_option] coptions = [pyoptions.value for pyoptions in (options)]
@@ -8648,7 +10680,7 @@ def cuLinkCreate(unsigned int numOptions, options : List[CUjit_option], optionVa
 
 @cython.embedsignature(True)
 def cuLinkAddData(state not None : CUlinkState, typename not None : CUjitInputType, data, size_t size, char* name, unsigned int numOptions, options : List[CUjit_option], optionValues : List[Any]):
-    """ Add an input to a pending linker invocation. 
+    """ Add an input to a pending linker invocation.
 
     Ownership of `data` is retained by the caller. No reference is retained
     to any inputs after this call returns.
@@ -8668,7 +10700,7 @@ def cuLinkAddData(state not None : CUlinkState, typename not None : CUjitInputTy
         The input data. PTX must be NULL-terminated.
     size : size_t
         The length of the input data.
-    name : char*
+    name : bytes
         An optional name for this input in log messages.
     numOptions : unsigned int
         Size of options.
@@ -8701,7 +10733,7 @@ def cuLinkAddData(state not None : CUlinkState, typename not None : CUjitInputTy
     """
     options = [] if options is None else options
     if not all(isinstance(_x, (CUjit_option)) for _x in options):
-        raise TypeError("Argument 'options' is not instance of type (expected List[cuda.ccuda.CUjit_option]")
+        raise TypeError("Argument 'options' is not instance of type (expected List[ccuda.CUjit_option]")
     cdef ccuda.CUjitInputType ctypename = typename.value
     cdata = utils.HelperInputVoidPtr(data)
     cdef void* cdata_ptr = <void*><void_ptr>cdata.cptr
@@ -8715,7 +10747,7 @@ def cuLinkAddData(state not None : CUlinkState, typename not None : CUjitInputTy
 
 @cython.embedsignature(True)
 def cuLinkAddFile(state not None : CUlinkState, typename not None : CUjitInputType, char* path, unsigned int numOptions, options : List[CUjit_option], optionValues : List[Any]):
-    """ Add a file input to a pending linker invocation. 
+    """ Add a file input to a pending linker invocation.
 
     No reference is retained to any inputs after this call returns.
 
@@ -8733,7 +10765,7 @@ def cuLinkAddFile(state not None : CUlinkState, typename not None : CUjitInputTy
         A pending linker action
     typename : CUjitInputType
         The type of the input data
-    path : char*
+    path : bytes
         Path to the input file
     numOptions : unsigned int
         Size of options
@@ -8747,7 +10779,8 @@ def cuLinkAddFile(state not None : CUlinkState, typename not None : CUjitInputTy
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_FILE_NOT_FOUND CUDA_ERROR_INVALID_HANDLE
+        CUDA_ERROR_FILE_NOT_FOUND
+        CUDA_ERROR_INVALID_HANDLE
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_IMAGE
         CUDA_ERROR_INVALID_PTX
@@ -8766,7 +10799,7 @@ def cuLinkAddFile(state not None : CUlinkState, typename not None : CUjitInputTy
     """
     options = [] if options is None else options
     if not all(isinstance(_x, (CUjit_option)) for _x in options):
-        raise TypeError("Argument 'options' is not instance of type (expected List[cuda.ccuda.CUjit_option]")
+        raise TypeError("Argument 'options' is not instance of type (expected List[ccuda.CUjit_option]")
     cdef ccuda.CUjitInputType ctypename = typename.value
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     if numOptions > len(optionValues): raise RuntimeError("List is too small: " + str(len(optionValues)) + " < " + str(numOptions))
@@ -8778,7 +10811,7 @@ def cuLinkAddFile(state not None : CUlinkState, typename not None : CUjitInputTy
 
 @cython.embedsignature(True)
 def cuLinkComplete(state not None : CUlinkState):
-    """ Complete a pending linker invocation. 
+    """ Complete a pending linker invocation.
 
     Completes the pending linker action and returns the cubin image for the
     linked device code, which can be used with cuModuleLoadData. The cubin
@@ -8796,9 +10829,9 @@ def cuLinkComplete(state not None : CUlinkState):
         CUDA_SUCCESS
         CUDA_ERROR_INVALID_HANDLE
         CUDA_ERROR_OUT_OF_MEMORY
-    cubinOut : Int
+    cubinOut : int
         On success, this will point to the output image
-    sizeOut : Int
+    sizeOut : int
         Optional parameter to receive the size of the generated image
 
     See Also
@@ -8816,7 +10849,7 @@ def cuLinkComplete(state not None : CUlinkState):
 
 @cython.embedsignature(True)
 def cuLinkDestroy(state not None : CUlinkState):
-    """ Destroys state for a JIT linker invocation. 
+    """ Destroys state for a JIT linker invocation.
 
     Parameters
     ----------
@@ -8840,10 +10873,12 @@ def cuLinkDestroy(state not None : CUlinkState):
 
 @cython.embedsignature(True)
 def cuMemGetInfo():
-    """ Gets free and total memory. 
+    """ Gets free and total memory.
 
-    Returns in `*free` and `*total` respectively, the free and total amount
-    of memory available for allocation by the CUDA context, in bytes.
+    Returns in `*total` the total amount of memory available to the the
+    current context. Returns in `*free` the amount of memory on the device
+    that is free according to the OS. CUDA is not guaranteed to be able to
+    allocate all of the memory that the OS reports as free.
 
     Returns
     -------
@@ -8853,9 +10888,9 @@ def cuMemGetInfo():
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_INVALID_VALUE
-    free : Int
+    free : int
         Returned free memory in bytes
-    total : Int
+    total : int
         Returned total memory in bytes
 
     See Also
@@ -8906,7 +10941,7 @@ def cuMemGetInfo():
 
 @cython.embedsignature(True)
 def cuMemAlloc(size_t bytesize):
-    """ Allocates device memory. 
+    """ Allocates device memory.
 
     Allocates `bytesize` bytes of linear memory on the device and returns
     in `*dptr` a pointer to the allocated memory. The allocated memory is
@@ -8977,7 +11012,7 @@ def cuMemAlloc(size_t bytesize):
 
 @cython.embedsignature(True)
 def cuMemAllocPitch(size_t WidthInBytes, size_t Height, unsigned int ElementSizeBytes):
-    """ Allocates pitched device memory. 
+    """ Allocates pitched device memory.
 
     Allocates at least `WidthInBytes` * `Height` bytes of linear memory on
     the device and returns in `*dptr` a pointer to the allocated memory.
@@ -9028,7 +11063,7 @@ def cuMemAllocPitch(size_t WidthInBytes, size_t Height, unsigned int ElementSize
         CUDA_ERROR_OUT_OF_MEMORY
     dptr : CUdeviceptr
         Returned device pointer
-    pPitch : Int
+    pPitch : int
         Returned pitch of allocation in bytes
 
     See Also
@@ -9079,7 +11114,7 @@ def cuMemAllocPitch(size_t WidthInBytes, size_t Height, unsigned int ElementSize
 
 @cython.embedsignature(True)
 def cuMemFree(dptr not None : CUdeviceptr):
-    """ Frees device memory. 
+    """ Frees device memory.
 
     Frees the memory space pointed to by `dptr`, which must have been
     returned by a previous call to cuMemAlloc() or cuMemAllocPitch().
@@ -9146,7 +11181,7 @@ def cuMemFree(dptr not None : CUdeviceptr):
 
 @cython.embedsignature(True)
 def cuMemGetAddressRange(dptr not None : CUdeviceptr):
-    """ Get information on memory allocations. 
+    """ Get information on memory allocations.
 
     Returns the base address in `*pbase` and size in `*psize` of the
     allocation by cuMemAlloc() or cuMemAllocPitch() that contains the input
@@ -9169,7 +11204,7 @@ def cuMemGetAddressRange(dptr not None : CUdeviceptr):
         CUDA_ERROR_INVALID_VALUE
     pbase : CUdeviceptr
         Returned base address
-    psize : Int
+    psize : int
         Returned size of device memory allocation
 
     See Also
@@ -9219,7 +11254,7 @@ def cuMemGetAddressRange(dptr not None : CUdeviceptr):
 
 @cython.embedsignature(True)
 def cuMemAllocHost(size_t bytesize):
-    """ Allocates page-locked host memory. 
+    """ Allocates page-locked host memory.
 
     Allocates `bytesize` bytes of host memory that is page-locked and
     accessible to the device. The driver tracks the virtual memory ranges
@@ -9255,7 +11290,7 @@ def cuMemAllocHost(size_t bytesize):
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_OUT_OF_MEMORY
-    pp : Int
+    pp : int
         Returned host pointer to page-locked memory
 
     See Also
@@ -9305,7 +11340,7 @@ def cuMemAllocHost(size_t bytesize):
 
 @cython.embedsignature(True)
 def cuMemFreeHost(p):
-    """ Frees page-locked host memory. 
+    """ Frees page-locked host memory.
 
     Frees the memory space pointed to by `p`, which must have been returned
     by a previous call to cuMemAllocHost().
@@ -9374,7 +11409,7 @@ def cuMemFreeHost(p):
 
 @cython.embedsignature(True)
 def cuMemHostAlloc(size_t bytesize, unsigned int Flags):
-    """ Allocates page-locked host memory. 
+    """ Allocates page-locked host memory.
 
     Allocates `bytesize` bytes of host memory that is page-locked and
     accessible to the device. The driver tracks the virtual memory ranges
@@ -9391,17 +11426,17 @@ def cuMemHostAlloc(size_t bytesize, unsigned int Flags):
     The `Flags` parameter enables different options to be specified that
     affect the allocation, as follows.
 
-     CU_MEMHOSTALLOC_PORTABLE: The memory returned by this call will be
+    CU_MEMHOSTALLOC_PORTABLE: The memory returned by this call will be
     considered as pinned memory by all CUDA contexts, not just the one that
-    performed the allocation.CU_MEMHOSTALLOC_DEVICEMAP: Maps the allocation
-    into the CUDA address space. The device pointer to the memory may be
-    obtained by calling
-    cuMemHostGetDevicePointer().CU_MEMHOSTALLOC_WRITECOMBINED: Allocates
-    the memory as write-combined (WC). WC memory can be transferred across
-    the PCI Express bus more quickly on some system configurations, but
-    cannot be read efficiently by most CPUs. WC memory is a good option for
-    buffers that will be written by the CPU and read by the GPU via mapped
-    pinned memory or host->device transfers.
+    performed the allocation. CU_MEMHOSTALLOC_DEVICEMAP: Maps the
+    allocation into the CUDA address space. The device pointer to the
+    memory may be obtained by calling cuMemHostGetDevicePointer().
+    CU_MEMHOSTALLOC_WRITECOMBINED: Allocates the memory as write-combined
+    (WC). WC memory can be transferred across the PCI Express bus more
+    quickly on some system configurations, but cannot be read efficiently
+    by most CPUs. WC memory is a good option for buffers that will be
+    written by the CPU and read by the GPU via mapped pinned memory or
+    host->device transfers.
 
     All of these flags are orthogonal to one another: a developer may
     allocate memory that is portable, mapped and/or write-combined with no
@@ -9443,7 +11478,7 @@ def cuMemHostAlloc(size_t bytesize, unsigned int Flags):
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_OUT_OF_MEMORY
-    pp : Int
+    pp : int
         Returned host pointer to page-locked memory
 
     See Also
@@ -9493,7 +11528,7 @@ def cuMemHostAlloc(size_t bytesize, unsigned int Flags):
 
 @cython.embedsignature(True)
 def cuMemHostGetDevicePointer(p, unsigned int Flags):
-    """ Passes back device pointer of mapped pinned memory. 
+    """ Passes back device pointer of mapped pinned memory.
 
     Passes back the device pointer `pdptr` corresponding to the mapped,
     pinned host buffer `p` allocated by cuMemHostAlloc.
@@ -9588,7 +11623,7 @@ def cuMemHostGetDevicePointer(p, unsigned int Flags):
 
 @cython.embedsignature(True)
 def cuMemHostGetFlags(p):
-    """ Passes back flags that were used for a pinned allocation. 
+    """ Passes back flags that were used for a pinned allocation.
 
     Passes back the flags `pFlags` that were specified when allocating the
     pinned host buffer `p` allocated by cuMemHostAlloc.
@@ -9626,7 +11661,7 @@ def cuMemHostGetFlags(p):
 
 @cython.embedsignature(True)
 def cuMemAllocManaged(size_t bytesize, unsigned int flags):
-    """ Allocates memory that will be automatically managed by the Unified Memory system. 
+    """ Allocates memory that will be automatically managed by the Unified Memory system.
 
     Allocates `bytesize` bytes of managed memory on the device and returns
     in `*dptr` a pointer to the allocated memory. If the device doesn't
@@ -9702,10 +11737,10 @@ def cuMemAllocManaged(size_t bytesize, unsigned int flags):
     non-zero value for the device attribute and does not support peer-to-
     peer with at least one of the other devices that has an active context.
     This in turn implies that context creation may fail if there is
-    insufficient host memory to migrate all managed allocations.On Windows,
-    the physical storage is always created in 'zero-copy' or host memory.
-    All GPUs will reference the data at reduced bandwidth over the PCIe
-    bus. In these circumstances, use of the environment variable
+    insufficient host memory to migrate all managed allocations. On
+    Windows, the physical storage is always created in 'zero-copy' or host
+    memory. All GPUs will reference the data at reduced bandwidth over the
+    PCIe bus. In these circumstances, use of the environment variable
     CUDA_VISIBLE_DEVICES is recommended to restrict CUDA to only use those
     GPUs that have peer-to-peer support. Alternatively, users can also set
     CUDA_MANAGED_FORCE_DEVICE_ALLOC to a non-zero value to force the driver
@@ -9717,7 +11752,7 @@ def cuMemAllocManaged(size_t bytesize, unsigned int flags):
     peer compatible with any of the other managed memory supporting devices
     on which contexts were previously created, even if those contexts have
     been destroyed. These environment variables are described in the CUDA
-    programming guide under the "CUDA environment variables" section.On
+    programming guide under the "CUDA environment variables" section. On
     ARM, managed memory is not available on discrete gpu with Drive PX-2.
 
     Parameters
@@ -9789,13 +11824,13 @@ def cuMemAllocManaged(size_t bytesize, unsigned int flags):
 
 @cython.embedsignature(True)
 def cuDeviceGetByPCIBusId(char* pciBusId):
-    """ Returns a handle to a compute device. 
+    """ Returns a handle to a compute device.
 
     Returns in `*device` a device handle given a PCI bus ID string.
 
     Parameters
     ----------
-    pciBusId : char*
+    pciBusId : bytes
         String in one of the following forms:
 
     Returns
@@ -9822,7 +11857,7 @@ def cuDeviceGetByPCIBusId(char* pciBusId):
 
 @cython.embedsignature(True)
 def cuDeviceGetPCIBusId(int length, dev not None : CUdevice):
-    """ Returns a PCI Bus Id string for the device. 
+    """ Returns a PCI Bus Id string for the device.
 
     Returns an ASCII string identifying the device `dev` in the NULL-
     terminated string pointed to by `pciBusId`. `length` specifies the
@@ -9831,7 +11866,7 @@ def cuDeviceGetPCIBusId(int length, dev not None : CUdevice):
     Parameters
     ----------
     length : int
-        Maximum length of string to store in
+        Maximum length of string to store in `name`
     dev : CUdevice
         Device to get identifier string for
 
@@ -9843,7 +11878,7 @@ def cuDeviceGetPCIBusId(int length, dev not None : CUdevice):
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_DEVICE
-    pciBusId : Bytes
+    pciBusId : bytes
         Returned identifier string for the device in the following format
 
     See Also
@@ -9859,7 +11894,7 @@ def cuDeviceGetPCIBusId(int length, dev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuIpcGetEventHandle(event not None : CUevent):
-    """ Gets an interprocess handle for a previously allocated event. 
+    """ Gets an interprocess handle for a previously allocated event.
 
     Takes as input a previously allocated event. This event must have been
     created with the CU_EVENT_INTERPROCESS and CU_EVENT_DISABLE_TIMING
@@ -9914,7 +11949,7 @@ def cuIpcGetEventHandle(event not None : CUevent):
 
 @cython.embedsignature(True)
 def cuIpcOpenEventHandle(handle not None : CUipcEventHandle):
-    """ Opens an interprocess event handle for use in the current process. 
+    """ Opens an interprocess event handle for use in the current process.
 
     Opens an interprocess event handle exported from another process with
     cuIpcGetEventHandle. This function returns a CUevent that behaves like
@@ -9964,7 +11999,7 @@ def cuIpcOpenEventHandle(handle not None : CUipcEventHandle):
 
 @cython.embedsignature(True)
 def cuIpcGetMemHandle(dptr not None : CUdeviceptr):
-    """ Gets an interprocess memory handle for an existing device memory allocation. 
+    """ Gets an interprocess memory handle for an existing device memory allocation.
 
     Takes a pointer to the base of an existing device memory allocation
     created with cuMemAlloc and exports it for use in another process. This
@@ -10012,7 +12047,7 @@ def cuIpcGetMemHandle(dptr not None : CUdeviceptr):
 
 @cython.embedsignature(True)
 def cuIpcOpenMemHandle(handle not None : CUipcMemHandle, unsigned int Flags):
-    """ Opens an interprocess memory handle exported from another process and returns a device pointer usable in the local process. 
+    """ Opens an interprocess memory handle exported from another process and returns a device pointer usable in the local process.
 
     Maps memory exported from another process with cuIpcGetMemHandle into
     the current device address space. For contexts on different devices
@@ -10043,7 +12078,7 @@ def cuIpcOpenMemHandle(handle not None : CUipcMemHandle, unsigned int Flags):
     Parameters
     ----------
     handle : CUipcMemHandle
-        CUipcMemHandle to open
+        ::CUipcMemHandle to open
     Flags : unsigned int
         Flags for this operation. Must be specified as
         CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS
@@ -10075,6 +12110,7 @@ def cuIpcOpenMemHandle(handle not None : CUipcMemHandle, unsigned int Flags):
     Notes
     -----
     No guarantees are made about the address returned in `*pdptr`. In particular, multiple processes may not receive the same address for the same `handle`.
+
     """
     cdef CUdeviceptr pdptr = CUdeviceptr()
     err = ccuda.cuIpcOpenMemHandle(pdptr._ptr, handle._ptr[0], Flags)
@@ -10082,7 +12118,7 @@ def cuIpcOpenMemHandle(handle not None : CUipcMemHandle, unsigned int Flags):
 
 @cython.embedsignature(True)
 def cuIpcCloseMemHandle(dptr not None : CUdeviceptr):
-    """ Attempts to close memory mapped with cuIpcOpenMemHandle. 
+    """ Attempts to close memory mapped with cuIpcOpenMemHandle.
 
     Decrements the reference count of the memory returned by
     cuIpcOpenMemHandle by 1. When the reference count reaches 0, this API
@@ -10108,7 +12144,7 @@ def cuIpcCloseMemHandle(dptr not None : CUdeviceptr):
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_MAP_FAILED
         CUDA_ERROR_INVALID_HANDLE
-        CUDA_ERROR_INVALID_VALUE 
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -10127,7 +12163,7 @@ def cuIpcCloseMemHandle(dptr not None : CUdeviceptr):
 
 @cython.embedsignature(True)
 def cuMemHostRegister(p, size_t bytesize, unsigned int Flags):
-    """ Registers an existing host memory range for use by CUDA. 
+    """ Registers an existing host memory range for use by CUDA.
 
     Page-locks the memory range specified by `p` and `bytesize` and maps it
     for the device(s) as specified by `Flags`. This memory range also is
@@ -10146,16 +12182,15 @@ def cuMemHostRegister(p, size_t bytesize, unsigned int Flags):
     The `Flags` parameter enables different options to be specified that
     affect the allocation, as follows.
 
-     CU_MEMHOSTREGISTER_PORTABLE: The memory returned by this call will be
+    CU_MEMHOSTREGISTER_PORTABLE: The memory returned by this call will be
     considered as pinned memory by all CUDA contexts, not just the one that
-    performed the allocation.CU_MEMHOSTREGISTER_DEVICEMAP: Maps the
+    performed the allocation. CU_MEMHOSTREGISTER_DEVICEMAP: Maps the
     allocation into the CUDA address space. The device pointer to the
-    memory may be obtained by calling
-    cuMemHostGetDevicePointer().CU_MEMHOSTREGISTER_IOMEMORY: The pointer is
-    treated as pointing to some I/O memory space, e.g. the PCI Express
-    resource of a 3rd party device.CU_MEMHOSTREGISTER_READ_ONLY: The
-    pointer is treated as pointing to memory that is considered read-only
-    by the device. On platforms without
+    memory may be obtained by calling cuMemHostGetDevicePointer().
+    CU_MEMHOSTREGISTER_IOMEMORY: The pointer is treated as pointing to some
+    I/O memory space, e.g. the PCI Express resource of a 3rd party device.
+    CU_MEMHOSTREGISTER_READ_ONLY: The pointer is treated as pointing to
+    memory that is considered read-only by the device. On platforms without
     CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES, this
     flag is required in order to register memory mapped to the CPU as read-
     only. Support for the use of this flag can be queried from the device
@@ -10231,7 +12266,7 @@ def cuMemHostRegister(p, size_t bytesize, unsigned int Flags):
 
 @cython.embedsignature(True)
 def cuMemHostUnregister(p):
-    """ Unregisters a memory range that was registered with cuMemHostRegister. 
+    """ Unregisters a memory range that was registered with cuMemHostRegister.
 
     Unmaps the memory range whose base address is specified by `p`, and
     makes it pageable again.
@@ -10252,7 +12287,7 @@ def cuMemHostUnregister(p):
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_OUT_OF_MEMORY
-        CUDA_ERROR_HOST_MEMORY_NOT_REGISTERED,
+        CUDA_ERROR_HOST_MEMORY_NOT_REGISTERED
     None
         None
 
@@ -10268,7 +12303,7 @@ def cuMemHostUnregister(p):
 
 @cython.embedsignature(True)
 def cuMemcpy(dst not None : CUdeviceptr, src not None : CUdeviceptr, size_t ByteCount):
-    """ Copies memory. 
+    """ Copies memory.
 
     Copies data between two pointers. `dst` and `src` are base pointers of
     the destination and source, respectively. `ByteCount` specifies the
@@ -10344,7 +12379,7 @@ def cuMemcpy(dst not None : CUdeviceptr, src not None : CUdeviceptr, size_t Byte
 
 @cython.embedsignature(True)
 def cuMemcpyPeer(dstDevice not None : CUdeviceptr, dstContext not None : CUcontext, srcDevice not None : CUdeviceptr, srcContext not None : CUcontext, size_t ByteCount):
-    """ Copies device memory between two contexts. 
+    """ Copies device memory between two contexts.
 
     Copies from device memory in one context to device memory in another
     context. `dstDevice` is the base device pointer of the destination
@@ -10390,7 +12425,7 @@ def cuMemcpyPeer(dstDevice not None : CUdeviceptr, dstContext not None : CUconte
 
 @cython.embedsignature(True)
 def cuMemcpyHtoD(dstDevice not None : CUdeviceptr, srcHost, size_t ByteCount):
-    """ Copies memory from Host to Device. 
+    """ Copies memory from Host to Device.
 
     Copies from host memory to device memory. `dstDevice` and `srcHost` are
     the base addresses of the destination and source, respectively.
@@ -10465,7 +12500,7 @@ def cuMemcpyHtoD(dstDevice not None : CUdeviceptr, srcHost, size_t ByteCount):
 
 @cython.embedsignature(True)
 def cuMemcpyDtoH(dstHost, srcDevice not None : CUdeviceptr, size_t ByteCount):
-    """ Copies memory from Device to Host. 
+    """ Copies memory from Device to Host.
 
     Copies from device to host memory. `dstHost` and `srcDevice` specify
     the base pointers of the destination and source, respectively.
@@ -10540,7 +12575,7 @@ def cuMemcpyDtoH(dstHost, srcDevice not None : CUdeviceptr, size_t ByteCount):
 
 @cython.embedsignature(True)
 def cuMemcpyDtoD(dstDevice not None : CUdeviceptr, srcDevice not None : CUdeviceptr, size_t ByteCount):
-    """ Copies memory from Device to Device. 
+    """ Copies memory from Device to Device.
 
     Copies from device memory to device memory. `dstDevice` and `srcDevice`
     are the base pointers of the destination and source, respectively.
@@ -10613,7 +12648,7 @@ def cuMemcpyDtoD(dstDevice not None : CUdeviceptr, srcDevice not None : CUdevice
 
 @cython.embedsignature(True)
 def cuMemcpyDtoA(dstArray not None : CUarray, size_t dstOffset, srcDevice not None : CUdeviceptr, size_t ByteCount):
-    """ Copies memory from Device to Array. 
+    """ Copies memory from Device to Array.
 
     Copies from device memory to a 1D CUDA array. `dstArray` and
     `dstOffset` specify the CUDA array handle and starting index of the
@@ -10688,7 +12723,7 @@ def cuMemcpyDtoA(dstArray not None : CUarray, size_t dstOffset, srcDevice not No
 
 @cython.embedsignature(True)
 def cuMemcpyAtoD(dstDevice not None : CUdeviceptr, srcArray not None : CUarray, size_t srcOffset, size_t ByteCount):
-    """ Copies memory from Array to Device. 
+    """ Copies memory from Array to Device.
 
     Copies from one 1D CUDA array to device memory. `dstDevice` specifies
     the base pointer of the destination and must be naturally aligned with
@@ -10765,7 +12800,7 @@ def cuMemcpyAtoD(dstDevice not None : CUdeviceptr, srcArray not None : CUarray, 
 
 @cython.embedsignature(True)
 def cuMemcpyHtoA(dstArray not None : CUarray, size_t dstOffset, srcHost, size_t ByteCount):
-    """ Copies memory from Host to Array. 
+    """ Copies memory from Host to Array.
 
     Copies from host memory to a 1D CUDA array. `dstArray` and `dstOffset`
     specify the CUDA array handle and starting offset in bytes of the
@@ -10842,7 +12877,7 @@ def cuMemcpyHtoA(dstArray not None : CUarray, size_t dstOffset, srcHost, size_t 
 
 @cython.embedsignature(True)
 def cuMemcpyAtoH(dstHost, srcArray not None : CUarray, size_t srcOffset, size_t ByteCount):
-    """ Copies memory from Array to Host. 
+    """ Copies memory from Array to Host.
 
     Copies from one 1D CUDA array to host memory. `dstHost` specifies the
     base pointer of the destination. `srcArray` and `srcOffset` specify the
@@ -10919,7 +12954,7 @@ def cuMemcpyAtoH(dstHost, srcArray not None : CUarray, size_t srcOffset, size_t 
 
 @cython.embedsignature(True)
 def cuMemcpyAtoA(dstArray not None : CUarray, size_t dstOffset, srcArray not None : CUarray, size_t srcOffset, size_t ByteCount):
-    """ Copies memory from Array to Array. 
+    """ Copies memory from Array to Array.
 
     Copies from one 1D CUDA array to another. `dstArray` and `srcArray`
     specify the handles of the destination and source CUDA arrays for the
@@ -10999,22 +13034,23 @@ def cuMemcpyAtoA(dstArray not None : CUarray, size_t dstOffset, srcArray not Non
 
 @cython.embedsignature(True)
 def cuMemcpy2D(pCopy : CUDA_MEMCPY2D):
-    """ Copies memory for 2D arrays. 
+    """ Copies memory for 2D arrays.
 
     Perform a 2D memory copy according to the parameters specified in
     `pCopy`. The CUDA_MEMCPY2D structure is defined as:
 
-     where:typedefstructCUDA_MEMCPY2D_st{unsignedintsrcXInBytes,srcY;CUmemo
-    rytypesrcMemoryType;constvoid*srcHost;CUdeviceptrsrcDevice;CUarraysrcAr
-    ray;unsignedintsrcPitch;unsignedintdstXInBytes,dstY;CUmemorytypedstMemo
-    ryType;void*dstHost;CUdeviceptrdstDevice;CUarraydstArray;unsignedintdst
-    Pitch;unsignedintWidthInBytes;unsignedintHeight;}CUDA_MEMCPY2D;
-    srcMemoryType and dstMemoryType specify the type of memory of the
-    source and destination, respectively; CUmemorytype_enum is defined as:
+    typedefstructCUDA_MEMCPY2D_st{ unsignedintsrcXInBytes,srcY;
+    CUmemorytypesrcMemoryType; constvoid*srcHost; CUdeviceptrsrcDevice;
+    CUarraysrcArray; unsignedintsrcPitch;  unsignedintdstXInBytes,dstY;
+    CUmemorytypedstMemoryType; void*dstHost; CUdeviceptrdstDevice;
+    CUarraydstArray; unsignedintdstPitch;  unsignedintWidthInBytes;
+    unsignedintHeight; }CUDA_MEMCPY2D; where: ::srcMemoryType and
+    dstMemoryType specify the type of memory of the source and destination,
+    respectively; CUmemorytype_enum is defined as:
 
-    typedefenumCUmemorytype_enum{CU_MEMORYTYPE_HOST=0x01,CU_MEMORYTYPE_DEVI
-    CE=0x02,CU_MEMORYTYPE_ARRAY=0x03,CU_MEMORYTYPE_UNIFIED=0x04}CUmemorytyp
-    e;
+    typedefenumCUmemorytype_enum{ CU_MEMORYTYPE_HOST=0x01,
+    CU_MEMORYTYPE_DEVICE=0x02, CU_MEMORYTYPE_ARRAY=0x03,
+    CU_MEMORYTYPE_UNIFIED=0x04 }CUmemorytype;
 
     If srcMemoryType is CU_MEMORYTYPE_UNIFIED, srcDevice and srcPitch
     specify the (unified virtual address space) base address of the source
@@ -11142,22 +13178,23 @@ def cuMemcpy2D(pCopy : CUDA_MEMCPY2D):
 
 @cython.embedsignature(True)
 def cuMemcpy2DUnaligned(pCopy : CUDA_MEMCPY2D):
-    """ Copies memory for 2D arrays. 
+    """ Copies memory for 2D arrays.
 
     Perform a 2D memory copy according to the parameters specified in
     `pCopy`. The CUDA_MEMCPY2D structure is defined as:
 
-     where:typedefstructCUDA_MEMCPY2D_st{unsignedintsrcXInBytes,srcY;CUmemo
-    rytypesrcMemoryType;constvoid*srcHost;CUdeviceptrsrcDevice;CUarraysrcAr
-    ray;unsignedintsrcPitch;unsignedintdstXInBytes,dstY;CUmemorytypedstMemo
-    ryType;void*dstHost;CUdeviceptrdstDevice;CUarraydstArray;unsignedintdst
-    Pitch;unsignedintWidthInBytes;unsignedintHeight;}CUDA_MEMCPY2D;
-    srcMemoryType and dstMemoryType specify the type of memory of the
-    source and destination, respectively; CUmemorytype_enum is defined as:
+    typedefstructCUDA_MEMCPY2D_st{ unsignedintsrcXInBytes,srcY;
+    CUmemorytypesrcMemoryType; constvoid*srcHost; CUdeviceptrsrcDevice;
+    CUarraysrcArray; unsignedintsrcPitch; unsignedintdstXInBytes,dstY;
+    CUmemorytypedstMemoryType; void*dstHost; CUdeviceptrdstDevice;
+    CUarraydstArray; unsignedintdstPitch; unsignedintWidthInBytes;
+    unsignedintHeight; }CUDA_MEMCPY2D; where: ::srcMemoryType and
+    dstMemoryType specify the type of memory of the source and destination,
+    respectively; CUmemorytype_enum is defined as:
 
-    typedefenumCUmemorytype_enum{CU_MEMORYTYPE_HOST=0x01,CU_MEMORYTYPE_DEVI
-    CE=0x02,CU_MEMORYTYPE_ARRAY=0x03,CU_MEMORYTYPE_UNIFIED=0x04}CUmemorytyp
-    e;
+    typedefenumCUmemorytype_enum{ CU_MEMORYTYPE_HOST=0x01,
+    CU_MEMORYTYPE_DEVICE=0x02, CU_MEMORYTYPE_ARRAY=0x03,
+    CU_MEMORYTYPE_UNIFIED=0x04 }CUmemorytype;
 
     If srcMemoryType is CU_MEMORYTYPE_UNIFIED, srcDevice and srcPitch
     specify the (unified virtual address space) base address of the source
@@ -11285,26 +13322,28 @@ def cuMemcpy2DUnaligned(pCopy : CUDA_MEMCPY2D):
 
 @cython.embedsignature(True)
 def cuMemcpy3D(pCopy : CUDA_MEMCPY3D):
-    """ Copies memory for 3D arrays. 
+    """ Copies memory for 3D arrays.
 
     Perform a 3D memory copy according to the parameters specified in
     `pCopy`. The CUDA_MEMCPY3D structure is defined as:
 
-     where:typedefstructCUDA_MEMCPY3D_st{unsignedintsrcXInBytes,srcY,srcZ;u
-    nsignedintsrcLOD;CUmemorytypesrcMemoryType;constvoid*srcHost;CUdevicept
-    rsrcDevice;CUarraysrcArray;unsignedintsrcPitch;//ignoredwhensrcisarrayu
-    nsignedintsrcHeight;//ignoredwhensrcisarray;maybe0ifDepth==1unsignedint
-    dstXInBytes,dstY,dstZ;unsignedintdstLOD;CUmemorytypedstMemoryType;void*
-    dstHost;CUdeviceptrdstDevice;CUarraydstArray;unsignedintdstPitch;//igno
-    redwhendstisarrayunsignedintdstHeight;//ignoredwhendstisarray;maybe0ifD
-    epth==1unsignedintWidthInBytes;unsignedintHeight;unsignedintDepth;}CUDA
-    _MEMCPY3D; srcMemoryType and dstMemoryType specify the type of memory
-    of the source and destination, respectively; CUmemorytype_enum is
-    defined as:
+    typedefstructCUDA_MEMCPY3D_st{  unsignedintsrcXInBytes,srcY,srcZ;
+    unsignedintsrcLOD; CUmemorytypesrcMemoryType; constvoid*srcHost;
+    CUdeviceptrsrcDevice; CUarraysrcArray;
+    unsignedintsrcPitch;//ignoredwhensrcisarray
+    unsignedintsrcHeight;//ignoredwhensrcisarray;maybe0ifDepth==1
+    unsignedintdstXInBytes,dstY,dstZ; unsignedintdstLOD;
+    CUmemorytypedstMemoryType; void*dstHost; CUdeviceptrdstDevice;
+    CUarraydstArray; unsignedintdstPitch;//ignoredwhendstisarray
+    unsignedintdstHeight;//ignoredwhendstisarray;maybe0ifDepth==1
+    unsignedintWidthInBytes; unsignedintHeight; unsignedintDepth;
+    }CUDA_MEMCPY3D; where: ::srcMemoryType and dstMemoryType specify the
+    type of memory of the source and destination, respectively;
+    CUmemorytype_enum is defined as:
 
-    typedefenumCUmemorytype_enum{CU_MEMORYTYPE_HOST=0x01,CU_MEMORYTYPE_DEVI
-    CE=0x02,CU_MEMORYTYPE_ARRAY=0x03,CU_MEMORYTYPE_UNIFIED=0x04}CUmemorytyp
-    e;
+    typedefenumCUmemorytype_enum{ CU_MEMORYTYPE_HOST=0x01,
+    CU_MEMORYTYPE_DEVICE=0x02, CU_MEMORYTYPE_ARRAY=0x03,
+    CU_MEMORYTYPE_UNIFIED=0x04 }CUmemorytype;
 
     If srcMemoryType is CU_MEMORYTYPE_UNIFIED, srcDevice and srcPitch
     specify the (unified virtual address space) base address of the source
@@ -11428,7 +13467,7 @@ def cuMemcpy3D(pCopy : CUDA_MEMCPY3D):
 
 @cython.embedsignature(True)
 def cuMemcpy3DPeer(pCopy : CUDA_MEMCPY3D_PEER):
-    """ Copies memory between contexts. 
+    """ Copies memory between contexts.
 
     Perform a 3D memory copy according to the parameters specified in
     `pCopy`. See the definition of the CUDA_MEMCPY3D_PEER structure for
@@ -11465,7 +13504,7 @@ def cuMemcpy3DPeer(pCopy : CUDA_MEMCPY3D_PEER):
 
 @cython.embedsignature(True)
 def cuMemcpyAsync(dst not None : CUdeviceptr, src not None : CUdeviceptr, size_t ByteCount, hStream not None : CUstream):
-    """ Copies memory asynchronously. 
+    """ Copies memory asynchronously.
 
     Copies data between two pointers. `dst` and `src` are base pointers of
     the destination and source, respectively. `ByteCount` specifies the
@@ -11551,7 +13590,7 @@ def cuMemcpyAsync(dst not None : CUdeviceptr, src not None : CUdeviceptr, size_t
 
 @cython.embedsignature(True)
 def cuMemcpyPeerAsync(dstDevice not None : CUdeviceptr, dstContext not None : CUcontext, srcDevice not None : CUdeviceptr, srcContext not None : CUcontext, size_t ByteCount, hStream not None : CUstream):
-    """ Copies device memory between two contexts asynchronously. 
+    """ Copies device memory between two contexts asynchronously.
 
     Copies from device memory in one context to device memory in another
     context. `dstDevice` is the base device pointer of the destination
@@ -11600,7 +13639,7 @@ def cuMemcpyPeerAsync(dstDevice not None : CUdeviceptr, dstContext not None : CU
 
 @cython.embedsignature(True)
 def cuMemcpyHtoDAsync(dstDevice not None : CUdeviceptr, srcHost, size_t ByteCount, hStream not None : CUstream):
-    """ Copies memory from Host to Device. 
+    """ Copies memory from Host to Device.
 
     Copies from host memory to device memory. `dstDevice` and `srcHost` are
     the base addresses of the destination and source, respectively.
@@ -11684,7 +13723,7 @@ def cuMemcpyHtoDAsync(dstDevice not None : CUdeviceptr, srcHost, size_t ByteCoun
 
 @cython.embedsignature(True)
 def cuMemcpyDtoHAsync(dstHost, srcDevice not None : CUdeviceptr, size_t ByteCount, hStream not None : CUstream):
-    """ Copies memory from Device to Host. 
+    """ Copies memory from Device to Host.
 
     Copies from device to host memory. `dstHost` and `srcDevice` specify
     the base pointers of the destination and source, respectively.
@@ -11768,7 +13807,7 @@ def cuMemcpyDtoHAsync(dstHost, srcDevice not None : CUdeviceptr, size_t ByteCoun
 
 @cython.embedsignature(True)
 def cuMemcpyDtoDAsync(dstDevice not None : CUdeviceptr, srcDevice not None : CUdeviceptr, size_t ByteCount, hStream not None : CUstream):
-    """ Copies memory from Device to Device. 
+    """ Copies memory from Device to Device.
 
     Copies from device memory to device memory. `dstDevice` and `srcDevice`
     are the base pointers of the destination and source, respectively.
@@ -11851,7 +13890,7 @@ def cuMemcpyDtoDAsync(dstDevice not None : CUdeviceptr, srcDevice not None : CUd
 
 @cython.embedsignature(True)
 def cuMemcpyHtoAAsync(dstArray not None : CUarray, size_t dstOffset, srcHost, size_t ByteCount, hStream not None : CUstream):
-    """ Copies memory from Host to Array. 
+    """ Copies memory from Host to Array.
 
     Copies from host memory to a 1D CUDA array. `dstArray` and `dstOffset`
     specify the CUDA array handle and starting offset in bytes of the
@@ -11937,7 +13976,7 @@ def cuMemcpyHtoAAsync(dstArray not None : CUarray, size_t dstOffset, srcHost, si
 
 @cython.embedsignature(True)
 def cuMemcpyAtoHAsync(dstHost, srcArray not None : CUarray, size_t srcOffset, size_t ByteCount, hStream not None : CUstream):
-    """ Copies memory from Array to Host. 
+    """ Copies memory from Array to Host.
 
     Copies from one 1D CUDA array to host memory. `dstHost` specifies the
     base pointer of the destination. `srcArray` and `srcOffset` specify the
@@ -12023,22 +14062,23 @@ def cuMemcpyAtoHAsync(dstHost, srcArray not None : CUarray, size_t srcOffset, si
 
 @cython.embedsignature(True)
 def cuMemcpy2DAsync(pCopy : CUDA_MEMCPY2D, hStream not None : CUstream):
-    """ Copies memory for 2D arrays. 
+    """ Copies memory for 2D arrays.
 
     Perform a 2D memory copy according to the parameters specified in
     `pCopy`. The CUDA_MEMCPY2D structure is defined as:
 
-     where:typedefstructCUDA_MEMCPY2D_st{unsignedintsrcXInBytes,srcY;CUmemo
-    rytypesrcMemoryType;constvoid*srcHost;CUdeviceptrsrcDevice;CUarraysrcAr
-    ray;unsignedintsrcPitch;unsignedintdstXInBytes,dstY;CUmemorytypedstMemo
-    ryType;void*dstHost;CUdeviceptrdstDevice;CUarraydstArray;unsignedintdst
-    Pitch;unsignedintWidthInBytes;unsignedintHeight;}CUDA_MEMCPY2D;
-    srcMemoryType and dstMemoryType specify the type of memory of the
-    source and destination, respectively; CUmemorytype_enum is defined as:
+    typedefstructCUDA_MEMCPY2D_st{ unsignedintsrcXInBytes,srcY;
+    CUmemorytypesrcMemoryType; constvoid*srcHost; CUdeviceptrsrcDevice;
+    CUarraysrcArray; unsignedintsrcPitch; unsignedintdstXInBytes,dstY;
+    CUmemorytypedstMemoryType; void*dstHost; CUdeviceptrdstDevice;
+    CUarraydstArray; unsignedintdstPitch; unsignedintWidthInBytes;
+    unsignedintHeight; }CUDA_MEMCPY2D; where: ::srcMemoryType and
+    dstMemoryType specify the type of memory of the source and destination,
+    respectively; CUmemorytype_enum is defined as:
 
-    typedefenumCUmemorytype_enum{CU_MEMORYTYPE_HOST=0x01,CU_MEMORYTYPE_DEVI
-    CE=0x02,CU_MEMORYTYPE_ARRAY=0x03,CU_MEMORYTYPE_UNIFIED=0x04}CUmemorytyp
-    e;
+    typedefenumCUmemorytype_enum{ CU_MEMORYTYPE_HOST=0x01,
+    CU_MEMORYTYPE_DEVICE=0x02, CU_MEMORYTYPE_ARRAY=0x03,
+    CU_MEMORYTYPE_UNIFIED=0x04 }CUmemorytype;
 
     If srcMemoryType is CU_MEMORYTYPE_HOST, srcHost and srcPitch specify
     the (host) base address of the source data and the bytes per row to
@@ -12173,26 +14213,28 @@ def cuMemcpy2DAsync(pCopy : CUDA_MEMCPY2D, hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuMemcpy3DAsync(pCopy : CUDA_MEMCPY3D, hStream not None : CUstream):
-    """ Copies memory for 3D arrays. 
+    """ Copies memory for 3D arrays.
 
     Perform a 3D memory copy according to the parameters specified in
     `pCopy`. The CUDA_MEMCPY3D structure is defined as:
 
-     where:typedefstructCUDA_MEMCPY3D_st{unsignedintsrcXInBytes,srcY,srcZ;u
-    nsignedintsrcLOD;CUmemorytypesrcMemoryType;constvoid*srcHost;CUdevicept
-    rsrcDevice;CUarraysrcArray;unsignedintsrcPitch;//ignoredwhensrcisarrayu
-    nsignedintsrcHeight;//ignoredwhensrcisarray;maybe0ifDepth==1unsignedint
-    dstXInBytes,dstY,dstZ;unsignedintdstLOD;CUmemorytypedstMemoryType;void*
-    dstHost;CUdeviceptrdstDevice;CUarraydstArray;unsignedintdstPitch;//igno
-    redwhendstisarrayunsignedintdstHeight;//ignoredwhendstisarray;maybe0ifD
-    epth==1unsignedintWidthInBytes;unsignedintHeight;unsignedintDepth;}CUDA
-    _MEMCPY3D; srcMemoryType and dstMemoryType specify the type of memory
-    of the source and destination, respectively; CUmemorytype_enum is
-    defined as:
+    typedefstructCUDA_MEMCPY3D_st{  unsignedintsrcXInBytes,srcY,srcZ;
+    unsignedintsrcLOD; CUmemorytypesrcMemoryType; constvoid*srcHost;
+    CUdeviceptrsrcDevice; CUarraysrcArray;
+    unsignedintsrcPitch;//ignoredwhensrcisarray
+    unsignedintsrcHeight;//ignoredwhensrcisarray;maybe0ifDepth==1
+    unsignedintdstXInBytes,dstY,dstZ; unsignedintdstLOD;
+    CUmemorytypedstMemoryType; void*dstHost; CUdeviceptrdstDevice;
+    CUarraydstArray; unsignedintdstPitch;//ignoredwhendstisarray
+    unsignedintdstHeight;//ignoredwhendstisarray;maybe0ifDepth==1
+    unsignedintWidthInBytes; unsignedintHeight; unsignedintDepth;
+    }CUDA_MEMCPY3D; where: ::srcMemoryType and dstMemoryType specify the
+    type of memory of the source and destination, respectively;
+    CUmemorytype_enum is defined as:
 
-    typedefenumCUmemorytype_enum{CU_MEMORYTYPE_HOST=0x01,CU_MEMORYTYPE_DEVI
-    CE=0x02,CU_MEMORYTYPE_ARRAY=0x03,CU_MEMORYTYPE_UNIFIED=0x04}CUmemorytyp
-    e;
+    typedefenumCUmemorytype_enum{ CU_MEMORYTYPE_HOST=0x01,
+    CU_MEMORYTYPE_DEVICE=0x02, CU_MEMORYTYPE_ARRAY=0x03,
+    CU_MEMORYTYPE_UNIFIED=0x04 }CUmemorytype;
 
     If srcMemoryType is CU_MEMORYTYPE_UNIFIED, srcDevice and srcPitch
     specify the (unified virtual address space) base address of the source
@@ -12325,7 +14367,7 @@ def cuMemcpy3DAsync(pCopy : CUDA_MEMCPY3D, hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuMemcpy3DPeerAsync(pCopy : CUDA_MEMCPY3D_PEER, hStream not None : CUstream):
-    """ Copies memory between contexts asynchronously. 
+    """ Copies memory between contexts asynchronously.
 
     Perform a 3D memory copy according to the parameters specified in
     `pCopy`. See the definition of the CUDA_MEMCPY3D_PEER structure for
@@ -12364,7 +14406,7 @@ def cuMemcpy3DPeerAsync(pCopy : CUDA_MEMCPY3D_PEER, hStream not None : CUstream)
 
 @cython.embedsignature(True)
 def cuMemsetD8(dstDevice not None : CUdeviceptr, unsigned char uc, size_t N):
-    """ Initializes device memory. 
+    """ Initializes device memory.
 
     Sets the memory range of `N` 8-bit values to the specified value `uc`.
 
@@ -12440,7 +14482,7 @@ def cuMemsetD8(dstDevice not None : CUdeviceptr, unsigned char uc, size_t N):
 
 @cython.embedsignature(True)
 def cuMemsetD16(dstDevice not None : CUdeviceptr, unsigned short us, size_t N):
-    """ Initializes device memory. 
+    """ Initializes device memory.
 
     Sets the memory range of `N` 16-bit values to the specified value `us`.
     The `dstDevice` pointer must be two byte aligned.
@@ -12517,7 +14559,7 @@ def cuMemsetD16(dstDevice not None : CUdeviceptr, unsigned short us, size_t N):
 
 @cython.embedsignature(True)
 def cuMemsetD32(dstDevice not None : CUdeviceptr, unsigned int ui, size_t N):
-    """ Initializes device memory. 
+    """ Initializes device memory.
 
     Sets the memory range of `N` 32-bit values to the specified value `ui`.
     The `dstDevice` pointer must be four byte aligned.
@@ -12594,7 +14636,7 @@ def cuMemsetD32(dstDevice not None : CUdeviceptr, unsigned int ui, size_t N):
 
 @cython.embedsignature(True)
 def cuMemsetD2D8(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned char uc, size_t Width, size_t Height):
-    """ Initializes device memory. 
+    """ Initializes device memory.
 
     Sets the 2D memory range of `Width` 8-bit values to the specified value
     `uc`. `Height` specifies the number of rows to set, and `dstPitch`
@@ -12607,7 +14649,7 @@ def cuMemsetD2D8(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned cha
     dstDevice : CUdeviceptr
         Destination device pointer
     dstPitch : size_t
-        Pitch of destination device pointer(Unused if
+        Pitch of destination device pointer(Unused if `Height` is 1)
     uc : unsigned char
         Value to set
     Width : size_t
@@ -12678,7 +14720,7 @@ def cuMemsetD2D8(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned cha
 
 @cython.embedsignature(True)
 def cuMemsetD2D16(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned short us, size_t Width, size_t Height):
-    """ Initializes device memory. 
+    """ Initializes device memory.
 
     Sets the 2D memory range of `Width` 16-bit values to the specified
     value `us`. `Height` specifies the number of rows to set, and
@@ -12692,7 +14734,7 @@ def cuMemsetD2D16(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned sh
     dstDevice : CUdeviceptr
         Destination device pointer
     dstPitch : size_t
-        Pitch of destination device pointer(Unused if
+        Pitch of destination device pointer(Unused if `Height` is 1)
     us : unsigned short
         Value to set
     Width : size_t
@@ -12763,7 +14805,7 @@ def cuMemsetD2D16(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned sh
 
 @cython.embedsignature(True)
 def cuMemsetD2D32(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned int ui, size_t Width, size_t Height):
-    """ Initializes device memory. 
+    """ Initializes device memory.
 
     Sets the 2D memory range of `Width` 32-bit values to the specified
     value `ui`. `Height` specifies the number of rows to set, and
@@ -12777,7 +14819,7 @@ def cuMemsetD2D32(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned in
     dstDevice : CUdeviceptr
         Destination device pointer
     dstPitch : size_t
-        Pitch of destination device pointer(Unused if
+        Pitch of destination device pointer(Unused if `Height` is 1)
     ui : unsigned int
         Value to set
     Width : size_t
@@ -12848,7 +14890,7 @@ def cuMemsetD2D32(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned in
 
 @cython.embedsignature(True)
 def cuMemsetD8Async(dstDevice not None : CUdeviceptr, unsigned char uc, size_t N, hStream not None : CUstream):
-    """ Sets device memory. 
+    """ Sets device memory.
 
     Sets the memory range of `N` 8-bit values to the specified value `uc`.
 
@@ -12926,7 +14968,7 @@ def cuMemsetD8Async(dstDevice not None : CUdeviceptr, unsigned char uc, size_t N
 
 @cython.embedsignature(True)
 def cuMemsetD16Async(dstDevice not None : CUdeviceptr, unsigned short us, size_t N, hStream not None : CUstream):
-    """ Sets device memory. 
+    """ Sets device memory.
 
     Sets the memory range of `N` 16-bit values to the specified value `us`.
     The `dstDevice` pointer must be two byte aligned.
@@ -13005,7 +15047,7 @@ def cuMemsetD16Async(dstDevice not None : CUdeviceptr, unsigned short us, size_t
 
 @cython.embedsignature(True)
 def cuMemsetD32Async(dstDevice not None : CUdeviceptr, unsigned int ui, size_t N, hStream not None : CUstream):
-    """ Sets device memory. 
+    """ Sets device memory.
 
     Sets the memory range of `N` 32-bit values to the specified value `ui`.
     The `dstDevice` pointer must be four byte aligned.
@@ -13084,7 +15126,7 @@ def cuMemsetD32Async(dstDevice not None : CUdeviceptr, unsigned int ui, size_t N
 
 @cython.embedsignature(True)
 def cuMemsetD2D8Async(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned char uc, size_t Width, size_t Height, hStream not None : CUstream):
-    """ Sets device memory. 
+    """ Sets device memory.
 
     Sets the 2D memory range of `Width` 8-bit values to the specified value
     `uc`. `Height` specifies the number of rows to set, and `dstPitch`
@@ -13097,7 +15139,7 @@ def cuMemsetD2D8Async(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigne
     dstDevice : CUdeviceptr
         Destination device pointer
     dstPitch : size_t
-        Pitch of destination device pointer(Unused if
+        Pitch of destination device pointer(Unused if `Height` is 1)
     uc : unsigned char
         Value to set
     Width : size_t
@@ -13170,7 +15212,7 @@ def cuMemsetD2D8Async(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigne
 
 @cython.embedsignature(True)
 def cuMemsetD2D16Async(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned short us, size_t Width, size_t Height, hStream not None : CUstream):
-    """ Sets device memory. 
+    """ Sets device memory.
 
     Sets the 2D memory range of `Width` 16-bit values to the specified
     value `us`. `Height` specifies the number of rows to set, and
@@ -13184,7 +15226,7 @@ def cuMemsetD2D16Async(dstDevice not None : CUdeviceptr, size_t dstPitch, unsign
     dstDevice : CUdeviceptr
         Destination device pointer
     dstPitch : size_t
-        Pitch of destination device pointer(Unused if
+        Pitch of destination device pointer(Unused if `Height` is 1)
     us : unsigned short
         Value to set
     Width : size_t
@@ -13257,7 +15299,7 @@ def cuMemsetD2D16Async(dstDevice not None : CUdeviceptr, size_t dstPitch, unsign
 
 @cython.embedsignature(True)
 def cuMemsetD2D32Async(dstDevice not None : CUdeviceptr, size_t dstPitch, unsigned int ui, size_t Width, size_t Height, hStream not None : CUstream):
-    """ Sets device memory. 
+    """ Sets device memory.
 
     Sets the 2D memory range of `Width` 32-bit values to the specified
     value `ui`. `Height` specifies the number of rows to set, and
@@ -13271,7 +15313,7 @@ def cuMemsetD2D32Async(dstDevice not None : CUdeviceptr, size_t dstPitch, unsign
     dstDevice : CUdeviceptr
         Destination device pointer
     dstPitch : size_t
-        Pitch of destination device pointer(Unused if
+        Pitch of destination device pointer(Unused if `Height` is 1)
     ui : unsigned int
         Value to set
     Width : size_t
@@ -13344,43 +15386,45 @@ def cuMemsetD2D32Async(dstDevice not None : CUdeviceptr, size_t dstPitch, unsign
 
 @cython.embedsignature(True)
 def cuArrayCreate(pAllocateArray : CUDA_ARRAY_DESCRIPTOR):
-    """ Creates a 1D or 2D CUDA array. 
+    """ Creates a 1D or 2D CUDA array.
 
     Creates a CUDA array according to the CUDA_ARRAY_DESCRIPTOR structure
     `pAllocateArray` and returns a handle to the new CUDA array in
     `*pHandle`. The CUDA_ARRAY_DESCRIPTOR is defined as:
 
-     where:typedefstruct{unsignedintWidth;unsignedintHeight;CUarray_formatF
-    ormat;unsignedintNumChannels;}CUDA_ARRAY_DESCRIPTOR;
+    typedefstruct{ unsignedintWidth; unsignedintHeight;
+    CUarray_formatFormat; unsignedintNumChannels; }CUDA_ARRAY_DESCRIPTOR;
+    where:
 
-     `Width`, and `Height` are the width, and height of the CUDA array (in
+    `Width`, and `Height` are the width, and height of the CUDA array (in
     elements); the CUDA array is one-dimensional if height is 0, two-
-    dimensional otherwise;Format specifies the format of the elements;
-    CUarray_format is defined as: typedefenumCUarray_format_enum{CU_AD_FORM
-    AT_UNSIGNED_INT8=0x01,CU_AD_FORMAT_UNSIGNED_INT16=0x02,CU_AD_FORMAT_UNS
-    IGNED_INT32=0x03,CU_AD_FORMAT_SIGNED_INT8=0x08,CU_AD_FORMAT_SIGNED_INT1
-    6=0x09,CU_AD_FORMAT_SIGNED_INT32=0x0a,CU_AD_FORMAT_HALF=0x10,CU_AD_FORM
-    AT_FLOAT=0x20}CUarray_format;`NumChannels` specifies the number of
-    packed components per CUDA array element; it may be 1, 2, or 4;
+    dimensional otherwise; ::Format specifies the format of the elements;
+    CUarray_format is defined as: typedefenumCUarray_format_enum{
+    CU_AD_FORMAT_UNSIGNED_INT8=0x01, CU_AD_FORMAT_UNSIGNED_INT16=0x02,
+    CU_AD_FORMAT_UNSIGNED_INT32=0x03, CU_AD_FORMAT_SIGNED_INT8=0x08,
+    CU_AD_FORMAT_SIGNED_INT16=0x09, CU_AD_FORMAT_SIGNED_INT32=0x0a,
+    CU_AD_FORMAT_HALF=0x10, CU_AD_FORMAT_FLOAT=0x20 }CUarray_format;
+    `NumChannels` specifies the number of packed components per CUDA array
+    element; it may be 1, 2, or 4;
 
     Here are examples of CUDA array descriptions:
 
     Description for a CUDA array of 2048 floats: CUDA_ARRAY_DESCRIPTORdesc;
-    desc.Format=CU_AD_FORMAT_FLOAT;desc.NumChannels=1;desc.Width=2048;desc.
-    Height=1;
+    desc.Format=CU_AD_FORMAT_FLOAT; desc.NumChannels=1; desc.Width=2048;
+    desc.Height=1;
 
-    Description for a 64 x 64 CUDA array of floats: CUDA_ARRAY_DESCRIPTORde
-    sc;desc.Format=CU_AD_FORMAT_FLOAT;desc.NumChannels=1;desc.Width=64;desc
-    .Height=64;
+    Description for a 64 x 64 CUDA array of floats:
+    CUDA_ARRAY_DESCRIPTORdesc; desc.Format=CU_AD_FORMAT_FLOAT;
+    desc.NumChannels=1; desc.Width=64; desc.Height=64;
 
     Description for a `width` x `height` CUDA array of 64-bit, 4x16-bit
-    float16's: CUDA_ARRAY_DESCRIPTORdesc;desc.FormatFlags=CU_AD_FORMAT_HALF
-    ;desc.NumChannels=4;desc.Width=width;desc.Height=height;
+    float16's: CUDA_ARRAY_DESCRIPTORdesc; desc.Format=CU_AD_FORMAT_HALF;
+    desc.NumChannels=4; desc.Width=width; desc.Height=height;
 
     Description for a `width` x `height` CUDA array of 16-bit elements,
-    each of which is two 8-bit unsigned chars: CUDA_ARRAY_DESCRIPTORarrayDe
-    sc;desc.FormatFlags=CU_AD_FORMAT_UNSIGNED_INT8;desc.NumChannels=2;desc.
-    Width=width;desc.Height=height;
+    each of which is two 8-bit unsigned chars:
+    CUDA_ARRAY_DESCRIPTORarrayDesc; desc.Format=CU_AD_FORMAT_UNSIGNED_INT8;
+    desc.NumChannels=2; desc.Width=width; desc.Height=height;
 
     Parameters
     ----------
@@ -13448,7 +15492,7 @@ def cuArrayCreate(pAllocateArray : CUDA_ARRAY_DESCRIPTOR):
 
 @cython.embedsignature(True)
 def cuArrayGetDescriptor(hArray not None : CUarray):
-    """ Get a 1D or 2D CUDA array descriptor. 
+    """ Get a 1D or 2D CUDA array descriptor.
 
     Returns in `*pArrayDescriptor` a descriptor containing information on
     the format and dimensions of the CUDA array `hArray`. It is useful for
@@ -13519,7 +15563,7 @@ def cuArrayGetDescriptor(hArray not None : CUarray):
 
 @cython.embedsignature(True)
 def cuArrayGetSparseProperties(array not None : CUarray):
-    """ Returns the layout properties of a sparse CUDA array. 
+    """ Returns the layout properties of a sparse CUDA array.
 
     Returns the layout properties of a sparse CUDA array in
     `sparseProperties` If the CUDA array is not allocated with flag
@@ -13545,7 +15589,8 @@ def cuArrayGetSparseProperties(array not None : CUarray):
     Returns
     -------
     CUresult
-        CUDA_SUCCESS CUDA_ERROR_INVALID_VALUE
+        CUDA_SUCCESS
+        CUDA_ERROR_INVALID_VALUE
     sparseProperties : CUDA_ARRAY_SPARSE_PROPERTIES
         Pointer to CUDA_ARRAY_SPARSE_PROPERTIES
 
@@ -13560,7 +15605,7 @@ def cuArrayGetSparseProperties(array not None : CUarray):
 
 @cython.embedsignature(True)
 def cuMipmappedArrayGetSparseProperties(mipmap not None : CUmipmappedArray):
-    """ Returns the layout properties of a sparse CUDA mipmapped array. 
+    """ Returns the layout properties of a sparse CUDA mipmapped array.
 
     Returns the sparse array layout properties in `sparseProperties` If the
     CUDA mipmapped array is not allocated with flag CUDA_ARRAY3D_SPARSE
@@ -13587,7 +15632,8 @@ def cuMipmappedArrayGetSparseProperties(mipmap not None : CUmipmappedArray):
     Returns
     -------
     CUresult
-        CUDA_SUCCESS CUDA_ERROR_INVALID_VALUE
+        CUDA_SUCCESS
+        CUDA_ERROR_INVALID_VALUE
     sparseProperties : CUDA_ARRAY_SPARSE_PROPERTIES
         Pointer to CUDA_ARRAY_SPARSE_PROPERTIES
 
@@ -13602,7 +15648,7 @@ def cuMipmappedArrayGetSparseProperties(mipmap not None : CUmipmappedArray):
 
 @cython.embedsignature(True)
 def cuArrayGetPlane(hArray not None : CUarray, unsigned int planeIdx):
-    """ Gets a CUDA array plane from a CUDA array. 
+    """ Gets a CUDA array plane from a CUDA array.
 
     Returns in `pPlaneArray` a CUDA array that represents a single format
     plane of the CUDA array `hArray`.
@@ -13635,11 +15681,12 @@ def cuArrayGetPlane(hArray not None : CUarray, unsigned int planeIdx):
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_HANDLE
     pPlaneArray : CUarray
-        Returned CUDA array referenced by the
+        Returned CUDA array referenced by the `planeIdx`
 
     See Also
     --------
     cuArrayCreate
+    cudaGetArrayPlane
     """
     cdef CUarray pPlaneArray = CUarray()
     err = ccuda.cuArrayGetPlane(pPlaneArray._ptr, hArray._ptr[0], planeIdx)
@@ -13647,7 +15694,7 @@ def cuArrayGetPlane(hArray not None : CUarray, unsigned int planeIdx):
 
 @cython.embedsignature(True)
 def cuArrayDestroy(hArray not None : CUarray):
-    """ Destroys a CUDA array. 
+    """ Destroys a CUDA array.
 
     Destroys the CUDA array `hArray`.
 
@@ -13715,57 +15762,58 @@ def cuArrayDestroy(hArray not None : CUarray):
 
 @cython.embedsignature(True)
 def cuArray3DCreate(pAllocateArray : CUDA_ARRAY3D_DESCRIPTOR):
-    """ Creates a 3D CUDA array. 
+    """ Creates a 3D CUDA array.
 
     Creates a CUDA array according to the CUDA_ARRAY3D_DESCRIPTOR structure
     `pAllocateArray` and returns a handle to the new CUDA array in
     `*pHandle`. The CUDA_ARRAY3D_DESCRIPTOR is defined as:
 
-     where:typedefstruct{unsignedintWidth;unsignedintHeight;unsignedintDept
-    h;CUarray_formatFormat;unsignedintNumChannels;unsignedintFlags;}CUDA_AR
-    RAY3D_DESCRIPTOR;
+    typedefstruct{ unsignedintWidth; unsignedintHeight; unsignedintDepth;
+    CUarray_formatFormat; unsignedintNumChannels; unsignedintFlags;
+    }CUDA_ARRAY3D_DESCRIPTOR; where:
 
-     `Width`, `Height`, and `Depth` are the width, height, and depth of the
+    `Width`, `Height`, and `Depth` are the width, height, and depth of the
     CUDA array (in elements); the following types of CUDA arrays can be
     allocated: A 1D array is allocated if `Height` and `Depth` extents are
-    both zero.A 2D array is allocated if only `Depth` extent is zero.A 3D
-    array is allocated if all three extents are non-zero.A 1D layered CUDA
+    both zero. A 2D array is allocated if only `Depth` extent is zero. A 3D
+    array is allocated if all three extents are non-zero. A 1D layered CUDA
     array is allocated if only `Height` is zero and the
     CUDA_ARRAY3D_LAYERED flag is set. Each layer is a 1D array. The number
-    of layers is determined by the depth extent.A 2D layered CUDA array is
+    of layers is determined by the depth extent. A 2D layered CUDA array is
     allocated if all three extents are non-zero and the
     CUDA_ARRAY3D_LAYERED flag is set. Each layer is a 2D array. The number
-    of layers is determined by the depth extent.A cubemap CUDA array is
+    of layers is determined by the depth extent. A cubemap CUDA array is
     allocated if all three extents are non-zero and the
     CUDA_ARRAY3D_CUBEMAP flag is set. `Width` must be equal to `Height`,
     and `Depth` must be six. A cubemap is a special type of 2D layered CUDA
     array, where the six layers represent the six faces of a cube. The
     order of the six layers in memory is the same as that listed in
-    CUarray_cubemap_face.A cubemap layered CUDA array is allocated if all
+    CUarray_cubemap_face. A cubemap layered CUDA array is allocated if all
     three extents are non-zero, and both, CUDA_ARRAY3D_CUBEMAP and
     CUDA_ARRAY3D_LAYERED flags are set. `Width` must be equal to `Height`,
     and `Depth` must be a multiple of six. A cubemap layered CUDA array is
     a special type of 2D layered CUDA array that consists of a collection
     of cubemaps. The first six layers represent the first cubemap, the next
-    six layers form the second cubemap, and so on.Format specifies the
-    format of the elements; CUarray_format is defined as: typedefenumCUarra
-    y_format_enum{CU_AD_FORMAT_UNSIGNED_INT8=0x01,CU_AD_FORMAT_UNSIGNED_INT
-    16=0x02,CU_AD_FORMAT_UNSIGNED_INT32=0x03,CU_AD_FORMAT_SIGNED_INT8=0x08,
-    CU_AD_FORMAT_SIGNED_INT16=0x09,CU_AD_FORMAT_SIGNED_INT32=0x0a,CU_AD_FOR
-    MAT_HALF=0x10,CU_AD_FORMAT_FLOAT=0x20}CUarray_format;`NumChannels`
-    specifies the number of packed components per CUDA array element; it
-    may be 1, 2, or 4;Flags may be set to CUDA_ARRAY3D_LAYERED to enable
-    creation of layered CUDA arrays. If this flag is set, `Depth` specifies
-    the number of layers, not the depth of a 3D
-    array.CUDA_ARRAY3D_SURFACE_LDST to enable surface references to be
-    bound to the CUDA array. If this flag is not set, cuSurfRefSetArray
-    will fail when attempting to bind the CUDA array to a surface
-    reference.CUDA_ARRAY3D_CUBEMAP to enable creation of cubemaps. If this
-    flag is set, `Width` must be equal to `Height`, and `Depth` must be
-    six. If the CUDA_ARRAY3D_LAYERED flag is also set, then `Depth` must be
-    a multiple of six.CUDA_ARRAY3D_TEXTURE_GATHER to indicate that the CUDA
-    array will be used for texture gather. Texture gather can only be
-    performed on 2D CUDA arrays.
+    six layers form the second cubemap, and so on.   ::Format specifies the
+    format of the elements; CUarray_format is defined as:
+    typedefenumCUarray_format_enum{ CU_AD_FORMAT_UNSIGNED_INT8=0x01,
+    CU_AD_FORMAT_UNSIGNED_INT16=0x02, CU_AD_FORMAT_UNSIGNED_INT32=0x03,
+    CU_AD_FORMAT_SIGNED_INT8=0x08, CU_AD_FORMAT_SIGNED_INT16=0x09,
+    CU_AD_FORMAT_SIGNED_INT32=0x0a, CU_AD_FORMAT_HALF=0x10,
+    CU_AD_FORMAT_FLOAT=0x20 }CUarray_format;  `NumChannels` specifies the
+    number of packed components per CUDA array element; it may be 1, 2, or
+    4; ::Flags may be set to CUDA_ARRAY3D_LAYERED to enable creation of
+    layered CUDA arrays. If this flag is set, `Depth` specifies the number
+    of layers, not the depth of a 3D array. CUDA_ARRAY3D_SURFACE_LDST to
+    enable surface references to be bound to the CUDA array. If this flag
+    is not set, cuSurfRefSetArray will fail when attempting to bind the
+    CUDA array to a surface reference. CUDA_ARRAY3D_CUBEMAP to enable
+    creation of cubemaps. If this flag is set, `Width` must be equal to
+    `Height`, and `Depth` must be six. If the CUDA_ARRAY3D_LAYERED flag is
+    also set, then `Depth` must be a multiple of six.
+    CUDA_ARRAY3D_TEXTURE_GATHER to indicate that the CUDA array will be
+    used for texture gather. Texture gather can only be performed on 2D
+    CUDA arrays.
 
     `Width`, `Height` and `Depth` must meet certain size requirements as
     listed in the following table. All values are specified in elements.
@@ -13779,41 +15827,43 @@ def cuArray3DCreate(pAllocateArray : CUDA_ARRAY3D_DESCRIPTOR):
     CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_HEIGHT respectively, in
     that case.
 
-     CUDA array typeValid extents that must always be met {(width range in
-    elements), (height range), (depth range)}Valid extents with
-    CUDA_ARRAY3D_SURFACE_LDST set  {(width range in elements), (height
-    range), (depth range)} 1D { (1,TEXTURE1D_WIDTH), 0, 0 }{
-    (1,SURFACE1D_WIDTH), 0, 0 } 2D { (1,TEXTURE2D_WIDTH),
-    (1,TEXTURE2D_HEIGHT), 0 }{ (1,SURFACE2D_WIDTH), (1,SURFACE2D_HEIGHT), 0
-    } 3D { (1,TEXTURE3D_WIDTH), (1,TEXTURE3D_HEIGHT), (1,TEXTURE3D_DEPTH) }
-    OR { (1,TEXTURE3D_WIDTH_ALTERNATE), (1,TEXTURE3D_HEIGHT_ALTERNATE),
-    (1,TEXTURE3D_DEPTH_ALTERNATE) }{ (1,SURFACE3D_WIDTH),
-    (1,SURFACE3D_HEIGHT), (1,SURFACE3D_DEPTH) } 1D Layered {
-    (1,TEXTURE1D_LAYERED_WIDTH), 0, (1,TEXTURE1D_LAYERED_LAYERS) }{
-    (1,SURFACE1D_LAYERED_WIDTH), 0, (1,SURFACE1D_LAYERED_LAYERS) } 2D
-    Layered { (1,TEXTURE2D_LAYERED_WIDTH), (1,TEXTURE2D_LAYERED_HEIGHT),
-    (1,TEXTURE2D_LAYERED_LAYERS) }{ (1,SURFACE2D_LAYERED_WIDTH),
-    (1,SURFACE2D_LAYERED_HEIGHT), (1,SURFACE2D_LAYERED_LAYERS) } Cubemap {
-    (1,TEXTURECUBEMAP_WIDTH), (1,TEXTURECUBEMAP_WIDTH), 6 }{
-    (1,SURFACECUBEMAP_WIDTH), (1,SURFACECUBEMAP_WIDTH), 6 } Cubemap Layered
-    { (1,TEXTURECUBEMAP_LAYERED_WIDTH), (1,TEXTURECUBEMAP_LAYERED_WIDTH),
-    (1,TEXTURECUBEMAP_LAYERED_LAYERS) }{ (1,SURFACECUBEMAP_LAYERED_WIDTH),
-    (1,SURFACECUBEMAP_LAYERED_WIDTH), (1,SURFACECUBEMAP_LAYERED_LAYERS) }
+    CUDA array type  Valid extents that must always be met {(width range in
+    elements), (height range), (depth range)}  Valid extents with
+    CUDA_ARRAY3D_SURFACE_LDST set {(width range in elements), (height
+    range), (depth range)}    1D  { (1,TEXTURE1D_WIDTH), 0, 0 }  {
+    (1,SURFACE1D_WIDTH), 0, 0 }    2D  { (1,TEXTURE2D_WIDTH),
+    (1,TEXTURE2D_HEIGHT), 0 }  { (1,SURFACE2D_WIDTH), (1,SURFACE2D_HEIGHT),
+    0 }    3D  { (1,TEXTURE3D_WIDTH), (1,TEXTURE3D_HEIGHT),
+    (1,TEXTURE3D_DEPTH) }  OR { (1,TEXTURE3D_WIDTH_ALTERNATE),
+    (1,TEXTURE3D_HEIGHT_ALTERNATE), (1,TEXTURE3D_DEPTH_ALTERNATE) }  {
+    (1,SURFACE3D_WIDTH), (1,SURFACE3D_HEIGHT), (1,SURFACE3D_DEPTH) }    1D
+    Layered  { (1,TEXTURE1D_LAYERED_WIDTH), 0, (1,TEXTURE1D_LAYERED_LAYERS)
+    }  { (1,SURFACE1D_LAYERED_WIDTH), 0, (1,SURFACE1D_LAYERED_LAYERS) }
+    2D Layered  { (1,TEXTURE2D_LAYERED_WIDTH),
+    (1,TEXTURE2D_LAYERED_HEIGHT), (1,TEXTURE2D_LAYERED_LAYERS) }  {
+    (1,SURFACE2D_LAYERED_WIDTH), (1,SURFACE2D_LAYERED_HEIGHT),
+    (1,SURFACE2D_LAYERED_LAYERS) }    Cubemap  { (1,TEXTURECUBEMAP_WIDTH),
+    (1,TEXTURECUBEMAP_WIDTH), 6 }  { (1,SURFACECUBEMAP_WIDTH),
+    (1,SURFACECUBEMAP_WIDTH), 6 }    Cubemap Layered  {
+    (1,TEXTURECUBEMAP_LAYERED_WIDTH), (1,TEXTURECUBEMAP_LAYERED_WIDTH),
+    (1,TEXTURECUBEMAP_LAYERED_LAYERS) }  {
+    (1,SURFACECUBEMAP_LAYERED_WIDTH), (1,SURFACECUBEMAP_LAYERED_WIDTH),
+    (1,SURFACECUBEMAP_LAYERED_LAYERS) }
 
     Here are examples of CUDA array descriptions:
 
-    Description for a CUDA array of 2048 floats: CUDA_ARRAY3D_DESCRIPTORdes
-    c;desc.Format=CU_AD_FORMAT_FLOAT;desc.NumChannels=1;desc.Width=2048;des
-    c.Height=0;desc.Depth=0;
+    Description for a CUDA array of 2048 floats:
+    CUDA_ARRAY3D_DESCRIPTORdesc; desc.Format=CU_AD_FORMAT_FLOAT;
+    desc.NumChannels=1; desc.Width=2048; desc.Height=0; desc.Depth=0;
 
-    Description for a 64 x 64 CUDA array of floats: CUDA_ARRAY3D_DESCRIPTOR
-    desc;desc.Format=CU_AD_FORMAT_FLOAT;desc.NumChannels=1;desc.Width=64;de
-    sc.Height=64;desc.Depth=0;
+    Description for a 64 x 64 CUDA array of floats:
+    CUDA_ARRAY3D_DESCRIPTORdesc; desc.Format=CU_AD_FORMAT_FLOAT;
+    desc.NumChannels=1; desc.Width=64; desc.Height=64; desc.Depth=0;
 
     Description for a `width` x `height` x `depth` CUDA array of 64-bit,
-    4x16-bit float16's: CUDA_ARRAY3D_DESCRIPTORdesc;desc.FormatFlags=CU_AD_
-    FORMAT_HALF;desc.NumChannels=4;desc.Width=width;desc.Height=height;desc
-    .Depth=depth;
+    4x16-bit float16's: CUDA_ARRAY3D_DESCRIPTORdesc;
+    desc.Format=CU_AD_FORMAT_HALF; desc.NumChannels=4; desc.Width=width;
+    desc.Height=height; desc.Depth=depth;
 
     Parameters
     ----------
@@ -13881,7 +15931,7 @@ def cuArray3DCreate(pAllocateArray : CUDA_ARRAY3D_DESCRIPTOR):
 
 @cython.embedsignature(True)
 def cuArray3DGetDescriptor(hArray not None : CUarray):
-    """ Get a 3D CUDA array descriptor. 
+    """ Get a 3D CUDA array descriptor.
 
     Returns in `*pArrayDescriptor` a descriptor containing information on
     the format and dimensions of the CUDA array `hArray`. It is useful for
@@ -13957,7 +16007,7 @@ def cuArray3DGetDescriptor(hArray not None : CUarray):
 
 @cython.embedsignature(True)
 def cuMipmappedArrayCreate(pMipmappedArrayDesc : CUDA_ARRAY3D_DESCRIPTOR, unsigned int numMipmapLevels):
-    """ Creates a CUDA mipmapped array. 
+    """ Creates a CUDA mipmapped array.
 
     Creates a CUDA mipmapped array according to the CUDA_ARRAY3D_DESCRIPTOR
     structure `pMipmappedArrayDesc` and returns a handle to the new CUDA
@@ -13967,50 +16017,51 @@ def cuMipmappedArrayCreate(pMipmappedArrayDesc : CUDA_ARRAY3D_DESCRIPTOR, unsign
 
     The CUDA_ARRAY3D_DESCRIPTOR is defined as:
 
-     where:typedefstruct{unsignedintWidth;unsignedintHeight;unsignedintDept
-    h;CUarray_formatFormat;unsignedintNumChannels;unsignedintFlags;}CUDA_AR
-    RAY3D_DESCRIPTOR;
+    typedefstruct{ unsignedintWidth; unsignedintHeight; unsignedintDepth;
+    CUarray_formatFormat; unsignedintNumChannels; unsignedintFlags;
+    }CUDA_ARRAY3D_DESCRIPTOR; where:
 
-     `Width`, `Height`, and `Depth` are the width, height, and depth of the
+    `Width`, `Height`, and `Depth` are the width, height, and depth of the
     CUDA array (in elements); the following types of CUDA arrays can be
     allocated: A 1D mipmapped array is allocated if `Height` and `Depth`
-    extents are both zero.A 2D mipmapped array is allocated if only `Depth`
-    extent is zero.A 3D mipmapped array is allocated if all three extents
-    are non-zero.A 1D layered CUDA mipmapped array is allocated if only
-    `Height` is zero and the CUDA_ARRAY3D_LAYERED flag is set. Each layer
-    is a 1D array. The number of layers is determined by the depth extent.A
-    2D layered CUDA mipmapped array is allocated if all three extents are
-    non-zero and the CUDA_ARRAY3D_LAYERED flag is set. Each layer is a 2D
-    array. The number of layers is determined by the depth extent.A cubemap
-    CUDA mipmapped array is allocated if all three extents are non-zero and
-    the CUDA_ARRAY3D_CUBEMAP flag is set. `Width` must be equal to
-    `Height`, and `Depth` must be six. A cubemap is a special type of 2D
-    layered CUDA array, where the six layers represent the six faces of a
-    cube. The order of the six layers in memory is the same as that listed
-    in CUarray_cubemap_face.A cubemap layered CUDA mipmapped array is
-    allocated if all three extents are non-zero, and both,
-    CUDA_ARRAY3D_CUBEMAP and CUDA_ARRAY3D_LAYERED flags are set. `Width`
-    must be equal to `Height`, and `Depth` must be a multiple of six. A
-    cubemap layered CUDA array is a special type of 2D layered CUDA array
-    that consists of a collection of cubemaps. The first six layers
+    extents are both zero. A 2D mipmapped array is allocated if only
+    `Depth` extent is zero. A 3D mipmapped array is allocated if all three
+    extents are non-zero. A 1D layered CUDA mipmapped array is allocated if
+    only `Height` is zero and the CUDA_ARRAY3D_LAYERED flag is set. Each
+    layer is a 1D array. The number of layers is determined by the depth
+    extent. A 2D layered CUDA mipmapped array is allocated if all three
+    extents are non-zero and the CUDA_ARRAY3D_LAYERED flag is set. Each
+    layer is a 2D array. The number of layers is determined by the depth
+    extent. A cubemap CUDA mipmapped array is allocated if all three
+    extents are non-zero and the CUDA_ARRAY3D_CUBEMAP flag is set. `Width`
+    must be equal to `Height`, and `Depth` must be six. A cubemap is a
+    special type of 2D layered CUDA array, where the six layers represent
+    the six faces of a cube. The order of the six layers in memory is the
+    same as that listed in CUarray_cubemap_face. A cubemap layered CUDA
+    mipmapped array is allocated if all three extents are non-zero, and
+    both, CUDA_ARRAY3D_CUBEMAP and CUDA_ARRAY3D_LAYERED flags are set.
+    `Width` must be equal to `Height`, and `Depth` must be a multiple of
+    six. A cubemap layered CUDA array is a special type of 2D layered CUDA
+    array that consists of a collection of cubemaps. The first six layers
     represent the first cubemap, the next six layers form the second
-    cubemap, and so on.Format specifies the format of the elements;
-    CUarray_format is defined as: typedefenumCUarray_format_enum{CU_AD_FORM
-    AT_UNSIGNED_INT8=0x01,CU_AD_FORMAT_UNSIGNED_INT16=0x02,CU_AD_FORMAT_UNS
-    IGNED_INT32=0x03,CU_AD_FORMAT_SIGNED_INT8=0x08,CU_AD_FORMAT_SIGNED_INT1
-    6=0x09,CU_AD_FORMAT_SIGNED_INT32=0x0a,CU_AD_FORMAT_HALF=0x10,CU_AD_FORM
-    AT_FLOAT=0x20}CUarray_format;`NumChannels` specifies the number of
-    packed components per CUDA array element; it may be 1, 2, or 4;Flags
-    may be set to CUDA_ARRAY3D_LAYERED to enable creation of layered CUDA
-    mipmapped arrays. If this flag is set, `Depth` specifies the number of
-    layers, not the depth of a 3D array.CUDA_ARRAY3D_SURFACE_LDST to enable
+    cubemap, and so on.   ::Format specifies the format of the elements;
+    CUarray_format is defined as: typedefenumCUarray_format_enum{
+    CU_AD_FORMAT_UNSIGNED_INT8=0x01, CU_AD_FORMAT_UNSIGNED_INT16=0x02,
+    CU_AD_FORMAT_UNSIGNED_INT32=0x03, CU_AD_FORMAT_SIGNED_INT8=0x08,
+    CU_AD_FORMAT_SIGNED_INT16=0x09, CU_AD_FORMAT_SIGNED_INT32=0x0a,
+    CU_AD_FORMAT_HALF=0x10, CU_AD_FORMAT_FLOAT=0x20 }CUarray_format;
+    `NumChannels` specifies the number of packed components per CUDA array
+    element; it may be 1, 2, or 4; ::Flags may be set to
+    CUDA_ARRAY3D_LAYERED to enable creation of layered CUDA mipmapped
+    arrays. If this flag is set, `Depth` specifies the number of layers,
+    not the depth of a 3D array. CUDA_ARRAY3D_SURFACE_LDST to enable
     surface references to be bound to individual mipmap levels of the CUDA
     mipmapped array. If this flag is not set, cuSurfRefSetArray will fail
     when attempting to bind a mipmap level of the CUDA mipmapped array to a
     surface reference. CUDA_ARRAY3D_CUBEMAP to enable creation of mipmapped
     cubemaps. If this flag is set, `Width` must be equal to `Height`, and
     `Depth` must be six. If the CUDA_ARRAY3D_LAYERED flag is also set, then
-    `Depth` must be a multiple of six.CUDA_ARRAY3D_TEXTURE_GATHER to
+    `Depth` must be a multiple of six.   CUDA_ARRAY3D_TEXTURE_GATHER to
     indicate that the CUDA mipmapped array will be used for texture gather.
     Texture gather can only be performed on 2D CUDA mipmapped arrays.
 
@@ -14020,27 +16071,28 @@ def cuMipmappedArrayCreate(pMipmappedArrayDesc : CUDA_ARRAY3D_DESCRIPTOR, unsign
     not specified. For ex., TEXTURE1D_MIPMAPPED_WIDTH refers to the device
     attribute CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_MIPMAPPED_WIDTH.
 
-     CUDA array typeValid extents that must always be met {(width range in
-    elements), (height range), (depth range)}Valid extents with
-    CUDA_ARRAY3D_SURFACE_LDST set  {(width range in elements), (height
-    range), (depth range)} 1D { (1,TEXTURE1D_MIPMAPPED_WIDTH), 0, 0 }{
-    (1,SURFACE1D_WIDTH), 0, 0 } 2D { (1,TEXTURE2D_MIPMAPPED_WIDTH),
-    (1,TEXTURE2D_MIPMAPPED_HEIGHT), 0 }{ (1,SURFACE2D_WIDTH),
-    (1,SURFACE2D_HEIGHT), 0 } 3D { (1,TEXTURE3D_WIDTH),
+    CUDA array type  Valid extents that must always be met {(width range in
+    elements), (height range), (depth range)}  Valid extents with
+    CUDA_ARRAY3D_SURFACE_LDST set {(width range in elements), (height
+    range), (depth range)}    1D  { (1,TEXTURE1D_MIPMAPPED_WIDTH), 0, 0 }
+    { (1,SURFACE1D_WIDTH), 0, 0 }    2D  { (1,TEXTURE2D_MIPMAPPED_WIDTH),
+    (1,TEXTURE2D_MIPMAPPED_HEIGHT), 0 }  { (1,SURFACE2D_WIDTH),
+    (1,SURFACE2D_HEIGHT), 0 }    3D  { (1,TEXTURE3D_WIDTH),
     (1,TEXTURE3D_HEIGHT), (1,TEXTURE3D_DEPTH) }  OR {
     (1,TEXTURE3D_WIDTH_ALTERNATE), (1,TEXTURE3D_HEIGHT_ALTERNATE),
-    (1,TEXTURE3D_DEPTH_ALTERNATE) }{ (1,SURFACE3D_WIDTH),
-    (1,SURFACE3D_HEIGHT), (1,SURFACE3D_DEPTH) } 1D Layered {
-    (1,TEXTURE1D_LAYERED_WIDTH), 0, (1,TEXTURE1D_LAYERED_LAYERS) }{
-    (1,SURFACE1D_LAYERED_WIDTH), 0, (1,SURFACE1D_LAYERED_LAYERS) } 2D
-    Layered { (1,TEXTURE2D_LAYERED_WIDTH), (1,TEXTURE2D_LAYERED_HEIGHT),
-    (1,TEXTURE2D_LAYERED_LAYERS) }{ (1,SURFACE2D_LAYERED_WIDTH),
-    (1,SURFACE2D_LAYERED_HEIGHT), (1,SURFACE2D_LAYERED_LAYERS) } Cubemap {
-    (1,TEXTURECUBEMAP_WIDTH), (1,TEXTURECUBEMAP_WIDTH), 6 }{
-    (1,SURFACECUBEMAP_WIDTH), (1,SURFACECUBEMAP_WIDTH), 6 } Cubemap Layered
-    { (1,TEXTURECUBEMAP_LAYERED_WIDTH), (1,TEXTURECUBEMAP_LAYERED_WIDTH),
-    (1,TEXTURECUBEMAP_LAYERED_LAYERS) }{ (1,SURFACECUBEMAP_LAYERED_WIDTH),
-    (1,SURFACECUBEMAP_LAYERED_WIDTH), (1,SURFACECUBEMAP_LAYERED_LAYERS) }
+    (1,TEXTURE3D_DEPTH_ALTERNATE) }  { (1,SURFACE3D_WIDTH),
+    (1,SURFACE3D_HEIGHT), (1,SURFACE3D_DEPTH) }    1D Layered  {
+    (1,TEXTURE1D_LAYERED_WIDTH), 0, (1,TEXTURE1D_LAYERED_LAYERS) }  {
+    (1,SURFACE1D_LAYERED_WIDTH), 0, (1,SURFACE1D_LAYERED_LAYERS) }    2D
+    Layered  { (1,TEXTURE2D_LAYERED_WIDTH), (1,TEXTURE2D_LAYERED_HEIGHT),
+    (1,TEXTURE2D_LAYERED_LAYERS) }  { (1,SURFACE2D_LAYERED_WIDTH),
+    (1,SURFACE2D_LAYERED_HEIGHT), (1,SURFACE2D_LAYERED_LAYERS) }    Cubemap
+    { (1,TEXTURECUBEMAP_WIDTH), (1,TEXTURECUBEMAP_WIDTH), 6 }  {
+    (1,SURFACECUBEMAP_WIDTH), (1,SURFACECUBEMAP_WIDTH), 6 }    Cubemap
+    Layered  { (1,TEXTURECUBEMAP_LAYERED_WIDTH),
+    (1,TEXTURECUBEMAP_LAYERED_WIDTH), (1,TEXTURECUBEMAP_LAYERED_LAYERS) }
+    { (1,SURFACECUBEMAP_LAYERED_WIDTH), (1,SURFACECUBEMAP_LAYERED_WIDTH),
+    (1,SURFACECUBEMAP_LAYERED_LAYERS) }
 
     Parameters
     ----------
@@ -14076,7 +16128,7 @@ def cuMipmappedArrayCreate(pMipmappedArrayDesc : CUDA_ARRAY3D_DESCRIPTOR, unsign
 
 @cython.embedsignature(True)
 def cuMipmappedArrayGetLevel(hMipmappedArray not None : CUmipmappedArray, unsigned int level):
-    """ Gets a mipmap level of a CUDA mipmapped array. 
+    """ Gets a mipmap level of a CUDA mipmapped array.
 
     Returns in `*pLevelArray` a CUDA array that represents a single mipmap
     level of the CUDA mipmapped array `hMipmappedArray`.
@@ -14116,7 +16168,7 @@ def cuMipmappedArrayGetLevel(hMipmappedArray not None : CUmipmappedArray, unsign
 
 @cython.embedsignature(True)
 def cuMipmappedArrayDestroy(hMipmappedArray not None : CUmipmappedArray):
-    """ Destroys a CUDA mipmapped array. 
+    """ Destroys a CUDA mipmapped array.
 
     Destroys the CUDA mipmapped array `hMipmappedArray`.
 
@@ -14150,7 +16202,7 @@ def cuMipmappedArrayDestroy(hMipmappedArray not None : CUmipmappedArray):
 
 @cython.embedsignature(True)
 def cuMemAddressReserve(size_t size, size_t alignment, addr not None : CUdeviceptr, unsigned long long flags):
-    """ Allocate an address range reservation. 
+    """ Allocate an address range reservation.
 
     Reserves a virtual address range based on the given parameters, giving
     the starting address of the range in `ptr`. This API requires a system
@@ -14192,7 +16244,7 @@ def cuMemAddressReserve(size_t size, size_t alignment, addr not None : CUdevicep
 
 @cython.embedsignature(True)
 def cuMemAddressFree(ptr not None : CUdeviceptr, size_t size):
-    """ Free an address range reservation. 
+    """ Free an address range reservation.
 
     Frees a virtual address range reserved by cuMemAddressReserve. The size
     must match what was given to memAddressReserve and the ptr given must
@@ -14226,7 +16278,7 @@ def cuMemAddressFree(ptr not None : CUdeviceptr, size_t size):
 
 @cython.embedsignature(True)
 def cuMemCreate(size_t size, prop : CUmemAllocationProp, unsigned long long flags):
-    """ Create a CUDA memory handle representing a memory allocation of a given size described by the given properties. 
+    """ Create a CUDA memory handle representing a memory allocation of a given size described by the given properties.
 
     This creates a memory allocation on the target device specified through
     the `prop` strcuture. The created allocation will not have any device
@@ -14281,7 +16333,7 @@ def cuMemCreate(size_t size, prop : CUmemAllocationProp, unsigned long long flag
 
 @cython.embedsignature(True)
 def cuMemRelease(handle not None : CUmemGenericAllocationHandle):
-    """ Release a memory handle representing a memory allocation which was previously allocated through cuMemCreate. 
+    """ Release a memory handle representing a memory allocation which was previously allocated through cuMemCreate.
 
     Frees the memory that was allocated on a device through cuMemCreate.
 
@@ -14320,7 +16372,7 @@ def cuMemRelease(handle not None : CUmemGenericAllocationHandle):
 
 @cython.embedsignature(True)
 def cuMemMap(ptr not None : CUdeviceptr, size_t size, size_t offset, handle not None : CUmemGenericAllocationHandle, unsigned long long flags):
-    """ Maps an allocation handle to a reserved virtual address range. 
+    """ Maps an allocation handle to a reserved virtual address range.
 
     Maps bytes of memory represented by `handle` starting from byte
     `offset` to `size` to address range [`addr`, `addr` + `size`]. This
@@ -14349,7 +16401,8 @@ def cuMemMap(ptr not None : CUdeviceptr, size_t size, size_t offset, handle not 
     size : size_t
         Size of the memory mapping.
     offset : size_t
-        Offset into the memory represented by
+        Offset into the memory represented by `handle` from which to start
+        mapping Note: currently must be zero.
     handle : CUmemGenericAllocationHandle
         Handle to a shareable memory
     flags : unsigned long long
@@ -14382,21 +16435,24 @@ def cuMemMap(ptr not None : CUdeviceptr, size_t size, size_t offset, handle not 
 
 @cython.embedsignature(True)
 def cuMemMapArrayAsync(mapInfoList : List[CUarrayMapInfo], unsigned int count, hStream not None : CUstream):
-    """ Maps or unmaps subregions of sparse CUDA arrays and sparse CUDA mipmapped arrays. 
+    """ Maps or unmaps subregions of sparse CUDA arrays and sparse CUDA mipmapped arrays.
 
     Performs map or unmap operations on subregions of sparse CUDA arrays
     and sparse CUDA mipmapped arrays. Each operation is specified by a
     CUarrayMapInfo entry in the `mapInfoList` array of size `count`. The
-    structure CUarrayMapInfo is defined as follow: typedefstructCUarrayMapI
-    nfo_st{CUresourcetyperesourceType;union{CUmipmappedArraymipmap;CUarraya
-    rray;}resource;CUarraySparseSubresourceTypesubresourceType;union{struct
-    {unsignedintlevel;unsignedintlayer;unsignedintoffsetX;unsignedintoffset
-    Y;unsignedintoffsetZ;unsignedintextentWidth;unsignedintextentHeight;uns
-    ignedintextentDepth;}sparseLevel;struct{unsignedintlayer;unsignedlonglo
-    ngoffset;unsignedlonglongsize;}miptail;}subresource;CUmemOperationTypem
-    emOperationType;CUmemHandleTypememHandleType;union{CUmemGenericAllocati
-    onHandlememHandle;}memHandle;unsignedlonglongoffset;unsignedintdeviceBi
-    tMask;unsignedintflags;unsignedintreserved[2];}CUarrayMapInfo;
+    structure CUarrayMapInfo is defined as follow:
+    typedefstructCUarrayMapInfo_st{ CUresourcetyperesourceType; union{
+    CUmipmappedArraymipmap; CUarrayarray; }resource;
+    CUarraySparseSubresourceTypesubresourceType; union{ struct{
+    unsignedintlevel; unsignedintlayer; unsignedintoffsetX;
+    unsignedintoffsetY; unsignedintoffsetZ; unsignedintextentWidth;
+    unsignedintextentHeight; unsignedintextentDepth; }sparseLevel; struct{
+    unsignedintlayer; unsignedlonglongoffset; unsignedlonglongsize;
+    }miptail; }subresource;  CUmemOperationTypememOperationType;
+    CUmemHandleTypememHandleType; union{
+    CUmemGenericAllocationHandlememHandle; }memHandle;
+    unsignedlonglongoffset; unsignedintdeviceBitMask; unsignedintflags;
+    unsignedintreserved[2]; }CUarrayMapInfo;
 
     where CUarrayMapInfo::resourceType specifies the type of resource to be
     operated on. If CUarrayMapInfo::resourceType is set to
@@ -14414,10 +16470,11 @@ def cuMemMapArrayAsync(mapInfoList : List[CUarrayMapInfo], unsigned int count, h
     using cuMipmappedArrayCreate with the flag CUDA_ARRAY3D_SPARSE.
 
     CUarrayMapInfo::subresourceType specifies the type of subresource
-    within the resource. CUarraySparseSubresourceType_enum is defined as: t
-    ypedefenumCUarraySparseSubresourceType_enum{CU_ARRAY_SPARSE_SUBRESOURCE
-    _TYPE_SPARSE_LEVEL=0,CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL=1}CUarray
-    SparseSubresourceType;
+    within the resource. CUarraySparseSubresourceType_enum is defined as:
+    typedefenumCUarraySparseSubresourceType_enum{
+    CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL=0,
+    CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL=1
+    }CUarraySparseSubresourceType;
 
     where CUarraySparseSubresourceType::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SP
     ARSE_LEVEL indicates a sparse-miplevel which spans at least one tile in
@@ -14465,9 +16522,9 @@ def cuMemMapArrayAsync(mapInfoList : List[CUarrayMapInfo], unsigned int count, h
     index. Otherwise, must be zero.
 
     CUarrayMapInfo::memOperationType specifies the type of operation.
-    CUmemOperationType is defined as:  If typedefenumCUmemOperationType_enu
-    m{CU_MEM_OPERATION_TYPE_MAP=1,CU_MEM_OPERATION_TYPE_UNMAP=2}CUmemOperat
-    ionType;CUarrayMapInfo::memOperationType is set to
+    CUmemOperationType is defined as: typedefenumCUmemOperationType_enum{
+    CU_MEM_OPERATION_TYPE_MAP=1, CU_MEM_OPERATION_TYPE_UNMAP=2
+    }CUmemOperationType; If CUarrayMapInfo::memOperationType is set to
     CUmemOperationType::CU_MEM_OPERATION_TYPE_MAP then the subresource will
     be mapped onto the tile pool memory specified by
     CUarrayMapInfo::memHandle at offset CUarrayMapInfo::offset. The tile
@@ -14496,7 +16553,7 @@ def cuMemMapArrayAsync(mapInfoList : List[CUarrayMapInfo], unsigned int count, h
     mapInfoList : List[CUarrayMapInfo]
         List of CUarrayMapInfo
     count : unsigned int
-        Count of CUarrayMapInfo in
+        Count of CUarrayMapInfo in `mapInfoList`
     hStream : CUstream
         Stream identifier for the stream to use for map or unmap operations
 
@@ -14520,7 +16577,7 @@ def cuMemMapArrayAsync(mapInfoList : List[CUarrayMapInfo], unsigned int count, h
     """
     mapInfoList = [] if mapInfoList is None else mapInfoList
     if not all(isinstance(_x, (CUarrayMapInfo)) for _x in mapInfoList):
-        raise TypeError("Argument 'mapInfoList' is not instance of type (expected List[cuda.ccuda.CUarrayMapInfo]")
+        raise TypeError("Argument 'mapInfoList' is not instance of type (expected List[ccuda.CUarrayMapInfo]")
     cdef ccuda.CUarrayMapInfo* cmapInfoList = NULL
     if len(mapInfoList) > 0:
         cmapInfoList = <ccuda.CUarrayMapInfo*> calloc(len(mapInfoList), sizeof(ccuda.CUarrayMapInfo))
@@ -14537,7 +16594,7 @@ def cuMemMapArrayAsync(mapInfoList : List[CUarrayMapInfo], unsigned int count, h
 
 @cython.embedsignature(True)
 def cuMemUnmap(ptr not None : CUdeviceptr, size_t size):
-    """ Unmap the backing memory of a given address range. 
+    """ Unmap the backing memory of a given address range.
 
     The range must be the entire contiguous address range that was mapped
     to. In other words, cuMemUnmap cannot unmap a sub-range of an address
@@ -14580,7 +16637,7 @@ def cuMemUnmap(ptr not None : CUdeviceptr, size_t size):
 
 @cython.embedsignature(True)
 def cuMemSetAccess(ptr not None : CUdeviceptr, size_t size, desc : List[CUmemAccessDesc], size_t count):
-    """ Set the access flags for each location specified in `desc` for the given virtual address range. 
+    """ Set the access flags for each location specified in `desc` for the given virtual address range.
 
     Given the virtual address range via `ptr` and `size`, and the locations
     in the array given by `desc` and `count`, set the access flags for the
@@ -14594,9 +16651,10 @@ def cuMemSetAccess(ptr not None : CUdeviceptr, size_t size, desc : List[CUmemAcc
     size : size_t
         Length of the virtual address range
     desc : List[CUmemAccessDesc]
-        Array of CUmemAccessDesc that describe how to change the
+        Array of CUmemAccessDesc that describe how to change the mapping
+        for each location specified
     count : size_t
-        Number of CUmemAccessDesc in
+        Number of CUmemAccessDesc in `desc`
 
     Returns
     -------
@@ -14616,7 +16674,7 @@ def cuMemSetAccess(ptr not None : CUdeviceptr, size_t size, desc : List[CUmemAcc
     """
     desc = [] if desc is None else desc
     if not all(isinstance(_x, (CUmemAccessDesc)) for _x in desc):
-        raise TypeError("Argument 'desc' is not instance of type (expected List[cuda.ccuda.CUmemAccessDesc]")
+        raise TypeError("Argument 'desc' is not instance of type (expected List[ccuda.CUmemAccessDesc]")
     cdef ccuda.CUmemAccessDesc* cdesc = NULL
     if len(desc) > 0:
         cdesc = <ccuda.CUmemAccessDesc*> calloc(len(desc), sizeof(ccuda.CUmemAccessDesc))
@@ -14633,7 +16691,7 @@ def cuMemSetAccess(ptr not None : CUdeviceptr, size_t size, desc : List[CUmemAcc
 
 @cython.embedsignature(True)
 def cuMemGetAccess(location : CUmemLocation, ptr not None : CUdeviceptr):
-    """ Get the access `flags` set for the given `location` and `ptr`. 
+    """ Get the access `flags` set for the given `location` and `ptr`.
 
     Parameters
     ----------
@@ -14666,7 +16724,7 @@ def cuMemGetAccess(location : CUmemLocation, ptr not None : CUdeviceptr):
 
 @cython.embedsignature(True)
 def cuMemExportToShareableHandle(handle not None : CUmemGenericAllocationHandle, handleType not None : CUmemAllocationHandleType, unsigned long long flags):
-    """ Exports an allocation to a requested shareable handle type. 
+    """ Exports an allocation to a requested shareable handle type.
 
     Given a CUDA memory handle, create a shareable memory allocation handle
     that can be used to share the memory with other processes. The
@@ -14684,10 +16742,13 @@ def cuMemExportToShareableHandle(handle not None : CUmemGenericAllocationHandle,
 
     Parameters
     ----------
+    shareableHandle : CUmemGenericAllocationHandle
+        Pointer to the location in which to store the requested handle type
     handle : CUmemGenericAllocationHandle
         CUDA handle for the memory allocation
     handleType : CUmemAllocationHandleType
         Type of shareable handle requested (defines type and size of the
+        `shareableHandle` output parameter)
     flags : unsigned long long
         Reserved, must be zero
 
@@ -14700,8 +16761,8 @@ def cuMemExportToShareableHandle(handle not None : CUmemGenericAllocationHandle,
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_PERMITTED
         CUDA_ERROR_NOT_SUPPORTED
-    shareableHandle : Int
-        Pointer to the location in which to store the requested handle type
+    None
+        None
 
     See Also
     --------
@@ -14715,7 +16776,7 @@ def cuMemExportToShareableHandle(handle not None : CUmemGenericAllocationHandle,
 
 @cython.embedsignature(True)
 def cuMemImportFromShareableHandle(osHandle, shHandleType not None : CUmemAllocationHandleType):
-    """ Imports an allocation from a requested shareable handle type. 
+    """ Imports an allocation from a requested shareable handle type.
 
     If the current process cannot support the memory described by this
     shareable handle, this API will error as CUDA_ERROR_NOT_SUPPORTED.
@@ -14749,6 +16810,7 @@ def cuMemImportFromShareableHandle(osHandle, shHandleType not None : CUmemAlloca
     Notes
     -----
     Importing shareable handles exported from some graphics APIs(VUlkan, OpenGL, etc) created on devices under an SLI group may not be supported, and thus this API will return CUDA_ERROR_NOT_SUPPORTED. There is no guarantee that the contents of `handle` will be the same CUDA memory handle for the same given OS shareable handle, or the same underlying allocation.
+
     """
     cdef CUmemGenericAllocationHandle handle = CUmemGenericAllocationHandle()
     cosHandle = utils.HelperInputVoidPtr(osHandle)
@@ -14759,7 +16821,7 @@ def cuMemImportFromShareableHandle(osHandle, shHandleType not None : CUmemAlloca
 
 @cython.embedsignature(True)
 def cuMemGetAllocationGranularity(prop : CUmemAllocationProp, option not None : CUmemAllocationGranularity_flags):
-    """ Calculates either the minimal or recommended granularity. 
+    """ Calculates either the minimal or recommended granularity.
 
     Calculates either the minimal or recommended granularity for a given
     allocation specification and returns it in granularity. This
@@ -14782,7 +16844,7 @@ def cuMemGetAllocationGranularity(prop : CUmemAllocationProp, option not None : 
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_PERMITTED
         CUDA_ERROR_NOT_SUPPORTED
-    granularity : Int
+    granularity : int
         Returned granularity.
 
     See Also
@@ -14798,7 +16860,7 @@ def cuMemGetAllocationGranularity(prop : CUmemAllocationProp, option not None : 
 
 @cython.embedsignature(True)
 def cuMemGetAllocationPropertiesFromHandle(handle not None : CUmemGenericAllocationHandle):
-    """ Retrieve the contents of the property structure defining properties for this handle. 
+    """ Retrieve the contents of the property structure defining properties for this handle.
 
     Parameters
     ----------
@@ -14829,7 +16891,7 @@ def cuMemGetAllocationPropertiesFromHandle(handle not None : CUmemGenericAllocat
 
 @cython.embedsignature(True)
 def cuMemRetainAllocationHandle(addr):
-    """ Given an address `addr`, returns the allocation handle of the backing memory allocation. 
+    """ Given an address `addr`, returns the allocation handle of the backing memory allocation.
 
     The handle is guaranteed to be the same handle value used to map the
     memory. If the address requested is not mapped, the function will fail.
@@ -14862,6 +16924,7 @@ def cuMemRetainAllocationHandle(addr):
     Notes
     -----
     The address `addr`, can be any address in a range previously mapped by cuMemMap, and not necessarily the start address.
+
     """
     cdef CUmemGenericAllocationHandle handle = CUmemGenericAllocationHandle()
     caddr = utils.HelperInputVoidPtr(addr)
@@ -14871,7 +16934,7 @@ def cuMemRetainAllocationHandle(addr):
 
 @cython.embedsignature(True)
 def cuMemFreeAsync(dptr not None : CUdeviceptr, hStream not None : CUstream):
-    """ Frees memory with stream ordered semantics. 
+    """ Frees memory with stream ordered semantics.
 
     Inserts a free operation into `hStream`. The allocation must not be
     accessed after stream execution reaches the free. After this API
@@ -14891,21 +16954,29 @@ def cuMemFreeAsync(dptr not None : CUdeviceptr, hStream not None : CUstream):
         CUDA_SUCCESS
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_NOT_INITIALIZED
-        CUDA_ERROR_INVALID_CONTEXT (default stream specified with no current context)
-        CUDA_ERROR_NOT_SUPPORTED 
+        CUDA_ERROR_INVALID_CONTEXT
+        (default
+        stream
+        specified
+        with
+        no
+        current
+        context)
+        CUDA_ERROR_NOT_SUPPORTED
     None
         None
 
     Notes
     -----
     During stream capture, this function results in the creation of a free node and must therefore be passed the address of a graph allocation.
+
     """
     err = ccuda.cuMemFreeAsync(dptr._ptr[0], hStream._ptr[0])
     return (CUresult(err),)
 
 @cython.embedsignature(True)
 def cuMemAllocAsync(size_t bytesize, hStream not None : CUstream):
-    """ Allocates memory with stream ordered semantics. 
+    """ Allocates memory with stream ordered semantics.
 
     Inserts an allocation operation into `hStream`. A pointer to the
     allocated memory is returned immediately in *dptr. The allocation must
@@ -14926,7 +16997,14 @@ def cuMemAllocAsync(size_t bytesize, hStream not None : CUstream):
         CUDA_SUCCESS
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_NOT_INITIALIZED
-        CUDA_ERROR_INVALID_CONTEXT (default stream specified with no current context)
+        CUDA_ERROR_INVALID_CONTEXT
+        (default
+        stream
+        specified
+        with
+        no
+        current
+        context)
         CUDA_ERROR_NOT_SUPPORTED
         CUDA_ERROR_OUT_OF_MEMORY
     dptr : CUdeviceptr
@@ -14946,6 +17024,7 @@ def cuMemAllocAsync(size_t bytesize, hStream not None : CUstream):
     Notes
     -----
     During stream capture, this function results in the creation of an allocation node. In this case, the allocation is owned by the graph instead of the memory pool. The memory pool's properties are used to set the node's creation parameters.
+
     """
     cdef CUdeviceptr dptr = CUdeviceptr()
     err = ccuda.cuMemAllocAsync(dptr._ptr, bytesize, hStream._ptr[0])
@@ -14953,7 +17032,7 @@ def cuMemAllocAsync(size_t bytesize, hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuMemPoolTrimTo(pool not None : CUmemoryPool, size_t minBytesToKeep):
-    """ Tries to release memory back to the OS. 
+    """ Tries to release memory back to the OS.
 
     Releases memory back to the OS until the pool contains fewer than
     minBytesToKeep reserved bytes, or there is no more memory that the
@@ -14991,36 +17070,37 @@ def cuMemPoolTrimTo(pool not None : CUmemoryPool, size_t minBytesToKeep):
     Notes
     -----
     : Allocations that have been asynchronously freed but whose completion has not been observed on the host (eg. by a synchronize) can count as outstanding.
+
     """
     err = ccuda.cuMemPoolTrimTo(pool._ptr[0], minBytesToKeep)
     return (CUresult(err),)
 
 @cython.embedsignature(True)
 def cuMemPoolSetAttribute(pool not None : CUmemoryPool, attr not None : CUmemPool_attribute, value):
-    """ Sets attributes of a memory pool. 
+    """ Sets attributes of a memory pool.
 
     Supported attributes are: CU_MEMPOOL_ATTR_RELEASE_THRESHOLD: (value
     type = cuuint64_t) Amount of reserved memory in bytes to hold onto
     before trying to release memory back to the OS. When more than the
     release threshold bytes of memory are held by the memory pool, the
     allocator will try to release memory back to the OS on the next call to
-    stream, event or context synchronize. (default
-    0)CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES: (value type = int)
+    stream, event or context synchronize. (default 0)
+    CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES: (value type = int)
     Allow cuMemAllocAsync to use memory asynchronously freed in another
     stream as long as a stream ordering dependency of the allocating stream
     on the free action exists. Cuda events and null stream interactions can
-    create the required stream ordered dependencies. (default
-    enabled)CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC: (value type = int)
-    Allow reuse of already completed frees when there is no dependency
-    between the free and allocation. (default
-    enabled)CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES: (value type
-    = int) Allow cuMemAllocAsync to insert new stream dependencies in order
-    to establish the stream ordering required to reuse a piece of memory
-    released by cuMemFreeAsync (default
-    enabled).CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH: (value type = cuuint64_t)
-    Reset the high watermark that tracks the amount of backing memory that
-    was allocated for the memory pool. It is illegal to set this attribute
-    to a non-zero value.CU_MEMPOOL_ATTR_USED_MEM_HIGH: (value type =
+    create the required stream ordered dependencies. (default enabled)
+    CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC: (value type = int) Allow
+    reuse of already completed frees when there is no dependency between
+    the free and allocation. (default enabled)
+    CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES: (value type = int)
+    Allow cuMemAllocAsync to insert new stream dependencies in order to
+    establish the stream ordering required to reuse a piece of memory
+    released by cuMemFreeAsync (default enabled).
+    CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH: (value type = cuuint64_t) Reset the
+    high watermark that tracks the amount of backing memory that was
+    allocated for the memory pool. It is illegal to set this attribute to a
+    non-zero value. CU_MEMPOOL_ATTR_USED_MEM_HIGH: (value type =
     cuuint64_t) Reset the high watermark that tracks the amount of used
     memory that was allocated for the memory pool.
 
@@ -15057,33 +17137,33 @@ def cuMemPoolSetAttribute(pool not None : CUmemoryPool, attr not None : CUmemPoo
 
 @cython.embedsignature(True)
 def cuMemPoolGetAttribute(pool not None : CUmemoryPool, attr not None : CUmemPool_attribute):
-    """ Gets attributes of a memory pool. 
+    """ Gets attributes of a memory pool.
 
     Supported attributes are: CU_MEMPOOL_ATTR_RELEASE_THRESHOLD: (value
     type = cuuint64_t) Amount of reserved memory in bytes to hold onto
     before trying to release memory back to the OS. When more than the
     release threshold bytes of memory are held by the memory pool, the
     allocator will try to release memory back to the OS on the next call to
-    stream, event or context synchronize. (default
-    0)CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES: (value type = int)
+    stream, event or context synchronize. (default 0)
+    CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES: (value type = int)
     Allow cuMemAllocAsync to use memory asynchronously freed in another
     stream as long as a stream ordering dependency of the allocating stream
     on the free action exists. Cuda events and null stream interactions can
-    create the required stream ordered dependencies. (default
-    enabled)CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC: (value type = int)
-    Allow reuse of already completed frees when there is no dependency
-    between the free and allocation. (default
-    enabled)CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES: (value type
-    = int) Allow cuMemAllocAsync to insert new stream dependencies in order
-    to establish the stream ordering required to reuse a piece of memory
-    released by cuMemFreeAsync (default
-    enabled).CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT: (value type =
-    cuuint64_t) Amount of backing memory currently allocated for the
-    mempoolCU_MEMPOOL_ATTR_RESERVED_MEM_HIGH: (value type = cuuint64_t)
-    High watermark of backing memory allocated for the mempool since the
-    last time it was reset.CU_MEMPOOL_ATTR_USED_MEM_CURRENT: (value type =
+    create the required stream ordered dependencies. (default enabled)
+    CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC: (value type = int) Allow
+    reuse of already completed frees when there is no dependency between
+    the free and allocation. (default enabled)
+    CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES: (value type = int)
+    Allow cuMemAllocAsync to insert new stream dependencies in order to
+    establish the stream ordering required to reuse a piece of memory
+    released by cuMemFreeAsync (default enabled).
+    CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT: (value type = cuuint64_t) Amount
+    of backing memory currently allocated for the mempool
+    CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH: (value type = cuuint64_t) High
+    watermark of backing memory allocated for the mempool since the last
+    time it was reset. CU_MEMPOOL_ATTR_USED_MEM_CURRENT: (value type =
     cuuint64_t) Amount of memory from the pool that is currently in use by
-    the application.CU_MEMPOOL_ATTR_USED_MEM_HIGH: (value type =
+    the application. CU_MEMPOOL_ATTR_USED_MEM_HIGH: (value type =
     cuuint64_t) High watermark of the amount of memory from the pool that
     was in use by the application.
 
@@ -15119,7 +17199,7 @@ def cuMemPoolGetAttribute(pool not None : CUmemoryPool, attr not None : CUmemPoo
 
 @cython.embedsignature(True)
 def cuMemPoolSetAccess(pool not None : CUmemoryPool, map : List[CUmemAccessDesc], size_t count):
-    """ Controls visibility of pools between devices. 
+    """ Controls visibility of pools between devices.
 
     Parameters
     ----------
@@ -15150,7 +17230,7 @@ def cuMemPoolSetAccess(pool not None : CUmemoryPool, map : List[CUmemAccessDesc]
     """
     map = [] if map is None else map
     if not all(isinstance(_x, (CUmemAccessDesc)) for _x in map):
-        raise TypeError("Argument 'map' is not instance of type (expected List[cuda.ccuda.CUmemAccessDesc]")
+        raise TypeError("Argument 'map' is not instance of type (expected List[ccuda.CUmemAccessDesc]")
     cdef ccuda.CUmemAccessDesc* cmap = NULL
     if len(map) > 0:
         cmap = <ccuda.CUmemAccessDesc*> calloc(len(map), sizeof(ccuda.CUmemAccessDesc))
@@ -15167,7 +17247,7 @@ def cuMemPoolSetAccess(pool not None : CUmemoryPool, map : List[CUmemAccessDesc]
 
 @cython.embedsignature(True)
 def cuMemPoolGetAccess(memPool not None : CUmemoryPool, location : CUmemLocation):
-    """ Returns the accessibility of a pool from a device. 
+    """ Returns the accessibility of a pool from a device.
 
     Returns the accessibility of the pool's memory from the specified
     location.
@@ -15201,7 +17281,7 @@ def cuMemPoolGetAccess(memPool not None : CUmemoryPool, location : CUmemLocation
 
 @cython.embedsignature(True)
 def cuMemPoolCreate(poolProps : CUmemPoolProps):
-    """ Creates a memory pool. 
+    """ Creates a memory pool.
 
     Creates a CUDA memory pool and returns the handle in `pool`. The
     `poolProps` determines the properties of the pool such as the backing
@@ -15232,6 +17312,7 @@ def cuMemPoolCreate(poolProps : CUmemPoolProps):
     Notes
     -----
     Specifying CU_MEM_HANDLE_TYPE_NONE creates a memory pool that will not support IPC.
+
     """
     cdef CUmemoryPool pool = CUmemoryPool()
     cdef ccuda.CUmemPoolProps* cpoolProps_ptr = poolProps._ptr if poolProps != None else NULL
@@ -15240,7 +17321,7 @@ def cuMemPoolCreate(poolProps : CUmemPoolProps):
 
 @cython.embedsignature(True)
 def cuMemPoolDestroy(pool not None : CUmemoryPool):
-    """ Destroys the specified memory pool. 
+    """ Destroys the specified memory pool.
 
     If any pointers obtained from this pool haven't been freed or the pool
     has free operations that haven't completed when cuMemPoolDestroy is
@@ -15270,13 +17351,14 @@ def cuMemPoolDestroy(pool not None : CUmemoryPool):
     Notes
     -----
     A device's default memory pool cannot be destroyed.
+
     """
     err = ccuda.cuMemPoolDestroy(pool._ptr[0])
     return (CUresult(err),)
 
 @cython.embedsignature(True)
 def cuMemAllocFromPoolAsync(size_t bytesize, pool not None : CUmemoryPool, hStream not None : CUstream):
-    """ Allocates memory from a specified pool with stream ordered semantics. 
+    """ Allocates memory from a specified pool with stream ordered semantics.
 
     Inserts an allocation operation into `hStream`. A pointer to the
     allocated memory is returned immediately in *dptr. The allocation must
@@ -15298,7 +17380,14 @@ def cuMemAllocFromPoolAsync(size_t bytesize, pool not None : CUmemoryPool, hStre
         CUDA_SUCCESS
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_NOT_INITIALIZED
-        CUDA_ERROR_INVALID_CONTEXT (default stream specified with no current context)
+        CUDA_ERROR_INVALID_CONTEXT
+        (default
+        stream
+        specified
+        with
+        no
+        current
+        context)
         CUDA_ERROR_NOT_SUPPORTED
         CUDA_ERROR_OUT_OF_MEMORY
     dptr : CUdeviceptr
@@ -15317,6 +17406,7 @@ def cuMemAllocFromPoolAsync(size_t bytesize, pool not None : CUmemoryPool, hStre
     Notes
     -----
     During stream capture, this function results in the creation of an allocation node. In this case, the allocation is owned by the graph instead of the memory pool. The memory pool's properties are used to set the node's creation parameters.
+
     """
     cdef CUdeviceptr dptr = CUdeviceptr()
     err = ccuda.cuMemAllocFromPoolAsync(dptr._ptr, bytesize, pool._ptr[0], hStream._ptr[0])
@@ -15324,7 +17414,7 @@ def cuMemAllocFromPoolAsync(size_t bytesize, pool not None : CUmemoryPool, hStre
 
 @cython.embedsignature(True)
 def cuMemPoolExportToShareableHandle(pool not None : CUmemoryPool, handleType not None : CUmemAllocationHandleType, unsigned long long flags):
-    """ Exports a memory pool to the requested handle type. 
+    """ Exports a memory pool to the requested handle type.
 
     Given an IPC capable mempool, create an OS handle to share the pool
     with another process. A recipient process can convert the shareable
@@ -15350,7 +17440,7 @@ def cuMemPoolExportToShareableHandle(pool not None : CUmemoryPool, handleType no
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_OUT_OF_MEMORY
-    handle_out : Int
+    handle_out : int
         Returned OS handle
 
     See Also
@@ -15369,6 +17459,7 @@ def cuMemPoolExportToShareableHandle(pool not None : CUmemoryPool, handleType no
     Notes
     -----
     : To create an IPC capable mempool, create a mempool with a CUmemAllocationHandleType other than CU_MEM_HANDLE_TYPE_NONE.
+
     """
     cdef void_ptr handle_out = 0
     cdef void* chandle_out_ptr = <void*>handle_out
@@ -15378,7 +17469,7 @@ def cuMemPoolExportToShareableHandle(pool not None : CUmemoryPool, handleType no
 
 @cython.embedsignature(True)
 def cuMemPoolImportFromShareableHandle(handle, handleType not None : CUmemAllocationHandleType, unsigned long long flags):
-    """ imports a memory pool from a shared handle. 
+    """ imports a memory pool from a shared handle.
 
     Specific allocations can be imported from the imported pool with
     cuMemPoolImportPointer.
@@ -15411,6 +17502,7 @@ def cuMemPoolImportFromShareableHandle(handle, handleType not None : CUmemAlloca
     Notes
     -----
     Imported memory pools do not support creating new allocations. As such imported memory pools may not be used in cuDeviceSetMemPool or cuMemAllocFromPoolAsync calls.
+
     """
     cdef CUmemoryPool pool_out = CUmemoryPool()
     chandle = utils.HelperInputVoidPtr(handle)
@@ -15421,7 +17513,7 @@ def cuMemPoolImportFromShareableHandle(handle, handleType not None : CUmemAlloca
 
 @cython.embedsignature(True)
 def cuMemPoolExportPointer(ptr not None : CUdeviceptr):
-    """ Export data to share a memory pool allocation between processes. 
+    """ Export data to share a memory pool allocation between processes.
 
     Constructs `shareData_out` for sharing a specific allocation from an
     already shared memory pool. The recipient process can import the
@@ -15455,7 +17547,7 @@ def cuMemPoolExportPointer(ptr not None : CUdeviceptr):
 
 @cython.embedsignature(True)
 def cuMemPoolImportPointer(pool not None : CUmemoryPool, shareData : CUmemPoolPtrExportData):
-    """ Import a memory pool allocation from another process. 
+    """ Import a memory pool allocation from another process.
 
     Returns in `ptr_out` a pointer to the imported memory. The imported
     memory must not be accessed before the allocation operation completes
@@ -15491,6 +17583,7 @@ def cuMemPoolImportPointer(pool not None : CUmemoryPool, shareData : CUmemPoolPt
     Notes
     -----
     The cuMemFreeAsync api may be used in the exporting process before the cuMemFreeAsync operation completes in its stream as long as the cuMemFreeAsync in the exporting process specifies a stream with a stream dependency on the importing process's cuMemFreeAsync.
+
     """
     cdef CUdeviceptr ptr_out = CUdeviceptr()
     cdef ccuda.CUmemPoolPtrExportData* cshareData_ptr = shareData._ptr if shareData != None else NULL
@@ -15499,91 +17592,88 @@ def cuMemPoolImportPointer(pool not None : CUmemoryPool, shareData : CUmemPoolPt
 
 @cython.embedsignature(True)
 def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr not None : CUdeviceptr):
-    """ Returns information about a pointer. 
+    """ Returns information about a pointer.
 
     The supported attributes are:
 
-     CU_POINTER_ATTRIBUTE_CONTEXT:Returns in `*data` the CUcontext in which
+    CU_POINTER_ATTRIBUTE_CONTEXT: Returns in `*data` the CUcontext in which
     `ptr` was allocated or registered. The type of `data` must be CUcontext
-    *.If `ptr` was not allocated by, mapped by, or registered with a
+    *. If `ptr` was not allocated by, mapped by, or registered with a
     CUcontext which uses unified virtual addressing then
-    CUDA_ERROR_INVALID_VALUE is
-    returned.CU_POINTER_ATTRIBUTE_MEMORY_TYPE:Returns in `*data` the
-    physical memory type of the memory that `ptr` addresses as a
-    CUmemorytype enumerated value. The type of `data` must be unsigned
-    int.If `ptr` addresses device memory then `*data` is set to
-    CU_MEMORYTYPE_DEVICE. The particular CUdevice on which the memory
+    CUDA_ERROR_INVALID_VALUE is returned. CU_POINTER_ATTRIBUTE_MEMORY_TYPE:
+    Returns in `*data` the physical memory type of the memory that `ptr`
+    addresses as a CUmemorytype enumerated value. The type of `data` must
+    be unsigned int. If `ptr` addresses device memory then `*data` is set
+    to CU_MEMORYTYPE_DEVICE. The particular CUdevice on which the memory
     resides is the CUdevice of the CUcontext returned by the
-    CU_POINTER_ATTRIBUTE_CONTEXT attribute of `ptr`.If `ptr` addresses host
-    memory then `*data` is set to CU_MEMORYTYPE_HOST.If `ptr` was not
+    CU_POINTER_ATTRIBUTE_CONTEXT attribute of `ptr`. If `ptr` addresses
+    host memory then `*data` is set to CU_MEMORYTYPE_HOST. If `ptr` was not
     allocated by, mapped by, or registered with a CUcontext which uses
-    unified virtual addressing then CUDA_ERROR_INVALID_VALUE is returned.If
-    the current CUcontext does not support unified virtual addressing then
-    CUDA_ERROR_INVALID_CONTEXT is
-    returned.CU_POINTER_ATTRIBUTE_DEVICE_POINTER:Returns in `*data` the
-    device pointer value through which `ptr` may be accessed by kernels
-    running in the current CUcontext. The type of `data` must be
-    CUdeviceptr *.If there exists no device pointer value through which
-    kernels running in the current CUcontext may access `ptr` then
-    CUDA_ERROR_INVALID_VALUE is returned.If there is no current CUcontext
-    then CUDA_ERROR_INVALID_CONTEXT is returned.Except in the exceptional
+    unified virtual addressing then CUDA_ERROR_INVALID_VALUE is returned.
+    If the current CUcontext does not support unified virtual addressing
+    then CUDA_ERROR_INVALID_CONTEXT is returned.
+    CU_POINTER_ATTRIBUTE_DEVICE_POINTER: Returns in `*data` the device
+    pointer value through which `ptr` may be accessed by kernels running in
+    the current CUcontext. The type of `data` must be CUdeviceptr *. If
+    there exists no device pointer value through which kernels running in
+    the current CUcontext may access `ptr` then CUDA_ERROR_INVALID_VALUE is
+    returned. If there is no current CUcontext then
+    CUDA_ERROR_INVALID_CONTEXT is returned. Except in the exceptional
     disjoint addressing cases discussed below, the value returned in
-    `*data` will equal the input value
-    `ptr`.CU_POINTER_ATTRIBUTE_HOST_POINTER:Returns in `*data` the host
-    pointer value through which `ptr` may be accessed by by the host
-    program. The type of `data` must be void **. If there exists no host
-    pointer value through which the host program may directly access `ptr`
-    then CUDA_ERROR_INVALID_VALUE is returned.Except in the exceptional
+    `*data` will equal the input value `ptr`.
+    CU_POINTER_ATTRIBUTE_HOST_POINTER: Returns in `*data` the host pointer
+    value through which `ptr` may be accessed by by the host program. The
+    type of `data` must be void **. If there exists no host pointer value
+    through which the host program may directly access `ptr` then
+    CUDA_ERROR_INVALID_VALUE is returned. Except in the exceptional
     disjoint addressing cases discussed below, the value returned in
-    `*data` will equal the input value
-    `ptr`.CU_POINTER_ATTRIBUTE_P2P_TOKENS:Returns in `*data` two tokens for
-    use with the nv-p2p.h Linux kernel interface. `data` must be a struct
-    of type CUDA_POINTER_ATTRIBUTE_P2P_TOKENS.`ptr` must be a pointer to
+    `*data` will equal the input value `ptr`.
+    CU_POINTER_ATTRIBUTE_P2P_TOKENS: Returns in `*data` two tokens for use
+    with the nv-p2p.h Linux kernel interface. `data` must be a struct of
+    type CUDA_POINTER_ATTRIBUTE_P2P_TOKENS. `ptr` must be a pointer to
     memory obtained from :cuMemAlloc(). Note that p2pToken and vaSpaceToken
     are only valid for the lifetime of the source allocation. A subsequent
     allocation at the same address may return completely different tokens.
     Querying this attribute has a side effect of setting the attribute
     CU_POINTER_ATTRIBUTE_SYNC_MEMOPS for the region of memory that `ptr`
-    points to.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS:A boolean attribute which
+    points to. CU_POINTER_ATTRIBUTE_SYNC_MEMOPS: A boolean attribute which
     when set, ensures that synchronous memory operations initiated on the
     region of memory that `ptr` points to will always synchronize. See
     further documentation in the section titled "API synchronization
     behavior" to learn more about cases when synchronous memory operations
-    can exhibit asynchronous
-    behavior.CU_POINTER_ATTRIBUTE_BUFFER_ID:Returns in `*data` a buffer ID
-    which is guaranteed to be unique within the process. `data` must point
-    to an unsigned long long.`ptr` must be a pointer to memory obtained
-    from a CUDA memory allocation API. Every memory allocation from any of
-    the CUDA memory allocation APIs will have a unique ID over a process
-    lifetime. Subsequent allocations do not reuse IDs from previous freed
-    allocations. IDs are only unique within a single
-    process.CU_POINTER_ATTRIBUTE_IS_MANAGED:Returns in `*data` a boolean
-    that indicates whether the pointer points to managed memory or not.If
-    `ptr` is not a valid CUDA pointer then CUDA_ERROR_INVALID_VALUE is
-    returned.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL:Returns in `*data` an
+    can exhibit asynchronous behavior. CU_POINTER_ATTRIBUTE_BUFFER_ID:
+    Returns in `*data` a buffer ID which is guaranteed to be unique within
+    the process. `data` must point to an unsigned long long. `ptr` must be
+    a pointer to memory obtained from a CUDA memory allocation API. Every
+    memory allocation from any of the CUDA memory allocation APIs will have
+    a unique ID over a process lifetime. Subsequent allocations do not
+    reuse IDs from previous freed allocations. IDs are only unique within a
+    single process. CU_POINTER_ATTRIBUTE_IS_MANAGED: Returns in `*data` a
+    boolean that indicates whether the pointer points to managed memory or
+    not. If `ptr` is not a valid CUDA pointer then CUDA_ERROR_INVALID_VALUE
+    is returned. CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL: Returns in `*data` an
     integer representing a device ordinal of a device against which the
-    memory was allocated or
-    registered.CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE:Returns in
-    `*data` a boolean that indicates if this pointer maps to an allocation
-    that is suitable for
-    cudaIpcGetMemHandle.CU_POINTER_ATTRIBUTE_RANGE_START_ADDR:Returns in
-    `*data` the starting address for the allocation referenced by the
-    device pointer `ptr`. Note that this is not necessarily the address of
-    the mapped region, but the address of the mappable address range `ptr`
-    references (e.g. from
-    cuMemAddressReserve).CU_POINTER_ATTRIBUTE_RANGE_SIZE:Returns in `*data`
-    the size for the allocation referenced by the device pointer `ptr`.
-    Note that this is not necessarily the size of the mapped region, but
-    the size of the mappable address range `ptr` references (e.g. from
+    memory was allocated or registered.
+    CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE: Returns in `*data` a
+    boolean that indicates if this pointer maps to an allocation that is
+    suitable for cudaIpcGetMemHandle.
+    CU_POINTER_ATTRIBUTE_RANGE_START_ADDR: Returns in `*data` the starting
+    address for the allocation referenced by the device pointer `ptr`. Note
+    that this is not necessarily the address of the mapped region, but the
+    address of the mappable address range `ptr` references (e.g. from
+    cuMemAddressReserve). CU_POINTER_ATTRIBUTE_RANGE_SIZE: Returns in
+    `*data` the size for the allocation referenced by the device pointer
+    `ptr`. Note that this is not necessarily the size of the mapped region,
+    but the size of the mappable address range `ptr` references (e.g. from
     cuMemAddressReserve). To retrieve the size of the mapped region, see
-    cuMemGetAddressRangeCU_POINTER_ATTRIBUTE_MAPPED:Returns in `*data` a
+    cuMemGetAddressRange CU_POINTER_ATTRIBUTE_MAPPED: Returns in `*data` a
     boolean that indicates if this pointer is in a valid address range that
-    is mapped to a backing
-    allocation.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES:Returns a bitmask
-    of the allowed handle types for an allocation that may be passed to cuM
-    emExportToShareableHandle.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE:Returns
-    in `*data` the handle to the mempool that the allocation was obtained
-    from.
+    is mapped to a backing allocation.
+    CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES: Returns a bitmask of the
+    allowed handle types for an allocation that may be passed to
+    cuMemExportToShareableHandle. CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE:
+    Returns in `*data` the handle to the mempool that the allocation was
+    obtained from.
 
 
 
@@ -15626,7 +17716,7 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr not None
 
 @cython.embedsignature(True)
 def cuMemPrefetchAsync(devPtr not None : CUdeviceptr, size_t count, dstDevice not None : CUdevice, hStream not None : CUstream):
-    """ Prefetches memory to the specified destination device. 
+    """ Prefetches memory to the specified destination device.
 
     Prefetches memory to the specified destination device. `devPtr` is the
     base device pointer of the memory to be prefetched and `dstDevice` is
@@ -15715,7 +17805,7 @@ def cuMemPrefetchAsync(devPtr not None : CUdeviceptr, size_t count, dstDevice no
 
 @cython.embedsignature(True)
 def cuMemAdvise(devPtr not None : CUdeviceptr, size_t count, advice not None : CUmem_advise, device not None : CUdevice):
-    """ Advise about the usage of a given memory range. 
+    """ Advise about the usage of a given memory range.
 
     Advise the Unified Memory subsystem about the usage pattern for the
     memory range starting at `devPtr` with a size of `count` bytes. The
@@ -15752,15 +17842,15 @@ def cuMemAdvise(devPtr not None : CUdeviceptr, size_t count, advice not None : C
     device also has a non-zero value for the device attribute
     CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES, then
     setting this advice will not create a read-only copy when that device
-    accesses this memory region.CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes the
-    effect of CU_MEM_ADVISE_SET_READ_MOSTLY and also prevents the Unified
-    Memory driver from attempting heuristic read-duplication on the memory
-    range. Any read-duplicated copies of the data will be collapsed into a
-    single copy. The location for the collapsed copy will be the preferred
-    location if the page has a preferred location and one of the read-
-    duplicated copies was resident at that location. Otherwise, the
-    location chosen is arbitrary.CU_MEM_ADVISE_SET_PREFERRED_LOCATION: This
-    advice sets the preferred location for the data to be the memory
+    accesses this memory region. CU_MEM_ADVISE_UNSET_READ_MOSTLY: Undoes
+    the effect of CU_MEM_ADVISE_SET_READ_MOSTLY and also prevents the
+    Unified Memory driver from attempting heuristic read-duplication on the
+    memory range. Any read-duplicated copies of the data will be collapsed
+    into a single copy. The location for the collapsed copy will be the
+    preferred location if the page has a preferred location and one of the
+    read-duplicated copies was resident at that location. Otherwise, the
+    location chosen is arbitrary. CU_MEM_ADVISE_SET_PREFERRED_LOCATION:
+    This advice sets the preferred location for the data to be the memory
     belonging to `device`. Passing in CU_DEVICE_CPU for `device` sets the
     preferred location as host memory. If `device` is a GPU, then it must
     have a non-zero value for the device attribute
@@ -15792,13 +17882,13 @@ def cuMemAdvise(devPtr not None : CUdeviceptr, size_t count, advice not None : C
     has a non-zero value for the device attribute
     CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES, then
     this call has no effect. Note however that this behavior may change in
-    the future.CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect of
-    CU_MEM_ADVISE_SET_PREFERRED_LOCATION and changes the preferred location
-    to none.CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies that the
-    data will be accessed by `device`. Passing in CU_DEVICE_CPU for
-    `device` will set the advice for the CPU. If `device` is a GPU, then
-    the device attribute CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS must
-    be non-zero. This advice does not cause data migration and has no
+    the future. CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION: Undoes the effect
+    of CU_MEM_ADVISE_SET_PREFERRED_LOCATION and changes the preferred
+    location to none. CU_MEM_ADVISE_SET_ACCESSED_BY: This advice implies
+    that the data will be accessed by `device`. Passing in CU_DEVICE_CPU
+    for `device` will set the advice for the CPU. If `device` is a GPU,
+    then the device attribute CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS
+    must be non-zero. This advice does not cause data migration and has no
     impact on the location of the data per se. Instead, it causes the data
     to always be mapped in the specified processor's page tables, as long
     as the location of the data permits a mapping to be established. If the
@@ -15826,7 +17916,7 @@ def cuMemAdvise(devPtr not None : CUdeviceptr, size_t count, advice not None : C
     attribute CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS. Additionally, if
     `device` has a non-zero value for the device attribute
     CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES, then
-    this call has no effect.CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the
+    this call has no effect. CU_MEM_ADVISE_UNSET_ACCESSED_BY: Undoes the
     effect of CU_MEM_ADVISE_SET_ACCESSED_BY. Any mappings to the data from
     `device` may be removed at any time causing accesses to result in non-
     fatal page faults. If the memory region refers to valid system-
@@ -15871,7 +17961,7 @@ def cuMemAdvise(devPtr not None : CUdeviceptr, size_t count, advice not None : C
 
 @cython.embedsignature(True)
 def cuMemRangeGetAttribute(size_t dataSize, attribute not None : CUmem_range_attribute, devPtr not None : CUdeviceptr, size_t count):
-    """ Query an attribute of a given memory range. 
+    """ Query an attribute of a given memory range.
 
     Query an attribute about the memory range starting at `devPtr` with a
     size of `count` bytes. The memory range must refer to managed memory
@@ -15881,9 +17971,9 @@ def cuMemRangeGetAttribute(size_t dataSize, attribute not None : CUmem_range_att
     CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY: If this attribute is specified,
     `data` will be interpreted as a 32-bit integer, and `dataSize` must be
     4. The result returned will be 1 if all pages in the given memory range
-    have read-duplication enabled, or 0
-    otherwise.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION: If this attribute
-    is specified, `data` will be interpreted as a 32-bit integer, and
+    have read-duplication enabled, or 0 otherwise.
+    CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION: If this attribute is
+    specified, `data` will be interpreted as a 32-bit integer, and
     `dataSize` must be 4. The result returned will be a GPU device id if
     all pages in the memory range have that GPU as their preferred
     location, or it will be CU_DEVICE_CPU if all pages in the memory range
@@ -15891,13 +17981,13 @@ def cuMemRangeGetAttribute(size_t dataSize, attribute not None : CUmem_range_att
     CU_DEVICE_INVALID if either all the pages don't have the same preferred
     location or some of the pages don't have a preferred location at all.
     Note that the actual location of the pages in the memory range at the
-    time of the query may be different from the preferred
-    location.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY: If this attribute is
-    specified, `data` will be interpreted as an array of 32-bit integers,
-    and `dataSize` must be a non-zero multiple of 4. The result returned
-    will be a list of device ids that had CU_MEM_ADVISE_SET_ACCESSED_BY set
-    for that entire memory range. If any device does not have that advice
-    set for the entire memory range, that device will not be included. If
+    time of the query may be different from the preferred location.
+    CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY: If this attribute is specified,
+    `data` will be interpreted as an array of 32-bit integers, and
+    `dataSize` must be a non-zero multiple of 4. The result returned will
+    be a list of device ids that had CU_MEM_ADVISE_SET_ACCESSED_BY set for
+    that entire memory range. If any device does not have that advice set
+    for the entire memory range, that device will not be included. If
     `data` is larger than the number of devices that have that advice set
     for that memory range, CU_DEVICE_INVALID will be returned in all the
     extra space provided. For ex., if `dataSize` is 12 (i.e. `data` has 3
@@ -15905,11 +17995,11 @@ def cuMemRangeGetAttribute(size_t dataSize, attribute not None : CUmem_range_att
     returned will be { 0, CU_DEVICE_INVALID, CU_DEVICE_INVALID }. If `data`
     is smaller than the number of devices that have that advice set, then
     only as many devices will be returned as can fit in the array. There is
-    no guarantee on which specific devices will be returned,
-    however.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION: If this
-    attribute is specified, `data` will be interpreted as a 32-bit integer,
-    and `dataSize` must be 4. The result returned will be the last location
-    to which all pages in the memory range were prefetched explicitly via
+    no guarantee on which specific devices will be returned, however.
+    CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION: If this attribute is
+    specified, `data` will be interpreted as a 32-bit integer, and
+    `dataSize` must be 4. The result returned will be the last location to
+    which all pages in the memory range were prefetched explicitly via
     cuMemPrefetchAsync. This will either be a GPU id or CU_DEVICE_CPU
     depending on whether the last location for prefetch was a GPU or the
     CPU respectively. If any page in the memory range was never explicitly
@@ -15955,7 +18045,7 @@ def cuMemRangeGetAttribute(size_t dataSize, attribute not None : CUmem_range_att
 
 @cython.embedsignature(True)
 def cuMemRangeGetAttributes(dataSizes : List[int], attributes : List[CUmem_range_attribute], size_t numAttributes, devPtr not None : CUdeviceptr, size_t count):
-    """ Query attributes of a given memory range. 
+    """ Query attributes of a given memory range.
 
     Query attributes of the memory range starting at `devPtr` with a size
     of `count` bytes. The memory range must refer to managed memory
@@ -15967,9 +18057,10 @@ def cuMemRangeGetAttributes(dataSizes : List[int], attributes : List[CUmem_range
     The list of supported attributes are given below. Please refer to
     cuMemRangeGetAttribute for attribute descriptions and restrictions.
 
-     CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLYCU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOC
-    ATIONCU_MEM_RANGE_ATTRIBUTE_ACCESSED_BYCU_MEM_RANGE_ATTRIBUTE_LAST_PREF
-    ETCH_LOCATION
+    CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY
+    CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION
+    CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY
+    CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION
 
     Parameters
     ----------
@@ -16006,7 +18097,7 @@ def cuMemRangeGetAttributes(dataSizes : List[int], attributes : List[CUmem_range
     """
     attributes = [] if attributes is None else attributes
     if not all(isinstance(_x, (CUmem_range_attribute)) for _x in attributes):
-        raise TypeError("Argument 'attributes' is not instance of type (expected List[cuda.ccuda.CUmem_range_attribute]")
+        raise TypeError("Argument 'attributes' is not instance of type (expected List[ccuda.CUmem_range_attribute]")
     if not all(isinstance(_x, (int)) for _x in dataSizes):
         raise TypeError("Argument 'dataSizes' is not instance of type (expected List[int]")
     pylist = [utils.HelperCUmem_range_attribute(pyattributes, pydataSizes) for (pyattributes, pydataSizes) in zip(attributes, dataSizes)]
@@ -16021,11 +18112,11 @@ def cuMemRangeGetAttributes(dataSizes : List[int], attributes : List[CUmem_range
 
 @cython.embedsignature(True)
 def cuPointerSetAttribute(value, attribute not None : CUpointer_attribute, ptr not None : CUdeviceptr):
-    """ Set attributes on a previously allocated memory region. 
+    """ Set attributes on a previously allocated memory region.
 
     The supported attributes are:
 
-     CU_POINTER_ATTRIBUTE_SYNC_MEMOPS:A boolean attribute that can either
+    CU_POINTER_ATTRIBUTE_SYNC_MEMOPS: A boolean attribute that can either
     be set (1) or unset (0). When set, the region of memory that `ptr`
     points to is guaranteed to always synchronize memory operations that
     are synchronous. If there are some previously initiated synchronous
@@ -16078,18 +18169,20 @@ def cuPointerSetAttribute(value, attribute not None : CUpointer_attribute, ptr n
 
 @cython.embedsignature(True)
 def cuPointerGetAttributes(unsigned int numAttributes, attributes : List[CUpointer_attribute], ptr not None : CUdeviceptr):
-    """ Returns information about a pointer. 
+    """ Returns information about a pointer.
 
     The supported attributes are (refer to cuPointerGetAttribute for
     attribute descriptions and restrictions):
 
-     CU_POINTER_ATTRIBUTE_CONTEXTCU_POINTER_ATTRIBUTE_MEMORY_TYPECU_POINTER
-    _ATTRIBUTE_DEVICE_POINTERCU_POINTER_ATTRIBUTE_HOST_POINTERCU_POINTER_AT
-    TRIBUTE_SYNC_MEMOPSCU_POINTER_ATTRIBUTE_BUFFER_IDCU_POINTER_ATTRIBUTE_I
-    S_MANAGEDCU_POINTER_ATTRIBUTE_DEVICE_ORDINALCU_POINTER_ATTRIBUTE_RANGE_
-    START_ADDRCU_POINTER_ATTRIBUTE_RANGE_SIZECU_POINTER_ATTRIBUTE_MAPPEDCU_
-    POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLECU_POINTER_ATTRIBUTE_ALLOWE
-    D_HANDLE_TYPESCU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE
+    CU_POINTER_ATTRIBUTE_CONTEXT CU_POINTER_ATTRIBUTE_MEMORY_TYPE
+    CU_POINTER_ATTRIBUTE_DEVICE_POINTER CU_POINTER_ATTRIBUTE_HOST_POINTER
+    CU_POINTER_ATTRIBUTE_SYNC_MEMOPS CU_POINTER_ATTRIBUTE_BUFFER_ID
+    CU_POINTER_ATTRIBUTE_IS_MANAGED CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL
+    CU_POINTER_ATTRIBUTE_RANGE_START_ADDR CU_POINTER_ATTRIBUTE_RANGE_SIZE
+    CU_POINTER_ATTRIBUTE_MAPPED
+    CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE
+    CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES
+    CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE
 
     If `ptr` was not allocated by, mapped by, or registered with a
     CUcontext which uses UVA (Unified Virtual Addressing),
@@ -16125,7 +18218,7 @@ def cuPointerGetAttributes(unsigned int numAttributes, attributes : List[CUpoint
     """
     attributes = [] if attributes is None else attributes
     if not all(isinstance(_x, (CUpointer_attribute)) for _x in attributes):
-        raise TypeError("Argument 'attributes' is not instance of type (expected List[cuda.ccuda.CUpointer_attribute]")
+        raise TypeError("Argument 'attributes' is not instance of type (expected List[ccuda.CUpointer_attribute]")
     if numAttributes > len(attributes): raise RuntimeError("List is too small: " + str(len(attributes)) + " < " + str(numAttributes))
     cdef vector[ccuda.CUpointer_attribute] cattributes = [pyattributes.value for pyattributes in (attributes)]
     pylist = [utils.HelperCUpointer_attribute(pyattributes, 0, is_getter=True) for pyattributes in attributes]
@@ -16136,13 +18229,13 @@ def cuPointerGetAttributes(unsigned int numAttributes, attributes : List[CUpoint
 
 @cython.embedsignature(True)
 def cuStreamCreate(unsigned int Flags):
-    """ Create a stream. 
+    """ Create a stream.
 
     Creates a stream and returns a handle in `phStream`. The `Flags`
     argument determines behaviors of the stream.
 
     Valid values for `Flags` are: CU_STREAM_DEFAULT: Default stream
-    creation flag.CU_STREAM_NON_BLOCKING: Specifies that work running in
+    creation flag. CU_STREAM_NON_BLOCKING: Specifies that work running in
     the created stream may run concurrently with work in stream 0 (the NULL
     stream), and that the created stream should perform no implicit
     synchronization with stream 0.
@@ -16183,7 +18276,7 @@ def cuStreamCreate(unsigned int Flags):
 
 @cython.embedsignature(True)
 def cuStreamCreateWithPriority(unsigned int flags, int priority):
-    """ Create a stream with the given priority. 
+    """ Create a stream with the given priority.
 
     Creates a stream with the specified priority and returns a handle in
     `phStream`. This API alters the scheduler priority of work in the
@@ -16235,6 +18328,7 @@ def cuStreamCreateWithPriority(unsigned int flags, int priority):
     Notes
     -----
     In the current implementation, only compute kernels launched in priority streams are affected by the stream's priority. Stream priorities have no effect on host-to-device and device-to-host memory operations.
+
     """
     cdef CUstream phStream = CUstream()
     err = ccuda.cuStreamCreateWithPriority(phStream._ptr, flags, priority)
@@ -16242,7 +18336,7 @@ def cuStreamCreateWithPriority(unsigned int flags, int priority):
 
 @cython.embedsignature(True)
 def cuStreamGetPriority(hStream not None : CUstream):
-    """ Query the priority of a given stream. 
+    """ Query the priority of a given stream.
 
     Query the priority of a stream created using cuStreamCreate or
     cuStreamCreateWithPriority and return the priority in `priority`. Note
@@ -16285,7 +18379,7 @@ def cuStreamGetPriority(hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamGetFlags(hStream not None : CUstream):
-    """ Query the flags of a given stream. 
+    """ Query the flags of a given stream.
 
     Query the flags of a stream created using cuStreamCreate or
     cuStreamCreateWithPriority and return the flags in `flags`.
@@ -16307,7 +18401,9 @@ def cuStreamGetFlags(hStream not None : CUstream):
         CUDA_ERROR_OUT_OF_MEMORY
     flags : unsigned int
         Pointer to an unsigned integer in which the stream's flags are
-        returned The value returned in
+        returned The value returned in `flags` is a logical 'OR' of all
+        flags that were used while creating this stream. See cuStreamCreate
+        for the list of valid flags
 
     See Also
     --------
@@ -16322,7 +18418,7 @@ def cuStreamGetFlags(hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamGetCtx(hStream not None : CUstream):
-    """ Query the context associated with a stream. 
+    """ Query the context associated with a stream.
 
     Returns the CUDA context that the stream is associated with.
 
@@ -16332,7 +18428,7 @@ def cuStreamGetCtx(hStream not None : CUstream):
     as cudaStreamCreate, cudaStreamCreateWithFlags and
     cudaStreamCreateWithPriority. The returned context is the context that
     was active in the calling thread when the stream was created. Passing
-    an invalid handle will result in undefined behavior.  any of the
+    an invalid handle will result in undefined behavior.    any of the
     special streams such as the NULL stream, CU_STREAM_LEGACY and
     CU_STREAM_PER_THREAD. The runtime API equivalents of these are also
     accepted, which are NULL, cudaStreamLegacy and cudaStreamPerThread
@@ -16352,7 +18448,7 @@ def cuStreamGetCtx(hStream not None : CUstream):
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_CONTEXT
-        CUDA_ERROR_INVALID_HANDLE,
+        CUDA_ERROR_INVALID_HANDLE
     pctx : CUcontext
         Returned context associated with the stream
 
@@ -16375,7 +18471,7 @@ def cuStreamGetCtx(hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamWaitEvent(hStream not None : CUstream, hEvent not None : CUevent, unsigned int Flags):
-    """ Make a compute stream wait on an event. 
+    """ Make a compute stream wait on an event.
 
     Makes all future work submitted to `hStream` wait for all work captured
     in `hEvent`. See cuEventRecord() for details on what is captured by an
@@ -16383,10 +18479,10 @@ def cuStreamWaitEvent(hStream not None : CUstream, hEvent not None : CUevent, un
     when applicable. `hEvent` may be from a different context or device
     than `hStream`.
 
-    flags include: CU_EVENT_WAIT_DEFAULT: Default event creation
-    flag.CU_EVENT_WAIT_EXTERNAL: Event is captured in the graph as an
-    external event node when performing stream capture. This flag is
-    invalid outside of stream capture.
+    flags include: CU_EVENT_WAIT_DEFAULT: Default event creation flag.
+    CU_EVENT_WAIT_EXTERNAL: Event is captured in the graph as an external
+    event node when performing stream capture. This flag is invalid outside
+    of stream capture.
 
     Parameters
     ----------
@@ -16404,7 +18500,7 @@ def cuStreamWaitEvent(hStream not None : CUstream, hEvent not None : CUevent, un
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_CONTEXT
-        CUDA_ERROR_INVALID_HANDLE,
+        CUDA_ERROR_INVALID_HANDLE
     None
         None
 
@@ -16423,7 +18519,7 @@ def cuStreamWaitEvent(hStream not None : CUstream, hEvent not None : CUevent, un
 
 @cython.embedsignature(True)
 def cuStreamAddCallback(hStream not None : CUstream, callback not None : CUstreamCallback, userData, unsigned int flags):
-    """ Add a callback to a compute stream. 
+    """ Add a callback to a compute stream.
 
     The callback may be passed CUDA_SUCCESS or an error code. In the event
     of a device error, all subsequently executed callbacks will receive an
@@ -16439,20 +18535,20 @@ def cuStreamAddCallback(hStream not None : CUstream, callback not None : CUstrea
     For the purposes of Unified Memory, callback execution makes a number
     of guarantees:   The callback stream is considered idle for the
     duration of the callback. Thus, for example, a callback may always use
-    memory attached to the callback stream.  The start of execution of a
+    memory attached to the callback stream.    The start of execution of a
     callback has the same effect as synchronizing an event recorded in the
     same stream immediately prior to the callback. It thus synchronizes
-    streams which have been "joined" prior to the callback.  Adding device
-    work to any stream does not have the effect of making the stream active
-    until all preceding host functions and stream callbacks have executed.
-    Thus, for example, a callback might use global attached memory even if
-    work has been added to another stream, if the work has been ordered
-    behind the callback with an event.  Completion of a callback does not
-    cause a stream to become active except as described above. The callback
-    stream will remain idle if no device work follows the callback, and
-    will remain idle across consecutive callbacks without device work in
-    between. Thus, for example, stream synchronization can be done by
-    signaling from a callback at the end of the stream.
+    streams which have been "joined" prior to the callback.    Adding
+    device work to any stream does not have the effect of making the stream
+    active until all preceding host functions and stream callbacks have
+    executed. Thus, for example, a callback might use global attached
+    memory even if work has been added to another stream, if the work has
+    been ordered behind the callback with an event.    Completion of a
+    callback does not cause a stream to become active except as described
+    above. The callback stream will remain idle if no device work follows
+    the callback, and will remain idle across consecutive callbacks without
+    device work in between. Thus, for example, stream synchronization can
+    be done by signaling from a callback at the end of the stream.
 
     Parameters
     ----------
@@ -16486,11 +18582,13 @@ def cuStreamAddCallback(hStream not None : CUstream, callback not None : CUstrea
     cuStreamDestroy
     cuMemAllocManaged
     cuStreamAttachMemAsync
+    cuStreamLaunchHostFunc
     cudaStreamAddCallback
 
     Notes
     -----
     This function is slated for eventual deprecation and removal. If you do not require the callback to execute in case of a device error, consider using cuLaunchHostFunc. Additionally, this function is not supported with cuStreamBeginCapture and cuStreamEndCapture, unlike cuLaunchHostFunc.
+
     """
     cuserData = utils.HelperInputVoidPtr(userData)
     cdef void* cuserData_ptr = <void*><void_ptr>cuserData.cptr
@@ -16499,7 +18597,7 @@ def cuStreamAddCallback(hStream not None : CUstream, callback not None : CUstrea
 
 @cython.embedsignature(True)
 def cuStreamBeginCapture(hStream not None : CUstream, mode not None : CUstreamCaptureMode):
-    """ Begins graph capture on a stream. 
+    """ Begins graph capture on a stream.
 
     Begin graph capture on `hStream`. When a stream is in capture mode, all
     operations pushed into the stream will not be executed, but will
@@ -16543,6 +18641,7 @@ def cuStreamBeginCapture(hStream not None : CUstream, mode not None : CUstreamCa
     Notes
     -----
     Kernels captured using this API must not use texture and surface references. Reading or writing through any texture or surface reference is undefined behavior. This restriction does not apply to texture and surface objects.
+
     """
     cdef ccuda.CUstreamCaptureMode cmode = mode.value
     err = ccuda.cuStreamBeginCapture(hStream._ptr[0], cmode)
@@ -16550,15 +18649,15 @@ def cuStreamBeginCapture(hStream not None : CUstream, mode not None : CUstreamCa
 
 @cython.embedsignature(True)
 def cuThreadExchangeStreamCaptureMode(mode not None : CUstreamCaptureMode):
-    """ Swaps the stream capture interaction mode for a thread. 
+    """ Swaps the stream capture interaction mode for a thread.
 
     Sets the calling thread's stream capture interaction mode to the value
     contained in `*mode`, and overwrites `*mode` with the previous mode for
     the thread. To facilitate deterministic behavior across function or
     module boundaries, callers are encouraged to use this API in a push-pop
-    fashion:CUstreamCaptureModemode=desiredMode;cuThreadExchangeStreamCaptu
-    reMode(&mode);...cuThreadExchangeStreamCaptureMode(&mode);//restoreprev
-    iousmode
+    fashion:CUstreamCaptureModemode=desiredMode;
+    cuThreadExchangeStreamCaptureMode(&mode); ...
+    cuThreadExchangeStreamCaptureMode(&mode);//restorepreviousmode
 
     During stream capture (see cuStreamBeginCapture), some actions, such as
     a call to cudaMalloc, may be unsafe. In the case of cudaMalloc, the
@@ -16579,11 +18678,11 @@ def cuThreadExchangeStreamCaptureMode(mode not None : CUstreamCaptureMode):
     `CU_STREAM_CAPTURE_MODE_RELAXED` at `cuStreamBeginCapture`, or if any
     other thread has a concurrent capture sequence initiated with
     `CU_STREAM_CAPTURE_MODE_GLOBAL`, this thread is prohibited from
-    potentially unsafe API calls.`CU_STREAM_CAPTURE_MODE_THREAD_LOCAL:` If
+    potentially unsafe API calls. `CU_STREAM_CAPTURE_MODE_THREAD_LOCAL:` If
     the local thread has an ongoing capture sequence not initiated with
     `CU_STREAM_CAPTURE_MODE_RELAXED`, it is prohibited from potentially
     unsafe API calls. Concurrent capture sequences in other threads are
-    ignored.`CU_STREAM_CAPTURE_MODE_RELAXED:` The local thread is not
+    ignored. `CU_STREAM_CAPTURE_MODE_RELAXED:` The local thread is not
     prohibited from potentially unsafe API calls. Note that the thread is
     still prohibited from API calls which necessarily conflict with stream
     capture, for example, attempting cuEventQuery on an event that was last
@@ -16614,7 +18713,7 @@ def cuThreadExchangeStreamCaptureMode(mode not None : CUstreamCaptureMode):
 
 @cython.embedsignature(True)
 def cuStreamEndCapture(hStream not None : CUstream):
-    """ Ends capture on a stream, returning the captured graph. 
+    """ Ends capture on a stream, returning the captured graph.
 
     End capture on `hStream`, returning the captured graph via `phGraph`.
     Capture must have been initiated on `hStream` via a call to
@@ -16653,16 +18752,16 @@ def cuStreamEndCapture(hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamIsCapturing(hStream not None : CUstream):
-    """ Returns a stream's capture status. 
+    """ Returns a stream's capture status.
 
     Return the capture status of `hStream` via `captureStatus`. After a
     successful call, `*captureStatus` will contain one of the following:
-    CU_STREAM_CAPTURE_STATUS_NONE: The stream is not
-    capturing.CU_STREAM_CAPTURE_STATUS_ACTIVE: The stream is
-    capturing.CU_STREAM_CAPTURE_STATUS_INVALIDATED: The stream was
-    capturing but an error has invalidated the capture sequence. The
-    capture sequence must be terminated with cuStreamEndCapture on the
-    stream where it was initiated in order to continue using `hStream`.
+    CU_STREAM_CAPTURE_STATUS_NONE: The stream is not capturing.
+    CU_STREAM_CAPTURE_STATUS_ACTIVE: The stream is capturing.
+    CU_STREAM_CAPTURE_STATUS_INVALIDATED: The stream was capturing but an
+    error has invalidated the capture sequence. The capture sequence must
+    be terminated with cuStreamEndCapture on the stream where it was
+    initiated in order to continue using `hStream`.
 
     Note that, if this is called on CU_STREAM_LEGACY (the "null stream")
     while a blocking stream in the same context is capturing, it will
@@ -16703,7 +18802,7 @@ def cuStreamIsCapturing(hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamGetCaptureInfo(hStream not None : CUstream):
-    """ Query capture status of a stream. 
+    """ Query capture status of a stream.
 
     Note there is a later version of this API, cuStreamGetCaptureInfo_v2.
     It will supplant this version in 12.0, which is retained for minor
@@ -16717,7 +18816,7 @@ def cuStreamGetCaptureInfo(hStream not None : CUstream):
     CUDA_ERROR_STREAM_CAPTURE_IMPLICIT.
 
     A valid id is returned only if both of the following are true: the call
-    returns CUDA_SUCCESScaptureStatus is set to
+    returns CUDA_SUCCESS captureStatus is set to
     CU_STREAM_CAPTURE_STATUS_ACTIVE
 
     Returns
@@ -16741,7 +18840,7 @@ def cuStreamGetCaptureInfo(hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamGetCaptureInfo_v2(hStream not None : CUstream):
-    """ Query a stream's capture state (11.3+) 
+    """ Query a stream's capture state (11.3+)
 
     Query stream state related to stream capture.
 
@@ -16750,7 +18849,7 @@ def cuStreamGetCaptureInfo_v2(hStream not None : CUstream):
     CUDA_ERROR_STREAM_CAPTURE_IMPLICIT.
 
     Valid data (other than capture status) is returned only if both of the
-    following are true: the call returns CUDA_SUCCESSthe returned capture
+    following are true: the call returns CUDA_SUCCESS the returned capture
     status is CU_STREAM_CAPTURE_STATUS_ACTIVE
 
     This version of cuStreamGetCaptureInfo is introduced in CUDA 11.3 and
@@ -16793,7 +18892,7 @@ def cuStreamGetCaptureInfo_v2(hStream not None : CUstream):
         out and are valid until they or the graph is destroyed. The driver-
         owned array may also be passed directly to APIs that operate on the
         graph (not the stream) without copying.
-    numDependencies_out : Int
+    numDependencies_out : int
         Optional location to store the size of the array returned in
         dependencies_out.
 
@@ -16817,7 +18916,7 @@ def cuStreamGetCaptureInfo_v2(hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamUpdateCaptureDependencies(hStream not None : CUstream, dependencies : List[CUgraphNode], size_t numDependencies, unsigned int flags):
-    """ Update the set of dependencies in a capturing stream (11.3+) 
+    """ Update the set of dependencies in a capturing stream (11.3+)
 
     Modifies the dependency set of a capturing stream. The dependency set
     is the set of nodes that the next captured node in the stream will
@@ -16855,7 +18954,7 @@ def cuStreamUpdateCaptureDependencies(hStream not None : CUstream, dependencies 
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
         cdependencies = <ccuda.CUgraphNode*> calloc(len(dependencies), sizeof(ccuda.CUgraphNode))
@@ -16873,7 +18972,7 @@ def cuStreamUpdateCaptureDependencies(hStream not None : CUstream, dependencies 
 
 @cython.embedsignature(True)
 def cuStreamAttachMemAsync(hStream not None : CUstream, dptr not None : CUdeviceptr, size_t length, unsigned int flags):
-    """ Attach memory to a stream asynchronously. 
+    """ Attach memory to a stream asynchronously.
 
     Enqueues an operation in `hStream` to specify stream association of
     `length` bytes of memory starting from `dptr`. This function is a
@@ -16883,7 +18982,7 @@ def cuStreamAttachMemAsync(hStream not None : CUstream, dptr not None : CUdevice
 
     `dptr` must point to one of the following types of memories: managed
     memory declared using the managed keyword or allocated with
-    cuMemAllocManaged.a valid host-accessible region of system-allocated
+    cuMemAllocManaged. a valid host-accessible region of system-allocated
     pageable memory. This type of memory may only be specified if the
     device associated with the stream reports a non-zero value for the
     device attribute CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS.
@@ -16975,7 +19074,7 @@ def cuStreamAttachMemAsync(hStream not None : CUstream, dptr not None : CUdevice
 
 @cython.embedsignature(True)
 def cuStreamQuery(hStream not None : CUstream):
-    """ Determine status of a compute stream. 
+    """ Determine status of a compute stream.
 
     Returns CUDA_SUCCESS if all operations in the stream specified by
     `hStream` have completed, or CUDA_ERROR_NOT_READY if not.
@@ -17014,7 +19113,7 @@ def cuStreamQuery(hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamSynchronize(hStream not None : CUstream):
-    """ Wait until a stream's tasks are completed. 
+    """ Wait until a stream's tasks are completed.
 
     Waits until the device has completed all operations in the stream
     specified by `hStream`. If the context was created with the
@@ -17051,7 +19150,7 @@ def cuStreamSynchronize(hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamDestroy(hStream not None : CUstream):
-    """ Destroys a stream. 
+    """ Destroys a stream.
 
     Destroys the stream specified by `hStream`.
 
@@ -17091,7 +19190,7 @@ def cuStreamDestroy(hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamCopyAttributes(dst not None : CUstream, src not None : CUstream):
-    """ Copies attributes from source stream to destination stream. 
+    """ Copies attributes from source stream to destination stream.
 
     Copies attributes from source stream `src` to destination stream `dst`.
     Both streams must have the same context.
@@ -17116,7 +19215,7 @@ def cuStreamCopyAttributes(dst not None : CUstream, src not None : CUstream):
 
 @cython.embedsignature(True)
 def cuStreamGetAttribute(hStream not None : CUstream, attr not None : CUstreamAttrID):
-    """ Queries stream attribute. 
+    """ Queries stream attribute.
 
     Queries attribute `attr` from `hStream` and stores it in corresponding
     member of `value_out`.
@@ -17124,9 +19223,9 @@ def cuStreamGetAttribute(hStream not None : CUstream, attr not None : CUstreamAt
     Parameters
     ----------
     hStream : CUstream
-        None
+
     attr : CUstreamAttrID
-        None
+
 
     Returns
     -------
@@ -17144,7 +19243,7 @@ def cuStreamGetAttribute(hStream not None : CUstream, attr not None : CUstreamAt
 
 @cython.embedsignature(True)
 def cuStreamSetAttribute(hStream not None : CUstream, attr not None : CUstreamAttrID, value : CUstreamAttrValue):
-    """ Sets stream attribute. 
+    """ Sets stream attribute.
 
     Sets attribute `attr` on `hStream` from corresponding attribute of
     `value`. The updated attribute will be applied to subsequent work
@@ -17153,9 +19252,9 @@ def cuStreamSetAttribute(hStream not None : CUstream, attr not None : CUstreamAt
     Parameters
     ----------
     hStream : CUstream
-        None
+
     attr : CUstreamAttrID
-        None
+
     value : CUstreamAttrValue
 
 
@@ -17175,22 +19274,21 @@ def cuStreamSetAttribute(hStream not None : CUstream, attr not None : CUstreamAt
 
 @cython.embedsignature(True)
 def cuEventCreate(unsigned int Flags):
-    """ Creates an event. 
+    """ Creates an event.
 
     Creates an event *phEvent for the current context with the flags
     specified via `Flags`. Valid flags include: CU_EVENT_DEFAULT: Default
-    event creation flag.CU_EVENT_BLOCKING_SYNC: Specifies that the created
+    event creation flag. CU_EVENT_BLOCKING_SYNC: Specifies that the created
     event should use blocking synchronization. A CPU thread that uses
     cuEventSynchronize() to wait on an event created with this flag will
-    block until the event has actually been
-    recorded.CU_EVENT_DISABLE_TIMING: Specifies that the created event does
-    not need to record timing data. Events created with this flag specified
-    and the CU_EVENT_BLOCKING_SYNC flag not specified will provide the best
-    performance when used with cuStreamWaitEvent() and
-    cuEventQuery().CU_EVENT_INTERPROCESS: Specifies that the created event
-    may be used as an interprocess event by cuIpcGetEventHandle().
-    CU_EVENT_INTERPROCESS must be specified along with
-    CU_EVENT_DISABLE_TIMING.
+    block until the event has actually been recorded.
+    CU_EVENT_DISABLE_TIMING: Specifies that the created event does not need
+    to record timing data. Events created with this flag specified and the
+    CU_EVENT_BLOCKING_SYNC flag not specified will provide the best
+    performance when used with cuStreamWaitEvent() and cuEventQuery().
+    CU_EVENT_INTERPROCESS: Specifies that the created event may be used as
+    an interprocess event by cuIpcGetEventHandle(). CU_EVENT_INTERPROCESS
+    must be specified along with CU_EVENT_DISABLE_TIMING.
 
     Parameters
     ----------
@@ -17225,7 +19323,7 @@ def cuEventCreate(unsigned int Flags):
 
 @cython.embedsignature(True)
 def cuEventRecord(hEvent not None : CUevent, hStream not None : CUstream):
-    """ Records an event. 
+    """ Records an event.
 
     Captures in `hEvent` the contents of `hStream` at the time of this
     call. `hEvent` and `hStream` must be from the same context. Calls such
@@ -17276,7 +19374,7 @@ def cuEventRecord(hEvent not None : CUevent, hStream not None : CUstream):
 
 @cython.embedsignature(True)
 def cuEventRecordWithFlags(hEvent not None : CUevent, hStream not None : CUstream, unsigned int flags):
-    """ Records an event. 
+    """ Records an event.
 
     Captures in `hEvent` the contents of `hStream` at the time of this
     call. `hEvent` and `hStream` must be from the same context. Calls such
@@ -17293,10 +19391,10 @@ def cuEventRecordWithFlags(hEvent not None : CUevent, hStream not None : CUstrea
     cuEventRecordWithFlags(), an event represents an empty set of work, so
     for example cuEventQuery() would return CUDA_SUCCESS.
 
-    flags include: CU_EVENT_RECORD_DEFAULT: Default event creation
-    flag.CU_EVENT_RECORD_EXTERNAL: Event is captured in the graph as an
-    external event node when performing stream capture. This flag is
-    invalid outside of stream capture.
+    flags include: CU_EVENT_RECORD_DEFAULT: Default event creation flag.
+    CU_EVENT_RECORD_EXTERNAL: Event is captured in the graph as an external
+    event node when performing stream capture. This flag is invalid outside
+    of stream capture.
 
     Parameters
     ----------
@@ -17335,7 +19433,7 @@ def cuEventRecordWithFlags(hEvent not None : CUevent, hStream not None : CUstrea
 
 @cython.embedsignature(True)
 def cuEventQuery(hEvent not None : CUevent):
-    """ Queries an event's status. 
+    """ Queries an event's status.
 
     Queries the status of all work currently captured by `hEvent`. See
     cuEventRecord() for details on what is captured by an event.
@@ -17377,7 +19475,7 @@ def cuEventQuery(hEvent not None : CUevent):
 
 @cython.embedsignature(True)
 def cuEventSynchronize(hEvent not None : CUevent):
-    """ Waits for an event to complete. 
+    """ Waits for an event to complete.
 
     Waits until the completion of all work currently captured in `hEvent`.
     See cuEventRecord() for details on what is captured by an event.
@@ -17418,7 +19516,7 @@ def cuEventSynchronize(hEvent not None : CUevent):
 
 @cython.embedsignature(True)
 def cuEventDestroy(hEvent not None : CUevent):
-    """ Destroys an event. 
+    """ Destroys an event.
 
     Destroys the event specified by `hEvent`.
 
@@ -17457,7 +19555,7 @@ def cuEventDestroy(hEvent not None : CUevent):
 
 @cython.embedsignature(True)
 def cuEventElapsedTime(hStart not None : CUevent, hEnd not None : CUevent):
-    """ Computes the elapsed time between two events. 
+    """ Computes the elapsed time between two events.
 
     Computes the elapsed time between two events (in milliseconds with a
     resolution of around 0.5 microseconds).
@@ -17495,7 +19593,7 @@ def cuEventElapsedTime(hStart not None : CUevent, hEnd not None : CUevent):
         CUDA_ERROR_INVALID_HANDLE
         CUDA_ERROR_NOT_READY
     pMilliseconds : float
-        Time between
+        Time between `hStart` and `hEnd` in ms
 
     See Also
     --------
@@ -17512,7 +19610,7 @@ def cuEventElapsedTime(hStart not None : CUevent, hEnd not None : CUevent):
 
 @cython.embedsignature(True)
 def cuImportExternalMemory(memHandleDesc : CUDA_EXTERNAL_MEMORY_HANDLE_DESC):
-    """ Imports an external memory object. 
+    """ Imports an external memory object.
 
     Imports an externally allocated memory object and returns a handle to
     that in `extMem_out`.
@@ -17521,21 +19619,24 @@ def cuImportExternalMemory(memHandleDesc : CUDA_EXTERNAL_MEMORY_HANDLE_DESC):
     `memHandleDesc`. The CUDA_EXTERNAL_MEMORY_HANDLE_DESC structure is
     defined as follows:
 
-    typedefstructCUDA_EXTERNAL_MEMORY_HANDLE_DESC_st{CUexternalMemoryHandle
-    Typetype;union{intfd;struct{void*handle;constvoid*name;}win32;constvoid
-    *nvSciBufObject;}handle;unsignedlonglongsize;unsignedintflags;}CUDA_EXT
-    ERNAL_MEMORY_HANDLE_DESC;
+    typedefstructCUDA_EXTERNAL_MEMORY_HANDLE_DESC_st{
+    CUexternalMemoryHandleTypetype; union{ intfd; struct{ void*handle;
+    constvoid*name; }win32; constvoid*nvSciBufObject; }handle;
+    unsignedlonglongsize; unsignedintflags;
+    }CUDA_EXTERNAL_MEMORY_HANDLE_DESC;
 
     where CUDA_EXTERNAL_MEMORY_HANDLE_DESC::type specifies the type of
     handle being imported. CUexternalMemoryHandleType is defined as:
 
-    typedefenumCUexternalMemoryHandleType_enum{CU_EXTERNAL_MEMORY_HANDLE_TY
-    PE_OPAQUE_FD=1,CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32=2,CU_EXTERNA
-    L_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT=3,CU_EXTERNAL_MEMORY_HANDLE_TYPE_
-    D3D12_HEAP=4,CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE=5,CU_EXTERNA
-    L_MEMORY_HANDLE_TYPE_D3D11_RESOURCE=6,CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3
-    D11_RESOURCE_KMT=7,CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF=8}CUexternal
-    MemoryHandleType;
+    typedefenumCUexternalMemoryHandleType_enum{
+    CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD=1,
+    CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32=2,
+    CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT=3,
+    CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP=4,
+    CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE=5,
+    CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE=6,
+    CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE_KMT=7,
+    CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF=8 }CUexternalMemoryHandleType;
 
     If CUDA_EXTERNAL_MEMORY_HANDLE_DESC::type is
     CU_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD, then
@@ -17614,7 +19715,10 @@ def cuImportExternalMemory(memHandleDesc : CUDA_EXTERNAL_MEMORY_HANDLE_DESC):
     imported into CUDA is also mapped by other drivers, then the
     application must use cuWaitExternalSemaphoresAsync or
     cuSignalExternalSemaphoresAsync as appropriate barriers to maintain
-    coherence between CUDA and the other drivers.
+    coherence between CUDA and the other drivers. See
+    CUDA_EXTERNAL_SEMAPHORE_SIGNAL_SKIP_NVSCIBUF_MEMSYNC and
+    CUDA_EXTERNAL_SEMAPHORE_WAIT_SKIP_NVSCIBUF_MEMSYNC for memory
+    synchronization.
 
     The size of the memory object must be specified in
     CUDA_EXTERNAL_MEMORY_HANDLE_DESC::size.
@@ -17638,6 +19742,7 @@ def cuImportExternalMemory(memHandleDesc : CUDA_EXTERNAL_MEMORY_HANDLE_DESC):
     CUresult
         CUDA_SUCCESS
         CUDA_ERROR_NOT_INITIALIZED
+        CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_HANDLE
     extMem_out : CUexternalMemory
         Returned handle to an external memory object
@@ -17652,6 +19757,7 @@ def cuImportExternalMemory(memHandleDesc : CUDA_EXTERNAL_MEMORY_HANDLE_DESC):
     -----
     If the Vulkan memory imported into CUDA is mapped on the CPU then the application must use vkInvalidateMappedMemoryRanges/vkFlushMappedMemoryRanges as well as appropriate Vulkan pipeline barriers to maintain coherence between CPU and GPU. For more information on these APIs, please refer to "Synchronization
     and Cache Control" chapter from Vulkan specification.
+
     """
     cdef CUexternalMemory extMem_out = CUexternalMemory()
     cdef ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC* cmemHandleDesc_ptr = memHandleDesc._ptr if memHandleDesc != None else NULL
@@ -17660,7 +19766,7 @@ def cuImportExternalMemory(memHandleDesc : CUDA_EXTERNAL_MEMORY_HANDLE_DESC):
 
 @cython.embedsignature(True)
 def cuExternalMemoryGetMappedBuffer(extMem not None : CUexternalMemory, bufferDesc : CUDA_EXTERNAL_MEMORY_BUFFER_DESC):
-    """ Maps a buffer onto an imported memory object. 
+    """ Maps a buffer onto an imported memory object.
 
     Maps a buffer onto an imported memory object and returns a device
     pointer in `devPtr`.
@@ -17669,9 +19775,9 @@ def cuExternalMemoryGetMappedBuffer(extMem not None : CUexternalMemory, bufferDe
     `bufferDesc`. The CUDA_EXTERNAL_MEMORY_BUFFER_DESC structure is defined
     as follows:
 
-    typedefstructCUDA_EXTERNAL_MEMORY_BUFFER_DESC_st{unsignedlonglongoffset
-    ;unsignedlonglongsize;unsignedintflags;}CUDA_EXTERNAL_MEMORY_BUFFER_DES
-    C;
+    typedefstructCUDA_EXTERNAL_MEMORY_BUFFER_DESC_st{
+    unsignedlonglongoffset; unsignedlonglongsize; unsignedintflags;
+    }CUDA_EXTERNAL_MEMORY_BUFFER_DESC;
 
     where CUDA_EXTERNAL_MEMORY_BUFFER_DESC::offset is the offset in the
     memory object where the buffer's base address is.
@@ -17703,6 +19809,7 @@ def cuExternalMemoryGetMappedBuffer(extMem not None : CUexternalMemory, bufferDe
     CUresult
         CUDA_SUCCESS
         CUDA_ERROR_NOT_INITIALIZED
+        CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_HANDLE
     devPtr : CUdeviceptr
         Returned device pointer to buffer
@@ -17720,7 +19827,7 @@ def cuExternalMemoryGetMappedBuffer(extMem not None : CUexternalMemory, bufferDe
 
 @cython.embedsignature(True)
 def cuExternalMemoryGetMappedMipmappedArray(extMem not None : CUexternalMemory, mipmapDesc : CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC):
-    """ Maps a CUDA mipmapped array onto an external memory object. 
+    """ Maps a CUDA mipmapped array onto an external memory object.
 
     Maps a CUDA mipmapped array onto an external object and returns a
     handle to it in `mipmap`.
@@ -17729,9 +19836,9 @@ def cuExternalMemoryGetMappedMipmappedArray(extMem not None : CUexternalMemory, 
     described in `mipmapDesc`. The structure
     CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC is defined as follows:
 
-    typedefstructCUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st{unsignedlongl
-    ongoffset;CUDA_ARRAY3D_DESCRIPTORarrayDesc;unsignedintnumLevels;}CUDA_E
-    XTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC;
+    typedefstructCUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st{
+    unsignedlonglongoffset; CUDA_ARRAY3D_DESCRIPTORarrayDesc;
+    unsignedintnumLevels; }CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC;
 
     where CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC::offset is the offset
     in the memory object where the base level of the mipmap chain is.
@@ -17765,6 +19872,7 @@ def cuExternalMemoryGetMappedMipmappedArray(extMem not None : CUexternalMemory, 
     CUresult
         CUDA_SUCCESS
         CUDA_ERROR_NOT_INITIALIZED
+        CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_INVALID_HANDLE
     mipmap : CUmipmappedArray
         Returned CUDA mipmapped array
@@ -17782,7 +19890,7 @@ def cuExternalMemoryGetMappedMipmappedArray(extMem not None : CUexternalMemory, 
 
 @cython.embedsignature(True)
 def cuDestroyExternalMemory(extMem not None : CUexternalMemory):
-    """ Destroys an external memory object. 
+    """ Destroys an external memory object.
 
     Destroys the specified external memory object. Any existing buffers and
     CUDA mipmapped arrays mapped onto this object must no longer be used
@@ -17814,7 +19922,7 @@ def cuDestroyExternalMemory(extMem not None : CUexternalMemory):
 
 @cython.embedsignature(True)
 def cuImportExternalSemaphore(semHandleDesc : CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC):
-    """ Imports an external semaphore. 
+    """ Imports an external semaphore.
 
     Imports an externally allocated synchronization object and returns a
     handle to that in `extSem_out`.
@@ -17823,23 +19931,26 @@ def cuImportExternalSemaphore(semHandleDesc : CUDA_EXTERNAL_SEMAPHORE_HANDLE_DES
     `semHandleDesc`. The CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC is defined as
     follows:
 
-    typedefstructCUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st{CUexternalSemaphore
-    HandleTypetype;union{intfd;struct{void*handle;constvoid*name;}win32;con
-    stvoid*NvSciSyncObj;}handle;unsignedintflags;}CUDA_EXTERNAL_SEMAPHORE_H
-    ANDLE_DESC;
+    typedefstructCUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st{
+    CUexternalSemaphoreHandleTypetype; union{ intfd; struct{ void*handle;
+    constvoid*name; }win32; constvoid*NvSciSyncObj; }handle;
+    unsignedintflags; }CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC;
 
     where CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC::type specifies the type of
     handle being imported. CUexternalSemaphoreHandleType is defined as:
 
-    typedefenumCUexternalSemaphoreHandleType_enum{CU_EXTERNAL_SEMAPHORE_HAN
-    DLE_TYPE_OPAQUE_FD=1,CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32=2,C
-    U_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT=3,CU_EXTERNAL_SEMAPHO
-    RE_HANDLE_TYPE_D3D12_FENCE=4,CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_FE
-    NCE=5,CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC=6,CU_EXTERNAL_SEMAPHO
-    RE_HANDLE_TYPE_D3D11_KEYED_MUTEX=7,CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3
-    D11_KEYED_MUTEX_KMT=8,CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPH
-    ORE_FD=9,CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32=10}
-    CUexternalSemaphoreHandleType;
+    typedefenumCUexternalSemaphoreHandleType_enum{
+    CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD=1,
+    CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32=2,
+    CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT=3,
+    CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE=4,
+    CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_FENCE=5,
+    CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC=6,
+    CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX=7,
+    CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX_KMT=8,
+    CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_FD=9,
+    CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32=10
+    }CUexternalSemaphoreHandleType;
 
     If CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC::type is
     CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD, then
@@ -17961,7 +20072,7 @@ def cuImportExternalSemaphore(semHandleDesc : CUDA_EXTERNAL_SEMAPHORE_HANDLE_DES
 
 @cython.embedsignature(True)
 def cuSignalExternalSemaphoresAsync(extSemArray : List[CUexternalSemaphore], paramsArray : List[CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS], unsigned int numExtSems, stream not None : CUstream):
-    """ Signals a set of external semaphore objects. 
+    """ Signals a set of external semaphore objects.
 
     Enqueues a signal operation on a set of externally allocated semaphore
     object in the specified stream. The operations will be executed when
@@ -18042,10 +20153,10 @@ def cuSignalExternalSemaphoresAsync(extSemArray : List[CUexternalSemaphore], par
     """
     paramsArray = [] if paramsArray is None else paramsArray
     if not all(isinstance(_x, (CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS)) for _x in paramsArray):
-        raise TypeError("Argument 'paramsArray' is not instance of type (expected List[cuda.ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS]")
+        raise TypeError("Argument 'paramsArray' is not instance of type (expected List[ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS]")
     extSemArray = [] if extSemArray is None else extSemArray
     if not all(isinstance(_x, (CUexternalSemaphore)) for _x in extSemArray):
-        raise TypeError("Argument 'extSemArray' is not instance of type (expected List[cuda.ccuda.CUexternalSemaphore]")
+        raise TypeError("Argument 'extSemArray' is not instance of type (expected List[ccuda.CUexternalSemaphore]")
     cdef ccuda.CUexternalSemaphore* cextSemArray = NULL
     if len(extSemArray) > 0:
         cextSemArray = <ccuda.CUexternalSemaphore*> calloc(len(extSemArray), sizeof(ccuda.CUexternalSemaphore))
@@ -18074,7 +20185,7 @@ def cuSignalExternalSemaphoresAsync(extSemArray : List[CUexternalSemaphore], par
 
 @cython.embedsignature(True)
 def cuWaitExternalSemaphoresAsync(extSemArray : List[CUexternalSemaphore], paramsArray : List[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS], unsigned int numExtSems, stream not None : CUstream):
-    """ Waits on a set of external semaphore objects. 
+    """ Waits on a set of external semaphore objects.
 
     Enqueues a wait operation on a set of externally allocated semaphore
     object in the specified stream. The operations will be executed when
@@ -18163,10 +20274,10 @@ def cuWaitExternalSemaphoresAsync(extSemArray : List[CUexternalSemaphore], param
     """
     paramsArray = [] if paramsArray is None else paramsArray
     if not all(isinstance(_x, (CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS)) for _x in paramsArray):
-        raise TypeError("Argument 'paramsArray' is not instance of type (expected List[cuda.ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS]")
+        raise TypeError("Argument 'paramsArray' is not instance of type (expected List[ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS]")
     extSemArray = [] if extSemArray is None else extSemArray
     if not all(isinstance(_x, (CUexternalSemaphore)) for _x in extSemArray):
-        raise TypeError("Argument 'extSemArray' is not instance of type (expected List[cuda.ccuda.CUexternalSemaphore]")
+        raise TypeError("Argument 'extSemArray' is not instance of type (expected List[ccuda.CUexternalSemaphore]")
     cdef ccuda.CUexternalSemaphore* cextSemArray = NULL
     if len(extSemArray) > 0:
         cextSemArray = <ccuda.CUexternalSemaphore*> calloc(len(extSemArray), sizeof(ccuda.CUexternalSemaphore))
@@ -18195,7 +20306,7 @@ def cuWaitExternalSemaphoresAsync(extSemArray : List[CUexternalSemaphore], param
 
 @cython.embedsignature(True)
 def cuDestroyExternalSemaphore(extSem not None : CUexternalSemaphore):
-    """ Destroys an external semaphore. 
+    """ Destroys an external semaphore.
 
     Destroys an external semaphore object and releases any references to
     the underlying resource. Any outstanding signals or waits must have
@@ -18226,7 +20337,7 @@ def cuDestroyExternalSemaphore(extSem not None : CUexternalSemaphore):
 
 @cython.embedsignature(True)
 def cuStreamWaitValue32(stream not None : CUstream, addr not None : CUdeviceptr, value not None : cuuint32_t, unsigned int flags):
-    """ Wait on a memory location. 
+    """ Wait on a memory location.
 
     Enqueues a synchronization of the stream on the given memory location.
     Work ordered after the operation will block until the given condition
@@ -18279,7 +20390,7 @@ def cuStreamWaitValue32(stream not None : CUstream, addr not None : CUdeviceptr,
 
 @cython.embedsignature(True)
 def cuStreamWaitValue64(stream not None : CUstream, addr not None : CUdeviceptr, value not None : cuuint64_t, unsigned int flags):
-    """ Wait on a memory location. 
+    """ Wait on a memory location.
 
     Enqueues a synchronization of the stream on the given memory location.
     Work ordered after the operation will block until the given condition
@@ -18327,7 +20438,7 @@ def cuStreamWaitValue64(stream not None : CUstream, addr not None : CUdeviceptr,
 
 @cython.embedsignature(True)
 def cuStreamWriteValue32(stream not None : CUstream, addr not None : CUdeviceptr, value not None : cuuint32_t, unsigned int flags):
-    """ Write a value to memory. 
+    """ Write a value to memory.
 
     Write a value to memory. Unless the
     CU_STREAM_WRITE_VALUE_NO_MEMORY_BARRIER flag is passed, the write is
@@ -18376,7 +20487,7 @@ def cuStreamWriteValue32(stream not None : CUstream, addr not None : CUdeviceptr
 
 @cython.embedsignature(True)
 def cuStreamWriteValue64(stream not None : CUstream, addr not None : CUdeviceptr, value not None : cuuint64_t, unsigned int flags):
-    """ Write a value to memory. 
+    """ Write a value to memory.
 
     Write a value to memory. Unless the
     CU_STREAM_WRITE_VALUE_NO_MEMORY_BARRIER flag is passed, the write is
@@ -18424,7 +20535,7 @@ def cuStreamWriteValue64(stream not None : CUstream, addr not None : CUdeviceptr
 
 @cython.embedsignature(True)
 def cuStreamBatchMemOp(stream not None : CUstream, unsigned int count, paramArray : List[CUstreamBatchMemOpParams], unsigned int flags):
-    """ Batch operations to synchronize the stream via memory operations. 
+    """ Batch operations to synchronize the stream via memory operations.
 
     This is a batch version of cuStreamWaitValue32() and
     cuStreamWriteValue32(). Batching operations may avoid some performance
@@ -18471,7 +20582,7 @@ def cuStreamBatchMemOp(stream not None : CUstream, unsigned int count, paramArra
     """
     paramArray = [] if paramArray is None else paramArray
     if not all(isinstance(_x, (CUstreamBatchMemOpParams)) for _x in paramArray):
-        raise TypeError("Argument 'paramArray' is not instance of type (expected List[cuda.ccuda.CUstreamBatchMemOpParams]")
+        raise TypeError("Argument 'paramArray' is not instance of type (expected List[ccuda.CUstreamBatchMemOpParams]")
     if count > len(paramArray): raise RuntimeError("List is too small: " + str(len(paramArray)) + " < " + str(count))
     cdef ccuda.CUstreamBatchMemOpParams* cparamArray = NULL
     if len(paramArray) > 0:
@@ -18488,39 +20599,38 @@ def cuStreamBatchMemOp(stream not None : CUstream, unsigned int count, paramArra
 
 @cython.embedsignature(True)
 def cuFuncGetAttribute(attrib not None : CUfunction_attribute, hfunc not None : CUfunction):
-    """ Returns information about a function. 
+    """ Returns information about a function.
 
     Returns in `*pi` the integer value of the attribute `attrib` on the
     kernel given by `hfunc`. The supported attributes are:
     CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK: The maximum number of threads
     per block, beyond which a launch of the function would fail. This
     number depends on both the function and the device on which the
-    function is currently loaded.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES: The
+    function is currently loaded. CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES: The
     size in bytes of statically-allocated shared memory per block required
     by this function. This does not include dynamically-allocated shared
-    memory requested by the user at
-    runtime.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES: The size in bytes of user-
-    allocated constant memory required by this
-    function.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES: The size in bytes of local
-    memory used by each thread of this function.CU_FUNC_ATTRIBUTE_NUM_REGS:
-    The number of registers used by each thread of this
-    function.CU_FUNC_ATTRIBUTE_PTX_VERSION: The PTX virtual architecture
-    version for which the function was compiled. This value is the major
-    PTX version * 10 the minor PTX version, so a PTX version 1.3 function
-    would return the value 13. Note that this may return the undefined
-    value of 0 for cubins compiled prior to CUDA
-    3.0.CU_FUNC_ATTRIBUTE_BINARY_VERSION: The binary architecture version
-    for which the function was compiled. This value is the major binary
-    version * 10 + the minor binary version, so a binary version 1.3
-    function would return the value 13. Note that this will return a value
-    of 10 for legacy cubins that do not have a properly-encoded binary
-    architecture version.CU_FUNC_CACHE_MODE_CA: The attribute to indicate
-    whether the function has been compiled with user specified option
-    "-Xptxas --dlcm=ca" set
-    .CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES: The maximum size in
-    bytes of dynamically-allocated shared
-    memory.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT: Preferred
-    shared memory-L1 cache split ratio in percent of total shared memory.
+    memory requested by the user at runtime.
+    CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES: The size in bytes of user-allocated
+    constant memory required by this function.
+    CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES: The size in bytes of local memory
+    used by each thread of this function. CU_FUNC_ATTRIBUTE_NUM_REGS: The
+    number of registers used by each thread of this function.
+    CU_FUNC_ATTRIBUTE_PTX_VERSION: The PTX virtual architecture version for
+    which the function was compiled. This value is the major PTX version *
+    10 the minor PTX version, so a PTX version 1.3 function would return
+    the value 13. Note that this may return the undefined value of 0 for
+    cubins compiled prior to CUDA 3.0.   CU_FUNC_ATTRIBUTE_BINARY_VERSION:
+    The binary architecture version for which the function was compiled.
+    This value is the major binary version * 10 + the minor binary version,
+    so a binary version 1.3 function would return the value 13. Note that
+    this will return a value of 10 for legacy cubins that do not have a
+    properly-encoded binary architecture version. ::CU_FUNC_CACHE_MODE_CA:
+    The attribute to indicate whether the function has been compiled with
+    user specified option "-Xptxas --dlcm=ca" set .
+    CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES: The maximum size in
+    bytes of dynamically-allocated shared memory.
+    CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT: Preferred shared
+    memory-L1 cache split ratio in percent of total shared memory.
 
     Parameters
     ----------
@@ -18557,7 +20667,7 @@ def cuFuncGetAttribute(attrib not None : CUfunction_attribute, hfunc not None : 
 
 @cython.embedsignature(True)
 def cuFuncSetAttribute(hfunc not None : CUfunction, attrib not None : CUfunction_attribute, int value):
-    """ Sets information about a function. 
+    """ Sets information about a function.
 
     This call sets the value of a specified attribute `attrib` on the
     kernel given by `hfunc` to an integer value specified by `val` This
@@ -18573,11 +20683,11 @@ def cuFuncSetAttribute(hfunc not None : CUfunction, attrib not None : CUfunction
     sum of this value and the function attribute
     CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES cannot exceed the device attribute
     CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN. The maximal size
-    of requestable dynamic shared memory may differ by GPU
-    architecture.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT: On
-    devices where the L1 cache and shared memory use the same hardware
-    resources, this sets the shared memory carveout preference, in percent
-    of the total shared memory. See
+    of requestable dynamic shared memory may differ by GPU architecture.
+    CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT: On devices where
+    the L1 cache and shared memory use the same hardware resources, this
+    sets the shared memory carveout preference, in percent of the total
+    shared memory. See
     CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR This is only a
     hint, and the driver can choose a different ratio if required to
     execute the function.
@@ -18618,7 +20728,7 @@ def cuFuncSetAttribute(hfunc not None : CUfunction, attrib not None : CUfunction
 
 @cython.embedsignature(True)
 def cuFuncSetCacheConfig(hfunc not None : CUfunction, config not None : CUfunc_cache):
-    """ Sets the preferred cache configuration for a device function. 
+    """ Sets the preferred cache configuration for a device function.
 
     On devices where the L1 cache and shared memory use the same hardware
     resources, this sets through `config` the preferred cache configuration
@@ -18637,11 +20747,11 @@ def cuFuncSetCacheConfig(hfunc not None : CUfunction, config not None : CUfunc_c
     preference setting may insert a device-side synchronization point.
 
     The supported cache configurations are: CU_FUNC_CACHE_PREFER_NONE: no
-    preference for shared memory or L1
-    (default)CU_FUNC_CACHE_PREFER_SHARED: prefer larger shared memory and
-    smaller L1 cacheCU_FUNC_CACHE_PREFER_L1: prefer larger L1 cache and
-    smaller shared memoryCU_FUNC_CACHE_PREFER_EQUAL: prefer equal sized L1
-    cache and shared memory
+    preference for shared memory or L1 (default)
+    CU_FUNC_CACHE_PREFER_SHARED: prefer larger shared memory and smaller L1
+    cache CU_FUNC_CACHE_PREFER_L1: prefer larger L1 cache and smaller
+    shared memory CU_FUNC_CACHE_PREFER_EQUAL: prefer equal sized L1 cache
+    and shared memory
 
     Parameters
     ----------
@@ -18675,7 +20785,7 @@ def cuFuncSetCacheConfig(hfunc not None : CUfunction, config not None : CUfunc_c
 
 @cython.embedsignature(True)
 def cuFuncSetSharedMemConfig(hfunc not None : CUfunction, config not None : CUsharedconfig):
-    """ Sets the shared memory configuration for a device function. 
+    """ Sets the shared memory configuration for a device function.
 
     On devices with configurable shared memory banks, this function will
     force all subsequent launches of the specified device function to have
@@ -18701,11 +20811,11 @@ def cuFuncSetSharedMemConfig(hfunc not None : CUfunction, config not None : CUsh
 
     The supported bank configurations are:
     CU_SHARED_MEM_CONFIG_DEFAULT_BANK_SIZE: use the context's shared memory
-    configuration when launching this
-    function.CU_SHARED_MEM_CONFIG_FOUR_BYTE_BANK_SIZE: set shared memory
-    bank width to be natively four bytes when launching this
-    function.CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE: set shared memory
-    bank width to be natively eight bytes when launching this function.
+    configuration when launching this function.
+    CU_SHARED_MEM_CONFIG_FOUR_BYTE_BANK_SIZE: set shared memory bank width
+    to be natively four bytes when launching this function.
+    CU_SHARED_MEM_CONFIG_EIGHT_BYTE_BANK_SIZE: set shared memory bank width
+    to be natively eight bytes when launching this function.
 
     Parameters
     ----------
@@ -18741,7 +20851,7 @@ def cuFuncSetSharedMemConfig(hfunc not None : CUfunction, config not None : CUsh
 
 @cython.embedsignature(True)
 def cuFuncGetModule(hfunc not None : CUfunction):
-    """ Returns a module handle. 
+    """ Returns a module handle.
 
     Returns in `*hmod` the handle of the module that function `hfunc` is
     located in. The lifetime of the module corresponds to the lifetime of
@@ -18766,7 +20876,7 @@ def cuFuncGetModule(hfunc not None : CUfunction):
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_INVALID_VALUE
-        CUDA_ERROR_NOT_FOUND 
+        CUDA_ERROR_NOT_FOUND
     hmod : CUmodule
         Returned module handle
     """
@@ -18776,7 +20886,7 @@ def cuFuncGetModule(hfunc not None : CUfunction):
 
 @cython.embedsignature(True)
 def cuLaunchKernel(f not None : CUfunction, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, hStream not None : CUstream, kernelParams, void_ptr extra):
-    """ Launches a CUDA function. 
+    """ Launches a CUDA function.
 
     Invokes the kernel `f` on a `gridDimX` x `gridDimY` x `gridDimZ` grid
     of blocks. Each block contains `blockDimX` x `blockDimY` x `blockDimZ`
@@ -18799,11 +20909,11 @@ def cuLaunchKernel(f not None : CUfunction, unsigned int gridDimX, unsigned int 
     single buffer that is passed in via the `extra` parameter. This places
     the burden on the application of knowing each kernel parameter's size
     and alignment/padding within the buffer. Here is an example of using
-    the `extra` parameter in this manner: size_targBufferSize;charargBuffer
-    [256];//populateargBufferandargBufferSizevoid*config[]={CU_LAUNCH_PARAM
-    _BUFFER_POINTER,argBuffer,CU_LAUNCH_PARAM_BUFFER_SIZE,&argBufferSize,CU
-    _LAUNCH_PARAM_END};status=cuLaunchKernel(f,gx,gy,gz,bx,by,bz,sh,s,NULL,
-    config);
+    the `extra` parameter in this manner: size_targBufferSize;
+    charargBuffer[256];  //populateargBufferandargBufferSize
+    void*config[]={ CU_LAUNCH_PARAM_BUFFER_POINTER,argBuffer,
+    CU_LAUNCH_PARAM_BUFFER_SIZE,&argBufferSize, CU_LAUNCH_PARAM_END };
+    status=cuLaunchKernel(f,gx,gy,gz,bx,by,bz,sh,s,NULL,config);
 
     The `extra` parameter exists to allow cuLaunchKernel to take additional
     less commonly used arguments. `extra` specifies a list of names of
@@ -18811,12 +20921,12 @@ def cuLaunchKernel(f not None : CUfunction, unsigned int gridDimX, unsigned int 
     is immediately followed by the corresponding value. The list must be
     terminated with either NULL or CU_LAUNCH_PARAM_END.
 
-     CU_LAUNCH_PARAM_END, which indicates the end of the `extra`
-    array;CU_LAUNCH_PARAM_BUFFER_POINTER, which specifies that the next
-    value in `extra` will be a pointer to a buffer containing all the
-    kernel parameters for launching kernel `f`;CU_LAUNCH_PARAM_BUFFER_SIZE,
-    which specifies that the next value in `extra` will be a pointer to a
-    size_t containing the size of the buffer specified with
+    CU_LAUNCH_PARAM_END, which indicates the end of the `extra` array;
+    CU_LAUNCH_PARAM_BUFFER_POINTER, which specifies that the next value in
+    `extra` will be a pointer to a buffer containing all the kernel
+    parameters for launching kernel `f`; CU_LAUNCH_PARAM_BUFFER_SIZE, which
+    specifies that the next value in `extra` will be a pointer to a size_t
+    containing the size of the buffer specified with
     CU_LAUNCH_PARAM_BUFFER_POINTER;
 
     The error CUDA_ERROR_INVALID_VALUE will be returned if kernel
@@ -18891,7 +21001,7 @@ def cuLaunchKernel(f not None : CUfunction, unsigned int gridDimX, unsigned int 
 
 @cython.embedsignature(True)
 def cuLaunchCooperativeKernel(f not None : CUfunction, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, hStream not None : CUstream, kernelParams):
-    """ Launches a CUDA function where thread blocks can cooperate and synchronize as they execute. 
+    """ Launches a CUDA function where thread blocks can cooperate and synchronize as they execute.
 
     Invokes the kernel `f` on a `gridDimX` x `gridDimY` x `gridDimZ` grid
     of blocks. Each block contains `blockDimX` x `blockDimY` x `blockDimZ`
@@ -18990,7 +21100,7 @@ def cuLaunchCooperativeKernel(f not None : CUfunction, unsigned int gridDimX, un
 
 @cython.embedsignature(True)
 def cuLaunchCooperativeKernelMultiDevice(launchParamsList : List[CUDA_LAUNCH_PARAMS], unsigned int numDevices, unsigned int flags):
-    """ Launches CUDA functions on multiple devices where thread blocks can cooperate and synchronize as they execute. 
+    """ Launches CUDA functions on multiple devices where thread blocks can cooperate and synchronize as they execute.
 
     DeprecatedThis function is deprecated as of CUDA 11.3.
 
@@ -19031,39 +21141,39 @@ def cuLaunchCooperativeKernelMultiDevice(launchParamsList : List[CUDA_LAUNCH_PAR
 
     The kernels cannot make use of CUDA dynamic parallelism.
 
-    The CUDA_LAUNCH_PARAMS structure is defined as:  where:typedefstructCUD
-    A_LAUNCH_PARAMS_st{CUfunctionfunction;unsignedintgridDimX;unsignedintgr
-    idDimY;unsignedintgridDimZ;unsignedintblockDimX;unsignedintblockDimY;un
-    signedintblockDimZ;unsignedintsharedMemBytes;CUstreamhStream;void**kern
-    elParams;}CUDA_LAUNCH_PARAMS; CUDA_LAUNCH_PARAMS::function specifies
-    the kernel to be launched. All functions must be identical with respect
-    to the compiled code.CUDA_LAUNCH_PARAMS::gridDimX is the width of the
-    grid in blocks. This must match across all kernels
-    launched.CUDA_LAUNCH_PARAMS::gridDimY is the height of the grid in
-    blocks. This must match across all kernels
-    launched.CUDA_LAUNCH_PARAMS::gridDimZ is the depth of the grid in
-    blocks. This must match across all kernels
-    launched.CUDA_LAUNCH_PARAMS::blockDimX is the X dimension of each
-    thread block. This must match across all kernels
-    launched.CUDA_LAUNCH_PARAMS::blockDimX is the Y dimension of each
-    thread block. This must match across all kernels
-    launched.CUDA_LAUNCH_PARAMS::blockDimZ is the Z dimension of each
-    thread block. This must match across all kernels
-    launched.CUDA_LAUNCH_PARAMS::sharedMemBytes is the dynamic shared-
-    memory size per thread block in bytes. This must match across all
-    kernels launched.CUDA_LAUNCH_PARAMS::hStream is the handle to the
-    stream to perform the launch in. This cannot be the NULL stream or
-    CU_STREAM_LEGACY or CU_STREAM_PER_THREAD. The CUDA context associated
-    with this stream must match that associated with
-    CUDA_LAUNCH_PARAMS::function.CUDA_LAUNCH_PARAMS::kernelParams is an
-    array of pointers to kernel parameters. If CUDA_LAUNCH_PARAMS::function
-    has N parameters, then CUDA_LAUNCH_PARAMS::kernelParams needs to be an
-    array of N pointers. Each of CUDA_LAUNCH_PARAMS::kernelParams[0]
-    through CUDA_LAUNCH_PARAMS::kernelParams[N-1] must point to a region of
-    memory from which the actual kernel parameter will be copied. The
-    number of kernel parameters and their offsets and sizes do not need to
-    be specified as that information is retrieved directly from the
-    kernel's image.
+    The CUDA_LAUNCH_PARAMS structure is defined as:
+    typedefstructCUDA_LAUNCH_PARAMS_st { CUfunctionfunction;
+    unsignedintgridDimX; unsignedintgridDimY; unsignedintgridDimZ;
+    unsignedintblockDimX; unsignedintblockDimY; unsignedintblockDimZ;
+    unsignedintsharedMemBytes; CUstreamhStream; void**kernelParams;
+    }CUDA_LAUNCH_PARAMS; where: CUDA_LAUNCH_PARAMS::function specifies the
+    kernel to be launched. All functions must be identical with respect to
+    the compiled code. CUDA_LAUNCH_PARAMS::gridDimX is the width of the
+    grid in blocks. This must match across all kernels launched.
+    CUDA_LAUNCH_PARAMS::gridDimY is the height of the grid in blocks. This
+    must match across all kernels launched. CUDA_LAUNCH_PARAMS::gridDimZ is
+    the depth of the grid in blocks. This must match across all kernels
+    launched. CUDA_LAUNCH_PARAMS::blockDimX is the X dimension of each
+    thread block. This must match across all kernels launched.
+    CUDA_LAUNCH_PARAMS::blockDimX is the Y dimension of each thread block.
+    This must match across all kernels launched.
+    CUDA_LAUNCH_PARAMS::blockDimZ is the Z dimension of each thread block.
+    This must match across all kernels launched.
+    CUDA_LAUNCH_PARAMS::sharedMemBytes is the dynamic shared-memory size
+    per thread block in bytes. This must match across all kernels launched.
+    CUDA_LAUNCH_PARAMS::hStream is the handle to the stream to perform the
+    launch in. This cannot be the NULL stream or CU_STREAM_LEGACY or
+    CU_STREAM_PER_THREAD. The CUDA context associated with this stream must
+    match that associated with CUDA_LAUNCH_PARAMS::function.
+    CUDA_LAUNCH_PARAMS::kernelParams is an array of pointers to kernel
+    parameters. If CUDA_LAUNCH_PARAMS::function has N parameters, then
+    CUDA_LAUNCH_PARAMS::kernelParams needs to be an array of N pointers.
+    Each of CUDA_LAUNCH_PARAMS::kernelParams[0] through
+    CUDA_LAUNCH_PARAMS::kernelParams[N-1] must point to a region of memory
+    from which the actual kernel parameter will be copied. The number of
+    kernel parameters and their offsets and sizes do not need to be
+    specified as that information is retrieved directly from the kernel's
+    image.
 
     By default, the kernel won't begin execution on any GPU until all prior
     work in all the specified streams has completed. This behavior can be
@@ -19101,7 +21211,7 @@ def cuLaunchCooperativeKernelMultiDevice(launchParamsList : List[CUDA_LAUNCH_PAR
     launchParamsList : List[CUDA_LAUNCH_PARAMS]
         List of launch parameters, one per device
     numDevices : unsigned int
-        Size of the
+        Size of the `launchParamsList` array
     flags : unsigned int
         Flags to control launch behavior
 
@@ -19135,7 +21245,7 @@ def cuLaunchCooperativeKernelMultiDevice(launchParamsList : List[CUDA_LAUNCH_PAR
     """
     launchParamsList = [] if launchParamsList is None else launchParamsList
     if not all(isinstance(_x, (CUDA_LAUNCH_PARAMS)) for _x in launchParamsList):
-        raise TypeError("Argument 'launchParamsList' is not instance of type (expected List[cuda.ccuda.CUDA_LAUNCH_PARAMS]")
+        raise TypeError("Argument 'launchParamsList' is not instance of type (expected List[ccuda.CUDA_LAUNCH_PARAMS]")
     cdef ccuda.CUDA_LAUNCH_PARAMS* claunchParamsList = NULL
     if len(launchParamsList) > 0:
         claunchParamsList = <ccuda.CUDA_LAUNCH_PARAMS*> calloc(len(launchParamsList), sizeof(ccuda.CUDA_LAUNCH_PARAMS))
@@ -19152,7 +21262,7 @@ def cuLaunchCooperativeKernelMultiDevice(launchParamsList : List[CUDA_LAUNCH_PAR
 
 @cython.embedsignature(True)
 def cuLaunchHostFunc(hStream not None : CUstream, fn not None : CUhostFn, userData):
-    """ Enqueues a host function call in a stream. 
+    """ Enqueues a host function call in a stream.
 
     Enqueues a host function to run in a stream. The function will be
     called after currently enqueued work and will block work added after
@@ -19168,7 +21278,7 @@ def cuLaunchHostFunc(hStream not None : CUstream, fn not None : CUhostFn, userDa
     For the purposes of Unified Memory, execution makes a number of
     guarantees:   The stream is considered idle for the duration of the
     function's execution. Thus, for example, the function may always use
-    memory attached to the stream it was enqueued in.  The start of
+    memory attached to the stream it was enqueued in.    The start of
     execution of the function has the same effect as synchronizing an event
     recorded in the same stream immediately prior to the function. It thus
     synchronizes streams which have been "joined" prior to the function.
@@ -19176,10 +21286,10 @@ def cuLaunchHostFunc(hStream not None : CUstream, fn not None : CUhostFn, userDa
     stream active until all preceding host functions and stream callbacks
     have executed. Thus, for example, a function might use global attached
     memory even if work has been added to another stream, if the work has
-    been ordered behind the function call with an event.  Completion of the
-    function does not cause a stream to become active except as described
-    above. The stream will remain idle if no device work follows the
-    function, and will remain idle across consecutive host functions or
+    been ordered behind the function call with an event.    Completion of
+    the function does not cause a stream to become active except as
+    described above. The stream will remain idle if no device work follows
+    the function, and will remain idle across consecutive host functions or
     stream callbacks without device work in between. Thus, for example,
     stream synchronization can be done by signaling from a host function at
     the end of the stream.
@@ -19226,7 +21336,7 @@ def cuLaunchHostFunc(hStream not None : CUstream, fn not None : CUhostFn, userDa
 
 @cython.embedsignature(True)
 def cuFuncSetBlockShape(hfunc not None : CUfunction, int x, int y, int z):
-    """ Sets the block-dimensions for the function. 
+    """ Sets the block-dimensions for the function.
 
     Deprecated
 
@@ -19275,7 +21385,7 @@ def cuFuncSetBlockShape(hfunc not None : CUfunction, int x, int y, int z):
 
 @cython.embedsignature(True)
 def cuFuncSetSharedSize(hfunc not None : CUfunction, unsigned int numbytes):
-    """ Sets the dynamic shared-memory size for the function. 
+    """ Sets the dynamic shared-memory size for the function.
 
     Deprecated
 
@@ -19321,7 +21431,7 @@ def cuFuncSetSharedSize(hfunc not None : CUfunction, unsigned int numbytes):
 
 @cython.embedsignature(True)
 def cuParamSetSize(hfunc not None : CUfunction, unsigned int numbytes):
-    """ Sets the parameter size for the function. 
+    """ Sets the parameter size for the function.
 
     Deprecated
 
@@ -19364,7 +21474,7 @@ def cuParamSetSize(hfunc not None : CUfunction, unsigned int numbytes):
 
 @cython.embedsignature(True)
 def cuParamSeti(hfunc not None : CUfunction, int offset, unsigned int value):
-    """ Adds an integer parameter to the function's argument list. 
+    """ Adds an integer parameter to the function's argument list.
 
     Deprecated
 
@@ -19410,7 +21520,7 @@ def cuParamSeti(hfunc not None : CUfunction, int offset, unsigned int value):
 
 @cython.embedsignature(True)
 def cuParamSetf(hfunc not None : CUfunction, int offset, float value):
-    """ Adds a floating-point parameter to the function's argument list. 
+    """ Adds a floating-point parameter to the function's argument list.
 
     Deprecated
 
@@ -19456,7 +21566,7 @@ def cuParamSetf(hfunc not None : CUfunction, int offset, float value):
 
 @cython.embedsignature(True)
 def cuParamSetv(hfunc not None : CUfunction, int offset, ptr, unsigned int numbytes):
-    """ Adds arbitrary data to the function's argument list. 
+    """ Adds arbitrary data to the function's argument list.
 
     Deprecated
 
@@ -19506,7 +21616,7 @@ def cuParamSetv(hfunc not None : CUfunction, int offset, ptr, unsigned int numby
 
 @cython.embedsignature(True)
 def cuLaunch(f not None : CUfunction):
-    """ Launches a CUDA function. 
+    """ Launches a CUDA function.
 
     Deprecated
 
@@ -19564,7 +21674,7 @@ def cuLaunch(f not None : CUfunction):
 
 @cython.embedsignature(True)
 def cuLaunchGrid(f not None : CUfunction, int grid_width, int grid_height):
-    """ Launches a CUDA function. 
+    """ Launches a CUDA function.
 
     Deprecated
 
@@ -19626,7 +21736,7 @@ def cuLaunchGrid(f not None : CUfunction, int grid_width, int grid_height):
 
 @cython.embedsignature(True)
 def cuLaunchGridAsync(f not None : CUfunction, int grid_width, int grid_height, hStream not None : CUstream):
-    """ Launches a CUDA function. 
+    """ Launches a CUDA function.
 
     Deprecated
 
@@ -19688,14 +21798,15 @@ def cuLaunchGridAsync(f not None : CUfunction, int grid_width, int grid_height, 
 
     Notes
     -----
-    In certain cases where cubins are created with no ABI (i.e., using `ptxas``None`abi-compile`no`), this function may serialize kernel launches. The CUDA driver retains asynchronous behavior by growing the per-thread stack as needed per launch and not shrinking it afterwards.
+    In certain cases where cubins are created with no ABI (i.e., using `ptxas` `None`abi-compile `no`), this function may serialize kernel launches. The CUDA driver retains asynchronous behavior by growing the per-thread stack as needed per launch and not shrinking it afterwards.
+
     """
     err = ccuda.cuLaunchGridAsync(f._ptr[0], grid_width, grid_height, hStream._ptr[0])
     return (CUresult(err),)
 
 @cython.embedsignature(True)
 def cuParamSetTexRef(hfunc not None : CUfunction, int texunit, hTexRef not None : CUtexref):
-    """ Adds a texture-reference to the function's argument list. 
+    """ Adds a texture-reference to the function's argument list.
 
     Deprecated
 
@@ -19720,7 +21831,7 @@ def cuParamSetTexRef(hfunc not None : CUfunction, int texunit, hTexRef not None 
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_CONTEXT
-        CUDA_ERROR_INVALID_VALUE 
+        CUDA_ERROR_INVALID_VALUE
     None
         None
     """
@@ -19729,7 +21840,7 @@ def cuParamSetTexRef(hfunc not None : CUfunction, int texunit, hTexRef not None 
 
 @cython.embedsignature(True)
 def cuGraphCreate(unsigned int flags):
-    """ Creates a graph. 
+    """ Creates a graph.
 
     Creates an empty graph, which is returned via `phGraph`.
 
@@ -19770,7 +21881,7 @@ def cuGraphCreate(unsigned int flags):
 
 @cython.embedsignature(True)
 def cuGraphAddKernelNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_KERNEL_NODE_PARAMS):
-    """ Creates a kernel execution node and adds it to a graph. 
+    """ Creates a kernel execution node and adds it to a graph.
 
     Creates a new kernel execution node and adds it to `hGraph` with
     `numDependencies` dependencies specified via `dependencies` and
@@ -19781,10 +21892,11 @@ def cuGraphAddKernelNode(hGraph not None : CUgraph, dependencies : List[CUgraphN
 
     The CUDA_KERNEL_NODE_PARAMS structure is defined as:
 
-    typedefstructCUDA_KERNEL_NODE_PARAMS_st{CUfunctionfunc;unsignedintgridD
-    imX;unsignedintgridDimY;unsignedintgridDimZ;unsignedintblockDimX;unsign
-    edintblockDimY;unsignedintblockDimZ;unsignedintsharedMemBytes;void**ker
-    nelParams;void**extra;}CUDA_KERNEL_NODE_PARAMS;
+    typedefstructCUDA_KERNEL_NODE_PARAMS_st{ CUfunctionfunc;
+    unsignedintgridDimX; unsignedintgridDimY; unsignedintgridDimZ;
+    unsignedintblockDimX; unsignedintblockDimY; unsignedintblockDimZ;
+    unsignedintsharedMemBytes; void**kernelParams; void**extra;
+    }CUDA_KERNEL_NODE_PARAMS;
 
     When the graph is launched, the node will invoke kernel `func` on a
     (`gridDimX` x `gridDimY` x `gridDimZ`) grid of blocks. Each block
@@ -19813,13 +21925,13 @@ def cuGraphAddKernelNode(hGraph not None : CUgraph, dependencies : List[CUgraphN
     immediately followed by the corresponding value. The list must be
     terminated with either NULL or CU_LAUNCH_PARAM_END.
 
-     CU_LAUNCH_PARAM_END, which indicates the end of the `extra`
-    array;CU_LAUNCH_PARAM_BUFFER_POINTER, which specifies that the next
-    value in `extra` will be a pointer to a buffer containing all the
-    kernel parameters for launching kernel
-    `func`;CU_LAUNCH_PARAM_BUFFER_SIZE, which specifies that the next value
-    in `extra` will be a pointer to a size_t containing the size of the
-    buffer specified with CU_LAUNCH_PARAM_BUFFER_POINTER;
+    CU_LAUNCH_PARAM_END, which indicates the end of the `extra` array;
+    CU_LAUNCH_PARAM_BUFFER_POINTER, which specifies that the next value in
+    `extra` will be a pointer to a buffer containing all the kernel
+    parameters for launching kernel `func`; CU_LAUNCH_PARAM_BUFFER_SIZE,
+    which specifies that the next value in `extra` will be a pointer to a
+    size_t containing the size of the buffer specified with
+    CU_LAUNCH_PARAM_BUFFER_POINTER;
 
     The error CUDA_ERROR_INVALID_VALUE will be returned if kernel
     parameters are specified with both `kernelParams` and `extra` (i.e.
@@ -19867,10 +21979,11 @@ def cuGraphAddKernelNode(hGraph not None : CUgraph, dependencies : List[CUgraphN
     Notes
     -----
     Kernels launched using graphs must not use texture and surface references. Reading or writing through any texture or surface reference is undefined behavior. This restriction does not apply to texture and surface objects.
+
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -19890,7 +22003,7 @@ def cuGraphAddKernelNode(hGraph not None : CUgraph, dependencies : List[CUgraphN
 
 @cython.embedsignature(True)
 def cuGraphKernelNodeGetParams(hNode not None : CUgraphNode):
-    """ Returns a kernel node's parameters. 
+    """ Returns a kernel node's parameters.
 
     Returns the parameters of kernel node `hNode` in `nodeParams`. The
     `kernelParams` or `extra` array returned in `nodeParams`, as well as
@@ -19929,7 +22042,7 @@ def cuGraphKernelNodeGetParams(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphKernelNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_KERNEL_NODE_PARAMS):
-    """ Sets a kernel node's parameters. 
+    """ Sets a kernel node's parameters.
 
     Sets the parameters of kernel node `hNode` to `nodeParams`.
 
@@ -19962,7 +22075,7 @@ def cuGraphKernelNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_K
 
 @cython.embedsignature(True)
 def cuGraphAddMemcpyNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, copyParams : CUDA_MEMCPY3D, ctx not None : CUcontext):
-    """ Creates a memcpy node and adds it to a graph. 
+    """ Creates a memcpy node and adds it to a graph.
 
     Creates a new memcpy node and adds it to `hGraph` with
     `numDependencies` dependencies specified via `dependencies`. It is
@@ -20022,7 +22135,7 @@ def cuGraphAddMemcpyNode(hGraph not None : CUgraph, dependencies : List[CUgraphN
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -20042,7 +22155,7 @@ def cuGraphAddMemcpyNode(hGraph not None : CUgraph, dependencies : List[CUgraphN
 
 @cython.embedsignature(True)
 def cuGraphMemcpyNodeGetParams(hNode not None : CUgraphNode):
-    """ Returns a memcpy node's parameters. 
+    """ Returns a memcpy node's parameters.
 
     Returns the parameters of memcpy node `hNode` in `nodeParams`.
 
@@ -20073,7 +22186,7 @@ def cuGraphMemcpyNodeGetParams(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphMemcpyNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_MEMCPY3D):
-    """ Sets a memcpy node's parameters. 
+    """ Sets a memcpy node's parameters.
 
     Sets the parameters of memcpy node `hNode` to `nodeParams`.
 
@@ -20090,7 +22203,7 @@ def cuGraphMemcpyNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_M
         CUDA_SUCCESS
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -20106,7 +22219,7 @@ def cuGraphMemcpyNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_M
 
 @cython.embedsignature(True)
 def cuGraphAddMemsetNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, memsetParams : CUDA_MEMSET_NODE_PARAMS, ctx not None : CUcontext):
-    """ Creates a memset node and adds it to a graph. 
+    """ Creates a memset node and adds it to a graph.
 
     Creates a new memset node and adds it to `hGraph` with
     `numDependencies` dependencies specified via `dependencies`. It is
@@ -20157,7 +22270,7 @@ def cuGraphAddMemsetNode(hGraph not None : CUgraph, dependencies : List[CUgraphN
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -20177,7 +22290,7 @@ def cuGraphAddMemsetNode(hGraph not None : CUgraph, dependencies : List[CUgraphN
 
 @cython.embedsignature(True)
 def cuGraphMemsetNodeGetParams(hNode not None : CUgraphNode):
-    """ Returns a memset node's parameters. 
+    """ Returns a memset node's parameters.
 
     Returns the parameters of memset node `hNode` in `nodeParams`.
 
@@ -20208,7 +22321,7 @@ def cuGraphMemsetNodeGetParams(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphMemsetNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_MEMSET_NODE_PARAMS):
-    """ Sets a memset node's parameters. 
+    """ Sets a memset node's parameters.
 
     Sets the parameters of memset node `hNode` to `nodeParams`.
 
@@ -20241,7 +22354,7 @@ def cuGraphMemsetNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_M
 
 @cython.embedsignature(True)
 def cuGraphAddHostNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_HOST_NODE_PARAMS):
-    """ Creates a host execution node and adds it to a graph. 
+    """ Creates a host execution node and adds it to a graph.
 
     Creates a new CPU execution node and adds it to `hGraph` with
     `numDependencies` dependencies specified via `dependencies` and
@@ -20290,7 +22403,7 @@ def cuGraphAddHostNode(hGraph not None : CUgraph, dependencies : List[CUgraphNod
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -20310,7 +22423,7 @@ def cuGraphAddHostNode(hGraph not None : CUgraph, dependencies : List[CUgraphNod
 
 @cython.embedsignature(True)
 def cuGraphHostNodeGetParams(hNode not None : CUgraphNode):
-    """ Returns a host node's parameters. 
+    """ Returns a host node's parameters.
 
     Returns the parameters of host node `hNode` in `nodeParams`.
 
@@ -20341,7 +22454,7 @@ def cuGraphHostNodeGetParams(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphHostNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_HOST_NODE_PARAMS):
-    """ Sets a host node's parameters. 
+    """ Sets a host node's parameters.
 
     Sets the parameters of host node `hNode` to `nodeParams`.
 
@@ -20374,7 +22487,7 @@ def cuGraphHostNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_HOS
 
 @cython.embedsignature(True)
 def cuGraphAddChildGraphNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, childGraph not None : CUgraph):
-    """ Creates a child graph node and adds it to a graph. 
+    """ Creates a child graph node and adds it to a graph.
 
     Creates a new node which executes an embedded graph, and adds it to
     `hGraph` with `numDependencies` dependencies specified via
@@ -20406,7 +22519,7 @@ def cuGraphAddChildGraphNode(hGraph not None : CUgraph, dependencies : List[CUgr
         CUDA_SUCCESS
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     phGraphNode : CUgraphNode
         Returns newly created node
 
@@ -20424,7 +22537,7 @@ def cuGraphAddChildGraphNode(hGraph not None : CUgraph, dependencies : List[CUgr
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -20443,7 +22556,7 @@ def cuGraphAddChildGraphNode(hGraph not None : CUgraph, dependencies : List[CUgr
 
 @cython.embedsignature(True)
 def cuGraphChildGraphNodeGetGraph(hNode not None : CUgraphNode):
-    """ Gets a handle to the embedded graph of a child graph node. 
+    """ Gets a handle to the embedded graph of a child graph node.
 
     Gets a handle to the embedded graph in a child graph node. This call
     does not clone the graph. Changes to the graph will be reflected in the
@@ -20463,7 +22576,7 @@ def cuGraphChildGraphNodeGetGraph(hNode not None : CUgraphNode):
         CUDA_SUCCESS
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     phGraph : CUgraph
         Location to store a handle to the graph
 
@@ -20478,7 +22591,7 @@ def cuGraphChildGraphNodeGetGraph(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphAddEmptyNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies):
-    """ Creates an empty node and adds it to a graph. 
+    """ Creates an empty node and adds it to a graph.
 
     Creates a new node which performs no operation, and adds it to `hGraph`
     with `numDependencies` dependencies specified via `dependencies`. It is
@@ -20508,7 +22621,7 @@ def cuGraphAddEmptyNode(hGraph not None : CUgraph, dependencies : List[CUgraphNo
         CUDA_SUCCESS
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     phGraphNode : CUgraphNode
         Returns newly created node
 
@@ -20524,7 +22637,7 @@ def cuGraphAddEmptyNode(hGraph not None : CUgraph, dependencies : List[CUgraphNo
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -20543,7 +22656,7 @@ def cuGraphAddEmptyNode(hGraph not None : CUgraph, dependencies : List[CUgraphNo
 
 @cython.embedsignature(True)
 def cuGraphAddEventRecordNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, event not None : CUevent):
-    """ Creates an event record node and adds it to a graph. 
+    """ Creates an event record node and adds it to a graph.
 
     Creates a new event record node and adds it to `hGraph` with
     `numDependencies` dependencies specified via `dependencies` and event
@@ -20592,7 +22705,7 @@ def cuGraphAddEventRecordNode(hGraph not None : CUgraph, dependencies : List[CUg
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -20611,7 +22724,7 @@ def cuGraphAddEventRecordNode(hGraph not None : CUgraph, dependencies : List[CUg
 
 @cython.embedsignature(True)
 def cuGraphEventRecordNodeGetEvent(hNode not None : CUgraphNode):
-    """ Returns the event associated with an event record node. 
+    """ Returns the event associated with an event record node.
 
     Returns the event of event record node `hNode` in `event_out`.
 
@@ -20644,7 +22757,7 @@ def cuGraphEventRecordNodeGetEvent(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphEventRecordNodeSetEvent(hNode not None : CUgraphNode, event not None : CUevent):
-    """ Sets an event record node's event. 
+    """ Sets an event record node's event.
 
     Sets the event of event record node `hNode` to `event`.
 
@@ -20678,7 +22791,7 @@ def cuGraphEventRecordNodeSetEvent(hNode not None : CUgraphNode, event not None 
 
 @cython.embedsignature(True)
 def cuGraphAddEventWaitNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, event not None : CUevent):
-    """ Creates an event wait node and adds it to a graph. 
+    """ Creates an event wait node and adds it to a graph.
 
     Creates a new event wait node and adds it to `hGraph` with
     `numDependencies` dependencies specified via `dependencies` and event
@@ -20728,7 +22841,7 @@ def cuGraphAddEventWaitNode(hGraph not None : CUgraph, dependencies : List[CUgra
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -20747,7 +22860,7 @@ def cuGraphAddEventWaitNode(hGraph not None : CUgraph, dependencies : List[CUgra
 
 @cython.embedsignature(True)
 def cuGraphEventWaitNodeGetEvent(hNode not None : CUgraphNode):
-    """ Returns the event associated with an event wait node. 
+    """ Returns the event associated with an event wait node.
 
     Returns the event of event wait node `hNode` in `event_out`.
 
@@ -20780,7 +22893,7 @@ def cuGraphEventWaitNodeGetEvent(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphEventWaitNodeSetEvent(hNode not None : CUgraphNode, event not None : CUevent):
-    """ Sets an event wait node's event. 
+    """ Sets an event wait node's event.
 
     Sets the event of event wait node `hNode` to `event`.
 
@@ -20814,7 +22927,7 @@ def cuGraphEventWaitNodeSetEvent(hNode not None : CUgraphNode, event not None : 
 
 @cython.embedsignature(True)
 def cuGraphAddExternalSemaphoresSignalNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_EXT_SEM_SIGNAL_NODE_PARAMS):
-    """ Creates an external semaphore signal node and adds it to a graph. 
+    """ Creates an external semaphore signal node and adds it to a graph.
 
     Creates a new external semaphore signal node and adds it to `hGraph`
     with `numDependencies` dependencies specified via `dependencies` and
@@ -20870,7 +22983,7 @@ def cuGraphAddExternalSemaphoresSignalNode(hGraph not None : CUgraph, dependenci
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -20890,7 +23003,7 @@ def cuGraphAddExternalSemaphoresSignalNode(hGraph not None : CUgraph, dependenci
 
 @cython.embedsignature(True)
 def cuGraphExternalSemaphoresSignalNodeGetParams(hNode not None : CUgraphNode):
-    """ Returns an external semaphore signal node's parameters. 
+    """ Returns an external semaphore signal node's parameters.
 
     Returns the parameters of an external semaphore signal node `hNode` in
     `params_out`. The `extSemArray` and `paramsArray` returned in
@@ -20929,7 +23042,7 @@ def cuGraphExternalSemaphoresSignalNodeGetParams(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphExternalSemaphoresSignalNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_EXT_SEM_SIGNAL_NODE_PARAMS):
-    """ Sets an external semaphore signal node's parameters. 
+    """ Sets an external semaphore signal node's parameters.
 
     Sets the parameters of an external semaphore signal node `hNode` to
     `nodeParams`.
@@ -20965,7 +23078,7 @@ def cuGraphExternalSemaphoresSignalNodeSetParams(hNode not None : CUgraphNode, n
 
 @cython.embedsignature(True)
 def cuGraphAddExternalSemaphoresWaitNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_EXT_SEM_WAIT_NODE_PARAMS):
-    """ Creates an external semaphore wait node and adds it to a graph. 
+    """ Creates an external semaphore wait node and adds it to a graph.
 
     Creates a new external semaphore wait node and adds it to `hGraph` with
     `numDependencies` dependencies specified via `dependencies` and
@@ -21021,7 +23134,7 @@ def cuGraphAddExternalSemaphoresWaitNode(hGraph not None : CUgraph, dependencies
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -21041,7 +23154,7 @@ def cuGraphAddExternalSemaphoresWaitNode(hGraph not None : CUgraph, dependencies
 
 @cython.embedsignature(True)
 def cuGraphExternalSemaphoresWaitNodeGetParams(hNode not None : CUgraphNode):
-    """ Returns an external semaphore wait node's parameters. 
+    """ Returns an external semaphore wait node's parameters.
 
     Returns the parameters of an external semaphore wait node `hNode` in
     `params_out`. The `extSemArray` and `paramsArray` returned in
@@ -21070,7 +23183,6 @@ def cuGraphExternalSemaphoresWaitNodeGetParams(hNode not None : CUgraphNode):
     cuLaunchKernel
     cuGraphAddExternalSemaphoresWaitNode
     cuGraphExternalSemaphoresWaitNodeSetParams
-    cuGraphAddExternalSemaphoresWaitNode
     cuSignalExternalSemaphoresAsync
     cuWaitExternalSemaphoresAsync
     """
@@ -21080,7 +23192,7 @@ def cuGraphExternalSemaphoresWaitNodeGetParams(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphExternalSemaphoresWaitNodeSetParams(hNode not None : CUgraphNode, nodeParams : CUDA_EXT_SEM_WAIT_NODE_PARAMS):
-    """ Sets an external semaphore wait node's parameters. 
+    """ Sets an external semaphore wait node's parameters.
 
     Sets the parameters of an external semaphore wait node `hNode` to
     `nodeParams`.
@@ -21106,7 +23218,6 @@ def cuGraphExternalSemaphoresWaitNodeSetParams(hNode not None : CUgraphNode, nod
     --------
     cuGraphAddExternalSemaphoresWaitNode
     cuGraphExternalSemaphoresWaitNodeSetParams
-    cuGraphAddExternalSemaphoresWaitNode
     cuSignalExternalSemaphoresAsync
     cuWaitExternalSemaphoresAsync
     """
@@ -21116,7 +23227,7 @@ def cuGraphExternalSemaphoresWaitNodeSetParams(hNode not None : CUgraphNode, nod
 
 @cython.embedsignature(True)
 def cuGraphAddMemAllocNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_MEM_ALLOC_NODE_PARAMS):
-    """ Creates an allocation node and adds it to a graph. 
+    """ Creates an allocation node and adds it to a graph.
 
     Creates a new allocation node and adds it to `hGraph` with
     `numDependencies` dependencies specified via `dependencies` and
@@ -21125,14 +23236,20 @@ def cuGraphAddMemAllocNode(hGraph not None : CUgraph, dependencies : List[CUgrap
     root of the graph. `dependencies` may not have any duplicate entries. A
     handle to the new node will be returned in `phGraphNode`.
 
+    If the allocation is freed in the same graph, by creating a free node
+    using cuGraphAddMemFreeNode, the allocation can be accessed by nodes
+    ordered after the allocation node but before the free node. These
+    allocations cannot be freed outside the owning graph, and they can only
+    be freed once in the owning graph.
+
     If the allocation is not freed in the same graph, then it can be
     accessed not only by nodes in the graph which are ordered after the
     allocation node, but also by stream operations ordered after the
     graph's execution but before the allocation is freed.
 
     Allocations which are not freed in the same graph can be freed by:
-    passing the allocation to cuMemFreeAsync or cuMemFree;launching a graph
-    with a free node for that allocation; orspecifying
+    passing the allocation to cuMemFreeAsync or cuMemFree; launching a
+    graph with a free node for that allocation; or specifying
     CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH during instantiation,
     which makes each launch behave as though it called cuMemFreeAsync for
     every unfreed allocation.
@@ -21144,8 +23261,9 @@ def cuGraphAddMemAllocNode(hGraph not None : CUgraph, dependencies : List[CUgrap
 
     The following restrictions apply to graphs which contain allocation
     and/or memory free nodes: Nodes and edges of the graph cannot be
-    deleted.The graph cannot be used in a child node.Only one instantiation
-    of the graph may exist at any point in time.The graph cannot be cloned.
+    deleted. The graph cannot be used in a child node. Only one
+    instantiation of the graph may exist at any point in time. The graph
+    cannot be cloned.
 
     Parameters
     ----------
@@ -21192,7 +23310,7 @@ def cuGraphAddMemAllocNode(hGraph not None : CUgraph, dependencies : List[CUgrap
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -21212,7 +23330,7 @@ def cuGraphAddMemAllocNode(hGraph not None : CUgraph, dependencies : List[CUgrap
 
 @cython.embedsignature(True)
 def cuGraphMemAllocNodeGetParams(hNode not None : CUgraphNode):
-    """ Returns a memory alloc node's parameters. 
+    """ Returns a memory alloc node's parameters.
 
     Returns the parameters of a memory alloc node `hNode` in `params_out`.
     The `poolProps` and `accessDescs` returned in `params_out`, are owned
@@ -21245,7 +23363,7 @@ def cuGraphMemAllocNodeGetParams(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphAddMemFreeNode(hGraph not None : CUgraph, dependencies : List[CUgraphNode], size_t numDependencies, dptr not None : CUdeviceptr):
-    """ Creates a memory free node and adds it to a graph. 
+    """ Creates a memory free node and adds it to a graph.
 
     Creates a new memory free node and adds it to `hGraph` with
     `numDependencies` dependencies specified via `dependencies` and
@@ -21256,8 +23374,9 @@ def cuGraphAddMemFreeNode(hGraph not None : CUgraph, dependencies : List[CUgraph
 
     The following restrictions apply to graphs which contain allocation
     and/or memory free nodes: Nodes and edges of the graph cannot be
-    deleted.The graph cannot be used in a child node.Only one instantiation
-    of the graph may exist at any point in time.The graph cannot be cloned.
+    deleted. The graph cannot be used in a child node. Only one
+    instantiation of the graph may exist at any point in time. The graph
+    cannot be cloned.
 
     Parameters
     ----------
@@ -21304,7 +23423,7 @@ def cuGraphAddMemFreeNode(hGraph not None : CUgraph, dependencies : List[CUgraph
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef CUgraphNode phGraphNode = CUgraphNode()
     cdef ccuda.CUgraphNode* cdependencies = NULL
     if len(dependencies) > 0:
@@ -21323,7 +23442,7 @@ def cuGraphAddMemFreeNode(hGraph not None : CUgraph, dependencies : List[CUgraph
 
 @cython.embedsignature(True)
 def cuGraphMemFreeNodeGetParams(hNode not None : CUgraphNode):
-    """ Returns a memory free node's parameters. 
+    """ Returns a memory free node's parameters.
 
     Returns the address of a memory free node `hNode` in `dptr_out`.
 
@@ -21353,7 +23472,7 @@ def cuGraphMemFreeNodeGetParams(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuDeviceGraphMemTrim(device not None : CUdevice):
-    """ Free unused memory that was cached on the specified device for use with graphs back to the OS. 
+    """ Free unused memory that was cached on the specified device for use with graphs back to the OS.
 
     Blocks which are not in use by a graph that is either currently
     executing or scheduled to execute are freed back to the operating
@@ -21376,25 +23495,27 @@ def cuDeviceGraphMemTrim(device not None : CUdevice):
     --------
     cuGraphAddMemAllocNode
     cuGraphAddMemFreeNode
+    cuDeviceSetGraphMemAttribute
+    cuDeviceGetGraphMemAttribute
     """
     err = ccuda.cuDeviceGraphMemTrim(device._ptr[0])
     return (CUresult(err),)
 
 @cython.embedsignature(True)
 def cuDeviceGetGraphMemAttribute(device not None : CUdevice, attr not None : CUgraphMem_attribute):
-    """ Query asynchronous allocation attributes related to graphs. 
+    """ Query asynchronous allocation attributes related to graphs.
 
     Valid attributes are:
 
-     CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT: Amount of memory, in bytes,
-    currently associated with graphsCU_GRAPH_MEM_ATTR_USED_MEM_HIGH: High
+    CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT: Amount of memory, in bytes,
+    currently associated with graphs CU_GRAPH_MEM_ATTR_USED_MEM_HIGH: High
     watermark of memory, in bytes, associated with graphs since the last
-    time it was reset. High watermark can only be reset to
-    zero.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT: Amount of memory, in
+    time it was reset. High watermark can only be reset to zero.
+    CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT: Amount of memory, in bytes,
+    currently allocated for use by the CUDA graphs asynchronous allocator.
+    CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH: High watermark of memory, in
     bytes, currently allocated for use by the CUDA graphs asynchronous
-    allocator.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH: High watermark of
-    memory, in bytes, currently allocated for use by the CUDA graphs
-    asynchronous allocator.
+    allocator.
 
     Parameters
     ----------
@@ -21413,6 +23534,7 @@ def cuDeviceGetGraphMemAttribute(device not None : CUdevice, attr not None : CUg
 
     See Also
     --------
+    cuDeviceSetGraphMemAttribute
     cuGraphAddMemAllocNode
     cuGraphAddMemFreeNode
     """
@@ -21424,13 +23546,13 @@ def cuDeviceGetGraphMemAttribute(device not None : CUdevice, attr not None : CUg
 
 @cython.embedsignature(True)
 def cuDeviceSetGraphMemAttribute(device not None : CUdevice, attr not None : CUgraphMem_attribute, value):
-    """ Set asynchronous allocation attributes related to graphs. 
+    """ Set asynchronous allocation attributes related to graphs.
 
     Valid attributes are:
 
-     CU_GRAPH_MEM_ATTR_USED_MEM_HIGH: High watermark of memory, in bytes,
+    CU_GRAPH_MEM_ATTR_USED_MEM_HIGH: High watermark of memory, in bytes,
     associated with graphs since the last time it was reset. High watermark
-    can only be reset to zero.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH: High
+    can only be reset to zero. CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH: High
     watermark of memory, in bytes, currently allocated for use by the CUDA
     graphs asynchronous allocator.
 
@@ -21453,6 +23575,7 @@ def cuDeviceSetGraphMemAttribute(device not None : CUdevice, attr not None : CUg
 
     See Also
     --------
+    cuDeviceGetGraphMemAttribute
     cuGraphAddMemAllocNode
     cuGraphAddMemFreeNode
     """
@@ -21464,7 +23587,7 @@ def cuDeviceSetGraphMemAttribute(device not None : CUdevice, attr not None : CUg
 
 @cython.embedsignature(True)
 def cuGraphClone(originalGraph not None : CUgraph):
-    """ Clones a graph. 
+    """ Clones a graph.
 
     This function creates a copy of `originalGraph` and returns it in
     `phGraphClone`. All parameters are copied into the cloned graph. The
@@ -21499,7 +23622,7 @@ def cuGraphClone(originalGraph not None : CUgraph):
 
 @cython.embedsignature(True)
 def cuGraphNodeFindInClone(hOriginalNode not None : CUgraphNode, hClonedGraph not None : CUgraph):
-    """ Finds a cloned version of a node. 
+    """ Finds a cloned version of a node.
 
     This function returns the node in `hClonedGraph` corresponding to
     `hOriginalNode` in the original graph.
@@ -21521,7 +23644,7 @@ def cuGraphNodeFindInClone(hOriginalNode not None : CUgraphNode, hClonedGraph no
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     phNode : CUgraphNode
         Returns handle to the cloned node
 
@@ -21535,7 +23658,7 @@ def cuGraphNodeFindInClone(hOriginalNode not None : CUgraphNode, hClonedGraph no
 
 @cython.embedsignature(True)
 def cuGraphNodeGetType(hNode not None : CUgraphNode):
-    """ Returns a node's type. 
+    """ Returns a node's type.
 
     Returns the node type of `hNode` in `typename`.
 
@@ -21574,7 +23697,7 @@ def cuGraphNodeGetType(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphGetNodes(hGraph not None : CUgraph, size_t numNodes = 0):
-    """ Returns a graph's nodes. 
+    """ Returns a graph's nodes.
 
     Returns a list of `hGraph's` nodes. `nodes` may be NULL, in which case
     this function will return the number of nodes in `numNodes`. Otherwise,
@@ -21597,7 +23720,7 @@ def cuGraphGetNodes(hGraph not None : CUgraph, size_t numNodes = 0):
         CUDA_ERROR_INVALID_VALUE
     nodes : List[CUgraphNode]
         Pointer to return the nodes
-    numNodes : Int
+    numNodes : int
         See description
 
     See Also
@@ -21625,7 +23748,7 @@ def cuGraphGetNodes(hGraph not None : CUgraph, size_t numNodes = 0):
 
 @cython.embedsignature(True)
 def cuGraphGetRootNodes(hGraph not None : CUgraph, size_t numRootNodes = 0):
-    """ Returns a graph's root nodes. 
+    """ Returns a graph's root nodes.
 
     Returns a list of `hGraph's` root nodes. `rootNodes` may be NULL, in
     which case this function will return the number of root nodes in
@@ -21648,7 +23771,7 @@ def cuGraphGetRootNodes(hGraph not None : CUgraph, size_t numRootNodes = 0):
         CUDA_ERROR_INVALID_VALUE
     rootNodes : List[CUgraphNode]
         Pointer to return the root nodes
-    numRootNodes : Int
+    numRootNodes : int
         See description
 
     See Also
@@ -21676,7 +23799,7 @@ def cuGraphGetRootNodes(hGraph not None : CUgraph, size_t numRootNodes = 0):
 
 @cython.embedsignature(True)
 def cuGraphGetEdges(hGraph not None : CUgraph, size_t numEdges = 0):
-    """ Returns a graph's dependency edges. 
+    """ Returns a graph's dependency edges.
 
     Returns a list of `hGraph's` dependency edges. Edges are returned via
     corresponding indices in `from` and `to`; that is, the node in `to`[i]
@@ -21703,7 +23826,7 @@ def cuGraphGetEdges(hGraph not None : CUgraph, size_t numEdges = 0):
         Location to return edge endpoints
     to : List[CUgraphNode]
         Location to return edge endpoints
-    numEdges : Int
+    numEdges : int
         See description
 
     See Also
@@ -21741,7 +23864,7 @@ def cuGraphGetEdges(hGraph not None : CUgraph, size_t numEdges = 0):
 
 @cython.embedsignature(True)
 def cuGraphNodeGetDependencies(hNode not None : CUgraphNode, size_t numDependencies = 0):
-    """ Returns a node's dependencies. 
+    """ Returns a node's dependencies.
 
     Returns a list of `node's` dependencies. `dependencies` may be NULL, in
     which case this function will return the number of dependencies in
@@ -21765,7 +23888,7 @@ def cuGraphNodeGetDependencies(hNode not None : CUgraphNode, size_t numDependenc
         CUDA_ERROR_INVALID_VALUE
     dependencies : List[CUgraphNode]
         Pointer to return the dependencies
-    numDependencies : Int
+    numDependencies : int
         See description
 
     See Also
@@ -21793,7 +23916,7 @@ def cuGraphNodeGetDependencies(hNode not None : CUgraphNode, size_t numDependenc
 
 @cython.embedsignature(True)
 def cuGraphNodeGetDependentNodes(hNode not None : CUgraphNode, size_t numDependentNodes = 0):
-    """ Returns a node's dependent nodes. 
+    """ Returns a node's dependent nodes.
 
     Returns a list of `node's` dependent nodes. `dependentNodes` may be
     NULL, in which case this function will return the number of dependent
@@ -21817,7 +23940,7 @@ def cuGraphNodeGetDependentNodes(hNode not None : CUgraphNode, size_t numDepende
         CUDA_ERROR_INVALID_VALUE
     dependentNodes : List[CUgraphNode]
         Pointer to return the dependent nodes
-    numDependentNodes : Int
+    numDependentNodes : int
         See description
 
     See Also
@@ -21845,7 +23968,7 @@ def cuGraphNodeGetDependentNodes(hNode not None : CUgraphNode, size_t numDepende
 
 @cython.embedsignature(True)
 def cuGraphAddDependencies(hGraph not None : CUgraph, from_ : List[CUgraphNode], to : List[CUgraphNode], size_t numDependencies):
-    """ Adds dependency edges to a graph. 
+    """ Adds dependency edges to a graph.
 
     The number of dependencies to be added is defined by `numDependencies`
     Elements in `from` and `to` at corresponding indices define a
@@ -21882,10 +24005,10 @@ def cuGraphAddDependencies(hGraph not None : CUgraph, from_ : List[CUgraphNode],
     """
     to = [] if to is None else to
     if not all(isinstance(_x, (CUgraphNode)) for _x in to):
-        raise TypeError("Argument 'to' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'to' is not instance of type (expected List[ccuda.CUgraphNode]")
     from_ = [] if from_ is None else from_
     if not all(isinstance(_x, (CUgraphNode)) for _x in from_):
-        raise TypeError("Argument 'from_' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'from_' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef ccuda.CUgraphNode* cfrom_ = NULL
     if len(from_) > 0:
         cfrom_ = <ccuda.CUgraphNode*> calloc(len(from_), sizeof(ccuda.CUgraphNode))
@@ -21913,7 +24036,7 @@ def cuGraphAddDependencies(hGraph not None : CUgraph, from_ : List[CUgraphNode],
 
 @cython.embedsignature(True)
 def cuGraphRemoveDependencies(hGraph not None : CUgraph, from_ : List[CUgraphNode], to : List[CUgraphNode], size_t numDependencies):
-    """ Removes dependency edges from a graph. 
+    """ Removes dependency edges from a graph.
 
     The number of `dependencies` to be removed is defined by
     `numDependencies`. Elements in `from` and `to` at corresponding indices
@@ -21954,10 +24077,10 @@ def cuGraphRemoveDependencies(hGraph not None : CUgraph, from_ : List[CUgraphNod
     """
     to = [] if to is None else to
     if not all(isinstance(_x, (CUgraphNode)) for _x in to):
-        raise TypeError("Argument 'to' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'to' is not instance of type (expected List[ccuda.CUgraphNode]")
     from_ = [] if from_ is None else from_
     if not all(isinstance(_x, (CUgraphNode)) for _x in from_):
-        raise TypeError("Argument 'from_' is not instance of type (expected List[cuda.ccuda.CUgraphNode]")
+        raise TypeError("Argument 'from_' is not instance of type (expected List[ccuda.CUgraphNode]")
     cdef ccuda.CUgraphNode* cfrom_ = NULL
     if len(from_) > 0:
         cfrom_ = <ccuda.CUgraphNode*> calloc(len(from_), sizeof(ccuda.CUgraphNode))
@@ -21985,7 +24108,7 @@ def cuGraphRemoveDependencies(hGraph not None : CUgraph, from_ : List[CUgraphNod
 
 @cython.embedsignature(True)
 def cuGraphDestroyNode(hNode not None : CUgraphNode):
-    """ Remove a node from the graph. 
+    """ Remove a node from the graph.
 
     Removes `hNode` from its graph. This operation also severs any
     dependencies of other nodes on `hNode` and vice versa.
@@ -22020,7 +24143,7 @@ def cuGraphDestroyNode(hNode not None : CUgraphNode):
 
 @cython.embedsignature(True)
 def cuGraphInstantiate(hGraph not None : CUgraph, char* logBuffer, size_t bufferSize):
-    """ Creates an executable graph from a graph. 
+    """ Creates an executable graph from a graph.
 
     Instantiates `hGraph` as an executable graph. The graph is validated
     for any structural constraints or intra-node constraints which were not
@@ -22037,7 +24160,7 @@ def cuGraphInstantiate(hGraph not None : CUgraph, char* logBuffer, size_t buffer
     ----------
     hGraph : CUgraph
         Graph to instantiate
-    logBuffer : char*
+    logBuffer : bytes
         A character buffer to store diagnostic messages
     bufferSize : size_t
         Size of the log buffer in bytes
@@ -22070,7 +24193,7 @@ def cuGraphInstantiate(hGraph not None : CUgraph, char* logBuffer, size_t buffer
 
 @cython.embedsignature(True)
 def cuGraphInstantiateWithFlags(hGraph not None : CUgraph, unsigned long long flags):
-    """ Creates an executable graph from a graph. 
+    """ Creates an executable graph from a graph.
 
     Instantiates `hGraph` as an executable graph. The graph is validated
     for any structural constraints or intra-node constraints which were not
@@ -22080,7 +24203,7 @@ def cuGraphInstantiateWithFlags(hGraph not None : CUgraph, unsigned long long fl
     The `flags` parameter controls the behavior of instantiation and
     subsequent graph launches. Valid flags are:
 
-     CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH, which configures a
+    CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH, which configures a
     graph containing memory allocation nodes to automatically free any
     unfreed memory allocations before the graph is relaunched.
 
@@ -22121,7 +24244,7 @@ def cuGraphInstantiateWithFlags(hGraph not None : CUgraph, unsigned long long fl
 
 @cython.embedsignature(True)
 def cuGraphExecKernelNodeSetParams(hGraphExec not None : CUgraphExec, hNode not None : CUgraphNode, nodeParams : CUDA_KERNEL_NODE_PARAMS):
-    """ Sets the parameters for a kernel node in the given graphExec. 
+    """ Sets the parameters for a kernel node in the given graphExec.
 
     Sets the parameters of a kernel node in an executable graph
     `hGraphExec`. The node is identified by the corresponding node `hNode`
@@ -22149,7 +24272,7 @@ def cuGraphExecKernelNodeSetParams(hGraphExec not None : CUgraphExec, hNode not 
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -22174,7 +24297,7 @@ def cuGraphExecKernelNodeSetParams(hGraphExec not None : CUgraphExec, hNode not 
 
 @cython.embedsignature(True)
 def cuGraphExecMemcpyNodeSetParams(hGraphExec not None : CUgraphExec, hNode not None : CUgraphNode, copyParams : CUDA_MEMCPY3D, ctx not None : CUcontext):
-    """ Sets the parameters for a memcpy node in the given graphExec. 
+    """ Sets the parameters for a memcpy node in the given graphExec.
 
     Updates the work represented by `hNode` in `hGraphExec` as though
     `hNode` had contained `copyParams` at instantiation. hNode must remain
@@ -22210,7 +24333,7 @@ def cuGraphExecMemcpyNodeSetParams(hGraphExec not None : CUgraphExec, hNode not 
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -22235,7 +24358,7 @@ def cuGraphExecMemcpyNodeSetParams(hGraphExec not None : CUgraphExec, hNode not 
 
 @cython.embedsignature(True)
 def cuGraphExecMemsetNodeSetParams(hGraphExec not None : CUgraphExec, hNode not None : CUgraphNode, memsetParams : CUDA_MEMSET_NODE_PARAMS, ctx not None : CUcontext):
-    """ Sets the parameters for a memset node in the given graphExec. 
+    """ Sets the parameters for a memset node in the given graphExec.
 
     Updates the work represented by `hNode` in `hGraphExec` as though
     `hNode` had contained `memsetParams` at instantiation. hNode must
@@ -22271,7 +24394,7 @@ def cuGraphExecMemsetNodeSetParams(hGraphExec not None : CUgraphExec, hNode not 
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -22296,7 +24419,7 @@ def cuGraphExecMemsetNodeSetParams(hGraphExec not None : CUgraphExec, hNode not 
 
 @cython.embedsignature(True)
 def cuGraphExecHostNodeSetParams(hGraphExec not None : CUgraphExec, hNode not None : CUgraphNode, nodeParams : CUDA_HOST_NODE_PARAMS):
-    """ Sets the parameters for a host node in the given graphExec. 
+    """ Sets the parameters for a host node in the given graphExec.
 
     Updates the work represented by `hNode` in `hGraphExec` as though
     `hNode` had contained `nodeParams` at instantiation. hNode must remain
@@ -22320,7 +24443,7 @@ def cuGraphExecHostNodeSetParams(hGraphExec not None : CUgraphExec, hNode not No
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -22345,7 +24468,7 @@ def cuGraphExecHostNodeSetParams(hGraphExec not None : CUgraphExec, hNode not No
 
 @cython.embedsignature(True)
 def cuGraphExecChildGraphNodeSetParams(hGraphExec not None : CUgraphExec, hNode not None : CUgraphNode, childGraph not None : CUgraph):
-    """ Updates node parameters in the child graph node in the given graphExec. 
+    """ Updates node parameters in the child graph node in the given graphExec.
 
     Updates the work represented by `hNode` in `hGraphExec` as though the
     nodes contained in `hNode's` graph had the parameters contained in
@@ -22376,7 +24499,7 @@ def cuGraphExecChildGraphNodeSetParams(hGraphExec not None : CUgraphExec, hNode 
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -22400,7 +24523,7 @@ def cuGraphExecChildGraphNodeSetParams(hGraphExec not None : CUgraphExec, hNode 
 
 @cython.embedsignature(True)
 def cuGraphExecEventRecordNodeSetEvent(hGraphExec not None : CUgraphExec, hNode not None : CUgraphNode, event not None : CUevent):
-    """ Sets the event for an event record node in the given graphExec. 
+    """ Sets the event for an event record node in the given graphExec.
 
     Sets the event of an event record node in an executable graph
     `hGraphExec`. The node is identified by the corresponding node `hNode`
@@ -22425,7 +24548,7 @@ def cuGraphExecEventRecordNodeSetEvent(hGraphExec not None : CUgraphExec, hNode 
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -22452,7 +24575,7 @@ def cuGraphExecEventRecordNodeSetEvent(hGraphExec not None : CUgraphExec, hNode 
 
 @cython.embedsignature(True)
 def cuGraphExecEventWaitNodeSetEvent(hGraphExec not None : CUgraphExec, hNode not None : CUgraphNode, event not None : CUevent):
-    """ Sets the event for an event wait node in the given graphExec. 
+    """ Sets the event for an event wait node in the given graphExec.
 
     Sets the event of an event wait node in an executable graph
     `hGraphExec`. The node is identified by the corresponding node `hNode`
@@ -22477,7 +24600,7 @@ def cuGraphExecEventWaitNodeSetEvent(hGraphExec not None : CUgraphExec, hNode no
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -22504,7 +24627,7 @@ def cuGraphExecEventWaitNodeSetEvent(hGraphExec not None : CUgraphExec, hNode no
 
 @cython.embedsignature(True)
 def cuGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec not None : CUgraphExec, hNode not None : CUgraphNode, nodeParams : CUDA_EXT_SEM_SIGNAL_NODE_PARAMS):
-    """ Sets the parameters for an external semaphore signal node in the given graphExec. 
+    """ Sets the parameters for an external semaphore signal node in the given graphExec.
 
     Sets the parameters of an external semaphore signal node in an
     executable graph `hGraphExec`. The node is identified by the
@@ -22533,7 +24656,7 @@ def cuGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec not None : CUgra
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -22560,7 +24683,7 @@ def cuGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec not None : CUgra
 
 @cython.embedsignature(True)
 def cuGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec not None : CUgraphExec, hNode not None : CUgraphNode, nodeParams : CUDA_EXT_SEM_WAIT_NODE_PARAMS):
-    """ Sets the parameters for an external semaphore wait node in the given graphExec. 
+    """ Sets the parameters for an external semaphore wait node in the given graphExec.
 
     Sets the parameters of an external semaphore wait node in an executable
     graph `hGraphExec`. The node is identified by the corresponding node
@@ -22589,7 +24712,7 @@ def cuGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec not None : CUgraph
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_INVALID_VALUE,
+        CUDA_ERROR_INVALID_VALUE
     None
         None
 
@@ -22616,7 +24739,7 @@ def cuGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec not None : CUgraph
 
 @cython.embedsignature(True)
 def cuGraphUpload(hGraphExec not None : CUgraphExec, hStream not None : CUstream):
-    """ Uploads an executable graph in a stream. 
+    """ Uploads an executable graph in a stream.
 
     Uploads `hGraphExec` to the device in `hStream` without executing it.
     Uploads of the same `hGraphExec` will be serialized. Each upload is
@@ -22652,7 +24775,7 @@ def cuGraphUpload(hGraphExec not None : CUgraphExec, hStream not None : CUstream
 
 @cython.embedsignature(True)
 def cuGraphLaunch(hGraphExec not None : CUgraphExec, hStream not None : CUstream):
-    """ Launches an executable graph in a stream. 
+    """ Launches an executable graph in a stream.
 
     Executes `hGraphExec` in `hStream`. Only one instance of `hGraphExec`
     may be executing at a time. Each launch is ordered behind both any
@@ -22693,7 +24816,7 @@ def cuGraphLaunch(hGraphExec not None : CUgraphExec, hStream not None : CUstream
 
 @cython.embedsignature(True)
 def cuGraphExecDestroy(hGraphExec not None : CUgraphExec):
-    """ Destroys an executable graph. 
+    """ Destroys an executable graph.
 
     Destroys the executable graph specified by `hGraphExec`, as well as all
     of its executable nodes. If the executable graph is in-flight, it will
@@ -22725,7 +24848,7 @@ def cuGraphExecDestroy(hGraphExec not None : CUgraphExec):
 
 @cython.embedsignature(True)
 def cuGraphDestroy(hGraph not None : CUgraph):
-    """ Destroys a graph. 
+    """ Destroys a graph.
 
     Destroys the graph specified by `hGraph`, as well as all of its nodes.
 
@@ -22753,7 +24876,7 @@ def cuGraphDestroy(hGraph not None : CUgraph):
 
 @cython.embedsignature(True)
 def cuGraphExecUpdate(hGraphExec not None : CUgraphExec, hGraph not None : CUgraph):
-    """ Check whether an executable graph can be updated with a graph and perform the update if possible. 
+    """ Check whether an executable graph can be updated with a graph and perform the update if possible.
 
     Updates the node parameters in the instantiated graph specified by
     `hGraphExec` with the node parameters in a topologically identical
@@ -22761,15 +24884,15 @@ def cuGraphExecUpdate(hGraphExec not None : CUgraphExec, hGraph not None : CUgra
 
     Limitations:
 
-     Kernel nodes: The owning context of the function cannot change.A node
+    Kernel nodes: The owning context of the function cannot change. A node
     whose function originally did not use CUDA dynamic parallelism cannot
-    be updated to a function which uses CDPMemset and memcpy nodes: The
+    be updated to a function which uses CDP   Memset and memcpy nodes: The
     CUDA device(s) to which the operand(s) was allocated/mapped cannot
-    change.The source/destination memory must be allocated from the same
-    contexts as the original source/destination memory.Only 1D memsets can
-    be changed.Additional memcpy node restrictions: Changing either the
+    change. The source/destination memory must be allocated from the same
+    contexts as the original source/destination memory. Only 1D memsets can
+    be changed.   Additional memcpy node restrictions: Changing either the
     source or destination memory type(i.e. CU_MEMORYTYPE_DEVICE,
-    CU_MEMORYTYPE_ARRAY, etc.) is not supported.External semaphore wait
+    CU_MEMORYTYPE_ARRAY, etc.) is not supported.   External semaphore wait
     nodes and record nodes: Changing the number of semaphores is not
     supported.
 
@@ -22780,28 +24903,28 @@ def cuGraphExecUpdate(hGraphExec not None : CUgraphExec, hGraph not None : CUgra
     CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED under the following
     conditions:
 
-     The count of nodes directly in `hGraphExec` and `hGraph` differ, in
-    which case `hErrorNode_out` is NULL.A node is deleted in `hGraph` but
+    The count of nodes directly in `hGraphExec` and `hGraph` differ, in
+    which case `hErrorNode_out` is NULL. A node is deleted in `hGraph` but
     not not its pair from `hGraphExec`, in which case `hErrorNode_out` is
-    NULL.A node is deleted in `hGraphExec` but not its pair from `hGraph`,
-    in which case `hErrorNode_out` is the pairless node from `hGraph`.The
+    NULL. A node is deleted in `hGraphExec` but not its pair from `hGraph`,
+    in which case `hErrorNode_out` is the pairless node from `hGraph`. The
     dependent nodes of a pair differ, in which case `hErrorNode_out` is the
     node from `hGraph`.
 
     cuGraphExecUpdate sets `updateResult_out` to:
-    CU_GRAPH_EXEC_UPDATE_ERROR if passed an invalid
-    value.CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED if the graph topology
-    changedCU_GRAPH_EXEC_UPDATE_ERROR_NODE_TYPE_CHANGED if the type of a
+    CU_GRAPH_EXEC_UPDATE_ERROR if passed an invalid value.
+    CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED if the graph topology
+    changed CU_GRAPH_EXEC_UPDATE_ERROR_NODE_TYPE_CHANGED if the type of a
     node changed, in which case `hErrorNode_out` is set to the node from
-    `hGraph`.CU_GRAPH_EXEC_UPDATE_ERROR_UNSUPPORTED_FUNCTION_CHANGE if the
+    `hGraph`. CU_GRAPH_EXEC_UPDATE_ERROR_UNSUPPORTED_FUNCTION_CHANGE if the
     function changed in an unsupported way(see note above), in which case
-    `hErrorNode_out` is set to the node from
-    `hGraph`CU_GRAPH_EXEC_UPDATE_ERROR_PARAMETERS_CHANGED if any parameters
-    to a node changed in a way that is not supported, in which case
-    `hErrorNode_out` is set to the node from
-    `hGraph`.CU_GRAPH_EXEC_UPDATE_ERROR_NOT_SUPPORTED if something about a
-    node is unsupported, like the node's type or configuration, in which
-    case `hErrorNode_out` is set to the node from `hGraph`
+    `hErrorNode_out` is set to the node from `hGraph`
+    CU_GRAPH_EXEC_UPDATE_ERROR_PARAMETERS_CHANGED if any parameters to a
+    node changed in a way that is not supported, in which case
+    `hErrorNode_out` is set to the node from `hGraph`.
+    CU_GRAPH_EXEC_UPDATE_ERROR_NOT_SUPPORTED if something about a node is
+    unsupported, like the node's type or configuration, in which case
+    `hErrorNode_out` is set to the node from `hGraph`
 
     If `updateResult_out` isn't set in one of the situations described
     above, the update check passes and cuGraphExecUpdate updates
@@ -22826,7 +24949,7 @@ def cuGraphExecUpdate(hGraphExec not None : CUgraphExec, hGraph not None : CUgra
     -------
     CUresult
         CUDA_SUCCESS
-        CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE,
+        CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE
     hErrorNode_out : CUgraphNode
         The node which caused the permissibility check to forbid the
         update, if any
@@ -22845,7 +24968,7 @@ def cuGraphExecUpdate(hGraphExec not None : CUgraphExec, hGraph not None : CUgra
 
 @cython.embedsignature(True)
 def cuGraphKernelNodeCopyAttributes(dst not None : CUgraphNode, src not None : CUgraphNode):
-    """ Copies attributes from source node to destination node. 
+    """ Copies attributes from source node to destination node.
 
     Copies attributes from source node `src` to destination node `dst`.
     Both node must have the same context.
@@ -22870,7 +24993,7 @@ def cuGraphKernelNodeCopyAttributes(dst not None : CUgraphNode, src not None : C
 
 @cython.embedsignature(True)
 def cuGraphKernelNodeGetAttribute(hNode not None : CUgraphNode, attr not None : CUkernelNodeAttrID):
-    """ Queries node attribute. 
+    """ Queries node attribute.
 
     Queries attribute `attr` from node `hNode` and stores it in
     corresponding member of `value_out`.
@@ -22878,9 +25001,9 @@ def cuGraphKernelNodeGetAttribute(hNode not None : CUgraphNode, attr not None : 
     Parameters
     ----------
     hNode : CUgraphNode
-        None
+
     attr : CUkernelNodeAttrID
-        None
+
 
     Returns
     -------
@@ -22898,7 +25021,7 @@ def cuGraphKernelNodeGetAttribute(hNode not None : CUgraphNode, attr not None : 
 
 @cython.embedsignature(True)
 def cuGraphKernelNodeSetAttribute(hNode not None : CUgraphNode, attr not None : CUkernelNodeAttrID, value : CUkernelNodeAttrValue):
-    """ Sets node attribute. 
+    """ Sets node attribute.
 
     Sets attribute `attr` on node `hNode` from corresponding attribute of
     `value`.
@@ -22906,9 +25029,9 @@ def cuGraphKernelNodeSetAttribute(hNode not None : CUgraphNode, attr not None : 
     Parameters
     ----------
     hNode : CUgraphNode
-        None
+
     attr : CUkernelNodeAttrID
-        None
+
     value : CUkernelNodeAttrValue
 
 
@@ -22928,7 +25051,7 @@ def cuGraphKernelNodeSetAttribute(hNode not None : CUgraphNode, attr not None : 
 
 @cython.embedsignature(True)
 def cuGraphDebugDotPrint(hGraph not None : CUgraph, char* path, unsigned int flags):
-    """ Write a DOT file describing graph structure. 
+    """ Write a DOT file describing graph structure.
 
     Using the provided `hGraph`, write to `path` a DOT formatted
     description of the graph. By default this includes the graph topology,
@@ -22940,7 +25063,7 @@ def cuGraphDebugDotPrint(hGraph not None : CUgraph, char* path, unsigned int fla
     ----------
     hGraph : CUgraph
         The graph to create a DOT file from
-    path : char*
+    path : bytes
         The path to write the DOT file to
     flags : unsigned int
         Flags from CUgraphDebugDot_flags for specifying which additional
@@ -22951,7 +25074,7 @@ def cuGraphDebugDotPrint(hGraph not None : CUgraph, char* path, unsigned int fla
     CUresult
         CUDA_SUCCESS
         CUDA_ERROR_INVALID_VALUE
-        CUDA_ERROR_OPERATING_SYSTEM 
+        CUDA_ERROR_OPERATING_SYSTEM
     None
         None
     """
@@ -22960,7 +25083,7 @@ def cuGraphDebugDotPrint(hGraph not None : CUgraph, char* path, unsigned int fla
 
 @cython.embedsignature(True)
 def cuUserObjectCreate(ptr, destroy not None : CUhostFn, unsigned int initialRefcount, unsigned int flags):
-    """ Create a user object. 
+    """ Create a user object.
 
     Create a user object with the specified destructor callback and initial
     reference count. The initial references are owned by the caller.
@@ -23013,7 +25136,7 @@ def cuUserObjectCreate(ptr, destroy not None : CUhostFn, unsigned int initialRef
 
 @cython.embedsignature(True)
 def cuUserObjectRetain(object not None : CUuserObject, unsigned int count):
-    """ Retain a reference to a user object. 
+    """ Retain a reference to a user object.
 
     Retains new references to a user object. The new references are owned
     by the caller.
@@ -23050,7 +25173,7 @@ def cuUserObjectRetain(object not None : CUuserObject, unsigned int count):
 
 @cython.embedsignature(True)
 def cuUserObjectRelease(object not None : CUuserObject, unsigned int count):
-    """ Release a reference to a user object. 
+    """ Release a reference to a user object.
 
     Releases user object references owned by the caller. The object's
     destructor is invoked if the reference count reaches zero.
@@ -23090,7 +25213,7 @@ def cuUserObjectRelease(object not None : CUuserObject, unsigned int count):
 
 @cython.embedsignature(True)
 def cuGraphRetainUserObject(graph not None : CUgraph, object not None : CUuserObject, unsigned int count, unsigned int flags):
-    """ Retain a reference to a user object from a graph. 
+    """ Retain a reference to a user object from a graph.
 
     Creates or moves user object references that will be owned by a CUDA
     graph.
@@ -23133,7 +25256,7 @@ def cuGraphRetainUserObject(graph not None : CUgraph, object not None : CUuserOb
 
 @cython.embedsignature(True)
 def cuGraphReleaseUserObject(graph not None : CUgraph, object not None : CUuserObject, unsigned int count):
-    """ Release a user object reference from a graph. 
+    """ Release a user object reference from a graph.
 
     Releases user object references owned by a graph.
 
@@ -23171,7 +25294,7 @@ def cuGraphReleaseUserObject(graph not None : CUgraph, object not None : CUuserO
 
 @cython.embedsignature(True)
 def cuOccupancyMaxActiveBlocksPerMultiprocessor(func not None : CUfunction, int blockSize, size_t dynamicSMemSize):
-    """ Returns occupancy of a function. 
+    """ Returns occupancy of a function.
 
     Returns in `*numBlocks` the number of the maximum active blocks per
     streaming multiprocessor.
@@ -23207,7 +25330,7 @@ def cuOccupancyMaxActiveBlocksPerMultiprocessor(func not None : CUfunction, int 
 
 @cython.embedsignature(True)
 def cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(func not None : CUfunction, int blockSize, size_t dynamicSMemSize, unsigned int flags):
-    """ Returns occupancy of a function. 
+    """ Returns occupancy of a function.
 
     Returns in `*numBlocks` the number of the maximum active blocks per
     streaming multiprocessor.
@@ -23215,16 +25338,17 @@ def cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(func not None : CUfunct
     The `Flags` parameter controls how special cases are handled. The valid
     flags are:
 
-     CU_OCCUPANCY_DEFAULT, which maintains the default behavior as cuOccupa
-    ncyMaxActiveBlocksPerMultiprocessor;CU_OCCUPANCY_DISABLE_CACHING_OVERRI
-    DE, which suppresses the default behavior on platform where global
-    caching affects occupancy. On such platforms, if caching is enabled,
-    but per-block SM resource usage would result in zero occupancy, the
-    occupancy calculator will calculate the occupancy as if caching is
-    disabled. Setting CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE makes the
-    occupancy calculator to return 0 in such cases. More information can be
-    found about this feature in the "Unified L1/Texture Cache" section of
-    the Maxwell tuning guide.
+    CU_OCCUPANCY_DEFAULT, which maintains the default behavior as
+    cuOccupancyMaxActiveBlocksPerMultiprocessor;
+    CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE, which suppresses the default
+    behavior on platform where global caching affects occupancy. On such
+    platforms, if caching is enabled, but per-block SM resource usage would
+    result in zero occupancy, the occupancy calculator will calculate the
+    occupancy as if caching is disabled. Setting
+    CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE makes the occupancy calculator to
+    return 0 in such cases. More information can be found about this
+    feature in the "Unified L1/Texture Cache" section of the Maxwell tuning
+    guide.
 
     Parameters
     ----------
@@ -23259,7 +25383,7 @@ def cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(func not None : CUfunct
 
 @cython.embedsignature(True)
 def cuOccupancyMaxPotentialBlockSize(func not None : CUfunction, blockSizeToDynamicSMemSize not None : CUoccupancyB2DSize, size_t dynamicSMemSize, int blockSizeLimit):
-    """ Suggest a launch configuration with reasonable occupancy. 
+    """ Suggest a launch configuration with reasonable occupancy.
 
     Returns in `*blockSize` a reasonable block size that can achieve the
     maximum occupancy (or, the maximum number of active warps with the
@@ -23284,8 +25408,8 @@ def cuOccupancyMaxPotentialBlockSize(func not None : CUfunction, blockSizeToDyna
     memory needed by `func` for any given block size. `dynamicSMemSize` is
     ignored. An example signature is:
 
-    //Takeblocksize,returnsdynamicsharedmemoryneededsize_tblockToSmem(intbl
-    ockSize);
+    //Takeblocksize,returnsdynamicsharedmemoryneeded
+    size_tblockToSmem(intblockSize);
 
     Parameters
     ----------
@@ -23293,10 +25417,11 @@ def cuOccupancyMaxPotentialBlockSize(func not None : CUfunction, blockSizeToDyna
         Kernel for which launch configuration is calculated
     blockSizeToDynamicSMemSize : CUoccupancyB2DSize
         A function that calculates how much per-block dynamic shared memory
+        `func` uses based on the block size
     dynamicSMemSize : size_t
         Dynamic shared memory usage intended, in bytes
     blockSizeLimit : int
-        The maximum block size
+        The maximum block size `func` is designed to handle
 
     Returns
     -------
@@ -23319,7 +25444,7 @@ def cuOccupancyMaxPotentialBlockSize(func not None : CUfunction, blockSizeToDyna
 
 @cython.embedsignature(True)
 def cuOccupancyMaxPotentialBlockSizeWithFlags(func not None : CUfunction, blockSizeToDynamicSMemSize not None : CUoccupancyB2DSize, size_t dynamicSMemSize, int blockSizeLimit, unsigned int flags):
-    """ Suggest a launch configuration with reasonable occupancy. 
+    """ Suggest a launch configuration with reasonable occupancy.
 
     An extended version of cuOccupancyMaxPotentialBlockSize. In addition to
     arguments passed to cuOccupancyMaxPotentialBlockSize,
@@ -23329,11 +25454,12 @@ def cuOccupancyMaxPotentialBlockSizeWithFlags(func not None : CUfunction, blockS
     The `Flags` parameter controls how special cases are handled. The valid
     flags are:
 
-     CU_OCCUPANCY_DEFAULT, which maintains the default behavior as
-    cuOccupancyMaxPotentialBlockSize;CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE,
-    which suppresses the default behavior on platform where global caching
-    affects occupancy. On such platforms, the launch configurations that
-    produces maximal occupancy might not support global caching. Setting
+    CU_OCCUPANCY_DEFAULT, which maintains the default behavior as
+    cuOccupancyMaxPotentialBlockSize;
+    CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE, which suppresses the default
+    behavior on platform where global caching affects occupancy. On such
+    platforms, the launch configurations that produces maximal occupancy
+    might not support global caching. Setting
     CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE guarantees that the the produced
     launch configuration is global caching compatible at a potential cost
     of occupancy. More information can be found about this feature in the
@@ -23345,10 +25471,11 @@ def cuOccupancyMaxPotentialBlockSizeWithFlags(func not None : CUfunction, blockS
         Kernel for which launch configuration is calculated
     blockSizeToDynamicSMemSize : CUoccupancyB2DSize
         A function that calculates how much per-block dynamic shared memory
+        `func` uses based on the block size
     dynamicSMemSize : size_t
         Dynamic shared memory usage intended, in bytes
     blockSizeLimit : int
-        The maximum block size
+        The maximum block size `func` is designed to handle
     flags : unsigned int
         Options
 
@@ -23373,7 +25500,7 @@ def cuOccupancyMaxPotentialBlockSizeWithFlags(func not None : CUfunction, blockS
 
 @cython.embedsignature(True)
 def cuOccupancyAvailableDynamicSMemPerBlock(func not None : CUfunction, int numBlocks, int blockSize):
-    """ Returns dynamic shared memory available per block when launching `numBlocks` blocks on SM. 
+    """ Returns dynamic shared memory available per block when launching `numBlocks` blocks on SM.
 
     Returns in `*dynamicSmemSize` the maximum size of dynamic shared memory
     to allow `numBlocks` blocks per SM.
@@ -23396,7 +25523,7 @@ def cuOccupancyAvailableDynamicSMemPerBlock(func not None : CUfunction, int numB
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_UNKNOWN
-    dynamicSmemSize : Int
+    dynamicSmemSize : int
         Returned maximum dynamic shared memory
     """
     cdef size_t dynamicSmemSize = 0
@@ -23405,7 +25532,7 @@ def cuOccupancyAvailableDynamicSMemPerBlock(func not None : CUfunction, int numB
 
 @cython.embedsignature(True)
 def cuTexRefSetArray(hTexRef not None : CUtexref, hArray not None : CUarray, unsigned int Flags):
-    """ Binds an array as a texture reference. 
+    """ Binds an array as a texture reference.
 
     Deprecated
 
@@ -23456,7 +25583,7 @@ def cuTexRefSetArray(hTexRef not None : CUtexref, hArray not None : CUarray, uns
 
 @cython.embedsignature(True)
 def cuTexRefSetMipmappedArray(hTexRef not None : CUtexref, hMipmappedArray not None : CUmipmappedArray, unsigned int Flags):
-    """ Binds a mipmapped array to a texture reference. 
+    """ Binds a mipmapped array to a texture reference.
 
     Deprecated
 
@@ -23507,7 +25634,7 @@ def cuTexRefSetMipmappedArray(hTexRef not None : CUtexref, hMipmappedArray not N
 
 @cython.embedsignature(True)
 def cuTexRefSetAddress(hTexRef not None : CUtexref, dptr not None : CUdeviceptr, size_t numbytes):
-    """ Binds an address as a texture reference. 
+    """ Binds an address as a texture reference.
 
     Deprecated
 
@@ -23550,7 +25677,7 @@ def cuTexRefSetAddress(hTexRef not None : CUtexref, dptr not None : CUdeviceptr,
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_INVALID_CONTEXT
         CUDA_ERROR_INVALID_VALUE
-    ByteOffset : Int
+    ByteOffset : int
         Returned byte offset
 
     See Also
@@ -23575,7 +25702,7 @@ def cuTexRefSetAddress(hTexRef not None : CUtexref, dptr not None : CUdeviceptr,
 
 @cython.embedsignature(True)
 def cuTexRefSetAddress2D(hTexRef not None : CUtexref, desc : CUDA_ARRAY_DESCRIPTOR, dptr not None : CUdeviceptr, size_t Pitch):
-    """ Binds an address as a 2D texture reference. 
+    """ Binds an address as a 2D texture reference.
 
     Deprecated
 
@@ -23652,7 +25779,7 @@ def cuTexRefSetAddress2D(hTexRef not None : CUtexref, desc : CUDA_ARRAY_DESCRIPT
 
 @cython.embedsignature(True)
 def cuTexRefSetFormat(hTexRef not None : CUtexref, fmt not None : CUarray_format, int NumPackedComponents):
-    """ Sets the format for a texture reference. 
+    """ Sets the format for a texture reference.
 
     Deprecated
 
@@ -23708,7 +25835,7 @@ def cuTexRefSetFormat(hTexRef not None : CUtexref, fmt not None : CUarray_format
 
 @cython.embedsignature(True)
 def cuTexRefSetAddressMode(hTexRef not None : CUtexref, int dim, am not None : CUaddress_mode):
-    """ Sets the addressing mode for a texture reference. 
+    """ Sets the addressing mode for a texture reference.
 
     Deprecated
 
@@ -23716,9 +25843,9 @@ def cuTexRefSetAddressMode(hTexRef not None : CUtexref, int dim, am not None : C
     texture reference `hTexRef`. If `dim` is zero, the addressing mode is
     applied to the first parameter of the functions used to fetch from the
     texture; if `dim` is 1, the second, and so on. CUaddress_mode is
-    defined as: typedefenumCUaddress_mode_enum{CU_TR_ADDRESS_MODE_WRAP=0,CU
-    _TR_ADDRESS_MODE_CLAMP=1,CU_TR_ADDRESS_MODE_MIRROR=2,CU_TR_ADDRESS_MODE
-    _BORDER=3}CUaddress_mode;
+    defined as: typedefenumCUaddress_mode_enum{ CU_TR_ADDRESS_MODE_WRAP=0,
+    CU_TR_ADDRESS_MODE_CLAMP=1, CU_TR_ADDRESS_MODE_MIRROR=2,
+    CU_TR_ADDRESS_MODE_BORDER=3 }CUaddress_mode;
 
     Note that this call has no effect if `hTexRef` is bound to linear
     memory. Also, if the flag, CU_TRSF_NORMALIZED_COORDINATES, is not set,
@@ -23769,7 +25896,7 @@ def cuTexRefSetAddressMode(hTexRef not None : CUtexref, int dim, am not None : C
 
 @cython.embedsignature(True)
 def cuTexRefSetFilterMode(hTexRef not None : CUtexref, fm not None : CUfilter_mode):
-    """ Sets the filtering mode for a texture reference. 
+    """ Sets the filtering mode for a texture reference.
 
     Deprecated
 
@@ -23777,8 +25904,8 @@ def cuTexRefSetFilterMode(hTexRef not None : CUtexref, fm not None : CUfilter_mo
     through the texture reference `hTexRef`. CUfilter_mode_enum is defined
     as:
 
-    typedefenumCUfilter_mode_enum{CU_TR_FILTER_MODE_POINT=0,CU_TR_FILTER_MO
-    DE_LINEAR=1}CUfilter_mode;
+    typedefenumCUfilter_mode_enum{ CU_TR_FILTER_MODE_POINT=0,
+    CU_TR_FILTER_MODE_LINEAR=1 }CUfilter_mode;
 
     Note that this call has no effect if `hTexRef` is bound to linear
     memory.
@@ -23823,7 +25950,7 @@ def cuTexRefSetFilterMode(hTexRef not None : CUtexref, fm not None : CUfilter_mo
 
 @cython.embedsignature(True)
 def cuTexRefSetMipmapFilterMode(hTexRef not None : CUtexref, fm not None : CUfilter_mode):
-    """ Sets the mipmap filtering mode for a texture reference. 
+    """ Sets the mipmap filtering mode for a texture reference.
 
     Deprecated
 
@@ -23831,8 +25958,8 @@ def cuTexRefSetMipmapFilterMode(hTexRef not None : CUtexref, fm not None : CUfil
     through the texture reference `hTexRef`. CUfilter_mode_enum is defined
     as:
 
-    typedefenumCUfilter_mode_enum{CU_TR_FILTER_MODE_POINT=0,CU_TR_FILTER_MO
-    DE_LINEAR=1}CUfilter_mode;
+    typedefenumCUfilter_mode_enum{ CU_TR_FILTER_MODE_POINT=0,
+    CU_TR_FILTER_MODE_LINEAR=1 }CUfilter_mode;
 
     Note that this call has no effect if `hTexRef` is not bound to a
     mipmapped array.
@@ -23877,7 +26004,7 @@ def cuTexRefSetMipmapFilterMode(hTexRef not None : CUtexref, fm not None : CUfil
 
 @cython.embedsignature(True)
 def cuTexRefSetMipmapLevelBias(hTexRef not None : CUtexref, float bias):
-    """ Sets the mipmap level bias for a texture reference. 
+    """ Sets the mipmap level bias for a texture reference.
 
     Deprecated
 
@@ -23927,7 +26054,7 @@ def cuTexRefSetMipmapLevelBias(hTexRef not None : CUtexref, float bias):
 
 @cython.embedsignature(True)
 def cuTexRefSetMipmapLevelClamp(hTexRef not None : CUtexref, float minMipmapLevelClamp, float maxMipmapLevelClamp):
-    """ Sets the mipmap min/max mipmap level clamps for a texture reference. 
+    """ Sets the mipmap min/max mipmap level clamps for a texture reference.
 
     Deprecated
 
@@ -23979,7 +26106,7 @@ def cuTexRefSetMipmapLevelClamp(hTexRef not None : CUtexref, float minMipmapLeve
 
 @cython.embedsignature(True)
 def cuTexRefSetMaxAnisotropy(hTexRef not None : CUtexref, unsigned int maxAniso):
-    """ Sets the maximum anisotropy for a texture reference. 
+    """ Sets the maximum anisotropy for a texture reference.
 
     Deprecated
 
@@ -24029,7 +26156,7 @@ def cuTexRefSetMaxAnisotropy(hTexRef not None : CUtexref, unsigned int maxAniso)
 
 @cython.embedsignature(True)
 def cuTexRefSetBorderColor(hTexRef not None : CUtexref, float pBorderColor):
-    """ Sets the border color for a texture reference. 
+    """ Sets the border color for a texture reference.
 
     Deprecated
 
@@ -24077,26 +26204,25 @@ def cuTexRefSetBorderColor(hTexRef not None : CUtexref, float pBorderColor):
 
 @cython.embedsignature(True)
 def cuTexRefSetFlags(hTexRef not None : CUtexref, unsigned int Flags):
-    """ Sets the flags for a texture reference. 
+    """ Sets the flags for a texture reference.
 
     Deprecated
 
     Specifies optional flags via `Flags` to specify the behavior of data
     returned through the texture reference `hTexRef`. The valid flags are:
 
-     CU_TRSF_READ_AS_INTEGER, which suppresses the default behavior of
+    CU_TRSF_READ_AS_INTEGER, which suppresses the default behavior of
     having the texture promote integer data to floating point data in the
     range [0, 1]. Note that texture with 32-bit integer format would not be
-    promoted, regardless of whether or not this flag is
-    specified;CU_TRSF_NORMALIZED_COORDINATES, which suppresses the default
-    behavior of having the texture coordinates range from [0, Dim) where
-    Dim is the width or height of the CUDA array. Instead, the texture
-    coordinates [0, 1.0) reference the entire breadth of the array
-    dimension;CU_TRSF_DISABLE_TRILINEAR_OPTIMIZATION, which disables any
-    trilinear filtering optimizations. Trilinear optimizations improve
-    texture filtering performance by allowing bilinear filtering on
-    textures in scenarios where it can closely approximate the expected
-    results.
+    promoted, regardless of whether or not this flag is specified;
+    CU_TRSF_NORMALIZED_COORDINATES, which suppresses the default behavior
+    of having the texture coordinates range from [0, Dim) where Dim is the
+    width or height of the CUDA array. Instead, the texture coordinates [0,
+    1.0) reference the entire breadth of the array dimension;
+    CU_TRSF_DISABLE_TRILINEAR_OPTIMIZATION, which disables any trilinear
+    filtering optimizations. Trilinear optimizations improve texture
+    filtering performance by allowing bilinear filtering on textures in
+    scenarios where it can closely approximate the expected results.
 
     Parameters
     ----------
@@ -24140,7 +26266,7 @@ def cuTexRefSetFlags(hTexRef not None : CUtexref, unsigned int Flags):
 
 @cython.embedsignature(True)
 def cuTexRefGetAddress(hTexRef not None : CUtexref):
-    """ Gets the address associated with a texture reference. 
+    """ Gets the address associated with a texture reference.
 
     Deprecated
 
@@ -24185,7 +26311,7 @@ def cuTexRefGetAddress(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefGetArray(hTexRef not None : CUtexref):
-    """ Gets the array bound to a texture reference. 
+    """ Gets the array bound to a texture reference.
 
     Deprecated
 
@@ -24230,7 +26356,7 @@ def cuTexRefGetArray(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefGetMipmappedArray(hTexRef not None : CUtexref):
-    """ Gets the mipmapped array bound to a texture reference. 
+    """ Gets the mipmapped array bound to a texture reference.
 
     Deprecated
 
@@ -24275,7 +26401,7 @@ def cuTexRefGetMipmappedArray(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefGetAddressMode(hTexRef not None : CUtexref, int dim):
-    """ Gets the addressing mode used by a texture reference. 
+    """ Gets the addressing mode used by a texture reference.
 
     Deprecated
 
@@ -24322,7 +26448,7 @@ def cuTexRefGetAddressMode(hTexRef not None : CUtexref, int dim):
 
 @cython.embedsignature(True)
 def cuTexRefGetFilterMode(hTexRef not None : CUtexref):
-    """ Gets the filter-mode used by a texture reference. 
+    """ Gets the filter-mode used by a texture reference.
 
     Deprecated
 
@@ -24366,7 +26492,7 @@ def cuTexRefGetFilterMode(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefGetFormat(hTexRef not None : CUtexref):
-    """ Gets the format used by a texture reference. 
+    """ Gets the format used by a texture reference.
 
     Deprecated
 
@@ -24414,7 +26540,7 @@ def cuTexRefGetFormat(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefGetMipmapFilterMode(hTexRef not None : CUtexref):
-    """ Gets the mipmap filtering mode for a texture reference. 
+    """ Gets the mipmap filtering mode for a texture reference.
 
     Deprecated
 
@@ -24458,7 +26584,7 @@ def cuTexRefGetMipmapFilterMode(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefGetMipmapLevelBias(hTexRef not None : CUtexref):
-    """ Gets the mipmap level bias for a texture reference. 
+    """ Gets the mipmap level bias for a texture reference.
 
     Deprecated
 
@@ -24503,7 +26629,7 @@ def cuTexRefGetMipmapLevelBias(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefGetMipmapLevelClamp(hTexRef not None : CUtexref):
-    """ Gets the min/max mipmap level clamps for a texture reference. 
+    """ Gets the min/max mipmap level clamps for a texture reference.
 
     Deprecated
 
@@ -24551,7 +26677,7 @@ def cuTexRefGetMipmapLevelClamp(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefGetMaxAnisotropy(hTexRef not None : CUtexref):
-    """ Gets the maximum anisotropy for a texture reference. 
+    """ Gets the maximum anisotropy for a texture reference.
 
     Deprecated
 
@@ -24595,7 +26721,7 @@ def cuTexRefGetMaxAnisotropy(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefGetBorderColor(hTexRef not None : CUtexref):
-    """ Gets the border color used by a texture reference. 
+    """ Gets the border color used by a texture reference.
 
     Deprecated
 
@@ -24624,7 +26750,6 @@ def cuTexRefGetBorderColor(hTexRef not None : CUtexref):
     See Also
     --------
     cuTexRefSetAddressMode
-    cuTexRefSetAddressMode
     cuTexRefSetBorderColor
     """
     cdef float pBorderColor = 0
@@ -24633,7 +26758,7 @@ def cuTexRefGetBorderColor(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefGetFlags(hTexRef not None : CUtexref):
-    """ Gets the flags used by a texture reference. 
+    """ Gets the flags used by a texture reference.
 
     Deprecated
 
@@ -24676,7 +26801,7 @@ def cuTexRefGetFlags(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuTexRefCreate():
-    """ Creates a texture reference. 
+    """ Creates a texture reference.
 
     Deprecated
 
@@ -24708,7 +26833,7 @@ def cuTexRefCreate():
 
 @cython.embedsignature(True)
 def cuTexRefDestroy(hTexRef not None : CUtexref):
-    """ Destroys a texture reference. 
+    """ Destroys a texture reference.
 
     Deprecated
 
@@ -24739,7 +26864,7 @@ def cuTexRefDestroy(hTexRef not None : CUtexref):
 
 @cython.embedsignature(True)
 def cuSurfRefSetArray(hSurfRef not None : CUsurfref, hArray not None : CUarray, unsigned int Flags):
-    """ Sets the CUDA array for a surface reference. 
+    """ Sets the CUDA array for a surface reference.
 
     Deprecated
 
@@ -24780,7 +26905,7 @@ def cuSurfRefSetArray(hSurfRef not None : CUsurfref, hArray not None : CUarray, 
 
 @cython.embedsignature(True)
 def cuSurfRefGetArray(hSurfRef not None : CUsurfref):
-    """ Passes back the CUDA array bound to a surface reference. 
+    """ Passes back the CUDA array bound to a surface reference.
 
     Deprecated
 
@@ -24815,7 +26940,7 @@ def cuSurfRefGetArray(hSurfRef not None : CUsurfref):
 
 @cython.embedsignature(True)
 def cuTexObjectCreate(pResDesc : CUDA_RESOURCE_DESC, pTexDesc : CUDA_TEXTURE_DESC, pResViewDesc : CUDA_RESOURCE_VIEW_DESC):
-    """ Creates a texture object. 
+    """ Creates a texture object.
 
     Creates a texture object and returns it in `pTexObject`. `pResDesc`
     describes the data to texture from. `pTexDesc` describes how the data
@@ -24829,17 +26954,19 @@ def cuTexObjectCreate(pResDesc : CUDA_RESOURCE_DESC, pTexDesc : CUDA_TEXTURE_DES
     or higher. Additionally, a texture object is an opaque value, and, as
     such, should only be accessed through CUDA API calls.
 
-    The CUDA_RESOURCE_DESC structure is defined as:  where:typedefstructCUD
-    A_RESOURCE_DESC_st{CUresourcetyperesType;union{struct{CUarrayhArray;}ar
-    ray;struct{CUmipmappedArrayhMipmappedArray;}mipmap;struct{CUdeviceptrde
-    vPtr;CUarray_formatformat;unsignedintnumChannels;size_tsizeInBytes;}lin
-    ear;struct{CUdeviceptrdevPtr;CUarray_formatformat;unsignedintnumChannel
-    s;size_twidth;size_theight;size_tpitchInBytes;}pitch2D;}res;unsignedint
-    flags;}CUDA_RESOURCE_DESC; CUDA_RESOURCE_DESC::resType specifies the
-    type of resource to texture from. CUresourceType is defined as: typedef
-    enumCUresourcetype_enum{CU_RESOURCE_TYPE_ARRAY=0x00,CU_RESOURCE_TYPE_MI
-    PMAPPED_ARRAY=0x01,CU_RESOURCE_TYPE_LINEAR=0x02,CU_RESOURCE_TYPE_PITCH2
-    D=0x03}CUresourcetype;
+    The CUDA_RESOURCE_DESC structure is defined as:
+    typedefstructCUDA_RESOURCE_DESC_st { CUresourcetyperesType;  union{
+    struct{ CUarrayhArray; }array; struct{ CUmipmappedArrayhMipmappedArray;
+    }mipmap; struct{ CUdeviceptrdevPtr; CUarray_formatformat;
+    unsignedintnumChannels; size_tsizeInBytes; }linear; struct{
+    CUdeviceptrdevPtr; CUarray_formatformat; unsignedintnumChannels;
+    size_twidth; size_theight; size_tpitchInBytes; }pitch2D; }res;
+    unsignedintflags; }CUDA_RESOURCE_DESC; where:
+    CUDA_RESOURCE_DESC::resType specifies the type of resource to texture
+    from. CUresourceType is defined as: typedefenumCUresourcetype_enum{
+    CU_RESOURCE_TYPE_ARRAY=0x00, CU_RESOURCE_TYPE_MIPMAPPED_ARRAY=0x01,
+    CU_RESOURCE_TYPE_LINEAR=0x02, CU_RESOURCE_TYPE_PITCH2D=0x03
+    }CUresourcetype;
 
     If CUDA_RESOURCE_DESC::resType is set to CU_RESOURCE_TYPE_ARRAY,
     CUDA_RESOURCE_DESC::res::array::hArray must be set to a valid CUDA
@@ -24878,52 +27005,53 @@ def cuTexObjectCreate(pResDesc : CUDA_RESOURCE_DESC, pTexDesc : CUDA_TEXTURE_DES
     CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT. Pitch cannot exceed
     CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH.
 
-    The CUDA_TEXTURE_DESC struct is defined as  wheretypedefstructCUDA_TEXT
-    URE_DESC_st{CUaddress_modeaddressMode[3];CUfilter_modefilterMode;unsign
-    edintflags;unsignedintmaxAnisotropy;CUfilter_modemipmapFilterMode;float
-    mipmapLevelBias;floatminMipmapLevelClamp;floatmaxMipmapLevelClamp;}CUDA
-    _TEXTURE_DESC; CUDA_TEXTURE_DESC::addressMode specifies the addressing
-    mode for each dimension of the texture data. CUaddress_mode is defined
-    as:  This is ignored if typedefenumCUaddress_mode_enum{CU_TR_ADDRESS_MO
-    DE_WRAP=0,CU_TR_ADDRESS_MODE_CLAMP=1,CU_TR_ADDRESS_MODE_MIRROR=2,CU_TR_
-    ADDRESS_MODE_BORDER=3}CUaddress_mode;CUDA_RESOURCE_DESC::resType is
-    CU_RESOURCE_TYPE_LINEAR. Also, if the flag,
-    CU_TRSF_NORMALIZED_COORDINATES is not set, the only supported address
-    mode is CU_TR_ADDRESS_MODE_CLAMP.CUDA_TEXTURE_DESC::filterMode
+    The CUDA_TEXTURE_DESC struct is defined as
+    typedefstructCUDA_TEXTURE_DESC_st{ CUaddress_modeaddressMode[3];
+    CUfilter_modefilterMode; unsignedintflags; unsignedintmaxAnisotropy;
+    CUfilter_modemipmapFilterMode; floatmipmapLevelBias;
+    floatminMipmapLevelClamp; floatmaxMipmapLevelClamp; }CUDA_TEXTURE_DESC;
+    where CUDA_TEXTURE_DESC::addressMode specifies the addressing mode for
+    each dimension of the texture data. CUaddress_mode is defined as:
+    typedefenumCUaddress_mode_enum{ CU_TR_ADDRESS_MODE_WRAP=0,
+    CU_TR_ADDRESS_MODE_CLAMP=1, CU_TR_ADDRESS_MODE_MIRROR=2,
+    CU_TR_ADDRESS_MODE_BORDER=3 }CUaddress_mode; This is ignored if
+    CUDA_RESOURCE_DESC::resType is CU_RESOURCE_TYPE_LINEAR. Also, if the
+    flag, CU_TRSF_NORMALIZED_COORDINATES is not set, the only supported
+    address mode is CU_TR_ADDRESS_MODE_CLAMP. CUDA_TEXTURE_DESC::filterMode
     specifies the filtering mode to be used when fetching from the texture.
-    CUfilter_mode is defined as:  This is ignored if typedefenumCUfilter_mo
-    de_enum{CU_TR_FILTER_MODE_POINT=0,CU_TR_FILTER_MODE_LINEAR=1}CUfilter_m
-    ode;CUDA_RESOURCE_DESC::resType is
-    CU_RESOURCE_TYPE_LINEAR.CUDA_TEXTURE_DESC::flags can be any combination
-    of the following: CU_TRSF_READ_AS_INTEGER, which suppresses the default
-    behavior of having the texture promote integer data to floating point
-    data in the range [0, 1]. Note that texture with 32-bit integer format
-    would not be promoted, regardless of whether or not this flag is
-    specified.CU_TRSF_NORMALIZED_COORDINATES, which suppresses the default
-    behavior of having the texture coordinates range from [0, Dim) where
-    Dim is the width or height of the CUDA array. Instead, the texture
-    coordinates [0, 1.0) reference the entire breadth of the array
+    CUfilter_mode is defined as: typedefenumCUfilter_mode_enum{
+    CU_TR_FILTER_MODE_POINT=0, CU_TR_FILTER_MODE_LINEAR=1 }CUfilter_mode;
+    This is ignored if CUDA_RESOURCE_DESC::resType is
+    CU_RESOURCE_TYPE_LINEAR. CUDA_TEXTURE_DESC::flags can be any
+    combination of the following: CU_TRSF_READ_AS_INTEGER, which suppresses
+    the default behavior of having the texture promote integer data to
+    floating point data in the range [0, 1]. Note that texture with 32-bit
+    integer format would not be promoted, regardless of whether or not this
+    flag is specified. CU_TRSF_NORMALIZED_COORDINATES, which suppresses the
+    default behavior of having the texture coordinates range from [0, Dim)
+    where Dim is the width or height of the CUDA array. Instead, the
+    texture coordinates [0, 1.0) reference the entire breadth of the array
     dimension; Note that for CUDA mipmapped arrays, this flag has to be
-    set.CU_TRSF_DISABLE_TRILINEAR_OPTIMIZATION, which disables any
+    set. CU_TRSF_DISABLE_TRILINEAR_OPTIMIZATION, which disables any
     trilinear filtering optimizations. Trilinear optimizations improve
     texture filtering performance by allowing bilinear filtering on
     textures in scenarios where it can closely approximate the expected
-    results.CUDA_TEXTURE_DESC::maxAnisotropy specifies the maximum
+    results.   CUDA_TEXTURE_DESC::maxAnisotropy specifies the maximum
     anisotropy ratio to be used when doing anisotropic filtering. This
-    value will be clamped to the range
-    [1,16].CUDA_TEXTURE_DESC::mipmapFilterMode specifies the filter mode
-    when the calculated mipmap level lies between two defined mipmap
-    levels.CUDA_TEXTURE_DESC::mipmapLevelBias specifies the offset to be
-    applied to the calculated mipmap
-    level.CUDA_TEXTURE_DESC::minMipmapLevelClamp specifies the lower end of
-    the mipmap level range to clamp access
-    to.CUDA_TEXTURE_DESC::maxMipmapLevelClamp specifies the upper end of
-    the mipmap level range to clamp access to.
+    value will be clamped to the range [1,16].
+    CUDA_TEXTURE_DESC::mipmapFilterMode specifies the filter mode when the
+    calculated mipmap level lies between two defined mipmap levels.
+    CUDA_TEXTURE_DESC::mipmapLevelBias specifies the offset to be applied
+    to the calculated mipmap level. CUDA_TEXTURE_DESC::minMipmapLevelClamp
+    specifies the lower end of the mipmap level range to clamp access to.
+    CUDA_TEXTURE_DESC::maxMipmapLevelClamp specifies the upper end of the
+    mipmap level range to clamp access to.
 
-    The CUDA_RESOURCE_VIEW_DESC struct is defined as  where:typedefstructCU
-    DA_RESOURCE_VIEW_DESC_st{CUresourceViewFormatformat;size_twidth;size_th
-    eight;size_tdepth;unsignedintfirstMipmapLevel;unsignedintlastMipmapLeve
-    l;unsignedintfirstLayer;unsignedintlastLayer;}CUDA_RESOURCE_VIEW_DESC;
+    The CUDA_RESOURCE_VIEW_DESC struct is defined as
+    typedefstructCUDA_RESOURCE_VIEW_DESC_st { CUresourceViewFormatformat;
+    size_twidth; size_theight; size_tdepth; unsignedintfirstMipmapLevel;
+    unsignedintlastMipmapLevel; unsignedintfirstLayer;
+    unsignedintlastLayer; }CUDA_RESOURCE_VIEW_DESC; where:
     CUDA_RESOURCE_VIEW_DESC::format specifies how the data contained in the
     CUDA array or CUDA mipmapped array should be interpreted. Note that
     this can incur a change in size of the texture data. If the resource
@@ -24933,33 +27061,32 @@ def cuTexObjectCreate(pResDesc : CUDA_RESOURCE_DESC, pTexDesc : CUDA_TEXTURE_DES
     block compressed format. For ex., BC1 and BC4 require the underlying
     CUDA array to have a format of CU_AD_FORMAT_UNSIGNED_INT32 with 2
     channels. The other BC formats require the underlying resource to have
-    the same base format but with 4 channels.CUDA_RESOURCE_VIEW_DESC::width
-    specifies the new width of the texture data. If the resource view
-    format is a block compressed format, this value has to be 4 times the
-    original width of the resource. For non block compressed formats, this
-    value has to be equal to that of the original
-    resource.CUDA_RESOURCE_VIEW_DESC::height specifies the new height of
-    the texture data. If the resource view format is a block compressed
-    format, this value has to be 4 times the original height of the
-    resource. For non block compressed formats, this value has to be equal
-    to that of the original resource.CUDA_RESOURCE_VIEW_DESC::depth
+    the same base format but with 4 channels.
+    CUDA_RESOURCE_VIEW_DESC::width specifies the new width of the texture
+    data. If the resource view format is a block compressed format, this
+    value has to be 4 times the original width of the resource. For non
+    block compressed formats, this value has to be equal to that of the
+    original resource. CUDA_RESOURCE_VIEW_DESC::height specifies the new
+    height of the texture data. If the resource view format is a block
+    compressed format, this value has to be 4 times the original height of
+    the resource. For non block compressed formats, this value has to be
+    equal to that of the original resource. CUDA_RESOURCE_VIEW_DESC::depth
     specifies the new depth of the texture data. This value has to be equal
-    to that of the original
-    resource.CUDA_RESOURCE_VIEW_DESC::firstMipmapLevel specifies the most
-    detailed mipmap level. This will be the new mipmap level zero. For non-
-    mipmapped resources, this value has to be
+    to that of the original resource.
+    CUDA_RESOURCE_VIEW_DESC::firstMipmapLevel specifies the most detailed
+    mipmap level. This will be the new mipmap level zero. For non-mipmapped
+    resources, this value has to be
     zero.CUDA_TEXTURE_DESC::minMipmapLevelClamp and
     CUDA_TEXTURE_DESC::maxMipmapLevelClamp will be relative to this value.
     For ex., if the firstMipmapLevel is set to 2, and a minMipmapLevelClamp
     of 1.2 is specified, then the actual minimum mipmap level clamp will be
-    3.2.CUDA_RESOURCE_VIEW_DESC::lastMipmapLevel specifies the least
+    3.2. CUDA_RESOURCE_VIEW_DESC::lastMipmapLevel specifies the least
     detailed mipmap level. For non-mipmapped resources, this value has to
-    be zero.CUDA_RESOURCE_VIEW_DESC::firstLayer specifies the first layer
+    be zero. CUDA_RESOURCE_VIEW_DESC::firstLayer specifies the first layer
     index for layered textures. This will be the new layer zero. For non-
-    layered resources, this value has to be
-    zero.CUDA_RESOURCE_VIEW_DESC::lastLayer specifies the last layer index
-    for layered textures. For non-layered resources, this value has to be
-    zero.
+    layered resources, this value has to be zero.
+    CUDA_RESOURCE_VIEW_DESC::lastLayer specifies the last layer index for
+    layered textures. For non-layered resources, this value has to be zero.
 
     Parameters
     ----------
@@ -24995,7 +27122,7 @@ def cuTexObjectCreate(pResDesc : CUDA_RESOURCE_DESC, pTexDesc : CUDA_TEXTURE_DES
 
 @cython.embedsignature(True)
 def cuTexObjectDestroy(texObject not None : CUtexObject):
-    """ Destroys a texture object. 
+    """ Destroys a texture object.
 
     Destroys the texture object specified by `texObject`.
 
@@ -25025,7 +27152,7 @@ def cuTexObjectDestroy(texObject not None : CUtexObject):
 
 @cython.embedsignature(True)
 def cuTexObjectGetResourceDesc(texObject not None : CUtexObject):
-    """ Returns a texture object's resource descriptor. 
+    """ Returns a texture object's resource descriptor.
 
     Returns the resource descriptor for the texture object specified by
     `texObject`.
@@ -25057,7 +27184,7 @@ def cuTexObjectGetResourceDesc(texObject not None : CUtexObject):
 
 @cython.embedsignature(True)
 def cuTexObjectGetTextureDesc(texObject not None : CUtexObject):
-    """ Returns a texture object's texture descriptor. 
+    """ Returns a texture object's texture descriptor.
 
     Returns the texture descriptor for the texture object specified by
     `texObject`.
@@ -25089,7 +27216,7 @@ def cuTexObjectGetTextureDesc(texObject not None : CUtexObject):
 
 @cython.embedsignature(True)
 def cuTexObjectGetResourceViewDesc(texObject not None : CUtexObject):
-    """ Returns a texture object's resource view descriptor. 
+    """ Returns a texture object's resource view descriptor.
 
     Returns the resource view descriptor for the texture object specified
     by `texObject`. If no resource view was set for `texObject`, the
@@ -25122,7 +27249,7 @@ def cuTexObjectGetResourceViewDesc(texObject not None : CUtexObject):
 
 @cython.embedsignature(True)
 def cuSurfObjectCreate(pResDesc : CUDA_RESOURCE_DESC):
-    """ Creates a surface object. 
+    """ Creates a surface object.
 
     Creates a surface object and returns it in `pSurfObject`. `pResDesc`
     describes the data to perform surface load/stores on.
@@ -25162,7 +27289,7 @@ def cuSurfObjectCreate(pResDesc : CUDA_RESOURCE_DESC):
 
 @cython.embedsignature(True)
 def cuSurfObjectDestroy(surfObject not None : CUsurfObject):
-    """ Destroys a surface object. 
+    """ Destroys a surface object.
 
     Destroys the surface object specified by `surfObject`.
 
@@ -25192,7 +27319,7 @@ def cuSurfObjectDestroy(surfObject not None : CUsurfObject):
 
 @cython.embedsignature(True)
 def cuSurfObjectGetResourceDesc(surfObject not None : CUsurfObject):
-    """ Returns a surface object's resource descriptor. 
+    """ Returns a surface object's resource descriptor.
 
     Returns the resource descriptor for the surface object specified by
     `surfObject`.
@@ -25224,7 +27351,7 @@ def cuSurfObjectGetResourceDesc(surfObject not None : CUsurfObject):
 
 @cython.embedsignature(True)
 def cuDeviceCanAccessPeer(dev not None : CUdevice, peerDev not None : CUdevice):
-    """ Queries if a device may directly access a peer device's memory. 
+    """ Queries if a device may directly access a peer device's memory.
 
     Returns in `*canAccessPeer` a value of 1 if contexts on `dev` are
     capable of directly accessing memory from contexts on `peerDev` and 0
@@ -25235,9 +27362,11 @@ def cuDeviceCanAccessPeer(dev not None : CUdevice, peerDev not None : CUdevice):
     Parameters
     ----------
     dev : CUdevice
-        Device from which allocations on
+        Device from which allocations on `peerDev` are to be directly
+        accessed.
     peerDev : CUdevice
-        Device on which the allocations to be directly accessed by
+        Device on which the allocations to be directly accessed by `dev`
+        reside.
 
     Returns
     -------
@@ -25261,7 +27390,7 @@ def cuDeviceCanAccessPeer(dev not None : CUdevice, peerDev not None : CUdevice):
 
 @cython.embedsignature(True)
 def cuCtxEnablePeerAccess(peerContext not None : CUcontext, unsigned int Flags):
-    """ Enables direct access to memory allocations in a peer context. 
+    """ Enables direct access to memory allocations in a peer context.
 
     If both the current context and `peerContext` are on devices which
     support unified addressing (as may be queried using
@@ -25327,7 +27456,7 @@ def cuCtxEnablePeerAccess(peerContext not None : CUcontext, unsigned int Flags):
 
 @cython.embedsignature(True)
 def cuCtxDisablePeerAccess(peerContext not None : CUcontext):
-    """ Disables direct access to memory allocations in a peer context and unregisters any registered allocations. 
+    """ Disables direct access to memory allocations in a peer context and unregisters any registered allocations.
 
     Returns CUDA_ERROR_PEER_ACCESS_NOT_ENABLED if direct peer access has
     not yet been enabled from `peerContext` to the current context.
@@ -25347,7 +27476,7 @@ def cuCtxDisablePeerAccess(peerContext not None : CUcontext):
         CUDA_ERROR_DEINITIALIZED
         CUDA_ERROR_NOT_INITIALIZED
         CUDA_ERROR_PEER_ACCESS_NOT_ENABLED
-        CUDA_ERROR_INVALID_CONTEXT,
+        CUDA_ERROR_INVALID_CONTEXT
     None
         None
 
@@ -25362,17 +27491,17 @@ def cuCtxDisablePeerAccess(peerContext not None : CUcontext):
 
 @cython.embedsignature(True)
 def cuDeviceGetP2PAttribute(attrib not None : CUdevice_P2PAttribute, srcDevice not None : CUdevice, dstDevice not None : CUdevice):
-    """ Queries attributes of the link between two devices. 
+    """ Queries attributes of the link between two devices.
 
     Returns in `*value` the value of the requested attribute `attrib` of
     the link between `srcDevice` and `dstDevice`. The supported attributes
     are: CU_DEVICE_P2P_ATTRIBUTE_PERFORMANCE_RANK: A relative value
-    indicating the performance of the link between two
-    devices.CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED P2P: 1 if P2P Access
-    is enable.CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED: 1 if Atomic
-    operations over the link are
-    supported.CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED: 1 if
-    cudaArray can be accessed over the link.
+    indicating the performance of the link between two devices.
+    CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED P2P: 1 if P2P Access is
+    enable. CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED: 1 if Atomic
+    operations over the link are supported.
+    CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED: 1 if cudaArray can
+    be accessed over the link.
 
     Returns CUDA_ERROR_INVALID_DEVICE if `srcDevice` or `dstDevice` are not
     valid or if they represent the same device.
@@ -25383,7 +27512,8 @@ def cuDeviceGetP2PAttribute(attrib not None : CUdevice_P2PAttribute, srcDevice n
     Parameters
     ----------
     attrib : CUdevice_P2PAttribute
-        The requested attribute of the link between
+        The requested attribute of the link between `srcDevice` and
+        `dstDevice`.
     srcDevice : CUdevice
         The source device of the target link.
     dstDevice : CUdevice
@@ -25414,7 +27544,7 @@ def cuDeviceGetP2PAttribute(attrib not None : CUdevice_P2PAttribute, srcDevice n
 
 @cython.embedsignature(True)
 def cuGraphicsUnregisterResource(resource not None : CUgraphicsResource):
-    """ Unregisters a graphics resource for access by CUDA. 
+    """ Unregisters a graphics resource for access by CUDA.
 
     Unregisters the graphics resource `resource` so it is not accessible by
     CUDA unless registered again.
@@ -25447,7 +27577,7 @@ def cuGraphicsUnregisterResource(resource not None : CUgraphicsResource):
 
 @cython.embedsignature(True)
 def cuGraphicsSubResourceGetMappedArray(resource not None : CUgraphicsResource, unsigned int arrayIndex, unsigned int mipLevel):
-    """ Get an array through which to access a subresource of a mapped graphics resource. 
+    """ Get an array through which to access a subresource of a mapped graphics resource.
 
     Returns in `*pArray` an array through which the subresource of the
     mapped graphics resource `resource` which corresponds to array index
@@ -25484,7 +27614,8 @@ def cuGraphicsSubResourceGetMappedArray(resource not None : CUgraphicsResource, 
         CUDA_ERROR_NOT_MAPPED
         CUDA_ERROR_NOT_MAPPED_AS_ARRAY
     pArray : CUarray
-        Returned array through which a subresource of
+        Returned array through which a subresource of `resource` may be
+        accessed
 
     See Also
     --------
@@ -25497,7 +27628,7 @@ def cuGraphicsSubResourceGetMappedArray(resource not None : CUgraphicsResource, 
 
 @cython.embedsignature(True)
 def cuGraphicsResourceGetMappedMipmappedArray(resource not None : CUgraphicsResource):
-    """ Get a mipmapped array through which to access a mapped graphics resource. 
+    """ Get a mipmapped array through which to access a mapped graphics resource.
 
     Returns in `*pMipmappedArray` a mipmapped array through which the
     mapped graphics resource `resource`. The value set in
@@ -25524,7 +27655,7 @@ def cuGraphicsResourceGetMappedMipmappedArray(resource not None : CUgraphicsReso
         CUDA_ERROR_NOT_MAPPED
         CUDA_ERROR_NOT_MAPPED_AS_ARRAY
     pMipmappedArray : CUmipmappedArray
-        Returned mipmapped array through which
+        Returned mipmapped array through which `resource` may be accessed
 
     See Also
     --------
@@ -25537,7 +27668,7 @@ def cuGraphicsResourceGetMappedMipmappedArray(resource not None : CUgraphicsReso
 
 @cython.embedsignature(True)
 def cuGraphicsResourceGetMappedPointer(resource not None : CUgraphicsResource):
-    """ Get a device pointer through which to access a mapped graphics resource. 
+    """ Get a device pointer through which to access a mapped graphics resource.
 
     Returns in `*pDevPtr` a pointer through which the mapped graphics
     resource `resource` may be accessed. Returns in `pSize` the size of the
@@ -25546,14 +27677,14 @@ def cuGraphicsResourceGetMappedPointer(resource not None : CUgraphicsResource):
 
     If `resource` is not a buffer then it cannot be accessed via a pointer
     and CUDA_ERROR_NOT_MAPPED_AS_POINTER is returned. If `resource` is not
-    mapped then CUDA_ERROR_NOT_MAPPED is returned.   pDevPtr - Returned
-    pointer through which `resource` may be accessed   pSize - Returned
-    size of the buffer accessible starting at `*pPointer`  resource -
-    Mapped resource to accessCUDA_SUCCESS, CUDA_ERROR_DEINITIALIZED,
-    CUDA_ERROR_NOT_INITIALIZED, CUDA_ERROR_INVALID_CONTEXT,
-    CUDA_ERROR_INVALID_VALUE, CUDA_ERROR_INVALID_HANDLE,
-    CUDA_ERROR_NOT_MAPPED,
-    CUDA_ERROR_NOT_MAPPED_AS_POINTERcuGraphicsMapResources,
+    mapped then CUDA_ERROR_NOT_MAPPED is returned.   pDevPtr   - Returned
+    pointer through which `resource` may be accessed      pSize   -
+    Returned size of the buffer accessible starting at `*pPointer`
+    resource   - Mapped resource to access    CUDA_SUCCESS,
+    CUDA_ERROR_DEINITIALIZED, CUDA_ERROR_NOT_INITIALIZED,
+    CUDA_ERROR_INVALID_CONTEXT, CUDA_ERROR_INVALID_VALUE,
+    CUDA_ERROR_INVALID_HANDLE, CUDA_ERROR_NOT_MAPPED,
+    CUDA_ERROR_NOT_MAPPED_AS_POINTER \notefnerr  cuGraphicsMapResources,
     cuGraphicsSubResourceGetMappedArray,
     cudaGraphicsResourceGetMappedPointer
 
@@ -25571,22 +27702,22 @@ def cuGraphicsResourceGetMappedPointer(resource not None : CUgraphicsResource):
 
 @cython.embedsignature(True)
 def cuGraphicsResourceSetMapFlags(resource not None : CUgraphicsResource, unsigned int flags):
-    """ Set usage flags for mapping a graphics resource. 
+    """ Set usage flags for mapping a graphics resource.
 
     Set `flags` for mapping the graphics resource `resource`.
 
     Changes to `flags` will take effect the next time `resource` is mapped.
     The `flags` argument may be any of the following:
 
-     CU_GRAPHICS_MAP_RESOURCE_FLAGS_NONE: Specifies no hints about how this
-    resource will be used. It is therefore assumed that this resource will
-    be read from and written to by CUDA kernels. This is the default
-    value.CU_GRAPHICS_MAP_RESOURCE_FLAGS_READONLY: Specifies that CUDA
-    kernels which access this resource will not write to this
-    resource.CU_GRAPHICS_MAP_RESOURCE_FLAGS_WRITEDISCARD: Specifies that
-    CUDA kernels which access this resource will not read from this
-    resource and will write over the entire contents of the resource, so
-    none of the data previously stored in the resource will be preserved.
+    ::CU_GRAPHICS_MAP_RESOURCE_FLAGS_NONE: Specifies no hints about how
+    this resource will be used. It is therefore assumed that this resource
+    will be read from and written to by CUDA kernels. This is the default
+    value. ::CU_GRAPHICS_MAP_RESOURCE_FLAGS_READONLY: Specifies that CUDA
+    kernels which access this resource will not write to this resource.
+    ::CU_GRAPHICS_MAP_RESOURCE_FLAGS_WRITEDISCARD: Specifies that CUDA
+    kernels which access this resource will not read from this resource and
+    will write over the entire contents of the resource, so none of the
+    data previously stored in the resource will be preserved.
 
     If `resource` is presently mapped for access by CUDA then
     CUDA_ERROR_ALREADY_MAPPED is returned. If `flags` is not one of the
@@ -25622,7 +27753,7 @@ def cuGraphicsResourceSetMapFlags(resource not None : CUgraphicsResource, unsign
 
 @cython.embedsignature(True)
 def cuGraphicsMapResources(unsigned int count, resources : CUgraphicsResource, hStream not None : CUstream):
-    """ Map graphics resources for access by CUDA. 
+    """ Map graphics resources for access by CUDA.
 
     Maps the `count` graphics resources in `resources` for access by CUDA.
 
@@ -25675,7 +27806,7 @@ def cuGraphicsMapResources(unsigned int count, resources : CUgraphicsResource, h
 
 @cython.embedsignature(True)
 def cuGraphicsUnmapResources(unsigned int count, resources : CUgraphicsResource, hStream not None : CUstream):
-    """ Unmap graphics resources. 
+    """ Unmap graphics resources.
 
     Unmaps the `count` graphics resources in `resources`.
 
@@ -25724,7 +27855,7 @@ def cuGraphicsUnmapResources(unsigned int count, resources : CUgraphicsResource,
 
 @cython.embedsignature(True)
 def cuGetProcAddress(char* symbol, int cudaVersion, flags not None : cuuint64_t):
-    """ Returns the requested driver API function pointer. 
+    """ Returns the requested driver API function pointer.
 
     Returns in `**pfn` the address of the CUDA driver function for the
     requested CUDA version and flags.
@@ -25752,21 +27883,22 @@ def cuGetProcAddress(char* symbol, int cudaVersion, flags not None : cuuint64_t)
     CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM if the code is compiled
     with default-stream per-thread compilation flag or the macro
     CUDA_API_PER_THREAD_DEFAULT_STREAM is defined;
-    CU_GET_PROC_ADDRESS_LEGACY_STREAM
-    otherwise.CU_GET_PROC_ADDRESS_LEGACY_STREAM: This will enable the
+    CU_GET_PROC_ADDRESS_LEGACY_STREAM otherwise.
+    CU_GET_PROC_ADDRESS_LEGACY_STREAM: This will enable the search for all
+    driver symbols that match the requested driver symbol name except the
+    corresponding per-thread versions.
+    CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM: This will enable the
     search for all driver symbols that match the requested driver symbol
-    name except the corresponding per-thread
-    versions.CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM: This will
-    enable the search for all driver symbols that match the requested
-    driver symbol name including the per-thread versions. If a per-thread
-    version is not found, the API will return the legacy version of the
-    driver function.
+    name including the per-thread versions. If a per-thread version is not
+    found, the API will return the legacy version of the driver function.
 
     Parameters
     ----------
-    symbol : char*
+    symbol : bytes
         The base name of the driver API function to look for. As an
-        example, for the driver API cuMemAlloc_v2,
+        example, for the driver API cuMemAlloc_v2, `symbol` would be
+        cuMemAlloc and `cudaVersion` would be the ABI compatible CUDA
+        version for the _v2 variant.
     cudaVersion : int
         The CUDA version to look for the requested driver symbol
     flags : cuuint64_t
@@ -25779,7 +27911,7 @@ def cuGetProcAddress(char* symbol, int cudaVersion, flags not None : cuuint64_t)
         CUDA_ERROR_INVALID_VALUE
         CUDA_ERROR_NOT_SUPPORTED
         CUDA_ERROR_NOT_FOUND
-    pfn : Int
+    pfn : int
         Location to return the function pointer to the requested driver
         function
 
@@ -25808,49 +27940,19 @@ def cuGetExportTable(pExportTableId : CUuuid):
     return (CUresult(err), ppExportTable)
 
 @cython.embedsignature(True)
-def cuFlushGPUDirectRDMAWrites(target not None : CUflushGPUDirectRDMAWritesTarget, scope not None : CUflushGPUDirectRDMAWritesScope):
-    """ Blocks until remote writes are visible to the specified scope. 
-
-    Blocks until GPUDirect RDMA writes to the target context via mappings
-    created through APIs like nvidia_p2p_get_pages (see
-    https://docs.nvidia.com/cuda/gpudirect-rdma for more information), are
-    visible to the specified scope.
-
-    If the scope equals or lies within the scope indicated by
-    CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING, the call will be a
-    no-op and can be safely omitted for performance. This can be determined
-    by comparing the numerical values between the two enums, with smaller
-    scopes having smaller values.
-
-    Users may query support for this API via
-    CU_DEVICE_ATTRIBUTE_FLUSH_FLUSH_GPU_DIRECT_RDMA_OPTIONS.
+def sizeof(objType):
+    """ Returns the size of provided CUDA Python structure in bytes
 
     Parameters
     ----------
-    target : CUflushGPUDirectRDMAWritesTarget
-        The target of the operation, see CUflushGPUDirectRDMAWritesTarget
-    scope : CUflushGPUDirectRDMAWritesScope
-        The scope of the operation, see CUflushGPUDirectRDMAWritesScope
+    objType : Any
+        CUDA Python object
 
     Returns
     -------
-    CUresult
-        CUDA_SUCCESS
-        CUDA_ERROR_DEINITIALIZED
-        CUDA_ERROR_NOT_INITIALIZED
-        CUDA_ERROR_INVALID_CONTEXT
-        CUDA_ERROR_INVALID_VALUE
-
-    None
-        None
+    lowered_name : int
+        The size of `objType` in bytes
     """
-    cdef ccuda.CUflushGPUDirectRDMAWritesTarget ctarget = target.value
-    cdef ccuda.CUflushGPUDirectRDMAWritesScope cscope = scope.value
-    err = ccuda.cuFlushGPUDirectRDMAWrites(ctarget, cscope)
-    return (CUresult(err),)
-
-@cython.embedsignature(True)
-def sizeof(objType):
     if objType == CUuuid_st:
         return sizeof(ccuda.CUuuid_st)
     if objType == CUipcEventHandle_st:

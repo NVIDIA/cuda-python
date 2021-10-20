@@ -2,5 +2,3 @@ Cython==0.29.24
 pytest==6.2.4
 pytest-benchmark==3.4.1
 numpy==1.21.1
-numba==0.53.1
-versioneer==0.20

@@ -4,8 +4,6 @@ channels:
 dependencies:
   - cython=0.29.23
   - myst-parser
-  - matplotlib
-  - numba
   - numpy
   - numpydoc
   - pip
@@ -16,3 +14,5 @@ dependencies:
   - pip:
     - furo
     - myst-nb
+    - enum-tools
+    - sphinx_toolbox

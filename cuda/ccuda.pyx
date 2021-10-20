@@ -58,6 +58,9 @@ cdef CUresult cuDeviceGetMemPool(CUmemoryPool* pool, CUdevice dev) nogil except 
 cdef CUresult cuDeviceGetDefaultMemPool(CUmemoryPool* pool_out, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuDeviceGetDefaultMemPool(pool_out, dev)
 
+cdef CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuFlushGPUDirectRDMAWrites(target, scope)
+
 cdef CUresult cuDeviceGetProperties(CUdevprop* prop, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuDeviceGetProperties(prop, dev)
 
@@ -1053,6 +1056,3 @@ cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, 
 
 cdef CUresult cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuGetExportTable(ppExportTable, pExportTableId)
-
-cdef CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) nogil except ?CUDA_ERROR_NOT_FOUND:
-    return ccuda._cuFlushGPUDirectRDMAWrites(target, scope)

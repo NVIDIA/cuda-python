@@ -12,6 +12,7 @@ __pycache__/
 .benchmarks/
 *.cpp
 !cuda/_lib/param_packer.cpp
+!cuda/_cuda/loader.cpp
 
 # Distribution / packaging
 .Python
@@ -77,6 +78,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs_src/_build/
 
 # PyBuilder
 .pybuilder/

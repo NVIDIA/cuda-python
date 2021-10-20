@@ -33,10 +33,13 @@ def findCudaDevice():
     devID = 0
     if checkCmdLineFlag("device="):
         devID = getCmdLineArgumentInt("device=")
+    checkCudaErrors(cudart.cudaSetDevice(devID))
     return devID
 
 def findCudaDeviceDRV():
     devID = 0
     if checkCmdLineFlag("device="):
         devID = getCmdLineArgumentInt("device=")
-    return cuda.CUdevice(devID)
+    checkCudaErrors(cuda.cuInit(0))
+    cuDevice = checkCudaErrors(cuda.cuDeviceGet(devID))
+    return cuDevice

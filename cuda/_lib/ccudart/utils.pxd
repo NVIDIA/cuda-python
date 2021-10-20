@@ -16,12 +16,13 @@ cdef class cudaPythonGlobal:
     cdef int _numDevices
     cdef ccuda.CUdevice* _driverDevice
     cdef ccuda.CUcontext* _driverContext
+    cdef bool* _deviceInit
     cdef cudaDeviceProp* _deviceProperties
     cdef cudaError_t _lastError
     cdef int CUDART_VERSION
 
     cdef cudaError_t lazyInit(self) nogil
-    cdef cudaError_t _populateDeviceProperties(self, int deviceOrdinal) nogil
+    cdef cudaError_t lazyInitDevice(self, int deviceOrdinal) nogil
 
 cdef cudaPythonGlobal globalGetInstance()
 cdef cudaError_t _setLastError(cudaError_t err) nogil
@@ -31,20 +32,20 @@ cdef cudaError_t streamGetCaptureInfoCommon(cudaStream_t stream, cudaStreamCaptu
 cdef cudaError_t getChannelFormatDescFromDriverDesc(cudaChannelFormatDesc* pRuntimeDesc, size_t* pDepth, size_t* pHeight, size_t* pWidth, const ccuda.CUDA_ARRAY3D_DESCRIPTOR_v2* pDriverDesc) nogil except+
 cdef cudaError_t copyFromHost2D(cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *src, size_t spitch, size_t width, size_t height, ccuda.CUstream stream, bool async) nogil except+
 cdef cudaError_t copyFromDevice2D(ccuda.CUmemorytype type, cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *src, size_t srcOffset,
-                                  size_t spitch, size_t width, size_t height, ccuda.CUstream stream, bool async) nogil except +
+                                  size_t spitch, size_t width, size_t height, ccuda.CUstream stream, bool async) nogil except+
 cdef cudaError_t copyToHost2D(cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, char *dst, size_t dpitch, size_t width,
-                              size_t height, ccuda.CUstream stream, bool async) nogil except +
+                              size_t height, ccuda.CUstream stream, bool async) nogil except+
 cdef cudaError_t copyToDevice2D(ccuda.CUmemorytype type, cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *dst, size_t dstOffset, size_t dpitch,
-                                size_t width, size_t height, ccuda.CUstream stream, bool async) nogil except +
+                                size_t width, size_t height, ccuda.CUstream stream, bool async) nogil except+
 cdef cudaError_t copyToArray2D(cudaArray_const_t thisArray, size_t hOffsetSrc, size_t wOffsetSrc, cudaArray_t dst,
-                               size_t hOffsetDst, size_t wOffsetDst, size_t width, size_t height) nogil except +
+                               size_t hOffsetDst, size_t wOffsetDst, size_t width, size_t height) nogil except+
 cdef cudaError_t getChannelDesc(cudaArray_const_t thisArray, cudaChannelFormatDesc *outDesc) nogil except+
 cdef cudaError_t getDriverResDescFromResDesc(ccuda.CUDA_RESOURCE_DESC *rdDst, const cudaResourceDesc *rdSrc,
                                              ccuda.CUDA_TEXTURE_DESC *tdDst, const cudaTextureDesc *tdSrc,
-                                             ccuda.CUDA_RESOURCE_VIEW_DESC *rvdDst, const cudaResourceViewDesc *rvdSrc) nogil except +
+                                             ccuda.CUDA_RESOURCE_VIEW_DESC *rvdDst, const cudaResourceViewDesc *rvdSrc) nogil except+
 cdef cudaError_t getResDescFromDriverResDesc(cudaResourceDesc *rdDst, const ccuda.CUDA_RESOURCE_DESC *rdSrc,
                                              cudaTextureDesc *tdDst, const ccuda.CUDA_TEXTURE_DESC *tdSrc,
-                                             cudaResourceViewDesc *rvdDst, const ccuda.CUDA_RESOURCE_VIEW_DESC *rvdSrc) nogil except +
+                                             cudaResourceViewDesc *rvdDst, const ccuda.CUDA_RESOURCE_VIEW_DESC *rvdSrc) nogil except+
 cdef cudaError_t memsetPtr(char *mem, int c, size_t count, cudaStream_t sid, bool async) nogil except+
 cdef cudaError_t memset2DPtr(char *mem, size_t pitch, int c, size_t width, size_t height, cudaStream_t sid, bool async) nogil except+
 cdef cudaError_t copyFromHost(cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *src, size_t count,
@@ -88,4 +89,5 @@ cdef cudaError_t memcpyFromArray(char *dst, cudaArray_const_t src, size_t hOffse
                                  cudaStream_t sid, bool async) nogil except+
 cdef cudaError_t memcpyArrayToArray(cudaArray_t dst, size_t hOffsetDst, size_t wOffsetDst,
                                     cudaArray_const_t src, size_t hOffsetSrc, size_t wOffsetSrc,
-                                    size_t count, cudaMemcpyKind kind) nogil except +
+                                    size_t count, cudaMemcpyKind kind) nogil except+
+cdef cudaError_t toDriverCudaResourceDesc(ccuda.CUDA_RESOURCE_DESC *_driver_pResDesc, const cudaResourceDesc *pResDesc) nogil except+

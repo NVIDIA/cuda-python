@@ -440,7 +440,7 @@ def test_cuda_mem_range_attr():
         assert(err == cuda.CUresult.CUDA_SUCCESS)
         expected_values = [1, -1, [0, -1, -2], -2]
     else:
-        expected_values = [0, -2, [-2, -2, -2], -2]
+        expected_values = [1, -1, [-1, -2, -2], -2]
 
     # Individual version
     attr_type_list = [cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,

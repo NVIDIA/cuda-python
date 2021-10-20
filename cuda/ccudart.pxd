@@ -138,6 +138,7 @@ cdef enum cudaError:
     cudaErrorStreamCaptureWrongThread = 908
     cudaErrorTimeout = 909
     cudaErrorGraphExecUpdateFailure = 910
+    cudaErrorExternalDevice = 911
     cudaErrorUnknown = 999
     cudaErrorApiFailureBase = 10000
 
@@ -147,6 +148,32 @@ cdef enum cudaChannelFormatKind:
     cudaChannelFormatKindFloat = 2
     cudaChannelFormatKindNone = 3
     cudaChannelFormatKindNV12 = 4
+    cudaChannelFormatKindUnsignedNormalized8X1 = 5
+    cudaChannelFormatKindUnsignedNormalized8X2 = 6
+    cudaChannelFormatKindUnsignedNormalized8X4 = 7
+    cudaChannelFormatKindUnsignedNormalized16X1 = 8
+    cudaChannelFormatKindUnsignedNormalized16X2 = 9
+    cudaChannelFormatKindUnsignedNormalized16X4 = 10
+    cudaChannelFormatKindSignedNormalized8X1 = 11
+    cudaChannelFormatKindSignedNormalized8X2 = 12
+    cudaChannelFormatKindSignedNormalized8X4 = 13
+    cudaChannelFormatKindSignedNormalized16X1 = 14
+    cudaChannelFormatKindSignedNormalized16X2 = 15
+    cudaChannelFormatKindSignedNormalized16X4 = 16
+    cudaChannelFormatKindUnsignedBlockCompressed1 = 17
+    cudaChannelFormatKindUnsignedBlockCompressed1SRGB = 18
+    cudaChannelFormatKindUnsignedBlockCompressed2 = 19
+    cudaChannelFormatKindUnsignedBlockCompressed2SRGB = 20
+    cudaChannelFormatKindUnsignedBlockCompressed3 = 21
+    cudaChannelFormatKindUnsignedBlockCompressed3SRGB = 22
+    cudaChannelFormatKindUnsignedBlockCompressed4 = 23
+    cudaChannelFormatKindSignedBlockCompressed4 = 24
+    cudaChannelFormatKindUnsignedBlockCompressed5 = 25
+    cudaChannelFormatKindSignedBlockCompressed5 = 26
+    cudaChannelFormatKindUnsignedBlockCompressed6H = 27
+    cudaChannelFormatKindSignedBlockCompressed6H = 28
+    cudaChannelFormatKindUnsignedBlockCompressed7 = 29
+    cudaChannelFormatKindUnsignedBlockCompressed7SRGB = 30
 
 cdef struct cudaChannelFormatDesc:
     int x
@@ -604,6 +631,7 @@ cdef enum cudaDeviceAttr:
     cudaDevAttrReservedSharedMemoryPerBlock = 111
     cudaDevAttrSparseCudaArraySupported = 112
     cudaDevAttrHostRegisterReadOnlySupported = 113
+    cudaDevAttrTimelineSemaphoreInteropSupported = 114
     cudaDevAttrMaxTimelineSemaphoreInteropSupported = 114
     cudaDevAttrMemoryPoolsSupported = 115
     cudaDevAttrGPUDirectRDMASupported = 116
@@ -1747,4 +1775,4 @@ cdef enum: cudaTextureType2DLayered = 0xF2
 
 cdef enum: cudaTextureTypeCubemapLayered = 0xFC
 
-cdef enum: CUDART_VERSION = 11040
+cdef enum: CUDART_VERSION = 11050

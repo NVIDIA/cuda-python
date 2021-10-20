@@ -32,6 +32,8 @@ cdef class cudaPythonGlobal:
         self._numDevices = 0
         self._driverDevice = NULL
         self._driverContext = NULL
+        self._deviceInit = NULL
+        self._deviceProperties = NULL
         self.CUDART_VERSION = 11040
 
     def __dealloc__(self):
@@ -39,6 +41,8 @@ cdef class cudaPythonGlobal:
             free(self._driverDevice)
         if self._driverContext is not NULL:
             free(self._driverContext)
+        if self._deviceInit is not NULL:
+            free(self._deviceInit)
         if self._deviceProperties is not NULL:
             free(self._deviceProperties)
 
@@ -58,32 +62,38 @@ cdef class cudaPythonGlobal:
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
             return cudaErrorInitializationError
 
-        self._driverDevice = <ccuda.CUdevice *>malloc(self._numDevices*sizeof(ccuda.CUdevice))
+        self._driverDevice = <ccuda.CUdevice *>calloc(self._numDevices, sizeof(ccuda.CUdevice))
         if self._driverDevice == NULL:
             return cudaErrorMemoryAllocation
-        self._driverContext = <ccuda.CUcontext *>malloc(self._numDevices*sizeof(ccuda.CUcontext))
+        self._driverContext = <ccuda.CUcontext *>calloc(self._numDevices, sizeof(ccuda.CUcontext))
         if self._driverContext == NULL:
             return cudaErrorMemoryAllocation
-        self._deviceProperties = <cudaDeviceProp *>malloc(self._numDevices*sizeof(cudaDeviceProp))
+        self._deviceProperties = <cudaDeviceProp *>calloc(self._numDevices, sizeof(cudaDeviceProp))
         if self._deviceProperties == NULL:
             return cudaErrorMemoryAllocation
+        self._deviceInit = <bool *>calloc(self._numDevices, sizeof(bool))
+        if self._deviceInit == NULL:
+            return cudaErrorMemoryAllocation
 
-        cdef int deviceOrdinal = 0
-        for deviceOrdinal in range(self._numDevices):
-            err = ccuda._cuDeviceGet(&self._driverDevice[deviceOrdinal], deviceOrdinal)
-            if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-                return cudaErrorInitializationError
-            err = ccuda._cuDevicePrimaryCtxRetain(&self._driverContext[deviceOrdinal], self._driverDevice[deviceOrdinal])
-            if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-                return cudaErrorInitializationError
-            err_rt = self._populateDeviceProperties(deviceOrdinal)
-            if err_rt != cudaSuccess:
-                return err_rt
+        err_rt = self.lazyInitDevice(0)
+        if err_rt != cudaSuccess:
+            return cudaErrorInitializationError
+
         err = ccuda._cuCtxSetCurrent(self._driverContext[0])
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
             return cudaErrorInitializationError
 
-    cdef cudaError_t _populateDeviceProperties(self, int deviceOrdinal) nogil:
+    cdef cudaError_t lazyInitDevice(self, int deviceOrdinal) nogil:
+        if self._deviceInit[deviceOrdinal]:
+            return cudaSuccess
+
+        err = ccuda._cuDeviceGet(&self._driverDevice[deviceOrdinal], deviceOrdinal)
+        if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+            return cudaErrorInitializationError
+        err = ccuda._cuDevicePrimaryCtxRetain(&self._driverContext[deviceOrdinal], self._driverDevice[deviceOrdinal])
+        if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+            return cudaErrorInitializationError
+
         err = ccuda._cuDeviceGetName(self._deviceProperties[deviceOrdinal].name, sizeof(self._deviceProperties[deviceOrdinal].name), <ccuda.CUdevice>deviceOrdinal)
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
             return cudaErrorInitializationError
@@ -490,7 +500,10 @@ cdef class cudaPythonGlobal:
         err = ccuda._cuDeviceGetAttribute(&reservedSharedMemPerBlock, ccuda.CU_DEVICE_ATTRIBUTE_RESERVED_SHARED_MEMORY_PER_BLOCK, <ccuda.CUdevice>(deviceOrdinal))
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
             return cudaErrorInitializationError
-        self._deviceProperties[deviceOrdinal].reservedSharedMemPerBlock = reservedSharedMemPerBlock        # prop->reservedSharedMemPerBlock = reservedSharedMemPerBlock
+        self._deviceProperties[deviceOrdinal].reservedSharedMemPerBlock = reservedSharedMemPerBlock
+
+        self._deviceInit[deviceOrdinal] = True
+        return cudaSuccess
 
 cdef cudaPythonGlobal m_global = cudaPythonGlobal()
 
@@ -501,125 +514,212 @@ cdef cudaError_t _setLastError(cudaError_t err) nogil:
     if err != cudaSuccess:
         m_global._lastError = err
 
+cdef int case_desc(const cudaChannelFormatDesc* d, int x, int y, int z, int w, int f) nogil:
+    return d[0].x == x and d[0].y == y and d[0].z == z and d[0].w == w and d[0].f == f
+
 cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChannels, ccuda.CUarray_format *format) nogil:
     # Check validity
-    if (((d[0].f != cudaChannelFormatKind.cudaChannelFormatKindSigned) and (d[0].f != cudaChannelFormatKind.cudaChannelFormatKindUnsigned) and (d[0].f != cudaChannelFormatKind.cudaChannelFormatKindFloat) and (d[0].f != cudaChannelFormatKind.cudaChannelFormatKindNV12)) or
-        ((d[0].x != 8) and (d[0].x != 16) and (d[0].x != 32)) or
-        ((d[0].x == 8) and (d[0].f == cudaChannelFormatKind.cudaChannelFormatKindFloat)) or
-        ((d[0].x != 8) and (d[0].y != 8) and (d[0].z != 8) and (d[0].w != 0) and (d[0].f == cudaChannelFormatKind.cudaChannelFormatKindNV12)) or
-        ((d[0].y != 0) and (d[0].y != d[0].x)) or
-        ((d[0].z != 0) and (d[0].z != d[0].x))):
-        return cudaErrorInvalidChannelDescriptor
-    # If Y is non-zero, it must match X
-    # If Z is non-zero, it must match Y
-    # If W is non-zero, it must match Z
-    if ((d[0].y != 0) and (d[0].y != d[0].x) or
-        (d[0].z != 0) and (d[0].z != d[0].y) or
-        (d[0].w != 0) and (d[0].w != d[0].z)):
-        return cudaErrorInvalidChannelDescriptor
-    if d[0].x == 8 and d[0].y == 0 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 1
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT8
-    elif d[0].x == 8 and d[0].y == 8 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 2
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT8
-    elif d[0].x == 8 and d[0].y == 8 and d[0].z == 8 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 3
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT8
-    elif d[0].x == 8 and d[0].y == 8 and d[0].z == 8 and d[0].w == 8 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 4
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT8
-    elif d[0].x == 8 and d[0].y == 0 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 1
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT8
-    elif d[0].x == 8 and d[0].y == 8 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 2
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT8
-    elif d[0].x == 8 and d[0].y == 8 and d[0].z == 8 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 3
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT8
-    elif d[0].x == 8 and d[0].y == 8 and d[0].z == 8 and d[0].w == 8 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 4
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT8
-    elif d[0].x == 16 and d[0].y == 0 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 1
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT16
-    elif d[0].x == 16 and d[0].y == 16 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 2
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT16
-    elif d[0].x == 16 and d[0].y == 16 and d[0].z == 16 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 3
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT16
-    elif d[0].x == 16 and d[0].y == 16 and d[0].z == 16 and d[0].w == 16 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 4
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT16
-    elif d[0].x == 16 and d[0].y == 0 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 1
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT16
-    elif d[0].x == 16 and d[0].y == 16 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 2
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT16
-    elif d[0].x == 16 and d[0].y == 16 and d[0].z == 16 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 3
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT16
-    elif d[0].x == 16 and d[0].y == 16 and d[0].z == 16 and d[0].w == 16 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 4
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT16
-    elif d[0].x == 32 and d[0].y == 0 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 1
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT32
-    elif d[0].x == 32 and d[0].y == 32 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 2
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT32
-    elif d[0].x == 32 and d[0].y == 32 and d[0].z == 32 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 3
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT32
-    elif d[0].x == 32 and d[0].y == 32 and d[0].z == 32 and d[0].w == 32 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindSigned:
-        numberOfChannels[0] = 4
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT32
-    elif d[0].x == 32 and d[0].y == 0 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 1
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT32
-    elif d[0].x == 32 and d[0].y == 32 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 2
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT32
-    elif d[0].x == 32 and d[0].y == 32 and d[0].z == 32 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 3
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT32
-    elif d[0].x == 32 and d[0].y == 32 and d[0].z == 32 and d[0].w == 32 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindUnsigned:
-        numberOfChannels[0] = 4
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT32
-    elif d[0].x == 16 and d[0].y == 0 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindFloat:
-        numberOfChannels[0] = 1
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_HALF
-    elif d[0].x == 16 and d[0].y == 16 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindFloat:
-        numberOfChannels[0] = 2
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_HALF
-    elif d[0].x == 16 and d[0].y == 16 and d[0].z == 16 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindFloat:
-        numberOfChannels[0] = 3
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_HALF
-    elif d[0].x == 16 and d[0].y == 16 and d[0].z == 16 and d[0].w == 16 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindFloat:
-        numberOfChannels[0] = 4
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_HALF
-    elif d[0].x == 32 and d[0].y == 0 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindFloat:
-        numberOfChannels[0] = 1
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_FLOAT
-    elif d[0].x == 32 and d[0].y == 32 and d[0].z == 0 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindFloat:
-        numberOfChannels[0] = 2
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_FLOAT
-    elif d[0].x == 32 and d[0].y == 32 and d[0].z == 32 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindFloat:
-        numberOfChannels[0] = 3
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_FLOAT
-    elif d[0].x == 32 and d[0].y == 32 and d[0].z == 32 and d[0].w == 32 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindFloat:
-        numberOfChannels[0] = 4
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_FLOAT
-    elif d[0].x == 8 and d[0].y == 8 and d[0].z == 8 and d[0].w == 0 and d[0].f == cudaChannelFormatKind.cudaChannelFormatKindNV12:
-        numberOfChannels[0] = 3
-        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_NV12
+    if d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindSigned,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        if (d[0].x != 8) and (d[0].x != 16) and (d[0].x != 32):
+            return cudaErrorInvalidChannelDescriptor
+    elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindFloat,):
+        if (d[0].x != 16) and (d[0].x != 32):
+            return cudaErrorInvalidChannelDescriptor
+    elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindNV12,):
+        if (d[0].x != 8) or (d[0].y != 8) or (d[0].z != 8) or (d[0].w != 0):
+            return cudaErrorInvalidChannelDescriptor
+    elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X1,
+                    cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X2,
+                    cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X4,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X1,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X2,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X4,):
+        if (d[0].x != 8):
+            return cudaErrorInvalidChannelDescriptor
+    elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X1,
+                    cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X2,
+                    cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X4,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X1,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X2,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X4,):
+        if (d[0].x != 16):
+            return cudaErrorInvalidChannelDescriptor
+    elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed1,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed1SRGB,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed2,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed2SRGB,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed3,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed3SRGB,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed4,
+                    cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed4,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed5,
+                    cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed5,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7,
+                    cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7SRGB,):
+        if (d[0].x != 8):
+            return cudaErrorInvalidChannelDescriptor
+    elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed6H,
+                    cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed6H,):
+        if (d[0].x != 16) or (d[0].y != 16) or (d[0].z != 16) or (d[0].w != 0):
+            return cudaErrorInvalidChannelDescriptor
     else:
         return cudaErrorInvalidChannelDescriptor
 
-    if d[0].f == cudaChannelFormatKind.cudaChannelFormatKindNV12:
+    # If Y is non-zero, it must match X
+    # If Z is non-zero, it must match Y
+    # If W is non-zero, it must match Z
+    if (((d[0].y != 0) and (d[0].y != d[0].x)) or
+        ((d[0].z != 0) and (d[0].z != d[0].y)) or
+        ((d[0].w != 0) and (d[0].w != d[0].z))):
+        return cudaErrorInvalidChannelDescriptor
+    if case_desc(d, 8, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 1
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT8
+    elif case_desc(d, 8, 8, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 2
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT8
+    elif case_desc(d, 8, 8, 8, 0, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT8
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT8
+    elif case_desc(d, 8, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 1
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT8
+    elif case_desc(d, 8, 8, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 2
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT8
+    elif case_desc(d, 8, 8, 8, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT8
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT8
+    elif case_desc(d, 16, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 1
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT16
+    elif case_desc(d, 16, 16, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 2
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT16
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT16
+    elif case_desc(d, 16, 16, 16, 16, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT16
+    elif case_desc(d, 16, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 1
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT16
+    elif case_desc(d, 16, 16, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 2
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT16
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT16
+    elif case_desc(d, 16, 16, 16, 16, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT16
+    elif case_desc(d, 32, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 1
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT32
+    elif case_desc(d, 32, 32, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 2
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT32
+    elif case_desc(d, 32, 32, 32, 0, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT32
+    elif case_desc(d, 32, 32, 32, 32, cudaChannelFormatKind.cudaChannelFormatKindSigned):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT32
+    elif case_desc(d, 32, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 1
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT32
+    elif case_desc(d, 32, 32, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 2
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT32
+    elif case_desc(d, 32, 32, 32, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT32
+    elif case_desc(d, 32, 32, 32, 32, cudaChannelFormatKind.cudaChannelFormatKindUnsigned):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT32
+    elif case_desc(d, 16, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindFloat):
+        numberOfChannels[0] = 1
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_HALF
+    elif case_desc(d, 16, 16, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindFloat):
+        numberOfChannels[0] = 2
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_HALF
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindFloat):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_HALF
+    elif case_desc(d, 16, 16, 16, 16, cudaChannelFormatKind.cudaChannelFormatKindFloat):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_HALF
+    elif case_desc(d, 32, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindFloat):
+        numberOfChannels[0] = 1
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_FLOAT
+    elif case_desc(d, 32, 32, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindFloat):
+        numberOfChannels[0] = 2
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_FLOAT
+    elif case_desc(d, 32, 32, 32, 0, cudaChannelFormatKind.cudaChannelFormatKindFloat):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_FLOAT
+    elif case_desc(d, 32, 32, 32, 32, cudaChannelFormatKind.cudaChannelFormatKindFloat):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_FLOAT
+    elif case_desc(d, 8, 8, 8, 0, cudaChannelFormatKind.cudaChannelFormatKindNV12):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_NV12
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed1):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC1_UNORM
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed1SRGB):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC1_UNORM_SRGB
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed2):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC2_UNORM
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed2SRGB):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC2_UNORM_SRGB
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed3):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC3_UNORM
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed3SRGB):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC3_UNORM_SRGB
+    elif case_desc(d, 8, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed4):
+        numberOfChannels[0] = 1
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC4_UNORM
+    elif case_desc(d, 8, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed4):
+        numberOfChannels[0] = 1
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC4_SNORM
+    elif case_desc(d, 8, 8, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed5):
+        numberOfChannels[0] = 2
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC5_UNORM
+    elif case_desc(d, 8, 8, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed5):
+        numberOfChannels[0] = 2
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC5_SNORM
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed6H):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC6H_UF16
+    elif case_desc(d, 16, 16, 16, 0, cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed6H):
+        numberOfChannels[0] = 3
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC6H_SF16
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC7_UNORM
+    elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7SRGB):
+        numberOfChannels[0] = 4
+        format[0] = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC7_UNORM_SRGB
+    else:
+        return cudaErrorInvalidChannelDescriptor
+
+    if d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindNV12,
+                  cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed6H,
+                  cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed6H,):
         if numberOfChannels[0] != 3:
             return cudaErrorInvalidChannelDescriptor
     else:
@@ -723,14 +823,52 @@ cdef ccuda.CUDA_MEMCPY2D_v2 memCopy2DInit(ccuda.CUmemorytype_enum dstType, ccuda
 
 
 cdef cudaError_t bytesPerElement(size_t *bytes, int numberOfChannels, ccuda.CUarray_format format) nogil except +:
-    if format == ccuda.CU_AD_FORMAT_FLOAT or format == ccuda.CU_AD_FORMAT_UNSIGNED_INT32 or format == ccuda.CU_AD_FORMAT_SIGNED_INT32:
+    if format in (ccuda.CU_AD_FORMAT_FLOAT,
+                  ccuda.CU_AD_FORMAT_UNSIGNED_INT32,
+                  ccuda.CU_AD_FORMAT_SIGNED_INT32):
         bytes[0] = numberOfChannels * 4
         return cudaSuccess
-    elif format == ccuda.CU_AD_FORMAT_HALF or format == ccuda.CU_AD_FORMAT_SIGNED_INT16 or format == ccuda.CU_AD_FORMAT_UNSIGNED_INT16:
+    elif format in (ccuda.CU_AD_FORMAT_HALF,
+                    ccuda.CU_AD_FORMAT_SIGNED_INT16,
+                    ccuda.CU_AD_FORMAT_UNSIGNED_INT16):
         bytes[0] = numberOfChannels * 2
         return cudaSuccess
-    elif format == ccuda.CU_AD_FORMAT_SIGNED_INT8 or format == ccuda.CU_AD_FORMAT_UNSIGNED_INT8 or format == ccuda.CU_AD_FORMAT_NV12:
+    elif format in (ccuda.CU_AD_FORMAT_SIGNED_INT8,
+                    ccuda.CU_AD_FORMAT_UNSIGNED_INT8,
+                    ccuda.CU_AD_FORMAT_NV12):
         bytes[0] = numberOfChannels
+        return cudaSuccess
+    elif format in (ccuda.CU_AD_FORMAT_SNORM_INT8X1,
+                    ccuda.CU_AD_FORMAT_UNORM_INT8X1):
+        bytes[0] = 1
+        return cudaSuccess
+    elif format in (ccuda.CU_AD_FORMAT_SNORM_INT8X2,
+                    ccuda.CU_AD_FORMAT_UNORM_INT8X2,
+                    ccuda.CU_AD_FORMAT_SNORM_INT16X1,
+                    ccuda.CU_AD_FORMAT_UNORM_INT16X1):
+        bytes[0] = 2
+        return cudaSuccess
+    elif format in (ccuda.CU_AD_FORMAT_SNORM_INT8X4,
+                    ccuda.CU_AD_FORMAT_UNORM_INT8X4,
+                    ccuda.CU_AD_FORMAT_SNORM_INT16X2,
+                    ccuda.CU_AD_FORMAT_UNORM_INT16X2):
+        bytes[0] = 4
+        return cudaSuccess
+    elif format in (ccuda.CU_AD_FORMAT_SNORM_INT16X4,
+                    ccuda.CU_AD_FORMAT_UNORM_INT16X4):
+        bytes[0] = 8
+        return cudaSuccess
+    elif format in (ccuda.CU_AD_FORMAT_BC2_UNORM,
+                    ccuda.CU_AD_FORMAT_BC2_UNORM_SRGB,
+                    ccuda.CU_AD_FORMAT_BC3_UNORM,
+                    ccuda.CU_AD_FORMAT_BC3_UNORM_SRGB,
+                    ccuda.CU_AD_FORMAT_BC5_UNORM,
+                    ccuda.CU_AD_FORMAT_BC5_SNORM,
+                    ccuda.CU_AD_FORMAT_BC6H_UF16,
+                    ccuda.CU_AD_FORMAT_BC6H_SF16,
+                    ccuda.CU_AD_FORMAT_BC7_UNORM,
+                    ccuda.CU_AD_FORMAT_BC7_UNORM_SRGB):
+        bytes[0] = 16
         return cudaSuccess
     return cudaErrorInvalidChannelDescriptor
 
@@ -767,6 +905,84 @@ cdef cudaError_t getChannelFormatDescFromDriverDesc(
     elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_NV12:
         pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindNV12
         channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_UNORM_INT8X1:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X1
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_UNORM_INT8X2:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X2
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_UNORM_INT8X4:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized8X4
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_SNORM_INT8X1:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X1
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_SNORM_INT8X2:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X2
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_SNORM_INT8X4:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized8X4
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_UNORM_INT16X1:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X1
+        channel_size = 16
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_UNORM_INT16X2:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X2
+        channel_size = 16
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_UNORM_INT16X4:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized16X4
+        channel_size = 16
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_SNORM_INT16X1:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X1
+        channel_size = 16
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_SNORM_INT16X2:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X2
+        channel_size = 16
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_SNORM_INT16X4:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindSignedNormalized16X4
+        channel_size = 16
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC1_UNORM:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed1
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC1_UNORM_SRGB:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed1SRGB
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC2_UNORM:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed2
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC2_UNORM_SRGB:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed2SRGB
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC3_UNORM:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed3
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC3_UNORM_SRGB:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed3SRGB
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC4_UNORM:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed4
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC4_SNORM:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed4
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC5_UNORM:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed5
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC5_SNORM:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed5
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC6H_UF16:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed6H
+        channel_size = 16
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC6H_SF16:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed6H
+        channel_size = 16
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC7_UNORM:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7
+        channel_size = 8
+    elif pDriverDesc[0].Format == ccuda.CU_AD_FORMAT_BC7_UNORM_SRGB:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7SRGB
+        channel_size = 8
     else:
         return cudaErrorInvalidChannelDescriptor
 
@@ -797,11 +1013,60 @@ cdef cudaError_t getChannelFormatDescFromDriverDesc(
         pWidth[0]  = pDriverDesc[0].Width
     return cudaSuccess
 
+cdef cudaError_t getArrayBlockExtent(cudaExtent *blockExtent, ccuda.CUarray_format format) nogil:
+    if format in (ccuda.CU_AD_FORMAT_FLOAT,
+                  ccuda.CU_AD_FORMAT_UNSIGNED_INT32,
+                  ccuda.CU_AD_FORMAT_SIGNED_INT32,
+                  ccuda.CU_AD_FORMAT_HALF,
+                  ccuda.CU_AD_FORMAT_SIGNED_INT16,
+                  ccuda.CU_AD_FORMAT_UNSIGNED_INT16,
+                  ccuda.CU_AD_FORMAT_SIGNED_INT8,
+                  ccuda.CU_AD_FORMAT_UNSIGNED_INT8,
+                  ccuda.CU_AD_FORMAT_NV12,
+                  ccuda.CU_AD_FORMAT_SNORM_INT8X1,
+                  ccuda.CU_AD_FORMAT_UNORM_INT8X1,
+                  ccuda.CU_AD_FORMAT_SNORM_INT8X2,
+                  ccuda.CU_AD_FORMAT_UNORM_INT8X2,
+                  ccuda.CU_AD_FORMAT_SNORM_INT16X1,
+                  ccuda.CU_AD_FORMAT_UNORM_INT16X1,
+                  ccuda.CU_AD_FORMAT_SNORM_INT8X4,
+                  ccuda.CU_AD_FORMAT_UNORM_INT8X4,
+                  ccuda.CU_AD_FORMAT_SNORM_INT16X2,
+                  ccuda.CU_AD_FORMAT_UNORM_INT16X2,
+                  ccuda.CU_AD_FORMAT_SNORM_INT16X4,
+                  ccuda.CU_AD_FORMAT_UNORM_INT16X4):
+        blockExtent[0].width = 1
+        blockExtent[0].height = 1
+        blockExtent[0].depth = 1
+    elif format in (ccuda.CU_AD_FORMAT_BC1_UNORM,
+                    ccuda.CU_AD_FORMAT_BC1_UNORM_SRGB,
+                    ccuda.CU_AD_FORMAT_BC4_UNORM,
+                    ccuda.CU_AD_FORMAT_BC4_SNORM,
+                    ccuda.CU_AD_FORMAT_BC2_UNORM,
+                    ccuda.CU_AD_FORMAT_BC2_UNORM_SRGB,
+                    ccuda.CU_AD_FORMAT_BC3_UNORM,
+                    ccuda.CU_AD_FORMAT_BC3_UNORM_SRGB,
+                    ccuda.CU_AD_FORMAT_BC5_UNORM,
+                    ccuda.CU_AD_FORMAT_BC5_SNORM,
+                    ccuda.CU_AD_FORMAT_BC6H_UF16,
+                    ccuda.CU_AD_FORMAT_BC6H_SF16,
+                    ccuda.CU_AD_FORMAT_BC7_UNORM,
+                    ccuda.CU_AD_FORMAT_BC7_UNORM_SRGB):
+        blockExtent[0].width = 4
+        blockExtent[0].height = 4
+        blockExtent[0].depth = 1
+    else:
+        return cudaErrorInvalidChannelDescriptor
+    return cudaSuccess
 
 cdef cudaError_t getLocalState(cudaArrayLocalState *state, cudaArray_const_t thisArray) nogil except +:
     cdef cudaArrayLocalState arrayState
+    cdef cudaExtent compBlockExtent
 
     arrayState.array = <ccuda.CUarray>thisArray
+    compBlockExtent.width = 1
+    compBlockExtent.height = 1
+    compBlockExtent.depth = 1
     cdef ccuda.CUDA_ARRAY3D_DESCRIPTOR_v2 driverDesc
     memset(&driverDesc, 0, sizeof(driverDesc))
     err = <cudaError_t>ccuda._cuArray3DGetDescriptor_v2(&driverDesc, <ccuda.CUarray>arrayState.array)
@@ -813,7 +1078,10 @@ cdef cudaError_t getLocalState(cudaArrayLocalState *state, cudaArray_const_t thi
     err = bytesPerElement(&arrayState.elementSize, driverDesc.NumChannels, driverDesc.Format)
     if err != cudaSuccess:
         return err
-    arrayState.widthInBytes = arrayState.width * arrayState.elementSize
+    err = getArrayBlockExtent(&compBlockExtent, driverDesc.Format)
+    if err != cudaSuccess:
+        return err
+    arrayState.widthInBytes = <size_t>((arrayState.width + compBlockExtent.width - 1) / compBlockExtent.width) * arrayState.elementSize
 
     state[0] = arrayState
     return cudaSuccess
@@ -1097,8 +1365,36 @@ cdef cudaError_t getDriverResDescFromResDesc(ccuda.CUDA_RESOURCE_DESC *rdDst, co
         else:
             tdDst[0].flags |= 0
 
-
-        if format == ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT8 or format == ccuda.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT16 or format == ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT8 or format == ccuda.CUarray_format_enum.CU_AD_FORMAT_UNSIGNED_INT16:
+        if format in (ccuda.CU_AD_FORMAT_SNORM_INT8X1,
+                      ccuda.CU_AD_FORMAT_SNORM_INT8X2,
+                      ccuda.CU_AD_FORMAT_SNORM_INT8X4,
+                      ccuda.CU_AD_FORMAT_UNORM_INT8X1,
+                      ccuda.CU_AD_FORMAT_UNORM_INT8X2,
+                      ccuda.CU_AD_FORMAT_UNORM_INT8X4,
+                      ccuda.CU_AD_FORMAT_SNORM_INT16X1,
+                      ccuda.CU_AD_FORMAT_SNORM_INT16X2,
+                      ccuda.CU_AD_FORMAT_SNORM_INT16X4,
+                      ccuda.CU_AD_FORMAT_UNORM_INT16X1,
+                      ccuda.CU_AD_FORMAT_UNORM_INT16X2,
+                      ccuda.CU_AD_FORMAT_UNORM_INT16X4,
+                      ccuda.CU_AD_FORMAT_BC1_UNORM,
+                      ccuda.CU_AD_FORMAT_BC1_UNORM_SRGB,
+                      ccuda.CU_AD_FORMAT_BC2_UNORM,
+                      ccuda.CU_AD_FORMAT_BC2_UNORM_SRGB,
+                      ccuda.CU_AD_FORMAT_BC3_UNORM,
+                      ccuda.CU_AD_FORMAT_BC3_UNORM_SRGB,
+                      ccuda.CU_AD_FORMAT_BC4_UNORM,
+                      ccuda.CU_AD_FORMAT_BC4_SNORM,
+                      ccuda.CU_AD_FORMAT_BC5_UNORM,
+                      ccuda.CU_AD_FORMAT_BC5_SNORM,
+                      ccuda.CU_AD_FORMAT_BC7_UNORM,
+                      ccuda.CU_AD_FORMAT_BC7_UNORM_SRGB):
+            if tdSrc[0].readMode != cudaTextureReadMode.cudaReadModeNormalizedFloat:
+                return cudaErrorInvalidNormSetting
+        elif format in (ccuda.CU_AD_FORMAT_SIGNED_INT8,
+                        ccuda.CU_AD_FORMAT_SIGNED_INT16,
+                        ccuda.CU_AD_FORMAT_UNSIGNED_INT8,
+                        ccuda.CU_AD_FORMAT_UNSIGNED_INT16):
             if tdSrc[0].readMode == cudaReadModeElementType:
                 if tdSrc[0].filterMode == cudaTextureFilterMode.cudaFilterModeLinear:
                     return cudaErrorInvalidFilterSetting
@@ -1214,7 +1510,35 @@ cdef cudaError_t getResDescFromDriverResDesc(cudaResourceDesc *rdDst, const ccud
         else:
             tdDst[0].disableTrilinearOptimization = 0
 
-        if ad.Format == ccuda.CU_AD_FORMAT_SIGNED_INT8 or ad.Format == ccuda.CU_AD_FORMAT_SIGNED_INT16 or ad.Format == ccuda.CU_AD_FORMAT_UNSIGNED_INT8 or ad.Format == ccuda.CU_AD_FORMAT_UNSIGNED_INT16:
+        if ad.Format in (ccuda.CU_AD_FORMAT_SNORM_INT8X1,
+                         ccuda.CU_AD_FORMAT_SNORM_INT8X2,
+                         ccuda.CU_AD_FORMAT_SNORM_INT8X4,
+                         ccuda.CU_AD_FORMAT_UNORM_INT8X1,
+                         ccuda.CU_AD_FORMAT_UNORM_INT8X2,
+                         ccuda.CU_AD_FORMAT_UNORM_INT8X4,
+                         ccuda.CU_AD_FORMAT_SNORM_INT16X1,
+                         ccuda.CU_AD_FORMAT_SNORM_INT16X2,
+                         ccuda.CU_AD_FORMAT_SNORM_INT16X4,
+                         ccuda.CU_AD_FORMAT_UNORM_INT16X1,
+                         ccuda.CU_AD_FORMAT_UNORM_INT16X2,
+                         ccuda.CU_AD_FORMAT_UNORM_INT16X4,
+                         ccuda.CU_AD_FORMAT_BC1_UNORM,
+                         ccuda.CU_AD_FORMAT_BC1_UNORM_SRGB,
+                         ccuda.CU_AD_FORMAT_BC2_UNORM,
+                         ccuda.CU_AD_FORMAT_BC2_UNORM_SRGB,
+                         ccuda.CU_AD_FORMAT_BC3_UNORM,
+                         ccuda.CU_AD_FORMAT_BC3_UNORM_SRGB,
+                         ccuda.CU_AD_FORMAT_BC4_UNORM,
+                         ccuda.CU_AD_FORMAT_BC4_SNORM,
+                         ccuda.CU_AD_FORMAT_BC5_UNORM,
+                         ccuda.CU_AD_FORMAT_BC5_SNORM,
+                         ccuda.CU_AD_FORMAT_BC7_UNORM,
+                         ccuda.CU_AD_FORMAT_BC7_UNORM_SRGB):
+            tdDst[0].readMode = cudaTextureReadMode.cudaReadModeNormalizedFloat
+        elif ad.Format in (ccuda.CU_AD_FORMAT_SIGNED_INT8,
+                           ccuda.CU_AD_FORMAT_SIGNED_INT16,
+                           ccuda.CU_AD_FORMAT_UNSIGNED_INT8,
+                           ccuda.CU_AD_FORMAT_UNSIGNED_INT16):
             with gil:
                 if (tdSrc[0].flags & ccuda.CU_TRSF_READ_AS_INTEGER):
                     tdDst[0].readMode = cudaTextureReadMode.cudaReadModeElementType
@@ -1499,6 +1823,12 @@ cdef cudaError_t memcpy3D(const cudaMemcpy3DParms *p, bool peer, int srcDevice, 
     if peer:
         if srcDevice < 0 or srcDevice > m_global._numDevices or dstDevice < 0 or dstDevice > m_global._numDevices:
             return cudaErrorInvalidDevice
+        err = m_global.lazyInitDevice(srcDevice)
+        if err != cudaSuccess:
+            return err
+        err = m_global.lazyInitDevice(dstDevice)
+        if err != cudaSuccess:
+            return err
         cdPeer.srcXInBytes = cd.srcXInBytes
         cdPeer.srcY = cd.srcY
         cdPeer.srcZ = cd.srcZ
@@ -1653,6 +1983,17 @@ cdef cudaError_t toDriverMemCopy3DParams(const cudaMemcpy3DParms *p, ccuda.CUDA_
     cd[0].Depth = 1
     cdef size_t srcElementSize = 0
     cdef size_t dstElementSize = 0
+    cdef cudaError_t err
+
+    cdef cudaExtent srcBlockExtent
+    cdef cudaExtent dstBlockExtent
+    cdef cudaExtent copyBlockExtent
+    cdef ccuda.CUarray_format srcFmt
+    cdef ccuda.CUarray_format dstFmt
+    cdef int numChannels = 0
+    srcBlockExtent.width = srcBlockExtent.height = srcBlockExtent.depth = 1
+    dstBlockExtent.width = dstBlockExtent.height = dstBlockExtent.depth = 1
+    copyBlockExtent.width = copyBlockExtent.height = copyBlockExtent.depth = 1
 
     if p[0].extent.width == 0 or p[0].extent.height == 0 or p[0].extent.depth == 0:
         return cudaSuccess
@@ -1676,6 +2017,24 @@ cdef cudaError_t toDriverMemCopy3DParams(const cudaMemcpy3DParms *p, ccuda.CUDA_
         return cudaErrorInvalidMemcpyDirection
 
     if p[0].srcArray:
+        err = getFormat(p[0].srcArray, numChannels, &srcFmt)
+        if err != cudaSuccess:
+            return err
+        err = getArrayBlockExtent(&srcBlockExtent, srcFmt)
+        if err != cudaSuccess:
+            return err
+        copyBlockExtent = srcBlockExtent
+    if p[0].dstArray:
+        err = getFormat(p[0].dstArray, numChannels, &dstFmt)
+        if err != cudaSuccess:
+            return err
+        err = getArrayBlockExtent(&dstBlockExtent, dstFmt)
+        if err != cudaSuccess:
+            return err
+        if not p[0].srcArray:
+            copyBlockExtent = dstBlockExtent
+
+    if p[0].srcArray:
         if NULL != p[0].srcPtr.ptr or ccuda.CUmemorytype_enum.CU_MEMORYTYPE_HOST == cd[0].srcMemoryType:
             return cudaErrorInvalidValue
         cd[0].srcMemoryType = ccuda.CUmemorytype_enum.CU_MEMORYTYPE_ARRAY
@@ -1688,8 +2047,10 @@ cdef cudaError_t toDriverMemCopy3DParams(const cudaMemcpy3DParms *p, ccuda.CUDA_
             return cudaErrorInvalidValue
         if (p[0].extent.height > 1 or p[0].extent.depth > 1) and (p[0].extent.width > p[0].srcPtr.pitch):
             return cudaErrorInvalidPitchValue
-        if (p[0].extent.depth > 1) and (p[0].extent.height > p[0].srcPtr.ysize):
-            return cudaErrorInvalidPitchValue
+        if p[0].extent.depth > 1:
+            adjustedSrcHeight = p[0].srcPtr.ysize * copyBlockExtent.height
+            if p[0].extent.height > adjustedSrcHeight:
+                return cudaErrorInvalidPitchValue
 
         if ccuda.CUmemorytype_enum.CU_MEMORYTYPE_HOST == cd[0].srcMemoryType:
             cd[0].srcHost = p[0].srcPtr.ptr
@@ -1711,8 +2072,10 @@ cdef cudaError_t toDriverMemCopy3DParams(const cudaMemcpy3DParms *p, ccuda.CUDA_
             return cudaErrorInvalidValue
         if (p[0].extent.height > 1 or p[0].extent.depth > 1) and (p[0].extent.width > p[0].dstPtr.pitch):
             return cudaErrorInvalidPitchValue
-        if (p[0].extent.depth > 1) and (p[0].extent.height > p[0].dstPtr.ysize):
-            return cudaErrorInvalidPitchValue
+        if p[0].extent.depth > 1:
+            adjustedDstHeight = p[0].dstPtr.ysize * copyBlockExtent.height
+            if p[0].extent.height > adjustedDstHeight:
+                return cudaErrorInvalidPitchValue
 
         if ccuda.CUmemorytype_enum.CU_MEMORYTYPE_HOST == cd[0].dstMemoryType:
             cd[0].dstHost = p[0].dstPtr.ptr
@@ -1733,18 +2096,18 @@ cdef cudaError_t toDriverMemCopy3DParams(const cudaMemcpy3DParms *p, ccuda.CUDA_
     dstElementSize = elementSize
 
     # Determine the extent of the transfer
-    cd[0].WidthInBytes = p[0].extent.width*elementSize
-    cd[0].Height       = p[0].extent.height
+    cd[0].WidthInBytes = <size_t>((p[0].extent.width + copyBlockExtent.width - 1) / copyBlockExtent.width)  * elementSize
+    cd[0].Height       = <size_t>((p[0].extent.height + copyBlockExtent.height - 1) / copyBlockExtent.height);
     cd[0].Depth        = p[0].extent.depth
 
     # Populate bloated src copy origin
-    cd[0].srcXInBytes  = p[0].srcPos.x * elementSize
-    cd[0].srcY         = p[0].srcPos.y
+    cd[0].srcXInBytes  = <size_t>(p[0].srcPos.x / srcBlockExtent.width) * elementSize
+    cd[0].srcY         = <size_t>(p[0].srcPos.y / srcBlockExtent.height)
     cd[0].srcZ         = p[0].srcPos.z
 
     # Populate bloated dst copy origin
-    cd[0].dstXInBytes  = p[0].dstPos.x * elementSize
-    cd[0].dstY         = p[0].dstPos.y
+    cd[0].dstXInBytes  = <size_t>(p[0].dstPos.x / dstBlockExtent.width) * elementSize
+    cd[0].dstY         = <size_t>(p[0].dstPos.y / dstBlockExtent.height)
     cd[0].dstZ         = p[0].dstPos.z
 
     return cudaSuccess
@@ -1877,6 +2240,7 @@ cdef cudaError_t mallocHost(size_t size, void **mem, unsigned int flags) nogil e
     if size == 0:
         if mem == NULL:
             return cudaErrorInvalidValue
+        mem[0] = NULL
         return cudaSuccess
     else:
         return <cudaError_t>ccuda._cuMemHostAlloc(mem, size, flags)
@@ -1922,7 +2286,7 @@ cdef cudaError_t mallocMipmappedArray(cudaMipmappedArray_t *mipmappedArray, cons
         err = <cudaError_t>ccuda._cuMipmappedArrayCreate(&mipmap, &ad, numLevels)
         if err != cudaSuccess:
             return err
-        mipmappedArray[0] = <cudaMipmappedArray_t>mipmap;
+        mipmappedArray[0] = <cudaMipmappedArray_t>mipmap
     return cudaSuccess
 
 
@@ -1943,6 +2307,16 @@ cdef cudaError_t memcpyAsyncDispatch(void *dst, const void *src, size_t size, cu
 
 
 cdef cudaError_t toCudartMemCopy3DParams(const ccuda.CUDA_MEMCPY3D_v2 *cd, cudaMemcpy3DParms *p) nogil except+:
+    cdef cudaExtent srcBlockExtent
+    cdef cudaExtent dstBlockExtent
+    cdef cudaExtent copyBlockExtent
+    cdef ccuda.CUarray_format srcFmt
+    cdef ccuda.CUarray_format dstFmt
+    cdef int numChannels = 0
+    srcBlockExtent.width = srcBlockExtent.height = srcBlockExtent.depth = 1
+    dstBlockExtent.width = dstBlockExtent.height = dstBlockExtent.depth = 1
+    copyBlockExtent.width = copyBlockExtent.height = copyBlockExtent.depth = 1
+
     memset(p, 0, sizeof(cudaMemcpy3DParms))
     p[0].srcPtr.xsize = 0
     p[0].dstPtr.xsize = 0
@@ -2037,14 +2411,29 @@ cdef cudaError_t toCudartMemCopy3DParams(const ccuda.CUDA_MEMCPY3D_v2 *cd, cudaM
     cdef cudaError_t err
 
     if (cd[0].srcMemoryType == ccuda.CUmemorytype_enum.CU_MEMORYTYPE_ARRAY):
+        err = getFormat(<cudaArray_t>cd[0].srcArray, numChannels, &srcFmt)
+        if err != cudaSuccess:
+            return err
+        err = getArrayBlockExtent(&srcBlockExtent, srcFmt)
+        if err != cudaSuccess:
+            return err
         err = getElementSize(&srcElementSize, <cudaArray_t>cd[0].srcArray)
         if err != cudaSuccess:
             return err
+        copyBlockExtent = srcBlockExtent
 
     if (cd[0].dstMemoryType == ccuda.CUmemorytype_enum.CU_MEMORYTYPE_ARRAY):
+        err = getFormat(<cudaArray_t>cd[0].dstArray, numChannels, &dstFmt)
+        if err != cudaSuccess:
+            return err
+        err = getArrayBlockExtent(&dstBlockExtent, dstFmt)
+        if err != cudaSuccess:
+            return err
         err = getElementSize(&dstElementSize, <cudaArray_t>cd[0].dstArray)
         if err != cudaSuccess:
             return err
+        if cd[0].srcMemoryType != ccuda.CUmemorytype_enum.CU_MEMORYTYPE_ARRAY:
+            copyBlockExtent = dstBlockExtent
 
     if (srcElementSize and dstElementSize and srcElementSize != dstElementSize):
         return cudaErrorInvalidValue
@@ -2057,16 +2446,16 @@ cdef cudaError_t toCudartMemCopy3DParams(const ccuda.CUDA_MEMCPY3D_v2 *cd, cudaM
     srcElementSize = elementSize
     dstElementSize = elementSize
 
-    p[0].extent.width = <size_t>(cd[0].WidthInBytes / elementSize)
-    p[0].extent.height = cd[0].Height
+    p[0].extent.width = <size_t>(cd[0].WidthInBytes / elementSize) * copyBlockExtent.width
+    p[0].extent.height = cd[0].Height * copyBlockExtent.height
     p[0].extent.depth = cd[0].Depth
 
-    p[0].srcPos.x = <size_t>(cd[0].srcXInBytes / elementSize)
-    p[0].srcPos.y = cd[0].srcY
+    p[0].srcPos.x = <size_t>(cd[0].srcXInBytes / elementSize) * srcBlockExtent.width
+    p[0].srcPos.y = cd[0].srcY * srcBlockExtent.height
     p[0].srcPos.z = cd[0].srcZ
 
-    p[0].dstPos.x = <size_t>(cd[0].dstXInBytes / elementSize)
-    p[0].dstPos.y = cd[0].dstY
+    p[0].dstPos.x = <size_t>(cd[0].dstXInBytes / elementSize) * dstBlockExtent.width
+    p[0].dstPos.y = cd[0].dstY * dstBlockExtent.height
     p[0].dstPos.z = cd[0].dstZ
     return cudaSuccess
 
@@ -2162,3 +2551,43 @@ cdef cudaError_t memcpyFromArray(char *dst, cudaArray_const_t src, size_t hOffse
     elif kind == cudaMemcpyKind.cudaMemcpyHostToDevice or kind == cudaMemcpyKind.cudaMemcpyHostToHost:
         return cudaErrorInvalidMemcpyDirection
     return cudaSuccess
+
+cdef cudaError_t toDriverCudaResourceDesc(ccuda.CUDA_RESOURCE_DESC *_driver_pResDesc, const cudaResourceDesc *pResDesc) nogil except+:
+    cdef cudaError_t err = cudaSuccess
+    cdef int numChannels
+    cdef ccuda.CUarray_format format
+
+    if pResDesc[0].resType == cudaResourceType.cudaResourceTypeArray:
+        _driver_pResDesc[0].resType          = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_ARRAY
+        _driver_pResDesc[0].res.array.hArray = <ccuda.CUarray>pResDesc[0].res.array.array
+    elif pResDesc[0].resType == cudaResourceType.cudaResourceTypeMipmappedArray:
+        _driver_pResDesc[0].resType                    = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
+        _driver_pResDesc[0].res.mipmap.hMipmappedArray = <ccuda.CUmipmappedArray>pResDesc[0].res.mipmap.mipmap
+    elif pResDesc[0].resType == cudaResourceType.cudaResourceTypeLinear:
+        _driver_pResDesc[0].resType                = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_LINEAR
+        _driver_pResDesc[0].res.linear.devPtr      = <ccuda.CUdeviceptr>pResDesc[0].res.linear.devPtr
+        _driver_pResDesc[0].res.linear.sizeInBytes = pResDesc[0].res.linear.sizeInBytes
+        err = getDescInfo(&pResDesc[0].res.linear.desc, &numChannels, &format)
+        if err != cudaSuccess:
+            _setLastError(err)
+            return err
+        _driver_pResDesc[0].res.linear.format      = format
+        _driver_pResDesc[0].res.linear.numChannels = numChannels
+    elif pResDesc[0].resType == cudaResourceType.cudaResourceTypePitch2D:
+        _driver_pResDesc[0].resType                  = ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_PITCH2D
+        _driver_pResDesc[0].res.pitch2D.devPtr       = <ccuda.CUdeviceptr>pResDesc[0].res.pitch2D.devPtr
+        _driver_pResDesc[0].res.pitch2D.pitchInBytes = pResDesc[0].res.pitch2D.pitchInBytes
+        _driver_pResDesc[0].res.pitch2D.width        = pResDesc[0].res.pitch2D.width
+        _driver_pResDesc[0].res.pitch2D.height       = pResDesc[0].res.pitch2D.height
+        err = getDescInfo(&pResDesc[0].res.linear.desc, &numChannels, &format)
+        if err != cudaSuccess:
+            _setLastError(err)
+            return err
+        _driver_pResDesc[0].res.pitch2D.format       = format
+        _driver_pResDesc[0].res.pitch2D.numChannels  = numChannels
+    else:
+        _setLastError(cudaErrorInvalidValue)
+        return cudaErrorInvalidValue
+    _driver_pResDesc[0].flags = 0
+
+    return err
