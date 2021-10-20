@@ -28,11 +28,11 @@ argument to setup.py.
 You can use
 
 ```
-python setup.py develop
+pip install -e .
 ```
 
-to use the module in-place in your current Python environment (e.g. for testing
-of porting other libraries to use the binding).
+to install the module  as editible in your current Python environment (e.g. for
+testing of porting other libraries to use the binding).
 
 
 ### Build the Docs

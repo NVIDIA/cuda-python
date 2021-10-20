@@ -171,9 +171,6 @@ setup(
         "Environment :: GPU :: NVIDIA CUDA :: 11.0",
         "Environment :: GPU :: NVIDIA CUDA :: 11.1",
         "Environment :: GPU :: NVIDIA CUDA :: 11.2",
-        "Environment :: GPU :: NVIDIA CUDA :: 11.3",
-        "Environment :: GPU :: NVIDIA CUDA :: 11.4",
-        "Environment :: GPU :: NVIDIA CUDA :: 11.5",
     ],
     # Include the separately-compiled shared library
     setup_requires=["cython"],
