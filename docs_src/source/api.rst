@@ -2,17 +2,10 @@
 CUDA Python API Reference
 -------------------------
 
-cuda
-----
-.. automodule:: cuda.cuda
-    :members:
+.. toctree::
+   :maxdepth: 3
+   :caption: CaptionHolder:
 
-cudart
-------
-.. automodule:: cuda.cudart
-    :members:
-
-nvrtc
------
-.. automodule:: cuda.nvrtc
-    :members:
+   module/cuda
+   module/cudart
+   module/nvrtc

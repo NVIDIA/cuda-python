@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -141,7 +141,7 @@ def main():
     checkCudaErrors(cuda.cuLaunchKernel(_simpleKernel[1],
                                         blocks.x, blocks.y, blocks.z,
                                         threads.x, threads.y, threads.z,
-                                        0, cuda.CUstream(0),
+                                        0, 0,
                                         kernelArgs[1], 0))
 
     checkCudaErrors(cudart.cudaDeviceSynchronize())
@@ -157,7 +157,7 @@ def main():
     checkCudaErrors(cuda.cuLaunchKernel(_simpleKernel[0],
                                         blocks.x, blocks.y, blocks.z,
                                         threads.x, threads.y, threads.z,
-                                        0, cuda.CUstream(0),
+                                        0, 0,
                                         kernelArgs[0], 0))
 
     checkCudaErrors(cudart.cudaDeviceSynchronize())

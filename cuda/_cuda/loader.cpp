@@ -1,4 +1,4 @@
-// Copyright 2021 NVIDIA Corporation.  All rights reserved.
+// Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 //
 // Please refer to the NVIDIA end user license agreement (EULA) associated
 // with this source code for terms and conditions that govern your use of
@@ -198,10 +198,10 @@ static int dxcore_query_adapter_driverstore_path(struct dxcore_lib* pLib, unsign
 
 static char* replaceSystemPath(char* path)
 {
-    char *replacedPath = (char*)calloc(DXCORE_MAX_PATH, sizeof(char));
+    char *replacedPath = (char*)calloc(DXCORE_MAX_PATH + 1, sizeof(char));
 
 #if defined(_WIN32)
-    wchar_t *systemPath = (wchar_t*)calloc(DXCORE_MAX_PATH, sizeof(wchar_t));
+    wchar_t *systemPath = (wchar_t*)calloc(DXCORE_MAX_PATH + 1, sizeof(wchar_t));
     // Get system root path
     if (GetSystemDirectoryW(systemPath, DXCORE_MAX_PATH) == 0) {
         free(replacedPath);
@@ -214,13 +214,18 @@ static char* replaceSystemPath(char* path)
     // Replace the /SystemRoot/ part of the registry-obtained path with
     // the actual system root path from above
     char* sysrootPath = strstr(path, sysrootName);
-    strncat(replacedPath, sysrootPath + sysrootName_length, DXCORE_MAX_PATH);
+    strncat(replacedPath, sysrootPath + sysrootName_length, DXCORE_MAX_PATH - strlen(replacedPath));
 #else
     strncat(replacedPath, path, DXCORE_MAX_PATH);
 #endif
 
     // Append nvcuda dll
-    strncat(replacedPath, libcudaName, libcudaName_length);
+    if (libcudaName_length < DXCORE_MAX_PATH - strlen(replacedPath)) {
+        strncat(replacedPath, libcudaName, libcudaName_length);
+    }
+    else {
+        strncat(replacedPath, libcudaName, DXCORE_MAX_PATH - strlen(replacedPath));
+    }
 
     return replacedPath;
 }

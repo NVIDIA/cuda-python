@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -33,7 +33,7 @@ def supportsSparseTexturesDeviceFilter():
 
 def test_cudart_memcpy():
     # Allocate dev memory
-    size = int(1024 * np.uint8().itemsize)
+    size = 1024 * np.uint8().itemsize
     err, dptr = cudart.cudaMalloc(size)
     assertSuccess(err)
 
@@ -184,9 +184,6 @@ def test_cudart_class_inline():
     assert(sparseProp.tileExtent.width == 15)
     assert(sparseProp.tileExtent.height == 16)
     assert(sparseProp.tileExtent.depth == 17)
-
-    # TODO: In fixing __repr__ check that these too are outputter correctly
-    # str(sparseProp.tileExtent)
 
     assert(sparseProp.miptailFirstLevel == 3)
     assert(sparseProp.miptailSize == 196608)
@@ -488,7 +485,7 @@ def test_cudart_cudaMemcpy2DToArray():
 
     # arr to h2
     err, = cudart.cudaMemcpy2DFromArray(
-        h2, size, cudart.cudaArray_const_t(int(arr)), 0, 0, size, 1,
+        h2, size, arr, 0, 0, size, 1,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
     )
     assertSuccess(err)
@@ -502,7 +499,7 @@ def test_cudart_cudaMemcpy2DToArray():
 
 def test_cudart_cudaMemcpy2DToArray_DtoD():
     # allocate device memory
-    size = int(1024 * np.uint8().itemsize)
+    size = 1024 * np.uint8().itemsize
     err, d1 = cudart.cudaMalloc(size)
     assertSuccess(err)
     err, d2 = cudart.cudaMalloc(size)
@@ -536,7 +533,7 @@ def test_cudart_cudaMemcpy2DToArray_DtoD():
 
     # arr to d2
     err, = cudart.cudaMemcpy2DFromArray(
-        d2, size, cudart.cudaArray_const_t(int(arr)), 0, 0, size, 1,
+        d2, size, arr, 0, 0, size, 1,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToDevice
     )
     assertSuccess(err)
@@ -558,7 +555,7 @@ def test_cudart_cudaMemcpy2DToArray_DtoD():
 
 def test_cudart_cudaMemcpy2DArrayToArray():
     # create host arrays
-    size = int(1024 * np.uint8().itemsize)
+    size = 1024 * np.uint8().itemsize
     h1 = np.full(size, 1).astype(np.uint8)
     h2 = np.full(size, 2).astype(np.uint8)
     assert(np.array_equal(h1, h2) is False)
@@ -584,14 +581,14 @@ def test_cudart_cudaMemcpy2DArrayToArray():
 
     # a1 to a2
     err, = cudart.cudaMemcpy2DArrayToArray(
-        a2, 0, 0, cudart.cudaArray_const_t(int(a1)), 0, 0, size, 1,
+        a2, 0, 0, a1, 0, 0, size, 1,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToDevice    
     )
     assertSuccess(err)
 
     # a2 to h2
     err, = cudart.cudaMemcpy2DFromArray(
-        h2, size, cudart.cudaArray_const_t(int(a2)), 0, 0, size, 1,
+        h2, size, a2, 0, 0, size, 1,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
     )
     assertSuccess(err)
@@ -607,7 +604,7 @@ def test_cudart_cudaMemcpy2DArrayToArray():
 
 def test_cudart_cudaMemcpyArrayToArray():
     # create host arrays
-    size = int(1024 * np.uint8().itemsize)
+    size = 1024 * np.uint8().itemsize
     h1 = np.full(size, 1).astype(np.uint8)
     h2 = np.full(size, 2).astype(np.uint8)
     assert(np.array_equal(h1, h2) is False)
@@ -633,14 +630,14 @@ def test_cudart_cudaMemcpyArrayToArray():
 
     # a1 to a2
     err, = cudart.cudaMemcpyArrayToArray(
-        a2, 0, 0, cudart.cudaArray_const_t(int(a1)), 0, 0, size,
+        a2, 0, 0, a1, 0, 0, size,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToDevice    
     )
     assertSuccess(err)
 
     # a2 to h2
     err, = cudart.cudaMemcpy2DFromArray(
-        h2, size, cudart.cudaArray_const_t(int(a2)), 0, 0, size, 1,
+        h2, size, a2, 0, 0, size, 1,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
     )
     assertSuccess(err)
@@ -671,7 +668,7 @@ def test_cudart_cudaGetChannelDesc():
     assertSuccess(err)
 
     # get channel descriptor from array
-    err, desc = cudart.cudaGetChannelDesc(cudart.cudaArray_const_t(int(arr)))
+    err, desc = cudart.cudaGetChannelDesc(arr)
     assertSuccess(err)
 
     # validate array channel descriptor
@@ -722,7 +719,7 @@ def test_cudart_cudaGetTextureObjectTextureDesc():
 
 def test_cudart_cudaMemset3D():
     # create host arrays
-    size = int(1024 * np.uint8().itemsize)
+    size = 1024 * np.uint8().itemsize
     h1 = np.full(size, 1).astype(np.uint8)
     h2 = np.full(size, 2).astype(np.uint8)
     assert(np.array_equal(h1, h2) is False)
@@ -751,7 +748,7 @@ def test_cudart_cudaMemset3D():
 
 def test_cudart_cudaMemset3D_2D():
     # create host arrays
-    size = int(512 * np.uint8().itemsize)
+    size = 512 * np.uint8().itemsize
     h1 = np.full(size, 1).astype(np.uint8)
     h2 = np.full(size, 2).astype(np.uint8)
     assert(np.array_equal(h1, h2) is False)
@@ -780,7 +777,7 @@ def test_cudart_cudaMemset3D_2D():
 
 def test_cudart_cudaMemcpyToArray():
     # create host arrays
-    size = int(1024 * np.uint8().itemsize)
+    size = 1024 * np.uint8().itemsize
     h1 = np.full(size, 1).astype(np.uint8)
     h2 = np.full(size, 2).astype(np.uint8)
     assert(np.array_equal(h1, h2) is False)
@@ -803,7 +800,7 @@ def test_cudart_cudaMemcpyToArray():
 
     # arr to h2
     err, = cudart.cudaMemcpyFromArray(
-        h2, cudart.cudaArray_const_t(int(arr)), 0, 0, size,
+        h2, arr, 0, 0, size,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
     )
     assertSuccess(err)
@@ -850,7 +847,7 @@ def test_cudart_cudaMemcpyToArray_DtoD():
 
     # arr to d2
     err, = cudart.cudaMemcpyFromArray(
-        d2, cudart.cudaArray_const_t(int(arr)), 0, 0, size,
+        d2, arr, 0, 0, size,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToDevice
     )
     assertSuccess(err)
@@ -908,7 +905,7 @@ def test_cudart_cudaMemcpy3DAsync():
 
     # arr to h2
     err, = cudart.cudaMemcpy2DFromArray(
-        h2, size, cudart.cudaArray_const_t(int(arr)), 0, 0, size, 1,
+        h2, size, arr, 0, 0, size, 1,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
     )
     assertSuccess(err)
@@ -922,7 +919,7 @@ def test_cudart_cudaMemcpy3DAsync():
 
 def test_cudart_cudaGraphAddMemcpyNode1D():
     # allocate device memory
-    size = int(1024 * np.uint8().itemsize)
+    size = 1024 * np.uint8().itemsize
     err, dptr = cudart.cudaMalloc(size)
     assertSuccess(err)
 
@@ -969,7 +966,7 @@ def test_cudart_cudaGraphAddMemcpyNode1D():
 
 def test_cudart_cudaGraphAddMemsetNode():
     # allocate device memory
-    size = int(1024 * np.uint8().itemsize)
+    size = 1024 * np.uint8().itemsize
     err, dptr = cudart.cudaMalloc(size)
     assertSuccess(err)
 
@@ -1062,7 +1059,7 @@ def test_cudart_cudaMemcpy3DPeer():
 
     # arr to h2
     err, = cudart.cudaMemcpy2DFromArray(
-        h2, size, cudart.cudaArray_const_t(int(arr)), 0, 0, size, 1,
+        h2, size, arr, 0, 0, size, 1,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
     )
     assertSuccess(err)
@@ -1078,7 +1075,7 @@ def test_cudart_cudaMemcpy3DPeer():
 
 def test_cudart_cudaMemcpy3DPeerAsync():
     # allocate device memory
-    size = int(1024 * np.uint8().itemsize)
+    size = 1024 * np.uint8().itemsize
     err, dptr = cudart.cudaMalloc(size)
     assertSuccess(err)
 
@@ -1121,7 +1118,7 @@ def test_cudart_cudaMemcpy3DPeerAsync():
 
     # arr to h2
     err, = cudart.cudaMemcpy2DFromArray(
-        h2, size, cudart.cudaArray_const_t(int(arr)), 0, 0, size, 1,
+        h2, size, arr, 0, 0, size, 1,
         cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
     )
     assertSuccess(err)
@@ -1134,3 +1131,120 @@ def test_cudart_cudaMemcpy3DPeerAsync():
     assertSuccess(err)
     err, = cudart.cudaFree(dptr)
     assertSuccess(err)
+
+def test_profiler():
+    err, = cudart.cudaProfilerStart()
+    assertSuccess(err)
+    err, = cudart.cudaProfilerStop()
+    assertSuccess(err)
+
+def test_cudart_eglFrame():
+    frame = cudart.cudaEglFrame()
+    # [<cudaArray_t 0x0>, <cudaArray_t 0x0>, <cudaArray_t 0x0>]
+    assert(int(frame.frame.pArray[0]) == 0)
+    assert(int(frame.frame.pArray[1]) == 0)
+    assert(int(frame.frame.pArray[2]) == 0)
+    frame.frame.pArray = [1,2,3]
+    # [<cudaArray_t 0x1>, <cudaArray_t 0x2>, <cudaArray_t 0x3>]
+    assert(int(frame.frame.pArray[0]) == 1)
+    assert(int(frame.frame.pArray[1]) == 2)
+    assert(int(frame.frame.pArray[2]) == 3)
+    frame.frame.pArray = [1,2,cudart.cudaArray_t(4)]
+    # [<cudaArray_t 0x1>, <cudaArray_t 0x2>, <cudaArray_t 0x4>]
+    assert(int(frame.frame.pArray[0]) == 1)
+    assert(int(frame.frame.pArray[1]) == 2)
+    assert(int(frame.frame.pArray[2]) == 4)
+    # frame.frame.pPitch
+    # [ptr : 0x1
+    # pitch : 2
+    # xsize : 4
+    # ysize : 0, ptr : 0x0
+    # pitch : 0
+    # xsize : 0
+    # ysize : 0, ptr : 0x0
+    # pitch : 0
+    # xsize : 0
+    # ysize : 0]
+    assert(int(frame.frame.pPitch[0].ptr) == 1)
+    assert(int(frame.frame.pPitch[0].pitch) == 2)
+    assert(int(frame.frame.pPitch[0].xsize) == 4)
+    assert(int(frame.frame.pPitch[0].ysize) == 0)
+    assert(int(frame.frame.pPitch[1].ptr) == 0)
+    assert(int(frame.frame.pPitch[1].pitch) == 0)
+    assert(int(frame.frame.pPitch[1].xsize) == 0)
+    assert(int(frame.frame.pPitch[1].ysize) == 0)
+    assert(int(frame.frame.pPitch[2].ptr) == 0)
+    assert(int(frame.frame.pPitch[2].pitch) == 0)
+    assert(int(frame.frame.pPitch[2].xsize) == 0)
+    assert(int(frame.frame.pPitch[2].ysize) == 0)
+    frame.frame.pPitch = [cudart.cudaPitchedPtr(), cudart.cudaPitchedPtr(), cudart.cudaPitchedPtr()]
+    # [ptr : 0x0
+    # pitch : 0
+    # xsize : 0
+    # ysize : 0, ptr : 0x0
+    # pitch : 0
+    # xsize : 0
+    # ysize : 0, ptr : 0x0
+    # pitch : 0
+    # xsize : 0
+    # ysize : 0]
+    assert(int(frame.frame.pPitch[0].ptr) == 0)
+    assert(int(frame.frame.pPitch[0].pitch) == 0)
+    assert(int(frame.frame.pPitch[0].xsize) == 0)
+    assert(int(frame.frame.pPitch[0].ysize) == 0)
+    assert(int(frame.frame.pPitch[1].ptr) == 0)
+    assert(int(frame.frame.pPitch[1].pitch) == 0)
+    assert(int(frame.frame.pPitch[1].xsize) == 0)
+    assert(int(frame.frame.pPitch[1].ysize) == 0)
+    assert(int(frame.frame.pPitch[2].ptr) == 0)
+    assert(int(frame.frame.pPitch[2].pitch) == 0)
+    assert(int(frame.frame.pPitch[2].xsize) == 0)
+    assert(int(frame.frame.pPitch[2].ysize) == 0)
+    x = frame.frame.pPitch[0]
+    x.pitch = 123
+    frame.frame.pPitch = [x,x,x]
+    # [ptr : 0x0
+    # pitch : 123
+    # xsize : 0
+    # ysize : 0, ptr : 0x0
+    # pitch : 123
+    # xsize : 0
+    # ysize : 0, ptr : 0x0
+    # pitch : 123
+    # xsize : 0
+    # ysize : 0]
+    assert(int(frame.frame.pPitch[0].ptr) == 0)
+    assert(int(frame.frame.pPitch[0].pitch) == 123)
+    assert(int(frame.frame.pPitch[0].xsize) == 0)
+    assert(int(frame.frame.pPitch[0].ysize) == 0)
+    assert(int(frame.frame.pPitch[1].ptr) == 0)
+    assert(int(frame.frame.pPitch[1].pitch) == 123)
+    assert(int(frame.frame.pPitch[1].xsize) == 0)
+    assert(int(frame.frame.pPitch[1].ysize) == 0)
+    assert(int(frame.frame.pPitch[2].ptr) == 0)
+    assert(int(frame.frame.pPitch[2].pitch) == 123)
+    assert(int(frame.frame.pPitch[2].xsize) == 0)
+    assert(int(frame.frame.pPitch[2].ysize) == 0)
+    x.pitch = 1234
+    # [ptr : 0x0
+    # pitch : 123
+    # xsize : 0
+    # ysize : 0, ptr : 0x0
+    # pitch : 123
+    # xsize : 0
+    # ysize : 0, ptr : 0x0
+    # pitch : 123
+    # xsize : 0
+    # ysize : 0]
+    assert(int(frame.frame.pPitch[0].ptr) == 0)
+    assert(int(frame.frame.pPitch[0].pitch) == 123)
+    assert(int(frame.frame.pPitch[0].xsize) == 0)
+    assert(int(frame.frame.pPitch[0].ysize) == 0)
+    assert(int(frame.frame.pPitch[1].ptr) == 0)
+    assert(int(frame.frame.pPitch[1].pitch) == 123)
+    assert(int(frame.frame.pPitch[1].xsize) == 0)
+    assert(int(frame.frame.pPitch[1].ysize) == 0)
+    assert(int(frame.frame.pPitch[2].ptr) == 0)
+    assert(int(frame.frame.pPitch[2].pitch) == 123)
+    assert(int(frame.frame.pPitch[2].xsize) == 0)
+    assert(int(frame.frame.pPitch[2].ysize) == 0)

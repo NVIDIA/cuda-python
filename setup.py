@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -9,6 +9,10 @@ import os
 import shutil
 import sys
 import sysconfig
+
+if sys.platform == 'win32':
+    from distutils import _msvccompiler
+    _msvccompiler.PLAT_TO_VCVARS['win-amd64'] = 'amd64'
 
 from setuptools import find_packages, setup
 from setuptools.extension import Extension
@@ -140,7 +144,7 @@ extensions += cythonize(
             runtime_library_dirs=[],
             libraries=[],
             language="c++",
-            extra_compile_args=["-std=c++14"],
+            extra_compile_args=extra_compile_args,
         )
     ],
     nthreads=nthreads,
@@ -156,7 +160,7 @@ setup(
     url="https://github.com/NVIDIA/cuda-python",
     author="NVIDIA Corporation",
     author_email="cuda-python-conduct@nvidia.com",
-    license="Other",
+    license="NVIDIA Proprietary License",
     license_files = ('LICENSE',),
     classifiers=[
         "Intended Audience :: Developers",

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Motivation" href="motivation.html" /><link rel="prev" title="Installation" href="install.html" />
 
     <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
-        <title>Overview - CUDA Python 11.5 documentation</title>
+        <title>Overview - CUDA Python 11.6.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
     <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">CUDA Python 11.5 documentation</div></a>
+      <a href="index.html"><div class="brand">CUDA Python 11.6.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -151,7 +151,7 @@
     <img class="sidebar-logo only-dark" src="_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 11.5 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 11.6.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -167,11 +167,17 @@
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/11.4.0-notes.html">    11.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.6.0-notes.html">    11.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.5.0-notes.html">    11.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.4.0-notes.html">    11.4.0</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">CUDA Python API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">CUDA Python API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="module/cuda.html">cuda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/cudart.html">cudart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvrtc.html">nvrtc</a></li>
+</ul>
+</li>
 </ul>
 
 </div>
@@ -336,8 +342,11 @@ After loading into the module, extract a specific kernel with
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load PTX as module data and retrieve function</span>
 <span class="n">ptx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ptx</span><span class="p">)</span>
+<span class="c1"># Note: Incompatible --gpu-architecture would be detected here</span>
 <span class="n">err</span><span class="p">,</span> <span class="n">module</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">cuModuleLoadData</span><span class="p">(</span><span class="n">ptx</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">ASSERT_DRV</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 <span class="n">err</span><span class="p">,</span> <span class="n">kernel</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">cuModuleGetFunction</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="sa">b</span><span class="s2">"saxpy"</span><span class="p">)</span>
+<span class="n">ASSERT_DRV</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -451,18 +460,6 @@ in the designated stream are finished.</p>
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ValueError</span><span class="g g-Whitespace">                                </span>Traceback (most recent call last)
-<span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">ipykernel_15959</span><span class="o">/</span><span class="mf">1024579534.</span><span class="n">py</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="n">hZ</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">hX</span> <span class="o">+</span> <span class="n">hY</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">hOut</span><span class="p">,</span> <span class="n">hZ</span><span class="p">):</span>
-<span class="ne">----&gt; </span><span class="mi">4</span>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Error outside tolerance for host-device vectors"</span><span class="p">)</span>
-
-<span class="ne">ValueError</span>: Error outside tolerance for host-device vectors
-</pre></div>
-</div>
-</div>
 </div>
 <p>Perform verification of the data to ensure correctness and finish the code with
 memory clean up.</p>
@@ -556,7 +553,7 @@ maximize performance (<a class="reference internal" href="#figure-1"><span class
         </div>
 
         <div class="related-information">
-              Copyright &#169; 2021, NVIDIA |
+              Copyright &#169; 2021-2022, NVIDIA |
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s

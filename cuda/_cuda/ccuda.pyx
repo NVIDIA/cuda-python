@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -11,6 +11,7 @@ IF UNAME_SYSNAME == "Windows":
     from pywintypes import error
 ELSE:
     cimport cuda._lib.dlfcn as dlfcn
+import os
 import sys
 cimport cuda._cuda.loader as loader
 cdef bint __cuPythonInit = False
@@ -136,6 +137,8 @@ cdef void *__cuArrayCreate_v2 = NULL
 cdef void *__cuArrayGetDescriptor_v2 = NULL
 cdef void *__cuArrayGetSparseProperties = NULL
 cdef void *__cuMipmappedArrayGetSparseProperties = NULL
+cdef void *__cuArrayGetMemoryRequirements = NULL
+cdef void *__cuMipmappedArrayGetMemoryRequirements = NULL
 cdef void *__cuArrayGetPlane = NULL
 cdef void *__cuArrayDestroy = NULL
 cdef void *__cuArray3DCreate_v2 = NULL
@@ -295,6 +298,8 @@ cdef void *__cuGraphExecEventRecordNodeSetEvent = NULL
 cdef void *__cuGraphExecEventWaitNodeSetEvent = NULL
 cdef void *__cuGraphExecExternalSemaphoresSignalNodeSetParams = NULL
 cdef void *__cuGraphExecExternalSemaphoresWaitNodeSetParams = NULL
+cdef void *__cuGraphNodeSetEnabled = NULL
+cdef void *__cuGraphNodeGetEnabled = NULL
 cdef void *__cuGraphUpload = NULL
 cdef void *__cuGraphLaunch = NULL
 cdef void *__cuGraphExecDestroy = NULL
@@ -364,12 +369,37 @@ cdef void *__cuGraphicsMapResources = NULL
 cdef void *__cuGraphicsUnmapResources = NULL
 cdef void *__cuGetProcAddress = NULL
 cdef void *__cuGetExportTable = NULL
+cdef void *__cuProfilerInitialize = NULL
+cdef void *__cuProfilerStart = NULL
+cdef void *__cuProfilerStop = NULL
+cdef void *__cuVDPAUGetDevice = NULL
+cdef void *__cuVDPAUCtxCreate_v2 = NULL
+cdef void *__cuGraphicsVDPAURegisterVideoSurface = NULL
+cdef void *__cuGraphicsVDPAURegisterOutputSurface = NULL
+cdef void *__cuGraphicsEGLRegisterImage = NULL
+cdef void *__cuEGLStreamConsumerConnect = NULL
+cdef void *__cuEGLStreamConsumerConnectWithFlags = NULL
+cdef void *__cuEGLStreamConsumerDisconnect = NULL
+cdef void *__cuEGLStreamConsumerAcquireFrame = NULL
+cdef void *__cuEGLStreamConsumerReleaseFrame = NULL
+cdef void *__cuEGLStreamProducerConnect = NULL
+cdef void *__cuEGLStreamProducerDisconnect = NULL
+cdef void *__cuEGLStreamProducerPresentFrame = NULL
+cdef void *__cuEGLStreamProducerReturnFrame = NULL
+cdef void *__cuGraphicsResourceGetMappedEglFrame = NULL
+cdef void *__cuEventCreateFromEGLSync = NULL
+cdef void *__cuGraphicsGLRegisterBuffer = NULL
+cdef void *__cuGraphicsGLRegisterImage = NULL
+cdef void *__cuGLGetDevices_v2 = NULL
 
 cdef int cuPythonInit() nogil except -1:
     global __cuPythonInit
+    cdef bint usePTDS
     if __cuPythonInit:
         return 0
     __cuPythonInit = True
+    with gil:
+        usePTDS = os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=0)
     cdef char libPath[260]
     libPath[0] = 0
     with gil:
@@ -392,7 +422,6 @@ cdef int cuPythonInit() nogil except -1:
             handle = dlfcn.dlopen(bytes(path, encoding='utf-8'), dlfcn.RTLD_NOW)
             if (handle == NULL):
                 raise RuntimeError('Failed to dlopen libcuda.so')
-    # All Globals
     global __cuGetErrorString
     global __cuGetErrorName
     global __cuInit
@@ -515,6 +544,8 @@ cdef int cuPythonInit() nogil except -1:
     global __cuArrayGetDescriptor_v2
     global __cuArrayGetSparseProperties
     global __cuMipmappedArrayGetSparseProperties
+    global __cuArrayGetMemoryRequirements
+    global __cuMipmappedArrayGetMemoryRequirements
     global __cuArrayGetPlane
     global __cuArrayDestroy
     global __cuArray3DCreate_v2
@@ -674,6 +705,8 @@ cdef int cuPythonInit() nogil except -1:
     global __cuGraphExecEventWaitNodeSetEvent
     global __cuGraphExecExternalSemaphoresSignalNodeSetParams
     global __cuGraphExecExternalSemaphoresWaitNodeSetParams
+    global __cuGraphNodeSetEnabled
+    global __cuGraphNodeGetEnabled
     global __cuGraphUpload
     global __cuGraphLaunch
     global __cuGraphExecDestroy
@@ -743,6 +776,28 @@ cdef int cuPythonInit() nogil except -1:
     global __cuGraphicsUnmapResources
     global __cuGetProcAddress
     global __cuGetExportTable
+    global __cuProfilerInitialize
+    global __cuProfilerStart
+    global __cuProfilerStop
+    global __cuVDPAUGetDevice
+    global __cuVDPAUCtxCreate_v2
+    global __cuGraphicsVDPAURegisterVideoSurface
+    global __cuGraphicsVDPAURegisterOutputSurface
+    global __cuGraphicsEGLRegisterImage
+    global __cuEGLStreamConsumerConnect
+    global __cuEGLStreamConsumerConnectWithFlags
+    global __cuEGLStreamConsumerDisconnect
+    global __cuEGLStreamConsumerAcquireFrame
+    global __cuEGLStreamConsumerReleaseFrame
+    global __cuEGLStreamProducerConnect
+    global __cuEGLStreamProducerDisconnect
+    global __cuEGLStreamProducerPresentFrame
+    global __cuEGLStreamProducerReturnFrame
+    global __cuGraphicsResourceGetMappedEglFrame
+    global __cuEventCreateFromEGLSync
+    global __cuGraphicsGLRegisterBuffer
+    global __cuGraphicsGLRegisterImage
+    global __cuGLGetDevices_v2
     # Get latest __cuGetProcAddress
     IF UNAME_SYSNAME == "Windows":
         with gil:
@@ -754,361 +809,1062 @@ cdef int cuPythonInit() nogil except -1:
         __cuGetProcAddress = dlfcn.dlsym(handle, 'cuGetProcAddress')
 
     if __cuGetProcAddress != NULL:
-        # All cuGetProcAddress calls
-        _cuGetProcAddress('cuGetErrorString', &__cuGetErrorString, 6000, 0)
-        _cuGetProcAddress('cuGetErrorName', &__cuGetErrorName, 6000, 0)
-        _cuGetProcAddress('cuInit', &__cuInit, 2000, 0)
-        _cuGetProcAddress('cuDriverGetVersion', &__cuDriverGetVersion, 2020, 0)
-        _cuGetProcAddress('cuDeviceGet', &__cuDeviceGet, 2000, 0)
-        _cuGetProcAddress('cuDeviceGetCount', &__cuDeviceGetCount, 2000, 0)
-        _cuGetProcAddress('cuDeviceGetName', &__cuDeviceGetName, 2000, 0)
-        _cuGetProcAddress('cuDeviceGetUuid', &__cuDeviceGetUuid, 9020, 0)
-        _cuGetProcAddress('cuDeviceGetUuid', &__cuDeviceGetUuid_v2, 11040, 0)
-        _cuGetProcAddress('cuDeviceGetLuid', &__cuDeviceGetLuid, 10000, 0)
-        _cuGetProcAddress('cuDeviceTotalMem', &__cuDeviceTotalMem_v2, 3020, 0)
-        _cuGetProcAddress('cuDeviceGetTexture1DLinearMaxWidth', &__cuDeviceGetTexture1DLinearMaxWidth, 11010, 0)
-        _cuGetProcAddress('cuDeviceGetAttribute', &__cuDeviceGetAttribute, 2000, 0)
-        _cuGetProcAddress('cuDeviceGetNvSciSyncAttributes', &__cuDeviceGetNvSciSyncAttributes, 10020, 0)
-        _cuGetProcAddress('cuDeviceSetMemPool', &__cuDeviceSetMemPool, 11020, 0)
-        _cuGetProcAddress('cuDeviceGetMemPool', &__cuDeviceGetMemPool, 11020, 0)
-        _cuGetProcAddress('cuDeviceGetDefaultMemPool', &__cuDeviceGetDefaultMemPool, 11020, 0)
-        _cuGetProcAddress('cuFlushGPUDirectRDMAWrites', &__cuFlushGPUDirectRDMAWrites, 11030, 0)
-        _cuGetProcAddress('cuDeviceGetProperties', &__cuDeviceGetProperties, 2000, 0)
-        _cuGetProcAddress('cuDeviceComputeCapability', &__cuDeviceComputeCapability, 2000, 0)
-        _cuGetProcAddress('cuDevicePrimaryCtxRetain', &__cuDevicePrimaryCtxRetain, 7000, 0)
-        _cuGetProcAddress('cuDevicePrimaryCtxRelease', &__cuDevicePrimaryCtxRelease_v2, 11000, 0)
-        _cuGetProcAddress('cuDevicePrimaryCtxSetFlags', &__cuDevicePrimaryCtxSetFlags_v2, 11000, 0)
-        _cuGetProcAddress('cuDevicePrimaryCtxGetState', &__cuDevicePrimaryCtxGetState, 7000, 0)
-        _cuGetProcAddress('cuDevicePrimaryCtxReset', &__cuDevicePrimaryCtxReset_v2, 11000, 0)
-        _cuGetProcAddress('cuDeviceGetExecAffinitySupport', &__cuDeviceGetExecAffinitySupport, 11040, 0)
-        _cuGetProcAddress('cuCtxCreate', &__cuCtxCreate_v2, 3020, 0)
-        _cuGetProcAddress('cuCtxCreate', &__cuCtxCreate_v3, 11040, 0)
-        _cuGetProcAddress('cuCtxDestroy', &__cuCtxDestroy_v2, 4000, 0)
-        _cuGetProcAddress('cuCtxPushCurrent', &__cuCtxPushCurrent_v2, 4000, 0)
-        _cuGetProcAddress('cuCtxPopCurrent', &__cuCtxPopCurrent_v2, 4000, 0)
-        _cuGetProcAddress('cuCtxSetCurrent', &__cuCtxSetCurrent, 4000, 0)
-        _cuGetProcAddress('cuCtxGetCurrent', &__cuCtxGetCurrent, 4000, 0)
-        _cuGetProcAddress('cuCtxGetDevice', &__cuCtxGetDevice, 2000, 0)
-        _cuGetProcAddress('cuCtxGetFlags', &__cuCtxGetFlags, 7000, 0)
-        _cuGetProcAddress('cuCtxSynchronize', &__cuCtxSynchronize, 2000, 0)
-        _cuGetProcAddress('cuCtxSetLimit', &__cuCtxSetLimit, 3010, 0)
-        _cuGetProcAddress('cuCtxGetLimit', &__cuCtxGetLimit, 3010, 0)
-        _cuGetProcAddress('cuCtxGetCacheConfig', &__cuCtxGetCacheConfig, 3020, 0)
-        _cuGetProcAddress('cuCtxSetCacheConfig', &__cuCtxSetCacheConfig, 3020, 0)
-        _cuGetProcAddress('cuCtxGetSharedMemConfig', &__cuCtxGetSharedMemConfig, 4020, 0)
-        _cuGetProcAddress('cuCtxSetSharedMemConfig', &__cuCtxSetSharedMemConfig, 4020, 0)
-        _cuGetProcAddress('cuCtxGetApiVersion', &__cuCtxGetApiVersion, 3020, 0)
-        _cuGetProcAddress('cuCtxGetStreamPriorityRange', &__cuCtxGetStreamPriorityRange, 5050, 0)
-        _cuGetProcAddress('cuCtxResetPersistingL2Cache', &__cuCtxResetPersistingL2Cache, 11000, 0)
-        _cuGetProcAddress('cuCtxGetExecAffinity', &__cuCtxGetExecAffinity, 11040, 0)
-        _cuGetProcAddress('cuCtxAttach', &__cuCtxAttach, 2000, 0)
-        _cuGetProcAddress('cuCtxDetach', &__cuCtxDetach, 2000, 0)
-        _cuGetProcAddress('cuModuleLoad', &__cuModuleLoad, 2000, 0)
-        _cuGetProcAddress('cuModuleLoadData', &__cuModuleLoadData, 2000, 0)
-        _cuGetProcAddress('cuModuleLoadDataEx', &__cuModuleLoadDataEx, 2010, 0)
-        _cuGetProcAddress('cuModuleLoadFatBinary', &__cuModuleLoadFatBinary, 2000, 0)
-        _cuGetProcAddress('cuModuleUnload', &__cuModuleUnload, 2000, 0)
-        _cuGetProcAddress('cuModuleGetFunction', &__cuModuleGetFunction, 2000, 0)
-        _cuGetProcAddress('cuModuleGetGlobal', &__cuModuleGetGlobal_v2, 3020, 0)
-        _cuGetProcAddress('cuModuleGetTexRef', &__cuModuleGetTexRef, 2000, 0)
-        _cuGetProcAddress('cuModuleGetSurfRef', &__cuModuleGetSurfRef, 3000, 0)
-        _cuGetProcAddress('cuLinkCreate', &__cuLinkCreate_v2, 6050, 0)
-        _cuGetProcAddress('cuLinkAddData', &__cuLinkAddData_v2, 6050, 0)
-        _cuGetProcAddress('cuLinkAddFile', &__cuLinkAddFile_v2, 6050, 0)
-        _cuGetProcAddress('cuLinkComplete', &__cuLinkComplete, 5050, 0)
-        _cuGetProcAddress('cuLinkDestroy', &__cuLinkDestroy, 5050, 0)
-        _cuGetProcAddress('cuMemGetInfo', &__cuMemGetInfo_v2, 3020, 0)
-        _cuGetProcAddress('cuMemAlloc', &__cuMemAlloc_v2, 3020, 0)
-        _cuGetProcAddress('cuMemAllocPitch', &__cuMemAllocPitch_v2, 3020, 0)
-        _cuGetProcAddress('cuMemFree', &__cuMemFree_v2, 3020, 0)
-        _cuGetProcAddress('cuMemGetAddressRange', &__cuMemGetAddressRange_v2, 3020, 0)
-        _cuGetProcAddress('cuMemAllocHost', &__cuMemAllocHost_v2, 3020, 0)
-        _cuGetProcAddress('cuMemFreeHost', &__cuMemFreeHost, 2000, 0)
-        _cuGetProcAddress('cuMemHostAlloc', &__cuMemHostAlloc, 2020, 0)
-        _cuGetProcAddress('cuMemHostGetDevicePointer', &__cuMemHostGetDevicePointer_v2, 3020, 0)
-        _cuGetProcAddress('cuMemHostGetFlags', &__cuMemHostGetFlags, 2030, 0)
-        _cuGetProcAddress('cuMemAllocManaged', &__cuMemAllocManaged, 6000, 0)
-        _cuGetProcAddress('cuDeviceGetByPCIBusId', &__cuDeviceGetByPCIBusId, 4010, 0)
-        _cuGetProcAddress('cuDeviceGetPCIBusId', &__cuDeviceGetPCIBusId, 4010, 0)
-        _cuGetProcAddress('cuIpcGetEventHandle', &__cuIpcGetEventHandle, 4010, 0)
-        _cuGetProcAddress('cuIpcOpenEventHandle', &__cuIpcOpenEventHandle, 4010, 0)
-        _cuGetProcAddress('cuIpcGetMemHandle', &__cuIpcGetMemHandle, 4010, 0)
-        _cuGetProcAddress('cuIpcOpenMemHandle', &__cuIpcOpenMemHandle_v2, 11000, 0)
-        _cuGetProcAddress('cuIpcCloseMemHandle', &__cuIpcCloseMemHandle, 4010, 0)
-        _cuGetProcAddress('cuMemHostRegister', &__cuMemHostRegister_v2, 6050, 0)
-        _cuGetProcAddress('cuMemHostUnregister', &__cuMemHostUnregister, 4000, 0)
-        _cuGetProcAddress('cuMemcpy', &__cuMemcpy, 4000, 0)
-        _cuGetProcAddress('cuMemcpyPeer', &__cuMemcpyPeer, 4000, 0)
-        _cuGetProcAddress('cuMemcpyHtoD', &__cuMemcpyHtoD_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyDtoH', &__cuMemcpyDtoH_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyDtoD', &__cuMemcpyDtoD_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyDtoA', &__cuMemcpyDtoA_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyAtoD', &__cuMemcpyAtoD_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyHtoA', &__cuMemcpyHtoA_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyAtoH', &__cuMemcpyAtoH_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyAtoA', &__cuMemcpyAtoA_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpy2D', &__cuMemcpy2D_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpy2DUnaligned', &__cuMemcpy2DUnaligned_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpy3D', &__cuMemcpy3D_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpy3DPeer', &__cuMemcpy3DPeer, 4000, 0)
-        _cuGetProcAddress('cuMemcpyAsync', &__cuMemcpyAsync, 4000, 0)
-        _cuGetProcAddress('cuMemcpyPeerAsync', &__cuMemcpyPeerAsync, 4000, 0)
-        _cuGetProcAddress('cuMemcpyHtoDAsync', &__cuMemcpyHtoDAsync_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyDtoHAsync', &__cuMemcpyDtoHAsync_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyDtoDAsync', &__cuMemcpyDtoDAsync_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyHtoAAsync', &__cuMemcpyHtoAAsync_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpyAtoHAsync', &__cuMemcpyAtoHAsync_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpy2DAsync', &__cuMemcpy2DAsync_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpy3DAsync', &__cuMemcpy3DAsync_v2, 3020, 0)
-        _cuGetProcAddress('cuMemcpy3DPeerAsync', &__cuMemcpy3DPeerAsync, 4000, 0)
-        _cuGetProcAddress('cuMemsetD8', &__cuMemsetD8_v2, 3020, 0)
-        _cuGetProcAddress('cuMemsetD16', &__cuMemsetD16_v2, 3020, 0)
-        _cuGetProcAddress('cuMemsetD32', &__cuMemsetD32_v2, 3020, 0)
-        _cuGetProcAddress('cuMemsetD2D8', &__cuMemsetD2D8_v2, 3020, 0)
-        _cuGetProcAddress('cuMemsetD2D16', &__cuMemsetD2D16_v2, 3020, 0)
-        _cuGetProcAddress('cuMemsetD2D32', &__cuMemsetD2D32_v2, 3020, 0)
-        _cuGetProcAddress('cuMemsetD8Async', &__cuMemsetD8Async, 3020, 0)
-        _cuGetProcAddress('cuMemsetD16Async', &__cuMemsetD16Async, 3020, 0)
-        _cuGetProcAddress('cuMemsetD32Async', &__cuMemsetD32Async, 3020, 0)
-        _cuGetProcAddress('cuMemsetD2D8Async', &__cuMemsetD2D8Async, 3020, 0)
-        _cuGetProcAddress('cuMemsetD2D16Async', &__cuMemsetD2D16Async, 3020, 0)
-        _cuGetProcAddress('cuMemsetD2D32Async', &__cuMemsetD2D32Async, 3020, 0)
-        _cuGetProcAddress('cuArrayCreate', &__cuArrayCreate_v2, 3020, 0)
-        _cuGetProcAddress('cuArrayGetDescriptor', &__cuArrayGetDescriptor_v2, 3020, 0)
-        _cuGetProcAddress('cuArrayGetSparseProperties', &__cuArrayGetSparseProperties, 11010, 0)
-        _cuGetProcAddress('cuMipmappedArrayGetSparseProperties', &__cuMipmappedArrayGetSparseProperties, 11010, 0)
-        _cuGetProcAddress('cuArrayGetPlane', &__cuArrayGetPlane, 11020, 0)
-        _cuGetProcAddress('cuArrayDestroy', &__cuArrayDestroy, 2000, 0)
-        _cuGetProcAddress('cuArray3DCreate', &__cuArray3DCreate_v2, 3020, 0)
-        _cuGetProcAddress('cuArray3DGetDescriptor', &__cuArray3DGetDescriptor_v2, 3020, 0)
-        _cuGetProcAddress('cuMipmappedArrayCreate', &__cuMipmappedArrayCreate, 5000, 0)
-        _cuGetProcAddress('cuMipmappedArrayGetLevel', &__cuMipmappedArrayGetLevel, 5000, 0)
-        _cuGetProcAddress('cuMipmappedArrayDestroy', &__cuMipmappedArrayDestroy, 5000, 0)
-        _cuGetProcAddress('cuMemAddressReserve', &__cuMemAddressReserve, 10020, 0)
-        _cuGetProcAddress('cuMemAddressFree', &__cuMemAddressFree, 10020, 0)
-        _cuGetProcAddress('cuMemCreate', &__cuMemCreate, 10020, 0)
-        _cuGetProcAddress('cuMemRelease', &__cuMemRelease, 10020, 0)
-        _cuGetProcAddress('cuMemMap', &__cuMemMap, 10020, 0)
-        _cuGetProcAddress('cuMemMapArrayAsync', &__cuMemMapArrayAsync, 11010, 0)
-        _cuGetProcAddress('cuMemUnmap', &__cuMemUnmap, 10020, 0)
-        _cuGetProcAddress('cuMemSetAccess', &__cuMemSetAccess, 10020, 0)
-        _cuGetProcAddress('cuMemGetAccess', &__cuMemGetAccess, 10020, 0)
-        _cuGetProcAddress('cuMemExportToShareableHandle', &__cuMemExportToShareableHandle, 10020, 0)
-        _cuGetProcAddress('cuMemImportFromShareableHandle', &__cuMemImportFromShareableHandle, 10020, 0)
-        _cuGetProcAddress('cuMemGetAllocationGranularity', &__cuMemGetAllocationGranularity, 10020, 0)
-        _cuGetProcAddress('cuMemGetAllocationPropertiesFromHandle', &__cuMemGetAllocationPropertiesFromHandle, 10020, 0)
-        _cuGetProcAddress('cuMemRetainAllocationHandle', &__cuMemRetainAllocationHandle, 11000, 0)
-        _cuGetProcAddress('cuMemFreeAsync', &__cuMemFreeAsync, 11020, 0)
-        _cuGetProcAddress('cuMemAllocAsync', &__cuMemAllocAsync, 11020, 0)
-        _cuGetProcAddress('cuMemPoolTrimTo', &__cuMemPoolTrimTo, 11020, 0)
-        _cuGetProcAddress('cuMemPoolSetAttribute', &__cuMemPoolSetAttribute, 11020, 0)
-        _cuGetProcAddress('cuMemPoolGetAttribute', &__cuMemPoolGetAttribute, 11020, 0)
-        _cuGetProcAddress('cuMemPoolSetAccess', &__cuMemPoolSetAccess, 11020, 0)
-        _cuGetProcAddress('cuMemPoolGetAccess', &__cuMemPoolGetAccess, 11020, 0)
-        _cuGetProcAddress('cuMemPoolCreate', &__cuMemPoolCreate, 11020, 0)
-        _cuGetProcAddress('cuMemPoolDestroy', &__cuMemPoolDestroy, 11020, 0)
-        _cuGetProcAddress('cuMemAllocFromPoolAsync', &__cuMemAllocFromPoolAsync, 11020, 0)
-        _cuGetProcAddress('cuMemPoolExportToShareableHandle', &__cuMemPoolExportToShareableHandle, 11020, 0)
-        _cuGetProcAddress('cuMemPoolImportFromShareableHandle', &__cuMemPoolImportFromShareableHandle, 11020, 0)
-        _cuGetProcAddress('cuMemPoolExportPointer', &__cuMemPoolExportPointer, 11020, 0)
-        _cuGetProcAddress('cuMemPoolImportPointer', &__cuMemPoolImportPointer, 11020, 0)
-        _cuGetProcAddress('cuPointerGetAttribute', &__cuPointerGetAttribute, 4000, 0)
-        _cuGetProcAddress('cuMemPrefetchAsync', &__cuMemPrefetchAsync, 8000, 0)
-        _cuGetProcAddress('cuMemAdvise', &__cuMemAdvise, 8000, 0)
-        _cuGetProcAddress('cuMemRangeGetAttribute', &__cuMemRangeGetAttribute, 8000, 0)
-        _cuGetProcAddress('cuMemRangeGetAttributes', &__cuMemRangeGetAttributes, 8000, 0)
-        _cuGetProcAddress('cuPointerSetAttribute', &__cuPointerSetAttribute, 6000, 0)
-        _cuGetProcAddress('cuPointerGetAttributes', &__cuPointerGetAttributes, 7000, 0)
-        _cuGetProcAddress('cuStreamCreate', &__cuStreamCreate, 2000, 0)
-        _cuGetProcAddress('cuStreamCreateWithPriority', &__cuStreamCreateWithPriority, 5050, 0)
-        _cuGetProcAddress('cuStreamGetPriority', &__cuStreamGetPriority, 5050, 0)
-        _cuGetProcAddress('cuStreamGetFlags', &__cuStreamGetFlags, 5050, 0)
-        _cuGetProcAddress('cuStreamGetCtx', &__cuStreamGetCtx, 9020, 0)
-        _cuGetProcAddress('cuStreamWaitEvent', &__cuStreamWaitEvent, 3020, 0)
-        _cuGetProcAddress('cuStreamAddCallback', &__cuStreamAddCallback, 5000, 0)
-        _cuGetProcAddress('cuStreamBeginCapture', &__cuStreamBeginCapture_v2, 10010, 0)
-        _cuGetProcAddress('cuThreadExchangeStreamCaptureMode', &__cuThreadExchangeStreamCaptureMode, 10010, 0)
-        _cuGetProcAddress('cuStreamEndCapture', &__cuStreamEndCapture, 10000, 0)
-        _cuGetProcAddress('cuStreamIsCapturing', &__cuStreamIsCapturing, 10000, 0)
-        _cuGetProcAddress('cuStreamGetCaptureInfo', &__cuStreamGetCaptureInfo, 10010, 0)
-        _cuGetProcAddress('cuStreamGetCaptureInfo', &__cuStreamGetCaptureInfo_v2, 11030, 0)
-        _cuGetProcAddress('cuStreamUpdateCaptureDependencies', &__cuStreamUpdateCaptureDependencies, 11030, 0)
-        _cuGetProcAddress('cuStreamAttachMemAsync', &__cuStreamAttachMemAsync, 6000, 0)
-        _cuGetProcAddress('cuStreamQuery', &__cuStreamQuery, 2000, 0)
-        _cuGetProcAddress('cuStreamSynchronize', &__cuStreamSynchronize, 2000, 0)
-        _cuGetProcAddress('cuStreamDestroy', &__cuStreamDestroy_v2, 4000, 0)
-        _cuGetProcAddress('cuStreamCopyAttributes', &__cuStreamCopyAttributes, 11000, 0)
-        _cuGetProcAddress('cuStreamGetAttribute', &__cuStreamGetAttribute, 11000, 0)
-        _cuGetProcAddress('cuStreamSetAttribute', &__cuStreamSetAttribute, 11000, 0)
-        _cuGetProcAddress('cuEventCreate', &__cuEventCreate, 2000, 0)
-        _cuGetProcAddress('cuEventRecord', &__cuEventRecord, 2000, 0)
-        _cuGetProcAddress('cuEventRecordWithFlags', &__cuEventRecordWithFlags, 11010, 0)
-        _cuGetProcAddress('cuEventQuery', &__cuEventQuery, 2000, 0)
-        _cuGetProcAddress('cuEventSynchronize', &__cuEventSynchronize, 2000, 0)
-        _cuGetProcAddress('cuEventDestroy', &__cuEventDestroy_v2, 4000, 0)
-        _cuGetProcAddress('cuEventElapsedTime', &__cuEventElapsedTime, 2000, 0)
-        _cuGetProcAddress('cuImportExternalMemory', &__cuImportExternalMemory, 10000, 0)
-        _cuGetProcAddress('cuExternalMemoryGetMappedBuffer', &__cuExternalMemoryGetMappedBuffer, 10000, 0)
-        _cuGetProcAddress('cuExternalMemoryGetMappedMipmappedArray', &__cuExternalMemoryGetMappedMipmappedArray, 10000, 0)
-        _cuGetProcAddress('cuDestroyExternalMemory', &__cuDestroyExternalMemory, 10000, 0)
-        _cuGetProcAddress('cuImportExternalSemaphore', &__cuImportExternalSemaphore, 10000, 0)
-        _cuGetProcAddress('cuSignalExternalSemaphoresAsync', &__cuSignalExternalSemaphoresAsync, 10000, 0)
-        _cuGetProcAddress('cuWaitExternalSemaphoresAsync', &__cuWaitExternalSemaphoresAsync, 10000, 0)
-        _cuGetProcAddress('cuDestroyExternalSemaphore', &__cuDestroyExternalSemaphore, 10000, 0)
-        _cuGetProcAddress('cuStreamWaitValue32', &__cuStreamWaitValue32, 8000, 0)
-        _cuGetProcAddress('cuStreamWaitValue64', &__cuStreamWaitValue64, 9000, 0)
-        _cuGetProcAddress('cuStreamWriteValue32', &__cuStreamWriteValue32, 8000, 0)
-        _cuGetProcAddress('cuStreamWriteValue64', &__cuStreamWriteValue64, 9000, 0)
-        _cuGetProcAddress('cuStreamBatchMemOp', &__cuStreamBatchMemOp, 8000, 0)
-        _cuGetProcAddress('cuFuncGetAttribute', &__cuFuncGetAttribute, 2020, 0)
-        _cuGetProcAddress('cuFuncSetAttribute', &__cuFuncSetAttribute, 9000, 0)
-        _cuGetProcAddress('cuFuncSetCacheConfig', &__cuFuncSetCacheConfig, 3000, 0)
-        _cuGetProcAddress('cuFuncSetSharedMemConfig', &__cuFuncSetSharedMemConfig, 4020, 0)
-        _cuGetProcAddress('cuFuncGetModule', &__cuFuncGetModule, 11000, 0)
-        _cuGetProcAddress('cuLaunchKernel', &__cuLaunchKernel, 4000, 0)
-        _cuGetProcAddress('cuLaunchCooperativeKernel', &__cuLaunchCooperativeKernel, 9000, 0)
-        _cuGetProcAddress('cuLaunchCooperativeKernelMultiDevice', &__cuLaunchCooperativeKernelMultiDevice, 9000, 0)
-        _cuGetProcAddress('cuLaunchHostFunc', &__cuLaunchHostFunc, 10000, 0)
-        _cuGetProcAddress('cuFuncSetBlockShape', &__cuFuncSetBlockShape, 2000, 0)
-        _cuGetProcAddress('cuFuncSetSharedSize', &__cuFuncSetSharedSize, 2000, 0)
-        _cuGetProcAddress('cuParamSetSize', &__cuParamSetSize, 2000, 0)
-        _cuGetProcAddress('cuParamSeti', &__cuParamSeti, 2000, 0)
-        _cuGetProcAddress('cuParamSetf', &__cuParamSetf, 2000, 0)
-        _cuGetProcAddress('cuParamSetv', &__cuParamSetv, 2000, 0)
-        _cuGetProcAddress('cuLaunch', &__cuLaunch, 2000, 0)
-        _cuGetProcAddress('cuLaunchGrid', &__cuLaunchGrid, 2000, 0)
-        _cuGetProcAddress('cuLaunchGridAsync', &__cuLaunchGridAsync, 2000, 0)
-        _cuGetProcAddress('cuParamSetTexRef', &__cuParamSetTexRef, 2000, 0)
-        _cuGetProcAddress('cuGraphCreate', &__cuGraphCreate, 10000, 0)
-        _cuGetProcAddress('cuGraphAddKernelNode', &__cuGraphAddKernelNode, 10000, 0)
-        _cuGetProcAddress('cuGraphKernelNodeGetParams', &__cuGraphKernelNodeGetParams, 10000, 0)
-        _cuGetProcAddress('cuGraphKernelNodeSetParams', &__cuGraphKernelNodeSetParams, 10000, 0)
-        _cuGetProcAddress('cuGraphAddMemcpyNode', &__cuGraphAddMemcpyNode, 10000, 0)
-        _cuGetProcAddress('cuGraphMemcpyNodeGetParams', &__cuGraphMemcpyNodeGetParams, 10000, 0)
-        _cuGetProcAddress('cuGraphMemcpyNodeSetParams', &__cuGraphMemcpyNodeSetParams, 10000, 0)
-        _cuGetProcAddress('cuGraphAddMemsetNode', &__cuGraphAddMemsetNode, 10000, 0)
-        _cuGetProcAddress('cuGraphMemsetNodeGetParams', &__cuGraphMemsetNodeGetParams, 10000, 0)
-        _cuGetProcAddress('cuGraphMemsetNodeSetParams', &__cuGraphMemsetNodeSetParams, 10000, 0)
-        _cuGetProcAddress('cuGraphAddHostNode', &__cuGraphAddHostNode, 10000, 0)
-        _cuGetProcAddress('cuGraphHostNodeGetParams', &__cuGraphHostNodeGetParams, 10000, 0)
-        _cuGetProcAddress('cuGraphHostNodeSetParams', &__cuGraphHostNodeSetParams, 10000, 0)
-        _cuGetProcAddress('cuGraphAddChildGraphNode', &__cuGraphAddChildGraphNode, 10000, 0)
-        _cuGetProcAddress('cuGraphChildGraphNodeGetGraph', &__cuGraphChildGraphNodeGetGraph, 10000, 0)
-        _cuGetProcAddress('cuGraphAddEmptyNode', &__cuGraphAddEmptyNode, 10000, 0)
-        _cuGetProcAddress('cuGraphAddEventRecordNode', &__cuGraphAddEventRecordNode, 11010, 0)
-        _cuGetProcAddress('cuGraphEventRecordNodeGetEvent', &__cuGraphEventRecordNodeGetEvent, 11010, 0)
-        _cuGetProcAddress('cuGraphEventRecordNodeSetEvent', &__cuGraphEventRecordNodeSetEvent, 11010, 0)
-        _cuGetProcAddress('cuGraphAddEventWaitNode', &__cuGraphAddEventWaitNode, 11010, 0)
-        _cuGetProcAddress('cuGraphEventWaitNodeGetEvent', &__cuGraphEventWaitNodeGetEvent, 11010, 0)
-        _cuGetProcAddress('cuGraphEventWaitNodeSetEvent', &__cuGraphEventWaitNodeSetEvent, 11010, 0)
-        _cuGetProcAddress('cuGraphAddExternalSemaphoresSignalNode', &__cuGraphAddExternalSemaphoresSignalNode, 11020, 0)
-        _cuGetProcAddress('cuGraphExternalSemaphoresSignalNodeGetParams', &__cuGraphExternalSemaphoresSignalNodeGetParams, 11020, 0)
-        _cuGetProcAddress('cuGraphExternalSemaphoresSignalNodeSetParams', &__cuGraphExternalSemaphoresSignalNodeSetParams, 11020, 0)
-        _cuGetProcAddress('cuGraphAddExternalSemaphoresWaitNode', &__cuGraphAddExternalSemaphoresWaitNode, 11020, 0)
-        _cuGetProcAddress('cuGraphExternalSemaphoresWaitNodeGetParams', &__cuGraphExternalSemaphoresWaitNodeGetParams, 11020, 0)
-        _cuGetProcAddress('cuGraphExternalSemaphoresWaitNodeSetParams', &__cuGraphExternalSemaphoresWaitNodeSetParams, 11020, 0)
-        _cuGetProcAddress('cuGraphAddMemAllocNode', &__cuGraphAddMemAllocNode, 11040, 0)
-        _cuGetProcAddress('cuGraphMemAllocNodeGetParams', &__cuGraphMemAllocNodeGetParams, 11040, 0)
-        _cuGetProcAddress('cuGraphAddMemFreeNode', &__cuGraphAddMemFreeNode, 11040, 0)
-        _cuGetProcAddress('cuGraphMemFreeNodeGetParams', &__cuGraphMemFreeNodeGetParams, 11040, 0)
-        _cuGetProcAddress('cuDeviceGraphMemTrim', &__cuDeviceGraphMemTrim, 11040, 0)
-        _cuGetProcAddress('cuDeviceGetGraphMemAttribute', &__cuDeviceGetGraphMemAttribute, 11040, 0)
-        _cuGetProcAddress('cuDeviceSetGraphMemAttribute', &__cuDeviceSetGraphMemAttribute, 11040, 0)
-        _cuGetProcAddress('cuGraphClone', &__cuGraphClone, 10000, 0)
-        _cuGetProcAddress('cuGraphNodeFindInClone', &__cuGraphNodeFindInClone, 10000, 0)
-        _cuGetProcAddress('cuGraphNodeGetType', &__cuGraphNodeGetType, 10000, 0)
-        _cuGetProcAddress('cuGraphGetNodes', &__cuGraphGetNodes, 10000, 0)
-        _cuGetProcAddress('cuGraphGetRootNodes', &__cuGraphGetRootNodes, 10000, 0)
-        _cuGetProcAddress('cuGraphGetEdges', &__cuGraphGetEdges, 10000, 0)
-        _cuGetProcAddress('cuGraphNodeGetDependencies', &__cuGraphNodeGetDependencies, 10000, 0)
-        _cuGetProcAddress('cuGraphNodeGetDependentNodes', &__cuGraphNodeGetDependentNodes, 10000, 0)
-        _cuGetProcAddress('cuGraphAddDependencies', &__cuGraphAddDependencies, 10000, 0)
-        _cuGetProcAddress('cuGraphRemoveDependencies', &__cuGraphRemoveDependencies, 10000, 0)
-        _cuGetProcAddress('cuGraphDestroyNode', &__cuGraphDestroyNode, 10000, 0)
-        _cuGetProcAddress('cuGraphInstantiate', &__cuGraphInstantiate_v2, 11000, 0)
-        _cuGetProcAddress('cuGraphInstantiateWithFlags', &__cuGraphInstantiateWithFlags, 11040, 0)
-        _cuGetProcAddress('cuGraphExecKernelNodeSetParams', &__cuGraphExecKernelNodeSetParams, 10010, 0)
-        _cuGetProcAddress('cuGraphExecMemcpyNodeSetParams', &__cuGraphExecMemcpyNodeSetParams, 10020, 0)
-        _cuGetProcAddress('cuGraphExecMemsetNodeSetParams', &__cuGraphExecMemsetNodeSetParams, 10020, 0)
-        _cuGetProcAddress('cuGraphExecHostNodeSetParams', &__cuGraphExecHostNodeSetParams, 10020, 0)
-        _cuGetProcAddress('cuGraphExecChildGraphNodeSetParams', &__cuGraphExecChildGraphNodeSetParams, 11010, 0)
-        _cuGetProcAddress('cuGraphExecEventRecordNodeSetEvent', &__cuGraphExecEventRecordNodeSetEvent, 11010, 0)
-        _cuGetProcAddress('cuGraphExecEventWaitNodeSetEvent', &__cuGraphExecEventWaitNodeSetEvent, 11010, 0)
-        _cuGetProcAddress('cuGraphExecExternalSemaphoresSignalNodeSetParams', &__cuGraphExecExternalSemaphoresSignalNodeSetParams, 11020, 0)
-        _cuGetProcAddress('cuGraphExecExternalSemaphoresWaitNodeSetParams', &__cuGraphExecExternalSemaphoresWaitNodeSetParams, 11020, 0)
-        _cuGetProcAddress('cuGraphUpload', &__cuGraphUpload, 11010, 0)
-        _cuGetProcAddress('cuGraphLaunch', &__cuGraphLaunch, 10000, 0)
-        _cuGetProcAddress('cuGraphExecDestroy', &__cuGraphExecDestroy, 10000, 0)
-        _cuGetProcAddress('cuGraphDestroy', &__cuGraphDestroy, 10000, 0)
-        _cuGetProcAddress('cuGraphExecUpdate', &__cuGraphExecUpdate, 10020, 0)
-        _cuGetProcAddress('cuGraphKernelNodeCopyAttributes', &__cuGraphKernelNodeCopyAttributes, 11000, 0)
-        _cuGetProcAddress('cuGraphKernelNodeGetAttribute', &__cuGraphKernelNodeGetAttribute, 11000, 0)
-        _cuGetProcAddress('cuGraphKernelNodeSetAttribute', &__cuGraphKernelNodeSetAttribute, 11000, 0)
-        _cuGetProcAddress('cuGraphDebugDotPrint', &__cuGraphDebugDotPrint, 11030, 0)
-        _cuGetProcAddress('cuUserObjectCreate', &__cuUserObjectCreate, 11030, 0)
-        _cuGetProcAddress('cuUserObjectRetain', &__cuUserObjectRetain, 11030, 0)
-        _cuGetProcAddress('cuUserObjectRelease', &__cuUserObjectRelease, 11030, 0)
-        _cuGetProcAddress('cuGraphRetainUserObject', &__cuGraphRetainUserObject, 11030, 0)
-        _cuGetProcAddress('cuGraphReleaseUserObject', &__cuGraphReleaseUserObject, 11030, 0)
-        _cuGetProcAddress('cuOccupancyMaxActiveBlocksPerMultiprocessor', &__cuOccupancyMaxActiveBlocksPerMultiprocessor, 6050, 0)
-        _cuGetProcAddress('cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags', &__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags, 7000, 0)
-        _cuGetProcAddress('cuOccupancyMaxPotentialBlockSize', &__cuOccupancyMaxPotentialBlockSize, 6050, 0)
-        _cuGetProcAddress('cuOccupancyMaxPotentialBlockSizeWithFlags', &__cuOccupancyMaxPotentialBlockSizeWithFlags, 7000, 0)
-        _cuGetProcAddress('cuOccupancyAvailableDynamicSMemPerBlock', &__cuOccupancyAvailableDynamicSMemPerBlock, 10020, 0)
-        _cuGetProcAddress('cuTexRefSetArray', &__cuTexRefSetArray, 2000, 0)
-        _cuGetProcAddress('cuTexRefSetMipmappedArray', &__cuTexRefSetMipmappedArray, 5000, 0)
-        _cuGetProcAddress('cuTexRefSetAddress', &__cuTexRefSetAddress_v2, 3020, 0)
-        _cuGetProcAddress('cuTexRefSetAddress2D', &__cuTexRefSetAddress2D_v3, 4010, 0)
-        _cuGetProcAddress('cuTexRefSetFormat', &__cuTexRefSetFormat, 2000, 0)
-        _cuGetProcAddress('cuTexRefSetAddressMode', &__cuTexRefSetAddressMode, 2000, 0)
-        _cuGetProcAddress('cuTexRefSetFilterMode', &__cuTexRefSetFilterMode, 2000, 0)
-        _cuGetProcAddress('cuTexRefSetMipmapFilterMode', &__cuTexRefSetMipmapFilterMode, 5000, 0)
-        _cuGetProcAddress('cuTexRefSetMipmapLevelBias', &__cuTexRefSetMipmapLevelBias, 5000, 0)
-        _cuGetProcAddress('cuTexRefSetMipmapLevelClamp', &__cuTexRefSetMipmapLevelClamp, 5000, 0)
-        _cuGetProcAddress('cuTexRefSetMaxAnisotropy', &__cuTexRefSetMaxAnisotropy, 5000, 0)
-        _cuGetProcAddress('cuTexRefSetBorderColor', &__cuTexRefSetBorderColor, 8000, 0)
-        _cuGetProcAddress('cuTexRefSetFlags', &__cuTexRefSetFlags, 2000, 0)
-        _cuGetProcAddress('cuTexRefGetAddress', &__cuTexRefGetAddress_v2, 3020, 0)
-        _cuGetProcAddress('cuTexRefGetArray', &__cuTexRefGetArray, 2000, 0)
-        _cuGetProcAddress('cuTexRefGetMipmappedArray', &__cuTexRefGetMipmappedArray, 5000, 0)
-        _cuGetProcAddress('cuTexRefGetAddressMode', &__cuTexRefGetAddressMode, 2000, 0)
-        _cuGetProcAddress('cuTexRefGetFilterMode', &__cuTexRefGetFilterMode, 2000, 0)
-        _cuGetProcAddress('cuTexRefGetFormat', &__cuTexRefGetFormat, 2000, 0)
-        _cuGetProcAddress('cuTexRefGetMipmapFilterMode', &__cuTexRefGetMipmapFilterMode, 5000, 0)
-        _cuGetProcAddress('cuTexRefGetMipmapLevelBias', &__cuTexRefGetMipmapLevelBias, 5000, 0)
-        _cuGetProcAddress('cuTexRefGetMipmapLevelClamp', &__cuTexRefGetMipmapLevelClamp, 5000, 0)
-        _cuGetProcAddress('cuTexRefGetMaxAnisotropy', &__cuTexRefGetMaxAnisotropy, 5000, 0)
-        _cuGetProcAddress('cuTexRefGetBorderColor', &__cuTexRefGetBorderColor, 8000, 0)
-        _cuGetProcAddress('cuTexRefGetFlags', &__cuTexRefGetFlags, 2000, 0)
-        _cuGetProcAddress('cuTexRefCreate', &__cuTexRefCreate, 2000, 0)
-        _cuGetProcAddress('cuTexRefDestroy', &__cuTexRefDestroy, 2000, 0)
-        _cuGetProcAddress('cuSurfRefSetArray', &__cuSurfRefSetArray, 3000, 0)
-        _cuGetProcAddress('cuSurfRefGetArray', &__cuSurfRefGetArray, 3000, 0)
-        _cuGetProcAddress('cuTexObjectCreate', &__cuTexObjectCreate, 5000, 0)
-        _cuGetProcAddress('cuTexObjectDestroy', &__cuTexObjectDestroy, 5000, 0)
-        _cuGetProcAddress('cuTexObjectGetResourceDesc', &__cuTexObjectGetResourceDesc, 5000, 0)
-        _cuGetProcAddress('cuTexObjectGetTextureDesc', &__cuTexObjectGetTextureDesc, 5000, 0)
-        _cuGetProcAddress('cuTexObjectGetResourceViewDesc', &__cuTexObjectGetResourceViewDesc, 5000, 0)
-        _cuGetProcAddress('cuSurfObjectCreate', &__cuSurfObjectCreate, 5000, 0)
-        _cuGetProcAddress('cuSurfObjectDestroy', &__cuSurfObjectDestroy, 5000, 0)
-        _cuGetProcAddress('cuSurfObjectGetResourceDesc', &__cuSurfObjectGetResourceDesc, 5000, 0)
-        _cuGetProcAddress('cuDeviceCanAccessPeer', &__cuDeviceCanAccessPeer, 4000, 0)
-        _cuGetProcAddress('cuCtxEnablePeerAccess', &__cuCtxEnablePeerAccess, 4000, 0)
-        _cuGetProcAddress('cuCtxDisablePeerAccess', &__cuCtxDisablePeerAccess, 4000, 0)
-        _cuGetProcAddress('cuDeviceGetP2PAttribute', &__cuDeviceGetP2PAttribute, 8000, 0)
-        _cuGetProcAddress('cuGraphicsUnregisterResource', &__cuGraphicsUnregisterResource, 3000, 0)
-        _cuGetProcAddress('cuGraphicsSubResourceGetMappedArray', &__cuGraphicsSubResourceGetMappedArray, 3000, 0)
-        _cuGetProcAddress('cuGraphicsResourceGetMappedMipmappedArray', &__cuGraphicsResourceGetMappedMipmappedArray, 5000, 0)
-        _cuGetProcAddress('cuGraphicsResourceGetMappedPointer', &__cuGraphicsResourceGetMappedPointer_v2, 3020, 0)
-        _cuGetProcAddress('cuGraphicsResourceSetMapFlags', &__cuGraphicsResourceSetMapFlags_v2, 6050, 0)
-        _cuGetProcAddress('cuGraphicsMapResources', &__cuGraphicsMapResources, 3000, 0)
-        _cuGetProcAddress('cuGraphicsUnmapResources', &__cuGraphicsUnmapResources, 3000, 0)
-        _cuGetProcAddress('cuGetProcAddress', &__cuGetProcAddress, 11030, 0)
-        _cuGetProcAddress('cuGetExportTable', &__cuGetExportTable, 3000, 0)
+        if usePTDS:
+            # Get all PTDS version of functions
+            cuGetProcAddress('cuMemcpy', &__cuMemcpy, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyPeer', &__cuMemcpyPeer, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyHtoD', &__cuMemcpyHtoD_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyDtoH', &__cuMemcpyDtoH_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyDtoD', &__cuMemcpyDtoD_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyDtoA', &__cuMemcpyDtoA_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyAtoD', &__cuMemcpyAtoD_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyHtoA', &__cuMemcpyHtoA_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyAtoH', &__cuMemcpyAtoH_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyAtoA', &__cuMemcpyAtoA_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpy2D', &__cuMemcpy2D_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpy2DUnaligned', &__cuMemcpy2DUnaligned_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpy3D', &__cuMemcpy3D_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpy3DPeer', &__cuMemcpy3DPeer, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyAsync', &__cuMemcpyAsync, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyPeerAsync', &__cuMemcpyPeerAsync, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyHtoDAsync', &__cuMemcpyHtoDAsync_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyDtoHAsync', &__cuMemcpyDtoHAsync_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyDtoDAsync', &__cuMemcpyDtoDAsync_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyHtoAAsync', &__cuMemcpyHtoAAsync_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpyAtoHAsync', &__cuMemcpyAtoHAsync_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpy2DAsync', &__cuMemcpy2DAsync_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpy3DAsync', &__cuMemcpy3DAsync_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemcpy3DPeerAsync', &__cuMemcpy3DPeerAsync, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD8', &__cuMemsetD8_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD16', &__cuMemsetD16_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD32', &__cuMemsetD32_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD2D8', &__cuMemsetD2D8_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD2D16', &__cuMemsetD2D16_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD2D32', &__cuMemsetD2D32_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD8Async', &__cuMemsetD8Async, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD16Async', &__cuMemsetD16Async, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD32Async', &__cuMemsetD32Async, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD2D8Async', &__cuMemsetD2D8Async, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD2D16Async', &__cuMemsetD2D16Async, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemsetD2D32Async', &__cuMemsetD2D32Async, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemMapArrayAsync', &__cuMemMapArrayAsync, 11010, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemFreeAsync', &__cuMemFreeAsync, 11020, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemAllocAsync', &__cuMemAllocAsync, 11020, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemAllocFromPoolAsync', &__cuMemAllocFromPoolAsync, 11020, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuMemPrefetchAsync', &__cuMemPrefetchAsync, 8000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamGetPriority', &__cuStreamGetPriority, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamGetFlags', &__cuStreamGetFlags, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamGetCtx', &__cuStreamGetCtx, 9020, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamWaitEvent', &__cuStreamWaitEvent, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamAddCallback', &__cuStreamAddCallback, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamBeginCapture', &__cuStreamBeginCapture_v2, 10010, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamEndCapture', &__cuStreamEndCapture, 10000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamIsCapturing', &__cuStreamIsCapturing, 10000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamGetCaptureInfo', &__cuStreamGetCaptureInfo, 10010, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamGetCaptureInfo', &__cuStreamGetCaptureInfo_v2, 11030, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamUpdateCaptureDependencies', &__cuStreamUpdateCaptureDependencies, 11030, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamAttachMemAsync', &__cuStreamAttachMemAsync, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamQuery', &__cuStreamQuery, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamSynchronize', &__cuStreamSynchronize, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamCopyAttributes', &__cuStreamCopyAttributes, 11000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamGetAttribute', &__cuStreamGetAttribute, 11000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamSetAttribute', &__cuStreamSetAttribute, 11000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuEventRecord', &__cuEventRecord, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuEventRecordWithFlags', &__cuEventRecordWithFlags, 11010, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuSignalExternalSemaphoresAsync', &__cuSignalExternalSemaphoresAsync, 10000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuWaitExternalSemaphoresAsync', &__cuWaitExternalSemaphoresAsync, 10000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamWaitValue32', &__cuStreamWaitValue32, 8000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamWaitValue64', &__cuStreamWaitValue64, 9000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamWriteValue32', &__cuStreamWriteValue32, 8000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamWriteValue64', &__cuStreamWriteValue64, 9000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamBatchMemOp', &__cuStreamBatchMemOp, 8000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuLaunchKernel', &__cuLaunchKernel, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuLaunchCooperativeKernel', &__cuLaunchCooperativeKernel, 9000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuLaunchHostFunc', &__cuLaunchHostFunc, 10000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuGraphUpload', &__cuGraphUpload, 11010, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuGraphLaunch', &__cuGraphLaunch, 10000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuGraphicsMapResources', &__cuGraphicsMapResources, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuGraphicsUnmapResources', &__cuGraphicsUnmapResources, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+        else:
+            # Else get the regular version
+            cuGetProcAddress('cuMemcpy', &__cuMemcpy, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyPeer', &__cuMemcpyPeer, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyHtoD', &__cuMemcpyHtoD_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyDtoH', &__cuMemcpyDtoH_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyDtoD', &__cuMemcpyDtoD_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyDtoA', &__cuMemcpyDtoA_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyAtoD', &__cuMemcpyAtoD_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyHtoA', &__cuMemcpyHtoA_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyAtoH', &__cuMemcpyAtoH_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyAtoA', &__cuMemcpyAtoA_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpy2D', &__cuMemcpy2D_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpy2DUnaligned', &__cuMemcpy2DUnaligned_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpy3D', &__cuMemcpy3D_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpy3DPeer', &__cuMemcpy3DPeer, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyAsync', &__cuMemcpyAsync, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyPeerAsync', &__cuMemcpyPeerAsync, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyHtoDAsync', &__cuMemcpyHtoDAsync_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyDtoHAsync', &__cuMemcpyDtoHAsync_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyDtoDAsync', &__cuMemcpyDtoDAsync_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyHtoAAsync', &__cuMemcpyHtoAAsync_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpyAtoHAsync', &__cuMemcpyAtoHAsync_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpy2DAsync', &__cuMemcpy2DAsync_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpy3DAsync', &__cuMemcpy3DAsync_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemcpy3DPeerAsync', &__cuMemcpy3DPeerAsync, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD8', &__cuMemsetD8_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD16', &__cuMemsetD16_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD32', &__cuMemsetD32_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD2D8', &__cuMemsetD2D8_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD2D16', &__cuMemsetD2D16_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD2D32', &__cuMemsetD2D32_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD8Async', &__cuMemsetD8Async, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD16Async', &__cuMemsetD16Async, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD32Async', &__cuMemsetD32Async, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD2D8Async', &__cuMemsetD2D8Async, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD2D16Async', &__cuMemsetD2D16Async, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemsetD2D32Async', &__cuMemsetD2D32Async, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemMapArrayAsync', &__cuMemMapArrayAsync, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemFreeAsync', &__cuMemFreeAsync, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemAllocAsync', &__cuMemAllocAsync, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemAllocFromPoolAsync', &__cuMemAllocFromPoolAsync, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuMemPrefetchAsync', &__cuMemPrefetchAsync, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamGetPriority', &__cuStreamGetPriority, 5050, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamGetFlags', &__cuStreamGetFlags, 5050, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamGetCtx', &__cuStreamGetCtx, 9020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamWaitEvent', &__cuStreamWaitEvent, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamAddCallback', &__cuStreamAddCallback, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamBeginCapture', &__cuStreamBeginCapture_v2, 10010, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamEndCapture', &__cuStreamEndCapture, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamIsCapturing', &__cuStreamIsCapturing, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamGetCaptureInfo', &__cuStreamGetCaptureInfo, 10010, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamGetCaptureInfo', &__cuStreamGetCaptureInfo_v2, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamUpdateCaptureDependencies', &__cuStreamUpdateCaptureDependencies, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamAttachMemAsync', &__cuStreamAttachMemAsync, 6000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamQuery', &__cuStreamQuery, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamSynchronize', &__cuStreamSynchronize, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamCopyAttributes', &__cuStreamCopyAttributes, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamGetAttribute', &__cuStreamGetAttribute, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamSetAttribute', &__cuStreamSetAttribute, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuEventRecord', &__cuEventRecord, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuEventRecordWithFlags', &__cuEventRecordWithFlags, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuSignalExternalSemaphoresAsync', &__cuSignalExternalSemaphoresAsync, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuWaitExternalSemaphoresAsync', &__cuWaitExternalSemaphoresAsync, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamWaitValue32', &__cuStreamWaitValue32, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamWaitValue64', &__cuStreamWaitValue64, 9000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamWriteValue32', &__cuStreamWriteValue32, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamWriteValue64', &__cuStreamWriteValue64, 9000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamBatchMemOp', &__cuStreamBatchMemOp, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuLaunchKernel', &__cuLaunchKernel, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuLaunchCooperativeKernel', &__cuLaunchCooperativeKernel, 9000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuLaunchHostFunc', &__cuLaunchHostFunc, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuGraphUpload', &__cuGraphUpload, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuGraphLaunch', &__cuGraphLaunch, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuGraphicsMapResources', &__cuGraphicsMapResources, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuGraphicsUnmapResources', &__cuGraphicsUnmapResources, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+        # Get remaining functions
+        cuGetProcAddress('cuGetErrorString', &__cuGetErrorString, 6000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGetErrorName', &__cuGetErrorName, 6000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuInit', &__cuInit, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDriverGetVersion', &__cuDriverGetVersion, 2020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGet', &__cuDeviceGet, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetCount', &__cuDeviceGetCount, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetName', &__cuDeviceGetName, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetUuid', &__cuDeviceGetUuid, 9020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetUuid', &__cuDeviceGetUuid_v2, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetLuid', &__cuDeviceGetLuid, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceTotalMem', &__cuDeviceTotalMem_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetTexture1DLinearMaxWidth', &__cuDeviceGetTexture1DLinearMaxWidth, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetAttribute', &__cuDeviceGetAttribute, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetNvSciSyncAttributes', &__cuDeviceGetNvSciSyncAttributes, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceSetMemPool', &__cuDeviceSetMemPool, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetMemPool', &__cuDeviceGetMemPool, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetDefaultMemPool', &__cuDeviceGetDefaultMemPool, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuFlushGPUDirectRDMAWrites', &__cuFlushGPUDirectRDMAWrites, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetProperties', &__cuDeviceGetProperties, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceComputeCapability', &__cuDeviceComputeCapability, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDevicePrimaryCtxRetain', &__cuDevicePrimaryCtxRetain, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDevicePrimaryCtxRelease', &__cuDevicePrimaryCtxRelease_v2, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDevicePrimaryCtxSetFlags', &__cuDevicePrimaryCtxSetFlags_v2, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDevicePrimaryCtxGetState', &__cuDevicePrimaryCtxGetState, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDevicePrimaryCtxReset', &__cuDevicePrimaryCtxReset_v2, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetExecAffinitySupport', &__cuDeviceGetExecAffinitySupport, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxCreate', &__cuCtxCreate_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxCreate', &__cuCtxCreate_v3, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxDestroy', &__cuCtxDestroy_v2, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxPushCurrent', &__cuCtxPushCurrent_v2, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxPopCurrent', &__cuCtxPopCurrent_v2, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxSetCurrent', &__cuCtxSetCurrent, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxGetCurrent', &__cuCtxGetCurrent, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxGetDevice', &__cuCtxGetDevice, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxGetFlags', &__cuCtxGetFlags, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxSynchronize', &__cuCtxSynchronize, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxSetLimit', &__cuCtxSetLimit, 3010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxGetLimit', &__cuCtxGetLimit, 3010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxGetCacheConfig', &__cuCtxGetCacheConfig, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxSetCacheConfig', &__cuCtxSetCacheConfig, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxGetSharedMemConfig', &__cuCtxGetSharedMemConfig, 4020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxSetSharedMemConfig', &__cuCtxSetSharedMemConfig, 4020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxGetApiVersion', &__cuCtxGetApiVersion, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxGetStreamPriorityRange', &__cuCtxGetStreamPriorityRange, 5050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxResetPersistingL2Cache', &__cuCtxResetPersistingL2Cache, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxGetExecAffinity', &__cuCtxGetExecAffinity, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxAttach', &__cuCtxAttach, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxDetach', &__cuCtxDetach, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuModuleLoad', &__cuModuleLoad, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuModuleLoadData', &__cuModuleLoadData, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuModuleLoadDataEx', &__cuModuleLoadDataEx, 2010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuModuleLoadFatBinary', &__cuModuleLoadFatBinary, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuModuleUnload', &__cuModuleUnload, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuModuleGetFunction', &__cuModuleGetFunction, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuModuleGetGlobal', &__cuModuleGetGlobal_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuModuleGetTexRef', &__cuModuleGetTexRef, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuModuleGetSurfRef', &__cuModuleGetSurfRef, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuLinkCreate', &__cuLinkCreate_v2, 6050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuLinkAddData', &__cuLinkAddData_v2, 6050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuLinkAddFile', &__cuLinkAddFile_v2, 6050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuLinkComplete', &__cuLinkComplete, 5050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuLinkDestroy', &__cuLinkDestroy, 5050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemGetInfo', &__cuMemGetInfo_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemAlloc', &__cuMemAlloc_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemAllocPitch', &__cuMemAllocPitch_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemFree', &__cuMemFree_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemGetAddressRange', &__cuMemGetAddressRange_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemAllocHost', &__cuMemAllocHost_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemFreeHost', &__cuMemFreeHost, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemHostAlloc', &__cuMemHostAlloc, 2020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemHostGetDevicePointer', &__cuMemHostGetDevicePointer_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemHostGetFlags', &__cuMemHostGetFlags, 2030, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemAllocManaged', &__cuMemAllocManaged, 6000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetByPCIBusId', &__cuDeviceGetByPCIBusId, 4010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetPCIBusId', &__cuDeviceGetPCIBusId, 4010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuIpcGetEventHandle', &__cuIpcGetEventHandle, 4010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuIpcOpenEventHandle', &__cuIpcOpenEventHandle, 4010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuIpcGetMemHandle', &__cuIpcGetMemHandle, 4010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuIpcOpenMemHandle', &__cuIpcOpenMemHandle_v2, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuIpcCloseMemHandle', &__cuIpcCloseMemHandle, 4010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemHostRegister', &__cuMemHostRegister_v2, 6050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemHostUnregister', &__cuMemHostUnregister, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuArrayCreate', &__cuArrayCreate_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuArrayGetDescriptor', &__cuArrayGetDescriptor_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuArrayGetSparseProperties', &__cuArrayGetSparseProperties, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMipmappedArrayGetSparseProperties', &__cuMipmappedArrayGetSparseProperties, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuArrayGetMemoryRequirements', &__cuArrayGetMemoryRequirements, 11060, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMipmappedArrayGetMemoryRequirements', &__cuMipmappedArrayGetMemoryRequirements, 11060, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuArrayGetPlane', &__cuArrayGetPlane, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuArrayDestroy', &__cuArrayDestroy, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuArray3DCreate', &__cuArray3DCreate_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuArray3DGetDescriptor', &__cuArray3DGetDescriptor_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMipmappedArrayCreate', &__cuMipmappedArrayCreate, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMipmappedArrayGetLevel', &__cuMipmappedArrayGetLevel, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMipmappedArrayDestroy', &__cuMipmappedArrayDestroy, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemAddressReserve', &__cuMemAddressReserve, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemAddressFree', &__cuMemAddressFree, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemCreate', &__cuMemCreate, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemRelease', &__cuMemRelease, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemMap', &__cuMemMap, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemUnmap', &__cuMemUnmap, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemSetAccess', &__cuMemSetAccess, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemGetAccess', &__cuMemGetAccess, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemExportToShareableHandle', &__cuMemExportToShareableHandle, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemImportFromShareableHandle', &__cuMemImportFromShareableHandle, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemGetAllocationGranularity', &__cuMemGetAllocationGranularity, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemGetAllocationPropertiesFromHandle', &__cuMemGetAllocationPropertiesFromHandle, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemRetainAllocationHandle', &__cuMemRetainAllocationHandle, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolTrimTo', &__cuMemPoolTrimTo, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolSetAttribute', &__cuMemPoolSetAttribute, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolGetAttribute', &__cuMemPoolGetAttribute, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolSetAccess', &__cuMemPoolSetAccess, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolGetAccess', &__cuMemPoolGetAccess, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolCreate', &__cuMemPoolCreate, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolDestroy', &__cuMemPoolDestroy, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolExportToShareableHandle', &__cuMemPoolExportToShareableHandle, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolImportFromShareableHandle', &__cuMemPoolImportFromShareableHandle, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolExportPointer', &__cuMemPoolExportPointer, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemPoolImportPointer', &__cuMemPoolImportPointer, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuPointerGetAttribute', &__cuPointerGetAttribute, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemAdvise', &__cuMemAdvise, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemRangeGetAttribute', &__cuMemRangeGetAttribute, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemRangeGetAttributes', &__cuMemRangeGetAttributes, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuPointerSetAttribute', &__cuPointerSetAttribute, 6000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuPointerGetAttributes', &__cuPointerGetAttributes, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuStreamCreate', &__cuStreamCreate, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuStreamCreateWithPriority', &__cuStreamCreateWithPriority, 5050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuThreadExchangeStreamCaptureMode', &__cuThreadExchangeStreamCaptureMode, 10010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuStreamDestroy', &__cuStreamDestroy_v2, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEventCreate', &__cuEventCreate, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEventQuery', &__cuEventQuery, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEventSynchronize', &__cuEventSynchronize, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEventDestroy', &__cuEventDestroy_v2, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEventElapsedTime', &__cuEventElapsedTime, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuImportExternalMemory', &__cuImportExternalMemory, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuExternalMemoryGetMappedBuffer', &__cuExternalMemoryGetMappedBuffer, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuExternalMemoryGetMappedMipmappedArray', &__cuExternalMemoryGetMappedMipmappedArray, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDestroyExternalMemory', &__cuDestroyExternalMemory, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuImportExternalSemaphore', &__cuImportExternalSemaphore, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDestroyExternalSemaphore', &__cuDestroyExternalSemaphore, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuFuncGetAttribute', &__cuFuncGetAttribute, 2020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuFuncSetAttribute', &__cuFuncSetAttribute, 9000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuFuncSetCacheConfig', &__cuFuncSetCacheConfig, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuFuncSetSharedMemConfig', &__cuFuncSetSharedMemConfig, 4020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuFuncGetModule', &__cuFuncGetModule, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuLaunchCooperativeKernelMultiDevice', &__cuLaunchCooperativeKernelMultiDevice, 9000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuFuncSetBlockShape', &__cuFuncSetBlockShape, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuFuncSetSharedSize', &__cuFuncSetSharedSize, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuParamSetSize', &__cuParamSetSize, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuParamSeti', &__cuParamSeti, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuParamSetf', &__cuParamSetf, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuParamSetv', &__cuParamSetv, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuLaunch', &__cuLaunch, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuLaunchGrid', &__cuLaunchGrid, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuLaunchGridAsync', &__cuLaunchGridAsync, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuParamSetTexRef', &__cuParamSetTexRef, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphCreate', &__cuGraphCreate, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddKernelNode', &__cuGraphAddKernelNode, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphKernelNodeGetParams', &__cuGraphKernelNodeGetParams, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphKernelNodeSetParams', &__cuGraphKernelNodeSetParams, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddMemcpyNode', &__cuGraphAddMemcpyNode, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphMemcpyNodeGetParams', &__cuGraphMemcpyNodeGetParams, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphMemcpyNodeSetParams', &__cuGraphMemcpyNodeSetParams, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddMemsetNode', &__cuGraphAddMemsetNode, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphMemsetNodeGetParams', &__cuGraphMemsetNodeGetParams, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphMemsetNodeSetParams', &__cuGraphMemsetNodeSetParams, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddHostNode', &__cuGraphAddHostNode, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphHostNodeGetParams', &__cuGraphHostNodeGetParams, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphHostNodeSetParams', &__cuGraphHostNodeSetParams, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddChildGraphNode', &__cuGraphAddChildGraphNode, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphChildGraphNodeGetGraph', &__cuGraphChildGraphNodeGetGraph, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddEmptyNode', &__cuGraphAddEmptyNode, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddEventRecordNode', &__cuGraphAddEventRecordNode, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphEventRecordNodeGetEvent', &__cuGraphEventRecordNodeGetEvent, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphEventRecordNodeSetEvent', &__cuGraphEventRecordNodeSetEvent, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddEventWaitNode', &__cuGraphAddEventWaitNode, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphEventWaitNodeGetEvent', &__cuGraphEventWaitNodeGetEvent, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphEventWaitNodeSetEvent', &__cuGraphEventWaitNodeSetEvent, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddExternalSemaphoresSignalNode', &__cuGraphAddExternalSemaphoresSignalNode, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExternalSemaphoresSignalNodeGetParams', &__cuGraphExternalSemaphoresSignalNodeGetParams, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExternalSemaphoresSignalNodeSetParams', &__cuGraphExternalSemaphoresSignalNodeSetParams, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddExternalSemaphoresWaitNode', &__cuGraphAddExternalSemaphoresWaitNode, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExternalSemaphoresWaitNodeGetParams', &__cuGraphExternalSemaphoresWaitNodeGetParams, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExternalSemaphoresWaitNodeSetParams', &__cuGraphExternalSemaphoresWaitNodeSetParams, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddMemAllocNode', &__cuGraphAddMemAllocNode, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphMemAllocNodeGetParams', &__cuGraphMemAllocNodeGetParams, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddMemFreeNode', &__cuGraphAddMemFreeNode, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphMemFreeNodeGetParams', &__cuGraphMemFreeNodeGetParams, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGraphMemTrim', &__cuDeviceGraphMemTrim, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetGraphMemAttribute', &__cuDeviceGetGraphMemAttribute, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceSetGraphMemAttribute', &__cuDeviceSetGraphMemAttribute, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphClone', &__cuGraphClone, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphNodeFindInClone', &__cuGraphNodeFindInClone, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphNodeGetType', &__cuGraphNodeGetType, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphGetNodes', &__cuGraphGetNodes, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphGetRootNodes', &__cuGraphGetRootNodes, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphGetEdges', &__cuGraphGetEdges, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphNodeGetDependencies', &__cuGraphNodeGetDependencies, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphNodeGetDependentNodes', &__cuGraphNodeGetDependentNodes, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddDependencies', &__cuGraphAddDependencies, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphRemoveDependencies', &__cuGraphRemoveDependencies, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphDestroyNode', &__cuGraphDestroyNode, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphInstantiate', &__cuGraphInstantiate_v2, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphInstantiateWithFlags', &__cuGraphInstantiateWithFlags, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecKernelNodeSetParams', &__cuGraphExecKernelNodeSetParams, 10010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecMemcpyNodeSetParams', &__cuGraphExecMemcpyNodeSetParams, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecMemsetNodeSetParams', &__cuGraphExecMemsetNodeSetParams, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecHostNodeSetParams', &__cuGraphExecHostNodeSetParams, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecChildGraphNodeSetParams', &__cuGraphExecChildGraphNodeSetParams, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecEventRecordNodeSetEvent', &__cuGraphExecEventRecordNodeSetEvent, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecEventWaitNodeSetEvent', &__cuGraphExecEventWaitNodeSetEvent, 11010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecExternalSemaphoresSignalNodeSetParams', &__cuGraphExecExternalSemaphoresSignalNodeSetParams, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecExternalSemaphoresWaitNodeSetParams', &__cuGraphExecExternalSemaphoresWaitNodeSetParams, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphNodeSetEnabled', &__cuGraphNodeSetEnabled, 11060, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphNodeGetEnabled', &__cuGraphNodeGetEnabled, 11060, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecDestroy', &__cuGraphExecDestroy, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphDestroy', &__cuGraphDestroy, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecUpdate', &__cuGraphExecUpdate, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphKernelNodeCopyAttributes', &__cuGraphKernelNodeCopyAttributes, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphKernelNodeGetAttribute', &__cuGraphKernelNodeGetAttribute, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphKernelNodeSetAttribute', &__cuGraphKernelNodeSetAttribute, 11000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphDebugDotPrint', &__cuGraphDebugDotPrint, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuUserObjectCreate', &__cuUserObjectCreate, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuUserObjectRetain', &__cuUserObjectRetain, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuUserObjectRelease', &__cuUserObjectRelease, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphRetainUserObject', &__cuGraphRetainUserObject, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphReleaseUserObject', &__cuGraphReleaseUserObject, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuOccupancyMaxActiveBlocksPerMultiprocessor', &__cuOccupancyMaxActiveBlocksPerMultiprocessor, 6050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags', &__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuOccupancyMaxPotentialBlockSize', &__cuOccupancyMaxPotentialBlockSize, 6050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuOccupancyMaxPotentialBlockSizeWithFlags', &__cuOccupancyMaxPotentialBlockSizeWithFlags, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuOccupancyAvailableDynamicSMemPerBlock', &__cuOccupancyAvailableDynamicSMemPerBlock, 10020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetArray', &__cuTexRefSetArray, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetMipmappedArray', &__cuTexRefSetMipmappedArray, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetAddress', &__cuTexRefSetAddress_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetAddress2D', &__cuTexRefSetAddress2D_v3, 4010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetFormat', &__cuTexRefSetFormat, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetAddressMode', &__cuTexRefSetAddressMode, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetFilterMode', &__cuTexRefSetFilterMode, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetMipmapFilterMode', &__cuTexRefSetMipmapFilterMode, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetMipmapLevelBias', &__cuTexRefSetMipmapLevelBias, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetMipmapLevelClamp', &__cuTexRefSetMipmapLevelClamp, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetMaxAnisotropy', &__cuTexRefSetMaxAnisotropy, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetBorderColor', &__cuTexRefSetBorderColor, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefSetFlags', &__cuTexRefSetFlags, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetAddress', &__cuTexRefGetAddress_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetArray', &__cuTexRefGetArray, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetMipmappedArray', &__cuTexRefGetMipmappedArray, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetAddressMode', &__cuTexRefGetAddressMode, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetFilterMode', &__cuTexRefGetFilterMode, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetFormat', &__cuTexRefGetFormat, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetMipmapFilterMode', &__cuTexRefGetMipmapFilterMode, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetMipmapLevelBias', &__cuTexRefGetMipmapLevelBias, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetMipmapLevelClamp', &__cuTexRefGetMipmapLevelClamp, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetMaxAnisotropy', &__cuTexRefGetMaxAnisotropy, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetBorderColor', &__cuTexRefGetBorderColor, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefGetFlags', &__cuTexRefGetFlags, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefCreate', &__cuTexRefCreate, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexRefDestroy', &__cuTexRefDestroy, 2000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuSurfRefSetArray', &__cuSurfRefSetArray, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuSurfRefGetArray', &__cuSurfRefGetArray, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexObjectCreate', &__cuTexObjectCreate, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexObjectDestroy', &__cuTexObjectDestroy, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexObjectGetResourceDesc', &__cuTexObjectGetResourceDesc, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexObjectGetTextureDesc', &__cuTexObjectGetTextureDesc, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuTexObjectGetResourceViewDesc', &__cuTexObjectGetResourceViewDesc, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuSurfObjectCreate', &__cuSurfObjectCreate, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuSurfObjectDestroy', &__cuSurfObjectDestroy, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuSurfObjectGetResourceDesc', &__cuSurfObjectGetResourceDesc, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceCanAccessPeer', &__cuDeviceCanAccessPeer, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxEnablePeerAccess', &__cuCtxEnablePeerAccess, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuCtxDisablePeerAccess', &__cuCtxDisablePeerAccess, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuDeviceGetP2PAttribute', &__cuDeviceGetP2PAttribute, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsUnregisterResource', &__cuGraphicsUnregisterResource, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsSubResourceGetMappedArray', &__cuGraphicsSubResourceGetMappedArray, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsResourceGetMappedMipmappedArray', &__cuGraphicsResourceGetMappedMipmappedArray, 5000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsResourceGetMappedPointer', &__cuGraphicsResourceGetMappedPointer_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsResourceSetMapFlags', &__cuGraphicsResourceSetMapFlags_v2, 6050, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGetProcAddress', &__cuGetProcAddress, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGetExportTable', &__cuGetExportTable, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuProfilerInitialize', &__cuProfilerInitialize, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuProfilerStart', &__cuProfilerStart, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuProfilerStop', &__cuProfilerStop, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuVDPAUGetDevice', &__cuVDPAUGetDevice, 3010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuVDPAUCtxCreate', &__cuVDPAUCtxCreate_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsVDPAURegisterVideoSurface', &__cuGraphicsVDPAURegisterVideoSurface, 3010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsVDPAURegisterOutputSurface', &__cuGraphicsVDPAURegisterOutputSurface, 3010, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsEGLRegisterImage', &__cuGraphicsEGLRegisterImage, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEGLStreamConsumerConnect', &__cuEGLStreamConsumerConnect, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEGLStreamConsumerConnectWithFlags', &__cuEGLStreamConsumerConnectWithFlags, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEGLStreamConsumerDisconnect', &__cuEGLStreamConsumerDisconnect, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEGLStreamConsumerAcquireFrame', &__cuEGLStreamConsumerAcquireFrame, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEGLStreamConsumerReleaseFrame', &__cuEGLStreamConsumerReleaseFrame, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEGLStreamProducerConnect', &__cuEGLStreamProducerConnect, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEGLStreamProducerDisconnect', &__cuEGLStreamProducerDisconnect, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEGLStreamProducerPresentFrame', &__cuEGLStreamProducerPresentFrame, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEGLStreamProducerReturnFrame', &__cuEGLStreamProducerReturnFrame, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsResourceGetMappedEglFrame', &__cuGraphicsResourceGetMappedEglFrame, 7000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuEventCreateFromEGLSync', &__cuEventCreateFromEGLSync, 9000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsGLRegisterBuffer', &__cuGraphicsGLRegisterBuffer, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphicsGLRegisterImage', &__cuGraphicsGLRegisterImage, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGLGetDevices', &__cuGLGetDevices_v2, 6050, CU_GET_PROC_ADDRESS_DEFAULT)
         return 0
     # dlsym calls
     IF UNAME_SYSNAME == "Windows":
         with gil:
+            if usePTDS:
+                # Get all PTDS version of functions
+                try:
+                    __cuMemcpy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpyPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyPeer_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpyHtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoD_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpyDtoH_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoH_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpyDtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoD_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpyDtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoA_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpyAtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoD_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpyHtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoA_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpyAtoH_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoH_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpyAtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoA_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpy2D_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2D_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpy2DUnaligned_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2DUnaligned_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpy3D_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3D_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpy3DPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DPeer_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemcpyAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemcpyPeerAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyPeerAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemcpyHtoDAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoDAsync_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemcpyDtoHAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoHAsync_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemcpyDtoDAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoDAsync_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemcpyHtoAAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoAAsync_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemcpyAtoHAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoHAsync_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemcpy2DAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2DAsync_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemcpy3DAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DAsync_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemcpy3DPeerAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DPeerAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemsetD8_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD8_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemsetD16_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD16_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemsetD32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD32_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D8_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D8_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D16_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D16_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D32_v2_ptds')
+                except:
+                    pass
+                try:
+                    __cuMemsetD8Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD8Async_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemsetD16Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD16Async_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemsetD32Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD32Async_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D8Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D8Async_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D16Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D16Async_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D32Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D32Async_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemMapArrayAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemMapArrayAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemFreeAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemFreeAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemAllocAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemAllocFromPoolAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocFromPoolAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuMemPrefetchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPrefetchAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamGetPriority = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetPriority_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamGetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetFlags_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamGetCtx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCtx_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamWaitEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitEvent_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamAddCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamAddCallback_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamBeginCapture_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBeginCapture_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamEndCapture = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamEndCapture_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamIsCapturing = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamIsCapturing_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamGetCaptureInfo = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCaptureInfo_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamGetCaptureInfo_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCaptureInfo_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamUpdateCaptureDependencies = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamUpdateCaptureDependencies_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamAttachMemAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamAttachMemAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamQuery = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamQuery_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamSynchronize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamSynchronize_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamCopyAttributes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamCopyAttributes_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetAttribute_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamSetAttribute_ptsz')
+                except:
+                    pass
+                try:
+                    __cuEventRecord = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventRecord_ptsz')
+                except:
+                    pass
+                try:
+                    __cuEventRecordWithFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventRecordWithFlags_ptsz')
+                except:
+                    pass
+                try:
+                    __cuSignalExternalSemaphoresAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuSignalExternalSemaphoresAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuWaitExternalSemaphoresAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuWaitExternalSemaphoresAsync_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamWaitValue32 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue32_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamWaitValue64 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue64_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamWriteValue32 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue32_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamWriteValue64 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue64_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamBatchMemOp = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBatchMemOp_ptsz')
+                except:
+                    pass
+                try:
+                    __cuLaunchKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchKernel_ptsz')
+                except:
+                    pass
+                try:
+                    __cuLaunchCooperativeKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchCooperativeKernel_ptsz')
+                except:
+                    pass
+                try:
+                    __cuLaunchHostFunc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchHostFunc_ptsz')
+                except:
+                    pass
+                try:
+                    __cuGraphUpload = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphUpload_ptsz')
+                except:
+                    pass
+                try:
+                    __cuGraphLaunch = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphLaunch_ptsz')
+                except:
+                    pass
+                try:
+                    __cuGraphicsMapResources = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsMapResources_ptsz')
+                except:
+                    pass
+                try:
+                    __cuGraphicsUnmapResources = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsUnmapResources_ptsz')
+                except:
+                    pass
+            else:
+                # Else get the regular version
+                try:
+                    __cuMemcpy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy')
+                except:
+                    pass
+                try:
+                    __cuMemcpyPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyPeer')
+                except:
+                    pass
+                try:
+                    __cuMemcpyHtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoD_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyDtoH_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoH_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyDtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoD_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyDtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoA_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyAtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoD_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyHtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoA_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyAtoH_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoH_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyAtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoA_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpy2D_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2D_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpy2DUnaligned_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2DUnaligned_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpy3D_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3D_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpy3DPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DPeer')
+                except:
+                    pass
+                try:
+                    __cuMemcpyAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAsync')
+                except:
+                    pass
+                try:
+                    __cuMemcpyPeerAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyPeerAsync')
+                except:
+                    pass
+                try:
+                    __cuMemcpyHtoDAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoDAsync_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyDtoHAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoHAsync_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyDtoDAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoDAsync_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyHtoAAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoAAsync_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpyAtoHAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoHAsync_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpy2DAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2DAsync_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpy3DAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DAsync_v2')
+                except:
+                    pass
+                try:
+                    __cuMemcpy3DPeerAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DPeerAsync')
+                except:
+                    pass
+                try:
+                    __cuMemsetD8_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD8_v2')
+                except:
+                    pass
+                try:
+                    __cuMemsetD16_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD16_v2')
+                except:
+                    pass
+                try:
+                    __cuMemsetD32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD32_v2')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D8_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D8_v2')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D16_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D16_v2')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D32_v2')
+                except:
+                    pass
+                try:
+                    __cuMemsetD8Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD8Async')
+                except:
+                    pass
+                try:
+                    __cuMemsetD16Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD16Async')
+                except:
+                    pass
+                try:
+                    __cuMemsetD32Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD32Async')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D8Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D8Async')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D16Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D16Async')
+                except:
+                    pass
+                try:
+                    __cuMemsetD2D32Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D32Async')
+                except:
+                    pass
+                try:
+                    __cuMemMapArrayAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemMapArrayAsync')
+                except:
+                    pass
+                try:
+                    __cuMemFreeAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemFreeAsync')
+                except:
+                    pass
+                try:
+                    __cuMemAllocAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocAsync')
+                except:
+                    pass
+                try:
+                    __cuMemAllocFromPoolAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocFromPoolAsync')
+                except:
+                    pass
+                try:
+                    __cuMemPrefetchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPrefetchAsync')
+                except:
+                    pass
+                try:
+                    __cuStreamGetPriority = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetPriority')
+                except:
+                    pass
+                try:
+                    __cuStreamGetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetFlags')
+                except:
+                    pass
+                try:
+                    __cuStreamGetCtx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCtx')
+                except:
+                    pass
+                try:
+                    __cuStreamWaitEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitEvent')
+                except:
+                    pass
+                try:
+                    __cuStreamAddCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamAddCallback')
+                except:
+                    pass
+                try:
+                    __cuStreamBeginCapture_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBeginCapture_v2')
+                except:
+                    pass
+                try:
+                    __cuStreamEndCapture = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamEndCapture')
+                except:
+                    pass
+                try:
+                    __cuStreamIsCapturing = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamIsCapturing')
+                except:
+                    pass
+                try:
+                    __cuStreamGetCaptureInfo = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCaptureInfo')
+                except:
+                    pass
+                try:
+                    __cuStreamGetCaptureInfo_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCaptureInfo_v2')
+                except:
+                    pass
+                try:
+                    __cuStreamUpdateCaptureDependencies = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamUpdateCaptureDependencies')
+                except:
+                    pass
+                try:
+                    __cuStreamAttachMemAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamAttachMemAsync')
+                except:
+                    pass
+                try:
+                    __cuStreamQuery = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamQuery')
+                except:
+                    pass
+                try:
+                    __cuStreamSynchronize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamSynchronize')
+                except:
+                    pass
+                try:
+                    __cuStreamCopyAttributes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamCopyAttributes')
+                except:
+                    pass
+                try:
+                    __cuStreamGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetAttribute')
+                except:
+                    pass
+                try:
+                    __cuStreamSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamSetAttribute')
+                except:
+                    pass
+                try:
+                    __cuEventRecord = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventRecord')
+                except:
+                    pass
+                try:
+                    __cuEventRecordWithFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventRecordWithFlags')
+                except:
+                    pass
+                try:
+                    __cuSignalExternalSemaphoresAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuSignalExternalSemaphoresAsync')
+                except:
+                    pass
+                try:
+                    __cuWaitExternalSemaphoresAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuWaitExternalSemaphoresAsync')
+                except:
+                    pass
+                try:
+                    __cuStreamWaitValue32 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue32')
+                except:
+                    pass
+                try:
+                    __cuStreamWaitValue64 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue64')
+                except:
+                    pass
+                try:
+                    __cuStreamWriteValue32 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue32')
+                except:
+                    pass
+                try:
+                    __cuStreamWriteValue64 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue64')
+                except:
+                    pass
+                try:
+                    __cuStreamBatchMemOp = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBatchMemOp')
+                except:
+                    pass
+                try:
+                    __cuLaunchKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchKernel')
+                except:
+                    pass
+                try:
+                    __cuLaunchCooperativeKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchCooperativeKernel')
+                except:
+                    pass
+                try:
+                    __cuLaunchHostFunc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchHostFunc')
+                except:
+                    pass
+                try:
+                    __cuGraphUpload = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphUpload')
+                except:
+                    pass
+                try:
+                    __cuGraphLaunch = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphLaunch')
+                except:
+                    pass
+                try:
+                    __cuGraphicsMapResources = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsMapResources')
+                except:
+                    pass
+                try:
+                    __cuGraphicsUnmapResources = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsUnmapResources')
+                except:
+                    pass
+            # Get remaining functions
             try:
                 __cuGetErrorString = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetErrorString')
             except:
@@ -1438,150 +2194,6 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
-                __cuMemcpy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy')
-            except:
-                pass
-            try:
-                __cuMemcpyPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyPeer')
-            except:
-                pass
-            try:
-                __cuMemcpyHtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoD_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyDtoH_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoH_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyDtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoD_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyDtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoA_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyAtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoD_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyHtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoA_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyAtoH_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoH_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyAtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoA_v2')
-            except:
-                pass
-            try:
-                __cuMemcpy2D_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2D_v2')
-            except:
-                pass
-            try:
-                __cuMemcpy2DUnaligned_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2DUnaligned_v2')
-            except:
-                pass
-            try:
-                __cuMemcpy3D_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3D_v2')
-            except:
-                pass
-            try:
-                __cuMemcpy3DPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DPeer')
-            except:
-                pass
-            try:
-                __cuMemcpyAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAsync')
-            except:
-                pass
-            try:
-                __cuMemcpyPeerAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyPeerAsync')
-            except:
-                pass
-            try:
-                __cuMemcpyHtoDAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoDAsync_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyDtoHAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoHAsync_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyDtoDAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoDAsync_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyHtoAAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoAAsync_v2')
-            except:
-                pass
-            try:
-                __cuMemcpyAtoHAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoHAsync_v2')
-            except:
-                pass
-            try:
-                __cuMemcpy2DAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2DAsync_v2')
-            except:
-                pass
-            try:
-                __cuMemcpy3DAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DAsync_v2')
-            except:
-                pass
-            try:
-                __cuMemcpy3DPeerAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DPeerAsync')
-            except:
-                pass
-            try:
-                __cuMemsetD8_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD8_v2')
-            except:
-                pass
-            try:
-                __cuMemsetD16_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD16_v2')
-            except:
-                pass
-            try:
-                __cuMemsetD32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD32_v2')
-            except:
-                pass
-            try:
-                __cuMemsetD2D8_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D8_v2')
-            except:
-                pass
-            try:
-                __cuMemsetD2D16_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D16_v2')
-            except:
-                pass
-            try:
-                __cuMemsetD2D32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D32_v2')
-            except:
-                pass
-            try:
-                __cuMemsetD8Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD8Async')
-            except:
-                pass
-            try:
-                __cuMemsetD16Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD16Async')
-            except:
-                pass
-            try:
-                __cuMemsetD32Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD32Async')
-            except:
-                pass
-            try:
-                __cuMemsetD2D8Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D8Async')
-            except:
-                pass
-            try:
-                __cuMemsetD2D16Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D16Async')
-            except:
-                pass
-            try:
-                __cuMemsetD2D32Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D32Async')
-            except:
-                pass
-            try:
                 __cuArrayCreate_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuArrayCreate_v2')
             except:
                 pass
@@ -1595,6 +2207,14 @@ cdef int cuPythonInit() nogil except -1:
                 pass
             try:
                 __cuMipmappedArrayGetSparseProperties = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMipmappedArrayGetSparseProperties')
+            except:
+                pass
+            try:
+                __cuArrayGetMemoryRequirements = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuArrayGetMemoryRequirements')
+            except:
+                pass
+            try:
+                __cuMipmappedArrayGetMemoryRequirements = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMipmappedArrayGetMemoryRequirements')
             except:
                 pass
             try:
@@ -1646,10 +2266,6 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
-                __cuMemMapArrayAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemMapArrayAsync')
-            except:
-                pass
-            try:
                 __cuMemUnmap = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemUnmap')
             except:
                 pass
@@ -1682,14 +2298,6 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
-                __cuMemFreeAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemFreeAsync')
-            except:
-                pass
-            try:
-                __cuMemAllocAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocAsync')
-            except:
-                pass
-            try:
                 __cuMemPoolTrimTo = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolTrimTo')
             except:
                 pass
@@ -1718,10 +2326,6 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
-                __cuMemAllocFromPoolAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocFromPoolAsync')
-            except:
-                pass
-            try:
                 __cuMemPoolExportToShareableHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolExportToShareableHandle')
             except:
                 pass
@@ -1739,10 +2343,6 @@ cdef int cuPythonInit() nogil except -1:
                 pass
             try:
                 __cuPointerGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuPointerGetAttribute')
-            except:
-                pass
-            try:
-                __cuMemPrefetchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPrefetchAsync')
             except:
                 pass
             try:
@@ -1774,63 +2374,7 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
-                __cuStreamGetPriority = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetPriority')
-            except:
-                pass
-            try:
-                __cuStreamGetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetFlags')
-            except:
-                pass
-            try:
-                __cuStreamGetCtx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCtx')
-            except:
-                pass
-            try:
-                __cuStreamWaitEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitEvent')
-            except:
-                pass
-            try:
-                __cuStreamAddCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamAddCallback')
-            except:
-                pass
-            try:
-                __cuStreamBeginCapture_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBeginCapture_v2')
-            except:
-                pass
-            try:
                 __cuThreadExchangeStreamCaptureMode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuThreadExchangeStreamCaptureMode')
-            except:
-                pass
-            try:
-                __cuStreamEndCapture = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamEndCapture')
-            except:
-                pass
-            try:
-                __cuStreamIsCapturing = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamIsCapturing')
-            except:
-                pass
-            try:
-                __cuStreamGetCaptureInfo = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCaptureInfo')
-            except:
-                pass
-            try:
-                __cuStreamGetCaptureInfo_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCaptureInfo_v2')
-            except:
-                pass
-            try:
-                __cuStreamUpdateCaptureDependencies = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamUpdateCaptureDependencies')
-            except:
-                pass
-            try:
-                __cuStreamAttachMemAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamAttachMemAsync')
-            except:
-                pass
-            try:
-                __cuStreamQuery = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamQuery')
-            except:
-                pass
-            try:
-                __cuStreamSynchronize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamSynchronize')
             except:
                 pass
             try:
@@ -1838,27 +2382,7 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
-                __cuStreamCopyAttributes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamCopyAttributes')
-            except:
-                pass
-            try:
-                __cuStreamGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetAttribute')
-            except:
-                pass
-            try:
-                __cuStreamSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamSetAttribute')
-            except:
-                pass
-            try:
                 __cuEventCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventCreate')
-            except:
-                pass
-            try:
-                __cuEventRecord = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventRecord')
-            except:
-                pass
-            try:
-                __cuEventRecordWithFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventRecordWithFlags')
             except:
                 pass
             try:
@@ -1898,35 +2422,7 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
-                __cuSignalExternalSemaphoresAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuSignalExternalSemaphoresAsync')
-            except:
-                pass
-            try:
-                __cuWaitExternalSemaphoresAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuWaitExternalSemaphoresAsync')
-            except:
-                pass
-            try:
                 __cuDestroyExternalSemaphore = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDestroyExternalSemaphore')
-            except:
-                pass
-            try:
-                __cuStreamWaitValue32 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue32')
-            except:
-                pass
-            try:
-                __cuStreamWaitValue64 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue64')
-            except:
-                pass
-            try:
-                __cuStreamWriteValue32 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue32')
-            except:
-                pass
-            try:
-                __cuStreamWriteValue64 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue64')
-            except:
-                pass
-            try:
-                __cuStreamBatchMemOp = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBatchMemOp')
             except:
                 pass
             try:
@@ -1950,19 +2446,7 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
-                __cuLaunchKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchKernel')
-            except:
-                pass
-            try:
-                __cuLaunchCooperativeKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchCooperativeKernel')
-            except:
-                pass
-            try:
                 __cuLaunchCooperativeKernelMultiDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchCooperativeKernelMultiDevice')
-            except:
-                pass
-            try:
-                __cuLaunchHostFunc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchHostFunc')
             except:
                 pass
             try:
@@ -2234,11 +2718,11 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
-                __cuGraphUpload = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphUpload')
+                __cuGraphNodeSetEnabled = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeSetEnabled')
             except:
                 pass
             try:
-                __cuGraphLaunch = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphLaunch')
+                __cuGraphNodeGetEnabled = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeGetEnabled')
             except:
                 pass
             try:
@@ -2494,14 +2978,6 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
-                __cuGraphicsMapResources = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsMapResources')
-            except:
-                pass
-            try:
-                __cuGraphicsUnmapResources = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsUnmapResources')
-            except:
-                pass
-            try:
                 __cuGetProcAddress = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetProcAddress')
             except:
                 pass
@@ -2509,7 +2985,248 @@ cdef int cuPythonInit() nogil except -1:
                 __cuGetExportTable = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetExportTable')
             except:
                 pass
+            try:
+                __cuProfilerInitialize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuProfilerInitialize')
+            except:
+                pass
+            try:
+                __cuProfilerStart = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuProfilerStart')
+            except:
+                pass
+            try:
+                __cuProfilerStop = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuProfilerStop')
+            except:
+                pass
+            try:
+                __cuVDPAUGetDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuVDPAUGetDevice')
+            except:
+                pass
+            try:
+                __cuVDPAUCtxCreate_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuVDPAUCtxCreate_v2')
+            except:
+                pass
+            try:
+                __cuGraphicsVDPAURegisterVideoSurface = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsVDPAURegisterVideoSurface')
+            except:
+                pass
+            try:
+                __cuGraphicsVDPAURegisterOutputSurface = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsVDPAURegisterOutputSurface')
+            except:
+                pass
+            try:
+                __cuGraphicsEGLRegisterImage = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsEGLRegisterImage')
+            except:
+                pass
+            try:
+                __cuEGLStreamConsumerConnect = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamConsumerConnect')
+            except:
+                pass
+            try:
+                __cuEGLStreamConsumerConnectWithFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamConsumerConnectWithFlags')
+            except:
+                pass
+            try:
+                __cuEGLStreamConsumerDisconnect = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamConsumerDisconnect')
+            except:
+                pass
+            try:
+                __cuEGLStreamConsumerAcquireFrame = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamConsumerAcquireFrame')
+            except:
+                pass
+            try:
+                __cuEGLStreamConsumerReleaseFrame = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamConsumerReleaseFrame')
+            except:
+                pass
+            try:
+                __cuEGLStreamProducerConnect = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamProducerConnect')
+            except:
+                pass
+            try:
+                __cuEGLStreamProducerDisconnect = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamProducerDisconnect')
+            except:
+                pass
+            try:
+                __cuEGLStreamProducerPresentFrame = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamProducerPresentFrame')
+            except:
+                pass
+            try:
+                __cuEGLStreamProducerReturnFrame = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamProducerReturnFrame')
+            except:
+                pass
+            try:
+                __cuGraphicsResourceGetMappedEglFrame = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsResourceGetMappedEglFrame')
+            except:
+                pass
+            try:
+                __cuEventCreateFromEGLSync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventCreateFromEGLSync')
+            except:
+                pass
+            try:
+                __cuGraphicsGLRegisterBuffer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsGLRegisterBuffer')
+            except:
+                pass
+            try:
+                __cuGraphicsGLRegisterImage = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsGLRegisterImage')
+            except:
+                pass
+            try:
+                __cuGLGetDevices_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGLGetDevices_v2')
+            except:
+                pass
     ELSE:
+        if usePTDS:
+            # Get all PTDS version of functions
+            __cuMemcpy = dlfcn.dlsym(handle, 'cuMemcpy_ptds')
+            __cuMemcpyPeer = dlfcn.dlsym(handle, 'cuMemcpyPeer_ptds')
+            __cuMemcpyHtoD_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoD_v2_ptds')
+            __cuMemcpyDtoH_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoH_v2_ptds')
+            __cuMemcpyDtoD_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoD_v2_ptds')
+            __cuMemcpyDtoA_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoA_v2_ptds')
+            __cuMemcpyAtoD_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoD_v2_ptds')
+            __cuMemcpyHtoA_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoA_v2_ptds')
+            __cuMemcpyAtoH_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoH_v2_ptds')
+            __cuMemcpyAtoA_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoA_v2_ptds')
+            __cuMemcpy2D_v2 = dlfcn.dlsym(handle, 'cuMemcpy2D_v2_ptds')
+            __cuMemcpy2DUnaligned_v2 = dlfcn.dlsym(handle, 'cuMemcpy2DUnaligned_v2_ptds')
+            __cuMemcpy3D_v2 = dlfcn.dlsym(handle, 'cuMemcpy3D_v2_ptds')
+            __cuMemcpy3DPeer = dlfcn.dlsym(handle, 'cuMemcpy3DPeer_ptds')
+            __cuMemcpyAsync = dlfcn.dlsym(handle, 'cuMemcpyAsync_ptsz')
+            __cuMemcpyPeerAsync = dlfcn.dlsym(handle, 'cuMemcpyPeerAsync_ptsz')
+            __cuMemcpyHtoDAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoDAsync_v2_ptsz')
+            __cuMemcpyDtoHAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoHAsync_v2_ptsz')
+            __cuMemcpyDtoDAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoDAsync_v2_ptsz')
+            __cuMemcpyHtoAAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoAAsync_v2_ptsz')
+            __cuMemcpyAtoHAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoHAsync_v2_ptsz')
+            __cuMemcpy2DAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpy2DAsync_v2_ptsz')
+            __cuMemcpy3DAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpy3DAsync_v2_ptsz')
+            __cuMemcpy3DPeerAsync = dlfcn.dlsym(handle, 'cuMemcpy3DPeerAsync_ptsz')
+            __cuMemsetD8_v2 = dlfcn.dlsym(handle, 'cuMemsetD8_v2_ptds')
+            __cuMemsetD16_v2 = dlfcn.dlsym(handle, 'cuMemsetD16_v2_ptds')
+            __cuMemsetD32_v2 = dlfcn.dlsym(handle, 'cuMemsetD32_v2_ptds')
+            __cuMemsetD2D8_v2 = dlfcn.dlsym(handle, 'cuMemsetD2D8_v2_ptds')
+            __cuMemsetD2D16_v2 = dlfcn.dlsym(handle, 'cuMemsetD2D16_v2_ptds')
+            __cuMemsetD2D32_v2 = dlfcn.dlsym(handle, 'cuMemsetD2D32_v2_ptds')
+            __cuMemsetD8Async = dlfcn.dlsym(handle, 'cuMemsetD8Async_ptsz')
+            __cuMemsetD16Async = dlfcn.dlsym(handle, 'cuMemsetD16Async_ptsz')
+            __cuMemsetD32Async = dlfcn.dlsym(handle, 'cuMemsetD32Async_ptsz')
+            __cuMemsetD2D8Async = dlfcn.dlsym(handle, 'cuMemsetD2D8Async_ptsz')
+            __cuMemsetD2D16Async = dlfcn.dlsym(handle, 'cuMemsetD2D16Async_ptsz')
+            __cuMemsetD2D32Async = dlfcn.dlsym(handle, 'cuMemsetD2D32Async_ptsz')
+            __cuMemMapArrayAsync = dlfcn.dlsym(handle, 'cuMemMapArrayAsync_ptsz')
+            __cuMemFreeAsync = dlfcn.dlsym(handle, 'cuMemFreeAsync_ptsz')
+            __cuMemAllocAsync = dlfcn.dlsym(handle, 'cuMemAllocAsync_ptsz')
+            __cuMemAllocFromPoolAsync = dlfcn.dlsym(handle, 'cuMemAllocFromPoolAsync_ptsz')
+            __cuMemPrefetchAsync = dlfcn.dlsym(handle, 'cuMemPrefetchAsync_ptsz')
+            __cuStreamGetPriority = dlfcn.dlsym(handle, 'cuStreamGetPriority_ptsz')
+            __cuStreamGetFlags = dlfcn.dlsym(handle, 'cuStreamGetFlags_ptsz')
+            __cuStreamGetCtx = dlfcn.dlsym(handle, 'cuStreamGetCtx_ptsz')
+            __cuStreamWaitEvent = dlfcn.dlsym(handle, 'cuStreamWaitEvent_ptsz')
+            __cuStreamAddCallback = dlfcn.dlsym(handle, 'cuStreamAddCallback_ptsz')
+            __cuStreamBeginCapture_v2 = dlfcn.dlsym(handle, 'cuStreamBeginCapture_v2_ptsz')
+            __cuStreamEndCapture = dlfcn.dlsym(handle, 'cuStreamEndCapture_ptsz')
+            __cuStreamIsCapturing = dlfcn.dlsym(handle, 'cuStreamIsCapturing_ptsz')
+            __cuStreamGetCaptureInfo = dlfcn.dlsym(handle, 'cuStreamGetCaptureInfo_ptsz')
+            __cuStreamGetCaptureInfo_v2 = dlfcn.dlsym(handle, 'cuStreamGetCaptureInfo_v2_ptsz')
+            __cuStreamUpdateCaptureDependencies = dlfcn.dlsym(handle, 'cuStreamUpdateCaptureDependencies_ptsz')
+            __cuStreamAttachMemAsync = dlfcn.dlsym(handle, 'cuStreamAttachMemAsync_ptsz')
+            __cuStreamQuery = dlfcn.dlsym(handle, 'cuStreamQuery_ptsz')
+            __cuStreamSynchronize = dlfcn.dlsym(handle, 'cuStreamSynchronize_ptsz')
+            __cuStreamCopyAttributes = dlfcn.dlsym(handle, 'cuStreamCopyAttributes_ptsz')
+            __cuStreamGetAttribute = dlfcn.dlsym(handle, 'cuStreamGetAttribute_ptsz')
+            __cuStreamSetAttribute = dlfcn.dlsym(handle, 'cuStreamSetAttribute_ptsz')
+            __cuEventRecord = dlfcn.dlsym(handle, 'cuEventRecord_ptsz')
+            __cuEventRecordWithFlags = dlfcn.dlsym(handle, 'cuEventRecordWithFlags_ptsz')
+            __cuSignalExternalSemaphoresAsync = dlfcn.dlsym(handle, 'cuSignalExternalSemaphoresAsync_ptsz')
+            __cuWaitExternalSemaphoresAsync = dlfcn.dlsym(handle, 'cuWaitExternalSemaphoresAsync_ptsz')
+            __cuStreamWaitValue32 = dlfcn.dlsym(handle, 'cuStreamWaitValue32_ptsz')
+            __cuStreamWaitValue64 = dlfcn.dlsym(handle, 'cuStreamWaitValue64_ptsz')
+            __cuStreamWriteValue32 = dlfcn.dlsym(handle, 'cuStreamWriteValue32_ptsz')
+            __cuStreamWriteValue64 = dlfcn.dlsym(handle, 'cuStreamWriteValue64_ptsz')
+            __cuStreamBatchMemOp = dlfcn.dlsym(handle, 'cuStreamBatchMemOp_ptsz')
+            __cuLaunchKernel = dlfcn.dlsym(handle, 'cuLaunchKernel_ptsz')
+            __cuLaunchCooperativeKernel = dlfcn.dlsym(handle, 'cuLaunchCooperativeKernel_ptsz')
+            __cuLaunchHostFunc = dlfcn.dlsym(handle, 'cuLaunchHostFunc_ptsz')
+            __cuGraphUpload = dlfcn.dlsym(handle, 'cuGraphUpload_ptsz')
+            __cuGraphLaunch = dlfcn.dlsym(handle, 'cuGraphLaunch_ptsz')
+            __cuGraphicsMapResources = dlfcn.dlsym(handle, 'cuGraphicsMapResources_ptsz')
+            __cuGraphicsUnmapResources = dlfcn.dlsym(handle, 'cuGraphicsUnmapResources_ptsz')
+        else:
+            # Else get the regular version
+            __cuMemcpy = dlfcn.dlsym(handle, 'cuMemcpy')
+            __cuMemcpyPeer = dlfcn.dlsym(handle, 'cuMemcpyPeer')
+            __cuMemcpyHtoD_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoD_v2')
+            __cuMemcpyDtoH_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoH_v2')
+            __cuMemcpyDtoD_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoD_v2')
+            __cuMemcpyDtoA_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoA_v2')
+            __cuMemcpyAtoD_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoD_v2')
+            __cuMemcpyHtoA_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoA_v2')
+            __cuMemcpyAtoH_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoH_v2')
+            __cuMemcpyAtoA_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoA_v2')
+            __cuMemcpy2D_v2 = dlfcn.dlsym(handle, 'cuMemcpy2D_v2')
+            __cuMemcpy2DUnaligned_v2 = dlfcn.dlsym(handle, 'cuMemcpy2DUnaligned_v2')
+            __cuMemcpy3D_v2 = dlfcn.dlsym(handle, 'cuMemcpy3D_v2')
+            __cuMemcpy3DPeer = dlfcn.dlsym(handle, 'cuMemcpy3DPeer')
+            __cuMemcpyAsync = dlfcn.dlsym(handle, 'cuMemcpyAsync')
+            __cuMemcpyPeerAsync = dlfcn.dlsym(handle, 'cuMemcpyPeerAsync')
+            __cuMemcpyHtoDAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoDAsync_v2')
+            __cuMemcpyDtoHAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoHAsync_v2')
+            __cuMemcpyDtoDAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoDAsync_v2')
+            __cuMemcpyHtoAAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoAAsync_v2')
+            __cuMemcpyAtoHAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoHAsync_v2')
+            __cuMemcpy2DAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpy2DAsync_v2')
+            __cuMemcpy3DAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpy3DAsync_v2')
+            __cuMemcpy3DPeerAsync = dlfcn.dlsym(handle, 'cuMemcpy3DPeerAsync')
+            __cuMemsetD8_v2 = dlfcn.dlsym(handle, 'cuMemsetD8_v2')
+            __cuMemsetD16_v2 = dlfcn.dlsym(handle, 'cuMemsetD16_v2')
+            __cuMemsetD32_v2 = dlfcn.dlsym(handle, 'cuMemsetD32_v2')
+            __cuMemsetD2D8_v2 = dlfcn.dlsym(handle, 'cuMemsetD2D8_v2')
+            __cuMemsetD2D16_v2 = dlfcn.dlsym(handle, 'cuMemsetD2D16_v2')
+            __cuMemsetD2D32_v2 = dlfcn.dlsym(handle, 'cuMemsetD2D32_v2')
+            __cuMemsetD8Async = dlfcn.dlsym(handle, 'cuMemsetD8Async')
+            __cuMemsetD16Async = dlfcn.dlsym(handle, 'cuMemsetD16Async')
+            __cuMemsetD32Async = dlfcn.dlsym(handle, 'cuMemsetD32Async')
+            __cuMemsetD2D8Async = dlfcn.dlsym(handle, 'cuMemsetD2D8Async')
+            __cuMemsetD2D16Async = dlfcn.dlsym(handle, 'cuMemsetD2D16Async')
+            __cuMemsetD2D32Async = dlfcn.dlsym(handle, 'cuMemsetD2D32Async')
+            __cuMemMapArrayAsync = dlfcn.dlsym(handle, 'cuMemMapArrayAsync')
+            __cuMemFreeAsync = dlfcn.dlsym(handle, 'cuMemFreeAsync')
+            __cuMemAllocAsync = dlfcn.dlsym(handle, 'cuMemAllocAsync')
+            __cuMemAllocFromPoolAsync = dlfcn.dlsym(handle, 'cuMemAllocFromPoolAsync')
+            __cuMemPrefetchAsync = dlfcn.dlsym(handle, 'cuMemPrefetchAsync')
+            __cuStreamGetPriority = dlfcn.dlsym(handle, 'cuStreamGetPriority')
+            __cuStreamGetFlags = dlfcn.dlsym(handle, 'cuStreamGetFlags')
+            __cuStreamGetCtx = dlfcn.dlsym(handle, 'cuStreamGetCtx')
+            __cuStreamWaitEvent = dlfcn.dlsym(handle, 'cuStreamWaitEvent')
+            __cuStreamAddCallback = dlfcn.dlsym(handle, 'cuStreamAddCallback')
+            __cuStreamBeginCapture_v2 = dlfcn.dlsym(handle, 'cuStreamBeginCapture_v2')
+            __cuStreamEndCapture = dlfcn.dlsym(handle, 'cuStreamEndCapture')
+            __cuStreamIsCapturing = dlfcn.dlsym(handle, 'cuStreamIsCapturing')
+            __cuStreamGetCaptureInfo = dlfcn.dlsym(handle, 'cuStreamGetCaptureInfo')
+            __cuStreamGetCaptureInfo_v2 = dlfcn.dlsym(handle, 'cuStreamGetCaptureInfo_v2')
+            __cuStreamUpdateCaptureDependencies = dlfcn.dlsym(handle, 'cuStreamUpdateCaptureDependencies')
+            __cuStreamAttachMemAsync = dlfcn.dlsym(handle, 'cuStreamAttachMemAsync')
+            __cuStreamQuery = dlfcn.dlsym(handle, 'cuStreamQuery')
+            __cuStreamSynchronize = dlfcn.dlsym(handle, 'cuStreamSynchronize')
+            __cuStreamCopyAttributes = dlfcn.dlsym(handle, 'cuStreamCopyAttributes')
+            __cuStreamGetAttribute = dlfcn.dlsym(handle, 'cuStreamGetAttribute')
+            __cuStreamSetAttribute = dlfcn.dlsym(handle, 'cuStreamSetAttribute')
+            __cuEventRecord = dlfcn.dlsym(handle, 'cuEventRecord')
+            __cuEventRecordWithFlags = dlfcn.dlsym(handle, 'cuEventRecordWithFlags')
+            __cuSignalExternalSemaphoresAsync = dlfcn.dlsym(handle, 'cuSignalExternalSemaphoresAsync')
+            __cuWaitExternalSemaphoresAsync = dlfcn.dlsym(handle, 'cuWaitExternalSemaphoresAsync')
+            __cuStreamWaitValue32 = dlfcn.dlsym(handle, 'cuStreamWaitValue32')
+            __cuStreamWaitValue64 = dlfcn.dlsym(handle, 'cuStreamWaitValue64')
+            __cuStreamWriteValue32 = dlfcn.dlsym(handle, 'cuStreamWriteValue32')
+            __cuStreamWriteValue64 = dlfcn.dlsym(handle, 'cuStreamWriteValue64')
+            __cuStreamBatchMemOp = dlfcn.dlsym(handle, 'cuStreamBatchMemOp')
+            __cuLaunchKernel = dlfcn.dlsym(handle, 'cuLaunchKernel')
+            __cuLaunchCooperativeKernel = dlfcn.dlsym(handle, 'cuLaunchCooperativeKernel')
+            __cuLaunchHostFunc = dlfcn.dlsym(handle, 'cuLaunchHostFunc')
+            __cuGraphUpload = dlfcn.dlsym(handle, 'cuGraphUpload')
+            __cuGraphLaunch = dlfcn.dlsym(handle, 'cuGraphLaunch')
+            __cuGraphicsMapResources = dlfcn.dlsym(handle, 'cuGraphicsMapResources')
+            __cuGraphicsUnmapResources = dlfcn.dlsym(handle, 'cuGraphicsUnmapResources')
+        # Get remaining functions
         __cuGetErrorString = dlfcn.dlsym(handle, 'cuGetErrorString')
         __cuGetErrorName = dlfcn.dlsym(handle, 'cuGetErrorName')
         __cuInit = dlfcn.dlsym(handle, 'cuInit')
@@ -2592,46 +3309,12 @@ cdef int cuPythonInit() nogil except -1:
         __cuIpcCloseMemHandle = dlfcn.dlsym(handle, 'cuIpcCloseMemHandle')
         __cuMemHostRegister_v2 = dlfcn.dlsym(handle, 'cuMemHostRegister_v2')
         __cuMemHostUnregister = dlfcn.dlsym(handle, 'cuMemHostUnregister')
-        __cuMemcpy = dlfcn.dlsym(handle, 'cuMemcpy')
-        __cuMemcpyPeer = dlfcn.dlsym(handle, 'cuMemcpyPeer')
-        __cuMemcpyHtoD_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoD_v2')
-        __cuMemcpyDtoH_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoH_v2')
-        __cuMemcpyDtoD_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoD_v2')
-        __cuMemcpyDtoA_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoA_v2')
-        __cuMemcpyAtoD_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoD_v2')
-        __cuMemcpyHtoA_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoA_v2')
-        __cuMemcpyAtoH_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoH_v2')
-        __cuMemcpyAtoA_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoA_v2')
-        __cuMemcpy2D_v2 = dlfcn.dlsym(handle, 'cuMemcpy2D_v2')
-        __cuMemcpy2DUnaligned_v2 = dlfcn.dlsym(handle, 'cuMemcpy2DUnaligned_v2')
-        __cuMemcpy3D_v2 = dlfcn.dlsym(handle, 'cuMemcpy3D_v2')
-        __cuMemcpy3DPeer = dlfcn.dlsym(handle, 'cuMemcpy3DPeer')
-        __cuMemcpyAsync = dlfcn.dlsym(handle, 'cuMemcpyAsync')
-        __cuMemcpyPeerAsync = dlfcn.dlsym(handle, 'cuMemcpyPeerAsync')
-        __cuMemcpyHtoDAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoDAsync_v2')
-        __cuMemcpyDtoHAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoHAsync_v2')
-        __cuMemcpyDtoDAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyDtoDAsync_v2')
-        __cuMemcpyHtoAAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyHtoAAsync_v2')
-        __cuMemcpyAtoHAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpyAtoHAsync_v2')
-        __cuMemcpy2DAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpy2DAsync_v2')
-        __cuMemcpy3DAsync_v2 = dlfcn.dlsym(handle, 'cuMemcpy3DAsync_v2')
-        __cuMemcpy3DPeerAsync = dlfcn.dlsym(handle, 'cuMemcpy3DPeerAsync')
-        __cuMemsetD8_v2 = dlfcn.dlsym(handle, 'cuMemsetD8_v2')
-        __cuMemsetD16_v2 = dlfcn.dlsym(handle, 'cuMemsetD16_v2')
-        __cuMemsetD32_v2 = dlfcn.dlsym(handle, 'cuMemsetD32_v2')
-        __cuMemsetD2D8_v2 = dlfcn.dlsym(handle, 'cuMemsetD2D8_v2')
-        __cuMemsetD2D16_v2 = dlfcn.dlsym(handle, 'cuMemsetD2D16_v2')
-        __cuMemsetD2D32_v2 = dlfcn.dlsym(handle, 'cuMemsetD2D32_v2')
-        __cuMemsetD8Async = dlfcn.dlsym(handle, 'cuMemsetD8Async')
-        __cuMemsetD16Async = dlfcn.dlsym(handle, 'cuMemsetD16Async')
-        __cuMemsetD32Async = dlfcn.dlsym(handle, 'cuMemsetD32Async')
-        __cuMemsetD2D8Async = dlfcn.dlsym(handle, 'cuMemsetD2D8Async')
-        __cuMemsetD2D16Async = dlfcn.dlsym(handle, 'cuMemsetD2D16Async')
-        __cuMemsetD2D32Async = dlfcn.dlsym(handle, 'cuMemsetD2D32Async')
         __cuArrayCreate_v2 = dlfcn.dlsym(handle, 'cuArrayCreate_v2')
         __cuArrayGetDescriptor_v2 = dlfcn.dlsym(handle, 'cuArrayGetDescriptor_v2')
         __cuArrayGetSparseProperties = dlfcn.dlsym(handle, 'cuArrayGetSparseProperties')
         __cuMipmappedArrayGetSparseProperties = dlfcn.dlsym(handle, 'cuMipmappedArrayGetSparseProperties')
+        __cuArrayGetMemoryRequirements = dlfcn.dlsym(handle, 'cuArrayGetMemoryRequirements')
+        __cuMipmappedArrayGetMemoryRequirements = dlfcn.dlsym(handle, 'cuMipmappedArrayGetMemoryRequirements')
         __cuArrayGetPlane = dlfcn.dlsym(handle, 'cuArrayGetPlane')
         __cuArrayDestroy = dlfcn.dlsym(handle, 'cuArrayDestroy')
         __cuArray3DCreate_v2 = dlfcn.dlsym(handle, 'cuArray3DCreate_v2')
@@ -2644,7 +3327,6 @@ cdef int cuPythonInit() nogil except -1:
         __cuMemCreate = dlfcn.dlsym(handle, 'cuMemCreate')
         __cuMemRelease = dlfcn.dlsym(handle, 'cuMemRelease')
         __cuMemMap = dlfcn.dlsym(handle, 'cuMemMap')
-        __cuMemMapArrayAsync = dlfcn.dlsym(handle, 'cuMemMapArrayAsync')
         __cuMemUnmap = dlfcn.dlsym(handle, 'cuMemUnmap')
         __cuMemSetAccess = dlfcn.dlsym(handle, 'cuMemSetAccess')
         __cuMemGetAccess = dlfcn.dlsym(handle, 'cuMemGetAccess')
@@ -2653,8 +3335,6 @@ cdef int cuPythonInit() nogil except -1:
         __cuMemGetAllocationGranularity = dlfcn.dlsym(handle, 'cuMemGetAllocationGranularity')
         __cuMemGetAllocationPropertiesFromHandle = dlfcn.dlsym(handle, 'cuMemGetAllocationPropertiesFromHandle')
         __cuMemRetainAllocationHandle = dlfcn.dlsym(handle, 'cuMemRetainAllocationHandle')
-        __cuMemFreeAsync = dlfcn.dlsym(handle, 'cuMemFreeAsync')
-        __cuMemAllocAsync = dlfcn.dlsym(handle, 'cuMemAllocAsync')
         __cuMemPoolTrimTo = dlfcn.dlsym(handle, 'cuMemPoolTrimTo')
         __cuMemPoolSetAttribute = dlfcn.dlsym(handle, 'cuMemPoolSetAttribute')
         __cuMemPoolGetAttribute = dlfcn.dlsym(handle, 'cuMemPoolGetAttribute')
@@ -2662,13 +3342,11 @@ cdef int cuPythonInit() nogil except -1:
         __cuMemPoolGetAccess = dlfcn.dlsym(handle, 'cuMemPoolGetAccess')
         __cuMemPoolCreate = dlfcn.dlsym(handle, 'cuMemPoolCreate')
         __cuMemPoolDestroy = dlfcn.dlsym(handle, 'cuMemPoolDestroy')
-        __cuMemAllocFromPoolAsync = dlfcn.dlsym(handle, 'cuMemAllocFromPoolAsync')
         __cuMemPoolExportToShareableHandle = dlfcn.dlsym(handle, 'cuMemPoolExportToShareableHandle')
         __cuMemPoolImportFromShareableHandle = dlfcn.dlsym(handle, 'cuMemPoolImportFromShareableHandle')
         __cuMemPoolExportPointer = dlfcn.dlsym(handle, 'cuMemPoolExportPointer')
         __cuMemPoolImportPointer = dlfcn.dlsym(handle, 'cuMemPoolImportPointer')
         __cuPointerGetAttribute = dlfcn.dlsym(handle, 'cuPointerGetAttribute')
-        __cuMemPrefetchAsync = dlfcn.dlsym(handle, 'cuMemPrefetchAsync')
         __cuMemAdvise = dlfcn.dlsym(handle, 'cuMemAdvise')
         __cuMemRangeGetAttribute = dlfcn.dlsym(handle, 'cuMemRangeGetAttribute')
         __cuMemRangeGetAttributes = dlfcn.dlsym(handle, 'cuMemRangeGetAttributes')
@@ -2676,28 +3354,9 @@ cdef int cuPythonInit() nogil except -1:
         __cuPointerGetAttributes = dlfcn.dlsym(handle, 'cuPointerGetAttributes')
         __cuStreamCreate = dlfcn.dlsym(handle, 'cuStreamCreate')
         __cuStreamCreateWithPriority = dlfcn.dlsym(handle, 'cuStreamCreateWithPriority')
-        __cuStreamGetPriority = dlfcn.dlsym(handle, 'cuStreamGetPriority')
-        __cuStreamGetFlags = dlfcn.dlsym(handle, 'cuStreamGetFlags')
-        __cuStreamGetCtx = dlfcn.dlsym(handle, 'cuStreamGetCtx')
-        __cuStreamWaitEvent = dlfcn.dlsym(handle, 'cuStreamWaitEvent')
-        __cuStreamAddCallback = dlfcn.dlsym(handle, 'cuStreamAddCallback')
-        __cuStreamBeginCapture_v2 = dlfcn.dlsym(handle, 'cuStreamBeginCapture_v2')
         __cuThreadExchangeStreamCaptureMode = dlfcn.dlsym(handle, 'cuThreadExchangeStreamCaptureMode')
-        __cuStreamEndCapture = dlfcn.dlsym(handle, 'cuStreamEndCapture')
-        __cuStreamIsCapturing = dlfcn.dlsym(handle, 'cuStreamIsCapturing')
-        __cuStreamGetCaptureInfo = dlfcn.dlsym(handle, 'cuStreamGetCaptureInfo')
-        __cuStreamGetCaptureInfo_v2 = dlfcn.dlsym(handle, 'cuStreamGetCaptureInfo_v2')
-        __cuStreamUpdateCaptureDependencies = dlfcn.dlsym(handle, 'cuStreamUpdateCaptureDependencies')
-        __cuStreamAttachMemAsync = dlfcn.dlsym(handle, 'cuStreamAttachMemAsync')
-        __cuStreamQuery = dlfcn.dlsym(handle, 'cuStreamQuery')
-        __cuStreamSynchronize = dlfcn.dlsym(handle, 'cuStreamSynchronize')
         __cuStreamDestroy_v2 = dlfcn.dlsym(handle, 'cuStreamDestroy_v2')
-        __cuStreamCopyAttributes = dlfcn.dlsym(handle, 'cuStreamCopyAttributes')
-        __cuStreamGetAttribute = dlfcn.dlsym(handle, 'cuStreamGetAttribute')
-        __cuStreamSetAttribute = dlfcn.dlsym(handle, 'cuStreamSetAttribute')
         __cuEventCreate = dlfcn.dlsym(handle, 'cuEventCreate')
-        __cuEventRecord = dlfcn.dlsym(handle, 'cuEventRecord')
-        __cuEventRecordWithFlags = dlfcn.dlsym(handle, 'cuEventRecordWithFlags')
         __cuEventQuery = dlfcn.dlsym(handle, 'cuEventQuery')
         __cuEventSynchronize = dlfcn.dlsym(handle, 'cuEventSynchronize')
         __cuEventDestroy_v2 = dlfcn.dlsym(handle, 'cuEventDestroy_v2')
@@ -2707,23 +3366,13 @@ cdef int cuPythonInit() nogil except -1:
         __cuExternalMemoryGetMappedMipmappedArray = dlfcn.dlsym(handle, 'cuExternalMemoryGetMappedMipmappedArray')
         __cuDestroyExternalMemory = dlfcn.dlsym(handle, 'cuDestroyExternalMemory')
         __cuImportExternalSemaphore = dlfcn.dlsym(handle, 'cuImportExternalSemaphore')
-        __cuSignalExternalSemaphoresAsync = dlfcn.dlsym(handle, 'cuSignalExternalSemaphoresAsync')
-        __cuWaitExternalSemaphoresAsync = dlfcn.dlsym(handle, 'cuWaitExternalSemaphoresAsync')
         __cuDestroyExternalSemaphore = dlfcn.dlsym(handle, 'cuDestroyExternalSemaphore')
-        __cuStreamWaitValue32 = dlfcn.dlsym(handle, 'cuStreamWaitValue32')
-        __cuStreamWaitValue64 = dlfcn.dlsym(handle, 'cuStreamWaitValue64')
-        __cuStreamWriteValue32 = dlfcn.dlsym(handle, 'cuStreamWriteValue32')
-        __cuStreamWriteValue64 = dlfcn.dlsym(handle, 'cuStreamWriteValue64')
-        __cuStreamBatchMemOp = dlfcn.dlsym(handle, 'cuStreamBatchMemOp')
         __cuFuncGetAttribute = dlfcn.dlsym(handle, 'cuFuncGetAttribute')
         __cuFuncSetAttribute = dlfcn.dlsym(handle, 'cuFuncSetAttribute')
         __cuFuncSetCacheConfig = dlfcn.dlsym(handle, 'cuFuncSetCacheConfig')
         __cuFuncSetSharedMemConfig = dlfcn.dlsym(handle, 'cuFuncSetSharedMemConfig')
         __cuFuncGetModule = dlfcn.dlsym(handle, 'cuFuncGetModule')
-        __cuLaunchKernel = dlfcn.dlsym(handle, 'cuLaunchKernel')
-        __cuLaunchCooperativeKernel = dlfcn.dlsym(handle, 'cuLaunchCooperativeKernel')
         __cuLaunchCooperativeKernelMultiDevice = dlfcn.dlsym(handle, 'cuLaunchCooperativeKernelMultiDevice')
-        __cuLaunchHostFunc = dlfcn.dlsym(handle, 'cuLaunchHostFunc')
         __cuFuncSetBlockShape = dlfcn.dlsym(handle, 'cuFuncSetBlockShape')
         __cuFuncSetSharedSize = dlfcn.dlsym(handle, 'cuFuncSetSharedSize')
         __cuParamSetSize = dlfcn.dlsym(handle, 'cuParamSetSize')
@@ -2791,8 +3440,8 @@ cdef int cuPythonInit() nogil except -1:
         __cuGraphExecEventWaitNodeSetEvent = dlfcn.dlsym(handle, 'cuGraphExecEventWaitNodeSetEvent')
         __cuGraphExecExternalSemaphoresSignalNodeSetParams = dlfcn.dlsym(handle, 'cuGraphExecExternalSemaphoresSignalNodeSetParams')
         __cuGraphExecExternalSemaphoresWaitNodeSetParams = dlfcn.dlsym(handle, 'cuGraphExecExternalSemaphoresWaitNodeSetParams')
-        __cuGraphUpload = dlfcn.dlsym(handle, 'cuGraphUpload')
-        __cuGraphLaunch = dlfcn.dlsym(handle, 'cuGraphLaunch')
+        __cuGraphNodeSetEnabled = dlfcn.dlsym(handle, 'cuGraphNodeSetEnabled')
+        __cuGraphNodeGetEnabled = dlfcn.dlsym(handle, 'cuGraphNodeGetEnabled')
         __cuGraphExecDestroy = dlfcn.dlsym(handle, 'cuGraphExecDestroy')
         __cuGraphDestroy = dlfcn.dlsym(handle, 'cuGraphDestroy')
         __cuGraphExecUpdate = dlfcn.dlsym(handle, 'cuGraphExecUpdate')
@@ -2856,10 +3505,30 @@ cdef int cuPythonInit() nogil except -1:
         __cuGraphicsResourceGetMappedMipmappedArray = dlfcn.dlsym(handle, 'cuGraphicsResourceGetMappedMipmappedArray')
         __cuGraphicsResourceGetMappedPointer_v2 = dlfcn.dlsym(handle, 'cuGraphicsResourceGetMappedPointer_v2')
         __cuGraphicsResourceSetMapFlags_v2 = dlfcn.dlsym(handle, 'cuGraphicsResourceSetMapFlags_v2')
-        __cuGraphicsMapResources = dlfcn.dlsym(handle, 'cuGraphicsMapResources')
-        __cuGraphicsUnmapResources = dlfcn.dlsym(handle, 'cuGraphicsUnmapResources')
         __cuGetProcAddress = dlfcn.dlsym(handle, 'cuGetProcAddress')
         __cuGetExportTable = dlfcn.dlsym(handle, 'cuGetExportTable')
+        __cuProfilerInitialize = dlfcn.dlsym(handle, 'cuProfilerInitialize')
+        __cuProfilerStart = dlfcn.dlsym(handle, 'cuProfilerStart')
+        __cuProfilerStop = dlfcn.dlsym(handle, 'cuProfilerStop')
+        __cuVDPAUGetDevice = dlfcn.dlsym(handle, 'cuVDPAUGetDevice')
+        __cuVDPAUCtxCreate_v2 = dlfcn.dlsym(handle, 'cuVDPAUCtxCreate_v2')
+        __cuGraphicsVDPAURegisterVideoSurface = dlfcn.dlsym(handle, 'cuGraphicsVDPAURegisterVideoSurface')
+        __cuGraphicsVDPAURegisterOutputSurface = dlfcn.dlsym(handle, 'cuGraphicsVDPAURegisterOutputSurface')
+        __cuGraphicsEGLRegisterImage = dlfcn.dlsym(handle, 'cuGraphicsEGLRegisterImage')
+        __cuEGLStreamConsumerConnect = dlfcn.dlsym(handle, 'cuEGLStreamConsumerConnect')
+        __cuEGLStreamConsumerConnectWithFlags = dlfcn.dlsym(handle, 'cuEGLStreamConsumerConnectWithFlags')
+        __cuEGLStreamConsumerDisconnect = dlfcn.dlsym(handle, 'cuEGLStreamConsumerDisconnect')
+        __cuEGLStreamConsumerAcquireFrame = dlfcn.dlsym(handle, 'cuEGLStreamConsumerAcquireFrame')
+        __cuEGLStreamConsumerReleaseFrame = dlfcn.dlsym(handle, 'cuEGLStreamConsumerReleaseFrame')
+        __cuEGLStreamProducerConnect = dlfcn.dlsym(handle, 'cuEGLStreamProducerConnect')
+        __cuEGLStreamProducerDisconnect = dlfcn.dlsym(handle, 'cuEGLStreamProducerDisconnect')
+        __cuEGLStreamProducerPresentFrame = dlfcn.dlsym(handle, 'cuEGLStreamProducerPresentFrame')
+        __cuEGLStreamProducerReturnFrame = dlfcn.dlsym(handle, 'cuEGLStreamProducerReturnFrame')
+        __cuGraphicsResourceGetMappedEglFrame = dlfcn.dlsym(handle, 'cuGraphicsResourceGetMappedEglFrame')
+        __cuEventCreateFromEGLSync = dlfcn.dlsym(handle, 'cuEventCreateFromEGLSync')
+        __cuGraphicsGLRegisterBuffer = dlfcn.dlsym(handle, 'cuGraphicsGLRegisterBuffer')
+        __cuGraphicsGLRegisterImage = dlfcn.dlsym(handle, 'cuGraphicsGLRegisterImage')
+        __cuGLGetDevices_v2 = dlfcn.dlsym(handle, 'cuGLGetDevices_v2')
 
 cdef CUresult _cuGetErrorString(CUresult error, const char** pStr) nogil except ?CUDA_ERROR_NOT_FOUND:
     global __cuGetErrorString
@@ -3957,6 +4626,24 @@ cdef CUresult _cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES*
         with gil:
             raise RuntimeError('Function "cuMipmappedArrayGetSparseProperties" not found')
     err = (<CUresult (*)(CUDA_ARRAY_SPARSE_PROPERTIES*, CUmipmappedArray) nogil> __cuMipmappedArrayGetSparseProperties)(sparseProperties, mipmap)
+    return err
+
+cdef CUresult _cuArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUarray array, CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuArrayGetMemoryRequirements
+    cuPythonInit()
+    if __cuArrayGetMemoryRequirements == NULL:
+        with gil:
+            raise RuntimeError('Function "cuArrayGetMemoryRequirements" not found')
+    err = (<CUresult (*)(CUDA_ARRAY_MEMORY_REQUIREMENTS*, CUarray, CUdevice) nogil> __cuArrayGetMemoryRequirements)(memoryRequirements, array, device)
+    return err
+
+cdef CUresult _cuMipmappedArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUmipmappedArray mipmap, CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuMipmappedArrayGetMemoryRequirements
+    cuPythonInit()
+    if __cuMipmappedArrayGetMemoryRequirements == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMipmappedArrayGetMemoryRequirements" not found')
+    err = (<CUresult (*)(CUDA_ARRAY_MEMORY_REQUIREMENTS*, CUmipmappedArray, CUdevice) nogil> __cuMipmappedArrayGetMemoryRequirements)(memoryRequirements, mipmap, device)
     return err
 
 cdef CUresult _cuArrayGetPlane(CUarray* pPlaneArray, CUarray hArray, unsigned int planeIdx) nogil except ?CUDA_ERROR_NOT_FOUND:
@@ -5390,6 +6077,24 @@ cdef CUresult _cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec hGraph
     err = (<CUresult (*)(CUgraphExec, CUgraphNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS*) nogil> __cuGraphExecExternalSemaphoresWaitNodeSetParams)(hGraphExec, hNode, nodeParams)
     return err
 
+cdef CUresult _cuGraphNodeSetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int isEnabled) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphNodeSetEnabled
+    cuPythonInit()
+    if __cuGraphNodeSetEnabled == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphNodeSetEnabled" not found')
+    err = (<CUresult (*)(CUgraphExec, CUgraphNode, unsigned int) nogil> __cuGraphNodeSetEnabled)(hGraphExec, hNode, isEnabled)
+    return err
+
+cdef CUresult _cuGraphNodeGetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int* isEnabled) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphNodeGetEnabled
+    cuPythonInit()
+    if __cuGraphNodeGetEnabled == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphNodeGetEnabled" not found')
+    err = (<CUresult (*)(CUgraphExec, CUgraphNode, unsigned int*) nogil> __cuGraphNodeGetEnabled)(hGraphExec, hNode, isEnabled)
+    return err
+
 cdef CUresult _cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND:
     global __cuGraphUpload
     cuPythonInit()
@@ -6009,4 +6714,202 @@ cdef CUresult _cuGetExportTable(const void** ppExportTable, const CUuuid* pExpor
         with gil:
             raise RuntimeError('Function "cuGetExportTable" not found')
     err = (<CUresult (*)(const void**, const CUuuid*) nogil> __cuGetExportTable)(ppExportTable, pExportTableId)
+    return err
+
+cdef CUresult _cuProfilerInitialize(const char* configFile, const char* outputFile, CUoutput_mode outputMode) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuProfilerInitialize
+    cuPythonInit()
+    if __cuProfilerInitialize == NULL:
+        with gil:
+            raise RuntimeError('Function "cuProfilerInitialize" not found')
+    err = (<CUresult (*)(const char*, const char*, CUoutput_mode) nogil> __cuProfilerInitialize)(configFile, outputFile, outputMode)
+    return err
+
+cdef CUresult _cuProfilerStart() nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuProfilerStart
+    cuPythonInit()
+    if __cuProfilerStart == NULL:
+        with gil:
+            raise RuntimeError('Function "cuProfilerStart" not found')
+    err = (<CUresult (*)() nogil> __cuProfilerStart)()
+    return err
+
+cdef CUresult _cuProfilerStop() nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuProfilerStop
+    cuPythonInit()
+    if __cuProfilerStop == NULL:
+        with gil:
+            raise RuntimeError('Function "cuProfilerStop" not found')
+    err = (<CUresult (*)() nogil> __cuProfilerStop)()
+    return err
+
+cdef CUresult _cuVDPAUGetDevice(CUdevice* pDevice, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuVDPAUGetDevice
+    cuPythonInit()
+    if __cuVDPAUGetDevice == NULL:
+        with gil:
+            raise RuntimeError('Function "cuVDPAUGetDevice" not found')
+    err = (<CUresult (*)(CUdevice*, VdpDevice, VdpGetProcAddress*) nogil> __cuVDPAUGetDevice)(pDevice, vdpDevice, vdpGetProcAddress)
+    return err
+
+cdef CUresult _cuVDPAUCtxCreate_v2(CUcontext* pCtx, unsigned int flags, CUdevice device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuVDPAUCtxCreate_v2
+    cuPythonInit()
+    if __cuVDPAUCtxCreate_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuVDPAUCtxCreate_v2" not found')
+    err = (<CUresult (*)(CUcontext*, unsigned int, CUdevice, VdpDevice, VdpGetProcAddress*) nogil> __cuVDPAUCtxCreate_v2)(pCtx, flags, device, vdpDevice, vdpGetProcAddress)
+    return err
+
+cdef CUresult _cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResource, VdpVideoSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphicsVDPAURegisterVideoSurface
+    cuPythonInit()
+    if __cuGraphicsVDPAURegisterVideoSurface == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphicsVDPAURegisterVideoSurface" not found')
+    err = (<CUresult (*)(CUgraphicsResource*, VdpVideoSurface, unsigned int) nogil> __cuGraphicsVDPAURegisterVideoSurface)(pCudaResource, vdpSurface, flags)
+    return err
+
+cdef CUresult _cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphicsVDPAURegisterOutputSurface
+    cuPythonInit()
+    if __cuGraphicsVDPAURegisterOutputSurface == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphicsVDPAURegisterOutputSurface" not found')
+    err = (<CUresult (*)(CUgraphicsResource*, VdpOutputSurface, unsigned int) nogil> __cuGraphicsVDPAURegisterOutputSurface)(pCudaResource, vdpSurface, flags)
+    return err
+
+cdef CUresult _cuGraphicsEGLRegisterImage(CUgraphicsResource* pCudaResource, EGLImageKHR image, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphicsEGLRegisterImage
+    cuPythonInit()
+    if __cuGraphicsEGLRegisterImage == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphicsEGLRegisterImage" not found')
+    err = (<CUresult (*)(CUgraphicsResource*, EGLImageKHR, unsigned int) nogil> __cuGraphicsEGLRegisterImage)(pCudaResource, image, flags)
+    return err
+
+cdef CUresult _cuEGLStreamConsumerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuEGLStreamConsumerConnect
+    cuPythonInit()
+    if __cuEGLStreamConsumerConnect == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEGLStreamConsumerConnect" not found')
+    err = (<CUresult (*)(CUeglStreamConnection*, EGLStreamKHR) nogil> __cuEGLStreamConsumerConnect)(conn, stream)
+    return err
+
+cdef CUresult _cuEGLStreamConsumerConnectWithFlags(CUeglStreamConnection* conn, EGLStreamKHR stream, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuEGLStreamConsumerConnectWithFlags
+    cuPythonInit()
+    if __cuEGLStreamConsumerConnectWithFlags == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEGLStreamConsumerConnectWithFlags" not found')
+    err = (<CUresult (*)(CUeglStreamConnection*, EGLStreamKHR, unsigned int) nogil> __cuEGLStreamConsumerConnectWithFlags)(conn, stream, flags)
+    return err
+
+cdef CUresult _cuEGLStreamConsumerDisconnect(CUeglStreamConnection* conn) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuEGLStreamConsumerDisconnect
+    cuPythonInit()
+    if __cuEGLStreamConsumerDisconnect == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEGLStreamConsumerDisconnect" not found')
+    err = (<CUresult (*)(CUeglStreamConnection*) nogil> __cuEGLStreamConsumerDisconnect)(conn)
+    return err
+
+cdef CUresult _cuEGLStreamConsumerAcquireFrame(CUeglStreamConnection* conn, CUgraphicsResource* pCudaResource, CUstream* pStream, unsigned int timeout) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuEGLStreamConsumerAcquireFrame
+    cuPythonInit()
+    if __cuEGLStreamConsumerAcquireFrame == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEGLStreamConsumerAcquireFrame" not found')
+    err = (<CUresult (*)(CUeglStreamConnection*, CUgraphicsResource*, CUstream*, unsigned int) nogil> __cuEGLStreamConsumerAcquireFrame)(conn, pCudaResource, pStream, timeout)
+    return err
+
+cdef CUresult _cuEGLStreamConsumerReleaseFrame(CUeglStreamConnection* conn, CUgraphicsResource pCudaResource, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuEGLStreamConsumerReleaseFrame
+    cuPythonInit()
+    if __cuEGLStreamConsumerReleaseFrame == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEGLStreamConsumerReleaseFrame" not found')
+    err = (<CUresult (*)(CUeglStreamConnection*, CUgraphicsResource, CUstream*) nogil> __cuEGLStreamConsumerReleaseFrame)(conn, pCudaResource, pStream)
+    return err
+
+cdef CUresult _cuEGLStreamProducerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream, EGLint width, EGLint height) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuEGLStreamProducerConnect
+    cuPythonInit()
+    if __cuEGLStreamProducerConnect == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEGLStreamProducerConnect" not found')
+    err = (<CUresult (*)(CUeglStreamConnection*, EGLStreamKHR, EGLint, EGLint) nogil> __cuEGLStreamProducerConnect)(conn, stream, width, height)
+    return err
+
+cdef CUresult _cuEGLStreamProducerDisconnect(CUeglStreamConnection* conn) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuEGLStreamProducerDisconnect
+    cuPythonInit()
+    if __cuEGLStreamProducerDisconnect == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEGLStreamProducerDisconnect" not found')
+    err = (<CUresult (*)(CUeglStreamConnection*) nogil> __cuEGLStreamProducerDisconnect)(conn)
+    return err
+
+cdef CUresult _cuEGLStreamProducerPresentFrame(CUeglStreamConnection* conn, CUeglFrame eglframe, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuEGLStreamProducerPresentFrame
+    cuPythonInit()
+    if __cuEGLStreamProducerPresentFrame == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEGLStreamProducerPresentFrame" not found')
+    err = (<CUresult (*)(CUeglStreamConnection*, CUeglFrame, CUstream*) nogil> __cuEGLStreamProducerPresentFrame)(conn, eglframe, pStream)
+    return err
+
+cdef CUresult _cuEGLStreamProducerReturnFrame(CUeglStreamConnection* conn, CUeglFrame* eglframe, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuEGLStreamProducerReturnFrame
+    cuPythonInit()
+    if __cuEGLStreamProducerReturnFrame == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEGLStreamProducerReturnFrame" not found')
+    err = (<CUresult (*)(CUeglStreamConnection*, CUeglFrame*, CUstream*) nogil> __cuEGLStreamProducerReturnFrame)(conn, eglframe, pStream)
+    return err
+
+cdef CUresult _cuGraphicsResourceGetMappedEglFrame(CUeglFrame* eglFrame, CUgraphicsResource resource, unsigned int index, unsigned int mipLevel) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphicsResourceGetMappedEglFrame
+    cuPythonInit()
+    if __cuGraphicsResourceGetMappedEglFrame == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphicsResourceGetMappedEglFrame" not found')
+    err = (<CUresult (*)(CUeglFrame*, CUgraphicsResource, unsigned int, unsigned int) nogil> __cuGraphicsResourceGetMappedEglFrame)(eglFrame, resource, index, mipLevel)
+    return err
+
+cdef CUresult _cuEventCreateFromEGLSync(CUevent* phEvent, EGLSyncKHR eglSync, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuEventCreateFromEGLSync
+    cuPythonInit()
+    if __cuEventCreateFromEGLSync == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEventCreateFromEGLSync" not found')
+    err = (<CUresult (*)(CUevent*, EGLSyncKHR, unsigned int) nogil> __cuEventCreateFromEGLSync)(phEvent, eglSync, flags)
+    return err
+
+cdef CUresult _cuGraphicsGLRegisterBuffer(CUgraphicsResource* pCudaResource, GLuint buffer, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphicsGLRegisterBuffer
+    cuPythonInit()
+    if __cuGraphicsGLRegisterBuffer == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphicsGLRegisterBuffer" not found')
+    err = (<CUresult (*)(CUgraphicsResource*, GLuint, unsigned int) nogil> __cuGraphicsGLRegisterBuffer)(pCudaResource, buffer, Flags)
+    return err
+
+cdef CUresult _cuGraphicsGLRegisterImage(CUgraphicsResource* pCudaResource, GLuint image, GLenum target, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphicsGLRegisterImage
+    cuPythonInit()
+    if __cuGraphicsGLRegisterImage == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphicsGLRegisterImage" not found')
+    err = (<CUresult (*)(CUgraphicsResource*, GLuint, GLenum, unsigned int) nogil> __cuGraphicsGLRegisterImage)(pCudaResource, image, target, Flags)
+    return err
+
+cdef CUresult _cuGLGetDevices_v2(unsigned int* pCudaDeviceCount, CUdevice* pCudaDevices, unsigned int cudaDeviceCount, CUGLDeviceList deviceList) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGLGetDevices_v2
+    cuPythonInit()
+    if __cuGLGetDevices_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGLGetDevices_v2" not found')
+    err = (<CUresult (*)(unsigned int*, CUdevice*, unsigned int, CUGLDeviceList) nogil> __cuGLGetDevices_v2)(pCudaDeviceCount, pCudaDevices, cudaDeviceCount, deviceList)
     return err

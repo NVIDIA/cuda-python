@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -56,11 +56,11 @@ def test_cuda_memcpy():
     assert(np.array_equal(h1, h2) is False)
 
     # h1 to D
-    err, = cuda.cuMemcpyHtoD(dptr, h1.ctypes.get_data(), size)
+    err, = cuda.cuMemcpyHtoD(dptr, h1, size)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
 
     # D to h2
-    err, = cuda.cuMemcpyDtoH(h2.ctypes.get_data(), dptr, size)
+    err, = cuda.cuMemcpyDtoH(h2, dptr, size)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
 
     # Validate h1 == h2
@@ -118,7 +118,7 @@ def test_cuda_repr_primitive():
     assert(hex(ctx) == hex(int(ctx)))
 
     # CUdeviceptr
-    err, dptr = cuda.cuMemAlloc(int(1024 * np.uint8().itemsize))
+    err, dptr = cuda.cuMemAlloc(1024 * np.uint8().itemsize)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
     assert(str(dptr).startswith('<CUdeviceptr '))
     assert(int(dptr) > 0)
@@ -303,7 +303,7 @@ def test_cuda_CUstreamBatchMemOpParams():
     params.waitValue.operation = cuda.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_WAIT_VALUE_32
     params.writeValue.operation = cuda.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_WAIT_VALUE_32
     params.flushRemoteWrites.operation = cuda.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_WAIT_VALUE_32
-    params.waitValue.value64 = cuda.cuuint64_t(666)
+    params.waitValue.value64 = 666
     assert(int(params.waitValue.value64) == 666)
 
 @pytest.mark.skipif(driverVersionLessThan(11030) or not supportsMemoryPool(), reason='When new attributes were introduced')
@@ -370,7 +370,7 @@ def test_cuda_pointer_attr():
     assert(err == cuda.CUresult.CUDA_SUCCESS)
     err, ctx = cuda.cuCtxCreate(0, device)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
-    err, ptr = cuda.cuMemAllocManaged(int(0x1000), cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
+    err, ptr = cuda.cuMemAllocManaged(0x1000, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
 
     # Individual version
@@ -429,18 +429,18 @@ def test_cuda_mem_range_attr():
     assert(err == cuda.CUresult.CUDA_SUCCESS)
     err, = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_READ_MOSTLY, device)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
-    err, = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_PREFERRED_LOCATION, cuda.CUdevice(cuda.CU_DEVICE_CPU))
+    err, = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_PREFERRED_LOCATION, cuda.CU_DEVICE_CPU)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
-    err, = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_ACCESSED_BY, cuda.CUdevice(cuda.CU_DEVICE_CPU))
+    err, = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_ACCESSED_BY, cuda.CU_DEVICE_CPU)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
     err, concurrentSupported = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS, device)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
     if concurrentSupported:
         err, = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_ACCESSED_BY, device)
         assert(err == cuda.CUresult.CUDA_SUCCESS)
-        expected_values = [1, -1, [0, -1, -2], -2]
+        expected_values_list = ([1, -1, [0, -1, -2], -2],)
     else:
-        expected_values = [1, -1, [-1, -2, -2], -2]
+        expected_values_list = ([1, -1, [-1, -2, -2], -2], [0, -2, [-2, -2, -2], -2])
 
     # Individual version
     attr_type_list = [cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
@@ -454,8 +454,13 @@ def test_cuda_mem_range_attr():
         assert(err == cuda.CUresult.CUDA_SUCCESS)
         attr_value_list[idx] = attr_tmp
 
-    for expected, read in zip(expected_values, attr_value_list):
-        assert(expected == read)
+    matched = False
+    for expected_values in expected_values_list:
+        if expected_values == attr_value_list:
+            matched = True
+            break
+    if not matched:
+        raise RuntimeError(f'attr_value_list {attr_value_list} did not match any {expected_values_list}')
 
     # List version
     err, attr_value_list_v2 = cuda.cuMemRangeGetAttributes(attr_type_size_list, attr_type_list, len(attr_type_list), ptr, size)
@@ -563,7 +568,11 @@ def test_device_get_name():
 
     delimiter = b'\r\n' if platform.system() == "Windows" else b'\n'
     expect = p.stdout.split(delimiter)
-    _, got = cuda.cuDeviceGetName(100, cuda.CUdevice(0))
+    size = 64
+    _, got = cuda.cuDeviceGetName(size, cuda.CUdevice(0))
+    # Returned value is bytes, and we expect it to be of requested size
+    # assert len(got) == size
+    got = got.split(b'\x00')[0]
     assert got in expect
 
     err, = cuda.cuCtxDestroy(ctx)
@@ -586,3 +595,43 @@ def test_c_func_callback():
 
     err, = cuda.cuCtxDestroy(ctx)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+def test_profiler():
+    err, = cuda.cuInit(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, device = cuda.cuDeviceGet(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuProfilerStart()
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuProfilerStop()
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuCtxDestroy(ctx)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+def test_eglFrame():
+    val = cuda.CUeglFrame()
+    # [<CUarray 0x0>, <CUarray 0x0>, <CUarray 0x0>]
+    assert(int(val.frame.pArray[0]) == 0)
+    assert(int(val.frame.pArray[1]) == 0)
+    assert(int(val.frame.pArray[2]) == 0)
+    val.frame.pArray = [1,2,3]
+    # [<CUarray 0x1>, <CUarray 0x2>, <CUarray 0x3>]
+    assert(int(val.frame.pArray[0]) == 1)
+    assert(int(val.frame.pArray[1]) == 2)
+    assert(int(val.frame.pArray[2]) == 3)
+    val.frame.pArray = [cuda.CUarray(4),2,3]
+    # [<CUarray 0x4>, <CUarray 0x2>, <CUarray 0x3>]
+    assert(int(val.frame.pArray[0]) == 4)
+    assert(int(val.frame.pArray[1]) == 2)
+    assert(int(val.frame.pArray[2]) == 3)
+    val.frame.pPitch
+    # [4, 2, 3]
+    assert(int(val.frame.pPitch[0]) == 4)
+    assert(int(val.frame.pPitch[1]) == 2)
+    assert(int(val.frame.pPitch[2]) == 3)
+    val.frame.pPitch = [1,2,3]
+    assert(int(val.frame.pPitch[0]) == 1)
+    assert(int(val.frame.pPitch[1]) == 2)
+    assert(int(val.frame.pPitch[2]) == 3)

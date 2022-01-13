@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -130,9 +130,9 @@ def main():
     arg_values = (a, dX, dY, dOut, n)
     arg_types = (ctypes.c_float, None, None, None, ctypes.c_size_t)
     err, = cuda.cuLaunchKernel(kernel,
-                              NUM_BLOCKS, 1, 1,          # grid dim
-                              NUM_THREADS, 1, 1,         # block dim
-                              0, stream,                 # shared mem and stream
+                              NUM_BLOCKS, 1, 1,           # grid dim
+                              NUM_THREADS, 1, 1,          # block dim
+                              0, stream,                  # shared mem and stream
                               (arg_values, arg_types), 0) # arguments
     ASSERT_DRV(err)
 

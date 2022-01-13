@@ -15,7 +15,7 @@ CUDA Python provides uniform APIs and bindings for inclusion into existing
 toolkits and libraries to simplify GPU-based parallel processing for HPC, data
 science, and AI.
 
-[Numba](https://numpy.org/), a Python compiler from
+[Numba](https://numba.pydata.org/), a Python compiler from
 [Anaconda](https://www.anaconda.com/) that can compile Python code for execution
 on CUDA-capable GPUs, provides Python developers with an easy entry into
 GPU-accelerated computing and a path for using increasingly sophisticated CUDA

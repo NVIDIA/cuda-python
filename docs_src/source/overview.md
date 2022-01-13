@@ -139,8 +139,11 @@ After loading into the module, extract a specific kernel with
 ```{code-cell} python
 # Load PTX as module data and retrieve function
 ptx = np.char.array(ptx)
+# Note: Incompatible --gpu-architecture would be detected here
 err, module = cuda.cuModuleLoadData(ptx.ctypes.data)
+ASSERT_DRV(err)
 err, kernel = cuda.cuModuleGetFunction(module, b"saxpy")
+ASSERT_DRV(err)
 ```
 
 Next, get all your data prepared and transferred to the GPU. For increased

@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -284,13 +284,13 @@ def main():
     dimBlock.y = 1
     dimBlock.z = 1
 
-    checkCudaErrors(cudart.cudaEventRecord(start, cudart.cudaStream_t(0)))
+    checkCudaErrors(cudart.cudaEventRecord(start, 0))
     checkCudaErrors(cuda.cuLaunchCooperativeKernel(_gpuConjugateGradient,
                                                    dimGrid.x, dimGrid.y, dimGrid.z,
                                                    dimBlock.x, dimBlock.y, dimBlock.z,
-                                                   0, cuda.CUstream(0),
+                                                   0, 0,
                                                    kernelArgs))
-    checkCudaErrors(cudart.cudaEventRecord(stop, cudart.cudaStream_t(0)))
+    checkCudaErrors(cudart.cudaEventRecord(stop, 0))
     checkCudaErrors(cudart.cudaDeviceSynchronize())
 
     time = checkCudaErrors(cudart.cudaEventElapsedTime(start, stop));

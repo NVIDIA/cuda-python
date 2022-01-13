@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -26,7 +26,7 @@ namespace cg = cooperative_groups;
 
 extern "C"
 __global__ void reduce(float *inputVec, double *outputVec, size_t inputSize,
-                       unsigned int outputSize) {
+                       size_t outputSize) {
     __shared__ double tmp[THREADS_PER_BLOCK];
 
     cg::thread_block cta = cg::this_thread_block();
@@ -66,7 +66,7 @@ __global__ void reduce(float *inputVec, double *outputVec, size_t inputSize,
 
 extern "C"
 __global__ void reduceFinal(double *inputVec, double *result,
-                            unsigned int inputSize) {
+                            size_t inputSize) {
     __shared__ double tmp[THREADS_PER_BLOCK];
 
     cg::thread_block cta = cg::this_thread_block();
@@ -124,7 +124,7 @@ def cudaGraphsManual(inputVec_h, inputVec_d, outputVec_d, result_d, inputSize, n
     result_h = ctypes.c_double(0.0)
     nodeDependencies = []
 
-    streamForGraph = checkCudaErrors(cudart.cudaStreamCreateWithFlags(cudart.cudaStreamNonBlocking))
+    streamForGraph = checkCudaErrors(cudart.cudaStreamCreate())
 
     kernelNodeParams = cuda.CUDA_KERNEL_NODE_PARAMS()
     memcpyParams = cudart.cudaMemcpy3DParms()
@@ -212,6 +212,8 @@ def cudaGraphsManual(inputVec_h, inputVec_d, outputVec_d, result_d, inputSize, n
     nodeDependencies.clear()
     nodeDependencies.append(memcpyNode)
 
+    # WIP: Host nodes
+
     nodes, numNodes = checkCudaErrors(cudart.cudaGraphGetNodes(graph))
     print("\nNum of nodes in the graph created manually = {}".format(numNodes))
 
@@ -222,16 +224,14 @@ def cudaGraphsManual(inputVec_h, inputVec_d, outputVec_d, result_d, inputSize, n
 
     for i in range(GRAPH_LAUNCH_ITERATIONS):
         checkCudaErrors(cudart.cudaGraphLaunch(graphExec, streamForGraph))
-        checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
-        print("[cudaGraphsManual] final reduced sum = {}".format(result_h.value))
-        result_h.value = 0.0
+
+    checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
 
     print("Cloned Graph Output..")
     for i in range(GRAPH_LAUNCH_ITERATIONS):
         checkCudaErrors(cudart.cudaGraphLaunch(clonedGraphExec, streamForGraph))
-        checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
-        print("[cudaGraphsManual] final reduced sum = {}".format(result_h.value))
-        result_h.value = 0.0
+
+    checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
 
     checkCudaErrors(cudart.cudaGraphExecDestroy(graphExec))
     checkCudaErrors(cudart.cudaGraphExecDestroy(clonedGraphExec))
@@ -242,10 +242,10 @@ def cudaGraphsManual(inputVec_h, inputVec_d, outputVec_d, result_d, inputSize, n
 def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, inputSize, numOfBlocks):
     result_h = ctypes.c_double(0.0)
 
-    stream1 = checkCudaErrors(cudart.cudaStreamCreateWithFlags(cudart.cudaStreamNonBlocking))
-    stream2 = checkCudaErrors(cudart.cudaStreamCreateWithFlags(cudart.cudaStreamNonBlocking))
-    stream3 = checkCudaErrors(cudart.cudaStreamCreateWithFlags(cudart.cudaStreamNonBlocking))
-    streamForGraph = checkCudaErrors(cudart.cudaStreamCreateWithFlags(cudart.cudaStreamNonBlocking))
+    stream1 = checkCudaErrors(cudart.cudaStreamCreate())
+    stream2 = checkCudaErrors(cudart.cudaStreamCreate())
+    stream3 = checkCudaErrors(cudart.cudaStreamCreate())
+    streamForGraph = checkCudaErrors(cudart.cudaStreamCreate())
 
     forkStreamEvent = checkCudaErrors(cudart.cudaEventCreate())
     memsetEvent1 = checkCudaErrors(cudart.cudaEventCreate())
@@ -291,6 +291,8 @@ def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, 
     checkCudaErrors(cudart.cudaMemcpyAsync(result_h, result_d, np.dtype(np.float64).itemsize,
                                            cudart.cudaMemcpyKind.cudaMemcpyDefault, stream1))
 
+    # WIP: Host nodes
+
     graph = checkCudaErrors(cudart.cudaStreamEndCapture(stream1))
 
     nodes, numNodes = checkCudaErrors(cudart.cudaGraphGetNodes(graph))
@@ -303,16 +305,12 @@ def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, 
 
     for i in range(GRAPH_LAUNCH_ITERATIONS):
         checkCudaErrors(cudart.cudaGraphLaunch(graphExec, streamForGraph))
-        checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
-        print("[cudaGraphsUsingStreamCapture] final reduced sum = {}".format(result_h.value))
-        result_h.value = 0.0
+
+    checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
 
     print("Cloned Graph Output..")
     for i in range(GRAPH_LAUNCH_ITERATIONS):
         checkCudaErrors(cudart.cudaGraphLaunch(clonedGraphExec, streamForGraph))
-        checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
-        print("[cudaGraphsUsingStreamCapture] final reduced sum = {}".format(result_h.value))
-        result_h.value = 0.0
 
     checkCudaErrors(cudart.cudaStreamSynchronize(streamForGraph))
 

@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -298,13 +298,13 @@ class propagator:
         freq = np.array(self.params.freqMax, dtype=np.float32)
 
         args = [buf, dt, freq, nt]
-        args = np.array([arg.ctypes.get_data() for arg in args], dtype=np.uint64)
+        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
         checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
         checkCudaErrors(cuda.cuLaunchKernel(kernel.creatSource,
-                                1, 1, 1,    # grid dim
-                                1024, 1, 1,              # block dim
-                                0, self.streamHalo,                 # shared mem and stream
-                                args.ctypes.get_data(), 0)) # arguments
+                                1, 1, 1,                        # grid dim
+                                1024, 1, 1,                     # block dim
+                                0, self.streamHalo,             # shared mem and stream
+                                args.ctypes.data, 0))     # arguments
         checkCudaErrors(cuda.cuStreamSynchronize(self.streamHalo))
 
     #
@@ -325,12 +325,12 @@ class propagator:
         np_it = np.array(iter, dtype=np.uint32)
 
         args = [wavein+offset_sourceInject, src, np_it]
-        args = np.array([arg.ctypes.get_data() for arg in args], dtype=np.uint64)
+        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
         checkCudaErrors(cuda.cuLaunchKernel(kernel.injectSource,
-                                1, 1, 1,    # grid dim
-                                1, 1, 1,              # block dim
-                                0, self.streamHalo,                 # shared mem and stream
-                                args.ctypes.get_data(), 0)) # arguments
+                                1, 1, 1,                        # grid dim
+                                1, 1, 1,                        # block dim
+                                0, self.streamHalo,             # shared mem and stream
+                                args.ctypes.data, 0))     # arguments
 
     #
     # create velocity
@@ -352,7 +352,7 @@ class propagator:
         np_stride = np.array(stride, dtype=np.uint32)
 
         args = [vel+  offset_velocity, np_dx_dt2, np_nz, np_nx, np_stride]
-        args = np.array([arg.ctypes.get_data() for arg in args], dtype=np.uint64)
+        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
         checkCudaErrors(cuda.cuCtxSetCurrent(self.context))
 
@@ -361,7 +361,7 @@ class propagator:
                                             self.params.blkx, self.params.blky, 1,     # grid dim
                                             2*self.params.BDIMX, self.params.BDIMY, 1, # block dim
                                             0, self.streamHalo,                        # shared mem and stream
-                                            args.ctypes.get_data(), 0))                # arguments
+                                            args.ctypes.data, 0))                # arguments
         checkCudaErrors(cuda.cuStreamSynchronize(self.streamHalo))
 
     #
@@ -389,14 +389,14 @@ class propagator:
         np_stride = np.array(stride, dtype=np.uint32)
 
         args = [wavein+offset_wave, waveout+offset_wave, vel+offset_velocity, np_nz, np_nx, np_stride]
-        args = np.array([arg.ctypes.get_data() for arg in args], dtype=np.uint64)
+        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
         # do center propagation from 2 * fd_order to nz - 2 * fd_order
         checkCudaErrors(cuda.cuLaunchKernel(kernel.fdPropag,
                                 self.params.blkx, self.params.blky, 1,   # grid dim
                                 self.params.BDIMX, self.params.BDIMY, 1, # block dim
                                 0, self.streamCenter,                    # shared mem and stream
-                                args.ctypes.get_data(), 0))              # arguments
+                                args.ctypes.data, 0))              # arguments
 
     #
     # execute the halo part of propagation
@@ -424,14 +424,14 @@ class propagator:
         np_stride = np.array(stride, dtype=np.uint32)
 
         args = [wavein+offset_wave, waveout+offset_wave, vel+offset_velocity, np_nz, np_nx, np_stride]
-        args = np.array([arg.ctypes.get_data() for arg in args], dtype=np.uint64)
+        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
         # do halo up
         checkCudaErrors(cuda.cuLaunchKernel(kernel.fdPropag,
                                 self.params.blkx, self.params.blky, 1,   # grid dim
                                 self.params.BDIMX, self.params.BDIMY, 1, # block dim
                                 0, self.streamHalo,                      # shared mem and stream
-                                args.ctypes.get_data(), 0))              # arguments
+                                args.ctypes.data, 0))              # arguments
 
         # do halo down
         offset_velocity = (self.params.nz - 2*self.params.FD_ORDER) * self.params.nx * self.params.ny + \
@@ -442,12 +442,12 @@ class propagator:
         offset_velocity *= np.dtype(np.float32).itemsize
 
         args = [wavein+offset_wave, waveout+offset_wave, vel+offset_velocity, np_nz, np_nx, np_stride]
-        args = np.array([arg.ctypes.get_data() for arg in args], dtype=np.uint64)
+        args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
         checkCudaErrors(cuda.cuLaunchKernel(kernel.fdPropag,
                                 self.params.blkx, self.params.blky, 1,   # grid dim
                                 self.params.BDIMX, self.params.BDIMY, 1, # block dim
                                 0, self.streamHalo,                      # shared mem and stream
-                                args.ctypes.get_data(), 0))              # arguments
+                                args.ctypes.data, 0))              # arguments
 
     #
     # exchange the halos
@@ -488,8 +488,8 @@ class propagator:
             offsetS *= np.dtype(np.float32).itemsize
             offsetD *= np.dtype(np.float32).itemsize
 
-            waveD = cuda.CUdeviceptr( int(propag.waveOut) + offsetD)
-            waveS = cuda.CUdeviceptr( int(self.waveOut) + offsetS)
+            waveD = cuda.CUdeviceptr(int(propag.waveOut) + offsetD)
+            waveS = cuda.CUdeviceptr(int(self.waveOut) + offsetS)
 
             checkCudaErrors(cuda.cuMemcpyPeerAsync(waveD, devD, waveS, devS, n_exch, self.streamHalo))
 
@@ -623,7 +623,7 @@ def main():
         for j in range(pars.nz- 2*pars.FD_ORDER):
             ptr = cuda.CUdeviceptr(int(propag.waveOut) + offset*4)
 
-            checkCudaErrors(cuda.cuMemcpyDtoH(hOut[istart].ctypes.get_data(), ptr,
+            checkCudaErrors(cuda.cuMemcpyDtoH(hOut[istart].ctypes.data, ptr,
                                               pars.nx * np.dtype(np.float32).itemsize))
             offset += pars.nx * pars.ny
             istart += 1

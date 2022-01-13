@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -78,7 +78,7 @@ def main():
         checkCudaErrors(cuda.cuLaunchKernel(_VecAdd_kernel,
                                             blocksPerGrid, 1, 1,
                                             threadsPerBlock, 1, 1,
-                                            0, cuda.CUstream(0),
+                                            0, 0,
                                             kernelArgs, 0))
     else:
         pass

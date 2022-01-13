@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'CUDA Python'
-copyright = '2021, NVIDIA'
+copyright = '2021-2022, NVIDIA'
 author = 'NVIDIA'
 
 # The full version, including alpha/beta/rc tags
-release = '11.5'
+release = '11.6.0'
 
 
 # -- General configuration ---------------------------------------------------

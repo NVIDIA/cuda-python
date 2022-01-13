@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -696,7 +696,7 @@ def test_kernelParams_buffer_protocol_numpy():
                         np.array(float(123.456), dtype=np.float32), np.array([pFloat_device], dtype=np.uint64),
                         np.array([5], testStruct), np.array([pStruct_device], dtype=np.uint64))
 
-    packagedParams = np.array([arg.ctypes.get_data() for arg in kernelValues], dtype=np.uint64)
+    packagedParams = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.uint64)
     err, = cuda.cuLaunchKernel(kernel,
                                1, 1, 1,   # grid dim
                                1, 1, 1,   # block dim

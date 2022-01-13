@@ -8,7 +8,7 @@ Dependencies of the CUDA-Python bindings and some versions that are known to
 work are as follows:
 
 * Driver: Linux (450.80.02 or later) Windows(456.38 or later)
-* CUDA Toolkit 11.0 to 11.5
+* CUDA Toolkit 11.0 to 11.6
 * Cython - e.g. 0.29.21
 
 ### Compilation
@@ -66,7 +66,6 @@ Dependencies of the test execution and some versions that are known to
 work are as follows:
 
 * numpy-1.19.5
-* matplotlib-3.3.4
 * scipy-1.6.3
 * pytest-benchmark-3.4.1
 
@@ -95,7 +94,9 @@ python -m pytest examples
 
 ## Examples
 
-The included examples are:
+CUDA Samples rewriten using CUDA Python are found in `examples`.
+
+Custom extra included examples:
 
 - `examples/extra/jit_program_test.py`: Demonstrates the use of the API to compile and
   launch a kernel on the device. Includes device memory allocation /

@@ -1,0 +1,1067 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="cudart" href="cudart.html" />
+
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
+        <title>nvrtc - CUDA Python 11.6.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+</style></head>
+  <body>
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">CUDA Python 11.6.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../_static/logo-light-mode.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">CUDA Python 11.6.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../motivation.html">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.6.0-notes.html">    11.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.5.0-notes.html">    11.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.4.0-notes.html">    11.4.0</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html">CUDA Python API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cuda.html">cuda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cudart.html">cudart</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">nvrtc</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <div class="section" id="nvrtc">
+<h1>nvrtc<a class="headerlink" href="#nvrtc" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h2>
+<p>NVRTC defines the following enumeration type and function for API call error handling.</p>
+<dl class="py enum">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult">
+<em class="property"><span class="pre">enum</span> </em><span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>The enumerated type nvrtcResult defines API call result codes.
+NVRTC API functions return nvrtcResult to indicate the call result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_SUCCESS">
+<span class="sig-name descname"><span class="pre">NVRTC_SUCCESS</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_OUT_OF_MEMORY</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_PROGRAM_CREATION_FAILURE</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_INVALID_OPTION</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_COMPILATION</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_INTERNAL_ERROR</span></span><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetErrorString">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetErrorString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">nvrtcResult</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetErrorString" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to <cite>“NVRTC_SUCCESS”</cite>. For unrecognized enumeration values, it returns <cite>“NVRTC_ERROR unknown”</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>result</strong><span class="classifier">nvrtcResult</span></dt><dd><p>CUDA Runtime Compilation API result code.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>Message string for the given nvrtcResult code.</p>
+</dd>
+<dt>None</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+</div>
+<div class="section" id="general-information-query">
+<h2>General Information Query<a class="headerlink" href="#general-information-query" title="Permalink to this headline">¶</a></h2>
+<p>NVRTC defines the following function for general information query.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcVersion">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcVersion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcVersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcVersion sets the output parameters <cite>major</cite> and <cite>minor</cite> with the CUDA Runtime Compilation version number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT</p>
+</dd>
+<dt><strong>major</strong><span class="classifier">int</span></dt><dd><p>CUDA Runtime Compilation major version number.</p>
+</dd>
+<dt><strong>minor</strong><span class="classifier">int</span></dt><dd><p>CUDA Runtime Compilation minor version number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetNumSupportedArchs">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetNumSupportedArchs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetNumSupportedArchs" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetNumSupportedArchs sets the output parameter <cite>numArchs</cite> with the number of architectures supported by NVRTC. This can then be used to pass an array to nvrtcGetSupportedArchs to get the supported architectures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT</p>
+</dd>
+<dt><strong>numArchs</strong><span class="classifier">int</span></dt><dd><p>number of supported architectures.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetSupportedArchs">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetSupportedArchs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetSupportedArchs" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetSupportedArchs populates the array passed via the output parameter <cite>supportedArchs</cite> with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using nvrtcGetNumSupportedArchs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT</p>
+</dd>
+<dt><strong>supportedArchs</strong><span class="classifier">List[Int]</span></dt><dd><p>sorted array of supported architectures.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+</div>
+<div class="section" id="compilation">
+<h2>Compilation<a class="headerlink" href="#compilation" title="Permalink to this headline">¶</a></h2>
+<p>NVRTC defines the following type and functions for actual compilation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcProgram">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcProgram" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Methods</p>
+<div class="table-wrapper"><table class="docutils align-default">
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 75%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>getPtr()</strong></p></td>
+<td><p>Get memory address of class instance</p></td>
+</tr>
+</tbody>
+</table></div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcCreateProgram">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCreateProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">char</span> <span class="pre">*src</span></em>, <em class="sig-param"><span class="pre">char</span> <span class="pre">*name</span></em>, <em class="sig-param"><span class="pre">int</span> <span class="pre">numHeaders</span></em>, <em class="sig-param"><span class="pre">list</span> <span class="pre">headers</span></em>, <em class="sig-param"><span class="pre">list</span> <span class="pre">includeNames</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcCreateProgram" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter <cite>prog</cite> with it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>src</strong><span class="classifier">bytes</span></dt><dd><p>CUDA program source.</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">bytes</span></dt><dd><p>CUDA program name. <cite>name</cite> can be <cite>NULL</cite>; <cite>“default_program”</cite> is
+used when <cite>name</cite> is <cite>NULL</cite> or “”.</p>
+</dd>
+<dt><strong>numHeaders</strong><span class="classifier">int</span></dt><dd><p>Number of headers used. <cite>numHeaders</cite> must be greater than or equal
+to 0.</p>
+</dd>
+<dt><strong>headers</strong><span class="classifier">list</span></dt><dd><p>Sources of the headers. <cite>headers</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite>
+is 0.</p>
+</dd>
+<dt><strong>includeNames</strong><span class="classifier">list</span></dt><dd><p>Name of each header by which they can be included in the CUDA
+program source. <cite>includeNames</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite> is
+0.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_OUT_OF_MEMORY
+NVRTC_ERROR_PROGRAM_CREATION_FAILURE
+NVRTC_ERROR_INVALID_INPUT
+NVRTC_ERROR_INVALID_PROGRAM</p>
+</dd>
+<dt><strong>prog</strong><span class="classifier">nvrtcProgram</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcDestroyProgram" title="cuda.nvrtc.nvrtcDestroyProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcDestroyProgram</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcDestroyProgram">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcDestroyProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcDestroyProgram" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcDestroyProgram destroys the given program.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_PROGRAM</p>
+</dd>
+<dt>None</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcCreateProgram" title="cuda.nvrtc.nvrtcCreateProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcCreateProgram</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcCompileProgram">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCompileProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog</span></em>, <em class="sig-param"><span class="pre">int</span> <span class="pre">numOptions</span></em>, <em class="sig-param"><span class="pre">list</span> <span class="pre">options</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcCompileProgram" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcCompileProgram compiles the given program.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+<dt><strong>numOptions</strong><span class="classifier">int</span></dt><dd><p>Number of compiler options passed.</p>
+</dd>
+<dt><strong>options</strong><span class="classifier">list</span></dt><dd><p>Compiler options in the form of C string array. <cite>options</cite> can be
+<cite>NULL</cite> when <cite>numOptions</cite> is 0.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_OUT_OF_MEMORY
+NVRTC_ERROR_INVALID_INPUT
+NVRTC_ERROR_INVALID_PROGRAM
+NVRTC_ERROR_INVALID_OPTION
+NVRTC_ERROR_COMPILATION
+NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</p>
+</dd>
+<dt>None</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetPTXSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPTXSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetPTXSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetPTXSize sets <cite>ptxSizeRet</cite> with the size of the PTX generated by the previous compilation of <cite>prog</cite> (including the trailing <cite>NULL</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT
+NVRTC_ERROR_INVALID_PROGRAM</p>
+</dd>
+<dt><strong>ptxSizeRet</strong><span class="classifier">int</span></dt><dd><p>Size of the generated PTX (including the trailing <cite>NULL</cite>).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcGetPTX" title="cuda.nvrtc.nvrtcGetPTX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPTX</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetPTX">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPTX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog</span></em>, <em class="sig-param"><span class="pre">char</span> <span class="pre">*ptx</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetPTX" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetPTX stores the PTX generated by the previous compilation of <cite>prog</cite> in the memory pointed by <cite>ptx</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+<dt><strong>ptx</strong><span class="classifier">bytes</span></dt><dd><p>Compiled result.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT
+NVRTC_ERROR_INVALID_PROGRAM</p>
+</dd>
+<dt>None</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcGetPTXSize" title="cuda.nvrtc.nvrtcGetPTXSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPTXSize</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetCUBINSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetCUBINSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetCUBINSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetCUBINSize sets <cite>cubinSizeRet</cite> with the size of the cubin generated by the previous compilation of <cite>prog</cite>. The value of cubinSizeRet is set to 0 if the value specified to <cite>-arch</cite> is a virtual architecture instead of an actual architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT
+NVRTC_ERROR_INVALID_PROGRAM</p>
+</dd>
+<dt><strong>cubinSizeRet</strong><span class="classifier">int</span></dt><dd><p>Size of the generated cubin.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcGetCUBIN" title="cuda.nvrtc.nvrtcGetCUBIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetCUBIN</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetCUBIN">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetCUBIN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog</span></em>, <em class="sig-param"><span class="pre">char</span> <span class="pre">*cubin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetCUBIN" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetCUBIN stores the cubin generated by the previous compilation of <cite>prog</cite> in the memory pointed by <cite>cubin</cite>. No cubin is available if the value specified to <cite>-arch</cite> is a virtual architecture instead of an actual architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+<dt><strong>cubin</strong><span class="classifier">bytes</span></dt><dd><p>Compiled and assembled result.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT
+NVRTC_ERROR_INVALID_PROGRAM</p>
+</dd>
+<dt>None</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcGetCUBINSize" title="cuda.nvrtc.nvrtcGetCUBINSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetCUBINSize</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetNVVMSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetNVVMSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetNVVMSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetNVVMSize sets <cite>nvvmSizeRet</cite> with the size of the NVVM generated by the previous compilation of <cite>prog</cite>. The value of nvvmSizeRet is set to 0 if the program was not compiled with <cite>-dlto</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT
+NVRTC_ERROR_INVALID_PROGRAM</p>
+</dd>
+<dt><strong>nvvmSizeRet</strong><span class="classifier">int</span></dt><dd><p>Size of the generated NVVM.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcGetNVVM" title="cuda.nvrtc.nvrtcGetNVVM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetNVVM</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetNVVM">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetNVVM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog</span></em>, <em class="sig-param"><span class="pre">char</span> <span class="pre">*nvvm</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetNVVM" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetNVVM stores the NVVM generated by the previous compilation of <cite>prog</cite> in the memory pointed by <cite>nvvm</cite>. The program must have been compiled with -dlto, otherwise will return an error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+<dt><strong>nvvm</strong><span class="classifier">bytes</span></dt><dd><p>Compiled result.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT
+NVRTC_ERROR_INVALID_PROGRAM</p>
+</dd>
+<dt>None</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcGetNVVMSize" title="cuda.nvrtc.nvrtcGetNVVMSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetNVVMSize</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetProgramLogSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetProgramLogSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetProgramLogSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetProgramLogSize sets <cite>logSizeRet</cite> with the size of the log generated by the previous compilation of <cite>prog</cite> (including the trailing <cite>NULL</cite>).</p>
+<p>Note that compilation log may be generated with warnings and
+informative messages, even when the compilation of <cite>prog</cite> succeeds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT
+NVRTC_ERROR_INVALID_PROGRAM</p>
+</dd>
+<dt><strong>logSizeRet</strong><span class="classifier">int</span></dt><dd><p>Size of the compilation log (including the trailing <cite>NULL</cite>).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcGetProgramLog" title="cuda.nvrtc.nvrtcGetProgramLog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetProgramLog</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetProgramLog">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetProgramLog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog</span></em>, <em class="sig-param"><span class="pre">char</span> <span class="pre">*log</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetProgramLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetProgramLog stores the log generated by the previous compilation of <cite>prog</cite> in the memory pointed by <cite>log</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+<dt><strong>log</strong><span class="classifier">bytes</span></dt><dd><p>Compilation log.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_INVALID_INPUT
+NVRTC_ERROR_INVALID_PROGRAM</p>
+</dd>
+<dt>None</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcGetProgramLogSize" title="cuda.nvrtc.nvrtcGetProgramLogSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetProgramLogSize</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcAddNameExpression">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcAddNameExpression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog</span></em>, <em class="sig-param"><span class="pre">char</span> <span class="pre">*name_expression</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcAddNameExpression" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcAddNameExpression notes the given name expression denoting the address of a global function or device/__constant__ variable.</p>
+<p>The identical name expression string must be provided on a subsequent
+call to nvrtcGetLoweredName to extract the lowered name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">Any</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+<dt><strong>name_expression</strong><span class="classifier">bytes</span></dt><dd><p>constant expression denoting the address of a global function or
+device/__constant__ variable.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION</p>
+</dd>
+<dt>None</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcGetLoweredName" title="cuda.nvrtc.nvrtcGetLoweredName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetLoweredName</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcGetLoweredName">
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetLoweredName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog</span></em>, <em class="sig-param"><span class="pre">char</span> <span class="pre">*name_expression</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcGetLoweredName" title="Permalink to this definition">¶</a></dt>
+<dd><p>nvrtcGetLoweredName extracts the lowered (mangled) name for a global function or device/__constant__ variable, and updates lowered_name to point to it. The memory containing the name is released when the NVRTC program is destroyed by nvrtcDestroyProgram. The identical name expression must have been previously provided to nvrtcAddNameExpression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>prog</strong><span class="classifier">nvrtcProgram</span></dt><dd><p>CUDA Runtime Compilation program.</p>
+</dd>
+<dt><strong>name_expression</strong><span class="classifier">bytes</span></dt><dd><p>constant expression denoting the address of a global function or
+device/__constant__ variable.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nvrtcResult</dt><dd><p>NVRTC_SUCCESS
+NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
+NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID</p>
+</dd>
+<dt><strong>lowered_name</strong><span class="classifier">bytes</span></dt><dd><p>initialized by the function to point to a C string containing the
+lowered (mangled) name corresponding to the provided name
+expression.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.nvrtc.nvrtcAddNameExpression" title="cuda.nvrtc.nvrtcAddNameExpression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcAddNameExpression</span></code></a></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+</div>
+<div class="section" id="supported-compile-options">
+<h2>Supported Compile Options<a class="headerlink" href="#supported-compile-options" title="Permalink to this headline">¶</a></h2>
+<p>NVRTC supports the compile options below. Option names with two preceding dashs (<code class="docutils literal notranslate"><span class="pre">--</span></code>) are long option names and option names with one preceding dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<code class="docutils literal notranslate"><span class="pre">=</span></code>) is used to separate the compile option argument from the compile option name, e.g., <code class="docutils literal notranslate"><span class="pre">"--gpu-architecture=compute_60"</span></code>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <code class="docutils literal notranslate"><span class="pre">"--gpu-architecture"</span></code> <code class="docutils literal notranslate"><span class="pre">"compute_60"</span></code>. Single-character short option names, such as <code class="docutils literal notranslate"><span class="pre">-D</span></code>, <code class="docutils literal notranslate"><span class="pre">-U</span></code>, and <code class="docutils literal notranslate"><span class="pre">-I</span></code>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <code class="docutils literal notranslate"><span class="pre">"-D=&lt;def&gt;"</span></code>, <code class="docutils literal notranslate"><span class="pre">"-D&lt;def&gt;"</span></code>, and <code class="docutils literal notranslate"><span class="pre">"-D</span> <span class="pre">&lt;def&gt;"</span></code> are all supported.</p>
+<p>The valid compiler options are:</p>
+<ul>
+<li><p>Compilation targets</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--gpu-architecture=&lt;arch&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-arch</span></code>)</p>
+<p>Specify the name of the class of GPU architectures for which the input must be compiled.</p>
+<ul class="simple">
+<li><p>Valid <code class="docutils literal notranslate"><span class="pre">&lt;arch&gt;</span></code>s:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_35</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_37</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_50</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_52</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_53</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_60</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_61</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_62</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_70</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_72</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_75</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_80</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_35</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_37</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_50</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_52</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_53</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_60</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_61</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_62</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_70</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_72</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_75</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_80</span></code></p></li>
+</ul>
+</li>
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">compute_52</span></code></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Separate compilation / whole-program compilation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-c</span></code> (<code class="docutils literal notranslate"><span class="pre">-dc</span></code>)</p>
+<p>Generate relocatable code that can be linked with other relocatable device code. It is equivalent to –relocatable-device-code=true.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-w</span></code> (<code class="docutils literal notranslate"><span class="pre">-dw</span></code>)</p>
+<p>Generate non-relocatable code. It is equivalent to <code class="docutils literal notranslate"><span class="pre">--relocatable-device-code=false</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--relocatable-device-code={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-rdc</span></code>)</p>
+<p>Enable (disable) the generation of relocatable device code.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--extensible-whole-program</span></code> (<code class="docutils literal notranslate"><span class="pre">-ewp</span></code>)</p>
+<p>Do extensible whole program compilation of device code.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Debugging support</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-debug</span></code> (<code class="docutils literal notranslate"><span class="pre">-G</span></code>)</p>
+<p>Generate debug information.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--generate-line-info</span></code> (<code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>)</p>
+<p>Generate line-number information.</p>
+</li>
+</ul>
+</li>
+<li><p>Code generation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options</span></code> &lt;options&gt; (<code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options=&lt;options&gt;</span></code></p>
+<p>Specify options directly to ptxas, the PTX optimizing assembler.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--maxrregcount=&lt;N&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-maxrregcount</span></code>)</p>
+<p>Specify the maximum amount of registers that GPU functions can use. Until a function-specific limit, a higher value will generally increase the performance of individual GPU threads that execute this function. However, because thread registers are allocated from a global register pool on each GPU, a higher value of this option will also reduce the maximum thread block size, thereby reducing the amount of thread parallelism. Hence, a good maxrregcount value is the result of a trade-off. If this option is not specified, then no maximum is assumed. Value less than the minimum registers required by ABI will be bumped up by the compiler to ABI minimum limit.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ftz={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-ftz</span></code>)</p>
+<p>When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal values. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--ftz=true</span></code>.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--prec-sqrt={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-sqrt</span></code>)</p>
+<p>For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--prec-sqrt=false</span></code>.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--prec-div={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-div</span></code>)</p>
+<p>For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster approximation. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--prec-div=false</span></code>.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--fmad={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-fmad</span></code>)</p>
+<p>Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point multiply-add operations (FMAD, FFMA, or DFMA). <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--fmad=true</span></code>.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> (<code class="docutils literal notranslate"><span class="pre">-use_fast_math</span></code>)</p>
+<p>Make use of fast math operations. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--ftz=true</span></code> <code class="docutils literal notranslate"><span class="pre">--prec-div=false</span></code> <code class="docutils literal notranslate"><span class="pre">--prec-sqrt=false</span></code> <code class="docutils literal notranslate"><span class="pre">--fmad=true</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--extra-device-vectorization</span></code> (<code class="docutils literal notranslate"><span class="pre">-extra-device-vectorization</span></code>)</p>
+<p>Enables more aggressive device code vectorization in the NVVM optimizer.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--modify-stack-limit={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-modify-stack-limit</span></code>)</p>
+<p>On Linux, during compilation, use <code class="docutils literal notranslate"><span class="pre">setrlimit()</span></code> to increase stack size to maximum allowed. The limit is reset to the previous value at the end of compilation. Note: <code class="docutils literal notranslate"><span class="pre">setrlimit()</span></code> changes the value for the entire process.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dlink-time-opt</span></code> (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>)</p>
+<p>Generate intermediate code for later link-time optimization. It implies <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code>.</p>
+<p>Note: when this is used the nvvmGetNVVM API should be used, as PTX or Cubin will not be generated.</p>
+</li>
+</ul>
+</li>
+<li><p>Preprocessing</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--define-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-D</span></code>)</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;def&gt;</span></code> can be either <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;name=definitions&gt;</span></code>.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code></p>
+<p>Predefine <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> as a macro with definition <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;name&gt;=&lt;definition&gt;</span></code></p>
+<p>The contents of <code class="docutils literal notranslate"><span class="pre">&lt;definition&gt;</span></code> are tokenized and preprocessed as if they appeared during translation phase three in a <code class="docutils literal notranslate"><span class="pre">#define</span></code> directive. In particular, the definition will be truncated by embedded new line characters.</p>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--undefine-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-U</span></code>)</p>
+<p>Cancel any previous definition of <code class="docutils literal notranslate"><span class="pre">&lt;def&gt;</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--include-path=&lt;dir&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-I</span></code>)</p>
+<p>Add the directory <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;</span></code> to the list of directories to be searched for headers. These paths are searched after the list of headers given to nvrtcCreateProgram.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pre-include=&lt;header&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-include</span></code>)</p>
+<p>Preinclude <code class="docutils literal notranslate"><span class="pre">&lt;header&gt;</span></code> during preprocessing.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-source-include</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-source-include</span></code>) The preprocessor by default adds the directory of each input sources to the include path. This option disables this feature and only considers the path specified explicitly.</p></li>
+</ul>
+</li>
+<li><p>Language Dialect</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17}</span></code> (<code class="docutils literal notranslate"><span class="pre">-std={c++11|c++14|c++17}</span></code>)</p>
+<p>Set language dialect to C++03, C++11, C++14 or C++17</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtin-move-forward={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-move-forward</span></code>)</p>
+<p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::move</span></code> and <code class="docutils literal notranslate"><span class="pre">std::forward</span></code>, when C++11 language dialect is selected.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtin-initializer-list={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-initializer-list</span></code>)</p>
+<p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::initializer_list</span></code> class and member functions when C++11 language dialect is selected.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Misc.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--disable-warnings</span></code> (<code class="docutils literal notranslate"><span class="pre">-w</span></code>)</p>
+<p>Inhibit all warning messages.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--restrict</span></code> (<code class="docutils literal notranslate"><span class="pre">-restrict</span></code>)</p>
+<p>Programmer assertion that all kernel pointer parameters are restrict pointers.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-as-default-execution-space</span></code> (<code class="docutils literal notranslate"><span class="pre">-default-device</span></code>)</p>
+<p>Treat entities with no execution space annotation as <code class="docutils literal notranslate"><span class="pre">device</span></code> entities.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-int128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-int128</span></code>)</p>
+<p>Allow the <code class="docutils literal notranslate"><span class="pre">__int128</span></code> type in device code. Also causes the macro <code class="docutils literal notranslate"><span class="pre">CUDACC_RTC_INT128</span></code> to be defined.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--optimization-info=&lt;kind&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-opt-info</span></code>)</p>
+<p>Provide optimization reports for the specified kind of optimization. The following kind tags are supported:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">inline</span></code> : emit a remark when a function is inlined.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--version-ident={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-dQ</span></code>)</p>
+<p>Embed used compiler’s version info into generated PTX/CUBIN</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-err-no</span></code>)</p>
+<p>Display diagnostic number for warning messages. (Default)</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-err-no</span></code>)</p>
+<p>Disables the display of a diagnostic number for warning messages.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-error=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-error</span></code>)</p>
+<p>Emit error for specified diagnostic message number(s). Message numbers can be separated by comma.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-suppress=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-suppress</span></code>)</p>
+<p>Suppress specified diagnostic message number(s). Message numbers can be separated by comma.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-warn=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-warn</span></code>)</p>
+<p>Emit warning for specified diagnostic message number(s). Message numbers can be separated by comma.</p>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          <a class="prev-page" href="cudart.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">cudart</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2021-2022, NVIDIA |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
+            <a class="muted-link" href="../_sources/module/nvrtc.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">nvrtc</a><ul>
+<li><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li><a class="reference internal" href="#general-information-query">General Information Query</a></li>
+<li><a class="reference internal" href="#compilation">Compilation</a></li>
+<li><a class="reference internal" href="#supported-compile-options">Supported Compile Options</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/scripts/main.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    </body>
+</html>

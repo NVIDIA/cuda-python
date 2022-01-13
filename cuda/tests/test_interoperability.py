@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -149,7 +149,7 @@ def test_interop_memPool():
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
 
     # DRV to RT
-    err_dr, pool = cuda.cuDeviceGetDefaultMemPool(cuda.CUdevice(0))
+    err_dr, pool = cuda.cuDeviceGetDefaultMemPool(0)
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
     err_rt, = cudart.cudaDeviceSetMemPool(0, pool)
     assert(err_rt == cudart.cudaError_t.cudaSuccess)
@@ -157,7 +157,7 @@ def test_interop_memPool():
     # RT to DRV
     err_rt, pool = cudart.cudaDeviceGetDefaultMemPool(0)
     assert(err_rt == cudart.cudaError_t.cudaSuccess)
-    err_dr, = cuda.cuDeviceSetMemPool(cuda.CUdevice(0), pool)
+    err_dr, = cuda.cuDeviceSetMemPool(0, pool)
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
 
     err_dr, = cuda.cuCtxDestroy(ctx)

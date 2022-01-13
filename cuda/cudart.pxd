@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -98,6 +98,45 @@ cdef class cudaExternalSemaphore_t:
 
     """
     cdef ccudart.cudaExternalSemaphore_t* _ptr
+    cdef bint _ptr_owner
+
+cdef class EGLImageKHR:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.EGLImageKHR* _ptr
+    cdef bint _ptr_owner
+
+cdef class EGLStreamKHR:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.EGLStreamKHR* _ptr
+    cdef bint _ptr_owner
+
+cdef class EGLSyncKHR:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.EGLSyncKHR* _ptr
     cdef bint _ptr_owner
 
 cdef class cudaHostFn_t:
@@ -207,7 +246,7 @@ cdef class cudaArraySparseProperties:
         Total size of the mip tail.
     flags : unsigned int
         Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -220,9 +259,31 @@ cdef class cudaArraySparseProperties:
     cdef bint _ptr_owner
     cdef _cudaArraySparseProperties_tileExtent_s _tileExtent
 
+cdef class cudaArrayMemoryRequirements:
+    """
+    CUDA array and CUDA mipmapped array memory requirements
+
+    Attributes
+    ----------
+    size : size_t
+        Total size of the array.
+    alignment : size_t
+        Alignment necessary for mapping the array.
+    reserved : List[unsigned int]
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaArrayMemoryRequirements* _ptr
+    cdef bint _ptr_owner
+
 cdef class cudaPitchedPtr:
     """
-    CUDA Pitched memory pointer ::make_cudaPitchedPtr
+    CUDA Pitched memory pointer  ::make_cudaPitchedPtr
 
     Attributes
     ----------
@@ -247,7 +308,7 @@ cdef class cudaPitchedPtr:
 
 cdef class cudaExtent:
     """
-    CUDA extent ::make_cudaExtent
+    CUDA extent  ::make_cudaExtent
 
     Attributes
     ----------
@@ -270,7 +331,7 @@ cdef class cudaExtent:
 
 cdef class cudaPos:
     """
-    CUDA 3D position ::make_cudaPos
+    CUDA 3D position  ::make_cudaPos
 
     Attributes
     ----------
@@ -422,9 +483,10 @@ cdef class cudaAccessPolicyWindow:
         hitRatio specifies percentage of lines assigned hitProp, rest are
         assigned missProp.
     hitProp : cudaAccessProperty
-        CUaccessProperty set for hit.
+        ::CUaccessProperty set for hit.
     missProp : cudaAccessProperty
-        CUaccessProperty set for miss. Must be either NORMAL or STREAMING.
+        ::CUaccessProperty set for miss. Must be either NORMAL or
+        STREAMING.
 
     Methods
     -------
@@ -681,7 +743,7 @@ cdef class cudaPointerAttributes:
         access the memory or NULL if no such address exists.
     hostPointer : Any
         The address which may be dereferenced on the host to access the
-        memory or NULL if no such address exists. CUDA doesn't check if
+        memory or NULL if no such address exists.  CUDA doesn't check if
         unregistered memory is allocated so this field may contain invalid
         pointer if an invalid pointer has been passed to CUDA.
 
@@ -753,7 +815,7 @@ cdef class cudaFuncAttributes:
 
 cdef class cudaMemLocation:
     """
-    Specifies a memory location. To specify a gpu, set type =
+    Specifies a memory location.  To specify a gpu, set type =
     ::cudaMemLocationTypeDevice and set id = the gpu's device ordinal.
 
     Attributes
@@ -901,7 +963,7 @@ cdef class cudaDeviceProp:
 
     Attributes
     ----------
-    name : char
+    name : List[char]
         ASCII string identifying device
     uuid : cudaUUID_t
         16-byte unique identifier
@@ -923,9 +985,9 @@ cdef class cudaDeviceProp:
         Maximum pitch in bytes allowed by memory copies
     maxThreadsPerBlock : int
         Maximum number of threads per block
-    maxThreadsDim : int
+    maxThreadsDim : List[int]
         Maximum size of each dimension of a block
-    maxGridSize : int
+    maxGridSize : List[int]
         Maximum size of each dimension of a grid
     clockRate : int
         Clock frequency in kilohertz
@@ -961,41 +1023,41 @@ cdef class cudaDeviceProp:
     maxTexture1DLinear : int
         Deprecated, do not use. Use cudaDeviceGetTexture1DLinearMaxWidth()
         or cuDeviceGetTexture1DLinearMaxWidth() instead.
-    maxTexture2D : int
+    maxTexture2D : List[int]
         Maximum 2D texture dimensions
-    maxTexture2DMipmap : int
+    maxTexture2DMipmap : List[int]
         Maximum 2D mipmapped texture dimensions
-    maxTexture2DLinear : int
+    maxTexture2DLinear : List[int]
         Maximum dimensions (width, height, pitch) for 2D textures bound to
         pitched memory
-    maxTexture2DGather : int
+    maxTexture2DGather : List[int]
         Maximum 2D texture dimensions if texture gather operations have to
         be performed
-    maxTexture3D : int
+    maxTexture3D : List[int]
         Maximum 3D texture dimensions
-    maxTexture3DAlt : int
+    maxTexture3DAlt : List[int]
         Maximum alternate 3D texture dimensions
     maxTextureCubemap : int
         Maximum Cubemap texture dimensions
-    maxTexture1DLayered : int
+    maxTexture1DLayered : List[int]
         Maximum 1D layered texture dimensions
-    maxTexture2DLayered : int
+    maxTexture2DLayered : List[int]
         Maximum 2D layered texture dimensions
-    maxTextureCubemapLayered : int
+    maxTextureCubemapLayered : List[int]
         Maximum Cubemap layered texture dimensions
     maxSurface1D : int
         Maximum 1D surface size
-    maxSurface2D : int
+    maxSurface2D : List[int]
         Maximum 2D surface dimensions
-    maxSurface3D : int
+    maxSurface3D : List[int]
         Maximum 3D surface dimensions
-    maxSurface1DLayered : int
+    maxSurface1DLayered : List[int]
         Maximum 1D layered surface dimensions
-    maxSurface2DLayered : int
+    maxSurface2DLayered : List[int]
         Maximum 2D layered surface dimensions
     maxSurfaceCubemap : int
         Maximum Cubemap surface dimensions
-    maxSurfaceCubemapLayered : int
+    maxSurfaceCubemapLayered : List[int]
         Maximum Cubemap layered surface dimensions
     surfaceAlignment : size_t
         Alignment requirements for surfaces
@@ -1370,7 +1432,7 @@ cdef class _cudaExternalSemaphoreSignalParams_params_s:
 
     keyedMutex : _cudaExternalSemaphoreSignalParams_params_params_keyedMutex_s
 
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1401,7 +1463,7 @@ cdef class cudaExternalSemaphoreSignalParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1478,7 +1540,7 @@ cdef class _cudaExternalSemaphoreWaitParams_params_s:
 
     keyedMutex : _cudaExternalSemaphoreWaitParams_params_params_keyedMutex_s
 
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1509,7 +1571,7 @@ cdef class cudaExternalSemaphoreWaitParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1622,7 +1684,7 @@ cdef class cudaTextureDesc:
         Texture read mode
     sRGB : int
         Perform sRGB->linear conversion during texture read
-    borderColor : float
+    borderColor : List[float]
         Texture Border Color
     normalizedCoords : int
         Indicates whether texture reads are normalized or not
@@ -1638,6 +1700,8 @@ cdef class cudaTextureDesc:
         Upper end of the mipmap level range to clamp access to
     disableTrilinearOptimization : int
         Disable any trilinear filtering optimizations.
+    seamlessCubemap : int
+        Enable seamless cube map filtering.
 
     Methods
     -------
@@ -1647,6 +1711,90 @@ cdef class cudaTextureDesc:
     """
     cdef ccudart.cudaTextureDesc* _ptr
     cdef bint _ptr_owner
+
+cdef class cudaEglPlaneDesc_st:
+    """
+    CUDA EGL Plane Descriptor - structure defining each plane of a CUDA
+    EGLFrame
+
+    Attributes
+    ----------
+    width : unsigned int
+        Width of plane
+    height : unsigned int
+        Height of plane
+    depth : unsigned int
+        Depth of plane
+    pitch : unsigned int
+        Pitch of plane
+    numChannels : unsigned int
+        Number of channels for the plane
+    channelDesc : cudaChannelFormatDesc
+        Channel Format Descriptor
+    reserved : List[unsigned int]
+        Reserved for future use
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaEglPlaneDesc_st* _ptr
+    cdef bint _ptr_owner
+    cdef cudaChannelFormatDesc _channelDesc
+
+cdef class _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u:
+    """
+
+    Attributes
+    ----------
+    pArray : List[cudaArray_t]
+
+    pPitch : List[cudaPitchedPtr]
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaEglFrame_st* _ptr
+
+cdef class cudaEglFrame_st:
+    """
+    CUDA EGLFrame Descriptor - structure defining one frame of EGL.
+    Each frame may contain one or more planes depending on whether the
+    surface is Multiplanar or not. Each plane of EGLFrame is
+    represented by cudaEglPlaneDesc which is defined as:
+    typedefstructcudaEglPlaneDesc_st unsignedintwidth;
+    unsignedintheight; unsignedintdepth; unsignedintpitch;
+    unsignedintnumChannels; structcudaChannelFormatDescchannelDesc;
+    unsignedintreserved[4]; cudaEglPlaneDesc;
+
+    Attributes
+    ----------
+    frame : _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u
+
+    planeDesc : List[cudaEglPlaneDesc]
+        CUDA EGL Plane Descriptor cudaEglPlaneDesc
+    planeCount : unsigned int
+        Number of planes
+    frameType : cudaEglFrameType
+        Array or Pitch
+    eglColorFormat : cudaEglColorFormat
+        CUDA EGL Color Format
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaEglFrame_st* _ptr
+    cdef bint _ptr_owner
+    cdef _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u _frame
 
 cdef class CUuuid(CUuuid_st):
     """
@@ -1705,6 +1853,68 @@ cdef class cudaIpcMemHandle_t(cudaIpcMemHandle_st):
     ----------
     reserved : bytes
 
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+
+cdef class cudaEglPlaneDesc(cudaEglPlaneDesc_st):
+    """
+    CUDA EGL Plane Descriptor - structure defining each plane of a CUDA
+    EGLFrame
+
+    Attributes
+    ----------
+    width : unsigned int
+        Width of plane
+    height : unsigned int
+        Height of plane
+    depth : unsigned int
+        Depth of plane
+    pitch : unsigned int
+        Pitch of plane
+    numChannels : unsigned int
+        Number of channels for the plane
+    channelDesc : cudaChannelFormatDesc
+        Channel Format Descriptor
+    reserved : List[unsigned int]
+        Reserved for future use
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+
+cdef class cudaEglFrame(cudaEglFrame_st):
+    """
+    CUDA EGLFrame Descriptor - structure defining one frame of EGL.
+    Each frame may contain one or more planes depending on whether the
+    surface is Multiplanar or not. Each plane of EGLFrame is
+    represented by cudaEglPlaneDesc which is defined as:
+    typedefstructcudaEglPlaneDesc_st unsignedintwidth;
+    unsignedintheight; unsignedintdepth; unsignedintpitch;
+    unsignedintnumChannels; structcudaChannelFormatDescchannelDesc;
+    unsignedintreserved[4]; cudaEglPlaneDesc;
+
+    Attributes
+    ----------
+    frame : _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u
+
+    planeDesc : List[cudaEglPlaneDesc]
+        CUDA EGL Plane Descriptor cudaEglPlaneDesc
+    planeCount : unsigned int
+        Number of planes
+    frameType : cudaEglFrameType
+        Array or Pitch
+    eglColorFormat : cudaEglColorFormat
+        CUDA EGL Color Format
 
     Methods
     -------
@@ -1810,6 +2020,18 @@ cdef class cudaGraphExec_t(cuda.CUgraphExec):
     """
     pass
 
+cdef class cudaEglStreamConnection(cuda.CUeglStreamConnection):
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+
 cdef class cudaSurfaceObject_t:
     """
 
@@ -1834,4 +2056,95 @@ cdef class cudaTextureObject_t:
 
     """
     cdef ccudart.cudaTextureObject_t* _ptr
+    cdef bint _ptr_owner
+
+cdef class GLenum:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.GLenum* _ptr
+    cdef bint _ptr_owner
+
+cdef class GLuint:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.GLuint* _ptr
+    cdef bint _ptr_owner
+
+cdef class EGLint:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.EGLint* _ptr
+    cdef bint _ptr_owner
+
+cdef class VdpDevice:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.VdpDevice* _ptr
+    cdef bint _ptr_owner
+
+cdef class VdpGetProcAddress:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.VdpGetProcAddress* _ptr
+    cdef bint _ptr_owner
+
+cdef class VdpVideoSurface:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.VdpVideoSurface* _ptr
+    cdef bint _ptr_owner
+
+cdef class VdpOutputSurface:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.VdpOutputSurface* _ptr
     cdef bint _ptr_owner

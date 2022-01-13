@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -7,10 +7,10 @@
 # is strictly prohibited.
 
 cdef enum cudaRoundMode:
-    cudaRoundNearest
-    cudaRoundZero
-    cudaRoundPosInf
-    cudaRoundMinInf
+    cudaRoundNearest = 0
+    cudaRoundZero = 1
+    cudaRoundPosInf = 2
+    cudaRoundMinInf = 3
 
 cdef struct dim3:
     unsigned int x
@@ -216,6 +216,11 @@ cdef struct cudaArraySparseProperties:
     unsigned int flags
     unsigned int reserved[4]
 
+cdef struct cudaArrayMemoryRequirements:
+    size_t size
+    size_t alignment
+    unsigned int reserved[4]
+
 cdef enum cudaMemoryType:
     cudaMemoryTypeUnregistered = 0
     cudaMemoryTypeHost = 1
@@ -317,14 +322,14 @@ cdef union cudaStreamAttrValue:
     cudaSynchronizationPolicy syncPolicy
 
 cdef enum cudaStreamUpdateCaptureDependenciesFlags:
-    cudaStreamAddCaptureDependencies = 0x0
-    cudaStreamSetCaptureDependencies = 0x1
+    cudaStreamAddCaptureDependencies = 0
+    cudaStreamSetCaptureDependencies = 1
 
 cdef enum cudaUserObjectFlags:
-    cudaUserObjectNoDestructorSync = 0x1
+    cudaUserObjectNoDestructorSync = 1
 
 cdef enum cudaUserObjectRetainFlags:
-    cudaGraphUserObjectMove = 0x1
+    cudaGraphUserObjectMove = 1
 
 
 cdef enum cudaGraphicsRegisterFlags:
@@ -340,12 +345,12 @@ cdef enum cudaGraphicsMapFlags:
     cudaGraphicsMapFlagsWriteDiscard = 2
 
 cdef enum cudaGraphicsCubeFace:
-    cudaGraphicsCubeFacePositiveX = 0x00
-    cudaGraphicsCubeFaceNegativeX = 0x01
-    cudaGraphicsCubeFacePositiveY = 0x02
-    cudaGraphicsCubeFaceNegativeY = 0x03
-    cudaGraphicsCubeFacePositiveZ = 0x04
-    cudaGraphicsCubeFaceNegativeZ = 0x05
+    cudaGraphicsCubeFacePositiveX = 0
+    cudaGraphicsCubeFaceNegativeX = 1
+    cudaGraphicsCubeFacePositiveY = 2
+    cudaGraphicsCubeFaceNegativeY = 3
+    cudaGraphicsCubeFacePositiveZ = 4
+    cudaGraphicsCubeFaceNegativeZ = 5
 
 cdef enum cudaKernelNodeAttrID:
     cudaKernelNodeAttributeAccessPolicyWindow = 1
@@ -356,47 +361,47 @@ cdef union cudaKernelNodeAttrValue:
     int cooperative
 
 cdef enum cudaResourceType:
-    cudaResourceTypeArray = 0x00
-    cudaResourceTypeMipmappedArray = 0x01
-    cudaResourceTypeLinear = 0x02
-    cudaResourceTypePitch2D = 0x03
+    cudaResourceTypeArray = 0
+    cudaResourceTypeMipmappedArray = 1
+    cudaResourceTypeLinear = 2
+    cudaResourceTypePitch2D = 3
 
 cdef enum cudaResourceViewFormat:
-    cudaResViewFormatNone = 0x00
-    cudaResViewFormatUnsignedChar1 = 0x01
-    cudaResViewFormatUnsignedChar2 = 0x02
-    cudaResViewFormatUnsignedChar4 = 0x03
-    cudaResViewFormatSignedChar1 = 0x04
-    cudaResViewFormatSignedChar2 = 0x05
-    cudaResViewFormatSignedChar4 = 0x06
-    cudaResViewFormatUnsignedShort1 = 0x07
-    cudaResViewFormatUnsignedShort2 = 0x08
-    cudaResViewFormatUnsignedShort4 = 0x09
-    cudaResViewFormatSignedShort1 = 0x0a
-    cudaResViewFormatSignedShort2 = 0x0b
-    cudaResViewFormatSignedShort4 = 0x0c
-    cudaResViewFormatUnsignedInt1 = 0x0d
-    cudaResViewFormatUnsignedInt2 = 0x0e
-    cudaResViewFormatUnsignedInt4 = 0x0f
-    cudaResViewFormatSignedInt1 = 0x10
-    cudaResViewFormatSignedInt2 = 0x11
-    cudaResViewFormatSignedInt4 = 0x12
-    cudaResViewFormatHalf1 = 0x13
-    cudaResViewFormatHalf2 = 0x14
-    cudaResViewFormatHalf4 = 0x15
-    cudaResViewFormatFloat1 = 0x16
-    cudaResViewFormatFloat2 = 0x17
-    cudaResViewFormatFloat4 = 0x18
-    cudaResViewFormatUnsignedBlockCompressed1 = 0x19
-    cudaResViewFormatUnsignedBlockCompressed2 = 0x1a
-    cudaResViewFormatUnsignedBlockCompressed3 = 0x1b
-    cudaResViewFormatUnsignedBlockCompressed4 = 0x1c
-    cudaResViewFormatSignedBlockCompressed4 = 0x1d
-    cudaResViewFormatUnsignedBlockCompressed5 = 0x1e
-    cudaResViewFormatSignedBlockCompressed5 = 0x1f
-    cudaResViewFormatUnsignedBlockCompressed6H = 0x20
-    cudaResViewFormatSignedBlockCompressed6H = 0x21
-    cudaResViewFormatUnsignedBlockCompressed7 = 0x22
+    cudaResViewFormatNone = 0
+    cudaResViewFormatUnsignedChar1 = 1
+    cudaResViewFormatUnsignedChar2 = 2
+    cudaResViewFormatUnsignedChar4 = 3
+    cudaResViewFormatSignedChar1 = 4
+    cudaResViewFormatSignedChar2 = 5
+    cudaResViewFormatSignedChar4 = 6
+    cudaResViewFormatUnsignedShort1 = 7
+    cudaResViewFormatUnsignedShort2 = 8
+    cudaResViewFormatUnsignedShort4 = 9
+    cudaResViewFormatSignedShort1 = 10
+    cudaResViewFormatSignedShort2 = 11
+    cudaResViewFormatSignedShort4 = 12
+    cudaResViewFormatUnsignedInt1 = 13
+    cudaResViewFormatUnsignedInt2 = 14
+    cudaResViewFormatUnsignedInt4 = 15
+    cudaResViewFormatSignedInt1 = 16
+    cudaResViewFormatSignedInt2 = 17
+    cudaResViewFormatSignedInt4 = 18
+    cudaResViewFormatHalf1 = 19
+    cudaResViewFormatHalf2 = 20
+    cudaResViewFormatHalf4 = 21
+    cudaResViewFormatFloat1 = 22
+    cudaResViewFormatFloat2 = 23
+    cudaResViewFormatFloat4 = 24
+    cudaResViewFormatUnsignedBlockCompressed1 = 25
+    cudaResViewFormatUnsignedBlockCompressed2 = 26
+    cudaResViewFormatUnsignedBlockCompressed3 = 27
+    cudaResViewFormatUnsignedBlockCompressed4 = 28
+    cudaResViewFormatSignedBlockCompressed4 = 29
+    cudaResViewFormatUnsignedBlockCompressed5 = 30
+    cudaResViewFormatSignedBlockCompressed5 = 31
+    cudaResViewFormatUnsignedBlockCompressed6H = 32
+    cudaResViewFormatSignedBlockCompressed6H = 33
+    cudaResViewFormatUnsignedBlockCompressed7 = 34
 
 cdef struct _cudaResourceDesc_res_res_array_s:
     cudaArray_t array
@@ -457,7 +462,7 @@ cdef struct cudaFuncAttributes:
 cdef enum cudaFuncAttribute:
     cudaFuncAttributeMaxDynamicSharedMemorySize = 8
     cudaFuncAttributePreferredSharedMemoryCarveout = 9
-    cudaFuncAttributeMax
+    cudaFuncAttributeMax = 10
 
 cdef enum cudaFuncCache:
     cudaFuncCachePreferNone = 0
@@ -482,13 +487,13 @@ cdef enum cudaComputeMode:
     cudaComputeModeExclusiveProcess = 3
 
 cdef enum cudaLimit:
-    cudaLimitStackSize = 0x00
-    cudaLimitPrintfFifoSize = 0x01
-    cudaLimitMallocHeapSize = 0x02
-    cudaLimitDevRuntimeSyncDepth = 0x03
-    cudaLimitDevRuntimePendingLaunchCount = 0x04
-    cudaLimitMaxL2FetchGranularity = 0x05
-    cudaLimitPersistingL2CacheSize = 0x06
+    cudaLimitStackSize = 0
+    cudaLimitPrintfFifoSize = 1
+    cudaLimitMallocHeapSize = 2
+    cudaLimitDevRuntimeSyncDepth = 3
+    cudaLimitDevRuntimePendingLaunchCount = 4
+    cudaLimitMaxL2FetchGranularity = 5
+    cudaLimitPersistingL2CacheSize = 6
 
 cdef enum cudaMemoryAdvise:
     cudaMemAdviseSetReadMostly = 1
@@ -505,12 +510,12 @@ cdef enum cudaMemRangeAttribute:
     cudaMemRangeAttributeLastPrefetchLocation = 4
 
 cdef enum cudaOutputMode:
-    cudaKeyValuePair = 0x00
-    cudaCSV = 0x01
+    cudaKeyValuePair = 0
+    cudaCSV = 1
 
 cdef enum cudaFlushGPUDirectRDMAWritesOptions:
-    cudaFlushGPUDirectRDMAWritesOptionHost = 1<<0
-    cudaFlushGPUDirectRDMAWritesOptionMemOps = 1<<1
+    cudaFlushGPUDirectRDMAWritesOptionHost = 1
+    cudaFlushGPUDirectRDMAWritesOptionMemOps = 2
 
 cdef enum cudaGPUDirectRDMAWritesOrdering:
     cudaGPUDirectRDMAWritesOrderingNone = 0
@@ -522,7 +527,7 @@ cdef enum cudaFlushGPUDirectRDMAWritesScope:
     cudaFlushGPUDirectRDMAWritesToAllDevices = 200
 
 cdef enum cudaFlushGPUDirectRDMAWritesTarget:
-    cudaFlushGPUDirectRDMAWritesTargetCurrentDevice
+    cudaFlushGPUDirectRDMAWritesTargetCurrentDevice = 0
 
 cdef enum cudaDeviceAttr:
     cudaDevAttrMaxThreadsPerBlock = 1
@@ -638,17 +643,18 @@ cdef enum cudaDeviceAttr:
     cudaDevAttrGPUDirectRDMAFlushWritesOptions = 117
     cudaDevAttrGPUDirectRDMAWritesOrdering = 118
     cudaDevAttrMemoryPoolSupportedHandleTypes = 119
-    cudaDevAttrMax
+    cudaDevAttrDeferredMappingCudaArraySupported = 121
+    cudaDevAttrMax = 122
 
 cdef enum cudaMemPoolAttr:
-    cudaMemPoolReuseFollowEventDependencies = 0x1
-    cudaMemPoolReuseAllowOpportunistic = 0x2
-    cudaMemPoolReuseAllowInternalDependencies = 0x3
-    cudaMemPoolAttrReleaseThreshold = 0x4
-    cudaMemPoolAttrReservedMemCurrent = 0x5
-    cudaMemPoolAttrReservedMemHigh = 0x6
-    cudaMemPoolAttrUsedMemCurrent = 0x7
-    cudaMemPoolAttrUsedMemHigh = 0x8
+    cudaMemPoolReuseFollowEventDependencies = 1
+    cudaMemPoolReuseAllowOpportunistic = 2
+    cudaMemPoolReuseAllowInternalDependencies = 3
+    cudaMemPoolAttrReleaseThreshold = 4
+    cudaMemPoolAttrReservedMemCurrent = 5
+    cudaMemPoolAttrReservedMemHigh = 6
+    cudaMemPoolAttrUsedMemCurrent = 7
+    cudaMemPoolAttrUsedMemHigh = 8
 
 cdef enum cudaMemLocationType:
     cudaMemLocationTypeInvalid = 0
@@ -668,15 +674,15 @@ cdef struct cudaMemAccessDesc:
     cudaMemAccessFlags flags
 
 cdef enum cudaMemAllocationType:
-    cudaMemAllocationTypeInvalid = 0x0
-    cudaMemAllocationTypePinned = 0x1
-    cudaMemAllocationTypeMax = 0x7FFFFFFF
+    cudaMemAllocationTypeInvalid = 0
+    cudaMemAllocationTypePinned = 1
+    cudaMemAllocationTypeMax = 2147483647
 
 cdef enum cudaMemAllocationHandleType:
-    cudaMemHandleTypeNone = 0x0
-    cudaMemHandleTypePosixFileDescriptor = 0x1
-    cudaMemHandleTypeWin32 = 0x2
-    cudaMemHandleTypeWin32Kmt = 0x4
+    cudaMemHandleTypeNone = 0
+    cudaMemHandleTypePosixFileDescriptor = 1
+    cudaMemHandleTypeWin32 = 2
+    cudaMemHandleTypeWin32Kmt = 4
 
 cdef struct cudaMemPoolProps:
     cudaMemAllocationType allocType
@@ -696,10 +702,10 @@ cdef struct cudaMemAllocNodeParams:
     void* dptr
 
 cdef enum cudaGraphMemAttributeType:
-    cudaGraphMemAttrUsedMemCurrent = 0x1
-    cudaGraphMemAttrUsedMemHigh = 0x2
-    cudaGraphMemAttrReservedMemCurrent = 0x3
-    cudaGraphMemAttrReservedMemHigh = 0x4
+    cudaGraphMemAttrUsedMemCurrent = 0
+    cudaGraphMemAttrUsedMemHigh = 1
+    cudaGraphMemAttrReservedMemCurrent = 2
+    cudaGraphMemAttrReservedMemHigh = 3
 
 cdef enum cudaDeviceP2PAttr:
     cudaDevP2PAttrPerformanceRank = 1
@@ -990,19 +996,19 @@ cdef struct cudaExternalSemaphoreWaitNodeParams:
     unsigned int numExtSems
 
 cdef enum cudaGraphNodeType:
-    cudaGraphNodeTypeKernel = 0x00
-    cudaGraphNodeTypeMemcpy = 0x01
-    cudaGraphNodeTypeMemset = 0x02
-    cudaGraphNodeTypeHost = 0x03
-    cudaGraphNodeTypeGraph = 0x04
-    cudaGraphNodeTypeEmpty = 0x05
-    cudaGraphNodeTypeWaitEvent = 0x06
-    cudaGraphNodeTypeEventRecord = 0x07
-    cudaGraphNodeTypeExtSemaphoreSignal = 0x08
-    cudaGraphNodeTypeExtSemaphoreWait = 0x09
-    cudaGraphNodeTypeMemAlloc = 0x0a
-    cudaGraphNodeTypeMemFree = 0x0b
-    cudaGraphNodeTypeCount
+    cudaGraphNodeTypeKernel = 0
+    cudaGraphNodeTypeMemcpy = 1
+    cudaGraphNodeTypeMemset = 2
+    cudaGraphNodeTypeHost = 3
+    cudaGraphNodeTypeGraph = 4
+    cudaGraphNodeTypeEmpty = 5
+    cudaGraphNodeTypeWaitEvent = 6
+    cudaGraphNodeTypeEventRecord = 7
+    cudaGraphNodeTypeExtSemaphoreSignal = 8
+    cudaGraphNodeTypeExtSemaphoreWait = 9
+    cudaGraphNodeTypeMemAlloc = 10
+    cudaGraphNodeTypeMemFree = 11
+    cudaGraphNodeTypeCount = 12
 
 cdef extern from "":
     cdef struct CUgraphExec_st:
@@ -1010,31 +1016,32 @@ cdef extern from "":
 ctypedef CUgraphExec_st* cudaGraphExec_t
 
 cdef enum cudaGraphExecUpdateResult:
-    cudaGraphExecUpdateSuccess = 0x0
-    cudaGraphExecUpdateError = 0x1
-    cudaGraphExecUpdateErrorTopologyChanged = 0x2
-    cudaGraphExecUpdateErrorNodeTypeChanged = 0x3
-    cudaGraphExecUpdateErrorFunctionChanged = 0x4
-    cudaGraphExecUpdateErrorParametersChanged = 0x5
-    cudaGraphExecUpdateErrorNotSupported = 0x6
-    cudaGraphExecUpdateErrorUnsupportedFunctionChange = 0x7
+    cudaGraphExecUpdateSuccess = 0
+    cudaGraphExecUpdateError = 1
+    cudaGraphExecUpdateErrorTopologyChanged = 2
+    cudaGraphExecUpdateErrorNodeTypeChanged = 3
+    cudaGraphExecUpdateErrorFunctionChanged = 4
+    cudaGraphExecUpdateErrorParametersChanged = 5
+    cudaGraphExecUpdateErrorNotSupported = 6
+    cudaGraphExecUpdateErrorUnsupportedFunctionChange = 7
+    cudaGraphExecUpdateErrorAttributesChanged = 8
 
 cdef enum cudaGetDriverEntryPointFlags:
-    cudaEnableDefault = 0x0
-    cudaEnableLegacyStream = 0x1
-    cudaEnablePerThreadDefaultStream = 0x2
+    cudaEnableDefault = 0
+    cudaEnableLegacyStream = 1
+    cudaEnablePerThreadDefaultStream = 2
 
 cdef enum cudaGraphDebugDotFlags:
-    cudaGraphDebugDotFlagsVerbose = 1<<0
-    cudaGraphDebugDotFlagsKernelNodeParams = 1<<2
-    cudaGraphDebugDotFlagsMemcpyNodeParams = 1<<3
-    cudaGraphDebugDotFlagsMemsetNodeParams = 1<<4
-    cudaGraphDebugDotFlagsHostNodeParams = 1<<5
-    cudaGraphDebugDotFlagsEventNodeParams = 1<<6
-    cudaGraphDebugDotFlagsExtSemasSignalNodeParams = 1<<7
-    cudaGraphDebugDotFlagsExtSemasWaitNodeParams = 1<<8
-    cudaGraphDebugDotFlagsKernelNodeAttributes = 1<<9
-    cudaGraphDebugDotFlagsHandles = 1<<10
+    cudaGraphDebugDotFlagsVerbose = 1
+    cudaGraphDebugDotFlagsKernelNodeParams = 4
+    cudaGraphDebugDotFlagsMemcpyNodeParams = 8
+    cudaGraphDebugDotFlagsMemsetNodeParams = 16
+    cudaGraphDebugDotFlagsHostNodeParams = 32
+    cudaGraphDebugDotFlagsEventNodeParams = 64
+    cudaGraphDebugDotFlagsExtSemasSignalNodeParams = 128
+    cudaGraphDebugDotFlagsExtSemasWaitNodeParams = 256
+    cudaGraphDebugDotFlagsKernelNodeAttributes = 512
+    cudaGraphDebugDotFlagsHandles = 1024
 
 cdef enum cudaGraphInstantiateFlags:
     cudaGraphInstantiateFlagAutoFreeOnLaunch = 1
@@ -1077,6 +1084,7 @@ cdef struct cudaTextureDesc:
     float minMipmapLevelClamp
     float maxMipmapLevelClamp
     int disableTrilinearOptimization
+    int seamlessCubemap
 
 ctypedef unsigned long long cudaTextureObject_t
 
@@ -1113,9 +1121,9 @@ cdef enum cudaDataType_t:
 ctypedef cudaDataType_t cudaDataType
 
 cdef enum libraryPropertyType_t:
-    MAJOR_VERSION
-    MINOR_VERSION
-    PATCH_LEVEL
+    MAJOR_VERSION = 0
+    MINOR_VERSION = 1
+    PATCH_LEVEL = 2
 
 ctypedef libraryPropertyType_t libraryPropertyType
 
@@ -1348,6 +1356,10 @@ cdef cudaError_t cudaMemGetInfo(size_t* free, size_t* total) nogil except ?cudaE
 cdef cudaError_t cudaArrayGetInfo(cudaChannelFormatDesc* desc, cudaExtent* extent, unsigned int* flags, cudaArray_t array) nogil except ?cudaErrorCallRequiresNewerDriver
 
 cdef cudaError_t cudaArrayGetPlane(cudaArray_t* pPlaneArray, cudaArray_t hArray, unsigned int planeIdx) nogil except ?cudaErrorCallRequiresNewerDriver
+
+cdef cudaError_t cudaArrayGetMemoryRequirements(cudaArrayMemoryRequirements* memoryRequirements, cudaArray_t array, int device) nogil except ?cudaErrorCallRequiresNewerDriver
+
+cdef cudaError_t cudaMipmappedArrayGetMemoryRequirements(cudaArrayMemoryRequirements* memoryRequirements, cudaMipmappedArray_t mipmap, int device) nogil except ?cudaErrorCallRequiresNewerDriver
 
 cdef cudaError_t cudaArrayGetSparseProperties(cudaArraySparseProperties* sparseProperties, cudaArray_t array) nogil except ?cudaErrorCallRequiresNewerDriver
 
@@ -1605,6 +1617,10 @@ cdef cudaError_t cudaGraphExecExternalSemaphoresSignalNodeSetParams(cudaGraphExe
 
 cdef cudaError_t cudaGraphExecExternalSemaphoresWaitNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, const cudaExternalSemaphoreWaitNodeParams* nodeParams) nogil except ?cudaErrorCallRequiresNewerDriver
 
+cdef cudaError_t cudaGraphNodeSetEnabled(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, unsigned int isEnabled) nogil except ?cudaErrorCallRequiresNewerDriver
+
+cdef cudaError_t cudaGraphNodeGetEnabled(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, unsigned int* isEnabled) nogil except ?cudaErrorCallRequiresNewerDriver
+
 cdef cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph_t hGraph, cudaGraphNode_t* hErrorNode_out, cudaGraphExecUpdateResult* updateResult_out) nogil except ?cudaErrorCallRequiresNewerDriver
 
 cdef cudaError_t cudaGraphUpload(cudaGraphExec_t graphExec, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver
@@ -1637,142 +1653,388 @@ cdef cudaPos make_cudaPos(size_t x, size_t y, size_t z) nogil
 
 cdef cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) nogil
 
-cdef enum: cudaHostAllocDefault = 0x00
+cdef cudaError_t cudaProfilerInitialize(const char* configFile, const char* outputFile, cudaOutputMode_t outputMode) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaHostAllocPortable = 0x01
+cdef cudaError_t cudaProfilerStart() nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaHostAllocMapped = 0x02
+cdef cudaError_t cudaProfilerStop() nogil except ?cudaErrorCallRequiresNewerDriver
+from libc.stdint cimport uint32_t
 
-cdef enum: cudaHostAllocWriteCombined = 0x04
 
-cdef enum: cudaHostRegisterDefault = 0x00
+ctypedef unsigned int GLenum
 
-cdef enum: cudaHostRegisterPortable = 0x01
+ctypedef unsigned int GLuint
 
-cdef enum: cudaHostRegisterMapped = 0x02
+cdef extern from "":
+    cdef struct void:
+        pass
+ctypedef void* EGLImageKHR
 
-cdef enum: cudaHostRegisterIoMemory = 0x04
+cdef extern from "":
+    cdef struct void:
+        pass
+ctypedef void* EGLStreamKHR
 
-cdef enum: cudaHostRegisterReadOnly = 0x08
+ctypedef unsigned int EGLint
 
-cdef enum: cudaPeerAccessDefault = 0x00
+cdef extern from "":
+    cdef struct void:
+        pass
+ctypedef void* EGLSyncKHR
 
-cdef enum: cudaStreamDefault = 0x00
+ctypedef uint32_t VdpDevice
 
-cdef enum: cudaStreamNonBlocking = 0x01
+ctypedef unsigned long long VdpGetProcAddress
 
-cdef enum: cudaStreamLegacy = 0x1
+ctypedef uint32_t VdpVideoSurface
 
-cdef enum: cudaStreamPerThread = 0x2
+ctypedef uint32_t VdpOutputSurface
 
-cdef enum: cudaEventDefault = 0x00
+cdef cudaError_t cudaVDPAUGetDevice(int* device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaEventBlockingSync = 0x01
+cdef cudaError_t cudaVDPAUSetVDPAUDevice(int device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaEventDisableTiming = 0x02
+cdef cudaError_t cudaGraphicsVDPAURegisterVideoSurface(cudaGraphicsResource** resource, VdpVideoSurface vdpSurface, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaEventInterprocess = 0x04
+cdef cudaError_t cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** resource, VdpOutputSurface vdpSurface, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaEventRecordDefault = 0x00
+cdef enum cudaGLDeviceList:
+    cudaGLDeviceListAll = 1
+    cudaGLDeviceListCurrentFrame = 2
+    cudaGLDeviceListNextFrame = 3
 
-cdef enum: cudaEventRecordExternal = 0x01
+cdef cudaError_t cudaGLGetDevices(unsigned int* pCudaDeviceCount, int* pCudaDevices, unsigned int cudaDeviceCount, cudaGLDeviceList deviceList) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaEventWaitDefault = 0x00
+cdef cudaError_t cudaGraphicsGLRegisterImage(cudaGraphicsResource** resource, GLuint image, GLenum target, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaEventWaitExternal = 0x01
+cdef cudaError_t cudaGraphicsGLRegisterBuffer(cudaGraphicsResource** resource, GLuint buffer, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaDeviceScheduleAuto = 0x00
+cdef enum cudaGLMapFlags:
+    cudaGLMapFlagsNone = 0
+    cudaGLMapFlagsReadOnly = 1
+    cudaGLMapFlagsWriteDiscard = 2
 
-cdef enum: cudaDeviceScheduleSpin = 0x01
+cdef enum cudaEglFrameType_enum:
+    cudaEglFrameTypeArray = 0
+    cudaEglFrameTypePitch = 1
 
-cdef enum: cudaDeviceScheduleYield = 0x02
+ctypedef cudaEglFrameType_enum cudaEglFrameType
 
-cdef enum: cudaDeviceScheduleBlockingSync = 0x04
+cdef enum cudaEglResourceLocationFlags_enum:
+    cudaEglResourceLocationSysmem = 0
+    cudaEglResourceLocationVidmem = 1
 
-cdef enum: cudaDeviceBlockingSync = 0x04
+ctypedef cudaEglResourceLocationFlags_enum cudaEglResourceLocationFlags
 
-cdef enum: cudaDeviceScheduleMask = 0x07
+cdef enum cudaEglColorFormat_enum:
+    cudaEglColorFormatYUV420Planar = 0
+    cudaEglColorFormatYUV420SemiPlanar = 1
+    cudaEglColorFormatYUV422Planar = 2
+    cudaEglColorFormatYUV422SemiPlanar = 3
+    cudaEglColorFormatARGB = 6
+    cudaEglColorFormatRGBA = 7
+    cudaEglColorFormatL = 8
+    cudaEglColorFormatR = 9
+    cudaEglColorFormatYUV444Planar = 10
+    cudaEglColorFormatYUV444SemiPlanar = 11
+    cudaEglColorFormatYUYV422 = 12
+    cudaEglColorFormatUYVY422 = 13
+    cudaEglColorFormatABGR = 14
+    cudaEglColorFormatBGRA = 15
+    cudaEglColorFormatA = 16
+    cudaEglColorFormatRG = 17
+    cudaEglColorFormatAYUV = 18
+    cudaEglColorFormatYVU444SemiPlanar = 19
+    cudaEglColorFormatYVU422SemiPlanar = 20
+    cudaEglColorFormatYVU420SemiPlanar = 21
+    cudaEglColorFormatY10V10U10_444SemiPlanar = 22
+    cudaEglColorFormatY10V10U10_420SemiPlanar = 23
+    cudaEglColorFormatY12V12U12_444SemiPlanar = 24
+    cudaEglColorFormatY12V12U12_420SemiPlanar = 25
+    cudaEglColorFormatVYUY_ER = 26
+    cudaEglColorFormatUYVY_ER = 27
+    cudaEglColorFormatYUYV_ER = 28
+    cudaEglColorFormatYVYU_ER = 29
+    cudaEglColorFormatYUVA_ER = 31
+    cudaEglColorFormatAYUV_ER = 32
+    cudaEglColorFormatYUV444Planar_ER = 33
+    cudaEglColorFormatYUV422Planar_ER = 34
+    cudaEglColorFormatYUV420Planar_ER = 35
+    cudaEglColorFormatYUV444SemiPlanar_ER = 36
+    cudaEglColorFormatYUV422SemiPlanar_ER = 37
+    cudaEglColorFormatYUV420SemiPlanar_ER = 38
+    cudaEglColorFormatYVU444Planar_ER = 39
+    cudaEglColorFormatYVU422Planar_ER = 40
+    cudaEglColorFormatYVU420Planar_ER = 41
+    cudaEglColorFormatYVU444SemiPlanar_ER = 42
+    cudaEglColorFormatYVU422SemiPlanar_ER = 43
+    cudaEglColorFormatYVU420SemiPlanar_ER = 44
+    cudaEglColorFormatBayerRGGB = 45
+    cudaEglColorFormatBayerBGGR = 46
+    cudaEglColorFormatBayerGRBG = 47
+    cudaEglColorFormatBayerGBRG = 48
+    cudaEglColorFormatBayer10RGGB = 49
+    cudaEglColorFormatBayer10BGGR = 50
+    cudaEglColorFormatBayer10GRBG = 51
+    cudaEglColorFormatBayer10GBRG = 52
+    cudaEglColorFormatBayer12RGGB = 53
+    cudaEglColorFormatBayer12BGGR = 54
+    cudaEglColorFormatBayer12GRBG = 55
+    cudaEglColorFormatBayer12GBRG = 56
+    cudaEglColorFormatBayer14RGGB = 57
+    cudaEglColorFormatBayer14BGGR = 58
+    cudaEglColorFormatBayer14GRBG = 59
+    cudaEglColorFormatBayer14GBRG = 60
+    cudaEglColorFormatBayer20RGGB = 61
+    cudaEglColorFormatBayer20BGGR = 62
+    cudaEglColorFormatBayer20GRBG = 63
+    cudaEglColorFormatBayer20GBRG = 64
+    cudaEglColorFormatYVU444Planar = 65
+    cudaEglColorFormatYVU422Planar = 66
+    cudaEglColorFormatYVU420Planar = 67
+    cudaEglColorFormatBayerIspRGGB = 68
+    cudaEglColorFormatBayerIspBGGR = 69
+    cudaEglColorFormatBayerIspGRBG = 70
+    cudaEglColorFormatBayerIspGBRG = 71
+    cudaEglColorFormatBayerBCCR = 72
+    cudaEglColorFormatBayerRCCB = 73
+    cudaEglColorFormatBayerCRBC = 74
+    cudaEglColorFormatBayerCBRC = 75
+    cudaEglColorFormatBayer10CCCC = 76
+    cudaEglColorFormatBayer12BCCR = 77
+    cudaEglColorFormatBayer12RCCB = 78
+    cudaEglColorFormatBayer12CRBC = 79
+    cudaEglColorFormatBayer12CBRC = 80
+    cudaEglColorFormatBayer12CCCC = 81
+    cudaEglColorFormatY = 82
+    cudaEglColorFormatYUV420SemiPlanar_2020 = 83
+    cudaEglColorFormatYVU420SemiPlanar_2020 = 84
+    cudaEglColorFormatYUV420Planar_2020 = 85
+    cudaEglColorFormatYVU420Planar_2020 = 86
+    cudaEglColorFormatYUV420SemiPlanar_709 = 87
+    cudaEglColorFormatYVU420SemiPlanar_709 = 88
+    cudaEglColorFormatYUV420Planar_709 = 89
+    cudaEglColorFormatYVU420Planar_709 = 90
+    cudaEglColorFormatY10V10U10_420SemiPlanar_709 = 91
+    cudaEglColorFormatY10V10U10_420SemiPlanar_2020 = 92
+    cudaEglColorFormatY10V10U10_422SemiPlanar_2020 = 93
+    cudaEglColorFormatY10V10U10_422SemiPlanar = 94
+    cudaEglColorFormatY10V10U10_422SemiPlanar_709 = 95
+    cudaEglColorFormatY_ER = 96
+    cudaEglColorFormatY_709_ER = 97
+    cudaEglColorFormatY10_ER = 98
+    cudaEglColorFormatY10_709_ER = 99
+    cudaEglColorFormatY12_ER = 100
+    cudaEglColorFormatY12_709_ER = 101
+    cudaEglColorFormatYUVA = 102
+    cudaEglColorFormatYVYU = 104
+    cudaEglColorFormatVYUY = 105
+    cudaEglColorFormatY10V10U10_420SemiPlanar_ER = 106
+    cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER = 107
+    cudaEglColorFormatY10V10U10_444SemiPlanar_ER = 108
+    cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER = 109
+    cudaEglColorFormatY12V12U12_420SemiPlanar_ER = 110
+    cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER = 111
+    cudaEglColorFormatY12V12U12_444SemiPlanar_ER = 112
+    cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER = 113
 
-cdef enum: cudaDeviceMapHost = 0x08
+ctypedef cudaEglColorFormat_enum cudaEglColorFormat
 
-cdef enum: cudaDeviceLmemResizeToMax = 0x10
+cdef struct cudaEglPlaneDesc_st:
+    unsigned int width
+    unsigned int height
+    unsigned int depth
+    unsigned int pitch
+    unsigned int numChannels
+    cudaChannelFormatDesc channelDesc
+    unsigned int reserved[4]
 
-cdef enum: cudaDeviceMask = 0x1f
+ctypedef cudaEglPlaneDesc_st cudaEglPlaneDesc
 
-cdef enum: cudaArrayDefault = 0x00
+cdef union _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u:
+    cudaArray_t pArray[3]
+    cudaPitchedPtr pPitch[3]
 
-cdef enum: cudaArrayLayered = 0x01
+cdef struct cudaEglFrame_st:
+    _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u frame
+    cudaEglPlaneDesc planeDesc[3]
+    unsigned int planeCount
+    cudaEglFrameType frameType
+    cudaEglColorFormat eglColorFormat
 
-cdef enum: cudaArraySurfaceLoadStore = 0x02
+ctypedef cudaEglFrame_st cudaEglFrame
 
-cdef enum: cudaArrayCubemap = 0x04
+cdef extern from "":
+    cdef struct CUeglStreamConnection_st:
+        pass
+ctypedef CUeglStreamConnection_st* cudaEglStreamConnection
 
-cdef enum: cudaArrayTextureGather = 0x08
+cdef cudaError_t cudaGraphicsEGLRegisterImage(cudaGraphicsResource_t* pCudaResource, EGLImageKHR image, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaArrayColorAttachment = 0x20
+cdef cudaError_t cudaEGLStreamConsumerConnect(cudaEglStreamConnection* conn, EGLStreamKHR eglStream) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaArraySparse = 0x40
+cdef cudaError_t cudaEGLStreamConsumerConnectWithFlags(cudaEglStreamConnection* conn, EGLStreamKHR eglStream, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaIpcMemLazyEnablePeerAccess = 0x01
+cdef cudaError_t cudaEGLStreamConsumerDisconnect(cudaEglStreamConnection* conn) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaMemAttachGlobal = 0x01
+cdef cudaError_t cudaEGLStreamConsumerAcquireFrame(cudaEglStreamConnection* conn, cudaGraphicsResource_t* pCudaResource, cudaStream_t* pStream, unsigned int timeout) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaMemAttachHost = 0x02
+cdef cudaError_t cudaEGLStreamConsumerReleaseFrame(cudaEglStreamConnection* conn, cudaGraphicsResource_t pCudaResource, cudaStream_t* pStream) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaMemAttachSingle = 0x04
+cdef cudaError_t cudaEGLStreamProducerConnect(cudaEglStreamConnection* conn, EGLStreamKHR eglStream, EGLint width, EGLint height) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaOccupancyDefault = 0x00
+cdef cudaError_t cudaEGLStreamProducerDisconnect(cudaEglStreamConnection* conn) nogil except ?cudaErrorCallRequiresNewerDriver
 
-cdef enum: cudaOccupancyDisableCachingOverride = 0x01
+cdef cudaError_t cudaEGLStreamProducerPresentFrame(cudaEglStreamConnection* conn, cudaEglFrame eglframe, cudaStream_t* pStream) nogil except ?cudaErrorCallRequiresNewerDriver
+
+cdef cudaError_t cudaEGLStreamProducerReturnFrame(cudaEglStreamConnection* conn, cudaEglFrame* eglframe, cudaStream_t* pStream) nogil except ?cudaErrorCallRequiresNewerDriver
+
+cdef cudaError_t cudaGraphicsResourceGetMappedEglFrame(cudaEglFrame* eglFrame, cudaGraphicsResource_t resource, unsigned int index, unsigned int mipLevel) nogil except ?cudaErrorCallRequiresNewerDriver
+
+cdef cudaError_t cudaEventCreateFromEGLSync(cudaEvent_t* phEvent, EGLSyncKHR eglSync, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver
+
+cdef enum: cudaHostAllocDefault = 0
+
+cdef enum: cudaHostAllocPortable = 1
+
+cdef enum: cudaHostAllocMapped = 2
+
+cdef enum: cudaHostAllocWriteCombined = 4
+
+cdef enum: cudaHostRegisterDefault = 0
+
+cdef enum: cudaHostRegisterPortable = 1
+
+cdef enum: cudaHostRegisterMapped = 2
+
+cdef enum: cudaHostRegisterIoMemory = 4
+
+cdef enum: cudaHostRegisterReadOnly = 8
+
+cdef enum: cudaPeerAccessDefault = 0
+
+cdef enum: cudaStreamDefault = 0
+
+cdef enum: cudaStreamNonBlocking = 1
+
+cdef enum: cudaStreamLegacy = 1
+
+cdef enum: cudaStreamPerThread = 2
+
+cdef enum: cudaEventDefault = 0
+
+cdef enum: cudaEventBlockingSync = 1
+
+cdef enum: cudaEventDisableTiming = 2
+
+cdef enum: cudaEventInterprocess = 4
+
+cdef enum: cudaEventRecordDefault = 0
+
+cdef enum: cudaEventRecordExternal = 1
+
+cdef enum: cudaEventWaitDefault = 0
+
+cdef enum: cudaEventWaitExternal = 1
+
+cdef enum: cudaDeviceScheduleAuto = 0
+
+cdef enum: cudaDeviceScheduleSpin = 1
+
+cdef enum: cudaDeviceScheduleYield = 2
+
+cdef enum: cudaDeviceScheduleBlockingSync = 4
+
+cdef enum: cudaDeviceBlockingSync = 4
+
+cdef enum: cudaDeviceScheduleMask = 7
+
+cdef enum: cudaDeviceMapHost = 8
+
+cdef enum: cudaDeviceLmemResizeToMax = 16
+
+cdef enum: cudaDeviceMask = 31
+
+cdef enum: cudaArrayDefault = 0
+
+cdef enum: cudaArrayLayered = 1
+
+cdef enum: cudaArraySurfaceLoadStore = 2
+
+cdef enum: cudaArrayCubemap = 4
+
+cdef enum: cudaArrayTextureGather = 8
+
+cdef enum: cudaArrayColorAttachment = 32
+
+cdef enum: cudaArraySparse = 64
+
+cdef enum: cudaArrayDeferredMapping = 128
+
+cdef enum: cudaIpcMemLazyEnablePeerAccess = 1
+
+cdef enum: cudaMemAttachGlobal = 1
+
+cdef enum: cudaMemAttachHost = 2
+
+cdef enum: cudaMemAttachSingle = 4
+
+cdef enum: cudaOccupancyDefault = 0
+
+cdef enum: cudaOccupancyDisableCachingOverride = 1
 
 cdef enum: cudaCpuDeviceId = -1
 
 cdef enum: cudaInvalidDeviceId = -2
 
-cdef enum: cudaCooperativeLaunchMultiDeviceNoPreSync = 0x01
+cdef enum: cudaCooperativeLaunchMultiDeviceNoPreSync = 1
 
-cdef enum: cudaCooperativeLaunchMultiDeviceNoPostSync = 0x02
+cdef enum: cudaCooperativeLaunchMultiDeviceNoPostSync = 2
 
-cdef enum: cudaArraySparsePropertiesSingleMipTail = 0x1
+cdef enum: cudaArraySparsePropertiesSingleMipTail = 1
 
 cdef enum: CUDA_IPC_HANDLE_SIZE = 64
 
-cdef enum: cudaExternalMemoryDedicated = 0x1
+cdef enum: cudaExternalMemoryDedicated = 1
 
-cdef enum: cudaExternalSemaphoreSignalSkipNvSciBufMemSync = 0x01
+cdef enum: cudaExternalSemaphoreSignalSkipNvSciBufMemSync = 1
 
-cdef enum: cudaExternalSemaphoreWaitSkipNvSciBufMemSync = 0x02
+cdef enum: cudaExternalSemaphoreWaitSkipNvSciBufMemSync = 2
 
-cdef enum: cudaNvSciSyncAttrSignal = 0x1
+cdef enum: cudaNvSciSyncAttrSignal = 1
 
-cdef enum: cudaNvSciSyncAttrWait = 0x2
+cdef enum: cudaNvSciSyncAttrWait = 2
 
-cdef enum: cudaSurfaceType1D = 0x01
+cdef enum: cudaSurfaceType1D = 1
 
-cdef enum: cudaSurfaceType2D = 0x02
+cdef enum: cudaSurfaceType2D = 2
 
-cdef enum: cudaSurfaceType3D = 0x03
+cdef enum: cudaSurfaceType3D = 3
 
-cdef enum: cudaSurfaceTypeCubemap = 0x0C
+cdef enum: cudaSurfaceTypeCubemap = 12
 
-cdef enum: cudaSurfaceType1DLayered = 0xF1
+cdef enum: cudaSurfaceType1DLayered = 241
 
-cdef enum: cudaSurfaceType2DLayered = 0xF2
+cdef enum: cudaSurfaceType2DLayered = 242
 
-cdef enum: cudaSurfaceTypeCubemapLayered = 0xFC
+cdef enum: cudaSurfaceTypeCubemapLayered = 252
 
-cdef enum: cudaTextureType1D = 0x01
+cdef enum: cudaTextureType1D = 1
 
-cdef enum: cudaTextureType2D = 0x02
+cdef enum: cudaTextureType2D = 2
 
-cdef enum: cudaTextureType3D = 0x03
+cdef enum: cudaTextureType3D = 3
 
-cdef enum: cudaTextureTypeCubemap = 0x0C
+cdef enum: cudaTextureTypeCubemap = 12
 
-cdef enum: cudaTextureType1DLayered = 0xF1
+cdef enum: cudaTextureType1DLayered = 241
 
-cdef enum: cudaTextureType2DLayered = 0xF2
+cdef enum: cudaTextureType2DLayered = 242
 
-cdef enum: cudaTextureTypeCubemapLayered = 0xFC
+cdef enum: cudaTextureTypeCubemapLayered = 252
 
-cdef enum: CUDART_VERSION = 11050
+cdef enum: CUDART_VERSION = 11060
+
+cdef enum: __CUDART_API_VERSION = 11060
+
+cdef enum: CUDA_EGL_MAX_PLANES = 3

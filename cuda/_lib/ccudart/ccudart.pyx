@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -1821,6 +1821,8 @@ cdef cudaError_t _cudaImportExternalMemory(cudaExternalMemory_t* extMem_out, con
 cdef cudaError_t _cudaCreateSurfaceObject(cudaSurfaceObject_t* pSurfObject, const cudaResourceDesc* pResDesc) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaError_t err
     err = m_global.lazyInit()
+    if err != cudaSuccess:
+        return err
     cdef ccuda.CUDA_RESOURCE_DESC _driver_pResDesc
     memset(&_driver_pResDesc, 0, sizeof(_driver_pResDesc))
     err = toDriverCudaResourceDesc(&_driver_pResDesc, pResDesc)
@@ -1836,6 +1838,8 @@ cdef cudaError_t _cudaCreateSurfaceObject(cudaSurfaceObject_t* pSurfObject, cons
 cdef cudaError_t _cudaGetTextureObjectResourceDesc(cudaResourceDesc* pResDesc, cudaTextureObject_t texObject) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaError_t err
     err = m_global.lazyInit()
+    if err != cudaSuccess:
+        return err
     cdef ccuda.CUDA_RESOURCE_DESC _driver_pResDesc
     memset(&_driver_pResDesc, 0, sizeof(_driver_pResDesc))
     err = toDriverCudaResourceDesc(&_driver_pResDesc, pResDesc)
@@ -1847,3 +1851,112 @@ cdef cudaError_t _cudaGetTextureObjectResourceDesc(cudaResourceDesc* pResDesc, c
     if err != cudaSuccess:
         _setLastError(err)
     return err
+
+cdef cudaError_t _cudaProfilerInitialize(const char* configFile, const char* outputFile, cudaOutputMode_t outputMode) nogil except ?cudaErrorCallRequiresNewerDriver:
+    cdef cudaError_t err
+    err = m_global.lazyInit()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>ccuda._cuProfilerInitialize(configFile, outputFile, <ccuda.CUoutput_mode>outputMode)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+cdef cudaError_t _cudaGraphicsEGLRegisterImage(cudaGraphicsResource_t* pCudaResource, EGLImageKHR image, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
+    cdef cudaError_t err
+    err = m_global.lazyInit()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>ccuda._cuGraphicsEGLRegisterImage(<ccuda.CUgraphicsResource*>pCudaResource, image, flags)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+cdef cudaError_t _cudaEGLStreamProducerPresentFrame(cudaEglStreamConnection* conn, cudaEglFrame eglframe, cudaStream_t* pStream) nogil except ?cudaErrorCallRequiresNewerDriver:
+    cdef cudaError_t err
+    err = m_global.lazyInit()
+    if err != cudaSuccess:
+        return err
+    cdef ccuda.CUeglFrame cueglFrame
+    err = getDriverEglFrame(&cueglFrame, eglframe)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+    err = <cudaError_t>ccuda._cuEGLStreamProducerPresentFrame(<ccuda.CUeglStreamConnection*>conn, cueglFrame, pStream)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+cdef cudaError_t _cudaEGLStreamProducerReturnFrame(cudaEglStreamConnection* conn, cudaEglFrame* eglframe, cudaStream_t* pStream) nogil except ?cudaErrorCallRequiresNewerDriver:
+    cdef cudaError_t err
+    err = m_global.lazyInit()
+    if err != cudaSuccess:
+        return err
+    if eglframe == NULL:
+        err = cudaErrorInvalidResourceHandle
+        _setLastError(err)
+        return err
+    cdef ccuda.CUeglFrame cueglFrame
+    err = <cudaError_t>ccuda._cuEGLStreamProducerReturnFrame(<ccuda.CUeglStreamConnection*>conn, &cueglFrame, pStream)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+    err = getRuntimeEglFrame(eglframe, cueglFrame)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+    return err
+
+cdef cudaError_t _cudaGraphicsResourceGetMappedEglFrame(cudaEglFrame* eglFrame, cudaGraphicsResource_t resource, unsigned int index, unsigned int mipLevel) nogil except ?cudaErrorCallRequiresNewerDriver:
+    cdef cudaError_t err
+    err = m_global.lazyInit()
+    if err != cudaSuccess:
+        return err
+    cdef ccuda.CUeglFrame cueglFrame
+    memset(&cueglFrame, 0, sizeof(cueglFrame))
+    err = <cudaError_t>ccuda._cuGraphicsResourceGetMappedEglFrame(&cueglFrame, <ccuda.CUgraphicsResource>resource, index, mipLevel)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+    err = getRuntimeEglFrame(eglFrame, cueglFrame)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+    return err
+
+cdef cudaError_t _cudaVDPAUSetVDPAUDevice(int device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return cudaErrorNotSupported
+
+cdef cudaError_t _cudaArrayGetMemoryRequirements(cudaArrayMemoryRequirements* memoryRequirements, cudaArray_t array, int device) nogil except ?cudaErrorCallRequiresNewerDriver:
+    cdef cudaError_t err
+    cdef ccuda.CUDA_ARRAY_MEMORY_REQUIREMENTS driverMemoryRequirements
+    if memoryRequirements == NULL:
+        _setLastError(cudaErrorInvalidValue)
+        return cudaErrorInvalidValue
+
+    memset(memoryRequirements, 0, sizeof(memoryRequirements[0]))
+    err = <cudaError_t>ccuda._cuArrayGetMemoryRequirements(&driverMemoryRequirements, <ccuda.CUarray>array, device)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+
+    memoryRequirements[0].size = driverMemoryRequirements.size
+    memoryRequirements[0].alignment = driverMemoryRequirements.alignment
+    return cudaSuccess
+
+cdef cudaError_t _cudaMipmappedArrayGetMemoryRequirements(cudaArrayMemoryRequirements* memoryRequirements, cudaMipmappedArray_t mipmap, int device) nogil except ?cudaErrorCallRequiresNewerDriver:
+    cdef cudaError_t err
+    cdef ccuda.CUDA_ARRAY_MEMORY_REQUIREMENTS driverMemoryRequirements
+    if memoryRequirements == NULL:
+        _setLastError(cudaErrorInvalidValue)
+        return cudaErrorInvalidValue
+
+    memset(memoryRequirements, 0, sizeof(memoryRequirements[0]))
+    err = <cudaError_t>ccuda._cuMipmappedArrayGetMemoryRequirements(&driverMemoryRequirements, <ccuda.CUmipmappedArray>mipmap, device)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+
+    memoryRequirements[0].size = driverMemoryRequirements.size
+    memoryRequirements[0].alignment = driverMemoryRequirements.alignment
+    return cudaSuccess

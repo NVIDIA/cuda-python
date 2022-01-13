@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -91,3 +91,5 @@ cdef cudaError_t memcpyArrayToArray(cudaArray_t dst, size_t hOffsetDst, size_t w
                                     cudaArray_const_t src, size_t hOffsetSrc, size_t wOffsetSrc,
                                     size_t count, cudaMemcpyKind kind) nogil except+
 cdef cudaError_t toDriverCudaResourceDesc(ccuda.CUDA_RESOURCE_DESC *_driver_pResDesc, const cudaResourceDesc *pResDesc) nogil except+
+cdef cudaError_t getDriverEglFrame(ccuda.CUeglFrame *cuEglFrame, cudaEglFrame eglFrame) nogil except+
+cdef cudaError_t getRuntimeEglFrame(cudaEglFrame *eglFrame, ccuda.CUeglFrame cueglFrame) nogil except+

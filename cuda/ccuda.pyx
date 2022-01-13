@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -372,6 +372,12 @@ cdef CUresult cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparsePro
 
 cdef CUresult cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparseProperties, CUmipmappedArray mipmap) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuMipmappedArrayGetSparseProperties(sparseProperties, mipmap)
+
+cdef CUresult cuArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUarray array, CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuArrayGetMemoryRequirements(memoryRequirements, array, device)
+
+cdef CUresult cuMipmappedArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUmipmappedArray mipmap, CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuMipmappedArrayGetMemoryRequirements(memoryRequirements, mipmap, device)
 
 cdef CUresult cuArrayGetPlane(CUarray* pPlaneArray, CUarray hArray, unsigned int planeIdx) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuArrayGetPlane(pPlaneArray, hArray, planeIdx)
@@ -850,6 +856,12 @@ cdef CUresult cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec hGrap
 cdef CUresult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams)
 
+cdef CUresult cuGraphNodeSetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int isEnabled) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphNodeSetEnabled(hGraphExec, hNode, isEnabled)
+
+cdef CUresult cuGraphNodeGetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int* isEnabled) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphNodeGetEnabled(hGraphExec, hNode, isEnabled)
+
 cdef CUresult cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuGraphUpload(hGraphExec, hStream)
 
@@ -1056,3 +1068,69 @@ cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, 
 
 cdef CUresult cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuGetExportTable(ppExportTable, pExportTableId)
+
+cdef CUresult cuProfilerInitialize(const char* configFile, const char* outputFile, CUoutput_mode outputMode) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuProfilerInitialize(configFile, outputFile, outputMode)
+
+cdef CUresult cuProfilerStart() nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuProfilerStart()
+
+cdef CUresult cuProfilerStop() nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuProfilerStop()
+
+cdef CUresult cuVDPAUGetDevice(CUdevice* pDevice, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuVDPAUGetDevice(pDevice, vdpDevice, vdpGetProcAddress)
+
+cdef CUresult cuVDPAUCtxCreate(CUcontext* pCtx, unsigned int flags, CUdevice device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuVDPAUCtxCreate_v2(pCtx, flags, device, vdpDevice, vdpGetProcAddress)
+
+cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResource, VdpVideoSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphicsVDPAURegisterVideoSurface(pCudaResource, vdpSurface, flags)
+
+cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphicsVDPAURegisterOutputSurface(pCudaResource, vdpSurface, flags)
+
+cdef CUresult cuGraphicsEGLRegisterImage(CUgraphicsResource* pCudaResource, EGLImageKHR image, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphicsEGLRegisterImage(pCudaResource, image, flags)
+
+cdef CUresult cuEGLStreamConsumerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuEGLStreamConsumerConnect(conn, stream)
+
+cdef CUresult cuEGLStreamConsumerConnectWithFlags(CUeglStreamConnection* conn, EGLStreamKHR stream, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuEGLStreamConsumerConnectWithFlags(conn, stream, flags)
+
+cdef CUresult cuEGLStreamConsumerDisconnect(CUeglStreamConnection* conn) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuEGLStreamConsumerDisconnect(conn)
+
+cdef CUresult cuEGLStreamConsumerAcquireFrame(CUeglStreamConnection* conn, CUgraphicsResource* pCudaResource, CUstream* pStream, unsigned int timeout) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuEGLStreamConsumerAcquireFrame(conn, pCudaResource, pStream, timeout)
+
+cdef CUresult cuEGLStreamConsumerReleaseFrame(CUeglStreamConnection* conn, CUgraphicsResource pCudaResource, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream)
+
+cdef CUresult cuEGLStreamProducerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream, EGLint width, EGLint height) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuEGLStreamProducerConnect(conn, stream, width, height)
+
+cdef CUresult cuEGLStreamProducerDisconnect(CUeglStreamConnection* conn) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuEGLStreamProducerDisconnect(conn)
+
+cdef CUresult cuEGLStreamProducerPresentFrame(CUeglStreamConnection* conn, CUeglFrame eglframe, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuEGLStreamProducerPresentFrame(conn, eglframe, pStream)
+
+cdef CUresult cuEGLStreamProducerReturnFrame(CUeglStreamConnection* conn, CUeglFrame* eglframe, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuEGLStreamProducerReturnFrame(conn, eglframe, pStream)
+
+cdef CUresult cuGraphicsResourceGetMappedEglFrame(CUeglFrame* eglFrame, CUgraphicsResource resource, unsigned int index, unsigned int mipLevel) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphicsResourceGetMappedEglFrame(eglFrame, resource, index, mipLevel)
+
+cdef CUresult cuEventCreateFromEGLSync(CUevent* phEvent, EGLSyncKHR eglSync, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuEventCreateFromEGLSync(phEvent, eglSync, flags)
+
+cdef CUresult cuGraphicsGLRegisterBuffer(CUgraphicsResource* pCudaResource, GLuint buffer, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphicsGLRegisterBuffer(pCudaResource, buffer, Flags)
+
+cdef CUresult cuGraphicsGLRegisterImage(CUgraphicsResource* pCudaResource, GLuint image, GLenum target, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphicsGLRegisterImage(pCudaResource, image, target, Flags)
+
+cdef CUresult cuGLGetDevices(unsigned int* pCudaDeviceCount, CUdevice* pCudaDevices, unsigned int cudaDeviceCount, CUGLDeviceList deviceList) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGLGetDevices_v2(pCudaDeviceCount, pCudaDevices, cudaDeviceCount, deviceList)

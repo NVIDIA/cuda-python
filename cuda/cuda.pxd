@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -243,6 +243,58 @@ cdef class CUlinkState:
     cdef bint _ptr_owner
     cdef list _keepalive
 
+cdef class EGLImageKHR:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.EGLImageKHR* _ptr
+    cdef bint _ptr_owner
+
+cdef class EGLStreamKHR:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.EGLStreamKHR* _ptr
+    cdef bint _ptr_owner
+
+cdef class EGLSyncKHR:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.EGLSyncKHR* _ptr
+    cdef bint _ptr_owner
+
+cdef class CUeglStreamConnection:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUeglStreamConnection* _ptr
+    cdef bint _ptr_owner
+
 cdef class CUhostFn:
     """
 
@@ -423,7 +475,7 @@ cdef class CUstreamBatchMemOpParams_union:
 
     flushRemoteWrites : CUstreamMemOpFlushRemoteWritesParams_st
 
-    pad : cuuint64_t
+    pad : List[cuuint64_t]
 
 
     Methods
@@ -437,7 +489,6 @@ cdef class CUstreamBatchMemOpParams_union:
     cdef CUstreamMemOpWaitValueParams_st _waitValue
     cdef CUstreamMemOpWriteValueParams_st _writeValue
     cdef CUstreamMemOpFlushRemoteWritesParams_st _flushRemoteWrites
-    cdef cuuint64_t _pad
 
 cdef class CUdevprop_st:
     """
@@ -447,9 +498,9 @@ cdef class CUdevprop_st:
     ----------
     maxThreadsPerBlock : int
         Maximum number of threads per block
-    maxThreadsDim : int
+    maxThreadsDim : List[int]
         Maximum size of each dimension of a block
-    maxGridSize : int
+    maxGridSize : List[int]
         Maximum size of each dimension of a grid
     sharedMemPerBlock : int
         Shared memory available per block in bytes
@@ -991,7 +1042,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
     flags : unsigned int
         Flags will either be zero or
         CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1003,6 +1054,28 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
     cdef ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st* _ptr
     cdef bint _ptr_owner
     cdef _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s _tileExtent
+
+cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
+    """
+    CUDA array memory requirements
+
+    Attributes
+    ----------
+    size : size_t
+        Total required memory size
+    alignment : size_t
+        alignment requirement
+    reserved : List[unsigned int]
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_ARRAY_MEMORY_REQUIREMENTS_st* _ptr
+    cdef bint _ptr_owner
 
 cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_array_s:
     """
@@ -1093,7 +1166,7 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
 
     Attributes
     ----------
-    reserved : int
+    reserved : List[int]
 
 
     Methods
@@ -1178,9 +1251,9 @@ cdef class CUDA_TEXTURE_DESC_st:
         Mipmap minimum level clamp
     maxMipmapLevelClamp : float
         Mipmap maximum level clamp
-    borderColor : float
+    borderColor : List[float]
         Border Color
-    reserved : int
+    reserved : List[int]
 
 
     Methods
@@ -1214,7 +1287,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
         First layer index
     lastLayer : unsigned int
         Last layer index
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1341,7 +1414,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         Size of the memory allocation
     flags : unsigned int
         Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1366,7 +1439,7 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
         Size of the buffer
     flags : unsigned int
         Flags reserved for future use. Must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1391,7 +1464,7 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
         Format, dimension and type of base level of the mipmap chain
     numLevels : unsigned int
         Total number of levels in the mipmap chain
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1458,7 +1531,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
 
     flags : unsigned int
         Flags reserved for the future. Must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1533,7 +1606,7 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIG
 
     keyedMutex : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_keyedMutex_s
 
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1564,7 +1637,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
         synchronization operations should be performed for any external
         memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
         For all other types of CUexternalSemaphore, flags must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1641,7 +1714,7 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_
 
     keyedMutex : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_keyedMutex_s
 
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1672,7 +1745,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
         synchronization operations should be performed for any external
         memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
         For all other types of CUexternalSemaphore, flags must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1868,12 +1941,12 @@ cdef class CUarrayMapInfo_st:
     memHandle : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u
 
     offset : unsigned long long
-        Offset within mip tail Offset within the memory
+        Offset within mip tail  Offset within the memory
     deviceBitMask : unsigned int
         Device ordinal bit mask
     flags : unsigned int
         flags for future use, must be zero now.
-    reserved : unsigned int
+    reserved : List[unsigned int]
         Reserved for future use, must be zero now.
 
     Methods
@@ -2069,6 +2142,63 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_st:
     cdef ccuda.CUmemAccessDesc* _accessDescs
     cdef CUdeviceptr _dptr
 
+cdef class _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u:
+    """
+
+    Attributes
+    ----------
+    pArray : List[CUarray]
+
+    pPitch : List[void]
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUeglFrame_st* _ptr
+
+cdef class CUeglFrame_st:
+    """
+    CUDA EGLFrame structure Descriptor - structure defining one frame
+    of EGL.  Each frame may contain one or more planes depending on
+    whether the surface * is Multiplanar or not.
+
+    Attributes
+    ----------
+    frame : _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u
+
+    width : unsigned int
+        Width of first plane
+    height : unsigned int
+        Height of first plane
+    depth : unsigned int
+        Depth of first plane
+    pitch : unsigned int
+        Pitch of first plane
+    planeCount : unsigned int
+        Number of planes
+    numChannels : unsigned int
+        Number of channels for the plane
+    frameType : CUeglFrameType
+        Array or Pitch
+    eglColorFormat : CUeglColorFormat
+        CUDA EGL Color Format
+    cuFormat : CUarray_format
+        CUDA Array Format
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUeglFrame_st* _ptr
+    cdef bint _ptr_owner
+    cdef _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u _frame
+
 cdef class CUuuid(CUuuid_st):
     """
 
@@ -2166,7 +2296,7 @@ cdef class CUstreamBatchMemOpParams_v1(CUstreamBatchMemOpParams_union):
 
     flushRemoteWrites : CUstreamMemOpFlushRemoteWritesParams_st
 
-    pad : cuuint64_t
+    pad : List[cuuint64_t]
 
 
     Methods
@@ -2190,7 +2320,7 @@ cdef class CUstreamBatchMemOpParams(CUstreamBatchMemOpParams_union):
 
     flushRemoteWrites : CUstreamMemOpFlushRemoteWritesParams_st
 
-    pad : cuuint64_t
+    pad : List[cuuint64_t]
 
 
     Methods
@@ -2209,9 +2339,9 @@ cdef class CUdevprop_v1(CUdevprop_st):
     ----------
     maxThreadsPerBlock : int
         Maximum number of threads per block
-    maxThreadsDim : int
+    maxThreadsDim : List[int]
         Maximum size of each dimension of a block
-    maxGridSize : int
+    maxGridSize : List[int]
         Maximum size of each dimension of a grid
     sharedMemPerBlock : int
         Shared memory available per block in bytes
@@ -2244,9 +2374,9 @@ cdef class CUdevprop(CUdevprop_st):
     ----------
     maxThreadsPerBlock : int
         Maximum number of threads per block
-    maxThreadsDim : int
+    maxThreadsDim : List[int]
         Maximum size of each dimension of a block
-    maxGridSize : int
+    maxGridSize : List[int]
         Maximum size of each dimension of a grid
     sharedMemPerBlock : int
         Shared memory available per block in bytes
@@ -3126,7 +3256,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_v1(CUDA_ARRAY_SPARSE_PROPERTIES_st):
     flags : unsigned int
         Flags will either be zero or
         CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3152,7 +3282,49 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES(CUDA_ARRAY_SPARSE_PROPERTIES_st):
     flags : unsigned int
         Flags will either be zero or
         CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
-    reserved : unsigned int
+    reserved : List[unsigned int]
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+
+cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_v1(CUDA_ARRAY_MEMORY_REQUIREMENTS_st):
+    """
+    CUDA array memory requirements
+
+    Attributes
+    ----------
+    size : size_t
+        Total required memory size
+    alignment : size_t
+        alignment requirement
+    reserved : List[unsigned int]
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+
+cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS(CUDA_ARRAY_MEMORY_REQUIREMENTS_st):
+    """
+    CUDA array memory requirements
+
+    Attributes
+    ----------
+    size : size_t
+        Total required memory size
+    alignment : size_t
+        alignment requirement
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3227,9 +3399,9 @@ cdef class CUDA_TEXTURE_DESC_v1(CUDA_TEXTURE_DESC_st):
         Mipmap minimum level clamp
     maxMipmapLevelClamp : float
         Mipmap maximum level clamp
-    borderColor : float
+    borderColor : List[float]
         Border Color
-    reserved : int
+    reserved : List[int]
 
 
     Methods
@@ -3262,9 +3434,9 @@ cdef class CUDA_TEXTURE_DESC(CUDA_TEXTURE_DESC_st):
         Mipmap minimum level clamp
     maxMipmapLevelClamp : float
         Mipmap maximum level clamp
-    borderColor : float
+    borderColor : List[float]
         Border Color
-    reserved : int
+    reserved : List[int]
 
 
     Methods
@@ -3297,7 +3469,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC_v1(CUDA_RESOURCE_VIEW_DESC_st):
         First layer index
     lastLayer : unsigned int
         Last layer index
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3330,7 +3502,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC(CUDA_RESOURCE_VIEW_DESC_st):
         First layer index
     lastLayer : unsigned int
         Last layer index
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3463,7 +3635,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_
         Size of the memory allocation
     flags : unsigned int
         Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3488,7 +3660,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st)
         Size of the memory allocation
     flags : unsigned int
         Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3511,7 +3683,7 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_
         Size of the buffer
     flags : unsigned int
         Flags reserved for future use. Must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3534,7 +3706,7 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st)
         Size of the buffer
     flags : unsigned int
         Flags reserved for future use. Must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3558,7 +3730,7 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1(CUDA_EXTERNAL_MEMORY_MIP
         Format, dimension and type of base level of the mipmap chain
     numLevels : unsigned int
         Total number of levels in the mipmap chain
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3582,7 +3754,7 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC(CUDA_EXTERNAL_MEMORY_MIPMAP
         Format, dimension and type of base level of the mipmap chain
     numLevels : unsigned int
         Total number of levels in the mipmap chain
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3605,7 +3777,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1(CUDA_EXTERNAL_SEMAPHORE_HANDLE
 
     flags : unsigned int
         Flags reserved for the future. Must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3628,7 +3800,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC(CUDA_EXTERNAL_SEMAPHORE_HANDLE_DE
 
     flags : unsigned int
         Flags reserved for the future. Must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3656,7 +3828,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_SIGN
         synchronization operations should be performed for any external
         memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
         For all other types of CUexternalSemaphore, flags must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3684,7 +3856,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_
         synchronization operations should be performed for any external
         memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
         For all other types of CUexternalSemaphore, flags must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3712,7 +3884,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_WAIT_P
         synchronization operations should be performed for any external
         memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
         For all other types of CUexternalSemaphore, flags must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3740,7 +3912,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARA
         synchronization operations should be performed for any external
         memory object imported as CU_EXTERNAL_MEMORY_HANDLE_TYPE_NVSCIBUF.
         For all other types of CUexternalSemaphore, flags must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -3861,12 +4033,12 @@ cdef class CUarrayMapInfo_v1(CUarrayMapInfo_st):
     memHandle : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u
 
     offset : unsigned long long
-        Offset within mip tail Offset within the memory
+        Offset within mip tail  Offset within the memory
     deviceBitMask : unsigned int
         Device ordinal bit mask
     flags : unsigned int
         flags for future use, must be zero now.
-    reserved : unsigned int
+    reserved : List[unsigned int]
         Reserved for future use, must be zero now.
 
     Methods
@@ -3899,12 +4071,12 @@ cdef class CUarrayMapInfo(CUarrayMapInfo_st):
     memHandle : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u
 
     offset : unsigned long long
-        Offset within mip tail Offset within the memory
+        Offset within mip tail  Offset within the memory
     deviceBitMask : unsigned int
         Device ordinal bit mask
     flags : unsigned int
         flags for future use, must be zero now.
-    reserved : unsigned int
+    reserved : List[unsigned int]
         Reserved for future use, must be zero now.
 
     Methods
@@ -4172,6 +4344,80 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS(CUDA_MEM_ALLOC_NODE_PARAMS_st):
     """
     pass
 
+cdef class CUeglFrame_v1(CUeglFrame_st):
+    """
+    CUDA EGLFrame structure Descriptor - structure defining one frame
+    of EGL.  Each frame may contain one or more planes depending on
+    whether the surface * is Multiplanar or not.
+
+    Attributes
+    ----------
+    frame : _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u
+
+    width : unsigned int
+        Width of first plane
+    height : unsigned int
+        Height of first plane
+    depth : unsigned int
+        Depth of first plane
+    pitch : unsigned int
+        Pitch of first plane
+    planeCount : unsigned int
+        Number of planes
+    numChannels : unsigned int
+        Number of channels for the plane
+    frameType : CUeglFrameType
+        Array or Pitch
+    eglColorFormat : CUeglColorFormat
+        CUDA EGL Color Format
+    cuFormat : CUarray_format
+        CUDA Array Format
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+
+cdef class CUeglFrame(CUeglFrame_st):
+    """
+    CUDA EGLFrame structure Descriptor - structure defining one frame
+    of EGL.  Each frame may contain one or more planes depending on
+    whether the surface * is Multiplanar or not.
+
+    Attributes
+    ----------
+    frame : _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u
+
+    width : unsigned int
+        Width of first plane
+    height : unsigned int
+        Height of first plane
+    depth : unsigned int
+        Depth of first plane
+    pitch : unsigned int
+        Pitch of first plane
+    planeCount : unsigned int
+        Number of planes
+    numChannels : unsigned int
+        Number of channels for the plane
+    frameType : CUeglFrameType
+        Array or Pitch
+    eglColorFormat : CUeglColorFormat
+        CUDA EGL Color Format
+    cuFormat : CUarray_format
+        CUDA Array Format
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+
 cdef class cuuint32_t:
     """
 
@@ -4326,4 +4572,95 @@ cdef class CUmemGenericAllocationHandle:
 
     """
     cdef ccuda.CUmemGenericAllocationHandle* _ptr
+    cdef bint _ptr_owner
+
+cdef class GLenum:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.GLenum* _ptr
+    cdef bint _ptr_owner
+
+cdef class GLuint:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.GLuint* _ptr
+    cdef bint _ptr_owner
+
+cdef class EGLint:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.EGLint* _ptr
+    cdef bint _ptr_owner
+
+cdef class VdpDevice:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.VdpDevice* _ptr
+    cdef bint _ptr_owner
+
+cdef class VdpGetProcAddress:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.VdpGetProcAddress* _ptr
+    cdef bint _ptr_owner
+
+cdef class VdpVideoSurface:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.VdpVideoSurface* _ptr
+    cdef bint _ptr_owner
+
+cdef class VdpOutputSurface:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.VdpOutputSurface* _ptr
     cdef bint _ptr_owner

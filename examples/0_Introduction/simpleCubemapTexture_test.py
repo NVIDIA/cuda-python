@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -160,7 +160,7 @@ def main():
     checkCudaErrors(cuda.cuLaunchKernel(_transformKernel,
                                         dimGrid.x, dimGrid.y, dimGrid.z,         # grid dim
                                         dimBlock.x, dimBlock.y, dimBlock.z,      # block dim
-                                        0, cuda.CUstream(0),                     # shared mem and stream
+                                        0, 0,                                    # shared mem and stream
                                         kernelArgs, 0))                          # arguments
 
     checkCudaErrors(cudart.cudaDeviceSynchronize())
@@ -171,7 +171,7 @@ def main():
     checkCudaErrors(cuda.cuLaunchKernel(_transformKernel,
                                         dimGrid.x, dimGrid.y, dimGrid.z,         # grid dim
                                         dimBlock.x, dimBlock.y, dimBlock.z,      # block dim
-                                        0, cuda.CUstream(0),                     # shared mem and stream
+                                        0, 0,                                    # shared mem and stream
                                         kernelArgs, 0))                          # arguments
 
     checkCudaErrors(cudart.cudaDeviceSynchronize())

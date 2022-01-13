@@ -48,3 +48,63 @@ Released on October 18, 2021
 - cuProfilerInitialize
 - cuProfilerStart
 - cuProfilerStop
+- EGL
+    - cuGraphicsEGLRegisterImage
+    - cuEGLStreamConsumerConnect
+    - cuEGLStreamConsumerConnectWithFlags
+    - cuEGLStreamConsumerDisconnect
+    - cuEGLStreamConsumerAcquireFrame
+    - cuEGLStreamConsumerReleaseFrame
+    - cuEGLStreamProducerConnect
+    - cuEGLStreamProducerDisconnect
+    - cuEGLStreamProducerPresentFrame
+    - cuEGLStreamProducerReturnFrame
+    - cuGraphicsResourceGetMappedEglFrame
+    - cuEventCreateFromEGLSync
+    - cudaGraphicsEGLRegisterImage
+    - cudaEGLStreamConsumerConnect
+    - cudaEGLStreamConsumerConnectWithFlags
+    - cudaEGLStreamConsumerDisconnect
+    - cudaEGLStreamConsumerAcquireFrame
+    - cudaEGLStreamConsumerReleaseFrame
+    - cudaEGLStreamProducerConnect
+    - cudaEGLStreamProducerDisconnect
+    - cudaEGLStreamProducerPresentFrame
+    - cudaEGLStreamProducerReturnFrame
+    - cudaGraphicsResourceGetMappedEglFrame
+    - cudaEventCreateFromEGLSync
+- GL
+    - cuGraphicsGLRegisterBuffer
+    - cuGraphicsGLRegisterImage
+    - cuWGLGetDevice
+    - cuGLGetDevices
+    - cuGLCtxCreate
+    - cuGLInit
+    - cuGLRegisterBufferObject
+    - cuGLMapBufferObject
+    - cuGLUnmapBufferObject
+    - cuGLUnregisterBufferObject
+    - cuGLSetBufferObjectMapFlags
+    - cuGLMapBufferObjectAsync
+    - cuGLUnmapBufferObjectAsync
+    - cudaGLGetDevices
+    - cudaGraphicsGLRegisterImage
+    - cudaGraphicsGLRegisterBuffer
+    - cudaWGLGetDevice
+    - cudaGLSetGLDevice
+    - cudaGLRegisterBufferObject
+    - cudaGLMapBufferObject
+    - cudaGLUnmapBufferObject
+    - cudaGLUnregisterBufferObject
+    - cudaGLSetBufferObjectMapFlags
+    - cudaGLMapBufferObjectAsync
+    - cudaGLUnmapBufferObjectAsync
+- VDPAU
+    - cuVDPAUGetDevice
+    - cuVDPAUCtxCreate
+    - cuGraphicsVDPAURegisterVideoSurface
+    - cuGraphicsVDPAURegisterOutputSurface
+    - cudaVDPAUGetDevice
+    - cudaVDPAUSetVDPAUDevice
+    - cudaGraphicsVDPAURegisterVideoSurface
+    - cudaGraphicsVDPAURegisterOutputSurface

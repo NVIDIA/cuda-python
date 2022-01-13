@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -80,7 +80,7 @@ def main():
     checkCudaErrors(cuda.cuLaunchKernel(kernel_addr,
                                         NUM_BLOCKS, 1, 1,  # grid dim
                                         NUM_THREADS, 1, 1, # block dim
-                                        np.dtype(np.float32).itemsize * 2 *NUM_THREADS, cuda.CUstream(0), # shared mem, stream
+                                        np.dtype(np.float32).itemsize * 2 *NUM_THREADS, 0, # shared mem, stream
                                         arr, 0)) # arguments
 
     checkCudaErrors(cuda.cuCtxSynchronize())

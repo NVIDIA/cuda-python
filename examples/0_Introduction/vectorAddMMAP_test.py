@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -45,7 +45,7 @@ def getBackingDevices(cuDevice):
             continue
 
         # Only peer capable devices can map each others memory
-        capable = checkCudaErrors(cuda.cuDeviceCanAccessPeer(cuDevice, cuda.CUdevice(dev)))
+        capable = checkCudaErrors(cuda.cuDeviceCanAccessPeer(cuDevice, dev))
         if not capable:
             continue
 
@@ -123,7 +123,7 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align = 0
         # Since we do not need to make any other mappings of this memory or export it,
         # we no longer need and can release the allocationHandle.
         # The allocation will be kept live until it is unmapped.
-        status, = cuda.cuMemMap(cuda.CUdeviceptr(int(dptr) + (stripeSize * idx)), stripeSize, 0, allocationHandle, 0)
+        status, = cuda.cuMemMap(int(dptr) + (stripeSize * idx), stripeSize, 0, allocationHandle, 0)
         
         # the handle needs to be released even if the mapping failed.
         status2, = cuda.cuMemRelease(allocationHandle)
@@ -240,7 +240,7 @@ def main():
     checkCudaErrors(cuda.cuLaunchKernel(_VecAdd_kernel,
                                         blocksPerGrid, 1, 1,
                                         threadsPerBlock, 1, 1,
-                                        0, cuda.CUstream(0),
+                                        0, 0,
                                         kernelArgs, 0))
 
     # Copy result from device memory to host memory

@@ -1,4 +1,4 @@
-# Copyright 2021 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -6,7 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 from typing import List, Tuple, Any
-from enum import Enum
+from enum import IntEnum
 import cython
 import ctypes
 from libc.stdlib cimport calloc, free
@@ -78,6 +78,7 @@ cudaArrayCubemap = ccudart.cudaArrayCubemap
 cudaArrayTextureGather = ccudart.cudaArrayTextureGather
 cudaArrayColorAttachment = ccudart.cudaArrayColorAttachment
 cudaArraySparse = ccudart.cudaArraySparse
+cudaArrayDeferredMapping = ccudart.cudaArrayDeferredMapping
 cudaIpcMemLazyEnablePeerAccess = ccudart.cudaIpcMemLazyEnablePeerAccess
 cudaMemAttachGlobal = ccudart.cudaMemAttachGlobal
 cudaMemAttachHost = ccudart.cudaMemAttachHost
@@ -110,14 +111,16 @@ cudaTextureType1DLayered = ccudart.cudaTextureType1DLayered
 cudaTextureType2DLayered = ccudart.cudaTextureType2DLayered
 cudaTextureTypeCubemapLayered = ccudart.cudaTextureTypeCubemapLayered
 CUDART_VERSION = ccudart.CUDART_VERSION
+__CUDART_API_VERSION = ccudart.__CUDART_API_VERSION
+CUDA_EGL_MAX_PLANES = ccudart.CUDA_EGL_MAX_PLANES
 
-class cudaRoundMode(Enum):
+class cudaRoundMode(IntEnum):
     cudaRoundNearest = ccudart.cudaRoundMode.cudaRoundNearest
     cudaRoundZero = ccudart.cudaRoundMode.cudaRoundZero
     cudaRoundPosInf = ccudart.cudaRoundMode.cudaRoundPosInf
     cudaRoundMinInf = ccudart.cudaRoundMode.cudaRoundMinInf
 
-class cudaError_t(Enum):
+class cudaError_t(IntEnum):
     cudaSuccess = ccudart.cudaError.cudaSuccess
     cudaErrorInvalidValue = ccudart.cudaError.cudaErrorInvalidValue
     cudaErrorMemoryAllocation = ccudart.cudaError.cudaErrorMemoryAllocation
@@ -242,7 +245,7 @@ class cudaError_t(Enum):
     cudaErrorUnknown = ccudart.cudaError.cudaErrorUnknown
     cudaErrorApiFailureBase = ccudart.cudaError.cudaErrorApiFailureBase
 
-class cudaChannelFormatKind(Enum):
+class cudaChannelFormatKind(IntEnum):
     cudaChannelFormatKindSigned = ccudart.cudaChannelFormatKind.cudaChannelFormatKindSigned
     cudaChannelFormatKindUnsigned = ccudart.cudaChannelFormatKind.cudaChannelFormatKindUnsigned
     cudaChannelFormatKindFloat = ccudart.cudaChannelFormatKind.cudaChannelFormatKindFloat
@@ -275,67 +278,67 @@ class cudaChannelFormatKind(Enum):
     cudaChannelFormatKindUnsignedBlockCompressed7 = ccudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7
     cudaChannelFormatKindUnsignedBlockCompressed7SRGB = ccudart.cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7SRGB
 
-class cudaMemoryType(Enum):
+class cudaMemoryType(IntEnum):
     cudaMemoryTypeUnregistered = ccudart.cudaMemoryType.cudaMemoryTypeUnregistered
     cudaMemoryTypeHost = ccudart.cudaMemoryType.cudaMemoryTypeHost
     cudaMemoryTypeDevice = ccudart.cudaMemoryType.cudaMemoryTypeDevice
     cudaMemoryTypeManaged = ccudart.cudaMemoryType.cudaMemoryTypeManaged
 
-class cudaMemcpyKind(Enum):
+class cudaMemcpyKind(IntEnum):
     cudaMemcpyHostToHost = ccudart.cudaMemcpyKind.cudaMemcpyHostToHost
     cudaMemcpyHostToDevice = ccudart.cudaMemcpyKind.cudaMemcpyHostToDevice
     cudaMemcpyDeviceToHost = ccudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
     cudaMemcpyDeviceToDevice = ccudart.cudaMemcpyKind.cudaMemcpyDeviceToDevice
     cudaMemcpyDefault = ccudart.cudaMemcpyKind.cudaMemcpyDefault
 
-class cudaAccessProperty(Enum):
+class cudaAccessProperty(IntEnum):
     cudaAccessPropertyNormal = ccudart.cudaAccessProperty.cudaAccessPropertyNormal
     cudaAccessPropertyStreaming = ccudart.cudaAccessProperty.cudaAccessPropertyStreaming
     cudaAccessPropertyPersisting = ccudart.cudaAccessProperty.cudaAccessPropertyPersisting
 
-class cudaStreamCaptureStatus(Enum):
+class cudaStreamCaptureStatus(IntEnum):
     cudaStreamCaptureStatusNone = ccudart.cudaStreamCaptureStatus.cudaStreamCaptureStatusNone
     cudaStreamCaptureStatusActive = ccudart.cudaStreamCaptureStatus.cudaStreamCaptureStatusActive
     cudaStreamCaptureStatusInvalidated = ccudart.cudaStreamCaptureStatus.cudaStreamCaptureStatusInvalidated
 
-class cudaStreamCaptureMode(Enum):
+class cudaStreamCaptureMode(IntEnum):
     cudaStreamCaptureModeGlobal = ccudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal
     cudaStreamCaptureModeThreadLocal = ccudart.cudaStreamCaptureMode.cudaStreamCaptureModeThreadLocal
     cudaStreamCaptureModeRelaxed = ccudart.cudaStreamCaptureMode.cudaStreamCaptureModeRelaxed
 
-class cudaSynchronizationPolicy(Enum):
+class cudaSynchronizationPolicy(IntEnum):
     cudaSyncPolicyAuto = ccudart.cudaSynchronizationPolicy.cudaSyncPolicyAuto
     cudaSyncPolicySpin = ccudart.cudaSynchronizationPolicy.cudaSyncPolicySpin
     cudaSyncPolicyYield = ccudart.cudaSynchronizationPolicy.cudaSyncPolicyYield
     cudaSyncPolicyBlockingSync = ccudart.cudaSynchronizationPolicy.cudaSyncPolicyBlockingSync
 
-class cudaStreamAttrID(Enum):
+class cudaStreamAttrID(IntEnum):
     cudaStreamAttributeAccessPolicyWindow = ccudart.cudaStreamAttrID.cudaStreamAttributeAccessPolicyWindow
     cudaStreamAttributeSynchronizationPolicy = ccudart.cudaStreamAttrID.cudaStreamAttributeSynchronizationPolicy
 
-class cudaStreamUpdateCaptureDependenciesFlags(Enum):
+class cudaStreamUpdateCaptureDependenciesFlags(IntEnum):
     cudaStreamAddCaptureDependencies = ccudart.cudaStreamUpdateCaptureDependenciesFlags.cudaStreamAddCaptureDependencies
     cudaStreamSetCaptureDependencies = ccudart.cudaStreamUpdateCaptureDependenciesFlags.cudaStreamSetCaptureDependencies
 
-class cudaUserObjectFlags(Enum):
+class cudaUserObjectFlags(IntEnum):
     cudaUserObjectNoDestructorSync = ccudart.cudaUserObjectFlags.cudaUserObjectNoDestructorSync
 
-class cudaUserObjectRetainFlags(Enum):
+class cudaUserObjectRetainFlags(IntEnum):
     cudaGraphUserObjectMove = ccudart.cudaUserObjectRetainFlags.cudaGraphUserObjectMove
 
-class cudaGraphicsRegisterFlags(Enum):
+class cudaGraphicsRegisterFlags(IntEnum):
     cudaGraphicsRegisterFlagsNone = ccudart.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsNone
     cudaGraphicsRegisterFlagsReadOnly = ccudart.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsReadOnly
     cudaGraphicsRegisterFlagsWriteDiscard = ccudart.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsWriteDiscard
     cudaGraphicsRegisterFlagsSurfaceLoadStore = ccudart.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsSurfaceLoadStore
     cudaGraphicsRegisterFlagsTextureGather = ccudart.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsTextureGather
 
-class cudaGraphicsMapFlags(Enum):
+class cudaGraphicsMapFlags(IntEnum):
     cudaGraphicsMapFlagsNone = ccudart.cudaGraphicsMapFlags.cudaGraphicsMapFlagsNone
     cudaGraphicsMapFlagsReadOnly = ccudart.cudaGraphicsMapFlags.cudaGraphicsMapFlagsReadOnly
     cudaGraphicsMapFlagsWriteDiscard = ccudart.cudaGraphicsMapFlags.cudaGraphicsMapFlagsWriteDiscard
 
-class cudaGraphicsCubeFace(Enum):
+class cudaGraphicsCubeFace(IntEnum):
     cudaGraphicsCubeFacePositiveX = ccudart.cudaGraphicsCubeFace.cudaGraphicsCubeFacePositiveX
     cudaGraphicsCubeFaceNegativeX = ccudart.cudaGraphicsCubeFace.cudaGraphicsCubeFaceNegativeX
     cudaGraphicsCubeFacePositiveY = ccudart.cudaGraphicsCubeFace.cudaGraphicsCubeFacePositiveY
@@ -343,17 +346,17 @@ class cudaGraphicsCubeFace(Enum):
     cudaGraphicsCubeFacePositiveZ = ccudart.cudaGraphicsCubeFace.cudaGraphicsCubeFacePositiveZ
     cudaGraphicsCubeFaceNegativeZ = ccudart.cudaGraphicsCubeFace.cudaGraphicsCubeFaceNegativeZ
 
-class cudaKernelNodeAttrID(Enum):
+class cudaKernelNodeAttrID(IntEnum):
     cudaKernelNodeAttributeAccessPolicyWindow = ccudart.cudaKernelNodeAttrID.cudaKernelNodeAttributeAccessPolicyWindow
     cudaKernelNodeAttributeCooperative = ccudart.cudaKernelNodeAttrID.cudaKernelNodeAttributeCooperative
 
-class cudaResourceType(Enum):
+class cudaResourceType(IntEnum):
     cudaResourceTypeArray = ccudart.cudaResourceType.cudaResourceTypeArray
     cudaResourceTypeMipmappedArray = ccudart.cudaResourceType.cudaResourceTypeMipmappedArray
     cudaResourceTypeLinear = ccudart.cudaResourceType.cudaResourceTypeLinear
     cudaResourceTypePitch2D = ccudart.cudaResourceType.cudaResourceTypePitch2D
 
-class cudaResourceViewFormat(Enum):
+class cudaResourceViewFormat(IntEnum):
     cudaResViewFormatNone = ccudart.cudaResourceViewFormat.cudaResViewFormatNone
     cudaResViewFormatUnsignedChar1 = ccudart.cudaResourceViewFormat.cudaResViewFormatUnsignedChar1
     cudaResViewFormatUnsignedChar2 = ccudart.cudaResourceViewFormat.cudaResViewFormatUnsignedChar2
@@ -390,34 +393,34 @@ class cudaResourceViewFormat(Enum):
     cudaResViewFormatSignedBlockCompressed6H = ccudart.cudaResourceViewFormat.cudaResViewFormatSignedBlockCompressed6H
     cudaResViewFormatUnsignedBlockCompressed7 = ccudart.cudaResourceViewFormat.cudaResViewFormatUnsignedBlockCompressed7
 
-class cudaFuncAttribute(Enum):
+class cudaFuncAttribute(IntEnum):
     cudaFuncAttributeMaxDynamicSharedMemorySize = ccudart.cudaFuncAttribute.cudaFuncAttributeMaxDynamicSharedMemorySize
     cudaFuncAttributePreferredSharedMemoryCarveout = ccudart.cudaFuncAttribute.cudaFuncAttributePreferredSharedMemoryCarveout
     cudaFuncAttributeMax = ccudart.cudaFuncAttribute.cudaFuncAttributeMax
 
-class cudaFuncCache(Enum):
+class cudaFuncCache(IntEnum):
     cudaFuncCachePreferNone = ccudart.cudaFuncCache.cudaFuncCachePreferNone
     cudaFuncCachePreferShared = ccudart.cudaFuncCache.cudaFuncCachePreferShared
     cudaFuncCachePreferL1 = ccudart.cudaFuncCache.cudaFuncCachePreferL1
     cudaFuncCachePreferEqual = ccudart.cudaFuncCache.cudaFuncCachePreferEqual
 
-class cudaSharedMemConfig(Enum):
+class cudaSharedMemConfig(IntEnum):
     cudaSharedMemBankSizeDefault = ccudart.cudaSharedMemConfig.cudaSharedMemBankSizeDefault
     cudaSharedMemBankSizeFourByte = ccudart.cudaSharedMemConfig.cudaSharedMemBankSizeFourByte
     cudaSharedMemBankSizeEightByte = ccudart.cudaSharedMemConfig.cudaSharedMemBankSizeEightByte
 
-class cudaSharedCarveout(Enum):
+class cudaSharedCarveout(IntEnum):
     cudaSharedmemCarveoutDefault = ccudart.cudaSharedCarveout.cudaSharedmemCarveoutDefault
     cudaSharedmemCarveoutMaxShared = ccudart.cudaSharedCarveout.cudaSharedmemCarveoutMaxShared
     cudaSharedmemCarveoutMaxL1 = ccudart.cudaSharedCarveout.cudaSharedmemCarveoutMaxL1
 
-class cudaComputeMode(Enum):
+class cudaComputeMode(IntEnum):
     cudaComputeModeDefault = ccudart.cudaComputeMode.cudaComputeModeDefault
     cudaComputeModeExclusive = ccudart.cudaComputeMode.cudaComputeModeExclusive
     cudaComputeModeProhibited = ccudart.cudaComputeMode.cudaComputeModeProhibited
     cudaComputeModeExclusiveProcess = ccudart.cudaComputeMode.cudaComputeModeExclusiveProcess
 
-class cudaLimit(Enum):
+class cudaLimit(IntEnum):
     cudaLimitStackSize = ccudart.cudaLimit.cudaLimitStackSize
     cudaLimitPrintfFifoSize = ccudart.cudaLimit.cudaLimitPrintfFifoSize
     cudaLimitMallocHeapSize = ccudart.cudaLimit.cudaLimitMallocHeapSize
@@ -426,7 +429,7 @@ class cudaLimit(Enum):
     cudaLimitMaxL2FetchGranularity = ccudart.cudaLimit.cudaLimitMaxL2FetchGranularity
     cudaLimitPersistingL2CacheSize = ccudart.cudaLimit.cudaLimitPersistingL2CacheSize
 
-class cudaMemoryAdvise(Enum):
+class cudaMemoryAdvise(IntEnum):
     cudaMemAdviseSetReadMostly = ccudart.cudaMemoryAdvise.cudaMemAdviseSetReadMostly
     cudaMemAdviseUnsetReadMostly = ccudart.cudaMemoryAdvise.cudaMemAdviseUnsetReadMostly
     cudaMemAdviseSetPreferredLocation = ccudart.cudaMemoryAdvise.cudaMemAdviseSetPreferredLocation
@@ -434,33 +437,33 @@ class cudaMemoryAdvise(Enum):
     cudaMemAdviseSetAccessedBy = ccudart.cudaMemoryAdvise.cudaMemAdviseSetAccessedBy
     cudaMemAdviseUnsetAccessedBy = ccudart.cudaMemoryAdvise.cudaMemAdviseUnsetAccessedBy
 
-class cudaMemRangeAttribute(Enum):
+class cudaMemRangeAttribute(IntEnum):
     cudaMemRangeAttributeReadMostly = ccudart.cudaMemRangeAttribute.cudaMemRangeAttributeReadMostly
     cudaMemRangeAttributePreferredLocation = ccudart.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocation
     cudaMemRangeAttributeAccessedBy = ccudart.cudaMemRangeAttribute.cudaMemRangeAttributeAccessedBy
     cudaMemRangeAttributeLastPrefetchLocation = ccudart.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocation
 
-class cudaOutputMode_t(Enum):
+class cudaOutputMode_t(IntEnum):
     cudaKeyValuePair = ccudart.cudaOutputMode.cudaKeyValuePair
     cudaCSV = ccudart.cudaOutputMode.cudaCSV
 
-class cudaFlushGPUDirectRDMAWritesOptions(Enum):
+class cudaFlushGPUDirectRDMAWritesOptions(IntEnum):
     cudaFlushGPUDirectRDMAWritesOptionHost = ccudart.cudaFlushGPUDirectRDMAWritesOptions.cudaFlushGPUDirectRDMAWritesOptionHost
     cudaFlushGPUDirectRDMAWritesOptionMemOps = ccudart.cudaFlushGPUDirectRDMAWritesOptions.cudaFlushGPUDirectRDMAWritesOptionMemOps
 
-class cudaGPUDirectRDMAWritesOrdering(Enum):
+class cudaGPUDirectRDMAWritesOrdering(IntEnum):
     cudaGPUDirectRDMAWritesOrderingNone = ccudart.cudaGPUDirectRDMAWritesOrdering.cudaGPUDirectRDMAWritesOrderingNone
     cudaGPUDirectRDMAWritesOrderingOwner = ccudart.cudaGPUDirectRDMAWritesOrdering.cudaGPUDirectRDMAWritesOrderingOwner
     cudaGPUDirectRDMAWritesOrderingAllDevices = ccudart.cudaGPUDirectRDMAWritesOrdering.cudaGPUDirectRDMAWritesOrderingAllDevices
 
-class cudaFlushGPUDirectRDMAWritesScope(Enum):
+class cudaFlushGPUDirectRDMAWritesScope(IntEnum):
     cudaFlushGPUDirectRDMAWritesToOwner = ccudart.cudaFlushGPUDirectRDMAWritesScope.cudaFlushGPUDirectRDMAWritesToOwner
     cudaFlushGPUDirectRDMAWritesToAllDevices = ccudart.cudaFlushGPUDirectRDMAWritesScope.cudaFlushGPUDirectRDMAWritesToAllDevices
 
-class cudaFlushGPUDirectRDMAWritesTarget(Enum):
+class cudaFlushGPUDirectRDMAWritesTarget(IntEnum):
     cudaFlushGPUDirectRDMAWritesTargetCurrentDevice = ccudart.cudaFlushGPUDirectRDMAWritesTarget.cudaFlushGPUDirectRDMAWritesTargetCurrentDevice
 
-class cudaDeviceAttr(Enum):
+class cudaDeviceAttr(IntEnum):
     cudaDevAttrMaxThreadsPerBlock = ccudart.cudaDeviceAttr.cudaDevAttrMaxThreadsPerBlock
     cudaDevAttrMaxBlockDimX = ccudart.cudaDeviceAttr.cudaDevAttrMaxBlockDimX
     cudaDevAttrMaxBlockDimY = ccudart.cudaDeviceAttr.cudaDevAttrMaxBlockDimY
@@ -574,9 +577,10 @@ class cudaDeviceAttr(Enum):
     cudaDevAttrGPUDirectRDMAFlushWritesOptions = ccudart.cudaDeviceAttr.cudaDevAttrGPUDirectRDMAFlushWritesOptions
     cudaDevAttrGPUDirectRDMAWritesOrdering = ccudart.cudaDeviceAttr.cudaDevAttrGPUDirectRDMAWritesOrdering
     cudaDevAttrMemoryPoolSupportedHandleTypes = ccudart.cudaDeviceAttr.cudaDevAttrMemoryPoolSupportedHandleTypes
+    cudaDevAttrDeferredMappingCudaArraySupported = ccudart.cudaDeviceAttr.cudaDevAttrDeferredMappingCudaArraySupported
     cudaDevAttrMax = ccudart.cudaDeviceAttr.cudaDevAttrMax
 
-class cudaMemPoolAttr(Enum):
+class cudaMemPoolAttr(IntEnum):
     cudaMemPoolReuseFollowEventDependencies = ccudart.cudaMemPoolAttr.cudaMemPoolReuseFollowEventDependencies
     cudaMemPoolReuseAllowOpportunistic = ccudart.cudaMemPoolAttr.cudaMemPoolReuseAllowOpportunistic
     cudaMemPoolReuseAllowInternalDependencies = ccudart.cudaMemPoolAttr.cudaMemPoolReuseAllowInternalDependencies
@@ -586,39 +590,39 @@ class cudaMemPoolAttr(Enum):
     cudaMemPoolAttrUsedMemCurrent = ccudart.cudaMemPoolAttr.cudaMemPoolAttrUsedMemCurrent
     cudaMemPoolAttrUsedMemHigh = ccudart.cudaMemPoolAttr.cudaMemPoolAttrUsedMemHigh
 
-class cudaMemLocationType(Enum):
+class cudaMemLocationType(IntEnum):
     cudaMemLocationTypeInvalid = ccudart.cudaMemLocationType.cudaMemLocationTypeInvalid
     cudaMemLocationTypeDevice = ccudart.cudaMemLocationType.cudaMemLocationTypeDevice
 
-class cudaMemAccessFlags(Enum):
+class cudaMemAccessFlags(IntEnum):
     cudaMemAccessFlagsProtNone = ccudart.cudaMemAccessFlags.cudaMemAccessFlagsProtNone
     cudaMemAccessFlagsProtRead = ccudart.cudaMemAccessFlags.cudaMemAccessFlagsProtRead
     cudaMemAccessFlagsProtReadWrite = ccudart.cudaMemAccessFlags.cudaMemAccessFlagsProtReadWrite
 
-class cudaMemAllocationType(Enum):
+class cudaMemAllocationType(IntEnum):
     cudaMemAllocationTypeInvalid = ccudart.cudaMemAllocationType.cudaMemAllocationTypeInvalid
     cudaMemAllocationTypePinned = ccudart.cudaMemAllocationType.cudaMemAllocationTypePinned
     cudaMemAllocationTypeMax = ccudart.cudaMemAllocationType.cudaMemAllocationTypeMax
 
-class cudaMemAllocationHandleType(Enum):
+class cudaMemAllocationHandleType(IntEnum):
     cudaMemHandleTypeNone = ccudart.cudaMemAllocationHandleType.cudaMemHandleTypeNone
     cudaMemHandleTypePosixFileDescriptor = ccudart.cudaMemAllocationHandleType.cudaMemHandleTypePosixFileDescriptor
     cudaMemHandleTypeWin32 = ccudart.cudaMemAllocationHandleType.cudaMemHandleTypeWin32
     cudaMemHandleTypeWin32Kmt = ccudart.cudaMemAllocationHandleType.cudaMemHandleTypeWin32Kmt
 
-class cudaGraphMemAttributeType(Enum):
+class cudaGraphMemAttributeType(IntEnum):
     cudaGraphMemAttrUsedMemCurrent = ccudart.cudaGraphMemAttributeType.cudaGraphMemAttrUsedMemCurrent
     cudaGraphMemAttrUsedMemHigh = ccudart.cudaGraphMemAttributeType.cudaGraphMemAttrUsedMemHigh
     cudaGraphMemAttrReservedMemCurrent = ccudart.cudaGraphMemAttributeType.cudaGraphMemAttrReservedMemCurrent
     cudaGraphMemAttrReservedMemHigh = ccudart.cudaGraphMemAttributeType.cudaGraphMemAttrReservedMemHigh
 
-class cudaDeviceP2PAttr(Enum):
+class cudaDeviceP2PAttr(IntEnum):
     cudaDevP2PAttrPerformanceRank = ccudart.cudaDeviceP2PAttr.cudaDevP2PAttrPerformanceRank
     cudaDevP2PAttrAccessSupported = ccudart.cudaDeviceP2PAttr.cudaDevP2PAttrAccessSupported
     cudaDevP2PAttrNativeAtomicSupported = ccudart.cudaDeviceP2PAttr.cudaDevP2PAttrNativeAtomicSupported
     cudaDevP2PAttrCudaArrayAccessSupported = ccudart.cudaDeviceP2PAttr.cudaDevP2PAttrCudaArrayAccessSupported
 
-class cudaExternalMemoryHandleType(Enum):
+class cudaExternalMemoryHandleType(IntEnum):
     cudaExternalMemoryHandleTypeOpaqueFd = ccudart.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueFd
     cudaExternalMemoryHandleTypeOpaqueWin32 = ccudart.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueWin32
     cudaExternalMemoryHandleTypeOpaqueWin32Kmt = ccudart.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueWin32Kmt
@@ -628,7 +632,7 @@ class cudaExternalMemoryHandleType(Enum):
     cudaExternalMemoryHandleTypeD3D11ResourceKmt = ccudart.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeD3D11ResourceKmt
     cudaExternalMemoryHandleTypeNvSciBuf = ccudart.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeNvSciBuf
 
-class cudaExternalSemaphoreHandleType(Enum):
+class cudaExternalSemaphoreHandleType(IntEnum):
     cudaExternalSemaphoreHandleTypeOpaqueFd = ccudart.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeOpaqueFd
     cudaExternalSemaphoreHandleTypeOpaqueWin32 = ccudart.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeOpaqueWin32
     cudaExternalSemaphoreHandleTypeOpaqueWin32Kmt = ccudart.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeOpaqueWin32Kmt
@@ -640,12 +644,12 @@ class cudaExternalSemaphoreHandleType(Enum):
     cudaExternalSemaphoreHandleTypeTimelineSemaphoreFd = ccudart.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeTimelineSemaphoreFd
     cudaExternalSemaphoreHandleTypeTimelineSemaphoreWin32 = ccudart.cudaExternalSemaphoreHandleType.cudaExternalSemaphoreHandleTypeTimelineSemaphoreWin32
 
-class cudaCGScope(Enum):
+class cudaCGScope(IntEnum):
     cudaCGScopeInvalid = ccudart.cudaCGScope.cudaCGScopeInvalid
     cudaCGScopeGrid = ccudart.cudaCGScope.cudaCGScopeGrid
     cudaCGScopeMultiGrid = ccudart.cudaCGScope.cudaCGScopeMultiGrid
 
-class cudaGraphNodeType(Enum):
+class cudaGraphNodeType(IntEnum):
     cudaGraphNodeTypeKernel = ccudart.cudaGraphNodeType.cudaGraphNodeTypeKernel
     cudaGraphNodeTypeMemcpy = ccudart.cudaGraphNodeType.cudaGraphNodeTypeMemcpy
     cudaGraphNodeTypeMemset = ccudart.cudaGraphNodeType.cudaGraphNodeTypeMemset
@@ -660,7 +664,7 @@ class cudaGraphNodeType(Enum):
     cudaGraphNodeTypeMemFree = ccudart.cudaGraphNodeType.cudaGraphNodeTypeMemFree
     cudaGraphNodeTypeCount = ccudart.cudaGraphNodeType.cudaGraphNodeTypeCount
 
-class cudaGraphExecUpdateResult(Enum):
+class cudaGraphExecUpdateResult(IntEnum):
     cudaGraphExecUpdateSuccess = ccudart.cudaGraphExecUpdateResult.cudaGraphExecUpdateSuccess
     cudaGraphExecUpdateError = ccudart.cudaGraphExecUpdateResult.cudaGraphExecUpdateError
     cudaGraphExecUpdateErrorTopologyChanged = ccudart.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorTopologyChanged
@@ -669,13 +673,14 @@ class cudaGraphExecUpdateResult(Enum):
     cudaGraphExecUpdateErrorParametersChanged = ccudart.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorParametersChanged
     cudaGraphExecUpdateErrorNotSupported = ccudart.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorNotSupported
     cudaGraphExecUpdateErrorUnsupportedFunctionChange = ccudart.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorUnsupportedFunctionChange
+    cudaGraphExecUpdateErrorAttributesChanged = ccudart.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorAttributesChanged
 
-class cudaGetDriverEntryPointFlags(Enum):
+class cudaGetDriverEntryPointFlags(IntEnum):
     cudaEnableDefault = ccudart.cudaGetDriverEntryPointFlags.cudaEnableDefault
     cudaEnableLegacyStream = ccudart.cudaGetDriverEntryPointFlags.cudaEnableLegacyStream
     cudaEnablePerThreadDefaultStream = ccudart.cudaGetDriverEntryPointFlags.cudaEnablePerThreadDefaultStream
 
-class cudaGraphDebugDotFlags(Enum):
+class cudaGraphDebugDotFlags(IntEnum):
     cudaGraphDebugDotFlagsVerbose = ccudart.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsVerbose
     cudaGraphDebugDotFlagsKernelNodeParams = ccudart.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeParams
     cudaGraphDebugDotFlagsMemcpyNodeParams = ccudart.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyNodeParams
@@ -687,33 +692,33 @@ class cudaGraphDebugDotFlags(Enum):
     cudaGraphDebugDotFlagsKernelNodeAttributes = ccudart.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeAttributes
     cudaGraphDebugDotFlagsHandles = ccudart.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsHandles
 
-class cudaGraphInstantiateFlags(Enum):
+class cudaGraphInstantiateFlags(IntEnum):
     cudaGraphInstantiateFlagAutoFreeOnLaunch = ccudart.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagAutoFreeOnLaunch
 
-class cudaSurfaceBoundaryMode(Enum):
+class cudaSurfaceBoundaryMode(IntEnum):
     cudaBoundaryModeZero = ccudart.cudaSurfaceBoundaryMode.cudaBoundaryModeZero
     cudaBoundaryModeClamp = ccudart.cudaSurfaceBoundaryMode.cudaBoundaryModeClamp
     cudaBoundaryModeTrap = ccudart.cudaSurfaceBoundaryMode.cudaBoundaryModeTrap
 
-class cudaSurfaceFormatMode(Enum):
+class cudaSurfaceFormatMode(IntEnum):
     cudaFormatModeForced = ccudart.cudaSurfaceFormatMode.cudaFormatModeForced
     cudaFormatModeAuto = ccudart.cudaSurfaceFormatMode.cudaFormatModeAuto
 
-class cudaTextureAddressMode(Enum):
+class cudaTextureAddressMode(IntEnum):
     cudaAddressModeWrap = ccudart.cudaTextureAddressMode.cudaAddressModeWrap
     cudaAddressModeClamp = ccudart.cudaTextureAddressMode.cudaAddressModeClamp
     cudaAddressModeMirror = ccudart.cudaTextureAddressMode.cudaAddressModeMirror
     cudaAddressModeBorder = ccudart.cudaTextureAddressMode.cudaAddressModeBorder
 
-class cudaTextureFilterMode(Enum):
+class cudaTextureFilterMode(IntEnum):
     cudaFilterModePoint = ccudart.cudaTextureFilterMode.cudaFilterModePoint
     cudaFilterModeLinear = ccudart.cudaTextureFilterMode.cudaFilterModeLinear
 
-class cudaTextureReadMode(Enum):
+class cudaTextureReadMode(IntEnum):
     cudaReadModeElementType = ccudart.cudaTextureReadMode.cudaReadModeElementType
     cudaReadModeNormalizedFloat = ccudart.cudaTextureReadMode.cudaReadModeNormalizedFloat
 
-class cudaDataType(Enum):
+class cudaDataType(IntEnum):
     CUDA_R_16F = ccudart.cudaDataType_t.CUDA_R_16F
     CUDA_C_16F = ccudart.cudaDataType_t.CUDA_C_16F
     CUDA_R_16BF = ccudart.cudaDataType_t.CUDA_R_16BF
@@ -743,11 +748,166 @@ class cudaDataType(Enum):
     CUDA_R_64U = ccudart.cudaDataType_t.CUDA_R_64U
     CUDA_C_64U = ccudart.cudaDataType_t.CUDA_C_64U
 
-class libraryPropertyType(Enum):
+class libraryPropertyType(IntEnum):
     MAJOR_VERSION = ccudart.libraryPropertyType_t.MAJOR_VERSION
     MINOR_VERSION = ccudart.libraryPropertyType_t.MINOR_VERSION
     PATCH_LEVEL = ccudart.libraryPropertyType_t.PATCH_LEVEL
 
+class cudaGLDeviceList(IntEnum):
+    """
+    CUDA devices corresponding to the current OpenGL context
+    """
+    cudaGLDeviceListAll = ccudart.cudaGLDeviceList.cudaGLDeviceListAll
+    cudaGLDeviceListCurrentFrame = ccudart.cudaGLDeviceList.cudaGLDeviceListCurrentFrame
+    cudaGLDeviceListNextFrame = ccudart.cudaGLDeviceList.cudaGLDeviceListNextFrame
+
+class cudaGLMapFlags(IntEnum):
+    """
+    CUDA GL Map Flags
+    """
+    cudaGLMapFlagsNone = ccudart.cudaGLMapFlags.cudaGLMapFlagsNone
+    cudaGLMapFlagsReadOnly = ccudart.cudaGLMapFlags.cudaGLMapFlagsReadOnly
+    cudaGLMapFlagsWriteDiscard = ccudart.cudaGLMapFlags.cudaGLMapFlagsWriteDiscard
+
+class cudaEglFrameType(IntEnum):
+    """
+    CUDA EglFrame type - array or pointer
+    """
+    cudaEglFrameTypeArray = ccudart.cudaEglFrameType_enum.cudaEglFrameTypeArray
+    cudaEglFrameTypePitch = ccudart.cudaEglFrameType_enum.cudaEglFrameTypePitch
+
+class cudaEglResourceLocationFlags(IntEnum):
+    """
+    Resource location flags- sysmem or vidmem  For CUDA context on
+    iGPU, since video and system memory are equivalent - these flags
+    will not have an effect on the execution.  For CUDA context on
+    dGPU, applications can use the flag cudaEglResourceLocationFlags to
+    give a hint about the desired location.
+    cudaEglResourceLocationSysmem - the frame data is made resident on
+    the system memory to be accessed by CUDA.
+    cudaEglResourceLocationVidmem - the frame data is made resident on
+    the dedicated video memory to be accessed by CUDA.  There may be an
+    additional latency due to new allocation and data migration, if the
+    frame is produced on a different memory.
+    """
+    cudaEglResourceLocationSysmem = ccudart.cudaEglResourceLocationFlags_enum.cudaEglResourceLocationSysmem
+    cudaEglResourceLocationVidmem = ccudart.cudaEglResourceLocationFlags_enum.cudaEglResourceLocationVidmem
+
+class cudaEglColorFormat(IntEnum):
+    """
+    CUDA EGL Color Format - The different planar and multiplanar
+    formats currently supported for CUDA_EGL interops.
+    """
+    cudaEglColorFormatYUV420Planar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV420Planar
+    cudaEglColorFormatYUV420SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV420SemiPlanar
+    cudaEglColorFormatYUV422Planar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV422Planar
+    cudaEglColorFormatYUV422SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV422SemiPlanar
+    cudaEglColorFormatARGB = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatARGB
+    cudaEglColorFormatRGBA = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatRGBA
+    cudaEglColorFormatL = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatL
+    cudaEglColorFormatR = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatR
+    cudaEglColorFormatYUV444Planar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV444Planar
+    cudaEglColorFormatYUV444SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV444SemiPlanar
+    cudaEglColorFormatYUYV422 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUYV422
+    cudaEglColorFormatUYVY422 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatUYVY422
+    cudaEglColorFormatABGR = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatABGR
+    cudaEglColorFormatBGRA = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBGRA
+    cudaEglColorFormatA = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatA
+    cudaEglColorFormatRG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatRG
+    cudaEglColorFormatAYUV = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatAYUV
+    cudaEglColorFormatYVU444SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU444SemiPlanar
+    cudaEglColorFormatYVU422SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU422SemiPlanar
+    cudaEglColorFormatYVU420SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU420SemiPlanar
+    cudaEglColorFormatY10V10U10_444SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_444SemiPlanar
+    cudaEglColorFormatY10V10U10_420SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_420SemiPlanar
+    cudaEglColorFormatY12V12U12_444SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_444SemiPlanar
+    cudaEglColorFormatY12V12U12_420SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_420SemiPlanar
+    cudaEglColorFormatVYUY_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatVYUY_ER
+    cudaEglColorFormatUYVY_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatUYVY_ER
+    cudaEglColorFormatYUYV_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUYV_ER
+    cudaEglColorFormatYVYU_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVYU_ER
+    cudaEglColorFormatYUVA_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUVA_ER
+    cudaEglColorFormatAYUV_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatAYUV_ER
+    cudaEglColorFormatYUV444Planar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV444Planar_ER
+    cudaEglColorFormatYUV422Planar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV422Planar_ER
+    cudaEglColorFormatYUV420Planar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV420Planar_ER
+    cudaEglColorFormatYUV444SemiPlanar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV444SemiPlanar_ER
+    cudaEglColorFormatYUV422SemiPlanar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV422SemiPlanar_ER
+    cudaEglColorFormatYUV420SemiPlanar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV420SemiPlanar_ER
+    cudaEglColorFormatYVU444Planar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU444Planar_ER
+    cudaEglColorFormatYVU422Planar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU422Planar_ER
+    cudaEglColorFormatYVU420Planar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU420Planar_ER
+    cudaEglColorFormatYVU444SemiPlanar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU444SemiPlanar_ER
+    cudaEglColorFormatYVU422SemiPlanar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU422SemiPlanar_ER
+    cudaEglColorFormatYVU420SemiPlanar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU420SemiPlanar_ER
+    cudaEglColorFormatBayerRGGB = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerRGGB
+    cudaEglColorFormatBayerBGGR = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerBGGR
+    cudaEglColorFormatBayerGRBG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerGRBG
+    cudaEglColorFormatBayerGBRG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerGBRG
+    cudaEglColorFormatBayer10RGGB = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer10RGGB
+    cudaEglColorFormatBayer10BGGR = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer10BGGR
+    cudaEglColorFormatBayer10GRBG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer10GRBG
+    cudaEglColorFormatBayer10GBRG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer10GBRG
+    cudaEglColorFormatBayer12RGGB = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer12RGGB
+    cudaEglColorFormatBayer12BGGR = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer12BGGR
+    cudaEglColorFormatBayer12GRBG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer12GRBG
+    cudaEglColorFormatBayer12GBRG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer12GBRG
+    cudaEglColorFormatBayer14RGGB = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer14RGGB
+    cudaEglColorFormatBayer14BGGR = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer14BGGR
+    cudaEglColorFormatBayer14GRBG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer14GRBG
+    cudaEglColorFormatBayer14GBRG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer14GBRG
+    cudaEglColorFormatBayer20RGGB = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer20RGGB
+    cudaEglColorFormatBayer20BGGR = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer20BGGR
+    cudaEglColorFormatBayer20GRBG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer20GRBG
+    cudaEglColorFormatBayer20GBRG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer20GBRG
+    cudaEglColorFormatYVU444Planar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU444Planar
+    cudaEglColorFormatYVU422Planar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU422Planar
+    cudaEglColorFormatYVU420Planar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU420Planar
+    cudaEglColorFormatBayerIspRGGB = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerIspRGGB
+    cudaEglColorFormatBayerIspBGGR = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerIspBGGR
+    cudaEglColorFormatBayerIspGRBG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerIspGRBG
+    cudaEglColorFormatBayerIspGBRG = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerIspGBRG
+    cudaEglColorFormatBayerBCCR = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerBCCR
+    cudaEglColorFormatBayerRCCB = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerRCCB
+    cudaEglColorFormatBayerCRBC = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerCRBC
+    cudaEglColorFormatBayerCBRC = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayerCBRC
+    cudaEglColorFormatBayer10CCCC = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer10CCCC
+    cudaEglColorFormatBayer12BCCR = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer12BCCR
+    cudaEglColorFormatBayer12RCCB = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer12RCCB
+    cudaEglColorFormatBayer12CRBC = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer12CRBC
+    cudaEglColorFormatBayer12CBRC = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer12CBRC
+    cudaEglColorFormatBayer12CCCC = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatBayer12CCCC
+    cudaEglColorFormatY = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY
+    cudaEglColorFormatYUV420SemiPlanar_2020 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV420SemiPlanar_2020
+    cudaEglColorFormatYVU420SemiPlanar_2020 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU420SemiPlanar_2020
+    cudaEglColorFormatYUV420Planar_2020 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV420Planar_2020
+    cudaEglColorFormatYVU420Planar_2020 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU420Planar_2020
+    cudaEglColorFormatYUV420SemiPlanar_709 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV420SemiPlanar_709
+    cudaEglColorFormatYVU420SemiPlanar_709 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU420SemiPlanar_709
+    cudaEglColorFormatYUV420Planar_709 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUV420Planar_709
+    cudaEglColorFormatYVU420Planar_709 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVU420Planar_709
+    cudaEglColorFormatY10V10U10_420SemiPlanar_709 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_420SemiPlanar_709
+    cudaEglColorFormatY10V10U10_420SemiPlanar_2020 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_420SemiPlanar_2020
+    cudaEglColorFormatY10V10U10_422SemiPlanar_2020 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_422SemiPlanar_2020
+    cudaEglColorFormatY10V10U10_422SemiPlanar = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_422SemiPlanar
+    cudaEglColorFormatY10V10U10_422SemiPlanar_709 = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_422SemiPlanar_709
+    cudaEglColorFormatY_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY_ER
+    cudaEglColorFormatY_709_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY_709_ER
+    cudaEglColorFormatY10_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10_ER
+    cudaEglColorFormatY10_709_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10_709_ER
+    cudaEglColorFormatY12_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY12_ER
+    cudaEglColorFormatY12_709_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY12_709_ER
+    cudaEglColorFormatYUVA = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYUVA
+    cudaEglColorFormatYVYU = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatYVYU
+    cudaEglColorFormatVYUY = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatVYUY
+    cudaEglColorFormatY10V10U10_420SemiPlanar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_420SemiPlanar_ER
+    cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER
+    cudaEglColorFormatY10V10U10_444SemiPlanar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_444SemiPlanar_ER
+    cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER
+    cudaEglColorFormatY12V12U12_420SemiPlanar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_420SemiPlanar_ER
+    cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER
+    cudaEglColorFormatY12V12U12_444SemiPlanar_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_444SemiPlanar_ER
+    cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER = ccudart.cudaEglColorFormat_enum.cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER
 
 cdef class cudaArray_t:
     """
@@ -980,6 +1140,108 @@ cdef class cudaExternalSemaphore_t:
             free(self._ptr)
     def __repr__(self):
         return '<cudaExternalSemaphore_t ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __int__(self):
+        return <void_ptr>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class EGLImageKHR:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.EGLImageKHR *>calloc(1, sizeof(ccudart.EGLImageKHR))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.EGLImageKHR)))
+            self._ptr[0] = <ccudart.EGLImageKHR>init_value
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.EGLImageKHR *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<EGLImageKHR ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __int__(self):
+        return <void_ptr>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class EGLStreamKHR:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.EGLStreamKHR *>calloc(1, sizeof(ccudart.EGLStreamKHR))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.EGLStreamKHR)))
+            self._ptr[0] = <ccudart.EGLStreamKHR>init_value
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.EGLStreamKHR *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<EGLStreamKHR ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __int__(self):
+        return <void_ptr>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class EGLSyncKHR:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.EGLSyncKHR *>calloc(1, sizeof(ccudart.EGLSyncKHR))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.EGLSyncKHR)))
+            self._ptr[0] = <ccudart.EGLSyncKHR>init_value
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.EGLSyncKHR *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<EGLSyncKHR ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
     def __int__(self):
@@ -1280,7 +1542,7 @@ cdef class cudaArraySparseProperties:
         Total size of the mip tail.
     flags : unsigned int
         Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -1358,9 +1620,77 @@ cdef class cudaArraySparseProperties:
         pass
         self._ptr[0].reserved = reserved
 
+cdef class cudaArrayMemoryRequirements:
+    """
+    CUDA array and CUDA mipmapped array memory requirements
+
+    Attributes
+    ----------
+    size : size_t
+        Total size of the array.
+    alignment : size_t
+        Alignment necessary for mapping the array.
+    reserved : List[unsigned int]
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.cudaArrayMemoryRequirements *>calloc(1, sizeof(ccudart.cudaArrayMemoryRequirements))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.cudaArrayMemoryRequirements)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.cudaArrayMemoryRequirements *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            str_list += ['size : ' + str(self.size)]
+            str_list += ['alignment : ' + str(self.alignment)]
+            str_list += ['reserved : ' + str(self.reserved)]
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def size(self):
+        return self._ptr[0].size
+    @size.setter
+    def size(self, size_t size):
+        pass
+        self._ptr[0].size = size
+    @property
+    def alignment(self):
+        return self._ptr[0].alignment
+    @alignment.setter
+    def alignment(self, size_t alignment):
+        pass
+        self._ptr[0].alignment = alignment
+    @property
+    def reserved(self):
+        return self._ptr[0].reserved
+    @reserved.setter
+    def reserved(self, reserved):
+        pass
+        self._ptr[0].reserved = reserved
+
 cdef class cudaPitchedPtr:
     """
-    CUDA Pitched memory pointer ::make_cudaPitchedPtr
+    CUDA Pitched memory pointer  ::make_cudaPitchedPtr
 
     Attributes
     ----------
@@ -1438,7 +1768,7 @@ cdef class cudaPitchedPtr:
 
 cdef class cudaExtent:
     """
-    CUDA extent ::make_cudaExtent
+    CUDA extent  ::make_cudaExtent
 
     Attributes
     ----------
@@ -1507,7 +1837,7 @@ cdef class cudaExtent:
 
 cdef class cudaPos:
     """
-    CUDA 3D position ::make_cudaPos
+    CUDA 3D position  ::make_cudaPos
 
     Attributes
     ----------
@@ -1644,9 +1974,17 @@ cdef class cudaMemcpy3DParms:
     def srcArray(self):
         return self._srcArray
     @srcArray.setter
-    def srcArray(self, srcArray : cudaArray_t):
-        pass
-        self._srcArray._ptr[0] = <ccudart.cudaArray_t> NULL if srcArray == None else (<cudaArray_t>srcArray)._ptr[0]
+    def srcArray(self, srcArray):
+        cdef ccudart.cudaArray_t csrcArray
+        if srcArray is None:
+            csrcArray = <ccudart.cudaArray_t><void_ptr>0
+        elif isinstance(srcArray, (cudaArray_t)):
+            psrcArray = int(srcArray)
+            csrcArray = <ccudart.cudaArray_t><void_ptr>psrcArray
+        else:
+            psrcArray = int(cudaArray_t(srcArray))
+            csrcArray = <ccudart.cudaArray_t><void_ptr>psrcArray
+        self._srcArray._ptr[0] = csrcArray
     @property
     def srcPos(self):
         return self._srcPos
@@ -1673,9 +2011,17 @@ cdef class cudaMemcpy3DParms:
     def dstArray(self):
         return self._dstArray
     @dstArray.setter
-    def dstArray(self, dstArray : cudaArray_t):
-        pass
-        self._dstArray._ptr[0] = <ccudart.cudaArray_t> NULL if dstArray == None else (<cudaArray_t>dstArray)._ptr[0]
+    def dstArray(self, dstArray):
+        cdef ccudart.cudaArray_t cdstArray
+        if dstArray is None:
+            cdstArray = <ccudart.cudaArray_t><void_ptr>0
+        elif isinstance(dstArray, (cudaArray_t)):
+            pdstArray = int(dstArray)
+            cdstArray = <ccudart.cudaArray_t><void_ptr>pdstArray
+        else:
+            pdstArray = int(cudaArray_t(dstArray))
+            cdstArray = <ccudart.cudaArray_t><void_ptr>pdstArray
+        self._dstArray._ptr[0] = cdstArray
     @property
     def dstPos(self):
         return self._dstPos
@@ -1791,9 +2137,17 @@ cdef class cudaMemcpy3DPeerParms:
     def srcArray(self):
         return self._srcArray
     @srcArray.setter
-    def srcArray(self, srcArray : cudaArray_t):
-        pass
-        self._srcArray._ptr[0] = <ccudart.cudaArray_t> NULL if srcArray == None else (<cudaArray_t>srcArray)._ptr[0]
+    def srcArray(self, srcArray):
+        cdef ccudart.cudaArray_t csrcArray
+        if srcArray is None:
+            csrcArray = <ccudart.cudaArray_t><void_ptr>0
+        elif isinstance(srcArray, (cudaArray_t)):
+            psrcArray = int(srcArray)
+            csrcArray = <ccudart.cudaArray_t><void_ptr>psrcArray
+        else:
+            psrcArray = int(cudaArray_t(srcArray))
+            csrcArray = <ccudart.cudaArray_t><void_ptr>psrcArray
+        self._srcArray._ptr[0] = csrcArray
     @property
     def srcPos(self):
         return self._srcPos
@@ -1827,9 +2181,17 @@ cdef class cudaMemcpy3DPeerParms:
     def dstArray(self):
         return self._dstArray
     @dstArray.setter
-    def dstArray(self, dstArray : cudaArray_t):
-        pass
-        self._dstArray._ptr[0] = <ccudart.cudaArray_t> NULL if dstArray == None else (<cudaArray_t>dstArray)._ptr[0]
+    def dstArray(self, dstArray):
+        cdef ccudart.cudaArray_t cdstArray
+        if dstArray is None:
+            cdstArray = <ccudart.cudaArray_t><void_ptr>0
+        elif isinstance(dstArray, (cudaArray_t)):
+            pdstArray = int(dstArray)
+            cdstArray = <ccudart.cudaArray_t><void_ptr>pdstArray
+        else:
+            pdstArray = int(cudaArray_t(dstArray))
+            cdstArray = <ccudart.cudaArray_t><void_ptr>pdstArray
+        self._dstArray._ptr[0] = cdstArray
     @property
     def dstPos(self):
         return self._dstPos
@@ -1992,9 +2354,10 @@ cdef class cudaAccessPolicyWindow:
         hitRatio specifies percentage of lines assigned hitProp, rest are
         assigned missProp.
     hitProp : cudaAccessProperty
-        CUaccessProperty set for hit.
+        ::CUaccessProperty set for hit.
     missProp : cudaAccessProperty
-        CUaccessProperty set for miss. Must be either NORMAL or STREAMING.
+        ::CUaccessProperty set for miss. Must be either NORMAL or
+        STREAMING.
 
     Methods
     -------
@@ -2114,9 +2477,17 @@ cdef class cudaHostNodeParams:
     def fn(self):
         return self._fn
     @fn.setter
-    def fn(self, fn : cudaHostFn_t):
-        pass
-        self._fn._ptr[0] = <ccudart.cudaHostFn_t> NULL if fn == None else (<cudaHostFn_t>fn)._ptr[0]
+    def fn(self, fn):
+        cdef ccudart.cudaHostFn_t cfn
+        if fn is None:
+            cfn = <ccudart.cudaHostFn_t><void_ptr>0
+        elif isinstance(fn, (cudaHostFn_t)):
+            pfn = int(fn)
+            cfn = <ccudart.cudaHostFn_t><void_ptr>pfn
+        else:
+            pfn = int(cudaHostFn_t(fn))
+            cfn = <ccudart.cudaHostFn_t><void_ptr>pfn
+        self._fn._ptr[0] = cfn
     @property
     def userData(self):
         return <void_ptr>self._ptr[0].userData
@@ -2279,9 +2650,17 @@ cdef class _cudaResourceDesc_res_res_array_s:
     def array(self):
         return self._array
     @array.setter
-    def array(self, array : cudaArray_t):
-        pass
-        self._array._ptr[0] = <ccudart.cudaArray_t> NULL if array == None else (<cudaArray_t>array)._ptr[0]
+    def array(self, array):
+        cdef ccudart.cudaArray_t carray
+        if array is None:
+            carray = <ccudart.cudaArray_t><void_ptr>0
+        elif isinstance(array, (cudaArray_t)):
+            parray = int(array)
+            carray = <ccudart.cudaArray_t><void_ptr>parray
+        else:
+            parray = int(cudaArray_t(array))
+            carray = <ccudart.cudaArray_t><void_ptr>parray
+        self._array._ptr[0] = carray
 
 cdef class _cudaResourceDesc_res_res_mipmap_s:
     """
@@ -2315,9 +2694,17 @@ cdef class _cudaResourceDesc_res_res_mipmap_s:
     def mipmap(self):
         return self._mipmap
     @mipmap.setter
-    def mipmap(self, mipmap : cudaMipmappedArray_t):
-        pass
-        self._mipmap._ptr[0] = <ccudart.cudaMipmappedArray_t> NULL if mipmap == None else (<cudaMipmappedArray_t>mipmap)._ptr[0]
+    def mipmap(self, mipmap):
+        cdef ccudart.cudaMipmappedArray_t cmipmap
+        if mipmap is None:
+            cmipmap = <ccudart.cudaMipmappedArray_t><void_ptr>0
+        elif isinstance(mipmap, (cudaMipmappedArray_t)):
+            pmipmap = int(mipmap)
+            cmipmap = <ccudart.cudaMipmappedArray_t><void_ptr>pmipmap
+        else:
+            pmipmap = int(cudaMipmappedArray_t(mipmap))
+            cmipmap = <ccudart.cudaMipmappedArray_t><void_ptr>pmipmap
+        self._mipmap._ptr[0] = cmipmap
 
 cdef class _cudaResourceDesc_res_res_linear_s:
     """
@@ -2746,7 +3133,7 @@ cdef class cudaPointerAttributes:
         access the memory or NULL if no such address exists.
     hostPointer : Any
         The address which may be dereferenced on the host to access the
-        memory or NULL if no such address exists. CUDA doesn't check if
+        memory or NULL if no such address exists.  CUDA doesn't check if
         unregistered memory is allocated so this field may contain invalid
         pointer if an invalid pointer has been passed to CUDA.
 
@@ -2972,7 +3359,7 @@ cdef class cudaFuncAttributes:
 
 cdef class cudaMemLocation:
     """
-    Specifies a memory location. To specify a gpu, set type =
+    Specifies a memory location.  To specify a gpu, set type =
     ::cudaMemLocationTypeDevice and set id = the gpu's device ordinal.
 
     Attributes
@@ -3399,7 +3786,7 @@ cdef class cudaDeviceProp:
 
     Attributes
     ----------
-    name : char
+    name : List[char]
         ASCII string identifying device
     uuid : cudaUUID_t
         16-byte unique identifier
@@ -3421,9 +3808,9 @@ cdef class cudaDeviceProp:
         Maximum pitch in bytes allowed by memory copies
     maxThreadsPerBlock : int
         Maximum number of threads per block
-    maxThreadsDim : int
+    maxThreadsDim : List[int]
         Maximum size of each dimension of a block
-    maxGridSize : int
+    maxGridSize : List[int]
         Maximum size of each dimension of a grid
     clockRate : int
         Clock frequency in kilohertz
@@ -3459,41 +3846,41 @@ cdef class cudaDeviceProp:
     maxTexture1DLinear : int
         Deprecated, do not use. Use cudaDeviceGetTexture1DLinearMaxWidth()
         or cuDeviceGetTexture1DLinearMaxWidth() instead.
-    maxTexture2D : int
+    maxTexture2D : List[int]
         Maximum 2D texture dimensions
-    maxTexture2DMipmap : int
+    maxTexture2DMipmap : List[int]
         Maximum 2D mipmapped texture dimensions
-    maxTexture2DLinear : int
+    maxTexture2DLinear : List[int]
         Maximum dimensions (width, height, pitch) for 2D textures bound to
         pitched memory
-    maxTexture2DGather : int
+    maxTexture2DGather : List[int]
         Maximum 2D texture dimensions if texture gather operations have to
         be performed
-    maxTexture3D : int
+    maxTexture3D : List[int]
         Maximum 3D texture dimensions
-    maxTexture3DAlt : int
+    maxTexture3DAlt : List[int]
         Maximum alternate 3D texture dimensions
     maxTextureCubemap : int
         Maximum Cubemap texture dimensions
-    maxTexture1DLayered : int
+    maxTexture1DLayered : List[int]
         Maximum 1D layered texture dimensions
-    maxTexture2DLayered : int
+    maxTexture2DLayered : List[int]
         Maximum 2D layered texture dimensions
-    maxTextureCubemapLayered : int
+    maxTextureCubemapLayered : List[int]
         Maximum Cubemap layered texture dimensions
     maxSurface1D : int
         Maximum 1D surface size
-    maxSurface2D : int
+    maxSurface2D : List[int]
         Maximum 2D surface dimensions
-    maxSurface3D : int
+    maxSurface3D : List[int]
         Maximum 3D surface dimensions
-    maxSurface1DLayered : int
+    maxSurface1DLayered : List[int]
         Maximum 1D layered surface dimensions
-    maxSurface2DLayered : int
+    maxSurface2DLayered : List[int]
         Maximum 2D layered surface dimensions
     maxSurfaceCubemap : int
         Maximum Cubemap surface dimensions
-    maxSurfaceCubemapLayered : int
+    maxSurfaceCubemapLayered : List[int]
         Maximum Cubemap layered surface dimensions
     surfaceAlignment : size_t
         Alignment requirements for surfaces
@@ -5021,7 +5408,7 @@ cdef class _cudaExternalSemaphoreSignalParams_params_s:
 
     keyedMutex : _cudaExternalSemaphoreSignalParams_params_params_keyedMutex_s
 
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -5107,7 +5494,7 @@ cdef class cudaExternalSemaphoreSignalParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -5308,7 +5695,7 @@ cdef class _cudaExternalSemaphoreWaitParams_params_s:
 
     keyedMutex : _cudaExternalSemaphoreWaitParams_params_params_keyedMutex_s
 
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -5394,7 +5781,7 @@ cdef class cudaExternalSemaphoreWaitParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-    reserved : unsigned int
+    reserved : List[unsigned int]
 
 
     Methods
@@ -5772,7 +6159,7 @@ cdef class cudaTextureDesc:
         Texture read mode
     sRGB : int
         Perform sRGB->linear conversion during texture read
-    borderColor : float
+    borderColor : List[float]
         Texture Border Color
     normalizedCoords : int
         Indicates whether texture reads are normalized or not
@@ -5788,6 +6175,8 @@ cdef class cudaTextureDesc:
         Upper end of the mipmap level range to clamp access to
     disableTrilinearOptimization : int
         Disable any trilinear filtering optimizations.
+    seamlessCubemap : int
+        Enable seamless cube map filtering.
 
     Methods
     -------
@@ -5827,6 +6216,7 @@ cdef class cudaTextureDesc:
             str_list += ['minMipmapLevelClamp : ' + str(self.minMipmapLevelClamp)]
             str_list += ['maxMipmapLevelClamp : ' + str(self.maxMipmapLevelClamp)]
             str_list += ['disableTrilinearOptimization : ' + str(self.disableTrilinearOptimization)]
+            str_list += ['seamlessCubemap : ' + str(self.seamlessCubemap)]
             return '\n'.join(str_list)
         else:
             return ''
@@ -5914,6 +6304,284 @@ cdef class cudaTextureDesc:
     def disableTrilinearOptimization(self, int disableTrilinearOptimization):
         pass
         self._ptr[0].disableTrilinearOptimization = disableTrilinearOptimization
+    @property
+    def seamlessCubemap(self):
+        return self._ptr[0].seamlessCubemap
+    @seamlessCubemap.setter
+    def seamlessCubemap(self, int seamlessCubemap):
+        pass
+        self._ptr[0].seamlessCubemap = seamlessCubemap
+
+cdef class cudaEglPlaneDesc_st:
+    """
+    CUDA EGL Plane Descriptor - structure defining each plane of a CUDA
+    EGLFrame
+
+    Attributes
+    ----------
+    width : unsigned int
+        Width of plane
+    height : unsigned int
+        Height of plane
+    depth : unsigned int
+        Depth of plane
+    pitch : unsigned int
+        Pitch of plane
+    numChannels : unsigned int
+        Number of channels for the plane
+    channelDesc : cudaChannelFormatDesc
+        Channel Format Descriptor
+    reserved : List[unsigned int]
+        Reserved for future use
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.cudaEglPlaneDesc_st *>calloc(1, sizeof(ccudart.cudaEglPlaneDesc_st))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.cudaEglPlaneDesc_st)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.cudaEglPlaneDesc_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._channelDesc = cudaChannelFormatDesc(_ptr=<void_ptr>&self._ptr[0].channelDesc)
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            str_list += ['width : ' + str(self.width)]
+            str_list += ['height : ' + str(self.height)]
+            str_list += ['depth : ' + str(self.depth)]
+            str_list += ['pitch : ' + str(self.pitch)]
+            str_list += ['numChannels : ' + str(self.numChannels)]
+            str_list += ['channelDesc :\n' + '\n'.join(['    ' + line for line in str(self.channelDesc).splitlines()])]
+            str_list += ['reserved : ' + str(self.reserved)]
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def width(self):
+        return self._ptr[0].width
+    @width.setter
+    def width(self, unsigned int width):
+        pass
+        self._ptr[0].width = width
+    @property
+    def height(self):
+        return self._ptr[0].height
+    @height.setter
+    def height(self, unsigned int height):
+        pass
+        self._ptr[0].height = height
+    @property
+    def depth(self):
+        return self._ptr[0].depth
+    @depth.setter
+    def depth(self, unsigned int depth):
+        pass
+        self._ptr[0].depth = depth
+    @property
+    def pitch(self):
+        return self._ptr[0].pitch
+    @pitch.setter
+    def pitch(self, unsigned int pitch):
+        pass
+        self._ptr[0].pitch = pitch
+    @property
+    def numChannels(self):
+        return self._ptr[0].numChannels
+    @numChannels.setter
+    def numChannels(self, unsigned int numChannels):
+        pass
+        self._ptr[0].numChannels = numChannels
+    @property
+    def channelDesc(self):
+        return self._channelDesc
+    @channelDesc.setter
+    def channelDesc(self, channelDesc not None : cudaChannelFormatDesc):
+        pass
+        for _attr in dir(channelDesc):
+            if _attr == 'getPtr':
+                continue
+            if not _attr.startswith('_'):
+                setattr(self._channelDesc, _attr, getattr(channelDesc, _attr))
+    @property
+    def reserved(self):
+        return self._ptr[0].reserved
+    @reserved.setter
+    def reserved(self, reserved):
+        pass
+        self._ptr[0].reserved = reserved
+
+cdef class _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u:
+    """
+
+    Attributes
+    ----------
+    pArray : List[cudaArray_t]
+
+    pPitch : List[cudaPitchedPtr]
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._ptr = <ccudart.cudaEglFrame_st *>_ptr
+    def __init__(self, void_ptr _ptr):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            str_list += ['pArray : ' + str(self.pArray)]
+            str_list += ['pPitch :\n' + '\n'.join(['    ' + line for line in str(self.pPitch).splitlines()])]
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def pArray(self):
+        return [cudaArray_t(init_value=<void_ptr>_pArray) for _pArray in self._ptr[0].frame.pArray]
+    @pArray.setter
+    def pArray(self, pArray : List[cudaArray_t]):
+        if len(pArray) != 3:
+            raise IndexError('not enough values found during array assignment, expected 3, got', len(pArray))
+        pArray = [int(_pArray) for _pArray in pArray]
+        for _idx, _pArray in enumerate(pArray):
+            self._ptr[0].frame.pArray[_idx] = <ccudart.cudaArray_t><void_ptr>_pArray
+    @property
+    def pPitch(self):
+        out_pPitch = [cudaPitchedPtr() for _pPitch in self._ptr[0].frame.pPitch]
+        for _idx in range(len(out_pPitch)):
+            memcpy(<ccudart.cudaPitchedPtr*><void_ptr>out_pPitch[_idx].getPtr(), &self._ptr[0].frame.pPitch[_idx], sizeof(ccudart.cudaPitchedPtr))
+        return out_pPitch
+    @pPitch.setter
+    def pPitch(self, pPitch : List[cudaPitchedPtr]):
+        if len(pPitch) != 3:
+            raise IndexError('not enough values found during array assignment, expected 3, got', len(pPitch))
+        for _idx in range(len(pPitch)):
+            memcpy(&self._ptr[0].frame.pPitch[_idx], <ccudart.cudaPitchedPtr*><void_ptr>pPitch[_idx].getPtr(), sizeof(ccudart.cudaPitchedPtr))
+
+cdef class cudaEglFrame_st:
+    """
+    CUDA EGLFrame Descriptor - structure defining one frame of EGL.
+    Each frame may contain one or more planes depending on whether the
+    surface is Multiplanar or not. Each plane of EGLFrame is
+    represented by cudaEglPlaneDesc which is defined as:
+    typedefstructcudaEglPlaneDesc_st unsignedintwidth;
+    unsignedintheight; unsignedintdepth; unsignedintpitch;
+    unsignedintnumChannels; structcudaChannelFormatDescchannelDesc;
+    unsignedintreserved[4]; cudaEglPlaneDesc;
+
+    Attributes
+    ----------
+    frame : _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u
+
+    planeDesc : List[cudaEglPlaneDesc]
+        CUDA EGL Plane Descriptor cudaEglPlaneDesc
+    planeCount : unsigned int
+        Number of planes
+    frameType : cudaEglFrameType
+        Array or Pitch
+    eglColorFormat : cudaEglColorFormat
+        CUDA EGL Color Format
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.cudaEglFrame_st *>calloc(1, sizeof(ccudart.cudaEglFrame_st))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.cudaEglFrame_st)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.cudaEglFrame_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._frame = _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u(_ptr=<void_ptr>self._ptr)
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            str_list += ['frame :\n' + '\n'.join(['    ' + line for line in str(self.frame).splitlines()])]
+            str_list += ['planeDesc :\n' + '\n'.join(['    ' + line for line in str(self.planeDesc).splitlines()])]
+            str_list += ['planeCount : ' + str(self.planeCount)]
+            str_list += ['frameType : ' + str(self.frameType)]
+            str_list += ['eglColorFormat : ' + str(self.eglColorFormat)]
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def frame(self):
+        return self._frame
+    @frame.setter
+    def frame(self, frame not None : _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u):
+        pass
+        for _attr in dir(frame):
+            if _attr == 'getPtr':
+                continue
+            if not _attr.startswith('_'):
+                setattr(self._frame, _attr, getattr(frame, _attr))
+    @property
+    def planeDesc(self):
+        out_planeDesc = [cudaEglPlaneDesc() for _planeDesc in self._ptr[0].planeDesc]
+        for _idx in range(len(out_planeDesc)):
+            memcpy(<ccudart.cudaEglPlaneDesc*><void_ptr>out_planeDesc[_idx].getPtr(), &self._ptr[0].planeDesc[_idx], sizeof(ccudart.cudaEglPlaneDesc))
+        return out_planeDesc
+    @planeDesc.setter
+    def planeDesc(self, planeDesc : List[cudaEglPlaneDesc]):
+        if len(planeDesc) != 3:
+            raise IndexError('not enough values found during array assignment, expected 3, got', len(planeDesc))
+        for _idx in range(len(planeDesc)):
+            memcpy(&self._ptr[0].planeDesc[_idx], <ccudart.cudaEglPlaneDesc*><void_ptr>planeDesc[_idx].getPtr(), sizeof(ccudart.cudaEglPlaneDesc))
+    @property
+    def planeCount(self):
+        return self._ptr[0].planeCount
+    @planeCount.setter
+    def planeCount(self, unsigned int planeCount):
+        pass
+        self._ptr[0].planeCount = planeCount
+    @property
+    def frameType(self):
+        return cudaEglFrameType(self._ptr[0].frameType)
+    @frameType.setter
+    def frameType(self, frameType not None : cudaEglFrameType):
+        pass
+        self._ptr[0].frameType = frameType.value
+    @property
+    def eglColorFormat(self):
+        return cudaEglColorFormat(self._ptr[0].eglColorFormat)
+    @eglColorFormat.setter
+    def eglColorFormat(self, eglColorFormat not None : cudaEglColorFormat):
+        pass
+        self._ptr[0].eglColorFormat = eglColorFormat.value
 
 cdef class cudaSurfaceObject_t:
     """
@@ -5976,6 +6644,224 @@ cdef class cudaTextureObject_t:
         return <unsigned long long>self._ptr[0]
     def getPtr(self):
         return <void_ptr>self._ptr
+
+cdef class GLenum:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.GLenum *>calloc(1, sizeof(ccudart.GLenum))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.GLenum)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.GLenum *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<GLenum ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned int>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class GLuint:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.GLuint *>calloc(1, sizeof(ccudart.GLuint))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.GLuint)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.GLuint *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<GLuint ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned int>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class EGLint:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.EGLint *>calloc(1, sizeof(ccudart.EGLint))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.EGLint)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.EGLint *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<EGLint ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned int>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class VdpDevice:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.VdpDevice *>calloc(1, sizeof(ccudart.VdpDevice))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.VdpDevice)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.VdpDevice *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<VdpDevice ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <uint32_t>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class VdpGetProcAddress:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.VdpGetProcAddress *>calloc(1, sizeof(ccudart.VdpGetProcAddress))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.VdpGetProcAddress)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.VdpGetProcAddress *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<VdpGetProcAddress ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned long long>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class VdpVideoSurface:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.VdpVideoSurface *>calloc(1, sizeof(ccudart.VdpVideoSurface))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.VdpVideoSurface)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.VdpVideoSurface *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<VdpVideoSurface ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <uint32_t>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class VdpOutputSurface:
+    """
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr_owner = True
+            self._ptr = <ccudart.VdpOutputSurface *>calloc(1, sizeof(ccudart.VdpOutputSurface))
+            if self._ptr is NULL:
+                raise MemoryError('Failed to allocate length x size memory: 1x' + str(sizeof(ccudart.VdpOutputSurface)))
+        else:
+            self._ptr_owner = False
+            self._ptr = <ccudart.VdpOutputSurface *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        if self._ptr_owner is True and self._ptr is not NULL:
+            free(self._ptr)
+    def __repr__(self):
+        return '<VdpOutputSurface ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <uint32_t>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
 
 @cython.embedsignature(True)
 def cudaDeviceReset():
@@ -6051,18 +6937,18 @@ def cudaDeviceSetLimit(limit not None : cudaLimit, size_t value):
     Setting each cudaLimit has its own specific restrictions, so each is
     discussed here.
 
-    ::cudaLimitStackSize controls the stack size in bytes of each GPU
-    thread. ::cudaLimitPrintfFifoSize controls the size in bytes of the
+    - cudaLimitStackSize controls the stack size in bytes of each GPU
+    thread.    - cudaLimitPrintfFifoSize controls the size in bytes of the
     shared FIFO used by the printf() device system call. Setting
     cudaLimitPrintfFifoSize must not be performed after launching any
     kernel that uses the printf() device system call - in such case
-    cudaErrorInvalidValue will be returned. ::cudaLimitMallocHeapSize
+    cudaErrorInvalidValue will be returned.    - cudaLimitMallocHeapSize
     controls the size in bytes of the heap used by the malloc() and free()
     device system calls. Setting cudaLimitMallocHeapSize must not be
     performed after launching any kernel that uses the malloc() or free()
     device system calls - in such case cudaErrorInvalidValue will be
-    returned. ::cudaLimitDevRuntimeSyncDepth controls the maximum nesting
-    depth of a grid at which a thread can safely call
+    returned.    - cudaLimitDevRuntimeSyncDepth controls the maximum
+    nesting depth of a grid at which a thread can safely call
     cudaDeviceSynchronize(). Setting this limit must be performed before
     any launch of a kernel that uses the device runtime and calls
     cudaDeviceSynchronize() above the default sync depth, two levels of
@@ -6077,11 +6963,11 @@ def cudaDeviceSetLimit(limit not None : cudaLimit, size_t value):
     This limit is only applicable to devices of compute capability 3.5 and
     higher. Attempting to set this limit on devices of compute capability
     less than 3.5 will result in the error cudaErrorUnsupportedLimit being
-    returned. ::cudaLimitDevRuntimePendingLaunchCount controls the maximum
-    number of outstanding device runtime launches that can be made from the
-    current device. A grid is outstanding from the point of launch up until
-    the grid is known to have been completed. Device runtime launches which
-    violate this limitation fail and return
+    returned.    - cudaLimitDevRuntimePendingLaunchCount controls the
+    maximum number of outstanding device runtime launches that can be made
+    from the current device. A grid is outstanding from the point of launch
+    up until the grid is known to have been completed. Device runtime
+    launches which violate this limitation fail and return
     cudaErrorLaunchPendingCountExceeded when cudaGetLastError() is called
     after launch. If more pending launches than the default (2048 launches)
     are needed for a module using the device runtime, this limit can be
@@ -6093,10 +6979,10 @@ def cudaDeviceSetLimit(limit not None : cudaLimit, size_t value):
     This limit is only applicable to devices of compute capability 3.5 and
     higher. Attempting to set this limit on devices of compute capability
     less than 3.5 will result in the error cudaErrorUnsupportedLimit being
-    returned. ::cudaLimitMaxL2FetchGranularity controls the L2 cache fetch
-    granularity. Values can range from 0B to 128B. This is purely a
+    returned.    - cudaLimitMaxL2FetchGranularity controls the L2 cache
+    fetch granularity. Values can range from 0B to 128B. This is purely a
     performance hint and it can be ignored or clamped depending on the
-    platform. ::cudaLimitPersistingL2CacheSize controls size in bytes
+    platform.    - cudaLimitPersistingL2CacheSize controls size in bytes
     available for persisting L2 cache. This is purely a performance hint
     and it can be ignored or clamped depending on the platform.
 
@@ -6131,16 +7017,16 @@ def cudaDeviceGetLimit(limit not None : cudaLimit):
     """ Returns resource limits.
 
     Returns in `*pValue` the current size of `limit`. The supported
-    cudaLimit values are: ::cudaLimitStackSize: stack size in bytes of each
-    GPU thread; ::cudaLimitPrintfFifoSize: size in bytes of the shared FIFO
-    used by the printf() device system call. ::cudaLimitMallocHeapSize:
-    size in bytes of the heap used by the malloc() and free() device system
-    calls; ::cudaLimitDevRuntimeSyncDepth: maximum grid depth at which a
-    thread can isssue the device runtime call cudaDeviceSynchronize() to
-    wait on child grid launches to complete.
-    ::cudaLimitDevRuntimePendingLaunchCount: maximum number of outstanding
-    device runtime launches. ::cudaLimitMaxL2FetchGranularity: L2 cache
-    fetch granularity. ::cudaLimitPersistingL2CacheSize: Persisting L2
+    cudaLimit values are: - cudaLimitStackSize: stack size in bytes of each
+    GPU thread;    - cudaLimitPrintfFifoSize: size in bytes of the shared
+    FIFO used by the printf() device system call.    -
+    cudaLimitMallocHeapSize: size in bytes of the heap used by the malloc()
+    and free() device system calls;    - cudaLimitDevRuntimeSyncDepth:
+    maximum grid depth at which a thread can isssue the device runtime call
+    cudaDeviceSynchronize() to wait on child grid launches to complete.
+    - cudaLimitDevRuntimePendingLaunchCount: maximum number of outstanding
+    device runtime launches.    - cudaLimitMaxL2FetchGranularity: L2 cache
+    fetch granularity.    - cudaLimitPersistingL2CacheSize: Persisting L2
     cache size in bytes
 
     Parameters
@@ -6209,11 +7095,11 @@ def cudaDeviceGetCacheConfig():
     This will return a `pCacheConfig` of cudaFuncCachePreferNone on devices
     where the size of the L1 cache and shared memory are fixed.
 
-    The supported cache configurations are: ::cudaFuncCachePreferNone: no
-    preference for shared memory or L1 (default)
-    ::cudaFuncCachePreferShared: prefer larger shared memory and smaller L1
-    cache ::cudaFuncCachePreferL1: prefer larger L1 cache and smaller
-    shared memory ::cudaFuncCachePreferEqual: prefer equal size L1 cache
+    The supported cache configurations are: - cudaFuncCachePreferNone: no
+    preference for shared memory or L1 (default)    -
+    cudaFuncCachePreferShared: prefer larger shared memory and smaller L1
+    cache    - cudaFuncCachePreferL1: prefer larger L1 cache and smaller
+    shared memory    - cudaFuncCachePreferEqual: prefer equal size L1 cache
     and shared memory
 
     Returns
@@ -6297,11 +7183,11 @@ def cudaDeviceSetCacheConfig(cacheConfig not None : cudaFuncCache):
     Launching a kernel with a different preference than the most recent
     preference setting may insert a device-side synchronization point.
 
-    The supported cache configurations are: ::cudaFuncCachePreferNone: no
-    preference for shared memory or L1 (default)
-    ::cudaFuncCachePreferShared: prefer larger shared memory and smaller L1
-    cache ::cudaFuncCachePreferL1: prefer larger L1 cache and smaller
-    shared memory ::cudaFuncCachePreferEqual: prefer equal size L1 cache
+    The supported cache configurations are: - cudaFuncCachePreferNone: no
+    preference for shared memory or L1 (default)    -
+    cudaFuncCachePreferShared: prefer larger shared memory and smaller L1
+    cache    - cudaFuncCachePreferL1: prefer larger L1 cache and smaller
+    shared memory    - cudaFuncCachePreferEqual: prefer equal size L1 cache
     and shared memory
 
     Parameters
@@ -6338,10 +7224,10 @@ def cudaDeviceGetSharedMemConfig():
     without configurable shared memory, it will return the fixed bank size
     of the hardware.
 
-    The returned bank configurations can be either:
-    ::cudaSharedMemBankSizeFourByte - shared memory bank width is four
-    bytes. ::cudaSharedMemBankSizeEightByte - shared memory bank width is
-    eight bytes.
+    The returned bank configurations can be either: -
+    cudaSharedMemBankSizeFourByte - shared memory bank width is four bytes.
+    - cudaSharedMemBankSizeEightByte - shared memory bank width is eight
+    bytes.
 
     Returns
     -------
@@ -6384,11 +7270,11 @@ def cudaDeviceSetSharedMemConfig(config not None : cudaSharedMemConfig):
     This function will do nothing on devices with fixed shared memory bank
     size.
 
-    The supported bank configurations are: ::cudaSharedMemBankSizeDefault:
-    set bank width the device default (currently, four bytes)
-    ::cudaSharedMemBankSizeFourByte: set shared memory bank width to be
-    four bytes natively. ::cudaSharedMemBankSizeEightByte: set shared
-    memory bank width to be eight bytes natively.
+    The supported bank configurations are: - cudaSharedMemBankSizeDefault:
+    set bank width the device default (currently, four bytes)    -
+    cudaSharedMemBankSizeFourByte: set shared memory bank width to be four
+    bytes natively.    - cudaSharedMemBankSizeEightByte: set shared memory
+    bank width to be eight bytes natively.
 
     Parameters
     ----------
@@ -6473,9 +7359,10 @@ def cudaDeviceGetPCIBusId(int length, int device):
     cudaDeviceGetByPCIBusId
     cuDeviceGetPCIBusId
     """
-    cdef char* pciBusId = <char*>calloc(1, length)
+    pypciBusId = b" " * length
+    cdef char* pciBusId = pypciBusId
     err = ccudart.cudaDeviceGetPCIBusId(pciBusId, length, device)
-    return (cudaError_t(err), <bytes>pciBusId)
+    return (cudaError_t(err), pypciBusId)
 
 @cython.embedsignature(True)
 def cudaIpcGetEventHandle(event):
@@ -6529,10 +7416,18 @@ def cudaIpcGetEventHandle(event):
     cudaIpcCloseMemHandle
     cuIpcGetEventHandle
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
     cdef cudaIpcEventHandle_t handle = cudaIpcEventHandle_t()
-    err = ccudart.cudaIpcGetEventHandle(handle._ptr, <ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0])
+    err = ccudart.cudaIpcGetEventHandle(handle._ptr, cevent)
     return (cudaError_t(err), handle)
 
 @cython.embedsignature(True)
@@ -6787,10 +7682,6 @@ def cudaDeviceFlushGPUDirectRDMAWrites(target not None : cudaFlushGPUDirectRDMAW
         cudaErrorNotSupported
     None
         None
-
-    See Also
-    --------
-    cuFlushGPUDirectRDMAWrites
     """
     cdef ccudart.cudaFlushGPUDirectRDMAWritesTarget ctarget = target.value
     cdef ccudart.cudaFlushGPUDirectRDMAWritesScope cscope = scope.value
@@ -6880,12 +7771,12 @@ def cudaThreadSetLimit(limit not None : cudaLimit, size_t value):
     Setting each cudaLimit has its own specific restrictions, so each is
     discussed here.
 
-    ::cudaLimitStackSize controls the stack size of each GPU thread.
-    ::cudaLimitPrintfFifoSize controls the size of the shared FIFO used by
+    - cudaLimitStackSize controls the stack size of each GPU thread.    -
+    cudaLimitPrintfFifoSize controls the size of the shared FIFO used by
     the printf() device system call. Setting cudaLimitPrintfFifoSize must
     be performed before launching any kernel that uses the printf() device
-    system call, otherwise cudaErrorInvalidValue will be returned.
-    ::cudaLimitMallocHeapSize controls the size of the heap used by the
+    system call, otherwise cudaErrorInvalidValue will be returned.    -
+    cudaLimitMallocHeapSize controls the size of the heap used by the
     malloc() and free() device system calls. Setting
     cudaLimitMallocHeapSize must be performed before launching any kernel
     that uses the malloc() or free() device system calls, otherwise
@@ -6926,10 +7817,10 @@ def cudaThreadGetLimit(limit not None : cudaLimit):
     function cudaDeviceGetLimit(), which should be used instead.
 
     Returns in `*pValue` the current size of `limit`. The supported
-    cudaLimit values are: ::cudaLimitStackSize: stack size of each GPU
-    thread; ::cudaLimitPrintfFifoSize: size of the shared FIFO used by the
-    printf() device system call. ::cudaLimitMallocHeapSize: size of the
-    heap used by the malloc() and free() device system calls;
+    cudaLimit values are: - cudaLimitStackSize: stack size of each GPU
+    thread;    - cudaLimitPrintfFifoSize: size of the shared FIFO used by
+    the printf() device system call.    - cudaLimitMallocHeapSize: size of
+    the heap used by the malloc() and free() device system calls;
 
     Parameters
     ----------
@@ -6974,10 +7865,10 @@ def cudaThreadGetCacheConfig():
     This will return a `pCacheConfig` of cudaFuncCachePreferNone on devices
     where the size of the L1 cache and shared memory are fixed.
 
-    The supported cache configurations are: ::cudaFuncCachePreferNone: no
-    preference for shared memory or L1 (default)
-    ::cudaFuncCachePreferShared: prefer larger shared memory and smaller L1
-    cache ::cudaFuncCachePreferL1: prefer larger L1 cache and smaller
+    The supported cache configurations are: - cudaFuncCachePreferNone: no
+    preference for shared memory or L1 (default)    -
+    cudaFuncCachePreferShared: prefer larger shared memory and smaller L1
+    cache    - cudaFuncCachePreferL1: prefer larger L1 cache and smaller
     shared memory
 
     Returns
@@ -7023,10 +7914,10 @@ def cudaThreadSetCacheConfig(cacheConfig not None : cudaFuncCache):
     Launching a kernel with a different preference than the most recent
     preference setting may insert a device-side synchronization point.
 
-    The supported cache configurations are: ::cudaFuncCachePreferNone: no
-    preference for shared memory or L1 (default)
-    ::cudaFuncCachePreferShared: prefer larger shared memory and smaller L1
-    cache ::cudaFuncCachePreferL1: prefer larger L1 cache and smaller
+    The supported cache configurations are: - cudaFuncCachePreferNone: no
+    preference for shared memory or L1 (default)    -
+    cudaFuncCachePreferShared: prefer larger shared memory and smaller L1
+    cache    - cudaFuncCachePreferL1: prefer larger L1 cache and smaller
     shared memory
 
     Parameters
@@ -7284,127 +8175,133 @@ def cudaGetDeviceProperties(int device):
     intcooperativeMultiDeviceLaunch;
     intpageableMemoryAccessUsesHostPageTables;
     intdirectManagedMemAccessFromHost; intaccessPolicyMaxWindowSize; }
-    where: name[256] is an ASCII string identifying the device; uuid is a
-    16-byte unique identifier. totalGlobalMem is the total amount of global
-    memory available on the device in bytes; sharedMemPerBlock is the
-    maximum amount of shared memory available to a thread block in bytes;
-    regsPerBlock is the maximum number of 32-bit registers available to a
-    thread block; warpSize is the warp size in threads; memPitch is the
-    maximum pitch in bytes allowed by the memory copy functions that
-    involve memory regions allocated through cudaMallocPitch();
-    maxThreadsPerBlock is the maximum number of threads per block;
-    maxThreadsDim[3] contains the maximum size of each dimension of a
-    block; maxGridSize[3] contains the maximum size of each dimension of a
-    grid; clockRate is the clock frequency in kilohertz; totalConstMem is
-    the total amount of constant memory available on the device in bytes;
-    major, minor are the major and minor revision numbers defining the
-    device's compute capability; textureAlignment is the alignment
-    requirement; texture base addresses that are aligned to
-    textureAlignment bytes do not need an offset applied to texture
-    fetches; texturePitchAlignment is the pitch alignment requirement for
-    2D texture references that are bound to pitched memory; deviceOverlap
-    is 1 if the device can concurrently copy memory between host and device
-    while executing a kernel, or 0 if not. Deprecated, use instead
-    asyncEngineCount. multiProcessorCount is the number of multiprocessors
-    on the device; kernelExecTimeoutEnabled is 1 if there is a run time
-    limit for kernels executed on the device, or 0 if not. integrated is 1
-    if the device is an integrated (motherboard) GPU and 0 if it is a
-    discrete (card) component. canMapHostMemory is 1 if the device can map
-    host memory into the CUDA address space for use with
-    cudaHostAlloc()/cudaHostGetDevicePointer(), or 0 if not; computeMode is
-    the compute mode that the device is currently in. Available modes are
-    as follows: cudaComputeModeDefault: Default mode - Device is not
-    restricted and multiple threads can use cudaSetDevice() with this
-    device. cudaComputeModeExclusive: Compute-exclusive mode - Only one
-    thread will be able to use cudaSetDevice() with this device.
-    cudaComputeModeProhibited: Compute-prohibited mode - No threads can use
-    cudaSetDevice() with this device. cudaComputeModeExclusiveProcess:
-    Compute-exclusive-process mode - Many threads in one process will be
-    able to use cudaSetDevice() with this device.  If cudaSetDevice() is
-    called on an already occupied `device` with computeMode
-    cudaComputeModeExclusive, cudaErrorDeviceAlreadyInUse will be
-    immediately returned indicating the device cannot be used. When an
-    occupied exclusive mode device is chosen with cudaSetDevice, all
-    subsequent non-device management runtime functions will return
-    cudaErrorDevicesUnavailable.   maxTexture1D is the maximum 1D texture
-    size. maxTexture1DMipmap is the maximum 1D mipmapped texture texture
-    size. maxTexture1DLinear is the maximum 1D texture size for textures
-    bound to linear memory. maxTexture2D[2] contains the maximum 2D texture
-    dimensions. maxTexture2DMipmap[2] contains the maximum 2D mipmapped
-    texture dimensions. maxTexture2DLinear[3] contains the maximum 2D
-    texture dimensions for 2D textures bound to pitch linear memory.
+    where: - name[256] is an ASCII string identifying the device;    - uuid
+    is a 16-byte unique identifier.    - totalGlobalMem is the total amount
+    of global memory available on the device in bytes;    -
+    sharedMemPerBlock is the maximum amount of shared memory available to a
+    thread block in bytes;    - regsPerBlock is the maximum number of
+    32-bit registers available to a thread block;    - warpSize is the warp
+    size in threads;    - memPitch is the maximum pitch in bytes allowed by
+    the memory copy functions that involve memory regions allocated through
+    cudaMallocPitch();    - maxThreadsPerBlock is the maximum number of
+    threads per block;    - maxThreadsDim[3] contains the maximum size of
+    each dimension of a block;    - maxGridSize[3] contains the maximum
+    size of each dimension of a grid;    - clockRate is the clock frequency
+    in kilohertz;    - totalConstMem is the total amount of constant memory
+    available on the device in bytes;    - major, minor are the major and
+    minor revision numbers defining the device's compute capability;    -
+    textureAlignment is the alignment requirement; texture base addresses
+    that are aligned to textureAlignment bytes do not need an offset
+    applied to texture fetches;    - texturePitchAlignment is the pitch
+    alignment requirement for 2D texture references that are bound to
+    pitched memory;    - deviceOverlap is 1 if the device can concurrently
+    copy memory between host and device while executing a kernel, or 0 if
+    not. Deprecated, use instead asyncEngineCount.    - multiProcessorCount
+    is the number of multiprocessors on the device;    -
+    kernelExecTimeoutEnabled is 1 if there is a run time limit for kernels
+    executed on the device, or 0 if not.    - integrated is 1 if the device
+    is an integrated (motherboard) GPU and 0 if it is a discrete (card)
+    component.    - canMapHostMemory is 1 if the device can map host memory
+    into the CUDA address space for use with
+    cudaHostAlloc()/cudaHostGetDevicePointer(), or 0 if not;    -
+    computeMode is the compute mode that the device is currently in.
+    Available modes are as follows:    - cudaComputeModeDefault: Default
+    mode - Device is not restricted and multiple threads can use
+    cudaSetDevice() with this device.     - cudaComputeModeExclusive:
+    Compute-exclusive mode - Only one thread will be able to use
+    cudaSetDevice() with this device.     - cudaComputeModeProhibited:
+    Compute-prohibited mode - No threads can use cudaSetDevice() with this
+    device.     - cudaComputeModeExclusiveProcess: Compute-exclusive-
+    process mode - Many threads in one process will be able to use
+    cudaSetDevice() with this device.      If cudaSetDevice() is called on
+    an already occupied `device` with computeMode cudaComputeModeExclusive,
+    cudaErrorDeviceAlreadyInUse will be immediately returned indicating the
+    device cannot be used. When an occupied exclusive mode device is chosen
+    with cudaSetDevice, all subsequent non-device management runtime
+    functions will return cudaErrorDevicesUnavailable.     - maxTexture1D
+    is the maximum 1D texture size.    - maxTexture1DMipmap is the maximum
+    1D mipmapped texture texture size.    - maxTexture1DLinear is the
+    maximum 1D texture size for textures bound to linear memory.    -
+    maxTexture2D[2] contains the maximum 2D texture dimensions.    -
+    maxTexture2DMipmap[2] contains the maximum 2D mipmapped texture
+    dimensions.    - maxTexture2DLinear[3] contains the maximum 2D texture
+    dimensions for 2D textures bound to pitch linear memory.    -
     maxTexture2DGather[2] contains the maximum 2D texture dimensions if
-    texture gather operations have to be performed. maxTexture3D[3]
-    contains the maximum 3D texture dimensions. maxTexture3DAlt[3] contains
-    the maximum alternate 3D texture dimensions. maxTextureCubemap is the
-    maximum cubemap texture width or height. maxTexture1DLayered[2]
-    contains the maximum 1D layered texture dimensions.
-    maxTexture2DLayered[3] contains the maximum 2D layered texture
-    dimensions. maxTextureCubemapLayered[2] contains the maximum cubemap
-    layered texture dimensions. maxSurface1D is the maximum 1D surface
-    size. maxSurface2D[2] contains the maximum 2D surface dimensions.
-    maxSurface3D[3] contains the maximum 3D surface dimensions.
-    maxSurface1DLayered[2] contains the maximum 1D layered surface
-    dimensions. maxSurface2DLayered[3] contains the maximum 2D layered
-    surface dimensions. maxSurfaceCubemap is the maximum cubemap surface
-    width or height. maxSurfaceCubemapLayered[2] contains the maximum
-    cubemap layered surface dimensions. surfaceAlignment specifies the
-    alignment requirements for surfaces. concurrentKernels is 1 if the
-    device supports executing multiple kernels within the same context
+    texture gather operations have to be performed.    - maxTexture3D[3]
+    contains the maximum 3D texture dimensions.    - maxTexture3DAlt[3]
+    contains the maximum alternate 3D texture dimensions.    -
+    maxTextureCubemap is the maximum cubemap texture width or height.    -
+    maxTexture1DLayered[2] contains the maximum 1D layered texture
+    dimensions.    - maxTexture2DLayered[3] contains the maximum 2D layered
+    texture dimensions.    - maxTextureCubemapLayered[2] contains the
+    maximum cubemap layered texture dimensions.    - maxSurface1D is the
+    maximum 1D surface size.    - maxSurface2D[2] contains the maximum 2D
+    surface dimensions.    - maxSurface3D[3] contains the maximum 3D
+    surface dimensions.    - maxSurface1DLayered[2] contains the maximum 1D
+    layered surface dimensions.    - maxSurface2DLayered[3] contains the
+    maximum 2D layered surface dimensions.    - maxSurfaceCubemap is the
+    maximum cubemap surface width or height.    -
+    maxSurfaceCubemapLayered[2] contains the maximum cubemap layered
+    surface dimensions.    - surfaceAlignment specifies the alignment
+    requirements for surfaces.    - concurrentKernels is 1 if the device
+    supports executing multiple kernels within the same context
     simultaneously, or 0 if not. It is not guaranteed that multiple kernels
     will be resident on the device concurrently so this feature should not
-    be relied upon for correctness; ECCEnabled is 1 if the device has ECC
-    support turned on, or 0 if not. pciBusID is the PCI bus identifier of
-    the device. pciDeviceID is the PCI device (sometimes called slot)
-    identifier of the device. pciDomainID is the PCI domain identifier of
-    the device. tccDriver is 1 if the device is using a TCC driver or 0 if
-    not. asyncEngineCount is 1 when the device can concurrently copy memory
-    between host and device while executing a kernel. It is 2 when the
-    device can concurrently copy memory between host and device in both
-    directions and execute a kernel at the same time. It is 0 if neither of
-    these is supported. unifiedAddressing is 1 if the device shares a
-    unified address space with the host and 0 otherwise. memoryClockRate is
-    the peak memory clock frequency in kilohertz. memoryBusWidth is the
-    memory bus width  in bits. l2CacheSize is L2 cache size in bytes.
+    be relied upon for correctness;    - ECCEnabled is 1 if the device has
+    ECC support turned on, or 0 if not.    - pciBusID is the PCI bus
+    identifier of the device.    - pciDeviceID is the PCI device (sometimes
+    called slot) identifier of the device.    - pciDomainID is the PCI
+    domain identifier of the device.    - tccDriver is 1 if the device is
+    using a TCC driver or 0 if not.    - asyncEngineCount is 1 when the
+    device can concurrently copy memory between host and device while
+    executing a kernel. It is 2 when the device can concurrently copy
+    memory between host and device in both directions and execute a kernel
+    at the same time. It is 0 if neither of these is supported.    -
+    unifiedAddressing is 1 if the device shares a unified address space
+    with the host and 0 otherwise.    - memoryClockRate is the peak memory
+    clock frequency in kilohertz.    - memoryBusWidth is the memory bus
+    width    in bits.    - l2CacheSize is L2 cache size in bytes.    -
     persistingL2CacheMaxSize is L2 cache's maximum persisting lines size in
-    bytes. maxThreadsPerMultiProcessor  is the number of maximum resident
-    threads per multiprocessor. streamPrioritiesSupported is 1 if the
-    device supports stream priorities, or 0 if it is not supported.
-    globalL1CacheSupported is 1 if the device supports caching of globals
-    in L1 cache, or 0 if it is not supported. localL1CacheSupported is 1 if
-    the device supports caching of locals in L1 cache, or 0 if it is not
-    supported. sharedMemPerMultiprocessor is the maximum amount of shared
-    memory available to a multiprocessor in bytes; this amount is shared by
-    all thread blocks simultaneously resident on a multiprocessor;
-    regsPerMultiprocessor is the maximum number of 32-bit registers
-    available to a multiprocessor; this number is shared by all thread
-    blocks simultaneously resident on a multiprocessor; managedMemory is 1
-    if the device supports allocating managed memory on this system, or 0
-    if it is not supported. isMultiGpuBoard is 1 if the device is on a
-    multi-GPU board (e.g. Gemini cards), and 0 if not; multiGpuBoardGroupID
-    is a unique identifier for a group of devices associated with the same
-    board. Devices on the same multi-GPU board will share the same
-    identifier; singleToDoublePrecisionPerfRatio  is the ratio of single
-    precision performance (in floating-point operations per second) to
-    double precision performance. pageableMemoryAccess is 1 if the device
+    bytes.    - maxThreadsPerMultiProcessor    is the number of maximum
+    resident threads per multiprocessor.    - streamPrioritiesSupported is
+    1 if the device supports stream priorities, or 0 if it is not
+    supported.    - globalL1CacheSupported is 1 if the device supports
+    caching of globals in L1 cache, or 0 if it is not supported.    -
+    localL1CacheSupported is 1 if the device supports caching of locals in
+    L1 cache, or 0 if it is not supported.    - sharedMemPerMultiprocessor
+    is the maximum amount of shared memory available to a multiprocessor in
+    bytes; this amount is shared by all thread blocks simultaneously
+    resident on a multiprocessor;    - regsPerMultiprocessor is the maximum
+    number of 32-bit registers available to a multiprocessor; this number
+    is shared by all thread blocks simultaneously resident on a
+    multiprocessor;    - managedMemory is 1 if the device supports
+    allocating managed memory on this system, or 0 if it is not supported.
+    - isMultiGpuBoard is 1 if the device is on a multi-GPU board (e.g.
+    Gemini cards), and 0 if not;    - multiGpuBoardGroupID is a unique
+    identifier for a group of devices associated with the same board.
+    Devices on the same multi-GPU board will share the same identifier;
+    - singleToDoublePrecisionPerfRatio    is the ratio of single precision
+    performance (in floating-point operations per second) to double
+    precision performance.    - pageableMemoryAccess is 1 if the device
     supports coherently accessing pageable memory without calling
-    cudaHostRegister on it, and 0 otherwise. concurrentManagedAccess is 1
-    if the device can coherently access managed memory concurrently with
-    the CPU, and 0 otherwise. computePreemptionSupported is 1 if the device
-    supports Compute Preemption, and 0 otherwise.
+    cudaHostRegister on it, and 0 otherwise.    - concurrentManagedAccess
+    is 1 if the device can coherently access managed memory concurrently
+    with the CPU, and 0 otherwise.    - computePreemptionSupported is 1 if
+    the device supports Compute Preemption, and 0 otherwise.    -
     canUseHostPointerForRegisteredMem is 1 if the device can access host
     registered memory at the same virtual address as the CPU, and 0
-    otherwise. cooperativeLaunch is 1 if the device supports launching
+    otherwise.    - cooperativeLaunch is 1 if the device supports launching
     cooperative kernels via cudaLaunchCooperativeKernel, and 0 otherwise.
-    cooperativeMultiDeviceLaunch is 1 if the device supports launching
+    - cooperativeMultiDeviceLaunch is 1 if the device supports launching
     cooperative kernels via cudaLaunchCooperativeKernelMultiDevice, and 0
-    otherwise. pageableMemoryAccessUsesHostPageTables is 1 if the device
-    accesses pageable memory via the host's page tables, and 0 otherwise.
-    directManagedMemAccessFromHost is 1 if the host can directly access
-    managed memory on the device without migration, and 0 otherwise.
-    maxBlocksPerMultiProcessor is the maximum number of thread blocks that
-    can reside on a multiprocessor. accessPolicyMaxWindowSize is the
-    maximum value of cudaAccessPolicyWindow::num_bytes.
+    otherwise.    - pageableMemoryAccessUsesHostPageTables is 1 if the
+    device accesses pageable memory via the host's page tables, and 0
+    otherwise.    - directManagedMemAccessFromHost is 1 if the host can
+    directly access managed memory on the device without migration, and 0
+    otherwise.    - maxBlocksPerMultiProcessor is the maximum number of
+    thread blocks that can reside on a multiprocessor.    -
+    accessPolicyMaxWindowSize is the maximum value of
+    cudaAccessPolicyWindow::num_bytes.
 
     Parameters
     ----------
@@ -7438,174 +8335,178 @@ def cudaDeviceGetAttribute(attr not None : cudaDeviceAttr, int device):
     """ Returns information about the device.
 
     Returns in `*value` the integer value of the attribute `attr` on device
-    `device`. The supported attributes are:
-    ::cudaDevAttrMaxThreadsPerBlock: Maximum number of threads per block
-    ::cudaDevAttrMaxBlockDimX: Maximum x-dimension of a block
-    ::cudaDevAttrMaxBlockDimY: Maximum y-dimension of a block
-    ::cudaDevAttrMaxBlockDimZ: Maximum z-dimension of a block
-    ::cudaDevAttrMaxGridDimX: Maximum x-dimension of a grid
-    ::cudaDevAttrMaxGridDimY: Maximum y-dimension of a grid
-    ::cudaDevAttrMaxGridDimZ: Maximum z-dimension of a grid
-    ::cudaDevAttrMaxSharedMemoryPerBlock: Maximum amount of shared memory
-    available to a thread block in bytes ::cudaDevAttrTotalConstantMemory:
-    Memory available on device for constant variables in a CUDA C kernel in
-    bytes ::cudaDevAttrWarpSize: Warp size in threads
-    ::cudaDevAttrMaxPitch: Maximum pitch in bytes allowed by the memory
-    copy functions that involve memory regions allocated through
-    cudaMallocPitch() ::cudaDevAttrMaxTexture1DWidth: Maximum 1D texture
-    width ::cudaDevAttrMaxTexture1DLinearWidth: Maximum width for a 1D
-    texture bound to linear memory ::cudaDevAttrMaxTexture1DMipmappedWidth:
-    Maximum mipmapped 1D texture width ::cudaDevAttrMaxTexture2DWidth:
-    Maximum 2D texture width ::cudaDevAttrMaxTexture2DHeight: Maximum 2D
-    texture height ::cudaDevAttrMaxTexture2DLinearWidth: Maximum width for
-    a 2D texture bound to linear memory
-    ::cudaDevAttrMaxTexture2DLinearHeight: Maximum height for a 2D texture
-    bound to linear memory ::cudaDevAttrMaxTexture2DLinearPitch: Maximum
-    pitch in bytes for a 2D texture bound to linear memory
-    ::cudaDevAttrMaxTexture2DMipmappedWidth: Maximum mipmapped 2D texture
-    width ::cudaDevAttrMaxTexture2DMipmappedHeight: Maximum mipmapped 2D
-    texture height ::cudaDevAttrMaxTexture3DWidth: Maximum 3D texture width
-    ::cudaDevAttrMaxTexture3DHeight: Maximum 3D texture height
-    ::cudaDevAttrMaxTexture3DDepth: Maximum 3D texture depth
-    ::cudaDevAttrMaxTexture3DWidthAlt: Alternate maximum 3D texture width,
-    0 if no alternate maximum 3D texture size is supported
-    ::cudaDevAttrMaxTexture3DHeightAlt: Alternate maximum 3D texture
-    height, 0 if no alternate maximum 3D texture size is supported
-    ::cudaDevAttrMaxTexture3DDepthAlt: Alternate maximum 3D texture depth,
-    0 if no alternate maximum 3D texture size is supported
-    ::cudaDevAttrMaxTextureCubemapWidth: Maximum cubemap texture width or
-    height ::cudaDevAttrMaxTexture1DLayeredWidth: Maximum 1D layered
-    texture width ::cudaDevAttrMaxTexture1DLayeredLayers: Maximum layers in
-    a 1D layered texture ::cudaDevAttrMaxTexture2DLayeredWidth: Maximum 2D
-    layered texture width ::cudaDevAttrMaxTexture2DLayeredHeight: Maximum
-    2D layered texture height ::cudaDevAttrMaxTexture2DLayeredLayers:
-    Maximum layers in a 2D layered texture
-    ::cudaDevAttrMaxTextureCubemapLayeredWidth: Maximum cubemap layered
-    texture width or height ::cudaDevAttrMaxTextureCubemapLayeredLayers:
-    Maximum layers in a cubemap layered texture
-    ::cudaDevAttrMaxSurface1DWidth: Maximum 1D surface width
-    ::cudaDevAttrMaxSurface2DWidth: Maximum 2D surface width
-    ::cudaDevAttrMaxSurface2DHeight: Maximum 2D surface height
-    ::cudaDevAttrMaxSurface3DWidth: Maximum 3D surface width
-    ::cudaDevAttrMaxSurface3DHeight: Maximum 3D surface height
-    ::cudaDevAttrMaxSurface3DDepth: Maximum 3D surface depth
-    ::cudaDevAttrMaxSurface1DLayeredWidth: Maximum 1D layered surface width
-    ::cudaDevAttrMaxSurface1DLayeredLayers: Maximum layers in a 1D layered
-    surface ::cudaDevAttrMaxSurface2DLayeredWidth: Maximum 2D layered
-    surface width ::cudaDevAttrMaxSurface2DLayeredHeight: Maximum 2D
-    layered surface height ::cudaDevAttrMaxSurface2DLayeredLayers: Maximum
-    layers in a 2D layered surface ::cudaDevAttrMaxSurfaceCubemapWidth:
-    Maximum cubemap surface width
-    ::cudaDevAttrMaxSurfaceCubemapLayeredWidth: Maximum cubemap layered
-    surface width ::cudaDevAttrMaxSurfaceCubemapLayeredLayers: Maximum
-    layers in a cubemap layered surface ::cudaDevAttrMaxRegistersPerBlock:
-    Maximum number of 32-bit registers available to a thread block
-    ::cudaDevAttrClockRate: Peak clock frequency in kilohertz
-    ::cudaDevAttrTextureAlignment: Alignment requirement; texture base
-    addresses aligned to textureAlign bytes do not need an offset applied
-    to texture fetches ::cudaDevAttrTexturePitchAlignment: Pitch alignment
-    requirement for 2D texture references bound to pitched memory
-    ::cudaDevAttrGpuOverlap: 1 if the device can concurrently copy memory
-    between host and device while executing a kernel, or 0 if not
-    ::cudaDevAttrMultiProcessorCount: Number of multiprocessors on the
-    device ::cudaDevAttrKernelExecTimeout: 1 if there is a run time limit
-    for kernels executed on the device, or 0 if not
-    ::cudaDevAttrIntegrated: 1 if the device is integrated with the memory
-    subsystem, or 0 if not ::cudaDevAttrCanMapHostMemory: 1 if the device
-    can map host memory into the CUDA address space, or 0 if not
-    ::cudaDevAttrComputeMode: Compute mode is the compute mode that the
-    device is currently in. Available modes are as follows:
-    ::cudaComputeModeDefault: Default mode - Device is not restricted and
-    multiple threads can use cudaSetDevice() with this device.
-    ::cudaComputeModeExclusive: Compute-exclusive mode - Only one thread
-    will be able to use cudaSetDevice() with this device.
-    ::cudaComputeModeProhibited: Compute-prohibited mode - No threads can
-    use cudaSetDevice() with this device.
-    ::cudaComputeModeExclusiveProcess: Compute-exclusive-process mode -
-    Many threads in one process will be able to use cudaSetDevice() with
-    this device.   ::cudaDevAttrConcurrentKernels: 1 if the device supports
-    executing multiple kernels within the same context simultaneously, or 0
-    if not. It is not guaranteed that multiple kernels will be resident on
-    the device concurrently so this feature should not be relied upon for
-    correctness. ::cudaDevAttrEccEnabled: 1 if error correction is enabled
-    on the device, 0 if error correction is disabled or not supported by
-    the device ::cudaDevAttrPciBusId: PCI bus identifier of the device
-    ::cudaDevAttrPciDeviceId: PCI device (also known as slot) identifier of
-    the device ::cudaDevAttrTccDriver: 1 if the device is using a TCC
-    driver. TCC is only available on Tesla hardware running Windows Vista
-    or later. ::cudaDevAttrMemoryClockRate: Peak memory clock frequency in
-    kilohertz ::cudaDevAttrGlobalMemoryBusWidth: Global memory bus width in
-    bits ::cudaDevAttrL2CacheSize: Size of L2 cache in bytes. 0 if the
-    device doesn't have L2 cache. ::cudaDevAttrMaxThreadsPerMultiProcessor:
-    Maximum resident threads per multiprocessor
-    ::cudaDevAttrUnifiedAddressing: 1 if the device shares a unified
-    address space with the host, or 0 if not
-    ::cudaDevAttrComputeCapabilityMajor: Major compute capability version
-    number ::cudaDevAttrComputeCapabilityMinor: Minor compute capability
-    version number ::cudaDevAttrStreamPrioritiesSupported: 1 if the device
-    supports stream priorities, or 0 if not
-    ::cudaDevAttrGlobalL1CacheSupported: 1 if device supports caching
-    globals in L1 cache, 0 if not ::cudaDevAttrLocalL1CacheSupported: 1 if
-    device supports caching locals in L1 cache, 0 if not
-    ::cudaDevAttrMaxSharedMemoryPerMultiprocessor: Maximum amount of shared
+    `device`. The supported attributes are: -
+    cudaDevAttrMaxThreadsPerBlock: Maximum number of threads per block    -
+    cudaDevAttrMaxBlockDimX: Maximum x-dimension of a block    -
+    cudaDevAttrMaxBlockDimY: Maximum y-dimension of a block    -
+    cudaDevAttrMaxBlockDimZ: Maximum z-dimension of a block    -
+    cudaDevAttrMaxGridDimX: Maximum x-dimension of a grid    -
+    cudaDevAttrMaxGridDimY: Maximum y-dimension of a grid    -
+    cudaDevAttrMaxGridDimZ: Maximum z-dimension of a grid    -
+    cudaDevAttrMaxSharedMemoryPerBlock: Maximum amount of shared memory
+    available to a thread block in bytes    -
+    cudaDevAttrTotalConstantMemory: Memory available on device for constant
+    variables in a CUDA C kernel in bytes    - cudaDevAttrWarpSize: Warp
+    size in threads    - cudaDevAttrMaxPitch: Maximum pitch in bytes
+    allowed by the memory copy functions that involve memory regions
+    allocated through cudaMallocPitch()    - cudaDevAttrMaxTexture1DWidth:
+    Maximum 1D texture width    - cudaDevAttrMaxTexture1DLinearWidth:
+    Maximum width for a 1D texture bound to linear memory    -
+    cudaDevAttrMaxTexture1DMipmappedWidth: Maximum mipmapped 1D texture
+    width    - cudaDevAttrMaxTexture2DWidth: Maximum 2D texture width    -
+    cudaDevAttrMaxTexture2DHeight: Maximum 2D texture height    -
+    cudaDevAttrMaxTexture2DLinearWidth: Maximum width for a 2D texture
+    bound to linear memory    - cudaDevAttrMaxTexture2DLinearHeight:
+    Maximum height for a 2D texture bound to linear memory    -
+    cudaDevAttrMaxTexture2DLinearPitch: Maximum pitch in bytes for a 2D
+    texture bound to linear memory    -
+    cudaDevAttrMaxTexture2DMipmappedWidth: Maximum mipmapped 2D texture
+    width    - cudaDevAttrMaxTexture2DMipmappedHeight: Maximum mipmapped 2D
+    texture height    - cudaDevAttrMaxTexture3DWidth: Maximum 3D texture
+    width    - cudaDevAttrMaxTexture3DHeight: Maximum 3D texture height
+    - cudaDevAttrMaxTexture3DDepth: Maximum 3D texture depth    -
+    cudaDevAttrMaxTexture3DWidthAlt: Alternate maximum 3D texture width, 0
+    if no alternate maximum 3D texture size is supported    -
+    cudaDevAttrMaxTexture3DHeightAlt: Alternate maximum 3D texture height,
+    0 if no alternate maximum 3D texture size is supported    -
+    cudaDevAttrMaxTexture3DDepthAlt: Alternate maximum 3D texture depth, 0
+    if no alternate maximum 3D texture size is supported    -
+    cudaDevAttrMaxTextureCubemapWidth: Maximum cubemap texture width or
+    height    - cudaDevAttrMaxTexture1DLayeredWidth: Maximum 1D layered
+    texture width    - cudaDevAttrMaxTexture1DLayeredLayers: Maximum layers
+    in a 1D layered texture    - cudaDevAttrMaxTexture2DLayeredWidth:
+    Maximum 2D layered texture width    -
+    cudaDevAttrMaxTexture2DLayeredHeight: Maximum 2D layered texture height
+    - cudaDevAttrMaxTexture2DLayeredLayers: Maximum layers in a 2D layered
+    texture    - cudaDevAttrMaxTextureCubemapLayeredWidth: Maximum cubemap
+    layered texture width or height    -
+    cudaDevAttrMaxTextureCubemapLayeredLayers: Maximum layers in a cubemap
+    layered texture    - cudaDevAttrMaxSurface1DWidth: Maximum 1D surface
+    width    - cudaDevAttrMaxSurface2DWidth: Maximum 2D surface width    -
+    cudaDevAttrMaxSurface2DHeight: Maximum 2D surface height    -
+    cudaDevAttrMaxSurface3DWidth: Maximum 3D surface width    -
+    cudaDevAttrMaxSurface3DHeight: Maximum 3D surface height    -
+    cudaDevAttrMaxSurface3DDepth: Maximum 3D surface depth    -
+    cudaDevAttrMaxSurface1DLayeredWidth: Maximum 1D layered surface width
+    - cudaDevAttrMaxSurface1DLayeredLayers: Maximum layers in a 1D layered
+    surface    - cudaDevAttrMaxSurface2DLayeredWidth: Maximum 2D layered
+    surface width    - cudaDevAttrMaxSurface2DLayeredHeight: Maximum 2D
+    layered surface height    - cudaDevAttrMaxSurface2DLayeredLayers:
+    Maximum layers in a 2D layered surface    -
+    cudaDevAttrMaxSurfaceCubemapWidth: Maximum cubemap surface width    -
+    cudaDevAttrMaxSurfaceCubemapLayeredWidth: Maximum cubemap layered
+    surface width    - cudaDevAttrMaxSurfaceCubemapLayeredLayers: Maximum
+    layers in a cubemap layered surface    -
+    cudaDevAttrMaxRegistersPerBlock: Maximum number of 32-bit registers
+    available to a thread block    - cudaDevAttrClockRate: Peak clock
+    frequency in kilohertz    - cudaDevAttrTextureAlignment: Alignment
+    requirement; texture base addresses aligned to textureAlign bytes do
+    not need an offset applied to texture fetches    -
+    cudaDevAttrTexturePitchAlignment: Pitch alignment requirement for 2D
+    texture references bound to pitched memory    - cudaDevAttrGpuOverlap:
+    1 if the device can concurrently copy memory between host and device
+    while executing a kernel, or 0 if not    -
+    cudaDevAttrMultiProcessorCount: Number of multiprocessors on the device
+    - cudaDevAttrKernelExecTimeout: 1 if there is a run time limit for
+    kernels executed on the device, or 0 if not    - cudaDevAttrIntegrated:
+    1 if the device is integrated with the memory subsystem, or 0 if not
+    - cudaDevAttrCanMapHostMemory: 1 if the device can map host memory into
+    the CUDA address space, or 0 if not    - cudaDevAttrComputeMode:
+    Compute mode is the compute mode that the device is currently in.
+    Available modes are as follows:    - cudaComputeModeDefault: Default
+    mode - Device is not restricted and multiple threads can use
+    cudaSetDevice() with this device.     - cudaComputeModeExclusive:
+    Compute-exclusive mode - Only one thread will be able to use
+    cudaSetDevice() with this device.     - cudaComputeModeProhibited:
+    Compute-prohibited mode - No threads can use cudaSetDevice() with this
+    device.     - cudaComputeModeExclusiveProcess: Compute-exclusive-
+    process mode - Many threads in one process will be able to use
+    cudaSetDevice() with this device.     - cudaDevAttrConcurrentKernels: 1
+    if the device supports executing multiple kernels within the same
+    context simultaneously, or 0 if not. It is not guaranteed that multiple
+    kernels will be resident on the device concurrently so this feature
+    should not be relied upon for correctness.    - cudaDevAttrEccEnabled:
+    1 if error correction is enabled on the device, 0 if error correction
+    is disabled or not supported by the device    - cudaDevAttrPciBusId:
+    PCI bus identifier of the device    - cudaDevAttrPciDeviceId: PCI
+    device (also known as slot) identifier of the device    -
+    cudaDevAttrTccDriver: 1 if the device is using a TCC driver. TCC is
+    only available on Tesla hardware running Windows Vista or later.    -
+    cudaDevAttrMemoryClockRate: Peak memory clock frequency in kilohertz
+    - cudaDevAttrGlobalMemoryBusWidth: Global memory bus width in bits    -
+    cudaDevAttrL2CacheSize: Size of L2 cache in bytes. 0 if the device
+    doesn't have L2 cache.    - cudaDevAttrMaxThreadsPerMultiProcessor:
+    Maximum resident threads per multiprocessor    -
+    cudaDevAttrUnifiedAddressing: 1 if the device shares a unified address
+    space with the host, or 0 if not    -
+    cudaDevAttrComputeCapabilityMajor: Major compute capability version
+    number    - cudaDevAttrComputeCapabilityMinor: Minor compute capability
+    version number    - cudaDevAttrStreamPrioritiesSupported: 1 if the
+    device supports stream priorities, or 0 if not    -
+    cudaDevAttrGlobalL1CacheSupported: 1 if device supports caching globals
+    in L1 cache, 0 if not    - cudaDevAttrLocalL1CacheSupported: 1 if
+    device supports caching locals in L1 cache, 0 if not    -
+    cudaDevAttrMaxSharedMemoryPerMultiprocessor: Maximum amount of shared
     memory available to a multiprocessor in bytes; this amount is shared by
-    all thread blocks simultaneously resident on a multiprocessor
-    ::cudaDevAttrMaxRegistersPerMultiprocessor: Maximum number of 32-bit
+    all thread blocks simultaneously resident on a multiprocessor    -
+    cudaDevAttrMaxRegistersPerMultiprocessor: Maximum number of 32-bit
     registers available to a multiprocessor; this number is shared by all
-    thread blocks simultaneously resident on a multiprocessor
-    ::cudaDevAttrManagedMemory: 1 if device supports allocating managed
-    memory, 0 if not ::cudaDevAttrIsMultiGpuBoard: 1 if device is on a
-    multi-GPU board, 0 if not ::cudaDevAttrMultiGpuBoardGroupID: Unique
-    identifier for a group of devices on the same multi-GPU board
-    ::cudaDevAttrHostNativeAtomicSupported: 1 if the link between the
-    device and the host supports native atomic operations
-    ::cudaDevAttrSingleToDoublePrecisionPerfRatio: Ratio of single
-    precision performance (in floating-point operations per second) to
-    double precision performance ::cudaDevAttrPageableMemoryAccess: 1 if
-    the device supports coherently accessing pageable memory without
-    calling cudaHostRegister on it, and 0 otherwise
-    ::cudaDevAttrConcurrentManagedAccess: 1 if the device can coherently
-    access managed memory concurrently with the CPU, and 0 otherwise
-    ::cudaDevAttrComputePreemptionSupported: 1 if the device supports
-    Compute Preemption, 0 if not
-    ::cudaDevAttrCanUseHostPointerForRegisteredMem: 1 if the device can
-    access host registered memory at the same virtual address as the CPU,
-    and 0 otherwise ::cudaDevAttrCooperativeLaunch: 1 if the device
-    supports launching cooperative kernels via cudaLaunchCooperativeKernel,
-    and 0 otherwise ::cudaDevAttrCooperativeMultiDeviceLaunch: 1 if the
-    device supports launching cooperative kernels via
-    cudaLaunchCooperativeKernelMultiDevice, and 0 otherwise
-    ::cudaDevAttrCanFlushRemoteWrites: 1 if the device supports flushing of
-    outstanding remote writes, and 0 otherwise
-    ::cudaDevAttrHostRegisterSupported: 1 if the device supports host
-    memory registration via cudaHostRegister, and 0 otherwise
-    ::cudaDevAttrPageableMemoryAccessUsesHostPageTables: 1 if the device
+    thread blocks simultaneously resident on a multiprocessor    -
+    cudaDevAttrManagedMemory: 1 if device supports allocating managed
+    memory, 0 if not    - cudaDevAttrIsMultiGpuBoard: 1 if device is on a
+    multi-GPU board, 0 if not    - cudaDevAttrMultiGpuBoardGroupID: Unique
+    identifier for a group of devices on the same multi-GPU board    -
+    cudaDevAttrHostNativeAtomicSupported: 1 if the link between the device
+    and the host supports native atomic operations    -
+    cudaDevAttrSingleToDoublePrecisionPerfRatio: Ratio of single precision
+    performance (in floating-point operations per second) to double
+    precision performance    - cudaDevAttrPageableMemoryAccess: 1 if the
+    device supports coherently accessing pageable memory without calling
+    cudaHostRegister on it, and 0 otherwise    -
+    cudaDevAttrConcurrentManagedAccess: 1 if the device can coherently
+    access managed memory concurrently with the CPU, and 0 otherwise    -
+    cudaDevAttrComputePreemptionSupported: 1 if the device supports Compute
+    Preemption, 0 if not    - cudaDevAttrCanUseHostPointerForRegisteredMem:
+    1 if the device can access host registered memory at the same virtual
+    address as the CPU, and 0 otherwise    - cudaDevAttrCooperativeLaunch:
+    1 if the device supports launching cooperative kernels via
+    cudaLaunchCooperativeKernel, and 0 otherwise    -
+    cudaDevAttrCooperativeMultiDeviceLaunch: 1 if the device supports
+    launching cooperative kernels via
+    cudaLaunchCooperativeKernelMultiDevice, and 0 otherwise    -
+    cudaDevAttrCanFlushRemoteWrites: 1 if the device supports flushing of
+    outstanding remote writes, and 0 otherwise    -
+    cudaDevAttrHostRegisterSupported: 1 if the device supports host memory
+    registration via cudaHostRegister, and 0 otherwise    -
+    cudaDevAttrPageableMemoryAccessUsesHostPageTables: 1 if the device
     accesses pageable memory via the host's page tables, and 0 otherwise
-    ::cudaDevAttrDirectManagedMemAccessFromHost: 1 if the host can directly
+    - cudaDevAttrDirectManagedMemAccessFromHost: 1 if the host can directly
     access managed memory on the device without migration, and 0 otherwise
-    ::cudaDevAttrMaxSharedMemoryPerBlockOptin: Maximum per block shared
+    - cudaDevAttrMaxSharedMemoryPerBlockOptin: Maximum per block shared
     memory size on the device. This value can be opted into when using
-    cudaFuncSetAttribute ::cudaDevAttrMaxBlocksPerMultiprocessor: Maximum
-    number of thread blocks that can reside on a multiprocessor
-    ::cudaDevAttrMaxPersistingL2CacheSize: Maximum L2 persisting lines
-    capacity setting in bytes ::cudaDevAttrMaxAccessPolicyWindowSize:
-    Maximum value of cudaAccessPolicyWindow::num_bytes
-    ::cudaDevAttrReservedSharedMemoryPerBlock: Shared memory reserved by
-    CUDA driver per block in bytes ::cudaDevAttrSparseCudaArraySupported: 1
+    cudaFuncSetAttribute    - cudaDevAttrMaxBlocksPerMultiprocessor:
+    Maximum number of thread blocks that can reside on a multiprocessor
+    - cudaDevAttrMaxPersistingL2CacheSize: Maximum L2 persisting lines
+    capacity setting in bytes    - cudaDevAttrMaxAccessPolicyWindowSize:
+    Maximum value of cudaAccessPolicyWindow::num_bytes    -
+    cudaDevAttrReservedSharedMemoryPerBlock: Shared memory reserved by CUDA
+    driver per block in bytes    - cudaDevAttrSparseCudaArraySupported: 1
     if the device supports sparse CUDA arrays and sparse CUDA mipmapped
-    arrays. ::cudaDevAttrHostRegisterReadOnlySupported: Device supports
+    arrays.    - cudaDevAttrHostRegisterReadOnlySupported: Device supports
     using the cudaHostRegister flag cudaHostRegisterReadOnly to register
-    memory that must be mapped as read-only to the GPU
-    ::cudaDevAttrMemoryPoolsSupported: 1 if the device supports using the
-    cudaMallocAsync and cudaMemPool family of APIs, and 0 otherwise
-    ::cudaDevAttrGPUDirectRDMASupported: 1 if the device supports GPUDirect
-    RDMA APIs, and 0 otherwise
-    ::cudaDevAttrGPUDirectRDMAFlushWritesOptions: bitmask to be interpreted
-    according to the cudaFlushGPUDirectRDMAWritesOptions enum
-    ::cudaDevAttrGPUDirectRDMAWritesOrdering: see the
-    cudaGPUDirectRDMAWritesOrdering enum for numerical values
-    ::cudaDevAttrMemoryPoolSupportedHandleTypes: Bitmask of handle types
-    supported with mempool based IPC
+    memory that must be mapped as read-only to the GPU    -
+    cudaDevAttrMemoryPoolsSupported: 1 if the device supports using the
+    cudaMallocAsync and cudaMemPool family of APIs, and 0 otherwise    -
+    cudaDevAttrGPUDirectRDMASupported: 1 if the device supports GPUDirect
+    RDMA APIs, and 0 otherwise    -
+    cudaDevAttrGPUDirectRDMAFlushWritesOptions: bitmask to be interpreted
+    according to the cudaFlushGPUDirectRDMAWritesOptions enum    -
+    cudaDevAttrGPUDirectRDMAWritesOrdering: see the
+    cudaGPUDirectRDMAWritesOrdering enum for numerical values    -
+    cudaDevAttrMemoryPoolSupportedHandleTypes: Bitmask of handle types
+    supported with mempool based IPC    -
+    cudaDevAttrDeferredMappingCudaArraySupported : 1 if the device supports
+    deferred mapping CUDA arrays and CUDA mipmapped arrays.
 
     Parameters
     ----------
@@ -7656,7 +8557,6 @@ def cudaDeviceGetDefaultMemPool(int device):
 
     See Also
     --------
-    cuDeviceGetDefaultMemPool
     cudaMallocAsync
     cudaMemPoolTrimTo
     cudaMemPoolGetAttribute
@@ -7701,10 +8601,18 @@ def cudaDeviceSetMemPool(int device, memPool):
     Use cudaMallocFromPoolAsync to specify asynchronous allocations from a device different than the one the stream runs on.
 
     """
-    if not isinstance(memPool, (cudaMemPool_t, cuda.CUmemoryPool)):
-        raise TypeError("Argument 'memPool' is not instance of type (expected <class 'cudart.cudaMemPool_t, cuda.CUmemoryPool'>, found " + str(type(memPool)))
+    cdef ccudart.cudaMemPool_t cmemPool
+    if memPool is None:
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>0
+    elif isinstance(memPool, (cudaMemPool_t,cuda.CUmemoryPool)):
+        pmemPool = int(memPool)
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+    else:
+        pmemPool = int(cudaMemPool_t(memPool))
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+
     with nogil:
-        err = ccudart.cudaDeviceSetMemPool(device, <ccudart.cudaMemPool_t>(<cudaMemPool_t>memPool)._ptr[0])
+        err = ccudart.cudaDeviceSetMemPool(device, cmemPool)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -7728,7 +8636,6 @@ def cudaDeviceGetMemPool(int device):
 
     See Also
     --------
-    cuDeviceGetMemPool
     cudaDeviceGetDefaultMemPool
     cudaDeviceSetMemPool
     """
@@ -7753,9 +8660,9 @@ def cudaDeviceGetNvSciSyncAttributes(int device, int flags):
     cudaErrorInvalidHandle.
 
     The `flags` controls how applications intends to use the NvSciSync
-    created from the `nvSciSyncAttrList`. The valid flags are:
+    created from the `nvSciSyncAttrList`. The valid flags are: -
     cudaNvSciSyncAttrSignal, specifies that the applications intends to
-    signal an NvSciSync on this CUDA device. cudaNvSciSyncAttrWait,
+    signal an NvSciSync on this CUDA device.    - cudaNvSciSyncAttrWait,
     specifies that the applications intends to wait on an NvSciSync on this
     CUDA device.
 
@@ -7796,13 +8703,13 @@ def cudaDeviceGetP2PAttribute(attr not None : cudaDeviceP2PAttr, int srcDevice, 
 
     Returns in `*value` the value of the requested attribute `attrib` of
     the link between `srcDevice` and `dstDevice`. The supported attributes
-    are: ::cudaDevP2PAttrPerformanceRank: A relative value indicating the
+    are: - cudaDevP2PAttrPerformanceRank: A relative value indicating the
     performance of the link between two devices. Lower value means better
-    performance (0 being the value used for most performant link).
-    ::cudaDevP2PAttrAccessSupported: 1 if peer access is enabled.
-    ::cudaDevP2PAttrNativeAtomicSupported: 1 if native atomic operations
-    over the link are supported. ::cudaDevP2PAttrCudaArrayAccessSupported:
-    1 if accessing CUDA arrays over the link is supported.
+    performance (0 being the value used for most performant link).    -
+    cudaDevP2PAttrAccessSupported: 1 if peer access is enabled.    -
+    cudaDevP2PAttrNativeAtomicSupported: 1 if native atomic operations over
+    the link are supported.    - cudaDevP2PAttrCudaArrayAccessSupported: 1
+    if accessing CUDA arrays over the link is supported.
 
     Returns cudaErrorInvalidDevice if `srcDevice` or `dstDevice` are not
     valid or if they represent the same device.
@@ -7828,10 +8735,6 @@ def cudaDeviceGetP2PAttribute(attr not None : cudaDeviceP2PAttr, int srcDevice, 
         cudaErrorInvalidValue
     value : int
         Returned value of the requested attribute
-
-    See Also
-    --------
-    cuDeviceGetP2PAttribute
     """
     cdef int value = 0
     cdef ccudart.cudaDeviceP2PAttr cattr = attr.value
@@ -7962,7 +8865,7 @@ def cudaSetDeviceFlags(unsigned int flags):
     CPU thread interacts with the OS scheduler when waiting for results
     from the device.
 
-    cudaDeviceScheduleAuto: The default value if the `flags` parameter is
+    - cudaDeviceScheduleAuto: The default value if the `flags` parameter is
     zero, uses a heuristic based on the number of active CUDA contexts in
     the process `C` and the number of logical processors in the system `P`.
     If `C` > `P`, then CUDA will yield to other OS threads when waiting for
@@ -7970,29 +8873,29 @@ def cudaSetDeviceFlags(unsigned int flags):
     actively spin on the processor. Additionally, on Tegra devices,
     cudaDeviceScheduleAuto uses a heuristic based on the power profile of
     the platform and may choose cudaDeviceScheduleBlockingSync for low-
-    powered devices. cudaDeviceScheduleSpin: Instruct CUDA to actively spin
-    when waiting for results from the device. This can decrease latency
-    when waiting for the device, but may lower the performance of CPU
-    threads if they are performing work in parallel with the CUDA thread.
-    cudaDeviceScheduleYield: Instruct CUDA to yield its thread when waiting
-    for results from the device. This can increase latency when waiting for
-    the device, but can increase the performance of CPU threads performing
-    work in parallel with the device. cudaDeviceScheduleBlockingSync:
-    Instruct CUDA to block the CPU thread on a synchronization primitive
-    when waiting for the device to finish work. cudaDeviceBlockingSync:
-    Instruct CUDA to block the CPU thread on a synchronization primitive
-    when waiting for the device to finish work.  Deprecated: This flag was
-    deprecated as of CUDA 4.0 and replaced with
-    cudaDeviceScheduleBlockingSync. cudaDeviceMapHost: This flag enables
-    allocating pinned host memory that is accessible to the device. It is
-    implicit for the runtime but may be absent if a context is created
-    using the driver API. If this flag is not set,
-    cudaHostGetDevicePointer() will always return a failure code.
+    powered devices.    - cudaDeviceScheduleSpin: Instruct CUDA to actively
+    spin when waiting for results from the device. This can decrease
+    latency when waiting for the device, but may lower the performance of
+    CPU threads if they are performing work in parallel with the CUDA
+    thread.    - cudaDeviceScheduleYield: Instruct CUDA to yield its thread
+    when waiting for results from the device. This can increase latency
+    when waiting for the device, but can increase the performance of CPU
+    threads performing work in parallel with the device.    -
+    cudaDeviceScheduleBlockingSync: Instruct CUDA to block the CPU thread
+    on a synchronization primitive when waiting for the device to finish
+    work.    - cudaDeviceBlockingSync: Instruct CUDA to block the CPU
+    thread on a synchronization primitive when waiting for the device to
+    finish work.    Deprecated: This flag was deprecated as of CUDA 4.0 and
+    replaced with cudaDeviceScheduleBlockingSync.    - cudaDeviceMapHost:
+    This flag enables allocating pinned host memory that is accessible to
+    the device. It is implicit for the runtime but may be absent if a
+    context is created using the driver API. If this flag is not set,
+    cudaHostGetDevicePointer() will always return a failure code.    -
     cudaDeviceLmemResizeToMax: Instruct CUDA to not reduce local memory
     after resizing local memory for a kernel. This can prevent thrashing by
     local memory allocations when launching many kernels with high local
     memory usage at the cost of potentially increased memory usage.
-    Deprecated: This flag is deprecated and the behavior enabled  by this
+    Deprecated: This flag is deprecated and the behavior enabled    by this
     flag is now the default and cannot be disabled.
 
     Parameters
@@ -8107,11 +9010,12 @@ def cudaStreamCreateWithFlags(unsigned int flags):
     """ Create an asynchronous stream.
 
     Creates a new asynchronous stream. The `flags` argument determines the
-    behaviors of the stream. Valid values for `flags` are
-    cudaStreamDefault: Default stream creation flag. cudaStreamNonBlocking:
-    Specifies that work running in the created stream may run concurrently
-    with work in stream 0 (the NULL stream), and that the created stream
-    should perform no implicit synchronization with stream 0.
+    behaviors of the stream. Valid values for `flags` are -
+    cudaStreamDefault: Default stream creation flag.    -
+    cudaStreamNonBlocking: Specifies that work running in the created
+    stream may run concurrently with work in stream 0 (the NULL stream),
+    and that the created stream should perform no implicit synchronization
+    with stream 0.
 
     Parameters
     ----------
@@ -8232,10 +9136,18 @@ def cudaStreamGetPriority(hStream):
     cudaStreamGetFlags
     cuStreamGetPriority
     """
-    if not isinstance(hStream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'hStream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(hStream)))
+    cdef ccudart.cudaStream_t chStream
+    if hStream is None:
+        chStream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(hStream, (cudaStream_t,cuda.CUstream)):
+        phStream = int(hStream)
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+    else:
+        phStream = int(cudaStream_t(hStream))
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+
     cdef int priority = 0
-    err = ccudart.cudaStreamGetPriority(<ccudart.cudaStream_t>(<cudaStream_t>hStream)._ptr[0], &priority)
+    err = ccudart.cudaStreamGetPriority(chStream, &priority)
     return (cudaError_t(err), priority)
 
 @cython.embedsignature(True)
@@ -8267,10 +9179,18 @@ def cudaStreamGetFlags(hStream):
     cudaStreamGetPriority
     cuStreamGetFlags
     """
-    if not isinstance(hStream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'hStream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(hStream)))
+    cdef ccudart.cudaStream_t chStream
+    if hStream is None:
+        chStream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(hStream, (cudaStream_t,cuda.CUstream)):
+        phStream = int(hStream)
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+    else:
+        phStream = int(cudaStream_t(hStream))
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+
     cdef unsigned int flags = 0
-    err = ccudart.cudaStreamGetFlags(<ccudart.cudaStream_t>(<cudaStream_t>hStream)._ptr[0], &flags)
+    err = ccudart.cudaStreamGetFlags(chStream, &flags)
     return (cudaError_t(err), flags)
 
 @cython.embedsignature(True)
@@ -8320,11 +9240,27 @@ def cudaStreamCopyAttributes(dst, src):
     --------
     cudaAccessPolicyWindow
     """
-    if not isinstance(src, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'src' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(src)))
-    if not isinstance(dst, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'dst' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(dst)))
-    err = ccudart.cudaStreamCopyAttributes(<ccudart.cudaStream_t>(<cudaStream_t>dst)._ptr[0], <ccudart.cudaStream_t>(<cudaStream_t>src)._ptr[0])
+    cdef ccudart.cudaStream_t csrc
+    if src is None:
+        csrc = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(src, (cudaStream_t,cuda.CUstream)):
+        psrc = int(src)
+        csrc = <ccudart.cudaStream_t><void_ptr>psrc
+    else:
+        psrc = int(cudaStream_t(src))
+        csrc = <ccudart.cudaStream_t><void_ptr>psrc
+
+    cdef ccudart.cudaStream_t cdst
+    if dst is None:
+        cdst = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(dst, (cudaStream_t,cuda.CUstream)):
+        pdst = int(dst)
+        cdst = <ccudart.cudaStream_t><void_ptr>pdst
+    else:
+        pdst = int(cudaStream_t(dst))
+        cdst = <ccudart.cudaStream_t><void_ptr>pdst
+
+    err = ccudart.cudaStreamCopyAttributes(cdst, csrc)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -8354,11 +9290,19 @@ def cudaStreamGetAttribute(hStream, attr not None : cudaStreamAttrID):
     --------
     cudaAccessPolicyWindow
     """
-    if not isinstance(hStream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'hStream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(hStream)))
+    cdef ccudart.cudaStream_t chStream
+    if hStream is None:
+        chStream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(hStream, (cudaStream_t,cuda.CUstream)):
+        phStream = int(hStream)
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+    else:
+        phStream = int(cudaStream_t(hStream))
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+
     cdef ccudart.cudaStreamAttrID cattr = attr.value
     cdef cudaStreamAttrValue value_out = cudaStreamAttrValue()
-    err = ccudart.cudaStreamGetAttribute(<ccudart.cudaStream_t>(<cudaStream_t>hStream)._ptr[0], cattr, value_out._ptr)
+    err = ccudart.cudaStreamGetAttribute(chStream, cattr, value_out._ptr)
     return (cudaError_t(err), value_out)
 
 @cython.embedsignature(True)
@@ -8391,11 +9335,19 @@ def cudaStreamSetAttribute(hStream, attr not None : cudaStreamAttrID, value : cu
     --------
     cudaAccessPolicyWindow
     """
-    if not isinstance(hStream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'hStream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(hStream)))
+    cdef ccudart.cudaStream_t chStream
+    if hStream is None:
+        chStream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(hStream, (cudaStream_t,cuda.CUstream)):
+        phStream = int(hStream)
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+    else:
+        phStream = int(cudaStream_t(hStream))
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+
     cdef ccudart.cudaStreamAttrID cattr = attr.value
     cdef ccudart.cudaStreamAttrValue* cvalue_ptr = value._ptr if value != None else NULL
-    err = ccudart.cudaStreamSetAttribute(<ccudart.cudaStream_t>(<cudaStream_t>hStream)._ptr[0], cattr, cvalue_ptr)
+    err = ccudart.cudaStreamSetAttribute(chStream, cattr, cvalue_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -8433,9 +9385,17 @@ def cudaStreamDestroy(stream):
     cudaStreamAddCallback
     cuStreamDestroy
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
-    err = ccudart.cudaStreamDestroy(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    err = ccudart.cudaStreamDestroy(cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -8447,8 +9407,8 @@ def cudaStreamWaitEvent(stream, event, unsigned int flags):
     event. The synchronization will be performed efficiently on the device
     when applicable. `event` may be from a different device than `stream`.
 
-    flags include: cudaEventWaitDefault: Default event creation flag.
-    cudaEventWaitExternal: Event is captured in the graph as an external
+    flags include: - cudaEventWaitDefault: Default event creation flag.
+    - cudaEventWaitExternal: Event is captured in the graph as an external
     event node when performing stream capture.
 
     Parameters
@@ -8479,16 +9439,32 @@ def cudaStreamWaitEvent(stream, event, unsigned int flags):
     cudaStreamDestroy
     cuStreamWaitEvent
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     with nogil:
-        err = ccudart.cudaStreamWaitEvent(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], <ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0], flags)
+        err = ccudart.cudaStreamWaitEvent(cstream, cevent, flags)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaStreamAddCallback(stream, callback not None : cudaStreamCallback_t, userData, unsigned int flags):
+def cudaStreamAddCallback(stream, callback, userData, unsigned int flags):
     """ Add a callback to a compute stream.
 
     The callback may be passed cudaSuccess or an error code. In the event
@@ -8503,17 +9479,17 @@ def cudaStreamAddCallback(stream, callback not None : cudaStreamCallback_t, user
     may be serialized.
 
     For the purposes of Unified Memory, callback execution makes a number
-    of guarantees:   The callback stream is considered idle for the
+    of guarantees:  -  The callback stream is considered idle for the
     duration of the callback. Thus, for example, a callback may always use
-    memory attached to the callback stream.    The start of execution of a
-    callback has the same effect as synchronizing an event recorded in the
-    same stream immediately prior to the callback. It thus synchronizes
-    streams which have been "joined" prior to the callback.    Adding
+    memory attached to the callback stream.      -  The start of execution
+    of a callback has the same effect as synchronizing an event recorded in
+    the same stream immediately prior to the callback. It thus synchronizes
+    streams which have been "joined" prior to the callback.      -  Adding
     device work to any stream does not have the effect of making the stream
     active until all preceding callbacks have executed. Thus, for example,
     a callback might use global attached memory even if work has been added
     to another stream, if it has been properly ordered with an event.
-    Completion of a callback does not cause a stream to become active
+    -  Completion of a callback does not cause a stream to become active
     except as described above. The callback stream will remain idle if no
     device work follows the callback, and will remain idle across
     consecutive callbacks without device work in between. Thus, for
@@ -8524,7 +9500,7 @@ def cudaStreamAddCallback(stream, callback not None : cudaStreamCallback_t, user
     ----------
     stream : CUstream or cudaStream_t
         Stream to add callback to
-    callback : cudaStreamCallback_t
+    callback : Any
         The function to call once preceding stream operations are complete
     userData : Any
         User specified data to be passed to the callback function
@@ -8559,12 +9535,30 @@ def cudaStreamAddCallback(stream, callback not None : cudaStreamCallback_t, user
     This function is slated for eventual deprecation and removal. If you do not require the callback to execute in case of a device error, consider using cudaLaunchHostFunc. Additionally, this function is not supported with cudaStreamBeginCapture and cudaStreamEndCapture, unlike cudaLaunchHostFunc.
 
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStreamCallback_t ccallback
+    if callback is None:
+        ccallback = <ccudart.cudaStreamCallback_t><void_ptr>0
+    elif isinstance(callback, (cudaStreamCallback_t)):
+        pcallback = int(callback)
+        ccallback = <ccudart.cudaStreamCallback_t><void_ptr>pcallback
+    else:
+        pcallback = int(cudaStreamCallback_t(callback))
+        ccallback = <ccudart.cudaStreamCallback_t><void_ptr>pcallback
+
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cuserData = utils.HelperInputVoidPtr(userData)
     cdef void* cuserData_ptr = <void*><void_ptr>cuserData.cptr
     with nogil:
-        err = ccudart.cudaStreamAddCallback(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], callback._ptr[0], cuserData_ptr, flags)
+        err = ccudart.cudaStreamAddCallback(cstream, ccallback, cuserData_ptr, flags)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -8598,10 +9592,18 @@ def cudaStreamSynchronize(stream):
     cudaStreamDestroy
     cuStreamSynchronize
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     with nogil:
-        err = ccudart.cudaStreamSynchronize(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+        err = ccudart.cudaStreamSynchronize(cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -8638,9 +9640,17 @@ def cudaStreamQuery(stream):
     cudaStreamDestroy
     cuStreamQuery
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
-    err = ccudart.cudaStreamQuery(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    err = ccudart.cudaStreamQuery(cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -8653,11 +9663,11 @@ def cudaStreamAttachMemAsync(stream, devPtr, size_t length, unsigned int flags):
     only take effect when, previous work in stream has completed. Any
     previous association is automatically replaced.
 
-    `devPtr` must point to an one of the following types of memories:
+    `devPtr` must point to an one of the following types of memories: -
     managed memory declared using the managed keyword or allocated with
-    cudaMallocManaged. a valid host-accessible region of system-allocated
-    pageable memory. This type of memory may only be specified if the
-    device associated with the stream reports a non-zero value for the
+    cudaMallocManaged.    - a valid host-accessible region of system-
+    allocated pageable memory. This type of memory may only be specified if
+    the device associated with the stream reports a non-zero value for the
     device attribute cudaDevAttrPageableMemoryAccess.
 
     For managed allocations, `length` must be either zero or the entire
@@ -8743,11 +9753,19 @@ def cudaStreamAttachMemAsync(stream, devPtr, size_t length, unsigned int flags):
     cudaMallocManaged
     cuStreamAttachMemAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cdevPtr_ptr = <void*><void_ptr>cdevPtr.cptr
-    err = ccudart.cudaStreamAttachMemAsync(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], cdevPtr_ptr, length, flags)
+    err = ccudart.cudaStreamAttachMemAsync(cstream, cdevPtr_ptr, length, flags)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -8796,10 +9814,18 @@ def cudaStreamBeginCapture(stream, mode not None : cudaStreamCaptureMode):
     Kernels captured using this API must not use texture and surface references. Reading or writing through any texture or surface reference is undefined behavior. This restriction does not apply to texture and surface objects.
 
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdef ccudart.cudaStreamCaptureMode cmode = mode.value
-    err = ccudart.cudaStreamBeginCapture(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], cmode)
+    err = ccudart.cudaStreamBeginCapture(cstream, cmode)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -8827,21 +9853,21 @@ def cudaThreadExchangeStreamCaptureMode(mode not None : cudaStreamCaptureMode):
     cudaStreamEndCapture sequence. This behavior can be controlled via this
     API and flags to cudaStreamBeginCapture.
 
-    A thread's mode is one of the following: `cudaStreamCaptureModeGlobal:`
-    This is the default mode. If the local thread has an ongoing capture
-    sequence that was not initiated with `cudaStreamCaptureModeRelaxed` at
-    `cuStreamBeginCapture`, or if any other thread has a concurrent capture
-    sequence initiated with `cudaStreamCaptureModeGlobal`, this thread is
-    prohibited from potentially unsafe API calls.
-    `cudaStreamCaptureModeThreadLocal:` If the local thread has an ongoing
-    capture sequence not initiated with `cudaStreamCaptureModeRelaxed`, it
-    is prohibited from potentially unsafe API calls. Concurrent capture
-    sequences in other threads are ignored. `cudaStreamCaptureModeRelaxed:`
-    The local thread is not prohibited from potentially unsafe API calls.
-    Note that the thread is still prohibited from API calls which
-    necessarily conflict with stream capture, for example, attempting
-    cudaEventQuery on an event that was last recorded inside a capture
-    sequence.
+    A thread's mode is one of the following: -
+    `cudaStreamCaptureModeGlobal:` This is the default mode. If the local
+    thread has an ongoing capture sequence that was not initiated with
+    `cudaStreamCaptureModeRelaxed` at `cuStreamBeginCapture`, or if any
+    other thread has a concurrent capture sequence initiated with
+    `cudaStreamCaptureModeGlobal`, this thread is prohibited from
+    potentially unsafe API calls.    - `cudaStreamCaptureModeThreadLocal:`
+    If the local thread has an ongoing capture sequence not initiated with
+    `cudaStreamCaptureModeRelaxed`, it is prohibited from potentially
+    unsafe API calls. Concurrent capture sequences in other threads are
+    ignored.    - `cudaStreamCaptureModeRelaxed:` The local thread is not
+    prohibited from potentially unsafe API calls. Note that the thread is
+    still prohibited from API calls which necessarily conflict with stream
+    capture, for example, attempting cudaEventQuery on an event that was
+    last recorded inside a capture sequence.
 
     Parameters
     ----------
@@ -8897,10 +9923,18 @@ def cudaStreamEndCapture(stream):
     cudaStreamBeginCapture
     cudaStreamIsCapturing
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdef cudaGraph_t pGraph = cudaGraph_t()
-    err = ccudart.cudaStreamEndCapture(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], <ccudart.cudaGraph_t*>pGraph._ptr)
+    err = ccudart.cudaStreamEndCapture(cstream, <ccudart.cudaGraph_t*>pGraph._ptr)
     return (cudaError_t(err), pGraph)
 
 @cython.embedsignature(True)
@@ -8908,10 +9942,10 @@ def cudaStreamIsCapturing(stream):
     """ Returns a stream's capture status.
 
     Return the capture status of `stream` via `pCaptureStatus`. After a
-    successful call, `*pCaptureStatus` will contain one of the following:
-    ::cudaStreamCaptureStatusNone: The stream is not capturing.
-    ::cudaStreamCaptureStatusActive: The stream is capturing.
-    ::cudaStreamCaptureStatusInvalidated: The stream was capturing but an
+    successful call, `*pCaptureStatus` will contain one of the following: -
+    cudaStreamCaptureStatusNone: The stream is not capturing.    -
+    cudaStreamCaptureStatusActive: The stream is capturing.    -
+    cudaStreamCaptureStatusInvalidated: The stream was capturing but an
     error has invalidated the capture sequence. The capture sequence must
     be terminated with cudaStreamEndCapture on the stream where it was
     initiated in order to continue using `stream`.
@@ -8946,10 +9980,18 @@ def cudaStreamIsCapturing(stream):
     cudaStreamBeginCapture
     cudaStreamEndCapture
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdef ccudart.cudaStreamCaptureStatus pCaptureStatus
-    err = ccudart.cudaStreamIsCapturing(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], &pCaptureStatus)
+    err = ccudart.cudaStreamIsCapturing(cstream, &pCaptureStatus)
     return (cudaError_t(err), cudaStreamCaptureStatus(pCaptureStatus))
 
 @cython.embedsignature(True)
@@ -8967,8 +10009,8 @@ def cudaStreamGetCaptureInfo(stream):
     created with cudaStreamNonBlocking is capturing, returns
     cudaErrorStreamCaptureImplicit.
 
-    A valid id is returned only if both of the following are true: the call
-    returns cudaSuccess captureStatus is set to
+    A valid id is returned only if both of the following are true: - the
+    call returns cudaSuccess    - captureStatus is set to
     cudaStreamCaptureStatusActive
 
     Parameters
@@ -8992,11 +10034,19 @@ def cudaStreamGetCaptureInfo(stream):
     cudaStreamBeginCapture
     cudaStreamIsCapturing
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdef ccudart.cudaStreamCaptureStatus pCaptureStatus
     cdef unsigned long long pId = 0
-    err = ccudart.cudaStreamGetCaptureInfo(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], &pCaptureStatus, &pId)
+    err = ccudart.cudaStreamGetCaptureInfo(cstream, &pCaptureStatus, &pId)
     return (cudaError_t(err), cudaStreamCaptureStatus(pCaptureStatus), pId)
 
 @cython.embedsignature(True)
@@ -9010,15 +10060,15 @@ def cudaStreamGetCaptureInfo_v2(stream):
     cudaErrorStreamCaptureImplicit.
 
     Valid data (other than capture status) is returned only if both of the
-    following are true: the call returns cudaSuccess the returned capture
-    status is cudaStreamCaptureStatusActive
+    following are true: - the call returns cudaSuccess    - the returned
+    capture status is cudaStreamCaptureStatusActive
 
     This version of cudaStreamGetCaptureInfo is introduced in CUDA 11.3 and
     will supplant the previous version cudaStreamGetCaptureInfo in 12.0.
     Developers requiring compatibility across minor versions to CUDA 11.0
-    (driver version 445) can do one of the following: Use the older version
-    of the API, cudaStreamGetCaptureInfo Pass null for all of `graph_out`,
-    `dependencies_out`, and `numDependencies_out`.
+    (driver version 445) can do one of the following: - Use the older
+    version of the API, cudaStreamGetCaptureInfo    - Pass null for all of
+    `graph_out`, `dependencies_out`, and `numDependencies_out`.
 
     Parameters
     ----------
@@ -9066,15 +10116,23 @@ def cudaStreamGetCaptureInfo_v2(stream):
     cudaStreamIsCapturing
     cudaStreamUpdateCaptureDependencies
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdef ccudart.cudaStreamCaptureStatus captureStatus_out
     cdef unsigned long long id_out = 0
     cdef cudaGraph_t graph_out = cudaGraph_t()
     cdef const ccudart.cudaGraphNode_t* cdependencies_out = NULL
     pydependencies_out = []
     cdef size_t numDependencies_out = 0
-    err = ccudart.cudaStreamGetCaptureInfo_v2(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], &captureStatus_out, &id_out, <ccudart.cudaGraph_t*>graph_out._ptr, &cdependencies_out, &numDependencies_out)
+    err = ccudart.cudaStreamGetCaptureInfo_v2(cstream, &captureStatus_out, &id_out, <ccudart.cudaGraph_t*>graph_out._ptr, &cdependencies_out, &numDependencies_out)
     if cudaError_t(err) == cudaError_t(0):
         pydependencies_out = [cudaGraphNode_t(init_value=<void_ptr>cdependencies_out[idx]) for idx in range(numDependencies_out)]
     return (cudaError_t(err), cudaStreamCaptureStatus(captureStatus_out), id_out, graph_out, pydependencies_out, numDependencies_out)
@@ -9120,8 +10178,17 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : List[cudaGraphNod
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in dependencies):
         raise TypeError("Argument 'dependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdef ccudart.cudaGraphNode_t* cdependencies = NULL
     if len(dependencies) > 0:
         cdependencies = <ccudart.cudaGraphNode_t*> calloc(len(dependencies), sizeof(ccudart.cudaGraphNode_t))
@@ -9132,7 +10199,7 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : List[cudaGraphNod
                 cdependencies[idx] = <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>dependencies[idx])._ptr[0]
 
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    err = ccudart.cudaStreamUpdateCaptureDependencies(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>dependencies[0])._ptr if len(dependencies) == 1 else cdependencies, numDependencies, flags)
+    err = ccudart.cudaStreamUpdateCaptureDependencies(cstream, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>dependencies[0])._ptr if len(dependencies) == 1 else cdependencies, numDependencies, flags)
     if cdependencies is not NULL:
         free(cdependencies)
     return (cudaError_t(err),)
@@ -9173,18 +10240,18 @@ def cudaEventCreateWithFlags(unsigned int flags):
     """ Creates an event object with the specified flags.
 
     Creates an event object for the current device with the specified
-    flags. Valid flags include: cudaEventDefault: Default event creation
-    flag. cudaEventBlockingSync: Specifies that event should use blocking
-    synchronization. A host thread that uses cudaEventSynchronize() to wait
-    on an event created with this flag will block until the event actually
-    completes. cudaEventDisableTiming: Specifies that the created event
-    does not need to record timing data. Events created with this flag
-    specified and the cudaEventBlockingSync flag not specified will provide
-    the best performance when used with cudaStreamWaitEvent() and
-    cudaEventQuery(). cudaEventInterprocess: Specifies that the created
-    event may be used as an interprocess event by cudaIpcGetEventHandle().
-    cudaEventInterprocess must be specified along with
-    cudaEventDisableTiming.
+    flags. Valid flags include: - cudaEventDefault: Default event creation
+    flag.    - cudaEventBlockingSync: Specifies that event should use
+    blocking synchronization. A host thread that uses
+    cudaEventSynchronize() to wait on an event created with this flag will
+    block until the event actually completes.    - cudaEventDisableTiming:
+    Specifies that the created event does not need to record timing data.
+    Events created with this flag specified and the cudaEventBlockingSync
+    flag not specified will provide the best performance when used with
+    cudaStreamWaitEvent() and cudaEventQuery().    - cudaEventInterprocess:
+    Specifies that the created event may be used as an interprocess event
+    by cudaIpcGetEventHandle(). cudaEventInterprocess must be specified
+    along with cudaEventDisableTiming.
 
     Parameters
     ----------
@@ -9262,11 +10329,27 @@ def cudaEventRecord(event, stream):
     cudaEventRecordWithFlags
     cuEventRecord
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
-    err = ccudart.cudaEventRecord(<ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0], <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
+    err = ccudart.cudaEventRecord(cevent, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -9288,9 +10371,9 @@ def cudaEventRecordWithFlags(event, stream, unsigned int flags):
     cudaEventRecordWithFlags(), an event represents an empty set of work,
     so for example cudaEventQuery() would return cudaSuccess.
 
-    flags include: cudaEventRecordDefault: Default event creation flag.
-    cudaEventRecordExternal: Event is captured in the graph as an external
-    event node when performing stream capture.
+    flags include: - cudaEventRecordDefault: Default event creation flag.
+    - cudaEventRecordExternal: Event is captured in the graph as an
+    external event node when performing stream capture.
 
     Parameters
     ----------
@@ -9323,11 +10406,27 @@ def cudaEventRecordWithFlags(event, stream, unsigned int flags):
     cudaEventRecord
     cuEventRecord
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
-    err = ccudart.cudaEventRecordWithFlags(<ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0], <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], flags)
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
+    err = ccudart.cudaEventRecordWithFlags(cevent, cstream, flags)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -9369,9 +10468,17 @@ def cudaEventQuery(event):
     cudaEventElapsedTime
     cuEventQuery
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
-    err = ccudart.cudaEventQuery(<ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0])
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
+    err = ccudart.cudaEventQuery(cevent)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -9412,9 +10519,17 @@ def cudaEventSynchronize(event):
     cudaEventElapsedTime
     cuEventSynchronize
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
-    err = ccudart.cudaEventSynchronize(<ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0])
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
+    err = ccudart.cudaEventSynchronize(cevent)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -9453,9 +10568,17 @@ def cudaEventDestroy(event):
     cudaEventElapsedTime
     cuEventDestroy
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
-    err = ccudart.cudaEventDestroy(<ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0])
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
+    err = ccudart.cudaEventDestroy(cevent)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -9509,12 +10632,28 @@ def cudaEventElapsedTime(start, end):
     cudaEventRecord
     cuEventElapsedTime
     """
-    if not isinstance(end, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'end' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(end)))
-    if not isinstance(start, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'start' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(start)))
+    cdef ccudart.cudaEvent_t cend
+    if end is None:
+        cend = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(end, (cudaEvent_t,cuda.CUevent)):
+        pend = int(end)
+        cend = <ccudart.cudaEvent_t><void_ptr>pend
+    else:
+        pend = int(cudaEvent_t(end))
+        cend = <ccudart.cudaEvent_t><void_ptr>pend
+
+    cdef ccudart.cudaEvent_t cstart
+    if start is None:
+        cstart = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(start, (cudaEvent_t,cuda.CUevent)):
+        pstart = int(start)
+        cstart = <ccudart.cudaEvent_t><void_ptr>pstart
+    else:
+        pstart = int(cudaEvent_t(start))
+        cstart = <ccudart.cudaEvent_t><void_ptr>pstart
+
     cdef float ms = 0
-    err = ccudart.cudaEventElapsedTime(&ms, <ccudart.cudaEvent_t>(<cudaEvent_t>start)._ptr[0], <ccudart.cudaEvent_t>(<cudaEvent_t>end)._ptr[0])
+    err = ccudart.cudaEventElapsedTime(&ms, cstart, cend)
     return (cudaError_t(err), ms)
 
 @cython.embedsignature(True)
@@ -9674,7 +10813,7 @@ def cudaImportExternalMemory(memHandleDesc : cudaExternalMemoryHandleDesc):
     return (cudaError_t(err), extMem_out)
 
 @cython.embedsignature(True)
-def cudaExternalMemoryGetMappedBuffer(extMem not None : cudaExternalMemory_t, bufferDesc : cudaExternalMemoryBufferDesc):
+def cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc : cudaExternalMemoryBufferDesc):
     """ Maps a buffer onto an imported memory object.
 
     Maps a buffer onto an imported memory object and returns a device
@@ -9707,7 +10846,7 @@ def cudaExternalMemoryGetMappedBuffer(extMem not None : cudaExternalMemory_t, bu
 
     Parameters
     ----------
-    extMem : cudaExternalMemory_t
+    extMem : Any
         Handle to external memory object
     bufferDesc : cudaExternalMemoryBufferDesc
         Buffer descriptor
@@ -9727,13 +10866,23 @@ def cudaExternalMemoryGetMappedBuffer(extMem not None : cudaExternalMemory_t, bu
     cudaDestroyExternalMemory
     cudaExternalMemoryGetMappedMipmappedArray
     """
+    cdef ccudart.cudaExternalMemory_t cextMem
+    if extMem is None:
+        cextMem = <ccudart.cudaExternalMemory_t><void_ptr>0
+    elif isinstance(extMem, (cudaExternalMemory_t)):
+        pextMem = int(extMem)
+        cextMem = <ccudart.cudaExternalMemory_t><void_ptr>pextMem
+    else:
+        pextMem = int(cudaExternalMemory_t(extMem))
+        cextMem = <ccudart.cudaExternalMemory_t><void_ptr>pextMem
+
     cdef void_ptr devPtr = 0
     cdef ccudart.cudaExternalMemoryBufferDesc* cbufferDesc_ptr = bufferDesc._ptr if bufferDesc != None else NULL
-    err = ccudart.cudaExternalMemoryGetMappedBuffer(<void**>&devPtr, extMem._ptr[0], cbufferDesc_ptr)
+    err = ccudart.cudaExternalMemoryGetMappedBuffer(<void**>&devPtr, cextMem, cbufferDesc_ptr)
     return (cudaError_t(err), devPtr)
 
 @cython.embedsignature(True)
-def cudaExternalMemoryGetMappedMipmappedArray(extMem not None : cudaExternalMemory_t, mipmapDesc : cudaExternalMemoryMipmappedArrayDesc):
+def cudaExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : cudaExternalMemoryMipmappedArrayDesc):
     """ Maps a CUDA mipmapped array onto an external memory object.
 
     Maps a CUDA mipmapped array onto an external object and returns a
@@ -9767,7 +10916,7 @@ def cudaExternalMemoryGetMappedMipmappedArray(extMem not None : cudaExternalMemo
 
     Parameters
     ----------
-    extMem : cudaExternalMemory_t
+    extMem : Any
         Handle to external memory object
     mipmapDesc : cudaExternalMemoryMipmappedArrayDesc
         CUDA array descriptor
@@ -9792,13 +10941,23 @@ def cudaExternalMemoryGetMappedMipmappedArray(extMem not None : cudaExternalMemo
     If cudaExternalMemoryHandleDesctype is cudaExternalMemoryHandleTypeNvSciBuf, then cudaExternalMemoryMipmappedArrayDescnumLevels must not be greater than 1. 
 
     """
+    cdef ccudart.cudaExternalMemory_t cextMem
+    if extMem is None:
+        cextMem = <ccudart.cudaExternalMemory_t><void_ptr>0
+    elif isinstance(extMem, (cudaExternalMemory_t)):
+        pextMem = int(extMem)
+        cextMem = <ccudart.cudaExternalMemory_t><void_ptr>pextMem
+    else:
+        pextMem = int(cudaExternalMemory_t(extMem))
+        cextMem = <ccudart.cudaExternalMemory_t><void_ptr>pextMem
+
     cdef cudaMipmappedArray_t mipmap = cudaMipmappedArray_t()
     cdef ccudart.cudaExternalMemoryMipmappedArrayDesc* cmipmapDesc_ptr = mipmapDesc._ptr if mipmapDesc != None else NULL
-    err = ccudart.cudaExternalMemoryGetMappedMipmappedArray(mipmap._ptr, extMem._ptr[0], cmipmapDesc_ptr)
+    err = ccudart.cudaExternalMemoryGetMappedMipmappedArray(mipmap._ptr, cextMem, cmipmapDesc_ptr)
     return (cudaError_t(err), mipmap)
 
 @cython.embedsignature(True)
-def cudaDestroyExternalMemory(extMem not None : cudaExternalMemory_t):
+def cudaDestroyExternalMemory(extMem):
     """ Destroys an external memory object.
 
     Destroys the specified external memory object. Any existing buffers and
@@ -9808,7 +10967,7 @@ def cudaDestroyExternalMemory(extMem not None : cudaExternalMemory_t):
 
     Parameters
     ----------
-    extMem : cudaExternalMemory_t
+    extMem : Any
         External memory object to be destroyed
 
     Returns
@@ -9825,7 +10984,17 @@ def cudaDestroyExternalMemory(extMem not None : cudaExternalMemory_t):
     cudaExternalMemoryGetMappedBuffer
     cudaExternalMemoryGetMappedMipmappedArray
     """
-    err = ccudart.cudaDestroyExternalMemory(extMem._ptr[0])
+    cdef ccudart.cudaExternalMemory_t cextMem
+    if extMem is None:
+        cextMem = <ccudart.cudaExternalMemory_t><void_ptr>0
+    elif isinstance(extMem, (cudaExternalMemory_t)):
+        pextMem = int(extMem)
+        cextMem = <ccudart.cudaExternalMemory_t><void_ptr>pextMem
+    else:
+        pextMem = int(cudaExternalMemory_t(extMem))
+        cextMem = <ccudart.cudaExternalMemory_t><void_ptr>pextMem
+
+    err = ccudart.cudaDestroyExternalMemory(cextMem)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -10055,14 +11224,24 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : List[cudaExternalSemaphore_t
     cudaDestroyExternalSemaphore
     cudaWaitExternalSemaphoresAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     paramsArray = [] if paramsArray is None else paramsArray
     if not all(isinstance(_x, (cudaExternalSemaphoreSignalParams)) for _x in paramsArray):
         raise TypeError("Argument 'paramsArray' is not instance of type (expected List[ccudart.cudaExternalSemaphoreSignalParams]")
+
     extSemArray = [] if extSemArray is None else extSemArray
     if not all(isinstance(_x, (cudaExternalSemaphore_t)) for _x in extSemArray):
         raise TypeError("Argument 'extSemArray' is not instance of type (expected List[ccudart.cudaExternalSemaphore_t]")
+
     cdef ccudart.cudaExternalSemaphore_t* cextSemArray = NULL
     if len(extSemArray) > 0:
         cextSemArray = <ccudart.cudaExternalSemaphore_t*> calloc(len(extSemArray), sizeof(ccudart.cudaExternalSemaphore_t))
@@ -10082,7 +11261,7 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : List[cudaExternalSemaphore_t
 
     if numExtSems > len(extSemArray): raise RuntimeError("List is too small: " + str(len(extSemArray)) + " < " + str(numExtSems))
     if numExtSems > len(paramsArray): raise RuntimeError("List is too small: " + str(len(paramsArray)) + " < " + str(numExtSems))
-    err = ccudart.cudaSignalExternalSemaphoresAsync((<cudaExternalSemaphore_t>extSemArray[0])._ptr if len(extSemArray) == 1 else cextSemArray, (<cudaExternalSemaphoreSignalParams>paramsArray[0])._ptr if len(paramsArray) == 1 else cparamsArray, numExtSems, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    err = ccudart.cudaSignalExternalSemaphoresAsync((<cudaExternalSemaphore_t>extSemArray[0])._ptr if len(extSemArray) == 1 else cextSemArray, (<cudaExternalSemaphoreSignalParams>paramsArray[0])._ptr if len(paramsArray) == 1 else cparamsArray, numExtSems, cstream)
     if cextSemArray is not NULL:
         free(cextSemArray)
     if cparamsArray is not NULL:
@@ -10174,14 +11353,24 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : List[cudaExternalSemaphore_t],
     cudaDestroyExternalSemaphore
     cudaSignalExternalSemaphoresAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     paramsArray = [] if paramsArray is None else paramsArray
     if not all(isinstance(_x, (cudaExternalSemaphoreWaitParams)) for _x in paramsArray):
         raise TypeError("Argument 'paramsArray' is not instance of type (expected List[ccudart.cudaExternalSemaphoreWaitParams]")
+
     extSemArray = [] if extSemArray is None else extSemArray
     if not all(isinstance(_x, (cudaExternalSemaphore_t)) for _x in extSemArray):
         raise TypeError("Argument 'extSemArray' is not instance of type (expected List[ccudart.cudaExternalSemaphore_t]")
+
     cdef ccudart.cudaExternalSemaphore_t* cextSemArray = NULL
     if len(extSemArray) > 0:
         cextSemArray = <ccudart.cudaExternalSemaphore_t*> calloc(len(extSemArray), sizeof(ccudart.cudaExternalSemaphore_t))
@@ -10201,7 +11390,7 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : List[cudaExternalSemaphore_t],
 
     if numExtSems > len(extSemArray): raise RuntimeError("List is too small: " + str(len(extSemArray)) + " < " + str(numExtSems))
     if numExtSems > len(paramsArray): raise RuntimeError("List is too small: " + str(len(paramsArray)) + " < " + str(numExtSems))
-    err = ccudart.cudaWaitExternalSemaphoresAsync((<cudaExternalSemaphore_t>extSemArray[0])._ptr if len(extSemArray) == 1 else cextSemArray, (<cudaExternalSemaphoreWaitParams>paramsArray[0])._ptr if len(paramsArray) == 1 else cparamsArray, numExtSems, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    err = ccudart.cudaWaitExternalSemaphoresAsync((<cudaExternalSemaphore_t>extSemArray[0])._ptr if len(extSemArray) == 1 else cextSemArray, (<cudaExternalSemaphoreWaitParams>paramsArray[0])._ptr if len(paramsArray) == 1 else cparamsArray, numExtSems, cstream)
     if cextSemArray is not NULL:
         free(cextSemArray)
     if cparamsArray is not NULL:
@@ -10209,7 +11398,7 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : List[cudaExternalSemaphore_t],
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaDestroyExternalSemaphore(extSem not None : cudaExternalSemaphore_t):
+def cudaDestroyExternalSemaphore(extSem):
     """ Destroys an external semaphore.
 
     Destroys an external semaphore object and releases any references to
@@ -10218,7 +11407,7 @@ def cudaDestroyExternalSemaphore(extSem not None : cudaExternalSemaphore_t):
 
     Parameters
     ----------
-    extSem : cudaExternalSemaphore_t
+    extSem : Any
         External semaphore to be destroyed
 
     Returns
@@ -10235,7 +11424,17 @@ def cudaDestroyExternalSemaphore(extSem not None : cudaExternalSemaphore_t):
     cudaSignalExternalSemaphoresAsync
     cudaWaitExternalSemaphoresAsync
     """
-    err = ccudart.cudaDestroyExternalSemaphore(extSem._ptr[0])
+    cdef ccudart.cudaExternalSemaphore_t cextSem
+    if extSem is None:
+        cextSem = <ccudart.cudaExternalSemaphore_t><void_ptr>0
+    elif isinstance(extSem, (cudaExternalSemaphore_t)):
+        pextSem = int(extSem)
+        cextSem = <ccudart.cudaExternalSemaphore_t><void_ptr>pextSem
+    else:
+        pextSem = int(cudaExternalSemaphore_t(extSem))
+        cextSem = <ccudart.cudaExternalSemaphore_t><void_ptr>pextSem
+
+    err = ccudart.cudaDestroyExternalSemaphore(cextSem)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -10249,8 +11448,8 @@ def cudaFuncSetCacheConfig(func, cacheConfig not None : cudaFuncCache):
     possible, but it is free to choose a different configuration if
     required to execute `func`.
 
-    `func` is a device function symbol and must be declared as a
-    `None`global function. If the specified function does not exist, then
+    `func` is a device function symbol and must be declared as a `global`
+    function. If the specified function does not exist, then
     cudaErrorInvalidDeviceFunction is returned. For templated functions,
     pass the function symbol as follows:
     func_name<template_arg_0,...,template_arg_N>
@@ -10261,11 +11460,11 @@ def cudaFuncSetCacheConfig(func, cacheConfig not None : cudaFuncCache):
     Launching a kernel with a different preference than the most recent
     preference setting may insert a device-side synchronization point.
 
-    The supported cache configurations are: ::cudaFuncCachePreferNone: no
-    preference for shared memory or L1 (default)
-    ::cudaFuncCachePreferShared: prefer larger shared memory and smaller L1
-    cache ::cudaFuncCachePreferL1: prefer larger L1 cache and smaller
-    shared memory ::cudaFuncCachePreferEqual: prefer equal size L1 cache
+    The supported cache configurations are: - cudaFuncCachePreferNone: no
+    preference for shared memory or L1 (default)    -
+    cudaFuncCachePreferShared: prefer larger shared memory and smaller L1
+    cache    - cudaFuncCachePreferL1: prefer larger L1 cache and smaller
+    shared memory    - cudaFuncCachePreferEqual: prefer equal size L1 cache
     and shared memory
 
     Parameters
@@ -10326,11 +11525,11 @@ def cudaFuncSetSharedMemConfig(func, config not None : cudaSharedMemConfig):
     For templated functions, pass the function symbol as follows:
     func_name<template_arg_0,...,template_arg_N>
 
-    The supported bank configurations are: ::cudaSharedMemBankSizeDefault:
+    The supported bank configurations are: - cudaSharedMemBankSizeDefault:
     use the device's shared memory configuration when launching this
-    function. ::cudaSharedMemBankSizeFourByte: set shared memory bank width
-    to be four bytes natively when launching this function.
-    ::cudaSharedMemBankSizeEightByte: set shared memory bank width to be
+    function.    - cudaSharedMemBankSizeFourByte: set shared memory bank
+    width to be four bytes natively when launching this function.    -
+    cudaSharedMemBankSizeEightByte: set shared memory bank width to be
     eight bytes natively when launching this function.
 
     Parameters
@@ -10370,11 +11569,10 @@ def cudaFuncGetAttributes(func):
 
     This function obtains the attributes of a function specified via
     `func`. `func` is a device function symbol and must be declared as a
-    `None`global function. The fetched attributes are placed in `attr`. If
-    the specified function does not exist, then
-    cudaErrorInvalidDeviceFunction is returned. For templated functions,
-    pass the function symbol as follows:
-    func_name<template_arg_0,...,template_arg_N>
+    `global` function. The fetched attributes are placed in `attr`. If the
+    specified function does not exist, then cudaErrorInvalidDeviceFunction
+    is returned. For templated functions, pass the function symbol as
+    follows: func_name<template_arg_0,...,template_arg_N>
 
     Note that some function attributes such as maxThreadsPerBlock may vary
     based on the device that is currently being used.
@@ -10412,19 +11610,19 @@ def cudaFuncSetAttribute(func, attr not None : cudaFuncAttribute, int value):
     This function sets the attributes of a function specified via `func`.
     The parameter `func` must be a pointer to a function that executes on
     the device. The parameter specified by `func` must be declared as a
-    `None`global function. The enumeration defined by `attr` is set to the
+    `global` function. The enumeration defined by `attr` is set to the
     value defined by `value`. If the specified function does not exist,
     then cudaErrorInvalidDeviceFunction is returned. If the specified
     attribute cannot be written, or if the value is incorrect, then
     cudaErrorInvalidValue is returned.
 
-    Valid values for `attr` are:
-    ::cudaFuncAttributeMaxDynamicSharedMemorySize - The requested maximum
+    Valid values for `attr` are: -
+    cudaFuncAttributeMaxDynamicSharedMemorySize - The requested maximum
     size in bytes of dynamically-allocated shared memory. The sum of this
     value and the function attribute sharedSizeBytes cannot exceed the
     device attribute cudaDevAttrMaxSharedMemoryPerBlockOptin. The maximal
     size of requestable dynamic shared memory may differ by GPU
-    architecture. ::cudaFuncAttributePreferredSharedMemoryCarveout - On
+    architecture.    - cudaFuncAttributePreferredSharedMemoryCarveout - On
     devices where the L1 cache and shared memory use the same hardware
     resources, this sets the shared memory carveout preference, in percent
     of the total shared memory. See
@@ -10517,7 +11715,7 @@ def cudaSetDoubleForHost(double d):
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaLaunchHostFunc(stream, fn not None : cudaHostFn_t, userData):
+def cudaLaunchHostFunc(stream, fn, userData):
     """ Enqueues a host function call in a stream.
 
     Enqueues a host function to run in a stream. The function will be
@@ -10532,23 +11730,23 @@ def cudaLaunchHostFunc(stream, fn not None : cudaHostFn_t, userData):
     undefined order and may be serialized.
 
     For the purposes of Unified Memory, execution makes a number of
-    guarantees:   The stream is considered idle for the duration of the
+    guarantees:  -  The stream is considered idle for the duration of the
     function's execution. Thus, for example, the function may always use
-    memory attached to the stream it was enqueued in.    The start of
+    memory attached to the stream it was enqueued in.      -  The start of
     execution of the function has the same effect as synchronizing an event
     recorded in the same stream immediately prior to the function. It thus
     synchronizes streams which have been "joined" prior to the function.
-    Adding device work to any stream does not have the effect of making the
-    stream active until all preceding host functions and stream callbacks
-    have executed. Thus, for example, a function might use global attached
-    memory even if work has been added to another stream, if the work has
-    been ordered behind the function call with an event.    Completion of
-    the function does not cause a stream to become active except as
-    described above. The stream will remain idle if no device work follows
-    the function, and will remain idle across consecutive host functions or
-    stream callbacks without device work in between. Thus, for example,
-    stream synchronization can be done by signaling from a host function at
-    the end of the stream.
+    -  Adding device work to any stream does not have the effect of making
+    the stream active until all preceding host functions and stream
+    callbacks have executed. Thus, for example, a function might use global
+    attached memory even if work has been added to another stream, if the
+    work has been ordered behind the function call with an event.      -
+    Completion of the function does not cause a stream to become active
+    except as described above. The stream will remain idle if no device
+    work follows the function, and will remain idle across consecutive host
+    functions or stream callbacks without device work in between. Thus, for
+    example, stream synchronization can be done by signaling from a host
+    function at the end of the stream.
 
     Note that, in constrast to cuStreamAddCallback, the function will not
     be called in the event of an error in the CUDA context.
@@ -10557,7 +11755,7 @@ def cudaLaunchHostFunc(stream, fn not None : cudaHostFn_t, userData):
     ----------
     hStream : CUstream or cudaStream_t
         Stream to enqueue function call in
-    fn : cudaHostFn_t
+    fn : Any
         The function to call once preceding stream operations are complete
     userData : Any
         User-specified data to be passed to the function
@@ -10584,12 +11782,30 @@ def cudaLaunchHostFunc(stream, fn not None : cudaHostFn_t, userData):
     cudaStreamAddCallback
     cuLaunchHostFunc
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaHostFn_t cfn
+    if fn is None:
+        cfn = <ccudart.cudaHostFn_t><void_ptr>0
+    elif isinstance(fn, (cudaHostFn_t)):
+        pfn = int(fn)
+        cfn = <ccudart.cudaHostFn_t><void_ptr>pfn
+    else:
+        pfn = int(cudaHostFn_t(fn))
+        cfn = <ccudart.cudaHostFn_t><void_ptr>pfn
+
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cuserData = utils.HelperInputVoidPtr(userData)
     cdef void* cuserData_ptr = <void*><void_ptr>cuserData.cptr
     with nogil:
-        err = ccudart.cudaLaunchHostFunc(<ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0], fn._ptr[0], cuserData_ptr)
+        err = ccudart.cudaLaunchHostFunc(cstream, cfn, cuserData_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -10687,8 +11903,8 @@ def cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(func, int blockSize, 
     The `flags` parameter controls how special cases are handled. Valid
     flags include:
 
-    cudaOccupancyDefault: keeps the default behavior as
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor
+    - cudaOccupancyDefault: keeps the default behavior as
+    cudaOccupancyMaxActiveBlocksPerMultiprocessor    -
     cudaOccupancyDisableCachingOverride: This flag suppresses the default
     behavior on platform where global caching affects occupancy. On such
     platforms, if caching is enabled, but per-block SM resource usage would
@@ -10800,7 +12016,7 @@ def cudaMallocManaged(size_t size, unsigned int flags):
     each other and where the value of the device attribute
     cudaDevAttrConcurrentManagedAccess is zero for at least one of those
     GPUs, the location chosen for physical storage of managed memory is
-    system-dependent. On Linux, the location chosen will be device memory
+    system-dependent. - On Linux, the location chosen will be device memory
     as long as the current set of active contexts are on devices that
     either have peer-to-peer support with each other or have a non-zero
     value for the device attribute cudaDevAttrConcurrentManagedAccess. If
@@ -10814,7 +12030,7 @@ def cudaMallocManaged(size_t size, unsigned int flags):
     support peer-to-peer with at least one of the other devices that has an
     active context. This in turn implies that context creation may fail if
     there is insufficient host memory to migrate all managed allocations.
-    On Windows, the physical storage is always created in 'zero-copy' or
+    - On Windows, the physical storage is always created in 'zero-copy' or
     host memory. All GPUs will reference the data at reduced bandwidth over
     the PCIe bus. In these circumstances, use of the environment variable
     CUDA_VISIBLE_DEVICES is recommended to restrict CUDA to only use those
@@ -11033,14 +12249,18 @@ def cudaMallocArray(desc : cudaChannelFormatDesc, size_t width, size_t height, u
     or cudaChannelFormatKindFloat.
 
     The `flags` parameter enables different options to be specified that
-    affect the allocation, as follows. cudaArrayDefault: This flag's value
-    is defined to be 0 and provides default array allocation
+    affect the allocation, as follows. - cudaArrayDefault: This flag's
+    value is defined to be 0 and provides default array allocation    -
     cudaArraySurfaceLoadStore: Allocates an array that can be read from or
-    written to using a surface reference cudaArrayTextureGather: This flag
-    indicates that texture gather operations will be performed on the
-    array. cudaArraySparse: Allocates a CUDA array without physical backing
-    memory. The subregions within this sparse array can later be mapped to
-    physical memory by calling cuMemMapArrayAsync. The physical backing
+    written to using a surface reference    - cudaArrayTextureGather: This
+    flag indicates that texture gather operations will be performed on the
+    array.    - cudaArraySparse: Allocates a CUDA array without physical
+    backing memory. The subregions within this sparse array can later be
+    mapped onto a physical memory allocation by calling cuMemMapArrayAsync.
+    The physical backing memory must be allocated via cuMemCreate.    -
+    cudaArrayDeferredMapping: Allocates a CUDA array without physical
+    backing memory. The entire array can later be mapped onto a physical
+    memory allocation by calling cuMemMapArrayAsync. The physical backing
     memory must be allocated via cuMemCreate.
 
     `width` and `height` must meet certain size requirements. See
@@ -11170,7 +12390,7 @@ def cudaFreeHost(ptr):
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaFreeArray(array not None : cudaArray_t):
+def cudaFreeArray(array):
     """ Frees an array on the device.
 
     Frees the CUDA array `array`, which must have been returned by a
@@ -11179,7 +12399,7 @@ def cudaFreeArray(array not None : cudaArray_t):
 
     Parameters
     ----------
-    array : cudaArray_t
+    array : Any
         Pointer to array to free
 
     Returns
@@ -11201,12 +12421,22 @@ def cudaFreeArray(array not None : cudaArray_t):
     cudaHostAlloc
     cuArrayDestroy
     """
+    cdef ccudart.cudaArray_t carray
+    if array is None:
+        carray = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(array, (cudaArray_t)):
+        parray = int(array)
+        carray = <ccudart.cudaArray_t><void_ptr>parray
+    else:
+        parray = int(cudaArray_t(array))
+        carray = <ccudart.cudaArray_t><void_ptr>parray
+
     with nogil:
-        err = ccudart.cudaFreeArray(array._ptr[0])
+        err = ccudart.cudaFreeArray(carray)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaFreeMipmappedArray(mipmappedArray not None : cudaMipmappedArray_t):
+def cudaFreeMipmappedArray(mipmappedArray):
     """ Frees a mipmapped array on the device.
 
     Frees the CUDA mipmapped array `mipmappedArray`, which must have been
@@ -11215,7 +12445,7 @@ def cudaFreeMipmappedArray(mipmappedArray not None : cudaMipmappedArray_t):
 
     Parameters
     ----------
-    mipmappedArray : cudaMipmappedArray_t
+    mipmappedArray : Any
         Pointer to mipmapped array to free
 
     Returns
@@ -11237,7 +12467,17 @@ def cudaFreeMipmappedArray(mipmappedArray not None : cudaMipmappedArray_t):
     cudaHostAlloc
     cuMipmappedArrayDestroy
     """
-    err = ccudart.cudaFreeMipmappedArray(mipmappedArray._ptr[0])
+    cdef ccudart.cudaMipmappedArray_t cmipmappedArray
+    if mipmappedArray is None:
+        cmipmappedArray = <ccudart.cudaMipmappedArray_t><void_ptr>0
+    elif isinstance(mipmappedArray, (cudaMipmappedArray_t)):
+        pmipmappedArray = int(mipmappedArray)
+        cmipmappedArray = <ccudart.cudaMipmappedArray_t><void_ptr>pmipmappedArray
+    else:
+        pmipmappedArray = int(cudaMipmappedArray_t(mipmappedArray))
+        cmipmappedArray = <ccudart.cudaMipmappedArray_t><void_ptr>pmipmappedArray
+
+    err = ccudart.cudaFreeMipmappedArray(cmipmappedArray)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -11257,13 +12497,13 @@ def cudaHostAlloc(size_t size, unsigned int flags):
     device.
 
     The `flags` parameter enables different options to be specified that
-    affect the allocation, as follows. cudaHostAllocDefault: This flag's
+    affect the allocation, as follows. - cudaHostAllocDefault: This flag's
     value is defined to be 0 and causes cudaHostAlloc() to emulate
-    cudaMallocHost(). cudaHostAllocPortable: The memory returned by this
-    call will be considered as pinned memory by all CUDA contexts, not just
-    the one that performed the allocation. cudaHostAllocMapped: Maps the
-    allocation into the CUDA address space. The device pointer to the
-    memory may be obtained by calling cudaHostGetDevicePointer().
+    cudaMallocHost().    - cudaHostAllocPortable: The memory returned by
+    this call will be considered as pinned memory by all CUDA contexts, not
+    just the one that performed the allocation.    - cudaHostAllocMapped:
+    Maps the allocation into the CUDA address space. The device pointer to
+    the memory may be obtained by calling cudaHostGetDevicePointer().    -
     cudaHostAllocWriteCombined: Allocates the memory as write-combined
     (WC). WC memory can be transferred across the PCI Express bus more
     quickly on some system configurations, but cannot be read efficiently
@@ -11339,18 +12579,18 @@ def cudaHostRegister(ptr, size_t size, unsigned int flags):
     The `flags` parameter enables different options to be specified that
     affect the allocation, as follows.
 
-    cudaHostRegisterDefault: On a system with unified virtual addressing,
+    - cudaHostRegisterDefault: On a system with unified virtual addressing,
     the memory will be both mapped and portable. On a system with no
     unified virtual addressing, the memory will be neither mapped nor
-    portable. cudaHostRegisterPortable: The memory returned by this call
-    will be considered as pinned memory by all CUDA contexts, not just the
-    one that performed the allocation. cudaHostRegisterMapped: Maps the
-    allocation into the CUDA address space. The device pointer to the
-    memory may be obtained by calling cudaHostGetDevicePointer().
+    portable.    - cudaHostRegisterPortable: The memory returned by this
+    call will be considered as pinned memory by all CUDA contexts, not just
+    the one that performed the allocation.    - cudaHostRegisterMapped:
+    Maps the allocation into the CUDA address space. The device pointer to
+    the memory may be obtained by calling cudaHostGetDevicePointer().    -
     cudaHostRegisterIoMemory: The passed memory pointer is treated as
     pointing to some memory-mapped I/O space, e.g. belonging to a third-
     party PCIe device, and it will marked as non cache-coherent and
-    contiguous. cudaHostRegisterReadOnly: The passed memory pointer is
+    contiguous.    - cudaHostRegisterReadOnly: The passed memory pointer is
     treated as pointing to memory that is considered read-only by the
     device. On platforms without
     cudaDevAttrPageableMemoryAccessUsesHostPageTables, this flag is
@@ -11619,43 +12859,49 @@ def cudaMalloc3DArray(desc : cudaChannelFormatDesc, extent not None : cudaExtent
 
     cudaMalloc3DArray() can allocate the following:
 
-    A 1D array is allocated if the height and depth extents are both zero.
-    A 2D array is allocated if only the depth extent is zero. A 3D array is
-    allocated if all three extents are non-zero. A 1D layered CUDA array is
-    allocated if only the height extent is zero and the cudaArrayLayered
-    flag is set. Each layer is a 1D array. The number of layers is
-    determined by the depth extent. A 2D layered CUDA array is allocated if
-    all three extents are non-zero and the cudaArrayLayered flag is set.
-    Each layer is a 2D array. The number of layers is determined by the
-    depth extent. A cubemap CUDA array is allocated if all three extents
-    are non-zero and the cudaArrayCubemap flag is set. Width must be equal
-    to height, and depth must be six. A cubemap is a special type of 2D
-    layered CUDA array, where the six layers represent the six faces of a
-    cube. The order of the six layers in memory is the same as that listed
-    in cudaGraphicsCubeFace. A cubemap layered CUDA array is allocated if
-    all three extents are non-zero, and both, cudaArrayCubemap and
-    cudaArrayLayered flags are set. Width must be equal to height, and
-    depth must be a multiple of six. A cubemap layered CUDA array is a
-    special type of 2D layered CUDA array that consists of a collection of
-    cubemaps. The first six layers represent the first cubemap, the next
-    six layers form the second cubemap, and so on.
+    - A 1D array is allocated if the height and depth extents are both
+    zero.    - A 2D array is allocated if only the depth extent is zero.
+    - A 3D array is allocated if all three extents are non-zero.    - A 1D
+    layered CUDA array is allocated if only the height extent is zero and
+    the cudaArrayLayered flag is set. Each layer is a 1D array. The number
+    of layers is determined by the depth extent.    - A 2D layered CUDA
+    array is allocated if all three extents are non-zero and the
+    cudaArrayLayered flag is set. Each layer is a 2D array. The number of
+    layers is determined by the depth extent.    - A cubemap CUDA array is
+    allocated if all three extents are non-zero and the cudaArrayCubemap
+    flag is set. Width must be equal to height, and depth must be six. A
+    cubemap is a special type of 2D layered CUDA array, where the six
+    layers represent the six faces of a cube. The order of the six layers
+    in memory is the same as that listed in cudaGraphicsCubeFace.    - A
+    cubemap layered CUDA array is allocated if all three extents are non-
+    zero, and both, cudaArrayCubemap and cudaArrayLayered flags are set.
+    Width must be equal to height, and depth must be a multiple of six. A
+    cubemap layered CUDA array is a special type of 2D layered CUDA array
+    that consists of a collection of cubemaps. The first six layers
+    represent the first cubemap, the next six layers form the second
+    cubemap, and so on.
 
     The `flags` parameter enables different options to be specified that
-    affect the allocation, as follows. cudaArrayDefault: This flag's value
-    is defined to be 0 and provides default array allocation
+    affect the allocation, as follows. - cudaArrayDefault: This flag's
+    value is defined to be 0 and provides default array allocation    -
     cudaArrayLayered: Allocates a layered CUDA array, with the depth extent
-    indicating the number of layers cudaArrayCubemap: Allocates a cubemap
-    CUDA array. Width must be equal to height, and depth must be six. If
-    the cudaArrayLayered flag is also set, depth must be a multiple of six.
-    cudaArraySurfaceLoadStore: Allocates a CUDA array that could be read
-    from or written to using a surface reference. cudaArrayTextureGather:
-    This flag indicates that texture gather operations will be performed on
-    the CUDA array. Texture gather can only be performed on 2D CUDA arrays.
-    cudaArraySparse: Allocates a CUDA array without physical backing
-    memory. The subregions within this sparse array can later be mapped to
-    physical memory by calling cuMemMapArrayAsync. This flag can only be
-    used for creating 2D, 3D or 2D layered sparse CUDA arrays. The physical
-    backing memory must be allocated via cuMemCreate.
+    indicating the number of layers    - cudaArrayCubemap: Allocates a
+    cubemap CUDA array. Width must be equal to height, and depth must be
+    six. If the cudaArrayLayered flag is also set, depth must be a multiple
+    of six.    - cudaArraySurfaceLoadStore: Allocates a CUDA array that
+    could be read from or written to using a surface reference.    -
+    cudaArrayTextureGather: This flag indicates that texture gather
+    operations will be performed on the CUDA array. Texture gather can only
+    be performed on 2D CUDA arrays.    - cudaArraySparse: Allocates a CUDA
+    array without physical backing memory. The subregions within this
+    sparse array can later be mapped onto a physical memory allocation by
+    calling cuMemMapArrayAsync. This flag can only be used for creating 2D,
+    3D or 2D layered sparse CUDA arrays. The physical backing memory must
+    be allocated via cuMemCreate.    - cudaArrayDeferredMapping: Allocates
+    a CUDA array without physical backing memory. The entire array can
+    later be mapped onto a physical memory allocation by calling
+    cuMemMapArrayAsync. The physical backing memory must be allocated via
+    cuMemCreate.
 
     The width, height and depth extents must meet certain size requirements
     as listed in the following table. All values are specified in elements.
@@ -11740,47 +12986,52 @@ def cudaMallocMipmappedArray(desc : cudaChannelFormatDesc, extent not None : cud
 
     cudaMallocMipmappedArray() can allocate the following:
 
-    A 1D mipmapped array is allocated if the height and depth extents are
-    both zero. A 2D mipmapped array is allocated if only the depth extent
-    is zero. A 3D mipmapped array is allocated if all three extents are
-    non-zero. A 1D layered CUDA mipmapped array is allocated if only the
-    height extent is zero and the cudaArrayLayered flag is set. Each layer
-    is a 1D mipmapped array. The number of layers is determined by the
-    depth extent. A 2D layered CUDA mipmapped array is allocated if all
-    three extents are non-zero and the cudaArrayLayered flag is set. Each
-    layer is a 2D mipmapped array. The number of layers is determined by
-    the depth extent. A cubemap CUDA mipmapped array is allocated if all
-    three extents are non-zero and the cudaArrayCubemap flag is set. Width
-    must be equal to height, and depth must be six. The order of the six
-    layers in memory is the same as that listed in cudaGraphicsCubeFace. A
-    cubemap layered CUDA mipmapped array is allocated if all three extents
-    are non-zero, and both, cudaArrayCubemap and cudaArrayLayered flags are
-    set. Width must be equal to height, and depth must be a multiple of
-    six. A cubemap layered CUDA mipmapped array is a special type of 2D
-    layered CUDA mipmapped array that consists of a collection of cubemap
-    mipmapped arrays. The first six layers represent the first cubemap
-    mipmapped array, the next six layers form the second cubemap mipmapped
-    array, and so on.
+    - A 1D mipmapped array is allocated if the height and depth extents are
+    both zero.    - A 2D mipmapped array is allocated if only the depth
+    extent is zero.    - A 3D mipmapped array is allocated if all three
+    extents are non-zero.    - A 1D layered CUDA mipmapped array is
+    allocated if only the height extent is zero and the cudaArrayLayered
+    flag is set. Each layer is a 1D mipmapped array. The number of layers
+    is determined by the depth extent.    - A 2D layered CUDA mipmapped
+    array is allocated if all three extents are non-zero and the
+    cudaArrayLayered flag is set. Each layer is a 2D mipmapped array. The
+    number of layers is determined by the depth extent.    - A cubemap CUDA
+    mipmapped array is allocated if all three extents are non-zero and the
+    cudaArrayCubemap flag is set. Width must be equal to height, and depth
+    must be six. The order of the six layers in memory is the same as that
+    listed in cudaGraphicsCubeFace.    - A cubemap layered CUDA mipmapped
+    array is allocated if all three extents are non-zero, and both,
+    cudaArrayCubemap and cudaArrayLayered flags are set. Width must be
+    equal to height, and depth must be a multiple of six. A cubemap layered
+    CUDA mipmapped array is a special type of 2D layered CUDA mipmapped
+    array that consists of a collection of cubemap mipmapped arrays. The
+    first six layers represent the first cubemap mipmapped array, the next
+    six layers form the second cubemap mipmapped array, and so on.
 
     The `flags` parameter enables different options to be specified that
-    affect the allocation, as follows. cudaArrayDefault: This flag's value
-    is defined to be 0 and provides default mipmapped array allocation
-    cudaArrayLayered: Allocates a layered CUDA mipmapped array, with the
-    depth extent indicating the number of layers cudaArrayCubemap:
-    Allocates a cubemap CUDA mipmapped array. Width must be equal to
-    height, and depth must be six. If the cudaArrayLayered flag is also
-    set, depth must be a multiple of six. cudaArraySurfaceLoadStore: This
-    flag indicates that individual mipmap levels of the CUDA mipmapped
-    array will be read from or written to using a surface reference.
-    cudaArrayTextureGather: This flag indicates that texture gather
-    operations will be performed on the CUDA array. Texture gather can only
-    be performed on 2D CUDA mipmapped arrays, and the gather operations are
-    performed only on the most detailed mipmap level. cudaArraySparse:
-    Allocates a CUDA array without physical backing memory. The subregions
-    within this sparse array can later be mapped to physical memory by
+    affect the allocation, as follows. - cudaArrayDefault: This flag's
+    value is defined to be 0 and provides default mipmapped array
+    allocation    - cudaArrayLayered: Allocates a layered CUDA mipmapped
+    array, with the depth extent indicating the number of layers    -
+    cudaArrayCubemap: Allocates a cubemap CUDA mipmapped array. Width must
+    be equal to height, and depth must be six. If the cudaArrayLayered flag
+    is also set, depth must be a multiple of six.    -
+    cudaArraySurfaceLoadStore: This flag indicates that individual mipmap
+    levels of the CUDA mipmapped array will be read from or written to
+    using a surface reference.    - cudaArrayTextureGather: This flag
+    indicates that texture gather operations will be performed on the CUDA
+    array. Texture gather can only be performed on 2D CUDA mipmapped
+    arrays, and the gather operations are performed only on the most
+    detailed mipmap level.    - cudaArraySparse: Allocates a CUDA mipmapped
+    array without physical backing memory. The subregions within this
+    sparse array can later be mapped onto a physical memory allocation by
     calling cuMemMapArrayAsync. This flag can only be used for creating 2D,
     3D or 2D layered sparse CUDA mipmapped arrays. The physical backing
-    memory must be allocated via cuMemCreate.
+    memory must be allocated via cuMemCreate.    -
+    cudaArrayDeferredMapping: Allocates a CUDA mipmapped array without
+    physical backing memory. The entire array can later be mapped onto a
+    physical memory allocation by calling cuMemMapArrayAsync. The physical
+    backing memory must be allocated via cuMemCreate.
 
     The width, height and depth extents must meet certain size requirements
     as listed in the following table. All values are specified in elements.
@@ -11845,7 +13096,7 @@ def cudaMallocMipmappedArray(desc : cudaChannelFormatDesc, extent not None : cud
     return (cudaError_t(err), mipmappedArray)
 
 @cython.embedsignature(True)
-def cudaGetMipmappedArrayLevel(mipmappedArray not None : cudaMipmappedArray_const_t, unsigned int level):
+def cudaGetMipmappedArrayLevel(mipmappedArray, unsigned int level):
     """ Gets a mipmap level of a CUDA mipmapped array.
 
     Returns in `*levelArray` a CUDA array that represents a single mipmap
@@ -11859,7 +13110,7 @@ def cudaGetMipmappedArrayLevel(mipmappedArray not None : cudaMipmappedArray_cons
 
     Parameters
     ----------
-    mipmappedArray : cudaMipmappedArray_const_t
+    mipmappedArray : Any
         CUDA mipmapped array
     level : unsigned int
         Mipmap level
@@ -11886,8 +13137,18 @@ def cudaGetMipmappedArrayLevel(mipmappedArray not None : cudaMipmappedArray_cons
     make_cudaExtent
     cuMipmappedArrayGetLevel
     """
+    cdef ccudart.cudaMipmappedArray_const_t cmipmappedArray
+    if mipmappedArray is None:
+        cmipmappedArray = <ccudart.cudaMipmappedArray_const_t><void_ptr>0
+    elif isinstance(mipmappedArray, (cudaMipmappedArray_const_t)):
+        pmipmappedArray = int(mipmappedArray)
+        cmipmappedArray = <ccudart.cudaMipmappedArray_const_t><void_ptr>pmipmappedArray
+    else:
+        pmipmappedArray = int(cudaMipmappedArray_const_t(mipmappedArray))
+        cmipmappedArray = <ccudart.cudaMipmappedArray_const_t><void_ptr>pmipmappedArray
+
     cdef cudaArray_t levelArray = cudaArray_t()
-    err = ccudart.cudaGetMipmappedArrayLevel(levelArray._ptr, mipmappedArray._ptr[0], level)
+    err = ccudart.cudaGetMipmappedArrayLevel(levelArray._ptr, cmipmappedArray, level)
     return (cudaError_t(err), levelArray)
 
 @cython.embedsignature(True)
@@ -12151,11 +13412,19 @@ def cudaMemcpy3DAsync(p : cudaMemcpy3DParms, stream):
     make_cudaPos
     cuMemcpy3DAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdef ccudart.cudaMemcpy3DParms* cp_ptr = p._ptr if p != None else NULL
     with nogil:
-        err = ccudart.cudaMemcpy3DAsync(cp_ptr, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+        err = ccudart.cudaMemcpy3DAsync(cp_ptr, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -12191,20 +13460,40 @@ def cudaMemcpy3DPeerAsync(p : cudaMemcpy3DPeerParms, stream):
     cudaMemcpy3DPeerAsync
     cuMemcpy3DPeerAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdef ccudart.cudaMemcpy3DPeerParms* cp_ptr = p._ptr if p != None else NULL
-    err = ccudart.cudaMemcpy3DPeerAsync(cp_ptr, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    err = ccudart.cudaMemcpy3DPeerAsync(cp_ptr, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
 def cudaMemGetInfo():
     """ Gets free and total device memory.
 
-    Returns in `*total` the total amount of memory available on the device.
-    Returns in `*free` the amount of memory on the device that is free
-    according to the OS. CUDA is not guaranteed to be able to allocate all
-    of the memory that the OS reports as free.
+    Returns in `*total` the total amount of memory available to the the
+    current context. Returns in `*free` the amount of memory on the device
+    that is free according to the OS. CUDA is not guaranteed to be able to
+    allocate all of the memory that the OS reports as free. In a multi-
+    tenet situation, free estimate returned is prone to race condition
+    where a new allocation/free done by a different process or a different
+    thread in the same process between the time when free memory was
+    estimated and reported, will result in deviation in free value reported
+    and actual free memory.
+
+    The integrated GPU on Tegra shares memory with CPU and other component
+    of the SoC. The free and total values returned by the API excludes the
+    SWAP memory space maintained by the OS on some platforms. The OS may
+    move some of the memory pages into swap area as the GPU or CPU allocate
+    or access memory. See Tegra app note on how to calculate total and free
+    memory on Tegra.
 
     Returns
     -------
@@ -12216,10 +13505,6 @@ def cudaMemGetInfo():
         Returned free memory in bytes
     total : int
         Returned total memory in bytes
-
-    See Also
-    --------
-    cuMemGetInfo
     """
     cdef size_t free = 0
     cdef size_t total = 0
@@ -12227,7 +13512,7 @@ def cudaMemGetInfo():
     return (cudaError_t(err), free, total)
 
 @cython.embedsignature(True)
-def cudaArrayGetInfo(array not None : cudaArray_t):
+def cudaArrayGetInfo(array):
     """ Gets info about the specified cudaArray.
 
     Returns in `*desc`, `*extent` and `*flags` respectively, the type,
@@ -12237,7 +13522,7 @@ def cudaArrayGetInfo(array not None : cudaArray_t):
 
     Parameters
     ----------
-    array : cudaArray_t
+    array : Any
         The cudaArray to get info for
 
     Returns
@@ -12251,20 +13536,25 @@ def cudaArrayGetInfo(array not None : cudaArray_t):
         Returned array shape. 2D arrays will have depth of zero
     flags : unsigned int
         Returned array flags
-
-    See Also
-    --------
-    cuArrayGetDescriptor
-    cuArray3DGetDescriptor
     """
+    cdef ccudart.cudaArray_t carray
+    if array is None:
+        carray = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(array, (cudaArray_t)):
+        parray = int(array)
+        carray = <ccudart.cudaArray_t><void_ptr>parray
+    else:
+        parray = int(cudaArray_t(array))
+        carray = <ccudart.cudaArray_t><void_ptr>parray
+
     cdef cudaChannelFormatDesc desc = cudaChannelFormatDesc()
     cdef cudaExtent extent = cudaExtent()
     cdef unsigned int flags = 0
-    err = ccudart.cudaArrayGetInfo(desc._ptr, extent._ptr, &flags, array._ptr[0])
+    err = ccudart.cudaArrayGetInfo(desc._ptr, extent._ptr, &flags, carray)
     return (cudaError_t(err), desc, extent, flags)
 
 @cython.embedsignature(True)
-def cudaArrayGetPlane(hArray not None : cudaArray_t, unsigned int planeIdx):
+def cudaArrayGetPlane(hArray, unsigned int planeIdx):
     """ Gets a CUDA array plane from a CUDA array.
 
     Returns in `pPlaneArray` a CUDA array that represents a single format
@@ -12283,7 +13573,7 @@ def cudaArrayGetPlane(hArray not None : cudaArray_t, unsigned int planeIdx):
 
     Parameters
     ----------
-    hArray : cudaArray_t
+    hArray : Any
         CUDA array
     planeIdx : unsigned int
         Plane index
@@ -12296,17 +13586,115 @@ def cudaArrayGetPlane(hArray not None : cudaArray_t, unsigned int planeIdx):
         cudaErrorInvalidResourceHandle
     pPlaneArray : cudaArray_t
         Returned CUDA array referenced by the `planeIdx`
-
-    See Also
-    --------
-    cuArrayGetPlane
     """
+    cdef ccudart.cudaArray_t chArray
+    if hArray is None:
+        chArray = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(hArray, (cudaArray_t)):
+        phArray = int(hArray)
+        chArray = <ccudart.cudaArray_t><void_ptr>phArray
+    else:
+        phArray = int(cudaArray_t(hArray))
+        chArray = <ccudart.cudaArray_t><void_ptr>phArray
+
     cdef cudaArray_t pPlaneArray = cudaArray_t()
-    err = ccudart.cudaArrayGetPlane(pPlaneArray._ptr, hArray._ptr[0], planeIdx)
+    err = ccudart.cudaArrayGetPlane(pPlaneArray._ptr, chArray, planeIdx)
     return (cudaError_t(err), pPlaneArray)
 
 @cython.embedsignature(True)
-def cudaArrayGetSparseProperties(array not None : cudaArray_t):
+def cudaArrayGetMemoryRequirements(array, int device):
+    """ Returns the memory requirements of a CUDA array.
+
+    Returns the memory requirements of a CUDA array in `memoryRequirements`
+    If the CUDA array is not allocated with flag cudaArrayDeferredMapping
+    cudaErrorInvalidValue will be returned.
+
+    The returned value in cudaArrayMemoryRequirements::size represents the
+    total size of the CUDA array. The returned value in
+    cudaArrayMemoryRequirements::alignment represents the alignment
+    necessary for mapping the CUDA array.
+
+    Parameters
+    ----------
+    array : Any
+        CUDA array to get the memory requirements of
+    device : int
+        Device to get the memory requirements for
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+    memoryRequirements : cudaArrayMemoryRequirements
+        Pointer to cudaArrayMemoryRequirements
+
+    See Also
+    --------
+    cudaMipmappedArrayGetMemoryRequirements
+    """
+    cdef ccudart.cudaArray_t carray
+    if array is None:
+        carray = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(array, (cudaArray_t)):
+        parray = int(array)
+        carray = <ccudart.cudaArray_t><void_ptr>parray
+    else:
+        parray = int(cudaArray_t(array))
+        carray = <ccudart.cudaArray_t><void_ptr>parray
+
+    cdef cudaArrayMemoryRequirements memoryRequirements = cudaArrayMemoryRequirements()
+    err = ccudart.cudaArrayGetMemoryRequirements(memoryRequirements._ptr, carray, device)
+    return (cudaError_t(err), memoryRequirements)
+
+@cython.embedsignature(True)
+def cudaMipmappedArrayGetMemoryRequirements(mipmap, int device):
+    """ Returns the memory requirements of a CUDA mipmapped array.
+
+    Returns the memory requirements of a CUDA mipmapped array in
+    `memoryRequirements` If the CUDA mipmapped array is not allocated with
+    flag cudaArrayDeferredMapping cudaErrorInvalidValue will be returned.
+
+    The returned value in cudaArrayMemoryRequirements::size represents the
+    total size of the CUDA mipmapped array. The returned value in
+    cudaArrayMemoryRequirements::alignment represents the alignment
+    necessary for mapping the CUDA mipmapped array.
+
+    Parameters
+    ----------
+    mipmap : Any
+        CUDA mipmapped array to get the memory requirements of
+    device : int
+        Device to get the memory requirements for
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+    memoryRequirements : cudaArrayMemoryRequirements
+        Pointer to cudaArrayMemoryRequirements
+
+    See Also
+    --------
+    cudaArrayGetMemoryRequirements
+    """
+    cdef ccudart.cudaMipmappedArray_t cmipmap
+    if mipmap is None:
+        cmipmap = <ccudart.cudaMipmappedArray_t><void_ptr>0
+    elif isinstance(mipmap, (cudaMipmappedArray_t)):
+        pmipmap = int(mipmap)
+        cmipmap = <ccudart.cudaMipmappedArray_t><void_ptr>pmipmap
+    else:
+        pmipmap = int(cudaMipmappedArray_t(mipmap))
+        cmipmap = <ccudart.cudaMipmappedArray_t><void_ptr>pmipmap
+
+    cdef cudaArrayMemoryRequirements memoryRequirements = cudaArrayMemoryRequirements()
+    err = ccudart.cudaMipmappedArrayGetMemoryRequirements(memoryRequirements._ptr, cmipmap, device)
+    return (cudaError_t(err), memoryRequirements)
+
+@cython.embedsignature(True)
+def cudaArrayGetSparseProperties(array):
     """ Returns the layout properties of a sparse CUDA array.
 
     Returns the layout properties of a sparse CUDA array in
@@ -12327,7 +13715,7 @@ def cudaArrayGetSparseProperties(array not None : cudaArray_t):
 
     Parameters
     ----------
-    array : cudaArray_t
+    array : Any
         The CUDA array to get the sparse properties of
 
     Returns
@@ -12343,12 +13731,22 @@ def cudaArrayGetSparseProperties(array not None : cudaArray_t):
     cudaMipmappedArrayGetSparseProperties
     cuMemMapArrayAsync
     """
+    cdef ccudart.cudaArray_t carray
+    if array is None:
+        carray = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(array, (cudaArray_t)):
+        parray = int(array)
+        carray = <ccudart.cudaArray_t><void_ptr>parray
+    else:
+        parray = int(cudaArray_t(array))
+        carray = <ccudart.cudaArray_t><void_ptr>parray
+
     cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties()
-    err = ccudart.cudaArrayGetSparseProperties(sparseProperties._ptr, array._ptr[0])
+    err = ccudart.cudaArrayGetSparseProperties(sparseProperties._ptr, carray)
     return (cudaError_t(err), sparseProperties)
 
 @cython.embedsignature(True)
-def cudaMipmappedArrayGetSparseProperties(mipmap not None : cudaMipmappedArray_t):
+def cudaMipmappedArrayGetSparseProperties(mipmap):
     """ Returns the layout properties of a sparse CUDA mipmapped array.
 
     Returns the sparse array layout properties in `sparseProperties`. If
@@ -12370,7 +13768,7 @@ def cudaMipmappedArrayGetSparseProperties(mipmap not None : cudaMipmappedArray_t
 
     Parameters
     ----------
-    mipmap : cudaMipmappedArray_t
+    mipmap : Any
         The CUDA mipmapped array to get the sparse properties of
 
     Returns
@@ -12386,8 +13784,18 @@ def cudaMipmappedArrayGetSparseProperties(mipmap not None : cudaMipmappedArray_t
     cudaArrayGetSparseProperties
     cuMemMapArrayAsync
     """
+    cdef ccudart.cudaMipmappedArray_t cmipmap
+    if mipmap is None:
+        cmipmap = <ccudart.cudaMipmappedArray_t><void_ptr>0
+    elif isinstance(mipmap, (cudaMipmappedArray_t)):
+        pmipmap = int(mipmap)
+        cmipmap = <ccudart.cudaMipmappedArray_t><void_ptr>pmipmap
+    else:
+        pmipmap = int(cudaMipmappedArray_t(mipmap))
+        cmipmap = <ccudart.cudaMipmappedArray_t><void_ptr>pmipmap
+
     cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties()
-    err = ccudart.cudaMipmappedArrayGetSparseProperties(sparseProperties._ptr, mipmap._ptr[0])
+    err = ccudart.cudaMipmappedArrayGetSparseProperties(sparseProperties._ptr, cmipmap)
     return (cudaError_t(err), sparseProperties)
 
 @cython.embedsignature(True)
@@ -12580,7 +13988,7 @@ def cudaMemcpy2D(dst, size_t dpitch, src, size_t spitch, size_t width, size_t he
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaMemcpy2DToArray(dst not None : cudaArray_t, size_t wOffset, size_t hOffset, src, size_t spitch, size_t width, size_t height, kind not None : cudaMemcpyKind):
+def cudaMemcpy2DToArray(dst, size_t wOffset, size_t hOffset, src, size_t spitch, size_t width, size_t height, kind not None : cudaMemcpyKind):
     """ Copies data between host and device.
 
     Copies a matrix (`height` rows of `width` bytes each) from the memory
@@ -12600,7 +14008,7 @@ def cudaMemcpy2DToArray(dst not None : cudaArray_t, size_t wOffset, size_t hOffs
 
     Parameters
     ----------
-    dst : cudaArray_t
+    dst : Any
         Destination memory address
     wOffset : size_t
         Destination starting X offset (columns in bytes)
@@ -12644,15 +14052,25 @@ def cudaMemcpy2DToArray(dst not None : cudaArray_t, size_t wOffset, size_t hOffs
     cuMemcpy2D
     cuMemcpy2DUnaligned
     """
+    cdef ccudart.cudaArray_t cdst
+    if dst is None:
+        cdst = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(dst, (cudaArray_t)):
+        pdst = int(dst)
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+    else:
+        pdst = int(cudaArray_t(dst))
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+
     csrc = utils.HelperInputVoidPtr(src)
     cdef void* csrc_ptr = <void*><void_ptr>csrc.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
     with nogil:
-        err = ccudart.cudaMemcpy2DToArray(dst._ptr[0], wOffset, hOffset, csrc_ptr, spitch, width, height, ckind)
+        err = ccudart.cudaMemcpy2DToArray(cdst, wOffset, hOffset, csrc_ptr, spitch, width, height, ckind)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaMemcpy2DFromArray(dst, size_t dpitch, src not None : cudaArray_const_t, size_t wOffset, size_t hOffset, size_t width, size_t height, kind not None : cudaMemcpyKind):
+def cudaMemcpy2DFromArray(dst, size_t dpitch, src, size_t wOffset, size_t hOffset, size_t width, size_t height, kind not None : cudaMemcpyKind):
     """ Copies data between host and device.
 
     Copies a matrix (`height` rows of `width` bytes each) from the CUDA
@@ -12676,7 +14094,7 @@ def cudaMemcpy2DFromArray(dst, size_t dpitch, src not None : cudaArray_const_t, 
         Destination memory address
     dpitch : size_t
         Pitch of destination memory
-    src : cudaArray_const_t
+    src : Any
         Source memory address
     wOffset : size_t
         Source starting X offset (columns in bytes)
@@ -12716,15 +14134,25 @@ def cudaMemcpy2DFromArray(dst, size_t dpitch, src not None : cudaArray_const_t, 
     cuMemcpy2D
     cuMemcpy2DUnaligned
     """
+    cdef ccudart.cudaArray_const_t csrc
+    if src is None:
+        csrc = <ccudart.cudaArray_const_t><void_ptr>0
+    elif isinstance(src, (cudaArray_const_t)):
+        psrc = int(src)
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+    else:
+        psrc = int(cudaArray_const_t(src))
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+
     cdst = utils.HelperInputVoidPtr(dst)
     cdef void* cdst_ptr = <void*><void_ptr>cdst.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
     with nogil:
-        err = ccudart.cudaMemcpy2DFromArray(cdst_ptr, dpitch, src._ptr[0], wOffset, hOffset, width, height, ckind)
+        err = ccudart.cudaMemcpy2DFromArray(cdst_ptr, dpitch, csrc, wOffset, hOffset, width, height, ckind)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaMemcpy2DArrayToArray(dst not None : cudaArray_t, size_t wOffsetDst, size_t hOffsetDst, src not None : cudaArray_const_t, size_t wOffsetSrc, size_t hOffsetSrc, size_t width, size_t height, kind not None : cudaMemcpyKind):
+def cudaMemcpy2DArrayToArray(dst, size_t wOffsetDst, size_t hOffsetDst, src, size_t wOffsetSrc, size_t hOffsetSrc, size_t width, size_t height, kind not None : cudaMemcpyKind):
     """ Copies data between host and device.
 
     Copies a matrix (`height` rows of `width` bytes each) from the CUDA
@@ -12743,13 +14171,13 @@ def cudaMemcpy2DArrayToArray(dst not None : cudaArray_t, size_t wOffsetDst, size
 
     Parameters
     ----------
-    dst : cudaArray_t
+    dst : Any
         Destination memory address
     wOffsetDst : size_t
         Destination starting X offset (columns in bytes)
     hOffsetDst : size_t
         Destination starting Y offset (rows)
-    src : cudaArray_const_t
+    src : Any
         Source memory address
     wOffsetSrc : size_t
         Source starting X offset (columns in bytes)
@@ -12788,8 +14216,28 @@ def cudaMemcpy2DArrayToArray(dst not None : cudaArray_t, size_t wOffsetDst, size
     cuMemcpy2D
     cuMemcpy2DUnaligned
     """
+    cdef ccudart.cudaArray_const_t csrc
+    if src is None:
+        csrc = <ccudart.cudaArray_const_t><void_ptr>0
+    elif isinstance(src, (cudaArray_const_t)):
+        psrc = int(src)
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+    else:
+        psrc = int(cudaArray_const_t(src))
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+
+    cdef ccudart.cudaArray_t cdst
+    if dst is None:
+        cdst = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(dst, (cudaArray_t)):
+        pdst = int(dst)
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+    else:
+        pdst = int(cudaArray_t(dst))
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+
     cdef ccudart.cudaMemcpyKind ckind = kind.value
-    err = ccudart.cudaMemcpy2DArrayToArray(dst._ptr[0], wOffsetDst, hOffsetDst, src._ptr[0], wOffsetSrc, hOffsetSrc, width, height, ckind)
+    err = ccudart.cudaMemcpy2DArrayToArray(cdst, wOffsetDst, hOffsetDst, csrc, wOffsetSrc, hOffsetSrc, width, height, ckind)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -12860,15 +14308,23 @@ def cudaMemcpyAsync(dst, src, size_t count, kind not None : cudaMemcpyKind, stre
     cuMemcpyHtoDAsync
     cuMemcpyDtoDAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdst = utils.HelperInputVoidPtr(dst)
     cdef void* cdst_ptr = <void*><void_ptr>cdst.cptr
     csrc = utils.HelperInputVoidPtr(src)
     cdef void* csrc_ptr = <void*><void_ptr>csrc.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
     with nogil:
-        err = ccudart.cudaMemcpyAsync(cdst_ptr, csrc_ptr, count, ckind, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+        err = ccudart.cudaMemcpyAsync(cdst_ptr, csrc_ptr, count, ckind, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -12916,14 +14372,22 @@ def cudaMemcpyPeerAsync(dst, int dstDevice, src, int srcDevice, size_t count, st
     cudaMemcpy3DPeerAsync
     cuMemcpyPeerAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdst = utils.HelperInputVoidPtr(dst)
     cdef void* cdst_ptr = <void*><void_ptr>cdst.cptr
     csrc = utils.HelperInputVoidPtr(src)
     cdef void* csrc_ptr = <void*><void_ptr>csrc.cptr
     with nogil:
-        err = ccudart.cudaMemcpyPeerAsync(cdst_ptr, dstDevice, csrc_ptr, srcDevice, count, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+        err = ccudart.cudaMemcpyPeerAsync(cdst_ptr, dstDevice, csrc_ptr, srcDevice, count, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -13002,19 +14466,27 @@ def cudaMemcpy2DAsync(dst, size_t dpitch, src, size_t spitch, size_t width, size
     cudaMemcpyFromSymbolAsync
     cuMemcpy2DAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdst = utils.HelperInputVoidPtr(dst)
     cdef void* cdst_ptr = <void*><void_ptr>cdst.cptr
     csrc = utils.HelperInputVoidPtr(src)
     cdef void* csrc_ptr = <void*><void_ptr>csrc.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
     with nogil:
-        err = ccudart.cudaMemcpy2DAsync(cdst_ptr, dpitch, csrc_ptr, spitch, width, height, ckind, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+        err = ccudart.cudaMemcpy2DAsync(cdst_ptr, dpitch, csrc_ptr, spitch, width, height, ckind, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaMemcpy2DToArrayAsync(dst not None : cudaArray_t, size_t wOffset, size_t hOffset, src, size_t spitch, size_t width, size_t height, kind not None : cudaMemcpyKind, stream):
+def cudaMemcpy2DToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t spitch, size_t width, size_t height, kind not None : cudaMemcpyKind, stream):
     """ Copies data between host and device.
 
     Copies a matrix (`height` rows of `width` bytes each) from the memory
@@ -13041,7 +14513,7 @@ def cudaMemcpy2DToArrayAsync(dst not None : cudaArray_t, size_t wOffset, size_t 
 
     Parameters
     ----------
-    dst : cudaArray_t
+    dst : Any
         Destination memory address
     wOffset : size_t
         Destination starting X offset (columns in bytes)
@@ -13082,17 +14554,35 @@ def cudaMemcpy2DToArrayAsync(dst not None : cudaArray_t, size_t wOffset, size_t 
     cudaMemcpyAsync
     cudaMemcpy2DAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaArray_t cdst
+    if dst is None:
+        cdst = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(dst, (cudaArray_t)):
+        pdst = int(dst)
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+    else:
+        pdst = int(cudaArray_t(dst))
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+
     csrc = utils.HelperInputVoidPtr(src)
     cdef void* csrc_ptr = <void*><void_ptr>csrc.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
     with nogil:
-        err = ccudart.cudaMemcpy2DToArrayAsync(dst._ptr[0], wOffset, hOffset, csrc_ptr, spitch, width, height, ckind, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+        err = ccudart.cudaMemcpy2DToArrayAsync(cdst, wOffset, hOffset, csrc_ptr, spitch, width, height, ckind, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaMemcpy2DFromArrayAsync(dst, size_t dpitch, src not None : cudaArray_const_t, size_t wOffset, size_t hOffset, size_t width, size_t height, kind not None : cudaMemcpyKind, stream):
+def cudaMemcpy2DFromArrayAsync(dst, size_t dpitch, src, size_t wOffset, size_t hOffset, size_t width, size_t height, kind not None : cudaMemcpyKind, stream):
     """ Copies data between host and device.
 
     Copies a matrix (`height` rows of `width` bytes each) from the CUDA
@@ -13123,7 +14613,7 @@ def cudaMemcpy2DFromArrayAsync(dst, size_t dpitch, src not None : cudaArray_cons
         Destination memory address
     dpitch : size_t
         Pitch of destination memory
-    src : cudaArray_const_t
+    src : Any
         Source memory address
     wOffset : size_t
         Source starting X offset (columns in bytes)
@@ -13161,13 +14651,31 @@ def cudaMemcpy2DFromArrayAsync(dst, size_t dpitch, src not None : cudaArray_cons
     cudaMemcpy2DAsync
     cudaMemcpy2DToArrayAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaArray_const_t csrc
+    if src is None:
+        csrc = <ccudart.cudaArray_const_t><void_ptr>0
+    elif isinstance(src, (cudaArray_const_t)):
+        psrc = int(src)
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+    else:
+        psrc = int(cudaArray_const_t(src))
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+
     cdst = utils.HelperInputVoidPtr(dst)
     cdef void* cdst_ptr = <void*><void_ptr>cdst.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
     with nogil:
-        err = ccudart.cudaMemcpy2DFromArrayAsync(cdst_ptr, dpitch, src._ptr[0], wOffset, hOffset, width, height, ckind, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+        err = ccudart.cudaMemcpy2DFromArrayAsync(cdst_ptr, dpitch, csrc, wOffset, hOffset, width, height, ckind, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -13196,12 +14704,6 @@ def cudaMemset(devPtr, int value, size_t count):
         cudaErrorInvalidValue
     None
         None
-
-    See Also
-    --------
-    cuMemsetD8
-    cuMemsetD16
-    cuMemsetD32
     """
     cdevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cdevPtr_ptr = <void*><void_ptr>cdevPtr.cptr
@@ -13365,12 +14867,20 @@ def cudaMemsetAsync(devPtr, int value, size_t count, stream):
     cuMemsetD16Async
     cuMemsetD32Async
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cdevPtr_ptr = <void*><void_ptr>cdevPtr.cptr
     with nogil:
-        err = ccudart.cudaMemsetAsync(cdevPtr_ptr, value, count, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+        err = ccudart.cudaMemsetAsync(cdevPtr_ptr, value, count, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -13426,11 +14936,19 @@ def cudaMemset2DAsync(devPtr, size_t pitch, int value, size_t width, size_t heig
     cuMemsetD2D16Async
     cuMemsetD2D32Async
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cdevPtr_ptr = <void*><void_ptr>cdevPtr.cptr
-    err = ccudart.cudaMemset2DAsync(cdevPtr_ptr, pitch, value, width, height, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    err = ccudart.cudaMemset2DAsync(cdevPtr_ptr, pitch, value, width, height, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -13498,9 +15016,17 @@ def cudaMemset3DAsync(pitchedDevPtr not None : cudaPitchedPtr, int value, extent
     make_cudaPitchedPtr
     make_cudaExtent
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
-    err = ccudart.cudaMemset3DAsync(pitchedDevPtr._ptr[0], value, extent._ptr[0], <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    err = ccudart.cudaMemset3DAsync(pitchedDevPtr._ptr[0], value, extent._ptr[0], cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -13588,12 +15114,20 @@ def cudaMemPrefetchAsync(devPtr, size_t count, int dstDevice, stream):
     cudaMemAdvise
     cuMemPrefetchAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
     cdevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cdevPtr_ptr = <void*><void_ptr>cdevPtr.cptr
     with nogil:
-        err = ccudart.cudaMemPrefetchAsync(cdevPtr_ptr, count, dstDevice, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+        err = ccudart.cudaMemPrefetchAsync(cdevPtr_ptr, count, dstDevice, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -13612,18 +15146,18 @@ def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, int 
     also satisfied. Specifying an invalid system-allocated pageable memory
     range results in an error being returned.
 
-    The `advice` parameter can take the following values:
-    ::cudaMemAdviseSetReadMostly: This implies that the data is mostly
-    going to be read from and only occasionally written to. Any read
-    accesses from any processor to this region will create a read-only copy
-    of at least the accessed pages in that processor's memory.
-    Additionally, if cudaMemPrefetchAsync is called on this region, it will
-    create a read-only copy of the data on the destination processor. If
-    any processor writes to this region, all copies of the corresponding
-    page will be invalidated except for the one where the write occurred.
-    The `device` argument is ignored for this advice. Note that for a page
-    to be read-duplicated, the accessing processor must either be the CPU
-    or a GPU that has a non-zero value for the device attribute
+    The `advice` parameter can take the following values: -
+    cudaMemAdviseSetReadMostly: This implies that the data is mostly going
+    to be read from and only occasionally written to. Any read accesses
+    from any processor to this region will create a read-only copy of at
+    least the accessed pages in that processor's memory. Additionally, if
+    cudaMemPrefetchAsync is called on this region, it will create a read-
+    only copy of the data on the destination processor. If any processor
+    writes to this region, all copies of the corresponding page will be
+    invalidated except for the one where the write occurred. The `device`
+    argument is ignored for this advice. Note that for a page to be read-
+    duplicated, the accessing processor must either be the CPU or a GPU
+    that has a non-zero value for the device attribute
     cudaDevAttrConcurrentManagedAccess. Also, if a context is created on a
     device that does not have the device attribute
     cudaDevAttrConcurrentManagedAccess set, then read-duplication will not
@@ -13635,15 +15169,15 @@ def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, int 
     zero value for the device attribute
     cudaDevAttrPageableMemoryAccessUsesHostPageTables, then setting this
     advice will not create a read-only copy when that device accesses this
-    memory region. ::cudaMemAdviceUnsetReadMostly: Undoes the effect of
+    memory region.    - cudaMemAdviceUnsetReadMostly: Undoes the effect of
     cudaMemAdviceReadMostly and also prevents the Unified Memory driver
     from attempting heuristic read-duplication on the memory range. Any
     read-duplicated copies of the data will be collapsed into a single
     copy. The location for the collapsed copy will be the preferred
     location if the page has a preferred location and one of the read-
     duplicated copies was resident at that location. Otherwise, the
-    location chosen is arbitrary. ::cudaMemAdviseSetPreferredLocation: This
-    advice sets the preferred location for the data to be the memory
+    location chosen is arbitrary.    - cudaMemAdviseSetPreferredLocation:
+    This advice sets the preferred location for the data to be the memory
     belonging to `device`. Passing in cudaCpuDeviceId for `device` sets the
     preferred location as host memory. If `device` is a GPU, then it must
     have a non-zero value for the device attribute
@@ -13674,29 +15208,29 @@ def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, int 
     Additionally, if `device` has a non-zero value for the device attribute
     cudaDevAttrPageableMemoryAccessUsesHostPageTables, then this call has
     no effect. Note however that this behavior may change in the future.
-    ::cudaMemAdviseUnsetPreferredLocation: Undoes the effect of
+    - cudaMemAdviseUnsetPreferredLocation: Undoes the effect of
     cudaMemAdviseSetPreferredLocation and changes the preferred location to
-    none. ::cudaMemAdviseSetAccessedBy: This advice implies that the data
-    will be accessed by `device`. Passing in cudaCpuDeviceId for `device`
-    will set the advice for the CPU. If `device` is a GPU, then the device
-    attribute cudaDevAttrConcurrentManagedAccess must be non-zero. This
-    advice does not cause data migration and has no impact on the location
-    of the data per se. Instead, it causes the data to always be mapped in
-    the specified processor's page tables, as long as the location of the
-    data permits a mapping to be established. If the data gets migrated for
-    any reason, the mappings are updated accordingly. This advice is
-    recommended in scenarios where data locality is not important, but
-    avoiding faults is. Consider for example a system containing multiple
-    GPUs with peer-to-peer access enabled, where the data located on one
-    GPU is occasionally accessed by peer GPUs. In such scenarios, migrating
-    data over to the other GPUs is not as important because the accesses
-    are infrequent and the overhead of migration may be too high. But
-    preventing faults can still help improve performance, and so having a
-    mapping set up in advance is useful. Note that on CPU access of this
-    data, the data may be migrated to host memory because the CPU typically
-    cannot access device memory directly. Any GPU that had the
-    cudaMemAdviceSetAccessedBy flag set for this data will now have its
-    mapping updated to point to the page in host memory. If
+    none.    - cudaMemAdviseSetAccessedBy: This advice implies that the
+    data will be accessed by `device`. Passing in cudaCpuDeviceId for
+    `device` will set the advice for the CPU. If `device` is a GPU, then
+    the device attribute cudaDevAttrConcurrentManagedAccess must be non-
+    zero. This advice does not cause data migration and has no impact on
+    the location of the data per se. Instead, it causes the data to always
+    be mapped in the specified processor's page tables, as long as the
+    location of the data permits a mapping to be established. If the data
+    gets migrated for any reason, the mappings are updated accordingly.
+    This advice is recommended in scenarios where data locality is not
+    important, but avoiding faults is. Consider for example a system
+    containing multiple GPUs with peer-to-peer access enabled, where the
+    data located on one GPU is occasionally accessed by peer GPUs. In such
+    scenarios, migrating data over to the other GPUs is not as important
+    because the accesses are infrequent and the overhead of migration may
+    be too high. But preventing faults can still help improve performance,
+    and so having a mapping set up in advance is useful. Note that on CPU
+    access of this data, the data may be migrated to host memory because
+    the CPU typically cannot access device memory directly. Any GPU that
+    had the cudaMemAdviceSetAccessedBy flag set for this data will now have
+    its mapping updated to point to the page in host memory. If
     cudaMemAdviseSetReadMostly is also set on this memory region or any
     subset of it, then the policies associated with that advice will
     override the policies of this advice. Additionally, if the preferred
@@ -13708,7 +15242,7 @@ def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, int 
     cudaDevAttrPageableMemoryAccess. Additionally, if `device` has a non-
     zero value for the device attribute
     cudaDevAttrPageableMemoryAccessUsesHostPageTables, then this call has
-    no effect. ::cudaMemAdviseUnsetAccessedBy: Undoes the effect of
+    no effect.    - cudaMemAdviseUnsetAccessedBy: Undoes the effect of
     cudaMemAdviseSetAccessedBy. Any mappings to the data from `device` may
     be removed at any time causing accesses to result in non-fatal page
     faults. If the memory region refers to valid system-allocated pageable
@@ -13762,37 +15296,37 @@ def cudaMemRangeGetAttribute(size_t dataSize, attribute not None : cudaMemRangeA
     size of `count` bytes. The memory range must refer to managed memory
     allocated via cudaMallocManaged or declared via managed variables.
 
-    The `attribute` parameter can take the following values:
-    ::cudaMemRangeAttributeReadMostly: If this attribute is specified,
+    The `attribute` parameter can take the following values: -
+    cudaMemRangeAttributeReadMostly: If this attribute is specified, `data`
+    will be interpreted as a 32-bit integer, and `dataSize` must be 4. The
+    result returned will be 1 if all pages in the given memory range have
+    read-duplication enabled, or 0 otherwise.    -
+    cudaMemRangeAttributePreferredLocation: If this attribute is specified,
     `data` will be interpreted as a 32-bit integer, and `dataSize` must be
-    4. The result returned will be 1 if all pages in the given memory range
-    have read-duplication enabled, or 0 otherwise.
-    ::cudaMemRangeAttributePreferredLocation: If this attribute is
+    4. The result returned will be a GPU device id if all pages in the
+    memory range have that GPU as their preferred location, or it will be
+    cudaCpuDeviceId if all pages in the memory range have the CPU as their
+    preferred location, or it will be cudaInvalidDeviceId if either all the
+    pages don't have the same preferred location or some of the pages don't
+    have a preferred location at all. Note that the actual location of the
+    pages in the memory range at the time of the query may be different
+    from the preferred location.    - cudaMemRangeAttributeAccessedBy: If
+    this attribute is specified, `data` will be interpreted as an array of
+    32-bit integers, and `dataSize` must be a non-zero multiple of 4. The
+    result returned will be a list of device ids that had
+    cudaMemAdviceSetAccessedBy set for that entire memory range. If any
+    device does not have that advice set for the entire memory range, that
+    device will not be included. If `data` is larger than the number of
+    devices that have that advice set for that memory range,
+    cudaInvalidDeviceId will be returned in all the extra space provided.
+    For ex., if `dataSize` is 12 (i.e. `data` has 3 elements) and only
+    device 0 has the advice set, then the result returned will be { 0,
+    cudaInvalidDeviceId, cudaInvalidDeviceId }. If `data` is smaller than
+    the number of devices that have that advice set, then only as many
+    devices will be returned as can fit in the array. There is no guarantee
+    on which specific devices will be returned, however.    -
+    cudaMemRangeAttributeLastPrefetchLocation: If this attribute is
     specified, `data` will be interpreted as a 32-bit integer, and
-    `dataSize` must be 4. The result returned will be a GPU device id if
-    all pages in the memory range have that GPU as their preferred
-    location, or it will be cudaCpuDeviceId if all pages in the memory
-    range have the CPU as their preferred location, or it will be
-    cudaInvalidDeviceId if either all the pages don't have the same
-    preferred location or some of the pages don't have a preferred location
-    at all. Note that the actual location of the pages in the memory range
-    at the time of the query may be different from the preferred location.
-    ::cudaMemRangeAttributeAccessedBy: If this attribute is specified,
-    `data` will be interpreted as an array of 32-bit integers, and
-    `dataSize` must be a non-zero multiple of 4. The result returned will
-    be a list of device ids that had cudaMemAdviceSetAccessedBy set for
-    that entire memory range. If any device does not have that advice set
-    for the entire memory range, that device will not be included. If
-    `data` is larger than the number of devices that have that advice set
-    for that memory range, cudaInvalidDeviceId will be returned in all the
-    extra space provided. For ex., if `dataSize` is 12 (i.e. `data` has 3
-    elements) and only device 0 has the advice set, then the result
-    returned will be { 0, cudaInvalidDeviceId, cudaInvalidDeviceId }. If
-    `data` is smaller than the number of devices that have that advice set,
-    then only as many devices will be returned as can fit in the array.
-    There is no guarantee on which specific devices will be returned,
-    however. ::cudaMemRangeAttributeLastPrefetchLocation: If this attribute
-    is specified, `data` will be interpreted as a 32-bit integer, and
     `dataSize` must be 4. The result returned will be the last location to
     which all pages in the memory range were prefetched explicitly via
     cudaMemPrefetchAsync. This will either be a GPU id or cudaCpuDeviceId
@@ -13853,10 +15387,10 @@ def cudaMemRangeGetAttributes(dataSizes : List[int], attributes : List[cudaMemRa
     The list of supported attributes are given below. Please refer to
     cudaMemRangeGetAttribute for attribute descriptions and restrictions.
 
-    ::cudaMemRangeAttributeReadMostly
-    ::cudaMemRangeAttributePreferredLocation
-    ::cudaMemRangeAttributeAccessedBy
-    ::cudaMemRangeAttributeLastPrefetchLocation
+    - cudaMemRangeAttributeReadMostly    -
+    cudaMemRangeAttributePreferredLocation    -
+    cudaMemRangeAttributeAccessedBy    -
+    cudaMemRangeAttributeLastPrefetchLocation
 
     Parameters
     ----------
@@ -13891,22 +15425,24 @@ def cudaMemRangeGetAttributes(dataSizes : List[int], attributes : List[cudaMemRa
     attributes = [] if attributes is None else attributes
     if not all(isinstance(_x, (cudaMemRangeAttribute)) for _x in attributes):
         raise TypeError("Argument 'attributes' is not instance of type (expected List[ccudart.cudaMemRangeAttribute]")
+
     if not all(isinstance(_x, (int)) for _x in dataSizes):
         raise TypeError("Argument 'dataSizes' is not instance of type (expected List[int]")
+
     pylist = [utils.HelperCUmem_range_attribute(pyattributes, pydataSizes) for (pyattributes, pydataSizes) in zip(attributes, dataSizes)]
     cdef utils.InputVoidPtrPtrHelper voidStarHelper = utils.InputVoidPtrPtrHelper(pylist)
     cdef void** cvoidStarHelper_ptr = <void**><void_ptr>voidStarHelper.cptr
     cdef vector[size_t] cdataSizes = dataSizes
     cdef vector[ccudart.cudaMemRangeAttribute] cattributes = [pyattributes.value for pyattributes in (attributes)]
+    if numAttributes > <size_t>len(dataSizes): raise RuntimeError("List is too small: " + str(len(dataSizes)) + " < " + str(numAttributes))
     if numAttributes > <size_t>len(attributes): raise RuntimeError("List is too small: " + str(len(attributes)) + " < " + str(numAttributes))
-    if numAttributes > <size_t>len(numAttributes): raise RuntimeError("List is too small: " + str(len(numAttributes)) + " < " + str(numAttributes))
     cdevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cdevPtr_ptr = <void*><void_ptr>cdevPtr.cptr
     err = ccudart.cudaMemRangeGetAttributes(cvoidStarHelper_ptr, cdataSizes.data(), cattributes.data(), numAttributes, cdevPtr_ptr, count)
     return (cudaError_t(err), [obj.pyObj() for obj in pylist])
 
 @cython.embedsignature(True)
-def cudaMemcpyToArray(dst not None : cudaArray_t, size_t wOffset, size_t hOffset, src, size_t count, kind not None : cudaMemcpyKind):
+def cudaMemcpyToArray(dst, size_t wOffset, size_t hOffset, src, size_t count, kind not None : cudaMemcpyKind):
     """ Copies data between host and device.
 
     Deprecated
@@ -13923,7 +15459,7 @@ def cudaMemcpyToArray(dst not None : cudaArray_t, size_t wOffset, size_t hOffset
 
     Parameters
     ----------
-    dst : cudaArray_t
+    dst : Any
         Destination memory address
     wOffset : size_t
         Destination starting X offset (columns in bytes)
@@ -13967,14 +15503,24 @@ def cudaMemcpyToArray(dst not None : cudaArray_t, size_t wOffset, size_t hOffset
     cuMemcpyHtoA
     cuMemcpyDtoA
     """
+    cdef ccudart.cudaArray_t cdst
+    if dst is None:
+        cdst = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(dst, (cudaArray_t)):
+        pdst = int(dst)
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+    else:
+        pdst = int(cudaArray_t(dst))
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+
     csrc = utils.HelperInputVoidPtr(src)
     cdef void* csrc_ptr = <void*><void_ptr>csrc.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
-    err = ccudart.cudaMemcpyToArray(dst._ptr[0], wOffset, hOffset, csrc_ptr, count, ckind)
+    err = ccudart.cudaMemcpyToArray(cdst, wOffset, hOffset, csrc_ptr, count, ckind)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaMemcpyFromArray(dst, src not None : cudaArray_const_t, size_t wOffset, size_t hOffset, size_t count, kind not None : cudaMemcpyKind):
+def cudaMemcpyFromArray(dst, src, size_t wOffset, size_t hOffset, size_t count, kind not None : cudaMemcpyKind):
     """ Copies data between host and device.
 
     Deprecated
@@ -13993,7 +15539,7 @@ def cudaMemcpyFromArray(dst, src not None : cudaArray_const_t, size_t wOffset, s
     ----------
     dst : Any
         Destination memory address
-    src : cudaArray_const_t
+    src : Any
         Source memory address
     wOffset : size_t
         Source starting X offset (columns in bytes)
@@ -14035,14 +15581,24 @@ def cudaMemcpyFromArray(dst, src not None : cudaArray_const_t, size_t wOffset, s
     cuMemcpyAtoH
     cuMemcpyAtoD
     """
+    cdef ccudart.cudaArray_const_t csrc
+    if src is None:
+        csrc = <ccudart.cudaArray_const_t><void_ptr>0
+    elif isinstance(src, (cudaArray_const_t)):
+        psrc = int(src)
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+    else:
+        psrc = int(cudaArray_const_t(src))
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+
     cdst = utils.HelperInputVoidPtr(dst)
     cdef void* cdst_ptr = <void*><void_ptr>cdst.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
-    err = ccudart.cudaMemcpyFromArray(cdst_ptr, src._ptr[0], wOffset, hOffset, count, ckind)
+    err = ccudart.cudaMemcpyFromArray(cdst_ptr, csrc, wOffset, hOffset, count, ckind)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaMemcpyArrayToArray(dst not None : cudaArray_t, size_t wOffsetDst, size_t hOffsetDst, src not None : cudaArray_const_t, size_t wOffsetSrc, size_t hOffsetSrc, size_t count, kind not None : cudaMemcpyKind):
+def cudaMemcpyArrayToArray(dst, size_t wOffsetDst, size_t hOffsetDst, src, size_t wOffsetSrc, size_t hOffsetSrc, size_t count, kind not None : cudaMemcpyKind):
     """ Copies data between host and device.
 
     Deprecated
@@ -14060,13 +15616,13 @@ def cudaMemcpyArrayToArray(dst not None : cudaArray_t, size_t wOffsetDst, size_t
 
     Parameters
     ----------
-    dst : cudaArray_t
+    dst : Any
         Destination memory address
     wOffsetDst : size_t
         Destination starting X offset (columns in bytes)
     hOffsetDst : size_t
         Destination starting Y offset (rows)
-    src : cudaArray_const_t
+    src : Any
         Source memory address
     wOffsetSrc : size_t
         Source starting X offset (columns in bytes)
@@ -14107,12 +15663,32 @@ def cudaMemcpyArrayToArray(dst not None : cudaArray_t, size_t wOffsetDst, size_t
     cudaMemcpyFromSymbolAsync
     cuMemcpyAtoA
     """
+    cdef ccudart.cudaArray_const_t csrc
+    if src is None:
+        csrc = <ccudart.cudaArray_const_t><void_ptr>0
+    elif isinstance(src, (cudaArray_const_t)):
+        psrc = int(src)
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+    else:
+        psrc = int(cudaArray_const_t(src))
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+
+    cdef ccudart.cudaArray_t cdst
+    if dst is None:
+        cdst = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(dst, (cudaArray_t)):
+        pdst = int(dst)
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+    else:
+        pdst = int(cudaArray_t(dst))
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+
     cdef ccudart.cudaMemcpyKind ckind = kind.value
-    err = ccudart.cudaMemcpyArrayToArray(dst._ptr[0], wOffsetDst, hOffsetDst, src._ptr[0], wOffsetSrc, hOffsetSrc, count, ckind)
+    err = ccudart.cudaMemcpyArrayToArray(cdst, wOffsetDst, hOffsetDst, csrc, wOffsetSrc, hOffsetSrc, count, ckind)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaMemcpyToArrayAsync(dst not None : cudaArray_t, size_t wOffset, size_t hOffset, src, size_t count, kind not None : cudaMemcpyKind, stream):
+def cudaMemcpyToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t count, kind not None : cudaMemcpyKind, stream):
     """ Copies data between host and device.
 
     Deprecated
@@ -14136,7 +15712,7 @@ def cudaMemcpyToArrayAsync(dst not None : cudaArray_t, size_t wOffset, size_t hO
 
     Parameters
     ----------
-    dst : cudaArray_t
+    dst : Any
         Destination memory address
     wOffset : size_t
         Destination starting X offset (columns in bytes)
@@ -14182,16 +15758,34 @@ def cudaMemcpyToArrayAsync(dst not None : cudaArray_t, size_t wOffset, size_t hO
     cuMemcpyHtoAAsync
     cuMemcpy2DAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaArray_t cdst
+    if dst is None:
+        cdst = <ccudart.cudaArray_t><void_ptr>0
+    elif isinstance(dst, (cudaArray_t)):
+        pdst = int(dst)
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+    else:
+        pdst = int(cudaArray_t(dst))
+        cdst = <ccudart.cudaArray_t><void_ptr>pdst
+
     csrc = utils.HelperInputVoidPtr(src)
     cdef void* csrc_ptr = <void*><void_ptr>csrc.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
-    err = ccudart.cudaMemcpyToArrayAsync(dst._ptr[0], wOffset, hOffset, csrc_ptr, count, ckind, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    err = ccudart.cudaMemcpyToArrayAsync(cdst, wOffset, hOffset, csrc_ptr, count, ckind, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaMemcpyFromArrayAsync(dst, src not None : cudaArray_const_t, size_t wOffset, size_t hOffset, size_t count, kind not None : cudaMemcpyKind, stream):
+def cudaMemcpyFromArrayAsync(dst, src, size_t wOffset, size_t hOffset, size_t count, kind not None : cudaMemcpyKind, stream):
     """ Copies data between host and device.
 
     Deprecated
@@ -14217,7 +15811,7 @@ def cudaMemcpyFromArrayAsync(dst, src not None : cudaArray_const_t, size_t wOffs
     ----------
     dst : Any
         Destination memory address
-    src : cudaArray_const_t
+    src : Any
         Source memory address
     wOffset : size_t
         Source starting X offset (columns in bytes)
@@ -14261,12 +15855,30 @@ def cudaMemcpyFromArrayAsync(dst, src not None : cudaArray_const_t, size_t wOffs
     cuMemcpyAtoHAsync
     cuMemcpy2DAsync
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaArray_const_t csrc
+    if src is None:
+        csrc = <ccudart.cudaArray_const_t><void_ptr>0
+    elif isinstance(src, (cudaArray_const_t)):
+        psrc = int(src)
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+    else:
+        psrc = int(cudaArray_const_t(src))
+        csrc = <ccudart.cudaArray_const_t><void_ptr>psrc
+
     cdst = utils.HelperInputVoidPtr(dst)
     cdef void* cdst_ptr = <void*><void_ptr>cdst.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
-    err = ccudart.cudaMemcpyFromArrayAsync(cdst_ptr, src._ptr[0], wOffset, hOffset, count, ckind, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    err = ccudart.cudaMemcpyFromArrayAsync(cdst_ptr, csrc, wOffset, hOffset, count, ckind, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -14299,8 +15911,6 @@ def cudaMallocAsync(size_t size, hStream):
 
     See Also
     --------
-    cuMemAllocAsync
-    cudaMallocAsync
     cudaMallocFromPoolAsync
     cudaFreeAsync
     cudaDeviceSetMemPool
@@ -14315,11 +15925,19 @@ def cudaMallocAsync(size_t size, hStream):
     During stream capture, this function results in the creation of an allocation node. In this case, the allocation is owned by the graph instead of the memory pool. The memory pool's properties are used to set the node's creation parameters.
 
     """
-    if not isinstance(hStream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'hStream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(hStream)))
+    cdef ccudart.cudaStream_t chStream
+    if hStream is None:
+        chStream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(hStream, (cudaStream_t,cuda.CUstream)):
+        phStream = int(hStream)
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+    else:
+        phStream = int(cudaStream_t(hStream))
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+
     cdef void_ptr devPtr = 0
     with nogil:
-        err = ccudart.cudaMallocAsync(<void**>&devPtr, size, <ccudart.cudaStream_t>(<cudaStream_t>hStream)._ptr[0])
+        err = ccudart.cudaMallocAsync(<void**>&devPtr, size, chStream)
     return (cudaError_t(err), devPtr)
 
 @cython.embedsignature(True)
@@ -14349,7 +15967,6 @@ def cudaFreeAsync(devPtr, hStream):
 
     See Also
     --------
-    cuMemFreeAsync
     cudaMallocAsync
 
     Notes
@@ -14357,12 +15974,20 @@ def cudaFreeAsync(devPtr, hStream):
     During stream capture, this function results in the creation of a free node and must therefore be passed the address of a graph allocation.
 
     """
-    if not isinstance(hStream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'hStream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(hStream)))
+    cdef ccudart.cudaStream_t chStream
+    if hStream is None:
+        chStream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(hStream, (cudaStream_t,cuda.CUstream)):
+        phStream = int(hStream)
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+    else:
+        phStream = int(cudaStream_t(hStream))
+        chStream = <ccudart.cudaStream_t><void_ptr>phStream
+
     cdevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cdevPtr_ptr = <void*><void_ptr>cdevPtr.cptr
     with nogil:
-        err = ccudart.cudaFreeAsync(cdevPtr_ptr, <ccudart.cudaStream_t>(<cudaStream_t>hStream)._ptr[0])
+        err = ccudart.cudaFreeAsync(cdevPtr_ptr, chStream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -14395,7 +16020,6 @@ def cudaMemPoolTrimTo(memPool, size_t minBytesToKeep):
 
     See Also
     --------
-    cuMemPoolTrimTo
     cudaMallocAsync
     cudaFreeAsync
     cudaDeviceGetDefaultMemPool
@@ -14407,34 +16031,49 @@ def cudaMemPoolTrimTo(memPool, size_t minBytesToKeep):
     : Allocations that have been asynchronously freed but whose completion has not been observed on the host (eg. by a synchronize) can count as outstanding.
 
     """
-    if not isinstance(memPool, (cudaMemPool_t, cuda.CUmemoryPool)):
-        raise TypeError("Argument 'memPool' is not instance of type (expected <class 'cudart.cudaMemPool_t, cuda.CUmemoryPool'>, found " + str(type(memPool)))
+    cdef ccudart.cudaMemPool_t cmemPool
+    if memPool is None:
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>0
+    elif isinstance(memPool, (cudaMemPool_t,cuda.CUmemoryPool)):
+        pmemPool = int(memPool)
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+    else:
+        pmemPool = int(cudaMemPool_t(memPool))
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+
     with nogil:
-        err = ccudart.cudaMemPoolTrimTo(<ccudart.cudaMemPool_t>(<cudaMemPool_t>memPool)._ptr[0], minBytesToKeep)
+        err = ccudart.cudaMemPoolTrimTo(cmemPool, minBytesToKeep)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
 def cudaMemPoolSetAttribute(memPool, attr not None : cudaMemPoolAttr, value):
     """ Sets attributes of a memory pool.
 
-    Supported attributes are: ::cudaMemPoolAttrReleaseThreshold: (value
+    Supported attributes are: - cudaMemPoolAttrReleaseThreshold: (value
     type = cuuint64_t) Amount of reserved memory in bytes to hold onto
     before trying to release memory back to the OS. When more than the
     release threshold bytes of memory are held by the memory pool, the
     allocator will try to release memory back to the OS on the next call to
-    stream, event or context synchronize. (default 0)
-    ::cudaMemPoolReuseFollowEventDependencies: (value type = int) Allow
+    stream, event or context synchronize. (default 0)    -
+    cudaMemPoolReuseFollowEventDependencies: (value type = int) Allow
     cudaMallocAsync to use memory asynchronously freed in another stream as
     long as a stream ordering dependency of the allocating stream on the
     free action exists. Cuda events and null stream interactions can create
-    the required stream ordered dependencies. (default enabled)
-    ::cudaMemPoolReuseAllowOpportunistic: (value type = int) Allow reuse of
+    the required stream ordered dependencies. (default enabled)    -
+    cudaMemPoolReuseAllowOpportunistic: (value type = int) Allow reuse of
     already completed frees when there is no dependency between the free
-    and allocation. (default enabled)
-    ::cudaMemPoolReuseAllowInternalDependencies: (value type = int) Allow
+    and allocation. (default enabled)    -
+    cudaMemPoolReuseAllowInternalDependencies: (value type = int) Allow
     cudaMallocAsync to insert new stream dependencies in order to establish
     the stream ordering required to reuse a piece of memory released by
-    cudaFreeAsync (default enabled).
+    cudaFreeAsync (default enabled).    - cudaMemPoolAttrReservedMemHigh:
+    (value type = cuuint64_t) Reset the high watermark that tracks the
+    amount of backing memory that was allocated for the memory pool. It is
+    illegal to set this attribute to a non-zero value.    -
+    cudaMemPoolAttrUsedMemHigh: (value type = cuuint64_t) Reset the high
+    watermark that tracks the amount of used memory that was allocated for
+    the memory pool. It is illegal to set this attribute to a non-zero
+    value.
 
     Parameters
     ----------
@@ -14455,44 +16094,60 @@ def cudaMemPoolSetAttribute(memPool, attr not None : cudaMemPoolAttr, value):
 
     See Also
     --------
-    cuMemPoolSetAttribute
     cudaMallocAsync
     cudaFreeAsync
     cudaDeviceGetDefaultMemPool
     cudaDeviceGetMemPool
     cudaMemPoolCreate
     """
-    if not isinstance(memPool, (cudaMemPool_t, cuda.CUmemoryPool)):
-        raise TypeError("Argument 'memPool' is not instance of type (expected <class 'cudart.cudaMemPool_t, cuda.CUmemoryPool'>, found " + str(type(memPool)))
+    cdef ccudart.cudaMemPool_t cmemPool
+    if memPool is None:
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>0
+    elif isinstance(memPool, (cudaMemPool_t,cuda.CUmemoryPool)):
+        pmemPool = int(memPool)
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+    else:
+        pmemPool = int(cudaMemPool_t(memPool))
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+
     cdef ccudart.cudaMemPoolAttr cattr = attr.value
     cdef utils.HelperCUmemPool_attribute cvalue = utils.HelperCUmemPool_attribute(attr, value, is_getter=False)
     cdef void* cvalue_ptr = <void*><void_ptr>cvalue.cptr
     with nogil:
-        err = ccudart.cudaMemPoolSetAttribute(<ccudart.cudaMemPool_t>(<cudaMemPool_t>memPool)._ptr[0], cattr, cvalue_ptr)
+        err = ccudart.cudaMemPoolSetAttribute(cmemPool, cattr, cvalue_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
 def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
     """ Gets attributes of a memory pool.
 
-    Supported attributes are: ::cudaMemPoolAttrReleaseThreshold: (value
+    Supported attributes are: - cudaMemPoolAttrReleaseThreshold: (value
     type = cuuint64_t) Amount of reserved memory in bytes to hold onto
     before trying to release memory back to the OS. When more than the
     release threshold bytes of memory are held by the memory pool, the
     allocator will try to release memory back to the OS on the next call to
-    stream, event or context synchronize. (default 0)
-    ::cudaMemPoolReuseFollowEventDependencies: (value type = int) Allow
+    stream, event or context synchronize. (default 0)    -
+    cudaMemPoolReuseFollowEventDependencies: (value type = int) Allow
     cudaMallocAsync to use memory asynchronously freed in another stream as
     long as a stream ordering dependency of the allocating stream on the
     free action exists. Cuda events and null stream interactions can create
-    the required stream ordered dependencies. (default enabled)
-    ::cudaMemPoolReuseAllowOpportunistic: (value type = int) Allow reuse of
+    the required stream ordered dependencies. (default enabled)    -
+    cudaMemPoolReuseAllowOpportunistic: (value type = int) Allow reuse of
     already completed frees when there is no dependency between the free
-    and allocation. (default enabled)
-    ::cudaMemPoolReuseAllowInternalDependencies: (value type = int) Allow
+    and allocation. (default enabled)    -
+    cudaMemPoolReuseAllowInternalDependencies: (value type = int) Allow
     cudaMallocAsync to insert new stream dependencies in order to establish
     the stream ordering required to reuse a piece of memory released by
-    cudaFreeAsync (default enabled).
+    cudaFreeAsync (default enabled).    -
+    cudaMemPoolAttrReservedMemCurrent: (value type = cuuint64_t) Amount of
+    backing memory currently allocated for the mempool.    -
+    cudaMemPoolAttrReservedMemHigh: (value type = cuuint64_t) High
+    watermark of backing memory allocated for the mempool since the last
+    time it was reset.    - cudaMemPoolAttrUsedMemCurrent: (value type =
+    cuuint64_t) Amount of memory from the pool that is currently in use by
+    the application.    - cudaMemPoolAttrUsedMemHigh: (value type =
+    cuuint64_t) High watermark of the amount of memory from the pool that
+    was in use by the application since the last time it was reset.
 
     Parameters
     ----------
@@ -14511,20 +16166,27 @@ def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
 
     See Also
     --------
-    cuMemPoolGetAttribute
     cudaMallocAsync
     cudaFreeAsync
     cudaDeviceGetDefaultMemPool
     cudaDeviceGetMemPool
     cudaMemPoolCreate
     """
-    if not isinstance(memPool, (cudaMemPool_t, cuda.CUmemoryPool)):
-        raise TypeError("Argument 'memPool' is not instance of type (expected <class 'cudart.cudaMemPool_t, cuda.CUmemoryPool'>, found " + str(type(memPool)))
+    cdef ccudart.cudaMemPool_t cmemPool
+    if memPool is None:
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>0
+    elif isinstance(memPool, (cudaMemPool_t,cuda.CUmemoryPool)):
+        pmemPool = int(memPool)
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+    else:
+        pmemPool = int(cudaMemPool_t(memPool))
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+
     cdef ccudart.cudaMemPoolAttr cattr = attr.value
     cdef utils.HelperCUmemPool_attribute cvalue = utils.HelperCUmemPool_attribute(attr, 0, is_getter=True)
     cdef void* cvalue_ptr = <void*><void_ptr>cvalue.cptr
     with nogil:
-        err = ccudart.cudaMemPoolGetAttribute(<ccudart.cudaMemPool_t>(<cudaMemPool_t>memPool)._ptr[0], cattr, cvalue_ptr)
+        err = ccudart.cudaMemPoolGetAttribute(cmemPool, cattr, cvalue_ptr)
     return (cudaError_t(err), cvalue.pyObj())
 
 @cython.embedsignature(True)
@@ -14551,7 +16213,6 @@ def cudaMemPoolSetAccess(memPool, descList : List[cudaMemAccessDesc], size_t cou
 
     See Also
     --------
-    cuMemPoolSetAccess
     cudaMemPoolGetAccess
     cudaMallocAsync
     cudaFreeAsync
@@ -14559,8 +16220,17 @@ def cudaMemPoolSetAccess(memPool, descList : List[cudaMemAccessDesc], size_t cou
     descList = [] if descList is None else descList
     if not all(isinstance(_x, (cudaMemAccessDesc)) for _x in descList):
         raise TypeError("Argument 'descList' is not instance of type (expected List[ccudart.cudaMemAccessDesc]")
-    if not isinstance(memPool, (cudaMemPool_t, cuda.CUmemoryPool)):
-        raise TypeError("Argument 'memPool' is not instance of type (expected <class 'cudart.cudaMemPool_t, cuda.CUmemoryPool'>, found " + str(type(memPool)))
+
+    cdef ccudart.cudaMemPool_t cmemPool
+    if memPool is None:
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>0
+    elif isinstance(memPool, (cudaMemPool_t,cuda.CUmemoryPool)):
+        pmemPool = int(memPool)
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+    else:
+        pmemPool = int(cudaMemPool_t(memPool))
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+
     cdef ccudart.cudaMemAccessDesc* cdescList = NULL
     if len(descList) > 0:
         cdescList = <ccudart.cudaMemAccessDesc*> calloc(len(descList), sizeof(ccudart.cudaMemAccessDesc))
@@ -14570,7 +16240,7 @@ def cudaMemPoolSetAccess(memPool, descList : List[cudaMemAccessDesc], size_t cou
             memcpy(&cdescList[idx], (<cudaMemAccessDesc>descList[idx])._ptr, sizeof(ccudart.cudaMemAccessDesc))
 
     if count > <size_t>len(descList): raise RuntimeError("List is too small: " + str(len(descList)) + " < " + str(count))
-    err = ccudart.cudaMemPoolSetAccess(<ccudart.cudaMemPool_t>(<cudaMemPool_t>memPool)._ptr[0], (<cudaMemAccessDesc>descList[0])._ptr if len(descList) == 1 else cdescList, count)
+    err = ccudart.cudaMemPoolSetAccess(cmemPool, (<cudaMemAccessDesc>descList[0])._ptr if len(descList) == 1 else cdescList, count)
     if cdescList is not NULL:
         free(cdescList)
     return (cudaError_t(err),)
@@ -14598,14 +16268,21 @@ def cudaMemPoolGetAccess(memPool, location : cudaMemLocation):
 
     See Also
     --------
-    cuMemPoolGetAccess
     cudaMemPoolSetAccess
     """
-    if not isinstance(memPool, (cudaMemPool_t, cuda.CUmemoryPool)):
-        raise TypeError("Argument 'memPool' is not instance of type (expected <class 'cudart.cudaMemPool_t, cuda.CUmemoryPool'>, found " + str(type(memPool)))
+    cdef ccudart.cudaMemPool_t cmemPool
+    if memPool is None:
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>0
+    elif isinstance(memPool, (cudaMemPool_t,cuda.CUmemoryPool)):
+        pmemPool = int(memPool)
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+    else:
+        pmemPool = int(cudaMemPool_t(memPool))
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+
     cdef ccudart.cudaMemAccessFlags flags
     cdef ccudart.cudaMemLocation* clocation_ptr = location._ptr if location != None else NULL
-    err = ccudart.cudaMemPoolGetAccess(&flags, <ccudart.cudaMemPool_t>(<cudaMemPool_t>memPool)._ptr[0], clocation_ptr)
+    err = ccudart.cudaMemPoolGetAccess(&flags, cmemPool, clocation_ptr)
     return (cudaError_t(err), cudaMemAccessFlags(flags))
 
 @cython.embedsignature(True)
@@ -14630,7 +16307,6 @@ def cudaMemPoolCreate(poolProps : cudaMemPoolProps):
 
     See Also
     --------
-    cuMemPoolCreate
     cudaDeviceSetMemPool
     cudaMallocFromPoolAsync
     cudaMemPoolExportToShareableHandle
@@ -14670,7 +16346,6 @@ def cudaMemPoolDestroy(memPool):
 
     See Also
     --------
-    cuMemPoolDestroy
     cudaFreeAsync
     cudaDeviceSetMemPool
     cudaDeviceGetDefaultMemPool
@@ -14682,9 +16357,17 @@ def cudaMemPoolDestroy(memPool):
     A device's default memory pool cannot be destroyed.
 
     """
-    if not isinstance(memPool, (cudaMemPool_t, cuda.CUmemoryPool)):
-        raise TypeError("Argument 'memPool' is not instance of type (expected <class 'cudart.cudaMemPool_t, cuda.CUmemoryPool'>, found " + str(type(memPool)))
-    err = ccudart.cudaMemPoolDestroy(<ccudart.cudaMemPool_t>(<cudaMemPool_t>memPool)._ptr[0])
+    cdef ccudart.cudaMemPool_t cmemPool
+    if memPool is None:
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>0
+    elif isinstance(memPool, (cudaMemPool_t,cuda.CUmemoryPool)):
+        pmemPool = int(memPool)
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+    else:
+        pmemPool = int(cudaMemPool_t(memPool))
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+
+    err = ccudart.cudaMemPoolDestroy(cmemPool)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -14717,7 +16400,6 @@ def cudaMallocFromPoolAsync(size_t size, memPool, stream):
 
     See Also
     --------
-    cuMemAllocFromPoolAsync
     cudaMallocAsync
     cudaFreeAsync
     cudaDeviceGetDefaultMemPool
@@ -14730,12 +16412,28 @@ def cudaMallocFromPoolAsync(size_t size, memPool, stream):
     During stream capture, this function results in the creation of an allocation node. In this case, the allocation is owned by the graph instead of the memory pool. The memory pool's properties are used to set the node's creation parameters.
 
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
-    if not isinstance(memPool, (cudaMemPool_t, cuda.CUmemoryPool)):
-        raise TypeError("Argument 'memPool' is not instance of type (expected <class 'cudart.cudaMemPool_t, cuda.CUmemoryPool'>, found " + str(type(memPool)))
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaMemPool_t cmemPool
+    if memPool is None:
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>0
+    elif isinstance(memPool, (cudaMemPool_t,cuda.CUmemoryPool)):
+        pmemPool = int(memPool)
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+    else:
+        pmemPool = int(cudaMemPool_t(memPool))
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+
     cdef void_ptr ptr = 0
-    err = ccudart.cudaMallocFromPoolAsync(<void**>&ptr, size, <ccudart.cudaMemPool_t>(<cudaMemPool_t>memPool)._ptr[0], <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    err = ccudart.cudaMallocFromPoolAsync(<void**>&ptr, size, cmemPool, cstream)
     return (cudaError_t(err), ptr)
 
 @cython.embedsignature(True)
@@ -14770,7 +16468,6 @@ def cudaMemPoolExportToShareableHandle(memPool, handleType not None : cudaMemAll
 
     See Also
     --------
-    cuMemPoolExportToShareableHandle
     cudaMemPoolImportFromShareableHandle
     cudaMemPoolExportPointer
     cudaMemPoolImportPointer
@@ -14780,12 +16477,20 @@ def cudaMemPoolExportToShareableHandle(memPool, handleType not None : cudaMemAll
     : To create an IPC capable mempool, create a mempool with a CUmemAllocationHandleType other than cudaMemHandleTypeNone.
 
     """
-    if not isinstance(memPool, (cudaMemPool_t, cuda.CUmemoryPool)):
-        raise TypeError("Argument 'memPool' is not instance of type (expected <class 'cudart.cudaMemPool_t, cuda.CUmemoryPool'>, found " + str(type(memPool)))
+    cdef ccudart.cudaMemPool_t cmemPool
+    if memPool is None:
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>0
+    elif isinstance(memPool, (cudaMemPool_t,cuda.CUmemoryPool)):
+        pmemPool = int(memPool)
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+    else:
+        pmemPool = int(cudaMemPool_t(memPool))
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+
     cdef void_ptr shareableHandle = 0
     cdef void* cshareableHandle_ptr = <void*>shareableHandle
     cdef ccudart.cudaMemAllocationHandleType chandleType = handleType.value
-    err = ccudart.cudaMemPoolExportToShareableHandle(cshareableHandle_ptr, <ccudart.cudaMemPool_t>(<cudaMemPool_t>memPool)._ptr[0], chandleType, flags)
+    err = ccudart.cudaMemPoolExportToShareableHandle(cshareableHandle_ptr, cmemPool, chandleType, flags)
     return (cudaError_t(err), shareableHandle)
 
 @cython.embedsignature(True)
@@ -14815,7 +16520,6 @@ def cudaMemPoolImportFromShareableHandle(shareableHandle, handleType not None : 
 
     See Also
     --------
-    cuMemPoolImportFromShareableHandle
     cudaMemPoolExportToShareableHandle
     cudaMemPoolExportPointer
     cudaMemPoolImportPointer
@@ -14857,7 +16561,6 @@ def cudaMemPoolExportPointer(ptr):
 
     See Also
     --------
-    cuMemPoolExportPointer
     cudaMemPoolExportToShareableHandle
     cudaMemPoolImportFromShareableHandle
     cudaMemPoolImportPointer
@@ -14899,7 +16602,6 @@ def cudaMemPoolImportPointer(memPool, exportData : cudaMemPoolPtrExportData):
 
     See Also
     --------
-    cuMemPoolImportPointer
     cudaMemPoolExportToShareableHandle
     cudaMemPoolImportFromShareableHandle
     cudaMemPoolExportPointer
@@ -14909,11 +16611,19 @@ def cudaMemPoolImportPointer(memPool, exportData : cudaMemPoolPtrExportData):
     The cudaFreeAsync api may be used in the exporting process before the cudaFreeAsync operation completes in its stream as long as the cudaFreeAsync in the exporting process specifies a stream with a stream dependency on the importing process's cudaFreeAsync.
 
     """
-    if not isinstance(memPool, (cudaMemPool_t, cuda.CUmemoryPool)):
-        raise TypeError("Argument 'memPool' is not instance of type (expected <class 'cudart.cudaMemPool_t, cuda.CUmemoryPool'>, found " + str(type(memPool)))
+    cdef ccudart.cudaMemPool_t cmemPool
+    if memPool is None:
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>0
+    elif isinstance(memPool, (cudaMemPool_t,cuda.CUmemoryPool)):
+        pmemPool = int(memPool)
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+    else:
+        pmemPool = int(cudaMemPool_t(memPool))
+        cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
+
     cdef void_ptr ptr = 0
     cdef ccudart.cudaMemPoolPtrExportData* cexportData_ptr = exportData._ptr if exportData != None else NULL
-    err = ccudart.cudaMemPoolImportPointer(<void**>&ptr, <ccudart.cudaMemPool_t>(<cudaMemPool_t>memPool)._ptr[0], cexportData_ptr)
+    err = ccudart.cudaMemPoolImportPointer(<void**>&ptr, cmemPool, cexportData_ptr)
     return (cudaError_t(err), ptr)
 
 @cython.embedsignature(True)
@@ -14924,23 +16634,23 @@ def cudaPointerGetAttributes(ptr):
     pointer was not allocated in, mapped by or registered with context
     supporting unified addressing cudaErrorInvalidValue is returned.
 
-    cudaPointerAttributes::type identifies type of memory. It can be
+    - cudaPointerAttributes::type identifies type of memory. It can be
     cudaMemoryTypeUnregistered for unregistered host memory,
     cudaMemoryTypeHost for registered host memory, cudaMemoryTypeDevice for
-    device memory or cudaMemoryTypeManaged for managed memory. device is
-    the device against which `ptr` was allocated. If `ptr` has memory type
-    cudaMemoryTypeDevice then this identifies the device on which the
+    device memory or cudaMemoryTypeManaged for managed memory.    - device
+    is the device against which `ptr` was allocated. If `ptr` has memory
+    type cudaMemoryTypeDevice then this identifies the device on which the
     memory referred to by `ptr` physically resides. If `ptr` has memory
     type cudaMemoryTypeHost then this identifies the device which was
     current when the allocation was made (and if that device is
     deinitialized then this allocation will vanish with that device's
-    state). devicePointer is the device pointer alias through which the
-    memory referred to by `ptr` may be accessed on the current device. If
-    the memory referred to by `ptr` cannot be accessed directly by the
-    current device then this is NULL.   hostPointer is the host pointer
-    alias through which the memory referred to by `ptr` may be accessed on
-    the host. If the memory referred to by `ptr` cannot be accessed
-    directly by the host then this is NULL.
+    state).    - devicePointer is the device pointer alias through which
+    the memory referred to by `ptr` may be accessed on the current device.
+    If the memory referred to by `ptr` cannot be accessed directly by the
+    current device then this is NULL.      - hostPointer is the host
+    pointer alias through which the memory referred to by `ptr` may be
+    accessed on the host. If the memory referred to by `ptr` cannot be
+    accessed directly by the host then this is NULL.
 
     Parameters
     ----------
@@ -15094,7 +16804,7 @@ def cudaDeviceDisablePeerAccess(int peerDevice):
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaGraphicsUnregisterResource(resource not None : cudaGraphicsResource_t):
+def cudaGraphicsUnregisterResource(resource):
     """ Unregisters a graphics resource for access by CUDA.
 
     Unregisters the graphics resource `resource` so it is not accessible by
@@ -15105,7 +16815,7 @@ def cudaGraphicsUnregisterResource(resource not None : cudaGraphicsResource_t):
 
     Parameters
     ----------
-    resource : cudaGraphicsResource_t
+    resource : Any
         Resource to unregister
 
     Returns
@@ -15119,25 +16829,37 @@ def cudaGraphicsUnregisterResource(resource not None : cudaGraphicsResource_t):
 
     See Also
     --------
+    cudaGraphicsGLRegisterBuffer
+    cudaGraphicsGLRegisterImage
     cuGraphicsUnregisterResource
     """
-    err = ccudart.cudaGraphicsUnregisterResource(resource._ptr[0])
+    cdef ccudart.cudaGraphicsResource_t cresource
+    if resource is None:
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>0
+    elif isinstance(resource, (cudaGraphicsResource_t)):
+        presource = int(resource)
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+    else:
+        presource = int(cudaGraphicsResource_t(resource))
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+
+    err = ccudart.cudaGraphicsUnregisterResource(cresource)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaGraphicsResourceSetMapFlags(resource not None : cudaGraphicsResource_t, unsigned int flags):
+def cudaGraphicsResourceSetMapFlags(resource, unsigned int flags):
     """ Set usage flags for mapping a graphics resource.
 
     Set `flags` for mapping the graphics resource `resource`.
 
     Changes to `flags` will take effect the next time `resource` is mapped.
-    The `flags` argument may be any of the following:
-    ::cudaGraphicsMapFlagsNone: Specifies no hints about how `resource`
-    will be used. It is therefore assumed that CUDA may read from or write
-    to `resource`. ::cudaGraphicsMapFlagsReadOnly: Specifies that CUDA will
-    not write to `resource`. ::cudaGraphicsMapFlagsWriteDiscard: Specifies
-    CUDA will not read from `resource` and will write over the entire
-    contents of `resource`, so none of the data previously stored in
+    The `flags` argument may be any of the following: -
+    cudaGraphicsMapFlagsNone: Specifies no hints about how `resource` will
+    be used. It is therefore assumed that CUDA may read from or write to
+    `resource`.    - cudaGraphicsMapFlagsReadOnly: Specifies that CUDA will
+    not write to `resource`.    - cudaGraphicsMapFlagsWriteDiscard:
+    Specifies CUDA will not read from `resource` and will write over the
+    entire contents of `resource`, so none of the data previously stored in
     `resource` will be preserved.
 
     If `resource` is presently mapped for access by CUDA then
@@ -15146,7 +16868,7 @@ def cudaGraphicsResourceSetMapFlags(resource not None : cudaGraphicsResource_t, 
 
     Parameters
     ----------
-    resource : cudaGraphicsResource_t
+    resource : Any
         Registered resource to set flags for
     flags : unsigned int
         Parameters for resource mapping
@@ -15166,11 +16888,21 @@ def cudaGraphicsResourceSetMapFlags(resource not None : cudaGraphicsResource_t, 
     cudaGraphicsMapResources
     cuGraphicsResourceSetMapFlags
     """
-    err = ccudart.cudaGraphicsResourceSetMapFlags(resource._ptr[0], flags)
+    cdef ccudart.cudaGraphicsResource_t cresource
+    if resource is None:
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>0
+    elif isinstance(resource, (cudaGraphicsResource_t)):
+        presource = int(resource)
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+    else:
+        presource = int(cudaGraphicsResource_t(resource))
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+
+    err = ccudart.cudaGraphicsResourceSetMapFlags(cresource, flags)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaGraphicsMapResources(int count, resources : cudaGraphicsResource_t, stream):
+def cudaGraphicsMapResources(int count, resources, stream):
     """ Map graphics resources for access by CUDA.
 
     Maps the `count` graphics resources in `resources` for access by CUDA.
@@ -15192,7 +16924,7 @@ def cudaGraphicsMapResources(int count, resources : cudaGraphicsResource_t, stre
     ----------
     count : int
         Number of resources to map
-    resources : cudaGraphicsResource_t
+    resources : Any
         Resources to map for CUDA
     stream : CUstream or cudaStream_t
         Stream for synchronization
@@ -15213,14 +16945,32 @@ def cudaGraphicsMapResources(int count, resources : cudaGraphicsResource_t, stre
     cudaGraphicsUnmapResources
     cuGraphicsMapResources
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
-    cdef ccudart.cudaGraphicsResource_t* cresources_ptr = resources._ptr if resources != None else NULL
-    err = ccudart.cudaGraphicsMapResources(count, cresources_ptr, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaGraphicsResource_t *cresources
+    if resources is None:
+        cresources = <ccudart.cudaGraphicsResource_t*><void_ptr>NULL
+    elif isinstance(resources, (cudaGraphicsResource_t)):
+        presources = resources.getPtr()
+        cresources = <ccudart.cudaGraphicsResource_t*><void_ptr>presources
+    elif isinstance(resources, (int)):
+        cresources = <ccudart.cudaGraphicsResource_t*><void_ptr>resources
+    else:
+        raise TypeError("Argument 'resources' is not instance of type (expected <class 'int, cudart.cudaGraphicsResource_t'>, found " + str(type(resources)))
+
+    err = ccudart.cudaGraphicsMapResources(count, cresources, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaGraphicsUnmapResources(int count, resources : cudaGraphicsResource_t, stream):
+def cudaGraphicsUnmapResources(int count, resources, stream):
     """ Unmap graphics resources.
 
     Unmaps the `count` graphics resources in `resources`.
@@ -15241,7 +16991,7 @@ def cudaGraphicsUnmapResources(int count, resources : cudaGraphicsResource_t, st
     ----------
     count : int
         Number of resources to unmap
-    resources : cudaGraphicsResource_t
+    resources : Any
         Resources to unmap
     stream : CUstream or cudaStream_t
         Stream for synchronization
@@ -15260,14 +17010,32 @@ def cudaGraphicsUnmapResources(int count, resources : cudaGraphicsResource_t, st
     cudaGraphicsMapResources
     cuGraphicsUnmapResources
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
-    cdef ccudart.cudaGraphicsResource_t* cresources_ptr = resources._ptr if resources != None else NULL
-    err = ccudart.cudaGraphicsUnmapResources(count, cresources_ptr, <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaGraphicsResource_t *cresources
+    if resources is None:
+        cresources = <ccudart.cudaGraphicsResource_t*><void_ptr>NULL
+    elif isinstance(resources, (cudaGraphicsResource_t)):
+        presources = resources.getPtr()
+        cresources = <ccudart.cudaGraphicsResource_t*><void_ptr>presources
+    elif isinstance(resources, (int)):
+        cresources = <ccudart.cudaGraphicsResource_t*><void_ptr>resources
+    else:
+        raise TypeError("Argument 'resources' is not instance of type (expected <class 'int, cudart.cudaGraphicsResource_t'>, found " + str(type(resources)))
+
+    err = ccudart.cudaGraphicsUnmapResources(count, cresources, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaGraphicsResourceGetMappedPointer(resource not None : cudaGraphicsResource_t):
+def cudaGraphicsResourceGetMappedPointer(resource):
     """ Get an device pointer through which to access a mapped graphics resource.
 
     Returns in `*devPtr` a pointer through which the mapped graphics
@@ -15277,7 +17045,7 @@ def cudaGraphicsResourceGetMappedPointer(resource not None : cudaGraphicsResourc
 
     If `resource` is not a buffer then it cannot be accessed via a pointer
     and cudaErrorUnknown is returned. If `resource` is not mapped then
-    cudaErrorUnknown is returned.   devPtr   - Returned pointer through
+    cudaErrorUnknown is returned. -   devPtr   - Returned pointer through
     which `resource` may be accessed      size   - Returned size of the
     buffer accessible starting at `*devPtr`      resource   - Mapped
     resource to access    ::cudaSuccess, cudaErrorInvalidValue,
@@ -15293,13 +17061,23 @@ def cudaGraphicsResourceGetMappedPointer(resource not None : cudaGraphicsResourc
     None
         None
     """
+    cdef ccudart.cudaGraphicsResource_t cresource
+    if resource is None:
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>0
+    elif isinstance(resource, (cudaGraphicsResource_t)):
+        presource = int(resource)
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+    else:
+        presource = int(cudaGraphicsResource_t(resource))
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+
     cdef void_ptr devPtr = 0
     cdef size_t size = 0
-    err = ccudart.cudaGraphicsResourceGetMappedPointer(<void**>&devPtr, &size, resource._ptr[0])
+    err = ccudart.cudaGraphicsResourceGetMappedPointer(<void**>&devPtr, &size, cresource)
     return (cudaError_t(err), devPtr, size)
 
 @cython.embedsignature(True)
-def cudaGraphicsSubResourceGetMappedArray(resource not None : cudaGraphicsResource_t, unsigned int arrayIndex, unsigned int mipLevel):
+def cudaGraphicsSubResourceGetMappedArray(resource, unsigned int arrayIndex, unsigned int mipLevel):
     """ Get an array through which to access a subresource of a mapped graphics resource.
 
     Returns in `*array` an array through which the subresource of the
@@ -15316,7 +17094,7 @@ def cudaGraphicsSubResourceGetMappedArray(resource not None : cudaGraphicsResour
 
     Parameters
     ----------
-    resource : cudaGraphicsResource_t
+    resource : Any
         Mapped resource to access
     arrayIndex : unsigned int
         Array index for array textures or cubemap face index as defined by
@@ -15341,12 +17119,22 @@ def cudaGraphicsSubResourceGetMappedArray(resource not None : cudaGraphicsResour
     cudaGraphicsResourceGetMappedPointer
     cuGraphicsSubResourceGetMappedArray
     """
+    cdef ccudart.cudaGraphicsResource_t cresource
+    if resource is None:
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>0
+    elif isinstance(resource, (cudaGraphicsResource_t)):
+        presource = int(resource)
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+    else:
+        presource = int(cudaGraphicsResource_t(resource))
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+
     cdef cudaArray_t array = cudaArray_t()
-    err = ccudart.cudaGraphicsSubResourceGetMappedArray(array._ptr, resource._ptr[0], arrayIndex, mipLevel)
+    err = ccudart.cudaGraphicsSubResourceGetMappedArray(array._ptr, cresource, arrayIndex, mipLevel)
     return (cudaError_t(err), array)
 
 @cython.embedsignature(True)
-def cudaGraphicsResourceGetMappedMipmappedArray(resource not None : cudaGraphicsResource_t):
+def cudaGraphicsResourceGetMappedMipmappedArray(resource):
     """ Get a mipmapped array through which to access a mapped graphics resource.
 
     Returns in `*mipmappedArray` a mipmapped array through which the mapped
@@ -15359,7 +17147,7 @@ def cudaGraphicsResourceGetMappedMipmappedArray(resource not None : cudaGraphics
 
     Parameters
     ----------
-    resource : cudaGraphicsResource_t
+    resource : Any
         Mapped resource to access
 
     Returns
@@ -15377,19 +17165,29 @@ def cudaGraphicsResourceGetMappedMipmappedArray(resource not None : cudaGraphics
     cudaGraphicsResourceGetMappedPointer
     cuGraphicsResourceGetMappedMipmappedArray
     """
+    cdef ccudart.cudaGraphicsResource_t cresource
+    if resource is None:
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>0
+    elif isinstance(resource, (cudaGraphicsResource_t)):
+        presource = int(resource)
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+    else:
+        presource = int(cudaGraphicsResource_t(resource))
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+
     cdef cudaMipmappedArray_t mipmappedArray = cudaMipmappedArray_t()
-    err = ccudart.cudaGraphicsResourceGetMappedMipmappedArray(mipmappedArray._ptr, resource._ptr[0])
+    err = ccudart.cudaGraphicsResourceGetMappedMipmappedArray(mipmappedArray._ptr, cresource)
     return (cudaError_t(err), mipmappedArray)
 
 @cython.embedsignature(True)
-def cudaGetChannelDesc(array not None : cudaArray_const_t):
+def cudaGetChannelDesc(array):
     """ Get the channel descriptor of an array.
 
     Returns in `*desc` the channel descriptor of the CUDA array `array`.
 
     Parameters
     ----------
-    array : cudaArray_const_t
+    array : Any
         Memory array on device
 
     Returns
@@ -15406,9 +17204,19 @@ def cudaGetChannelDesc(array not None : cudaArray_const_t):
     cudaCreateTextureObject
     cudaCreateSurfaceObject
     """
+    cdef ccudart.cudaArray_const_t carray
+    if array is None:
+        carray = <ccudart.cudaArray_const_t><void_ptr>0
+    elif isinstance(array, (cudaArray_const_t)):
+        parray = int(array)
+        carray = <ccudart.cudaArray_const_t><void_ptr>parray
+    else:
+        parray = int(cudaArray_const_t(array))
+        carray = <ccudart.cudaArray_const_t><void_ptr>parray
+
     cdef cudaChannelFormatDesc desc = cudaChannelFormatDesc()
     with nogil:
-        err = ccudart.cudaGetChannelDesc(desc._ptr, array._ptr[0])
+        err = ccudart.cudaGetChannelDesc(desc._ptr, carray)
     return (cudaError_t(err), desc)
 
 @cython.embedsignature(True)
@@ -15477,7 +17285,7 @@ def cudaCreateTextureObject(pResDesc : cudaResourceDesc, pTexDesc : cudaTextureD
     struct{ cudaMipmappedArray_tmipmap; }mipmap; struct{ void*devPtr;
     structcudaChannelFormatDescdesc; size_tsizeInBytes; }linear; struct{
     void*devPtr; structcudaChannelFormatDescdesc; size_twidth;
-    size_theight; size_tpitchInBytes; }pitch2D; }res; }; where:
+    size_theight; size_tpitchInBytes; }pitch2D; }res; }; where: -
     cudaResourceDesc::resType specifies the type of resource to texture
     from. CUresourceType is defined as: enumcudaResourceType{
     cudaResourceTypeArray=0x00, cudaResourceTypeMipmappedArray=0x01,
@@ -15521,40 +17329,41 @@ def cudaCreateTextureObject(pResDesc : cudaResourceDesc, pTexDesc : cudaTextureD
     structcudaResourceViewDesc{ enumcudaResourceViewFormatformat;
     size_twidth; size_theight; size_tdepth; unsignedintfirstMipmapLevel;
     unsignedintlastMipmapLevel; unsignedintfirstLayer;
-    unsignedintlastLayer; }; where: cudaResourceViewDesc::format specifies
-    how the data contained in the CUDA array or CUDA mipmapped array should
-    be interpreted. Note that this can incur a change in size of the
-    texture data. If the resource view format is a block compressed format,
-    then the underlying CUDA array or CUDA mipmapped array has to have a
-    32-bit unsigned integer format with 2 or 4 channels, depending on the
-    block compressed format. For ex., BC1 and BC4 require the underlying
-    CUDA array to have a 32-bit unsigned int with 2 channels. The other BC
-    formats require the underlying resource to have the same 32-bit
-    unsigned int format but with 4 channels. cudaResourceViewDesc::width
-    specifies the new width of the texture data. If the resource view
-    format is a block compressed format, this value has to be 4 times the
-    original width of the resource. For non block compressed formats, this
-    value has to be equal to that of the original resource.
-    cudaResourceViewDesc::height specifies the new height of the texture
+    unsignedintlastLayer; }; where: - cudaResourceViewDesc::format
+    specifies how the data contained in the CUDA array or CUDA mipmapped
+    array should be interpreted. Note that this can incur a change in size
+    of the texture data. If the resource view format is a block compressed
+    format, then the underlying CUDA array or CUDA mipmapped array has to
+    have a 32-bit unsigned integer format with 2 or 4 channels, depending
+    on the block compressed format. For ex., BC1 and BC4 require the
+    underlying CUDA array to have a 32-bit unsigned int with 2 channels.
+    The other BC formats require the underlying resource to have the same
+    32-bit unsigned int format but with 4 channels.    -
+    cudaResourceViewDesc::width specifies the new width of the texture
     data. If the resource view format is a block compressed format, this
-    value has to be 4 times the original height of the resource. For non
+    value has to be 4 times the original width of the resource. For non
     block compressed formats, this value has to be equal to that of the
-    original resource. cudaResourceViewDesc::depth specifies the new depth
-    of the texture data. This value has to be equal to that of the original
-    resource. cudaResourceViewDesc::firstMipmapLevel specifies the most
-    detailed mipmap level. This will be the new mipmap level zero. For non-
-    mipmapped resources, this value has to be
+    original resource.    - cudaResourceViewDesc::height specifies the new
+    height of the texture data. If the resource view format is a block
+    compressed format, this value has to be 4 times the original height of
+    the resource. For non block compressed formats, this value has to be
+    equal to that of the original resource.    -
+    cudaResourceViewDesc::depth specifies the new depth of the texture
+    data. This value has to be equal to that of the original resource.    -
+    cudaResourceViewDesc::firstMipmapLevel specifies the most detailed
+    mipmap level. This will be the new mipmap level zero. For non-mipmapped
+    resources, this value has to be
     zero.cudaTextureDesc::minMipmapLevelClamp and
     cudaTextureDesc::maxMipmapLevelClamp will be relative to this value.
     For ex., if the firstMipmapLevel is set to 2, and a minMipmapLevelClamp
     of 1.2 is specified, then the actual minimum mipmap level clamp will be
-    3.2. cudaResourceViewDesc::lastMipmapLevel specifies the least detailed
-    mipmap level. For non-mipmapped resources, this value has to be zero.
-    cudaResourceViewDesc::firstLayer specifies the first layer index for
-    layered textures. This will be the new layer zero. For non-layered
-    resources, this value has to be zero. cudaResourceViewDesc::lastLayer
-    specifies the last layer index for layered textures. For non-layered
-    resources, this value has to be zero.
+    3.2.    - cudaResourceViewDesc::lastMipmapLevel specifies the least
+    detailed mipmap level. For non-mipmapped resources, this value has to
+    be zero.    - cudaResourceViewDesc::firstLayer specifies the first
+    layer index for layered textures. This will be the new layer zero. For
+    non-layered resources, this value has to be zero.    -
+    cudaResourceViewDesc::lastLayer specifies the last layer index for
+    layered textures. For non-layered resources, this value has to be zero.
 
     Parameters
     ----------
@@ -15586,14 +17395,14 @@ def cudaCreateTextureObject(pResDesc : cudaResourceDesc, pTexDesc : cudaTextureD
     return (cudaError_t(err), pTexObject)
 
 @cython.embedsignature(True)
-def cudaDestroyTextureObject(texObject not None : cudaTextureObject_t):
+def cudaDestroyTextureObject(texObject):
     """ Destroys a texture object.
 
     Destroys the texture object specified by `texObject`.
 
     Parameters
     ----------
-    texObject : cudaTextureObject_t
+    texObject : Any
         Texture object to destroy
 
     Returns
@@ -15609,12 +17418,22 @@ def cudaDestroyTextureObject(texObject not None : cudaTextureObject_t):
     cudaCreateTextureObject
     cuTexObjectDestroy
     """
+    cdef ccudart.cudaTextureObject_t ctexObject
+    if texObject is None:
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>0
+    elif isinstance(texObject, (cudaTextureObject_t)):
+        ptexObject = int(texObject)
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>ptexObject
+    else:
+        ptexObject = int(cudaTextureObject_t(texObject))
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>ptexObject
+
     with nogil:
-        err = ccudart.cudaDestroyTextureObject(texObject._ptr[0])
+        err = ccudart.cudaDestroyTextureObject(ctexObject)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaGetTextureObjectResourceDesc(texObject not None : cudaTextureObject_t):
+def cudaGetTextureObjectResourceDesc(texObject):
     """ Returns a texture object's resource descriptor.
 
     Returns the resource descriptor for the texture object specified by
@@ -15622,7 +17441,7 @@ def cudaGetTextureObjectResourceDesc(texObject not None : cudaTextureObject_t):
 
     Parameters
     ----------
-    texObject : cudaTextureObject_t
+    texObject : Any
         Texture object
 
     Returns
@@ -15638,13 +17457,23 @@ def cudaGetTextureObjectResourceDesc(texObject not None : cudaTextureObject_t):
     cudaCreateTextureObject
     cuTexObjectGetResourceDesc
     """
+    cdef ccudart.cudaTextureObject_t ctexObject
+    if texObject is None:
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>0
+    elif isinstance(texObject, (cudaTextureObject_t)):
+        ptexObject = int(texObject)
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>ptexObject
+    else:
+        ptexObject = int(cudaTextureObject_t(texObject))
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>ptexObject
+
     cdef cudaResourceDesc pResDesc = cudaResourceDesc()
     with nogil:
-        err = ccudart.cudaGetTextureObjectResourceDesc(pResDesc._ptr, texObject._ptr[0])
+        err = ccudart.cudaGetTextureObjectResourceDesc(pResDesc._ptr, ctexObject)
     return (cudaError_t(err), pResDesc)
 
 @cython.embedsignature(True)
-def cudaGetTextureObjectTextureDesc(texObject not None : cudaTextureObject_t):
+def cudaGetTextureObjectTextureDesc(texObject):
     """ Returns a texture object's texture descriptor.
 
     Returns the texture descriptor for the texture object specified by
@@ -15652,7 +17481,7 @@ def cudaGetTextureObjectTextureDesc(texObject not None : cudaTextureObject_t):
 
     Parameters
     ----------
-    texObject : cudaTextureObject_t
+    texObject : Any
         Texture object
 
     Returns
@@ -15668,13 +17497,23 @@ def cudaGetTextureObjectTextureDesc(texObject not None : cudaTextureObject_t):
     cudaCreateTextureObject
     cuTexObjectGetTextureDesc
     """
+    cdef ccudart.cudaTextureObject_t ctexObject
+    if texObject is None:
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>0
+    elif isinstance(texObject, (cudaTextureObject_t)):
+        ptexObject = int(texObject)
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>ptexObject
+    else:
+        ptexObject = int(cudaTextureObject_t(texObject))
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>ptexObject
+
     cdef cudaTextureDesc pTexDesc = cudaTextureDesc()
     with nogil:
-        err = ccudart.cudaGetTextureObjectTextureDesc(pTexDesc._ptr, texObject._ptr[0])
+        err = ccudart.cudaGetTextureObjectTextureDesc(pTexDesc._ptr, ctexObject)
     return (cudaError_t(err), pTexDesc)
 
 @cython.embedsignature(True)
-def cudaGetTextureObjectResourceViewDesc(texObject not None : cudaTextureObject_t):
+def cudaGetTextureObjectResourceViewDesc(texObject):
     """ Returns a texture object's resource view descriptor.
 
     Returns the resource view descriptor for the texture object specified
@@ -15683,7 +17522,7 @@ def cudaGetTextureObjectResourceViewDesc(texObject not None : cudaTextureObject_
 
     Parameters
     ----------
-    texObject : cudaTextureObject_t
+    texObject : Any
         Texture object
 
     Returns
@@ -15699,8 +17538,18 @@ def cudaGetTextureObjectResourceViewDesc(texObject not None : cudaTextureObject_
     cudaCreateTextureObject
     cuTexObjectGetResourceViewDesc
     """
+    cdef ccudart.cudaTextureObject_t ctexObject
+    if texObject is None:
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>0
+    elif isinstance(texObject, (cudaTextureObject_t)):
+        ptexObject = int(texObject)
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>ptexObject
+    else:
+        ptexObject = int(cudaTextureObject_t(texObject))
+        ctexObject = <ccudart.cudaTextureObject_t><void_ptr>ptexObject
+
     cdef cudaResourceViewDesc pResViewDesc = cudaResourceViewDesc()
-    err = ccudart.cudaGetTextureObjectResourceViewDesc(pResViewDesc._ptr, texObject._ptr[0])
+    err = ccudart.cudaGetTextureObjectResourceViewDesc(pResViewDesc._ptr, ctexObject)
     return (cudaError_t(err), pResViewDesc)
 
 @cython.embedsignature(True)
@@ -15744,14 +17593,14 @@ def cudaCreateSurfaceObject(pResDesc : cudaResourceDesc):
     return (cudaError_t(err), pSurfObject)
 
 @cython.embedsignature(True)
-def cudaDestroySurfaceObject(surfObject not None : cudaSurfaceObject_t):
+def cudaDestroySurfaceObject(surfObject):
     """ Destroys a surface object.
 
     Destroys the surface object specified by `surfObject`.
 
     Parameters
     ----------
-    surfObject : cudaSurfaceObject_t
+    surfObject : Any
         Surface object to destroy
 
     Returns
@@ -15767,17 +17616,27 @@ def cudaDestroySurfaceObject(surfObject not None : cudaSurfaceObject_t):
     cudaCreateSurfaceObject
     cuSurfObjectDestroy
     """
+    cdef ccudart.cudaSurfaceObject_t csurfObject
+    if surfObject is None:
+        csurfObject = <ccudart.cudaSurfaceObject_t><void_ptr>0
+    elif isinstance(surfObject, (cudaSurfaceObject_t)):
+        psurfObject = int(surfObject)
+        csurfObject = <ccudart.cudaSurfaceObject_t><void_ptr>psurfObject
+    else:
+        psurfObject = int(cudaSurfaceObject_t(surfObject))
+        csurfObject = <ccudart.cudaSurfaceObject_t><void_ptr>psurfObject
+
     with nogil:
-        err = ccudart.cudaDestroySurfaceObject(surfObject._ptr[0])
+        err = ccudart.cudaDestroySurfaceObject(csurfObject)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaGetSurfaceObjectResourceDesc(surfObject not None : cudaSurfaceObject_t):
+def cudaGetSurfaceObjectResourceDesc(surfObject):
     """ Returns a surface object's resource descriptor Returns the resource descriptor for the surface object specified by `surfObject`.
 
     Parameters
     ----------
-    surfObject : cudaSurfaceObject_t
+    surfObject : Any
         Surface object
 
     Returns
@@ -15793,8 +17652,18 @@ def cudaGetSurfaceObjectResourceDesc(surfObject not None : cudaSurfaceObject_t):
     cudaCreateSurfaceObject
     cuSurfObjectGetResourceDesc
     """
+    cdef ccudart.cudaSurfaceObject_t csurfObject
+    if surfObject is None:
+        csurfObject = <ccudart.cudaSurfaceObject_t><void_ptr>0
+    elif isinstance(surfObject, (cudaSurfaceObject_t)):
+        psurfObject = int(surfObject)
+        csurfObject = <ccudart.cudaSurfaceObject_t><void_ptr>psurfObject
+    else:
+        psurfObject = int(cudaSurfaceObject_t(surfObject))
+        csurfObject = <ccudart.cudaSurfaceObject_t><void_ptr>psurfObject
+
     cdef cudaResourceDesc pResDesc = cudaResourceDesc()
-    err = ccudart.cudaGetSurfaceObjectResourceDesc(pResDesc._ptr, surfObject._ptr[0])
+    err = ccudart.cudaGetSurfaceObjectResourceDesc(pResDesc._ptr, csurfObject)
     return (cudaError_t(err), pResDesc)
 
 @cython.embedsignature(True)
@@ -15936,13 +17805,13 @@ def cudaGraphAddKernelNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
     by the corresponding value. The list must be terminated with either
     NULL or CU_LAUNCH_PARAM_END.
 
-    CU_LAUNCH_PARAM_END, which indicates the end of the `extra` array;
-    CU_LAUNCH_PARAM_BUFFER_POINTER, which specifies that the next value in
-    `extra` will be a pointer to a buffer containing all the kernel
-    parameters for launching kernel `func`; CU_LAUNCH_PARAM_BUFFER_SIZE,
-    which specifies that the next value in `extra` will be a pointer to a
-    size_t containing the size of the buffer specified with
-    CU_LAUNCH_PARAM_BUFFER_POINTER;
+    - CU_LAUNCH_PARAM_END, which indicates the end of the `extra` array;
+    - CU_LAUNCH_PARAM_BUFFER_POINTER, which specifies that the next value
+    in `extra` will be a pointer to a buffer containing all the kernel
+    parameters for launching kernel `func`;    -
+    CU_LAUNCH_PARAM_BUFFER_SIZE, which specifies that the next value in
+    `extra` will be a pointer to a size_t containing the size of the buffer
+    specified with CU_LAUNCH_PARAM_BUFFER_POINTER;
 
     The error cudaErrorInvalidValue will be returned if kernel parameters
     are specified with both `kernelParams` and `extra` (i.e. both
@@ -15992,8 +17861,17 @@ def cudaGraphAddKernelNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -16006,7 +17884,7 @@ def cudaGraphAddKernelNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
     cdef ccudart.cudaKernelNodeParams* cpNodeParams_ptr = pNodeParams._ptr if pNodeParams != None else NULL
-    err = ccudart.cudaGraphAddKernelNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cpNodeParams_ptr)
+    err = ccudart.cudaGraphAddKernelNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cpNodeParams_ptr)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -16045,10 +17923,18 @@ def cudaGraphKernelNodeGetParams(node):
     cudaGraphAddKernelNode
     cudaGraphKernelNodeSetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef cudaKernelNodeParams pNodeParams = cudaKernelNodeParams()
-    err = ccudart.cudaGraphKernelNodeGetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], pNodeParams._ptr)
+    err = ccudart.cudaGraphKernelNodeGetParams(cnode, pNodeParams._ptr)
     return (cudaError_t(err), pNodeParams)
 
 @cython.embedsignature(True)
@@ -16080,10 +17966,18 @@ def cudaGraphKernelNodeSetParams(node, pNodeParams : cudaKernelNodeParams):
     cudaGraphAddKernelNode
     cudaGraphKernelNodeGetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef ccudart.cudaKernelNodeParams* cpNodeParams_ptr = pNodeParams._ptr if pNodeParams != None else NULL
-    err = ccudart.cudaGraphKernelNodeSetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cpNodeParams_ptr)
+    err = ccudart.cudaGraphKernelNodeSetParams(cnode, cpNodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -16112,11 +18006,27 @@ def cudaGraphKernelNodeCopyAttributes(hSrc, hDst):
     --------
     cudaAccessPolicyWindow
     """
-    if not isinstance(hDst, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hDst' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hDst)))
-    if not isinstance(hSrc, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hSrc' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hSrc)))
-    err = ccudart.cudaGraphKernelNodeCopyAttributes(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hSrc)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hDst)._ptr[0])
+    cdef ccudart.cudaGraphNode_t chDst
+    if hDst is None:
+        chDst = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hDst, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phDst = int(hDst)
+        chDst = <ccudart.cudaGraphNode_t><void_ptr>phDst
+    else:
+        phDst = int(cudaGraphNode_t(hDst))
+        chDst = <ccudart.cudaGraphNode_t><void_ptr>phDst
+
+    cdef ccudart.cudaGraphNode_t chSrc
+    if hSrc is None:
+        chSrc = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hSrc, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phSrc = int(hSrc)
+        chSrc = <ccudart.cudaGraphNode_t><void_ptr>phSrc
+    else:
+        phSrc = int(cudaGraphNode_t(hSrc))
+        chSrc = <ccudart.cudaGraphNode_t><void_ptr>phSrc
+
+    err = ccudart.cudaGraphKernelNodeCopyAttributes(chSrc, chDst)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -16146,11 +18056,19 @@ def cudaGraphKernelNodeGetAttribute(hNode, attr not None : cudaKernelNodeAttrID)
     --------
     cudaAccessPolicyWindow
     """
-    if not isinstance(hNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hNode)))
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
     cdef ccudart.cudaKernelNodeAttrID cattr = attr.value
     cdef cudaKernelNodeAttrValue value_out = cudaKernelNodeAttrValue()
-    err = ccudart.cudaGraphKernelNodeGetAttribute(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hNode)._ptr[0], cattr, value_out._ptr)
+    err = ccudart.cudaGraphKernelNodeGetAttribute(chNode, cattr, value_out._ptr)
     return (cudaError_t(err), value_out)
 
 @cython.embedsignature(True)
@@ -16182,11 +18100,19 @@ def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID,
     --------
     cudaAccessPolicyWindow
     """
-    if not isinstance(hNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hNode)))
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
     cdef ccudart.cudaKernelNodeAttrID cattr = attr.value
     cdef ccudart.cudaKernelNodeAttrValue* cvalue_ptr = value._ptr if value != None else NULL
-    err = ccudart.cudaGraphKernelNodeSetAttribute(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hNode)._ptr[0], cattr, cvalue_ptr)
+    err = ccudart.cudaGraphKernelNodeSetAttribute(chNode, cattr, cvalue_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -16245,8 +18171,17 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -16259,7 +18194,7 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
     cdef ccudart.cudaMemcpy3DParms* cpCopyParams_ptr = pCopyParams._ptr if pCopyParams != None else NULL
-    err = ccudart.cudaGraphAddMemcpyNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cpCopyParams_ptr)
+    err = ccudart.cudaGraphAddMemcpyNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cpCopyParams_ptr)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -16333,8 +18268,17 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : List[cudaGraphNode_t], size_
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -16350,7 +18294,7 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : List[cudaGraphNode_t], size_
     csrc = utils.HelperInputVoidPtr(src)
     cdef void* csrc_ptr = <void*><void_ptr>csrc.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
-    err = ccudart.cudaGraphAddMemcpyNode1D(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cdst_ptr, csrc_ptr, count, ckind)
+    err = ccudart.cudaGraphAddMemcpyNode1D(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cdst_ptr, csrc_ptr, count, ckind)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -16380,10 +18324,18 @@ def cudaGraphMemcpyNodeGetParams(node):
     cudaGraphAddMemcpyNode
     cudaGraphMemcpyNodeSetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef cudaMemcpy3DParms pNodeParams = cudaMemcpy3DParms()
-    err = ccudart.cudaGraphMemcpyNodeGetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], pNodeParams._ptr)
+    err = ccudart.cudaGraphMemcpyNodeGetParams(cnode, pNodeParams._ptr)
     return (cudaError_t(err), pNodeParams)
 
 @cython.embedsignature(True)
@@ -16416,10 +18368,18 @@ def cudaGraphMemcpyNodeSetParams(node, pNodeParams : cudaMemcpy3DParms):
     cudaGraphAddMemcpyNode
     cudaGraphMemcpyNodeGetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef ccudart.cudaMemcpy3DParms* cpNodeParams_ptr = pNodeParams._ptr if pNodeParams != None else NULL
-    err = ccudart.cudaGraphMemcpyNodeSetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cpNodeParams_ptr)
+    err = ccudart.cudaGraphMemcpyNodeSetParams(cnode, cpNodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -16468,14 +18428,22 @@ def cudaGraphMemcpyNodeSetParams1D(node, dst, src, size_t count, kind not None :
     cudaGraphAddMemcpyNode
     cudaGraphMemcpyNodeGetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdst = utils.HelperInputVoidPtr(dst)
     cdef void* cdst_ptr = <void*><void_ptr>cdst.cptr
     csrc = utils.HelperInputVoidPtr(src)
     cdef void* csrc_ptr = <void*><void_ptr>csrc.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
-    err = ccudart.cudaGraphMemcpyNodeSetParams1D(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cdst_ptr, csrc_ptr, count, ckind)
+    err = ccudart.cudaGraphMemcpyNodeSetParams1D(cnode, cdst_ptr, csrc_ptr, count, ckind)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -16527,8 +18495,17 @@ def cudaGraphAddMemsetNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -16541,7 +18518,7 @@ def cudaGraphAddMemsetNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
     cdef ccudart.cudaMemsetParams* cpMemsetParams_ptr = pMemsetParams._ptr if pMemsetParams != None else NULL
-    err = ccudart.cudaGraphAddMemsetNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cpMemsetParams_ptr)
+    err = ccudart.cudaGraphAddMemsetNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cpMemsetParams_ptr)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -16571,10 +18548,18 @@ def cudaGraphMemsetNodeGetParams(node):
     cudaGraphAddMemsetNode
     cudaGraphMemsetNodeSetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef cudaMemsetParams pNodeParams = cudaMemsetParams()
-    err = ccudart.cudaGraphMemsetNodeGetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], pNodeParams._ptr)
+    err = ccudart.cudaGraphMemsetNodeGetParams(cnode, pNodeParams._ptr)
     return (cudaError_t(err), pNodeParams)
 
 @cython.embedsignature(True)
@@ -16604,10 +18589,18 @@ def cudaGraphMemsetNodeSetParams(node, pNodeParams : cudaMemsetParams):
     cudaGraphAddMemsetNode
     cudaGraphMemsetNodeGetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef ccudart.cudaMemsetParams* cpNodeParams_ptr = pNodeParams._ptr if pNodeParams != None else NULL
-    err = ccudart.cudaGraphMemsetNodeSetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cpNodeParams_ptr)
+    err = ccudart.cudaGraphMemsetNodeSetParams(cnode, cpNodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -16660,8 +18653,17 @@ def cudaGraphAddHostNode(graph, pDependencies : List[cudaGraphNode_t], size_t nu
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -16674,7 +18676,7 @@ def cudaGraphAddHostNode(graph, pDependencies : List[cudaGraphNode_t], size_t nu
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
     cdef ccudart.cudaHostNodeParams* cpNodeParams_ptr = pNodeParams._ptr if pNodeParams != None else NULL
-    err = ccudart.cudaGraphAddHostNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cpNodeParams_ptr)
+    err = ccudart.cudaGraphAddHostNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cpNodeParams_ptr)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -16704,10 +18706,18 @@ def cudaGraphHostNodeGetParams(node):
     cudaGraphAddHostNode
     cudaGraphHostNodeSetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef cudaHostNodeParams pNodeParams = cudaHostNodeParams()
-    err = ccudart.cudaGraphHostNodeGetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], pNodeParams._ptr)
+    err = ccudart.cudaGraphHostNodeGetParams(cnode, pNodeParams._ptr)
     return (cudaError_t(err), pNodeParams)
 
 @cython.embedsignature(True)
@@ -16737,10 +18747,18 @@ def cudaGraphHostNodeSetParams(node, pNodeParams : cudaHostNodeParams):
     cudaGraphAddHostNode
     cudaGraphHostNodeGetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef ccudart.cudaHostNodeParams* cpNodeParams_ptr = pNodeParams._ptr if pNodeParams != None else NULL
-    err = ccudart.cudaGraphHostNodeSetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cpNodeParams_ptr)
+    err = ccudart.cudaGraphHostNodeSetParams(cnode, cpNodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -16791,13 +18809,30 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : List[cudaGraphNode_t], siz
     cudaGraphAddMemsetNode
     cudaGraphClone
     """
-    if not isinstance(childGraph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'childGraph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(childGraph)))
+    cdef ccudart.cudaGraph_t cchildGraph
+    if childGraph is None:
+        cchildGraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(childGraph, (cudaGraph_t,cuda.CUgraph)):
+        pchildGraph = int(childGraph)
+        cchildGraph = <ccudart.cudaGraph_t><void_ptr>pchildGraph
+    else:
+        pchildGraph = int(cudaGraph_t(childGraph))
+        cchildGraph = <ccudart.cudaGraph_t><void_ptr>pchildGraph
+
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -16809,7 +18844,7 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : List[cudaGraphNode_t], siz
                 cpDependencies[idx] = <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._ptr[0]
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    err = ccudart.cudaGraphAddChildGraphNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, <ccudart.cudaGraph_t>(<cudaGraph_t>childGraph)._ptr[0])
+    err = ccudart.cudaGraphAddChildGraphNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cchildGraph)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -16843,10 +18878,18 @@ def cudaGraphChildGraphNodeGetGraph(node):
     cudaGraphAddChildGraphNode
     cudaGraphNodeFindInClone
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef cudaGraph_t pGraph = cudaGraph_t()
-    err = ccudart.cudaGraphChildGraphNodeGetGraph(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], <ccudart.cudaGraph_t*>pGraph._ptr)
+    err = ccudart.cudaGraphChildGraphNodeGetGraph(cnode, <ccudart.cudaGraph_t*>pGraph._ptr)
     return (cudaError_t(err), pGraph)
 
 @cython.embedsignature(True)
@@ -16896,8 +18939,17 @@ def cudaGraphAddEmptyNode(graph, pDependencies : List[cudaGraphNode_t], size_t n
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -16909,7 +18961,7 @@ def cudaGraphAddEmptyNode(graph, pDependencies : List[cudaGraphNode_t], size_t n
                 cpDependencies[idx] = <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._ptr[0]
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    err = ccudart.cudaGraphAddEmptyNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies)
+    err = ccudart.cudaGraphAddEmptyNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -16962,13 +19014,30 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : List[cudaGraphNode_t], si
     cudaGraphAddMemcpyNode
     cudaGraphAddMemsetNode
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -16980,7 +19049,7 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : List[cudaGraphNode_t], si
                 cpDependencies[idx] = <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._ptr[0]
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    err = ccudart.cudaGraphAddEventRecordNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, <ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0])
+    err = ccudart.cudaGraphAddEventRecordNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cevent)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -17012,10 +19081,18 @@ def cudaGraphEventRecordNodeGetEvent(node):
     cudaEventRecordWithFlags
     cudaStreamWaitEvent
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef cudaEvent_t event_out = cudaEvent_t()
-    err = ccudart.cudaGraphEventRecordNodeGetEvent(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], <ccudart.cudaEvent_t*>event_out._ptr)
+    err = ccudart.cudaGraphEventRecordNodeGetEvent(cnode, <ccudart.cudaEvent_t*>event_out._ptr)
     return (cudaError_t(err), event_out)
 
 @cython.embedsignature(True)
@@ -17047,11 +19124,27 @@ def cudaGraphEventRecordNodeSetEvent(node, event):
     cudaEventRecordWithFlags
     cudaStreamWaitEvent
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
-    err = ccudart.cudaGraphEventRecordNodeSetEvent(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], <ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0])
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
+    err = ccudart.cudaGraphEventRecordNodeSetEvent(cnode, cevent)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -17105,13 +19198,30 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : List[cudaGraphNode_t], size
     cudaGraphAddMemcpyNode
     cudaGraphAddMemsetNode
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -17123,7 +19233,7 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : List[cudaGraphNode_t], size
                 cpDependencies[idx] = <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._ptr[0]
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    err = ccudart.cudaGraphAddEventWaitNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, <ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0])
+    err = ccudart.cudaGraphAddEventWaitNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cevent)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -17155,10 +19265,18 @@ def cudaGraphEventWaitNodeGetEvent(node):
     cudaEventRecordWithFlags
     cudaStreamWaitEvent
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef cudaEvent_t event_out = cudaEvent_t()
-    err = ccudart.cudaGraphEventWaitNodeGetEvent(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], <ccudart.cudaEvent_t*>event_out._ptr)
+    err = ccudart.cudaGraphEventWaitNodeGetEvent(cnode, <ccudart.cudaEvent_t*>event_out._ptr)
     return (cudaError_t(err), event_out)
 
 @cython.embedsignature(True)
@@ -17190,11 +19308,27 @@ def cudaGraphEventWaitNodeSetEvent(node, event):
     cudaEventRecordWithFlags
     cudaStreamWaitEvent
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
-    err = ccudart.cudaGraphEventWaitNodeSetEvent(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], <ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0])
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
+    err = ccudart.cudaGraphEventWaitNodeSetEvent(cnode, cevent)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -17253,8 +19387,17 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : List[cudaGra
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -17267,7 +19410,7 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : List[cudaGra
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
     cdef ccudart.cudaExternalSemaphoreSignalNodeParams* cnodeParams_ptr = nodeParams._ptr if nodeParams != None else NULL
-    err = ccudart.cudaGraphAddExternalSemaphoresSignalNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cnodeParams_ptr)
+    err = ccudart.cudaGraphAddExternalSemaphoresSignalNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cnodeParams_ptr)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -17305,10 +19448,18 @@ def cudaGraphExternalSemaphoresSignalNodeGetParams(hNode):
     cudaSignalExternalSemaphoresAsync
     cudaWaitExternalSemaphoresAsync
     """
-    if not isinstance(hNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hNode)))
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
     cdef cudaExternalSemaphoreSignalNodeParams params_out = cudaExternalSemaphoreSignalNodeParams()
-    err = ccudart.cudaGraphExternalSemaphoresSignalNodeGetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hNode)._ptr[0], params_out._ptr)
+    err = ccudart.cudaGraphExternalSemaphoresSignalNodeGetParams(chNode, params_out._ptr)
     return (cudaError_t(err), params_out)
 
 @cython.embedsignature(True)
@@ -17341,10 +19492,18 @@ def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : cudaExter
     cudaSignalExternalSemaphoresAsync
     cudaWaitExternalSemaphoresAsync
     """
-    if not isinstance(hNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hNode)))
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
     cdef ccudart.cudaExternalSemaphoreSignalNodeParams* cnodeParams_ptr = nodeParams._ptr if nodeParams != None else NULL
-    err = ccudart.cudaGraphExternalSemaphoresSignalNodeSetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hNode)._ptr[0], cnodeParams_ptr)
+    err = ccudart.cudaGraphExternalSemaphoresSignalNodeSetParams(chNode, cnodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -17403,8 +19562,17 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : List[cudaGraph
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -17417,7 +19585,7 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : List[cudaGraph
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
     cdef ccudart.cudaExternalSemaphoreWaitNodeParams* cnodeParams_ptr = nodeParams._ptr if nodeParams != None else NULL
-    err = ccudart.cudaGraphAddExternalSemaphoresWaitNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cnodeParams_ptr)
+    err = ccudart.cudaGraphAddExternalSemaphoresWaitNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cnodeParams_ptr)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -17454,10 +19622,18 @@ def cudaGraphExternalSemaphoresWaitNodeGetParams(hNode):
     cudaSignalExternalSemaphoresAsync
     cudaWaitExternalSemaphoresAsync
     """
-    if not isinstance(hNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hNode)))
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
     cdef cudaExternalSemaphoreWaitNodeParams params_out = cudaExternalSemaphoreWaitNodeParams()
-    err = ccudart.cudaGraphExternalSemaphoresWaitNodeGetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hNode)._ptr[0], params_out._ptr)
+    err = ccudart.cudaGraphExternalSemaphoresWaitNodeGetParams(chNode, params_out._ptr)
     return (cudaError_t(err), params_out)
 
 @cython.embedsignature(True)
@@ -17489,10 +19665,18 @@ def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : cudaExterna
     cudaSignalExternalSemaphoresAsync
     cudaWaitExternalSemaphoresAsync
     """
-    if not isinstance(hNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hNode)))
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
     cdef ccudart.cudaExternalSemaphoreWaitNodeParams* cnodeParams_ptr = nodeParams._ptr if nodeParams != None else NULL
-    err = ccudart.cudaGraphExternalSemaphoresWaitNodeSetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hNode)._ptr[0], cnodeParams_ptr)
+    err = ccudart.cudaGraphExternalSemaphoresWaitNodeSetParams(chNode, cnodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -17517,12 +19701,12 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : List[cudaGraphNode_t], size_
     allocation node, but also by stream operations ordered after the
     graph's execution but before the allocation is freed.
 
-    Allocations which are not freed in the same graph can be freed by:
-    passing the allocation to cudaMemFreeAsync or cudaMemFree; launching a
-    graph with a free node for that allocation; or specifying
-    cudaGraphInstantiateFlagAutoFreeOnLaunch during instantiation, which
-    makes each launch behave as though it called cudaMemFreeAsync for every
-    unfreed allocation.
+    Allocations which are not freed in the same graph can be freed by: -
+    passing the allocation to cudaMemFreeAsync or cudaMemFree;    -
+    launching a graph with a free node for that allocation; or    -
+    specifying cudaGraphInstantiateFlagAutoFreeOnLaunch during
+    instantiation, which makes each launch behave as though it called
+    cudaMemFreeAsync for every unfreed allocation.
 
     It is not possible to free an allocation in both the owning graph and
     another graph. If the allocation is freed in the same graph, a free
@@ -17530,10 +19714,10 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : List[cudaGraphNode_t], size_
     another graph, a free node can no longer be added to the owning graph.
 
     The following restrictions apply to graphs which contain allocation
-    and/or memory free nodes: Nodes and edges of the graph cannot be
-    deleted. The graph cannot be used in a child node. Only one
-    instantiation of the graph may exist at any point in time. The graph
-    cannot be cloned.
+    and/or memory free nodes: - Nodes and edges of the graph cannot be
+    deleted.    - The graph cannot be used in a child node.    - Only one
+    instantiation of the graph may exist at any point in time.    - The
+    graph cannot be cloned.
 
     Parameters
     ----------
@@ -17582,8 +19766,17 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : List[cudaGraphNode_t], size_
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -17596,7 +19789,7 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : List[cudaGraphNode_t], size_
 
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
     cdef ccudart.cudaMemAllocNodeParams* cnodeParams_ptr = nodeParams._ptr if nodeParams != None else NULL
-    err = ccudart.cudaGraphAddMemAllocNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cnodeParams_ptr)
+    err = ccudart.cudaGraphAddMemAllocNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cnodeParams_ptr)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -17628,10 +19821,18 @@ def cudaGraphMemAllocNodeGetParams(node):
     cudaGraphAddMemAllocNode
     cudaGraphMemFreeNodeGetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef cudaMemAllocNodeParams params_out = cudaMemAllocNodeParams()
-    err = ccudart.cudaGraphMemAllocNodeGetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], params_out._ptr)
+    err = ccudart.cudaGraphMemAllocNodeGetParams(cnode, params_out._ptr)
     return (cudaError_t(err), params_out)
 
 @cython.embedsignature(True)
@@ -17646,10 +19847,10 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : List[cudaGraphNode_t], size_t
     node will be returned in `pGraphNode`.
 
     The following restrictions apply to graphs which contain allocation
-    and/or memory free nodes: Nodes and edges of the graph cannot be
-    deleted. The graph cannot be used in a child node. Only one
-    instantiation of the graph may exist at any point in time. The graph
-    cannot be cloned.
+    and/or memory free nodes: - Nodes and edges of the graph cannot be
+    deleted.    - The graph cannot be used in a child node.    - Only one
+    instantiation of the graph may exist at any point in time.    - The
+    graph cannot be cloned.
 
     Parameters
     ----------
@@ -17698,8 +19899,17 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : List[cudaGraphNode_t], size_t
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     if len(pDependencies) > 0:
@@ -17713,7 +19923,7 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : List[cudaGraphNode_t], size_t
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
     cdptr = utils.HelperInputVoidPtr(dptr)
     cdef void* cdptr_ptr = <void*><void_ptr>cdptr.cptr
-    err = ccudart.cudaGraphAddMemFreeNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cdptr_ptr)
+    err = ccudart.cudaGraphAddMemFreeNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cdptr_ptr)
     if cpDependencies is not NULL:
         free(cpDependencies)
     return (cudaError_t(err), pGraphNode)
@@ -17742,11 +19952,19 @@ def cudaGraphMemFreeNodeGetParams(node):
     cudaGraphAddMemFreeNode
     cudaGraphMemFreeNodeGetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef void_ptr dptr_out = 0
     cdef void* cdptr_out_ptr = <void*>dptr_out
-    err = ccudart.cudaGraphMemFreeNodeGetParams(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cdptr_out_ptr)
+    err = ccudart.cudaGraphMemFreeNodeGetParams(cnode, cdptr_out_ptr)
     return (cudaError_t(err), dptr_out)
 
 @cython.embedsignature(True)
@@ -17788,13 +20006,13 @@ def cudaDeviceGetGraphMemAttribute(int device, attr not None : cudaGraphMemAttri
 
     Valid attributes are:
 
-    ::cudaGraphMemAttrUsedMemCurrent: Amount of memory, in bytes, currently
-    associated with graphs ::cudaGraphMemAttrUsedMemHigh: High watermark of
-    memory, in bytes, associated with graphs since the last time it was
-    reset. High watermark can only be reset to zero.
-    ::cudaGraphMemAttrReservedMemCurrent: Amount of memory, in bytes,
+    - cudaGraphMemAttrUsedMemCurrent: Amount of memory, in bytes, currently
+    associated with graphs    - cudaGraphMemAttrUsedMemHigh: High watermark
+    of memory, in bytes, associated with graphs since the last time it was
+    reset. High watermark can only be reset to zero.    -
+    cudaGraphMemAttrReservedMemCurrent: Amount of memory, in bytes,
     currently allocated for use by the CUDA graphs asynchronous allocator.
-    ::cudaGraphMemAttrReservedMemHigh: High watermark of memory, in bytes,
+    - cudaGraphMemAttrReservedMemHigh: High watermark of memory, in bytes,
     currently allocated for use by the CUDA graphs asynchronous allocator.
 
     Parameters
@@ -17833,9 +20051,9 @@ def cudaDeviceSetGraphMemAttribute(int device, attr not None : cudaGraphMemAttri
 
     Valid attributes are:
 
-    ::cudaGraphMemAttrUsedMemHigh: High watermark of memory, in bytes,
+    - cudaGraphMemAttrUsedMemHigh: High watermark of memory, in bytes,
     associated with graphs since the last time it was reset. High watermark
-    can only be reset to zero. ::cudaGraphMemAttrReservedMemHigh: High
+    can only be reset to zero.    - cudaGraphMemAttrReservedMemHigh: High
     watermark of memory, in bytes, currently allocated for use by the CUDA
     graphs asynchronous allocator.
 
@@ -17902,10 +20120,18 @@ def cudaGraphClone(originalGraph):
     cudaGraphCreate
     cudaGraphNodeFindInClone
     """
-    if not isinstance(originalGraph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'originalGraph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(originalGraph)))
+    cdef ccudart.cudaGraph_t coriginalGraph
+    if originalGraph is None:
+        coriginalGraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(originalGraph, (cudaGraph_t,cuda.CUgraph)):
+        poriginalGraph = int(originalGraph)
+        coriginalGraph = <ccudart.cudaGraph_t><void_ptr>poriginalGraph
+    else:
+        poriginalGraph = int(cudaGraph_t(originalGraph))
+        coriginalGraph = <ccudart.cudaGraph_t><void_ptr>poriginalGraph
+
     cdef cudaGraph_t pGraphClone = cudaGraph_t()
-    err = ccudart.cudaGraphClone(<ccudart.cudaGraph_t*>pGraphClone._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>originalGraph)._ptr[0])
+    err = ccudart.cudaGraphClone(<ccudart.cudaGraph_t*>pGraphClone._ptr, coriginalGraph)
     return (cudaError_t(err), pGraphClone)
 
 @cython.embedsignature(True)
@@ -17940,12 +20166,28 @@ def cudaGraphNodeFindInClone(originalNode, clonedGraph):
     --------
     cudaGraphClone
     """
-    if not isinstance(clonedGraph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'clonedGraph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(clonedGraph)))
-    if not isinstance(originalNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'originalNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(originalNode)))
+    cdef ccudart.cudaGraph_t cclonedGraph
+    if clonedGraph is None:
+        cclonedGraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(clonedGraph, (cudaGraph_t,cuda.CUgraph)):
+        pclonedGraph = int(clonedGraph)
+        cclonedGraph = <ccudart.cudaGraph_t><void_ptr>pclonedGraph
+    else:
+        pclonedGraph = int(cudaGraph_t(clonedGraph))
+        cclonedGraph = <ccudart.cudaGraph_t><void_ptr>pclonedGraph
+
+    cdef ccudart.cudaGraphNode_t coriginalNode
+    if originalNode is None:
+        coriginalNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(originalNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        poriginalNode = int(originalNode)
+        coriginalNode = <ccudart.cudaGraphNode_t><void_ptr>poriginalNode
+    else:
+        poriginalNode = int(cudaGraphNode_t(originalNode))
+        coriginalNode = <ccudart.cudaGraphNode_t><void_ptr>poriginalNode
+
     cdef cudaGraphNode_t pNode = cudaGraphNode_t()
-    err = ccudart.cudaGraphNodeFindInClone(<ccudart.cudaGraphNode_t*>pNode._ptr, <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>originalNode)._ptr[0], <ccudart.cudaGraph_t>(<cudaGraph_t>clonedGraph)._ptr[0])
+    err = ccudart.cudaGraphNodeFindInClone(<ccudart.cudaGraphNode_t*>pNode._ptr, coriginalNode, cclonedGraph)
     return (cudaError_t(err), pNode)
 
 @cython.embedsignature(True)
@@ -17981,10 +20223,18 @@ def cudaGraphNodeGetType(node):
     cudaGraphMemsetNodeGetParams
     cudaGraphMemsetNodeSetParams
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef ccudart.cudaGraphNodeType pType
-    err = ccudart.cudaGraphNodeGetType(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], &pType)
+    err = ccudart.cudaGraphNodeGetType(cnode, &pType)
     return (cudaError_t(err), cudaGraphNodeType(pType))
 
 @cython.embedsignature(True)
@@ -18023,15 +20273,23 @@ def cudaGraphGetNodes(graph, size_t numNodes = 0):
     cudaGraphNodeGetDependentNodes
     """
     cdef size_t _graph_length = numNodes
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef ccudart.cudaGraphNode_t* cnodes = NULL
     pynodes = []
     if _graph_length != 0:
         cnodes = <ccudart.cudaGraphNode_t*>calloc(_graph_length, sizeof(ccudart.cudaGraphNode_t))
         if cnodes is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(_graph_length) + 'x' + str(sizeof(ccudart.cudaGraphNode_t)))
-    err = ccudart.cudaGraphGetNodes(<ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], cnodes, &numNodes)
+    err = ccudart.cudaGraphGetNodes(cgraph, cnodes, &numNodes)
     if cudaError_t(err) == cudaError_t(0):
         pynodes = [cudaGraphNode_t(init_value=<void_ptr>cnodes[idx]) for idx in range(_graph_length)]
     if cnodes is not NULL:
@@ -18074,15 +20332,23 @@ def cudaGraphGetRootNodes(graph, size_t pNumRootNodes = 0):
     cudaGraphNodeGetDependentNodes
     """
     cdef size_t _graph_length = pNumRootNodes
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef ccudart.cudaGraphNode_t* cpRootNodes = NULL
     pypRootNodes = []
     if _graph_length != 0:
         cpRootNodes = <ccudart.cudaGraphNode_t*>calloc(_graph_length, sizeof(ccudart.cudaGraphNode_t))
         if cpRootNodes is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(_graph_length) + 'x' + str(sizeof(ccudart.cudaGraphNode_t)))
-    err = ccudart.cudaGraphGetRootNodes(<ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], cpRootNodes, &pNumRootNodes)
+    err = ccudart.cudaGraphGetRootNodes(cgraph, cpRootNodes, &pNumRootNodes)
     if cudaError_t(err) == cudaError_t(0):
         pypRootNodes = [cudaGraphNode_t(init_value=<void_ptr>cpRootNodes[idx]) for idx in range(_graph_length)]
     if cpRootNodes is not NULL:
@@ -18129,8 +20395,16 @@ def cudaGraphGetEdges(graph, size_t numEdges = 0):
     cudaGraphNodeGetDependentNodes
     """
     cdef size_t _graph_length = numEdges
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef ccudart.cudaGraphNode_t* cfrom_ = NULL
     pyfrom_ = []
     if _graph_length != 0:
@@ -18143,7 +20417,7 @@ def cudaGraphGetEdges(graph, size_t numEdges = 0):
         cto = <ccudart.cudaGraphNode_t*>calloc(_graph_length, sizeof(ccudart.cudaGraphNode_t))
         if cto is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(_graph_length) + 'x' + str(sizeof(ccudart.cudaGraphNode_t)))
-    err = ccudart.cudaGraphGetEdges(<ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], cfrom_, cto, &numEdges)
+    err = ccudart.cudaGraphGetEdges(cgraph, cfrom_, cto, &numEdges)
     if cudaError_t(err) == cudaError_t(0):
         pyfrom_ = [cudaGraphNode_t(init_value=<void_ptr>cfrom_[idx]) for idx in range(_graph_length)]
     if cfrom_ is not NULL:
@@ -18191,15 +20465,23 @@ def cudaGraphNodeGetDependencies(node, size_t pNumDependencies = 0):
     cudaGraphRemoveDependencies
     """
     cdef size_t _graph_length = pNumDependencies
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
     pypDependencies = []
     if _graph_length != 0:
         cpDependencies = <ccudart.cudaGraphNode_t*>calloc(_graph_length, sizeof(ccudart.cudaGraphNode_t))
         if cpDependencies is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(_graph_length) + 'x' + str(sizeof(ccudart.cudaGraphNode_t)))
-    err = ccudart.cudaGraphNodeGetDependencies(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cpDependencies, &pNumDependencies)
+    err = ccudart.cudaGraphNodeGetDependencies(cnode, cpDependencies, &pNumDependencies)
     if cudaError_t(err) == cudaError_t(0):
         pypDependencies = [cudaGraphNode_t(init_value=<void_ptr>cpDependencies[idx]) for idx in range(_graph_length)]
     if cpDependencies is not NULL:
@@ -18243,15 +20525,23 @@ def cudaGraphNodeGetDependentNodes(node, size_t pNumDependentNodes = 0):
     cudaGraphRemoveDependencies
     """
     cdef size_t _graph_length = pNumDependentNodes
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
     cdef ccudart.cudaGraphNode_t* cpDependentNodes = NULL
     pypDependentNodes = []
     if _graph_length != 0:
         cpDependentNodes = <ccudart.cudaGraphNode_t*>calloc(_graph_length, sizeof(ccudart.cudaGraphNode_t))
         if cpDependentNodes is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(_graph_length) + 'x' + str(sizeof(ccudart.cudaGraphNode_t)))
-    err = ccudart.cudaGraphNodeGetDependentNodes(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cpDependentNodes, &pNumDependentNodes)
+    err = ccudart.cudaGraphNodeGetDependentNodes(cnode, cpDependentNodes, &pNumDependentNodes)
     if cudaError_t(err) == cudaError_t(0):
         pypDependentNodes = [cudaGraphNode_t(init_value=<void_ptr>cpDependentNodes[idx]) for idx in range(_graph_length)]
     if cpDependentNodes is not NULL:
@@ -18298,11 +20588,21 @@ def cudaGraphAddDependencies(graph, from_ : List[cudaGraphNode_t], to : List[cud
     to = [] if to is None else to
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in to):
         raise TypeError("Argument 'to' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
+
     from_ = [] if from_ is None else from_
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in from_):
         raise TypeError("Argument 'from_' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef ccudart.cudaGraphNode_t* cfrom_ = NULL
     if len(from_) > 0:
         cfrom_ = <ccudart.cudaGraphNode_t*> calloc(len(from_), sizeof(ccudart.cudaGraphNode_t))
@@ -18323,7 +20623,7 @@ def cudaGraphAddDependencies(graph, from_ : List[cudaGraphNode_t], to : List[cud
 
     if numDependencies > <size_t>len(from_): raise RuntimeError("List is too small: " + str(len(from_)) + " < " + str(numDependencies))
     if numDependencies > <size_t>len(to): raise RuntimeError("List is too small: " + str(len(to)) + " < " + str(numDependencies))
-    err = ccudart.cudaGraphAddDependencies(<ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>from_[0])._ptr if len(from_) == 1 else cfrom_, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>to[0])._ptr if len(to) == 1 else cto, numDependencies)
+    err = ccudart.cudaGraphAddDependencies(cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>from_[0])._ptr if len(from_) == 1 else cfrom_, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>to[0])._ptr if len(to) == 1 else cto, numDependencies)
     if cfrom_ is not NULL:
         free(cfrom_)
     if cto is not NULL:
@@ -18371,11 +20671,21 @@ def cudaGraphRemoveDependencies(graph, from_ : List[cudaGraphNode_t], to : List[
     to = [] if to is None else to
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in to):
         raise TypeError("Argument 'to' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
+
     from_ = [] if from_ is None else from_
     if not all(isinstance(_x, (cudaGraphNode_t, cuda.CUgraphNode)) for _x in from_):
         raise TypeError("Argument 'from_' is not instance of type (expected List[ccudart.cudaGraphNode_t, cuda.CUgraphNode]")
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef ccudart.cudaGraphNode_t* cfrom_ = NULL
     if len(from_) > 0:
         cfrom_ = <ccudart.cudaGraphNode_t*> calloc(len(from_), sizeof(ccudart.cudaGraphNode_t))
@@ -18396,7 +20706,7 @@ def cudaGraphRemoveDependencies(graph, from_ : List[cudaGraphNode_t], to : List[
 
     if numDependencies > <size_t>len(from_): raise RuntimeError("List is too small: " + str(len(from_)) + " < " + str(numDependencies))
     if numDependencies > <size_t>len(to): raise RuntimeError("List is too small: " + str(len(to)) + " < " + str(numDependencies))
-    err = ccudart.cudaGraphRemoveDependencies(<ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>from_[0])._ptr if len(from_) == 1 else cfrom_, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>to[0])._ptr if len(to) == 1 else cto, numDependencies)
+    err = ccudart.cudaGraphRemoveDependencies(cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>from_[0])._ptr if len(from_) == 1 else cfrom_, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>to[0])._ptr if len(to) == 1 else cto, numDependencies)
     if cfrom_ is not NULL:
         free(cfrom_)
     if cto is not NULL:
@@ -18435,9 +20745,17 @@ def cudaGraphDestroyNode(node):
     cudaGraphAddMemcpyNode
     cudaGraphAddMemsetNode
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
-    err = ccudart.cudaGraphDestroyNode(<ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0])
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
+    err = ccudart.cudaGraphDestroyNode(cnode)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -18483,11 +20801,19 @@ def cudaGraphInstantiate(graph, char* pLogBuffer, size_t bufferSize):
     cudaGraphLaunch
     cudaGraphExecDestroy
     """
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphExec_t pGraphExec = cudaGraphExec_t()
     cdef cudaGraphNode_t pErrorNode = cudaGraphNode_t()
-    err = ccudart.cudaGraphInstantiate(<ccudart.cudaGraphExec_t*>pGraphExec._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaGraphNode_t*>pErrorNode._ptr, pLogBuffer, bufferSize)
+    err = ccudart.cudaGraphInstantiate(<ccudart.cudaGraphExec_t*>pGraphExec._ptr, cgraph, <ccudart.cudaGraphNode_t*>pErrorNode._ptr, pLogBuffer, bufferSize)
     return (cudaError_t(err), pGraphExec, pErrorNode)
 
 @cython.embedsignature(True)
@@ -18502,7 +20828,7 @@ def cudaGraphInstantiateWithFlags(graph, unsigned long long flags):
     The `flags` parameter controls the behavior of instantiation and
     subsequent graph launches. Valid flags are:
 
-    ::cudaGraphInstantiateFlagAutoFreeOnLaunch, which configures a graph
+    - cudaGraphInstantiateFlagAutoFreeOnLaunch, which configures a graph
     containing memory allocation nodes to automatically free any unfreed
     memory allocations before the graph is relaunched.
 
@@ -18535,10 +20861,18 @@ def cudaGraphInstantiateWithFlags(graph, unsigned long long flags):
     cudaGraphLaunch
     cudaGraphExecDestroy
     """
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
     cdef cudaGraphExec_t pGraphExec = cudaGraphExec_t()
-    err = ccudart.cudaGraphInstantiateWithFlags(<ccudart.cudaGraphExec_t*>pGraphExec._ptr, <ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], flags)
+    err = ccudart.cudaGraphInstantiateWithFlags(<ccudart.cudaGraphExec_t*>pGraphExec._ptr, cgraph, flags)
     return (cudaError_t(err), pGraphExec)
 
 @cython.embedsignature(True)
@@ -18590,12 +20924,28 @@ def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : cudaKernelN
     cudaGraphExecUpdate
     cudaGraphInstantiate
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
     cdef ccudart.cudaKernelNodeParams* cpNodeParams_ptr = pNodeParams._ptr if pNodeParams != None else NULL
-    err = ccudart.cudaGraphExecKernelNodeSetParams(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cpNodeParams_ptr)
+    err = ccudart.cudaGraphExecKernelNodeSetParams(chGraphExec, cnode, cpNodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -18655,12 +21005,28 @@ def cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams : cudaMemcpy3
     cudaGraphExecUpdate
     cudaGraphInstantiate
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
     cdef ccudart.cudaMemcpy3DParms* cpNodeParams_ptr = pNodeParams._ptr if pNodeParams != None else NULL
-    err = ccudart.cudaGraphExecMemcpyNodeSetParams(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cpNodeParams_ptr)
+    err = ccudart.cudaGraphExecMemcpyNodeSetParams(chGraphExec, cnode, cpNodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -18725,16 +21091,32 @@ def cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, size_t count,
     cudaGraphExecUpdate
     cudaGraphInstantiate
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
     cdst = utils.HelperInputVoidPtr(dst)
     cdef void* cdst_ptr = <void*><void_ptr>cdst.cptr
     csrc = utils.HelperInputVoidPtr(src)
     cdef void* csrc_ptr = <void*><void_ptr>csrc.cptr
     cdef ccudart.cudaMemcpyKind ckind = kind.value
-    err = ccudart.cudaGraphExecMemcpyNodeSetParams1D(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cdst_ptr, csrc_ptr, count, ckind)
+    err = ccudart.cudaGraphExecMemcpyNodeSetParams1D(chGraphExec, cnode, cdst_ptr, csrc_ptr, count, ckind)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -18790,12 +21172,28 @@ def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : cudaMemsetP
     cudaGraphExecUpdate
     cudaGraphInstantiate
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
     cdef ccudart.cudaMemsetParams* cpNodeParams_ptr = pNodeParams._ptr if pNodeParams != None else NULL
-    err = ccudart.cudaGraphExecMemsetNodeSetParams(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cpNodeParams_ptr)
+    err = ccudart.cudaGraphExecMemsetNodeSetParams(chGraphExec, cnode, cpNodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -18843,12 +21241,28 @@ def cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams : cudaHostNodeP
     cudaGraphExecUpdate
     cudaGraphInstantiate
     """
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
     cdef ccudart.cudaHostNodeParams* cpNodeParams_ptr = pNodeParams._ptr if pNodeParams != None else NULL
-    err = ccudart.cudaGraphExecHostNodeSetParams(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], cpNodeParams_ptr)
+    err = ccudart.cudaGraphExecHostNodeSetParams(chGraphExec, cnode, cpNodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -18903,13 +21317,37 @@ def cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph):
     cudaGraphExecUpdate
     cudaGraphInstantiate
     """
-    if not isinstance(childGraph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'childGraph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(childGraph)))
-    if not isinstance(node, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'node' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(node)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
-    err = ccudart.cudaGraphExecChildGraphNodeSetParams(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>node)._ptr[0], <ccudart.cudaGraph_t>(<cudaGraph_t>childGraph)._ptr[0])
+    cdef ccudart.cudaGraph_t cchildGraph
+    if childGraph is None:
+        cchildGraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(childGraph, (cudaGraph_t,cuda.CUgraph)):
+        pchildGraph = int(childGraph)
+        cchildGraph = <ccudart.cudaGraph_t><void_ptr>pchildGraph
+    else:
+        pchildGraph = int(cudaGraph_t(childGraph))
+        cchildGraph = <ccudart.cudaGraph_t><void_ptr>pchildGraph
+
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
+    err = ccudart.cudaGraphExecChildGraphNodeSetParams(chGraphExec, cnode, cchildGraph)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -18961,13 +21399,37 @@ def cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event):
     cudaGraphExecUpdate
     cudaGraphInstantiate
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
-    if not isinstance(hNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hNode)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
-    err = ccudart.cudaGraphExecEventRecordNodeSetEvent(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hNode)._ptr[0], <ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0])
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
+    err = ccudart.cudaGraphExecEventRecordNodeSetEvent(chGraphExec, chNode, cevent)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19019,13 +21481,37 @@ def cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
     cudaGraphExecUpdate
     cudaGraphInstantiate
     """
-    if not isinstance(event, (cudaEvent_t, cuda.CUevent)):
-        raise TypeError("Argument 'event' is not instance of type (expected <class 'cudart.cudaEvent_t, cuda.CUevent'>, found " + str(type(event)))
-    if not isinstance(hNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hNode)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
-    err = ccudart.cudaGraphExecEventWaitNodeSetEvent(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hNode)._ptr[0], <ccudart.cudaEvent_t>(<cudaEvent_t>event)._ptr[0])
+    cdef ccudart.cudaEvent_t cevent
+    if event is None:
+        cevent = <ccudart.cudaEvent_t><void_ptr>0
+    elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+        pevent = int(event)
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+    else:
+        pevent = int(cudaEvent_t(event))
+        cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
+    err = ccudart.cudaGraphExecEventWaitNodeSetEvent(chGraphExec, chNode, cevent)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19080,12 +21566,28 @@ def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePa
     cudaGraphExecUpdate
     cudaGraphInstantiate
     """
-    if not isinstance(hNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hNode)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
     cdef ccudart.cudaExternalSemaphoreSignalNodeParams* cnodeParams_ptr = nodeParams._ptr if nodeParams != None else NULL
-    err = ccudart.cudaGraphExecExternalSemaphoresSignalNodeSetParams(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hNode)._ptr[0], cnodeParams_ptr)
+    err = ccudart.cudaGraphExecExternalSemaphoresSignalNodeSetParams(chGraphExec, chNode, cnodeParams_ptr)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19140,13 +21642,161 @@ def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodePara
     cudaGraphExecUpdate
     cudaGraphInstantiate
     """
-    if not isinstance(hNode, (cudaGraphNode_t, cuda.CUgraphNode)):
-        raise TypeError("Argument 'hNode' is not instance of type (expected <class 'cudart.cudaGraphNode_t, cuda.CUgraphNode'>, found " + str(type(hNode)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
     cdef ccudart.cudaExternalSemaphoreWaitNodeParams* cnodeParams_ptr = nodeParams._ptr if nodeParams != None else NULL
-    err = ccudart.cudaGraphExecExternalSemaphoresWaitNodeSetParams(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>hNode)._ptr[0], cnodeParams_ptr)
+    err = ccudart.cudaGraphExecExternalSemaphoresWaitNodeSetParams(chGraphExec, chNode, cnodeParams_ptr)
     return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaGraphNodeSetEnabled(hGraphExec, hNode, unsigned int isEnabled):
+    """ Enables or disables the specified node in the given graphExec.
+
+    Sets `hNode` to be either enabled or disabled. Disabled nodes are
+    functionally equivalent to empty nodes until they are reenabled.
+    Existing node parameters are not affected by disabling/enabling the
+    node.
+
+    The node is identified by the corresponding node `hNode` in the non-
+    executable graph, from which the executable graph was instantiated.
+
+    `hNode` must not have been removed from the original graph.
+
+    The modifications only affect future launches of `hGraphExec`. Already
+    enqueued or running launches of `hGraphExec` are not affected by this
+    call. `hNode` is also not modified by this call.
+
+    Parameters
+    ----------
+    hGraphExec : CUgraphExec or cudaGraphExec_t
+        The executable graph in which to set the specified node
+    hNode : CUgraphNode or cudaGraphNode_t
+        Node from the graph from which graphExec was instantiated
+    isEnabled : unsigned int
+        Node is enabled if != 0, otherwise the node is disabled
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+    None
+        None
+
+    See Also
+    --------
+    cudaGraphNodeGetEnabled
+    cudaGraphExecUpdate
+    cudaGraphInstantiate
+    cudaGraphLaunch
+
+    Notes
+    -----
+    Currently only kernel nodes are supported.
+
+    """
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
+    err = ccudart.cudaGraphNodeSetEnabled(chGraphExec, chNode, isEnabled)
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaGraphNodeGetEnabled(hGraphExec, hNode):
+    """ Query whether a node in the given graphExec is enabled.
+
+    Sets isEnabled to 1 if `hNode` is enabled, or 0 if `hNode` is disabled.
+
+    The node is identified by the corresponding node `hNode` in the non-
+    executable graph, from which the executable graph was instantiated.
+
+    `hNode` must not have been removed from the original graph.
+
+    Parameters
+    ----------
+    hGraphExec : CUgraphExec or cudaGraphExec_t
+        The executable graph in which to set the specified node
+    hNode : CUgraphNode or cudaGraphNode_t
+        Node from the graph from which graphExec was instantiated
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+    isEnabled : unsigned int
+        Location to return the enabled status of the node
+
+    See Also
+    --------
+    cudaGraphNodeSetEnabled
+    cudaGraphExecUpdate
+    cudaGraphInstantiate
+    cudaGraphLaunch
+
+    Notes
+    -----
+    Currently only kernel nodes are supported.
+
+    """
+    cdef ccudart.cudaGraphNode_t chNode
+    if hNode is None:
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(hNode, (cudaGraphNode_t,cuda.CUgraphNode)):
+        phNode = int(hNode)
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+        chNode = <ccudart.cudaGraphNode_t><void_ptr>phNode
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
+    cdef unsigned int isEnabled = 0
+    err = ccudart.cudaGraphNodeGetEnabled(chGraphExec, chNode, &isEnabled)
+    return (cudaError_t(err), isEnabled)
 
 @cython.embedsignature(True)
 def cudaGraphExecUpdate(hGraphExec, hGraph):
@@ -19158,14 +21808,16 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
 
     Limitations:
 
-    Kernel nodes: The owning context of the function cannot change. A node
-    whose function originally did not use CUDA dynamic parallelism cannot
-    be updated to a function which uses CDP   Memset and memcpy nodes: The
-    CUDA device(s) to which the operand(s) was allocated/mapped cannot
-    change. The source/destination memory must be allocated from the same
-    contexts as the original source/destination memory. Only 1D memsets can
-    be changed.   Additional memcpy node restrictions: Changing either the
-    source or destination memory type(i.e. CU_MEMORYTYPE_DEVICE,
+    - Kernel nodes:    - The owning context of the function cannot change.
+    - A node whose function originally did not use CUDA dynamic parallelism
+    cannot be updated to a function which uses CDP.     - A cooperative
+    node cannot be updated to a non-cooperative node, and vice-versa.     -
+    Memset and memcpy nodes:    - The CUDA device(s) to which the
+    operand(s) was allocated/mapped cannot change.     - The
+    source/destination memory must be allocated from the same contexts as
+    the original source/destination memory.     - Only 1D memsets can be
+    changed.     - Additional memcpy node restrictions:    - Changing
+    either the source or destination memory type(i.e. CU_MEMORYTYPE_DEVICE,
     CU_MEMORYTYPE_ARRAY, etc.) is not supported.
 
     Note: The API may add further restrictions in future releases. The
@@ -19174,30 +21826,33 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
     cudaGraphExecUpdate sets `updateResult_out` to
     cudaGraphExecUpdateErrorTopologyChanged under the following conditions:
 
-    The count of nodes directly in `hGraphExec` and `hGraph` differ, in
-    which case `hErrorNode_out` is NULL. A node is deleted in `hGraph` but
-    not not its pair from `hGraphExec`, in which case `hErrorNode_out` is
-    NULL. A node is deleted in `hGraphExec` but not its pair from `hGraph`,
-    in which case `hErrorNode_out` is the pairless node from `hGraph`. The
-    dependent nodes of a pair differ, in which case `hErrorNode_out` is the
-    node from `hGraph`.
+    - The count of nodes directly in `hGraphExec` and `hGraph` differ, in
+    which case `hErrorNode_out` is NULL.    - A node is deleted in `hGraph`
+    but not not its pair from `hGraphExec`, in which case `hErrorNode_out`
+    is NULL.    - A node is deleted in `hGraphExec` but not its pair from
+    `hGraph`, in which case `hErrorNode_out` is the pairless node from
+    `hGraph`.    - The dependent nodes of a pair differ, in which case
+    `hErrorNode_out` is the node from `hGraph`.
 
-    cudaGraphExecUpdate sets `updateResult_out` to:
-    cudaGraphExecUpdateError if passed an invalid value.
+    cudaGraphExecUpdate sets `updateResult_out` to: -
+    cudaGraphExecUpdateError if passed an invalid value.    -
     cudaGraphExecUpdateErrorTopologyChanged if the graph topology changed
-    cudaGraphExecUpdateErrorNodeTypeChanged if the type of a node changed,
-    in which case `hErrorNode_out` is set to the node from `hGraph`.
-    cudaGraphExecUpdateErrorFunctionChanged if the function of a kernel
-    node changed (CUDA driver < 11.2)
+    - cudaGraphExecUpdateErrorNodeTypeChanged if the type of a node
+    changed, in which case `hErrorNode_out` is set to the node from
+    `hGraph`.    - cudaGraphExecUpdateErrorFunctionChanged if the function
+    of a kernel node changed (CUDA driver < 11.2)    -
     cudaGraphExecUpdateErrorUnsupportedFunctionChange if the func field of
     a kernel changed in an unsupported way(see note above), in which case
-    `hErrorNode_out` is set to the node from `hGraph`
+    `hErrorNode_out` is set to the node from `hGraph`     -
     cudaGraphExecUpdateErrorParametersChanged if any parameters to a node
     changed in a way that is not supported, in which case `hErrorNode_out`
-    is set to the node from `hGraph`  cudaGraphExecUpdateErrorNotSupported
-    if something about a node is unsupported, like the node's type or
-    configuration, in which case `hErrorNode_out` is set to the node from
-    `hGraph`
+    is set to the node from `hGraph`     -
+    cudaGraphExecUpdateErrorAttributesChanged if any attributes of a node
+    changed in a way that is not supported, in which case `hErrorNode_out`
+    is set to the node from `hGraph`     -
+    cudaGraphExecUpdateErrorNotSupported if something about a node is
+    unsupported, like the node's type or configuration, in which case
+    `hErrorNode_out` is set to the node from `hGraph`
 
     If `updateResult_out` isn't set in one of the situations described
     above, the update check passes and cudaGraphExecUpdate updates
@@ -19234,13 +21889,29 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
     --------
     cudaGraphInstantiate
     """
-    if not isinstance(hGraph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'hGraph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(hGraph)))
-    if not isinstance(hGraphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'hGraphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(hGraphExec)))
+    cdef ccudart.cudaGraph_t chGraph
+    if hGraph is None:
+        chGraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(hGraph, (cudaGraph_t,cuda.CUgraph)):
+        phGraph = int(hGraph)
+        chGraph = <ccudart.cudaGraph_t><void_ptr>phGraph
+    else:
+        phGraph = int(cudaGraph_t(hGraph))
+        chGraph = <ccudart.cudaGraph_t><void_ptr>phGraph
+
+    cdef ccudart.cudaGraphExec_t chGraphExec
+    if hGraphExec is None:
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+        chGraphExec = <ccudart.cudaGraphExec_t><void_ptr>phGraphExec
+
     cdef cudaGraphNode_t hErrorNode_out = cudaGraphNode_t()
     cdef ccudart.cudaGraphExecUpdateResult updateResult_out
-    err = ccudart.cudaGraphExecUpdate(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>hGraphExec)._ptr[0], <ccudart.cudaGraph_t>(<cudaGraph_t>hGraph)._ptr[0], <ccudart.cudaGraphNode_t*>hErrorNode_out._ptr, &updateResult_out)
+    err = ccudart.cudaGraphExecUpdate(chGraphExec, chGraph, <ccudart.cudaGraphNode_t*>hErrorNode_out._ptr, &updateResult_out)
     return (cudaError_t(err), hErrorNode_out, cudaGraphExecUpdateResult(updateResult_out))
 
 @cython.embedsignature(True)
@@ -19274,11 +21945,27 @@ def cudaGraphUpload(graphExec, stream):
     cudaGraphLaunch
     cudaGraphExecDestroy
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
-    if not isinstance(graphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'graphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(graphExec)))
-    err = ccudart.cudaGraphUpload(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>graphExec)._ptr[0], <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaGraphExec_t cgraphExec
+    if graphExec is None:
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(graphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        pgraphExec = int(graphExec)
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>pgraphExec
+    else:
+        pgraphExec = int(cudaGraphExec_t(graphExec))
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>pgraphExec
+
+    err = ccudart.cudaGraphUpload(cgraphExec, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19317,11 +22004,27 @@ def cudaGraphLaunch(graphExec, stream):
     cudaGraphUpload
     cudaGraphExecDestroy
     """
-    if not isinstance(stream, (cudaStream_t, cuda.CUstream)):
-        raise TypeError("Argument 'stream' is not instance of type (expected <class 'cudart.cudaStream_t, cuda.CUstream'>, found " + str(type(stream)))
-    if not isinstance(graphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'graphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(graphExec)))
-    err = ccudart.cudaGraphLaunch(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>graphExec)._ptr[0], <ccudart.cudaStream_t>(<cudaStream_t>stream)._ptr[0])
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+
+    cdef ccudart.cudaGraphExec_t cgraphExec
+    if graphExec is None:
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(graphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        pgraphExec = int(graphExec)
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>pgraphExec
+    else:
+        pgraphExec = int(cudaGraphExec_t(graphExec))
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>pgraphExec
+
+    err = ccudart.cudaGraphLaunch(cgraphExec, cstream)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19349,9 +22052,17 @@ def cudaGraphExecDestroy(graphExec):
     cudaGraphUpload
     cudaGraphLaunch
     """
-    if not isinstance(graphExec, (cudaGraphExec_t, cuda.CUgraphExec)):
-        raise TypeError("Argument 'graphExec' is not instance of type (expected <class 'cudart.cudaGraphExec_t, cuda.CUgraphExec'>, found " + str(type(graphExec)))
-    err = ccudart.cudaGraphExecDestroy(<ccudart.cudaGraphExec_t>(<cudaGraphExec_t>graphExec)._ptr[0])
+    cdef ccudart.cudaGraphExec_t cgraphExec
+    if graphExec is None:
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(graphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        pgraphExec = int(graphExec)
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>pgraphExec
+    else:
+        pgraphExec = int(cudaGraphExec_t(graphExec))
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>pgraphExec
+
+    err = ccudart.cudaGraphExecDestroy(cgraphExec)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19377,9 +22088,17 @@ def cudaGraphDestroy(graph):
     --------
     cudaGraphCreate
     """
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
-    err = ccudart.cudaGraphDestroy(<ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0])
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
+    err = ccudart.cudaGraphDestroy(cgraph)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19411,13 +22130,21 @@ def cudaGraphDebugDotPrint(graph, char* path, unsigned int flags):
     None
         None
     """
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
-    err = ccudart.cudaGraphDebugDotPrint(<ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], path, flags)
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
+    err = ccudart.cudaGraphDebugDotPrint(cgraph, path, flags)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaUserObjectCreate(ptr, destroy not None : cudaHostFn_t, unsigned int initialRefcount, unsigned int flags):
+def cudaUserObjectCreate(ptr, destroy, unsigned int initialRefcount, unsigned int flags):
     """ Create a user object.
 
     Create a user object with the specified destructor callback and initial
@@ -19435,7 +22162,7 @@ def cudaUserObjectCreate(ptr, destroy not None : cudaHostFn_t, unsigned int init
     ----------
     ptr : Any
         The pointer to pass to the destroy function
-    destroy : cudaHostFn_t
+    destroy : Any
         Callback to free the user object when it is no longer in use
     initialRefcount : unsigned int
         The initial refcount to create the object with, typically 1. The
@@ -19463,10 +22190,20 @@ def cudaUserObjectCreate(ptr, destroy not None : cudaHostFn_t, unsigned int init
     cudaGraphReleaseUserObject
     cudaGraphCreate
     """
+    cdef ccudart.cudaHostFn_t cdestroy
+    if destroy is None:
+        cdestroy = <ccudart.cudaHostFn_t><void_ptr>0
+    elif isinstance(destroy, (cudaHostFn_t)):
+        pdestroy = int(destroy)
+        cdestroy = <ccudart.cudaHostFn_t><void_ptr>pdestroy
+    else:
+        pdestroy = int(cudaHostFn_t(destroy))
+        cdestroy = <ccudart.cudaHostFn_t><void_ptr>pdestroy
+
     cdef cudaUserObject_t object_out = cudaUserObject_t()
     cptr = utils.HelperInputVoidPtr(ptr)
     cdef void* cptr_ptr = <void*><void_ptr>cptr.cptr
-    err = ccudart.cudaUserObjectCreate(<ccudart.cudaUserObject_t*>object_out._ptr, cptr_ptr, destroy._ptr[0], initialRefcount, flags)
+    err = ccudart.cudaUserObjectCreate(<ccudart.cudaUserObject_t*>object_out._ptr, cptr_ptr, cdestroy, initialRefcount, flags)
     return (cudaError_t(err), object_out)
 
 @cython.embedsignature(True)
@@ -19503,9 +22240,17 @@ def cudaUserObjectRetain(object, unsigned int count):
     cudaGraphReleaseUserObject
     cudaGraphCreate
     """
-    if not isinstance(object, (cudaUserObject_t, cuda.CUuserObject)):
-        raise TypeError("Argument 'object' is not instance of type (expected <class 'cudart.cudaUserObject_t, cuda.CUuserObject'>, found " + str(type(object)))
-    err = ccudart.cudaUserObjectRetain(<ccudart.cudaUserObject_t>(<cudaUserObject_t>object)._ptr[0], count)
+    cdef ccudart.cudaUserObject_t cobject
+    if object is None:
+        cobject = <ccudart.cudaUserObject_t><void_ptr>0
+    elif isinstance(object, (cudaUserObject_t,cuda.CUuserObject)):
+        pobject = int(object)
+        cobject = <ccudart.cudaUserObject_t><void_ptr>pobject
+    else:
+        pobject = int(cudaUserObject_t(object))
+        cobject = <ccudart.cudaUserObject_t><void_ptr>pobject
+
+    err = ccudart.cudaUserObjectRetain(cobject, count)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19545,9 +22290,17 @@ def cudaUserObjectRelease(object, unsigned int count):
     cudaGraphReleaseUserObject
     cudaGraphCreate
     """
-    if not isinstance(object, (cudaUserObject_t, cuda.CUuserObject)):
-        raise TypeError("Argument 'object' is not instance of type (expected <class 'cudart.cudaUserObject_t, cuda.CUuserObject'>, found " + str(type(object)))
-    err = ccudart.cudaUserObjectRelease(<ccudart.cudaUserObject_t>(<cudaUserObject_t>object)._ptr[0], count)
+    cdef ccudart.cudaUserObject_t cobject
+    if object is None:
+        cobject = <ccudart.cudaUserObject_t><void_ptr>0
+    elif isinstance(object, (cudaUserObject_t,cuda.CUuserObject)):
+        pobject = int(object)
+        cobject = <ccudart.cudaUserObject_t><void_ptr>pobject
+    else:
+        pobject = int(cudaUserObject_t(object))
+        cobject = <ccudart.cudaUserObject_t><void_ptr>pobject
+
+    err = ccudart.cudaUserObjectRelease(cobject, count)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19590,11 +22343,27 @@ def cudaGraphRetainUserObject(graph, object, unsigned int count, unsigned int fl
     cudaGraphReleaseUserObject
     cudaGraphCreate
     """
-    if not isinstance(object, (cudaUserObject_t, cuda.CUuserObject)):
-        raise TypeError("Argument 'object' is not instance of type (expected <class 'cudart.cudaUserObject_t, cuda.CUuserObject'>, found " + str(type(object)))
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
-    err = ccudart.cudaGraphRetainUserObject(<ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaUserObject_t>(<cudaUserObject_t>object)._ptr[0], count, flags)
+    cdef ccudart.cudaUserObject_t cobject
+    if object is None:
+        cobject = <ccudart.cudaUserObject_t><void_ptr>0
+    elif isinstance(object, (cudaUserObject_t,cuda.CUuserObject)):
+        pobject = int(object)
+        cobject = <ccudart.cudaUserObject_t><void_ptr>pobject
+    else:
+        pobject = int(cudaUserObject_t(object))
+        cobject = <ccudart.cudaUserObject_t><void_ptr>pobject
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
+    err = ccudart.cudaGraphRetainUserObject(cgraph, cobject, count, flags)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19632,11 +22401,27 @@ def cudaGraphReleaseUserObject(graph, object, unsigned int count):
     cudaGraphRetainUserObject
     cudaGraphCreate
     """
-    if not isinstance(object, (cudaUserObject_t, cuda.CUuserObject)):
-        raise TypeError("Argument 'object' is not instance of type (expected <class 'cudart.cudaUserObject_t, cuda.CUuserObject'>, found " + str(type(object)))
-    if not isinstance(graph, (cudaGraph_t, cuda.CUgraph)):
-        raise TypeError("Argument 'graph' is not instance of type (expected <class 'cudart.cudaGraph_t, cuda.CUgraph'>, found " + str(type(graph)))
-    err = ccudart.cudaGraphReleaseUserObject(<ccudart.cudaGraph_t>(<cudaGraph_t>graph)._ptr[0], <ccudart.cudaUserObject_t>(<cudaUserObject_t>object)._ptr[0], count)
+    cdef ccudart.cudaUserObject_t cobject
+    if object is None:
+        cobject = <ccudart.cudaUserObject_t><void_ptr>0
+    elif isinstance(object, (cudaUserObject_t,cuda.CUuserObject)):
+        pobject = int(object)
+        cobject = <ccudart.cudaUserObject_t><void_ptr>pobject
+    else:
+        pobject = int(cudaUserObject_t(object))
+        cobject = <ccudart.cudaUserObject_t><void_ptr>pobject
+
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+
+    err = ccudart.cudaGraphReleaseUserObject(cgraph, cobject, count)
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -19663,14 +22448,14 @@ def cudaGetDriverEntryPoint(char* symbol, unsigned long long flags):
     function exists for the CUDA runtime version or if the driver symbol is
     invalid.
 
-    The requested flags can be: ::cudaEnableDefault: This is the default
+    The requested flags can be: - cudaEnableDefault: This is the default
     mode. This is equivalent to cudaEnablePerThreadDefaultStream if the
-    code is compiled with default-stream per-thread compilation flag or the
-    macro CUDA_API_PER_THREAD_DEFAULT_STREAM is defined;
-    cudaEnableLegacyStream otherwise. ::cudaEnableLegacyStream: This will
-    enable the search for all driver symbols that match the requested
-    driver symbol name except the corresponding per-thread versions.
-    ::cudaEnablePerThreadDefaultStream: This will enable the search for all
+    code is compiled with --default-stream per-thread compilation flag or
+    the macro CUDA_API_PER_THREAD_DEFAULT_STREAM is defined;
+    cudaEnableLegacyStream otherwise.    - cudaEnableLegacyStream: This
+    will enable the search for all driver symbols that match the requested
+    driver symbol name except the corresponding per-thread versions.    -
+    cudaEnablePerThreadDefaultStream: This will enable the search for all
     driver symbols that match the requested driver symbol name including
     the per-thread versions. If a per-thread version is not found, the API
     will return the legacy version of the driver function.
@@ -19696,10 +22481,6 @@ def cudaGetDriverEntryPoint(char* symbol, unsigned long long flags):
     funcPtr : int
         Location to return the function pointer to the requested driver
         function
-
-    See Also
-    --------
-    cuGetProcAddress
     """
     cdef void_ptr funcPtr = 0
     err = ccudart.cudaGetDriverEntryPoint(symbol, <void**>&funcPtr, flags)
@@ -19743,6 +22524,1244 @@ def make_cudaExtent(size_t w, size_t h, size_t d):
     return wrapper
 
 @cython.embedsignature(True)
+def cudaProfilerInitialize(char* configFile, char* outputFile, outputMode not None : cudaOutputMode_t):
+    """ Initialize the CUDA profiler.
+
+    Deprecated
+
+    Using this API user can initialize the CUDA profiler by specifying the
+    configuration file, output file and output file format. This API is
+    generally used to profile different set of counters by looping the
+    kernel launch. The `configFile` parameter can be used to select
+    profiling options including profiler counters. Refer to the "Compute
+    Command Line Profiler User Guide" for supported profiler options and
+    counters.
+
+    Limitation: The CUDA profiler cannot be initialized with this API if
+    another profiling tool is already active, as indicated by the
+    cudaErrorProfilerDisabled return code.
+
+    Typical usage of the profiling APIs is as follows:
+
+    for each set of counters/options { cudaProfilerInitialize();
+    //Initialize profiling,set the counters/options in the config file  ...
+    cudaProfilerStart();  // code to be profiled  cudaProfilerStop(); ...
+    cudaProfilerStart();  // code to be profiled  cudaProfilerStop(); ... }
+
+    Parameters
+    ----------
+    configFile : bytes
+        Name of the config file that lists the counters/options for
+        profiling.
+    outputFile : bytes
+        Name of the outputFile where the profiling results will be stored.
+    outputMode : cudaOutputMode_t
+        outputMode, can be cudaKeyValuePair OR cudaCSV.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+        cudaErrorProfilerDisabled
+    None
+        None
+
+    See Also
+    --------
+    cudaProfilerStart
+    cudaProfilerStop
+    cuProfilerInitialize
+    """
+    cdef ccudart.cudaOutputMode_t coutputMode = outputMode.value
+    err = ccudart.cudaProfilerInitialize(configFile, outputFile, coutputMode)
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaProfilerStart():
+    """ Enable profiling.
+
+    Enables profile collection by the active profiling tool for the current
+    context. If profiling is already enabled, then cudaProfilerStart() has
+    no effect.
+
+    cudaProfilerStart and cudaProfilerStop APIs are used to
+    programmatically control the profiling granularity by allowing
+    profiling to be done only on selective pieces of code.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+    None
+        None
+
+    See Also
+    --------
+    cudaProfilerInitialize
+    cudaProfilerStop
+    cuProfilerStart
+    """
+    err = ccudart.cudaProfilerStart()
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaProfilerStop():
+    """ Disable profiling.
+
+    Disables profile collection by the active profiling tool for the
+    current context. If profiling is already disabled, then
+    cudaProfilerStop() has no effect.
+
+    cudaProfilerStart and cudaProfilerStop APIs are used to
+    programmatically control the profiling granularity by allowing
+    profiling to be done only on selective pieces of code.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+    None
+        None
+
+    See Also
+    --------
+    cudaProfilerInitialize
+    cudaProfilerStart
+    cuProfilerStop
+    """
+    err = ccudart.cudaProfilerStop()
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaVDPAUGetDevice(vdpDevice, vdpGetProcAddress):
+    """ Gets the CUDA device associated with a VdpDevice.
+
+    Returns the CUDA device associated with a VdpDevice, if applicable.
+
+    Parameters
+    ----------
+    vdpDevice : Any
+        A VdpDevice handle
+    vdpGetProcAddress : Any
+        VDPAU's VdpGetProcAddress function pointer
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+    device : int
+        Returns the device associated with vdpDevice, or -1 if the device
+        associated with vdpDevice is not a compute device.
+
+    See Also
+    --------
+    cudaVDPAUSetVDPAUDevice
+    cuVDPAUGetDevice
+    """
+    cdef ccudart.VdpGetProcAddress *cvdpGetProcAddress
+    if vdpGetProcAddress is None:
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>NULL
+    elif isinstance(vdpGetProcAddress, (VdpGetProcAddress)):
+        pvdpGetProcAddress = vdpGetProcAddress.getPtr()
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>pvdpGetProcAddress
+    elif isinstance(vdpGetProcAddress, (int)):
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>vdpGetProcAddress
+    else:
+        raise TypeError("Argument 'vdpGetProcAddress' is not instance of type (expected <class 'int, cudart.VdpGetProcAddress'>, found " + str(type(vdpGetProcAddress)))
+
+    cdef ccudart.VdpDevice cvdpDevice
+    if vdpDevice is None:
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>0
+    elif isinstance(vdpDevice, (VdpDevice)):
+        pvdpDevice = int(vdpDevice)
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
+    else:
+        pvdpDevice = int(VdpDevice(vdpDevice))
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
+
+    cdef int device = 0
+    err = ccudart.cudaVDPAUGetDevice(&device, cvdpDevice, cvdpGetProcAddress)
+    return (cudaError_t(err), device)
+
+@cython.embedsignature(True)
+def cudaVDPAUSetVDPAUDevice(int device, vdpDevice, vdpGetProcAddress):
+    """ Sets a CUDA device to use VDPAU interoperability.
+
+    Records `vdpDevice` as the VdpDevice for VDPAU interoperability with
+    the CUDA device `device` and sets `device` as the current device for
+    the calling host thread.
+
+    If `device` has already been initialized then this call will fail with
+    the error cudaErrorSetOnActiveProcess. In this case it is necessary to
+    reset `device` using cudaDeviceReset() before VDPAU interoperability on
+    `device` may be enabled.
+
+    Parameters
+    ----------
+    device : int
+        Device to use for VDPAU interoperability
+    vdpDevice : Any
+        The VdpDevice to interoperate with
+    vdpGetProcAddress : Any
+        VDPAU's VdpGetProcAddress function pointer
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidDevice
+        cudaErrorSetOnActiveProcess
+    None
+        None
+
+    See Also
+    --------
+    cudaGraphicsVDPAURegisterVideoSurface
+    cudaGraphicsVDPAURegisterOutputSurface
+    cudaDeviceReset
+    """
+    cdef ccudart.VdpGetProcAddress *cvdpGetProcAddress
+    if vdpGetProcAddress is None:
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>NULL
+    elif isinstance(vdpGetProcAddress, (VdpGetProcAddress)):
+        pvdpGetProcAddress = vdpGetProcAddress.getPtr()
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>pvdpGetProcAddress
+    elif isinstance(vdpGetProcAddress, (int)):
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>vdpGetProcAddress
+    else:
+        raise TypeError("Argument 'vdpGetProcAddress' is not instance of type (expected <class 'int, cudart.VdpGetProcAddress'>, found " + str(type(vdpGetProcAddress)))
+
+    cdef ccudart.VdpDevice cvdpDevice
+    if vdpDevice is None:
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>0
+    elif isinstance(vdpDevice, (VdpDevice)):
+        pvdpDevice = int(vdpDevice)
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
+    else:
+        pvdpDevice = int(VdpDevice(vdpDevice))
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
+
+    err = ccudart.cudaVDPAUSetVDPAUDevice(device, cvdpDevice, cvdpGetProcAddress)
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaGraphicsVDPAURegisterVideoSurface(vdpSurface, unsigned int flags):
+    """ Register a VdpVideoSurface object.
+
+    Registers the VdpVideoSurface specified by `vdpSurface` for access by
+    CUDA. A handle to the registered object is returned as `resource`. The
+    surface's intended usage is specified using `flags`, as follows:
+
+    - cudaGraphicsMapFlagsNone: Specifies no hints about how this resource
+    will be used. It is therefore assumed that this resource will be read
+    from and written to by CUDA. This is the default value.    -
+    cudaGraphicsMapFlagsReadOnly: Specifies that CUDA will not write to
+    this resource.    - cudaGraphicsMapFlagsWriteDiscard: Specifies that
+    CUDA will not read from this resource and will write over the entire
+    contents of the resource, so none of the data previously stored in the
+    resource will be preserved.
+
+    Parameters
+    ----------
+    vdpSurface : Any
+        VDPAU object to be registered
+    flags : unsigned int
+        Map flags
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidDevice
+        cudaErrorInvalidValue
+        cudaErrorInvalidResourceHandle
+        cudaErrorUnknown
+    resource : cudaGraphicsResource_t
+        Pointer to the returned object handle
+
+    See Also
+    --------
+    cudaVDPAUSetVDPAUDevice
+    cudaGraphicsUnregisterResource
+    cudaGraphicsSubResourceGetMappedArray
+    cuGraphicsVDPAURegisterVideoSurface
+    """
+    cdef ccudart.VdpVideoSurface cvdpSurface
+    if vdpSurface is None:
+        cvdpSurface = <ccudart.VdpVideoSurface><void_ptr>0
+    elif isinstance(vdpSurface, (VdpVideoSurface)):
+        pvdpSurface = int(vdpSurface)
+        cvdpSurface = <ccudart.VdpVideoSurface><void_ptr>pvdpSurface
+    else:
+        pvdpSurface = int(VdpVideoSurface(vdpSurface))
+        cvdpSurface = <ccudart.VdpVideoSurface><void_ptr>pvdpSurface
+
+    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
+    err = ccudart.cudaGraphicsVDPAURegisterVideoSurface(resource._ptr, cvdpSurface, flags)
+    return (cudaError_t(err), resource)
+
+@cython.embedsignature(True)
+def cudaGraphicsVDPAURegisterOutputSurface(vdpSurface, unsigned int flags):
+    """ Register a VdpOutputSurface object.
+
+    Registers the VdpOutputSurface specified by `vdpSurface` for access by
+    CUDA. A handle to the registered object is returned as `resource`. The
+    surface's intended usage is specified using `flags`, as follows:
+
+    - cudaGraphicsMapFlagsNone: Specifies no hints about how this resource
+    will be used. It is therefore assumed that this resource will be read
+    from and written to by CUDA. This is the default value.    -
+    cudaGraphicsMapFlagsReadOnly: Specifies that CUDA will not write to
+    this resource.    - cudaGraphicsMapFlagsWriteDiscard: Specifies that
+    CUDA will not read from this resource and will write over the entire
+    contents of the resource, so none of the data previously stored in the
+    resource will be preserved.
+
+    Parameters
+    ----------
+    vdpSurface : Any
+        VDPAU object to be registered
+    flags : unsigned int
+        Map flags
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidDevice
+        cudaErrorInvalidValue
+        cudaErrorInvalidResourceHandle
+        cudaErrorUnknown
+    resource : cudaGraphicsResource_t
+        Pointer to the returned object handle
+
+    See Also
+    --------
+    cudaVDPAUSetVDPAUDevice
+    cudaGraphicsUnregisterResource
+    cudaGraphicsSubResourceGetMappedArray
+    cuGraphicsVDPAURegisterOutputSurface
+    """
+    cdef ccudart.VdpOutputSurface cvdpSurface
+    if vdpSurface is None:
+        cvdpSurface = <ccudart.VdpOutputSurface><void_ptr>0
+    elif isinstance(vdpSurface, (VdpOutputSurface)):
+        pvdpSurface = int(vdpSurface)
+        cvdpSurface = <ccudart.VdpOutputSurface><void_ptr>pvdpSurface
+    else:
+        pvdpSurface = int(VdpOutputSurface(vdpSurface))
+        cvdpSurface = <ccudart.VdpOutputSurface><void_ptr>pvdpSurface
+
+    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
+    err = ccudart.cudaGraphicsVDPAURegisterOutputSurface(resource._ptr, cvdpSurface, flags)
+    return (cudaError_t(err), resource)
+
+@cython.embedsignature(True)
+def cudaGLGetDevices(unsigned int cudaDeviceCount, deviceList not None : cudaGLDeviceList):
+    """ Gets the CUDA devices associated with the current OpenGL context.
+
+    Returns in `*pCudaDeviceCount` the number of CUDA-compatible devices
+    corresponding to the current OpenGL context. Also returns in
+    `*pCudaDevices` at most `cudaDeviceCount` of the CUDA-compatible
+    devices corresponding to the current OpenGL context. If any of the GPUs
+    being used by the current OpenGL context are not CUDA capable then the
+    call will return cudaErrorNoDevice.
+
+    Parameters
+    ----------
+    cudaDeviceCount : unsigned int
+        The size of the output device array `pCudaDevices`
+    deviceList : cudaGLDeviceList
+        The set of devices to return. This set may be cudaGLDeviceListAll
+        for all devices, cudaGLDeviceListCurrentFrame for the devices used
+        to render the current frame (in SLI), or cudaGLDeviceListNextFrame
+        for the devices used to render the next frame (in SLI).
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorNoDevice
+        cudaErrorInvalidGraphicsContext
+        cudaErrorUnknown
+    pCudaDeviceCount : unsigned int
+        Returned number of CUDA devices corresponding to the current OpenGL
+        context
+    pCudaDevices : List[int]
+        Returned CUDA devices corresponding to the current OpenGL context
+
+    See Also
+    --------
+    cudaGraphicsUnregisterResource
+    cudaGraphicsMapResources
+    cudaGraphicsSubResourceGetMappedArray
+    cudaGraphicsResourceGetMappedPointer
+    cuGLGetDevices
+
+    Notes
+    -----
+    This function is not supported on Mac OS X.
+
+    """
+    cdef unsigned int pCudaDeviceCount = 0
+    cdef int* cpCudaDevices = NULL
+    pypCudaDevices = []
+    if cudaDeviceCount != 0:
+        cpCudaDevices = <int*>calloc(cudaDeviceCount, sizeof(int))
+        if cpCudaDevices is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(cudaDeviceCount) + 'x' + str(sizeof(int)))
+    cdef ccudart.cudaGLDeviceList cdeviceList = deviceList.value
+    err = ccudart.cudaGLGetDevices(&pCudaDeviceCount, cpCudaDevices, cudaDeviceCount, cdeviceList)
+    if cudaError_t(err) == cudaError_t(0):
+        pypCudaDevices = [<void_ptr>cpCudaDevices[idx] for idx in range(cudaDeviceCount)]
+    if cpCudaDevices is not NULL:
+        free(cpCudaDevices)
+    return (cudaError_t(err), pCudaDeviceCount, pypCudaDevices)
+
+@cython.embedsignature(True)
+def cudaGraphicsGLRegisterImage(image, target, unsigned int flags):
+    """ Register an OpenGL texture or renderbuffer object.
+
+    Registers the texture or renderbuffer object specified by `image` for
+    access by CUDA. A handle to the registered object is returned as
+    `resource`.
+
+    `target` must match the type of the object, and must be one of
+    GL_TEXTURE_2D, GL_TEXTURE_RECTANGLE, GL_TEXTURE_CUBE_MAP,
+    GL_TEXTURE_3D, GL_TEXTURE_2D_ARRAY, or GL_RENDERBUFFER.
+
+    The register flags `flags` specify the intended usage, as follows: -
+    cudaGraphicsRegisterFlagsNone: Specifies no hints about how this
+    resource will be used. It is therefore assumed that this resource will
+    be read from and written to by CUDA. This is the default value.    -
+    cudaGraphicsRegisterFlagsReadOnly: Specifies that CUDA will not write
+    to this resource.    - cudaGraphicsRegisterFlagsWriteDiscard: Specifies
+    that CUDA will not read from this resource and will write over the
+    entire contents of the resource, so none of the data previously stored
+    in the resource will be preserved.    -
+    cudaGraphicsRegisterFlagsSurfaceLoadStore: Specifies that CUDA will
+    bind this resource to a surface reference.    -
+    cudaGraphicsRegisterFlagsTextureGather: Specifies that CUDA will
+    perform texture gather operations on this resource.
+
+    The following image formats are supported. For brevity's sake, the list
+    is abbreviated. For ex., {GL_R, GL_RG} X {8, 16} would expand to the
+    following 4 formats {GL_R8, GL_R16, GL_RG8, GL_RG16} : - GL_RED, GL_RG,
+    GL_RGBA, GL_LUMINANCE, GL_ALPHA, GL_LUMINANCE_ALPHA, GL_INTENSITY    -
+    {GL_R, GL_RG, GL_RGBA} X {8, 16, 16F, 32F, 8UI, 16UI, 32UI, 8I, 16I,
+    32I}    - {GL_LUMINANCE, GL_ALPHA, GL_LUMINANCE_ALPHA, GL_INTENSITY} X
+    {8, 16, 16F_ARB, 32F_ARB, 8UI_EXT, 16UI_EXT, 32UI_EXT, 8I_EXT, 16I_EXT,
+    32I_EXT}
+
+    The following image classes are currently disallowed: - Textures with
+    borders    - Multisampled renderbuffers
+
+    Parameters
+    ----------
+    image : Any
+        name of texture or renderbuffer object to be registered
+    target : Any
+        Identifies the type of object specified by `image`
+    flags : unsigned int
+        Register flags
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidDevice
+        cudaErrorInvalidValue
+        cudaErrorInvalidResourceHandle
+        cudaErrorUnknown
+    resource : cudaGraphicsResource_t
+        Pointer to the returned object handle
+
+    See Also
+    --------
+    cudaGraphicsUnregisterResource
+    cudaGraphicsMapResources
+    cudaGraphicsSubResourceGetMappedArray
+    cuGraphicsGLRegisterImage
+    """
+    cdef ccudart.GLenum ctarget
+    if target is None:
+        ctarget = <ccudart.GLenum><void_ptr>0
+    elif isinstance(target, (GLenum)):
+        ptarget = int(target)
+        ctarget = <ccudart.GLenum><void_ptr>ptarget
+    else:
+        ptarget = int(GLenum(target))
+        ctarget = <ccudart.GLenum><void_ptr>ptarget
+
+    cdef ccudart.GLuint cimage
+    if image is None:
+        cimage = <ccudart.GLuint><void_ptr>0
+    elif isinstance(image, (GLuint)):
+        pimage = int(image)
+        cimage = <ccudart.GLuint><void_ptr>pimage
+    else:
+        pimage = int(GLuint(image))
+        cimage = <ccudart.GLuint><void_ptr>pimage
+
+    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
+    err = ccudart.cudaGraphicsGLRegisterImage(resource._ptr, cimage, ctarget, flags)
+    return (cudaError_t(err), resource)
+
+@cython.embedsignature(True)
+def cudaGraphicsGLRegisterBuffer(buffer, unsigned int flags):
+    """ Registers an OpenGL buffer object.
+
+    Registers the buffer object specified by `buffer` for access by CUDA. A
+    handle to the registered object is returned as `resource`. The register
+    flags `flags` specify the intended usage, as follows:
+
+    - cudaGraphicsRegisterFlagsNone: Specifies no hints about how this
+    resource will be used. It is therefore assumed that this resource will
+    be read from and written to by CUDA. This is the default value.    -
+    cudaGraphicsRegisterFlagsReadOnly: Specifies that CUDA will not write
+    to this resource.    - cudaGraphicsRegisterFlagsWriteDiscard: Specifies
+    that CUDA will not read from this resource and will write over the
+    entire contents of the resource, so none of the data previously stored
+    in the resource will be preserved.
+
+    Parameters
+    ----------
+    buffer : Any
+        name of buffer object to be registered
+    flags : unsigned int
+        Register flags
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidDevice
+        cudaErrorInvalidValue
+        cudaErrorInvalidResourceHandle
+        cudaErrorUnknown
+    resource : cudaGraphicsResource_t
+        Pointer to the returned object handle
+
+    See Also
+    --------
+    cudaGraphicsUnregisterResource
+    cudaGraphicsMapResources
+    cudaGraphicsResourceGetMappedPointer
+    cuGraphicsGLRegisterBuffer
+    """
+    cdef ccudart.GLuint cbuffer
+    if buffer is None:
+        cbuffer = <ccudart.GLuint><void_ptr>0
+    elif isinstance(buffer, (GLuint)):
+        pbuffer = int(buffer)
+        cbuffer = <ccudart.GLuint><void_ptr>pbuffer
+    else:
+        pbuffer = int(GLuint(buffer))
+        cbuffer = <ccudart.GLuint><void_ptr>pbuffer
+
+    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
+    err = ccudart.cudaGraphicsGLRegisterBuffer(resource._ptr, cbuffer, flags)
+    return (cudaError_t(err), resource)
+
+@cython.embedsignature(True)
+def cudaGraphicsEGLRegisterImage(image, unsigned int flags):
+    """ Registers an EGL image.
+
+    Registers the EGLImageKHR specified by `image` for access by CUDA. A
+    handle to the registered object is returned as `pCudaResource`.
+    Additional Mapping/Unmapping is not required for the registered
+    resource and cudaGraphicsResourceGetMappedEglFrame can be directly
+    called on the `pCudaResource`.
+
+    The application will be responsible for synchronizing access to shared
+    objects. The application must ensure that any pending operation which
+    access the objects have completed before passing control to CUDA. This
+    may be accomplished by issuing and waiting for glFinish command on all
+    GLcontexts (for OpenGL and likewise for other APIs). The application
+    will be also responsible for ensuring that any pending operation on the
+    registered CUDA resource has completed prior to executing subsequent
+    commands in other APIs accesing the same memory objects. This can be
+    accomplished by calling cuCtxSynchronize or cuEventSynchronize
+    (preferably).
+
+    The surface's intended usage is specified using `flags`, as follows:
+
+    - cudaGraphicsRegisterFlagsNone: Specifies no hints about how this
+    resource will be used. It is therefore assumed that this resource will
+    be read from and written to by CUDA. This is the default value.    -
+    cudaGraphicsRegisterFlagsReadOnly: Specifies that CUDA will not write
+    to this resource.    - cudaGraphicsRegisterFlagsWriteDiscard: Specifies
+    that CUDA will not read from this resource and will write over the
+    entire contents of the resource, so none of the data previously stored
+    in the resource will be preserved.
+
+    The EGLImageKHR is an object which can be used to create EGLImage
+    target resource. It is defined as a void pointer. typedef void*
+    EGLImageKHR
+
+    Parameters
+    ----------
+    image : Any
+        An EGLImageKHR image which can be used to create target resource.
+    flags : unsigned int
+        Map flags
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidResourceHandle
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+    pCudaResource : cudaGraphicsResource_t
+        Pointer to the returned object handle
+
+    See Also
+    --------
+    cudaGraphicsUnregisterResource
+    cudaGraphicsResourceGetMappedEglFrame
+    cuGraphicsEGLRegisterImage
+    """
+    cdef ccudart.EGLImageKHR cimage
+    if image is None:
+        cimage = <ccudart.EGLImageKHR><void_ptr>0
+    elif isinstance(image, (EGLImageKHR)):
+        pimage = int(image)
+        cimage = <ccudart.EGLImageKHR><void_ptr>pimage
+    else:
+        pimage = int(EGLImageKHR(image))
+        cimage = <ccudart.EGLImageKHR><void_ptr>pimage
+
+    cdef cudaGraphicsResource_t pCudaResource = cudaGraphicsResource_t()
+    err = ccudart.cudaGraphicsEGLRegisterImage(pCudaResource._ptr, cimage, flags)
+    return (cudaError_t(err), pCudaResource)
+
+@cython.embedsignature(True)
+def cudaEGLStreamConsumerConnect(eglStream):
+    """ Connect CUDA to EGLStream as a consumer.
+
+    Connect CUDA as a consumer to EGLStreamKHR specified by `eglStream`.
+
+    The EGLStreamKHR is an EGL object that transfers a sequence of image
+    frames from one API to another.
+
+    Parameters
+    ----------
+    eglStream : Any
+        EGLStreamKHR handle
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+    conn : cudaEglStreamConnection
+        Pointer to the returned connection handle
+
+    See Also
+    --------
+    cudaEGLStreamConsumerDisconnect
+    cudaEGLStreamConsumerAcquireFrame
+    cudaEGLStreamConsumerReleaseFrame
+    cuEGLStreamConsumerConnect
+    """
+    cdef ccudart.EGLStreamKHR ceglStream
+    if eglStream is None:
+        ceglStream = <ccudart.EGLStreamKHR><void_ptr>0
+    elif isinstance(eglStream, (EGLStreamKHR)):
+        peglStream = int(eglStream)
+        ceglStream = <ccudart.EGLStreamKHR><void_ptr>peglStream
+    else:
+        peglStream = int(EGLStreamKHR(eglStream))
+        ceglStream = <ccudart.EGLStreamKHR><void_ptr>peglStream
+
+    cdef cudaEglStreamConnection conn = cudaEglStreamConnection()
+    err = ccudart.cudaEGLStreamConsumerConnect(<ccudart.cudaEglStreamConnection*>conn._ptr, ceglStream)
+    return (cudaError_t(err), conn)
+
+@cython.embedsignature(True)
+def cudaEGLStreamConsumerConnectWithFlags(eglStream, unsigned int flags):
+    """ Connect CUDA to EGLStream as a consumer with given flags.
+
+    Connect CUDA as a consumer to EGLStreamKHR specified by `stream` with
+    specified `flags` defined by cudaEglResourceLocationFlags.
+
+    The flags specify whether the consumer wants to access frames from
+    system memory or video memory. Default is
+    cudaEglResourceLocationVidmem.
+
+    Parameters
+    ----------
+    eglStream : Any
+        EGLStreamKHR handle
+    flags : unsigned int
+        Flags denote intended location - system or video.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+    conn : cudaEglStreamConnection
+        Pointer to the returned connection handle
+
+    See Also
+    --------
+    cudaEGLStreamConsumerDisconnect
+    cudaEGLStreamConsumerAcquireFrame
+    cudaEGLStreamConsumerReleaseFrame
+    cuEGLStreamConsumerConnectWithFlags
+    """
+    cdef ccudart.EGLStreamKHR ceglStream
+    if eglStream is None:
+        ceglStream = <ccudart.EGLStreamKHR><void_ptr>0
+    elif isinstance(eglStream, (EGLStreamKHR)):
+        peglStream = int(eglStream)
+        ceglStream = <ccudart.EGLStreamKHR><void_ptr>peglStream
+    else:
+        peglStream = int(EGLStreamKHR(eglStream))
+        ceglStream = <ccudart.EGLStreamKHR><void_ptr>peglStream
+
+    cdef cudaEglStreamConnection conn = cudaEglStreamConnection()
+    err = ccudart.cudaEGLStreamConsumerConnectWithFlags(<ccudart.cudaEglStreamConnection*>conn._ptr, ceglStream, flags)
+    return (cudaError_t(err), conn)
+
+@cython.embedsignature(True)
+def cudaEGLStreamConsumerDisconnect(conn):
+    """ Disconnect CUDA as a consumer to EGLStream .
+
+    Disconnect CUDA as a consumer to EGLStreamKHR.
+
+    Parameters
+    ----------
+    conn : Any
+        Conection to disconnect.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+    None
+        None
+
+    See Also
+    --------
+    cudaEGLStreamConsumerConnect
+    cudaEGLStreamConsumerAcquireFrame
+    cudaEGLStreamConsumerReleaseFrame
+    cuEGLStreamConsumerDisconnect
+    """
+    cdef ccudart.cudaEglStreamConnection *cconn
+    if conn is None:
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>NULL
+    elif isinstance(conn, (cudaEglStreamConnection,cuda.CUeglStreamConnection)):
+        pconn = conn.getPtr()
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>pconn
+    elif isinstance(conn, (int)):
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>conn
+    else:
+        raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, cudart.cudaEglStreamConnection,cuda.CUeglStreamConnection'>, found " + str(type(conn)))
+
+    err = ccudart.cudaEGLStreamConsumerDisconnect(cconn)
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaEGLStreamConsumerAcquireFrame(conn, pCudaResource, pStream, unsigned int timeout):
+    """ Acquire an image frame from the EGLStream with CUDA as a consumer.
+
+    Acquire an image frame from EGLStreamKHR.
+    cudaGraphicsResourceGetMappedEglFrame can be called on `pCudaResource`
+    to get cudaEglFrame.
+
+    Parameters
+    ----------
+    conn : Any
+        Connection on which to acquire
+    pCudaResource : Any
+        CUDA resource on which the EGLStream frame will be mapped for use.
+    pStream : Any
+        CUDA stream for synchronization and any data migrations implied by
+        cudaEglResourceLocationFlags.
+    timeout : unsigned int
+        Desired timeout in usec.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+        cudaErrorLaunchTimeout
+    None
+        None
+
+    See Also
+    --------
+    cudaEGLStreamConsumerConnect
+    cudaEGLStreamConsumerDisconnect
+    cudaEGLStreamConsumerReleaseFrame
+    cuEGLStreamConsumerAcquireFrame
+    """
+    cdef ccudart.cudaStream_t *cpStream
+    if pStream is None:
+        cpStream = <ccudart.cudaStream_t*><void_ptr>NULL
+    elif isinstance(pStream, (cudaStream_t,cuda.CUstream)):
+        ppStream = pStream.getPtr()
+        cpStream = <ccudart.cudaStream_t*><void_ptr>ppStream
+    elif isinstance(pStream, (int)):
+        cpStream = <ccudart.cudaStream_t*><void_ptr>pStream
+    else:
+        raise TypeError("Argument 'pStream' is not instance of type (expected <class 'int, cudart.cudaStream_t,cuda.CUstream'>, found " + str(type(pStream)))
+
+    cdef ccudart.cudaGraphicsResource_t *cpCudaResource
+    if pCudaResource is None:
+        cpCudaResource = <ccudart.cudaGraphicsResource_t*><void_ptr>NULL
+    elif isinstance(pCudaResource, (cudaGraphicsResource_t)):
+        ppCudaResource = pCudaResource.getPtr()
+        cpCudaResource = <ccudart.cudaGraphicsResource_t*><void_ptr>ppCudaResource
+    elif isinstance(pCudaResource, (int)):
+        cpCudaResource = <ccudart.cudaGraphicsResource_t*><void_ptr>pCudaResource
+    else:
+        raise TypeError("Argument 'pCudaResource' is not instance of type (expected <class 'int, cudart.cudaGraphicsResource_t'>, found " + str(type(pCudaResource)))
+
+    cdef ccudart.cudaEglStreamConnection *cconn
+    if conn is None:
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>NULL
+    elif isinstance(conn, (cudaEglStreamConnection,cuda.CUeglStreamConnection)):
+        pconn = conn.getPtr()
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>pconn
+    elif isinstance(conn, (int)):
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>conn
+    else:
+        raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, cudart.cudaEglStreamConnection,cuda.CUeglStreamConnection'>, found " + str(type(conn)))
+
+    err = ccudart.cudaEGLStreamConsumerAcquireFrame(cconn, cpCudaResource, cpStream, timeout)
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream):
+    """ Releases the last frame acquired from the EGLStream.
+
+    Release the acquired image frame specified by `pCudaResource` to
+    EGLStreamKHR.
+
+    Parameters
+    ----------
+    conn : Any
+        Connection on which to release
+    pCudaResource : Any
+        CUDA resource whose corresponding frame is to be released
+    pStream : Any
+        CUDA stream on which release will be done.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+    None
+        None
+
+    See Also
+    --------
+    cudaEGLStreamConsumerConnect
+    cudaEGLStreamConsumerDisconnect
+    cudaEGLStreamConsumerAcquireFrame
+    cuEGLStreamConsumerReleaseFrame
+    """
+    cdef ccudart.cudaStream_t *cpStream
+    if pStream is None:
+        cpStream = <ccudart.cudaStream_t*><void_ptr>NULL
+    elif isinstance(pStream, (cudaStream_t,cuda.CUstream)):
+        ppStream = pStream.getPtr()
+        cpStream = <ccudart.cudaStream_t*><void_ptr>ppStream
+    elif isinstance(pStream, (int)):
+        cpStream = <ccudart.cudaStream_t*><void_ptr>pStream
+    else:
+        raise TypeError("Argument 'pStream' is not instance of type (expected <class 'int, cudart.cudaStream_t,cuda.CUstream'>, found " + str(type(pStream)))
+
+    cdef ccudart.cudaGraphicsResource_t cpCudaResource
+    if pCudaResource is None:
+        cpCudaResource = <ccudart.cudaGraphicsResource_t><void_ptr>0
+    elif isinstance(pCudaResource, (cudaGraphicsResource_t)):
+        ppCudaResource = int(pCudaResource)
+        cpCudaResource = <ccudart.cudaGraphicsResource_t><void_ptr>ppCudaResource
+    else:
+        ppCudaResource = int(cudaGraphicsResource_t(pCudaResource))
+        cpCudaResource = <ccudart.cudaGraphicsResource_t><void_ptr>ppCudaResource
+
+    cdef ccudart.cudaEglStreamConnection *cconn
+    if conn is None:
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>NULL
+    elif isinstance(conn, (cudaEglStreamConnection,cuda.CUeglStreamConnection)):
+        pconn = conn.getPtr()
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>pconn
+    elif isinstance(conn, (int)):
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>conn
+    else:
+        raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, cudart.cudaEglStreamConnection,cuda.CUeglStreamConnection'>, found " + str(type(conn)))
+
+    err = ccudart.cudaEGLStreamConsumerReleaseFrame(cconn, cpCudaResource, cpStream)
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaEGLStreamProducerConnect(eglStream, width, height):
+    """ Connect CUDA to EGLStream as a producer.
+
+    Connect CUDA as a producer to EGLStreamKHR specified by `stream`.
+
+    The EGLStreamKHR is an EGL object that transfers a sequence of image
+    frames from one API to another.
+
+    Parameters
+    ----------
+    eglStream : Any
+        EGLStreamKHR handle
+    width : Any
+        width of the image to be submitted to the stream
+    height : Any
+        height of the image to be submitted to the stream
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+    conn : cudaEglStreamConnection
+        Pointer to the returned connection handle
+
+    See Also
+    --------
+    cudaEGLStreamProducerDisconnect
+    cudaEGLStreamProducerPresentFrame
+    cudaEGLStreamProducerReturnFrame
+    cuEGLStreamProducerConnect
+    """
+    cdef ccudart.EGLint cheight
+    if height is None:
+        cheight = <ccudart.EGLint><void_ptr>0
+    elif isinstance(height, (EGLint)):
+        pheight = int(height)
+        cheight = <ccudart.EGLint><void_ptr>pheight
+    else:
+        pheight = int(EGLint(height))
+        cheight = <ccudart.EGLint><void_ptr>pheight
+
+    cdef ccudart.EGLint cwidth
+    if width is None:
+        cwidth = <ccudart.EGLint><void_ptr>0
+    elif isinstance(width, (EGLint)):
+        pwidth = int(width)
+        cwidth = <ccudart.EGLint><void_ptr>pwidth
+    else:
+        pwidth = int(EGLint(width))
+        cwidth = <ccudart.EGLint><void_ptr>pwidth
+
+    cdef ccudart.EGLStreamKHR ceglStream
+    if eglStream is None:
+        ceglStream = <ccudart.EGLStreamKHR><void_ptr>0
+    elif isinstance(eglStream, (EGLStreamKHR)):
+        peglStream = int(eglStream)
+        ceglStream = <ccudart.EGLStreamKHR><void_ptr>peglStream
+    else:
+        peglStream = int(EGLStreamKHR(eglStream))
+        ceglStream = <ccudart.EGLStreamKHR><void_ptr>peglStream
+
+    cdef cudaEglStreamConnection conn = cudaEglStreamConnection()
+    err = ccudart.cudaEGLStreamProducerConnect(<ccudart.cudaEglStreamConnection*>conn._ptr, ceglStream, cwidth, cheight)
+    return (cudaError_t(err), conn)
+
+@cython.embedsignature(True)
+def cudaEGLStreamProducerDisconnect(conn):
+    """ Disconnect CUDA as a producer to EGLStream .
+
+    Disconnect CUDA as a producer to EGLStreamKHR.
+
+    Parameters
+    ----------
+    conn : Any
+        Conection to disconnect.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+    None
+        None
+
+    See Also
+    --------
+    cudaEGLStreamProducerConnect
+    cudaEGLStreamProducerPresentFrame
+    cudaEGLStreamProducerReturnFrame
+    cuEGLStreamProducerDisconnect
+    """
+    cdef ccudart.cudaEglStreamConnection *cconn
+    if conn is None:
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>NULL
+    elif isinstance(conn, (cudaEglStreamConnection,cuda.CUeglStreamConnection)):
+        pconn = conn.getPtr()
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>pconn
+    elif isinstance(conn, (int)):
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>conn
+    else:
+        raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, cudart.cudaEglStreamConnection,cuda.CUeglStreamConnection'>, found " + str(type(conn)))
+
+    err = ccudart.cudaEGLStreamProducerDisconnect(cconn)
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaEGLStreamProducerPresentFrame(conn, eglframe not None : cudaEglFrame, pStream):
+    """ Present a CUDA eglFrame to the EGLStream with CUDA as a producer.
+
+    The cudaEglFrame is defined as: typedefstructcudaEglFrame_st{ union{
+    cudaArray_tpArray[CUDA_EGL_MAX_PLANES];
+    structcudaPitchedPtrpPitch[CUDA_EGL_MAX_PLANES]; }frame;
+    cudaEglPlaneDescplaneDesc[CUDA_EGL_MAX_PLANES]; unsignedintplaneCount;
+    cudaEglFrameTypeframeType; cudaEglColorFormateglColorFormat;
+    }cudaEglFrame;
+
+    For cudaEglFrame of type cudaEglFrameTypePitch, the application may
+    present sub-region of a memory allocation. In that case,
+    cudaPitchedPtr::ptr will specify the start address of the sub-region in
+    the allocation and cudaEglPlaneDesc will specify the dimensions of the
+    sub-region.
+
+    Parameters
+    ----------
+    conn : Any
+        Connection on which to present the CUDA array
+    eglframe : cudaEglFrame
+        CUDA Eglstream Proucer Frame handle to be sent to the consumer over
+        EglStream.
+    pStream : Any
+        CUDA stream on which to present the frame.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+    None
+        None
+
+    See Also
+    --------
+    cudaEGLStreamProducerConnect
+    cudaEGLStreamProducerDisconnect
+    cudaEGLStreamProducerReturnFrame
+    cuEGLStreamProducerPresentFrame
+    """
+    cdef ccudart.cudaStream_t *cpStream
+    if pStream is None:
+        cpStream = <ccudart.cudaStream_t*><void_ptr>NULL
+    elif isinstance(pStream, (cudaStream_t,cuda.CUstream)):
+        ppStream = pStream.getPtr()
+        cpStream = <ccudart.cudaStream_t*><void_ptr>ppStream
+    elif isinstance(pStream, (int)):
+        cpStream = <ccudart.cudaStream_t*><void_ptr>pStream
+    else:
+        raise TypeError("Argument 'pStream' is not instance of type (expected <class 'int, cudart.cudaStream_t,cuda.CUstream'>, found " + str(type(pStream)))
+
+    cdef ccudart.cudaEglStreamConnection *cconn
+    if conn is None:
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>NULL
+    elif isinstance(conn, (cudaEglStreamConnection,cuda.CUeglStreamConnection)):
+        pconn = conn.getPtr()
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>pconn
+    elif isinstance(conn, (int)):
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>conn
+    else:
+        raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, cudart.cudaEglStreamConnection,cuda.CUeglStreamConnection'>, found " + str(type(conn)))
+
+    err = ccudart.cudaEGLStreamProducerPresentFrame(cconn, eglframe._ptr[0], cpStream)
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaEGLStreamProducerReturnFrame(conn, eglframe : cudaEglFrame, pStream):
+    """ Return the CUDA eglFrame to the EGLStream last released by the consumer.
+
+    This API can potentially return cudaErrorLaunchTimeout if the consumer
+    has not returned a frame to EGL stream. If timeout is returned the
+    application can retry.
+
+    Parameters
+    ----------
+    conn : Any
+        Connection on which to present the CUDA array
+    eglframe : cudaEglFrame
+        CUDA Eglstream Proucer Frame handle returned from the consumer over
+        EglStream.
+    pStream : Any
+        CUDA stream on which to return the frame.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorLaunchTimeout
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+    None
+        None
+
+    See Also
+    --------
+    cudaEGLStreamProducerConnect
+    cudaEGLStreamProducerDisconnect
+    cudaEGLStreamProducerPresentFrame
+    cuEGLStreamProducerReturnFrame
+    """
+    cdef ccudart.cudaStream_t *cpStream
+    if pStream is None:
+        cpStream = <ccudart.cudaStream_t*><void_ptr>NULL
+    elif isinstance(pStream, (cudaStream_t,cuda.CUstream)):
+        ppStream = pStream.getPtr()
+        cpStream = <ccudart.cudaStream_t*><void_ptr>ppStream
+    elif isinstance(pStream, (int)):
+        cpStream = <ccudart.cudaStream_t*><void_ptr>pStream
+    else:
+        raise TypeError("Argument 'pStream' is not instance of type (expected <class 'int, cudart.cudaStream_t,cuda.CUstream'>, found " + str(type(pStream)))
+
+    cdef ccudart.cudaEglStreamConnection *cconn
+    if conn is None:
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>NULL
+    elif isinstance(conn, (cudaEglStreamConnection,cuda.CUeglStreamConnection)):
+        pconn = conn.getPtr()
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>pconn
+    elif isinstance(conn, (int)):
+        cconn = <ccudart.cudaEglStreamConnection*><void_ptr>conn
+    else:
+        raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, cudart.cudaEglStreamConnection,cuda.CUeglStreamConnection'>, found " + str(type(conn)))
+
+    cdef ccudart.cudaEglFrame* ceglframe_ptr = eglframe._ptr if eglframe != None else NULL
+    err = ccudart.cudaEGLStreamProducerReturnFrame(cconn, ceglframe_ptr, cpStream)
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned int mipLevel):
+    """ Get an eglFrame through which to access a registered EGL graphics resource.
+
+    Returns in `*eglFrame` an eglFrame pointer through which the registered
+    graphics resource `resource` may be accessed. This API can only be
+    called for EGL graphics resources.
+
+    The cudaEglFrame is defined as typedefstructcudaEglFrame_st{ union{
+    cudaArray_tpArray[CUDA_EGL_MAX_PLANES];
+    structcudaPitchedPtrpPitch[CUDA_EGL_MAX_PLANES]; }frame;
+    cudaEglPlaneDescplaneDesc[CUDA_EGL_MAX_PLANES]; unsignedintplaneCount;
+    cudaEglFrameTypeframeType; cudaEglColorFormateglColorFormat;
+    }cudaEglFrame;
+
+    Parameters
+    ----------
+    resource : Any
+        Registered resource to access.
+    index : unsigned int
+        Index for cubemap surfaces.
+    mipLevel : unsigned int
+        Mipmap level for the subresource to access.
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInvalidValue
+        cudaErrorUnknown
+    eglFrame : cudaEglFrame
+        Returned eglFrame.
+
+    See Also
+    --------
+    cudaGraphicsSubResourceGetMappedArray
+    cudaGraphicsResourceGetMappedPointer
+    cuGraphicsResourceGetMappedEglFrame
+
+    Notes
+    -----
+    Note that in case of multiplanar `*eglFrame`, pitch of only first plane (unsigned int cudaEglPlaneDescpitch) is to be considered by the application.
+
+    """
+    cdef ccudart.cudaGraphicsResource_t cresource
+    if resource is None:
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>0
+    elif isinstance(resource, (cudaGraphicsResource_t)):
+        presource = int(resource)
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+    else:
+        presource = int(cudaGraphicsResource_t(resource))
+        cresource = <ccudart.cudaGraphicsResource_t><void_ptr>presource
+
+    cdef cudaEglFrame eglFrame = cudaEglFrame()
+    err = ccudart.cudaGraphicsResourceGetMappedEglFrame(eglFrame._ptr, cresource, index, mipLevel)
+    return (cudaError_t(err), eglFrame)
+
+@cython.embedsignature(True)
+def cudaEventCreateFromEGLSync(eglSync, unsigned int flags):
+    """ Creates an event from EGLSync object.
+
+    Creates an event *phEvent from an EGLSyncKHR eglSync with the flages
+    specified via `flags`. Valid flags include: - cudaEventDefault: Default
+    event creation flag.    - cudaEventBlockingSync: Specifies that the
+    created event should use blocking synchronization. A CPU thread that
+    uses cudaEventSynchronize() to wait on an event created with this flag
+    will block until the event has actually been completed.
+
+    cudaEventRecord and TimingData are not supported for events created
+    from EGLSync.
+
+    The EGLSyncKHR is an opaque handle to an EGL sync object. typedef void*
+    EGLSyncKHR
+
+    Parameters
+    ----------
+    eglSync : Any
+        Opaque handle to EGLSync object
+    flags : unsigned int
+        Event creation flags
+
+    Returns
+    -------
+    cudaError_t
+        cudaSuccess
+        cudaErrorInitializationError
+        cudaErrorInvalidValue
+        cudaErrorLaunchFailure
+        cudaErrorMemoryAllocation
+    phEvent : cudaEvent_t
+        Returns newly created event
+
+    See Also
+    --------
+    cudaEventQuery
+    cudaEventSynchronize
+    cudaEventDestroy
+    """
+    cdef ccudart.EGLSyncKHR ceglSync
+    if eglSync is None:
+        ceglSync = <ccudart.EGLSyncKHR><void_ptr>0
+    elif isinstance(eglSync, (EGLSyncKHR)):
+        peglSync = int(eglSync)
+        ceglSync = <ccudart.EGLSyncKHR><void_ptr>peglSync
+    else:
+        peglSync = int(EGLSyncKHR(eglSync))
+        ceglSync = <ccudart.EGLSyncKHR><void_ptr>peglSync
+
+    cdef cudaEvent_t phEvent = cudaEvent_t()
+    err = ccudart.cudaEventCreateFromEGLSync(<ccudart.cudaEvent_t*>phEvent._ptr, ceglSync, flags)
+    return (cudaError_t(err), phEvent)
+
+@cython.embedsignature(True)
 def sizeof(objType):
     """ Returns the size of provided CUDA Python structure in bytes
 
@@ -19762,6 +23781,8 @@ def sizeof(objType):
         return sizeof(ccudart.cudaChannelFormatDesc)
     if objType == cudaArraySparseProperties:
         return sizeof(ccudart.cudaArraySparseProperties)
+    if objType == cudaArrayMemoryRequirements:
+        return sizeof(ccudart.cudaArrayMemoryRequirements)
     if objType == cudaPitchedPtr:
         return sizeof(ccudart.cudaPitchedPtr)
     if objType == cudaExtent:
@@ -19828,6 +23849,10 @@ def sizeof(objType):
         return sizeof(ccudart.cudaExternalSemaphoreWaitNodeParams)
     if objType == cudaTextureDesc:
         return sizeof(ccudart.cudaTextureDesc)
+    if objType == cudaEglPlaneDesc_st:
+        return sizeof(ccudart.cudaEglPlaneDesc_st)
+    if objType == cudaEglFrame_st:
+        return sizeof(ccudart.cudaEglFrame_st)
     if objType == cudaArray_t:
         return sizeof(ccudart.cudaArray_t)
     if objType == cudaArray_const_t:
@@ -19858,6 +23883,14 @@ def sizeof(objType):
         return sizeof(ccudart.cudaMemPool_t)
     if objType == cudaGraphExec_t:
         return sizeof(ccudart.cudaGraphExec_t)
+    if objType == EGLImageKHR:
+        return sizeof(ccudart.EGLImageKHR)
+    if objType == EGLStreamKHR:
+        return sizeof(ccudart.EGLStreamKHR)
+    if objType == EGLSyncKHR:
+        return sizeof(ccudart.EGLSyncKHR)
+    if objType == cudaEglStreamConnection:
+        return sizeof(ccudart.cudaEglStreamConnection)
     if objType == cudaHostFn_t:
         return sizeof(ccudart.cudaHostFn_t)
     if objType == cudaStreamCallback_t:
@@ -19870,8 +23903,26 @@ def sizeof(objType):
         return sizeof(ccudart.cudaIpcEventHandle_t)
     if objType == cudaIpcMemHandle_t:
         return sizeof(ccudart.cudaIpcMemHandle_t)
+    if objType == cudaEglPlaneDesc:
+        return sizeof(ccudart.cudaEglPlaneDesc)
+    if objType == cudaEglFrame:
+        return sizeof(ccudart.cudaEglFrame)
     if objType == cudaSurfaceObject_t:
         return sizeof(ccudart.cudaSurfaceObject_t)
     if objType == cudaTextureObject_t:
         return sizeof(ccudart.cudaTextureObject_t)
+    if objType == GLenum:
+        return sizeof(ccudart.GLenum)
+    if objType == GLuint:
+        return sizeof(ccudart.GLuint)
+    if objType == EGLint:
+        return sizeof(ccudart.EGLint)
+    if objType == VdpDevice:
+        return sizeof(ccudart.VdpDevice)
+    if objType == VdpGetProcAddress:
+        return sizeof(ccudart.VdpGetProcAddress)
+    if objType == VdpVideoSurface:
+        return sizeof(ccudart.VdpVideoSurface)
+    if objType == VdpOutputSurface:
+        return sizeof(ccudart.VdpOutputSurface)
     raise TypeError("Unknown type: " + str(objType))
