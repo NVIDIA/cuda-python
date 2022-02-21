@@ -32,8 +32,8 @@ static const char* sysrootName = NULL;
 #include <unistd.h>
 #define _getAddr dlsym
 #define _Handle void*
-static const size_t libcudaNameLinux_length = (sizeof("\\libcuda.so.1.1") - 1);
-static const char* libcudaNameLinux = "\\libcuda.so.1.1";
+static const size_t libcudaNameLinux_length = (sizeof("/libcuda.so.1.1") - 1);
+static const char* libcudaNameLinux = "/libcuda.so.1.1";
 #endif
 static size_t libcudaName_length = 0;
 static const char* libcudaName = NULL;
