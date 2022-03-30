@@ -13,6 +13,7 @@ cimport cuda._cuda.ccuda as ccuda
 
 cdef class cudaPythonGlobal:
     cdef bint _cudaPythonInit
+    cdef bint _cudaPythonGlobalInit
     cdef int _numDevices
     cdef ccuda.CUdevice* _driverDevice
     cdef ccuda.CUcontext* _driverContext
@@ -22,6 +23,7 @@ cdef class cudaPythonGlobal:
     cdef int CUDART_VERSION
 
     cdef cudaError_t lazyInit(self) nogil
+    cdef cudaError_t lazyInitGlobal(self) nogil
     cdef cudaError_t lazyInitDevice(self, int deviceOrdinal) nogil
 
 cdef cudaPythonGlobal globalGetInstance()

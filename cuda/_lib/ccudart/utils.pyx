@@ -29,6 +29,7 @@ ctypedef cudaStreamCallbackData_st cudaStreamCallbackData
 cdef class cudaPythonGlobal:
     def __cinit__(self):
         self._cudaPythonInit = False
+        self._cudaPythonGlobalInit = False
         self._numDevices = 0
         self._driverDevice = NULL
         self._driverContext = NULL
@@ -54,25 +55,10 @@ cdef class cudaPythonGlobal:
                 if self._numDevices > 0:
                     ccuda._cuCtxSetCurrent(self._driverContext[0])
             return cudaSuccess
-        err = ccuda._cuInit(0)
-        if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            return <cudaError_t>err
-        err = ccuda._cuDeviceGetCount(&self._numDevices)
-        if err != ccuda.cudaError_enum.CUDA_SUCCESS:
-            return cudaErrorInitializationError
 
-        self._driverDevice = <ccuda.CUdevice *>calloc(self._numDevices, sizeof(ccuda.CUdevice))
-        if self._driverDevice == NULL:
-            return cudaErrorMemoryAllocation
-        self._driverContext = <ccuda.CUcontext *>calloc(self._numDevices, sizeof(ccuda.CUcontext))
-        if self._driverContext == NULL:
-            return cudaErrorMemoryAllocation
-        self._deviceProperties = <cudaDeviceProp *>calloc(self._numDevices, sizeof(cudaDeviceProp))
-        if self._deviceProperties == NULL:
-            return cudaErrorMemoryAllocation
-        self._deviceInit = <bool *>calloc(self._numDevices, sizeof(bool))
-        if self._deviceInit == NULL:
-            return cudaErrorMemoryAllocation
+        err_rt = self.lazyInitGlobal()
+        if err_rt != cudaSuccess:
+            return err_rt
 
         err_rt = self.lazyInitDevice(0)
         if err_rt != cudaSuccess:
@@ -82,6 +68,44 @@ cdef class cudaPythonGlobal:
         if err != ccuda.cudaError_enum.CUDA_SUCCESS:
             return cudaErrorInitializationError
         self._cudaPythonInit = True
+
+    cdef cudaError_t lazyInitGlobal(self) nogil:
+        cdef cudaError_t err = cudaSuccess
+        if self._cudaPythonGlobalInit:
+            return err
+
+        err = <cudaError_t>ccuda._cuInit(0)
+        if err != cudaSuccess:
+            return err
+        err = <cudaError_t>ccuda._cuDeviceGetCount(&self._numDevices)
+        if err != cudaSuccess:
+            return cudaErrorInitializationError
+
+        self._driverDevice = <ccuda.CUdevice *>calloc(self._numDevices, sizeof(ccuda.CUdevice))
+        if err != cudaSuccess or self._driverDevice == NULL:
+            err = cudaErrorMemoryAllocation
+        self._driverContext = <ccuda.CUcontext *>calloc(self._numDevices, sizeof(ccuda.CUcontext))
+        if err != cudaSuccess or self._driverContext == NULL:
+            err = cudaErrorMemoryAllocation
+        self._deviceProperties = <cudaDeviceProp *>calloc(self._numDevices, sizeof(cudaDeviceProp))
+        if err != cudaSuccess or self._deviceProperties == NULL:
+            err = cudaErrorMemoryAllocation
+        self._deviceInit = <bool *>calloc(self._numDevices, sizeof(bool))
+        if err != cudaSuccess or self._deviceInit == NULL:
+            err = cudaErrorMemoryAllocation
+
+        if err != cudaSuccess:
+            if self._deviceInit is not NULL:
+                free(self._deviceInit)
+            if self._deviceProperties is not NULL:
+                free(self._deviceProperties)
+            if self._driverContext is not NULL:
+                free(self._driverContext)
+            if self._driverDevice is not NULL:
+                free(self._driverDevice)
+        else:
+            self._cudaPythonGlobalInit = True
+        return err
 
     cdef cudaError_t lazyInitDevice(self, int deviceOrdinal) nogil:
         if self._deviceInit[deviceOrdinal]:

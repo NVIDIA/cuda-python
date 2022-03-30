@@ -1059,7 +1059,7 @@ cdef cudaError_t _cudaGetDevice(int* device) nogil except ?cudaErrorCallRequires
 
 cdef cudaError_t _cudaSetDevice(int device) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaError_t err
-    err = m_global.lazyInit()
+    err = m_global.lazyInitGlobal()
     if err != cudaSuccess:
         return err
     if device < 0 or device >= m_global._numDevices:
