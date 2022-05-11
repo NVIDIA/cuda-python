@@ -203,26 +203,6 @@ cdef cudaError_t cudaThreadGetLimit(size_t* pValue, cudaLimit limit) nogil excep
         _setLastError(err)
     return err
 
-cdef cudaError_t cudaThreadGetCacheConfig(cudaFuncCache* pCacheConfig) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInit()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxGetCacheConfig(<ccuda.CUfunc_cache*>pCacheConfig)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-cdef cudaError_t cudaThreadSetCacheConfig(cudaFuncCache cacheConfig) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInit()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxSetCacheConfig(<ccuda.CUfunc_cache>cacheConfig)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
 cdef cudaError_t cudaGetLastError() nogil except ?cudaErrorCallRequiresNewerDriver:
     return _cudaGetLastError()
 

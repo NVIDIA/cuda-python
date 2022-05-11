@@ -313,14 +313,6 @@ cdef enum cudaSynchronizationPolicy:
     cudaSyncPolicyYield = 3
     cudaSyncPolicyBlockingSync = 4
 
-cdef enum cudaStreamAttrID:
-    cudaStreamAttributeAccessPolicyWindow = 1
-    cudaStreamAttributeSynchronizationPolicy = 3
-
-cdef union cudaStreamAttrValue:
-    cudaAccessPolicyWindow accessPolicyWindow
-    cudaSynchronizationPolicy syncPolicy
-
 cdef enum cudaStreamUpdateCaptureDependenciesFlags:
     cudaStreamAddCaptureDependencies = 0
     cudaStreamSetCaptureDependencies = 1
@@ -351,14 +343,6 @@ cdef enum cudaGraphicsCubeFace:
     cudaGraphicsCubeFaceNegativeY = 3
     cudaGraphicsCubeFacePositiveZ = 4
     cudaGraphicsCubeFaceNegativeZ = 5
-
-cdef enum cudaKernelNodeAttrID:
-    cudaKernelNodeAttributeAccessPolicyWindow = 1
-    cudaKernelNodeAttributeCooperative = 2
-
-cdef union cudaKernelNodeAttrValue:
-    cudaAccessPolicyWindow accessPolicyWindow
-    int cooperative
 
 cdef enum cudaResourceType:
     cudaResourceTypeArray = 0
@@ -1045,6 +1029,25 @@ cdef enum cudaGraphDebugDotFlags:
 
 cdef enum cudaGraphInstantiateFlags:
     cudaGraphInstantiateFlagAutoFreeOnLaunch = 1
+    cudaGraphInstantiateFlagUseNodePriority = 8
+
+cdef enum cudaStreamAttrID:
+    cudaStreamAttributeAccessPolicyWindow = 1
+    cudaStreamAttributeSynchronizationPolicy = 3
+
+cdef union cudaStreamAttrValue:
+    cudaAccessPolicyWindow accessPolicyWindow
+    cudaSynchronizationPolicy syncPolicy
+
+cdef enum cudaKernelNodeAttrID:
+    cudaKernelNodeAttributeAccessPolicyWindow = 1
+    cudaKernelNodeAttributeCooperative = 2
+    cudaKernelNodeAttributePriority = 8
+
+cdef union cudaKernelNodeAttrValue:
+    cudaAccessPolicyWindow accessPolicyWindow
+    int cooperative
+    int priority
 
 cdef enum cudaSurfaceBoundaryMode:
     cudaBoundaryModeZero = 0
@@ -1170,10 +1173,6 @@ cdef cudaError_t cudaThreadSynchronize() nogil except ?cudaErrorCallRequiresNewe
 cdef cudaError_t cudaThreadSetLimit(cudaLimit limit, size_t value) nogil except ?cudaErrorCallRequiresNewerDriver
 
 cdef cudaError_t cudaThreadGetLimit(size_t* pValue, cudaLimit limit) nogil except ?cudaErrorCallRequiresNewerDriver
-
-cdef cudaError_t cudaThreadGetCacheConfig(cudaFuncCache* pCacheConfig) nogil except ?cudaErrorCallRequiresNewerDriver
-
-cdef cudaError_t cudaThreadSetCacheConfig(cudaFuncCache cacheConfig) nogil except ?cudaErrorCallRequiresNewerDriver
 
 cdef cudaError_t cudaGetLastError() nogil except ?cudaErrorCallRequiresNewerDriver
 
@@ -2033,8 +2032,8 @@ cdef enum: cudaTextureType2DLayered = 242
 
 cdef enum: cudaTextureTypeCubemapLayered = 252
 
-cdef enum: CUDART_VERSION = 11060
+cdef enum: CUDART_VERSION = 11070
 
-cdef enum: __CUDART_API_VERSION = 11060
+cdef enum: __CUDART_API_VERSION = 11070
 
 cdef enum: CUDA_EGL_MAX_PLANES = 3

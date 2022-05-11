@@ -9,6 +9,7 @@ import ctypes
 import math
 import numpy as np
 import sys
+import pytest
 from cuda import cuda, cudart
 from enum import Enum
 from examples.common import common
@@ -957,6 +958,26 @@ def MatrixMultiply(dimsA, dimsB, kernel_number):
         return 0
     return -1
 
+def checkKernelCompiles():
+    kernel_headers = '''\
+    #line __LINE__
+    #if __CUDA_ARCH__ >= 700
+    #include <cuda/barrier>
+    #endif
+    #include <cooperative_groups.h>
+    #include <cooperative_groups/reduce.h>
+    #include <cuda/pipeline>
+    '''
+    try:
+        common.KernelHelper(kernel_headers, findCudaDevice())
+    except:
+        # Filters out test from automation for two reasons
+        # 1. Headers are not found
+        # 2. Incompatible device
+        return False
+    return True
+
+@pytest.mark.skipif(not checkKernelCompiles(), reason="Automation filter against incompatible kernel")
 def main():
     print("[globalToShmemAsyncCopy] - Starting...")
 

@@ -8,7 +8,7 @@ Dependencies of the CUDA-Python bindings and some versions that are known to
 work are as follows:
 
 * Driver: Linux (450.80.02 or later) Windows(456.38 or later)
-* CUDA Toolkit 11.0 to 11.6
+* CUDA Toolkit 11.0 to 11.7
 * Cython - e.g. 0.29.21
 
 ### Compilation

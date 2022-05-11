@@ -301,3 +301,11 @@ maximize performance ({numref}`Figure 1`).
 
 Screenshot of Nsight Compute CLI output of CUDA Python example.
 ```
+
+## Future of CUDA Python
+
+The current bindings are built to match the C APIs as closely as possible.
+
+The next goal is to build a higher-level "object oriented" API on top of
+current CUDA Python bindings and provide an overall more Pythonic experience.
+One such example would be to raise exceptions on errors.

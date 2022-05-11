@@ -203,9 +203,16 @@ cdef enum CUstreamBatchMemOpType_enum:
     CU_STREAM_MEM_OP_WRITE_VALUE_32 = 2
     CU_STREAM_MEM_OP_WAIT_VALUE_64 = 4
     CU_STREAM_MEM_OP_WRITE_VALUE_64 = 5
+    CU_STREAM_MEM_OP_BARRIER = 6
     CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES = 3
 
 ctypedef CUstreamBatchMemOpType_enum CUstreamBatchMemOpType
+
+cdef enum CUstreamMemoryBarrier_flags_enum:
+    CU_STREAM_MEMORY_BARRIER_TYPE_SYS = 0
+    CU_STREAM_MEMORY_BARRIER_TYPE_GPU = 1
+
+ctypedef CUstreamMemoryBarrier_flags_enum CUstreamMemoryBarrier_flags
 
 cdef struct CUstreamMemOpWaitValueParams_st:
     CUstreamBatchMemOpType operation
@@ -225,16 +232,29 @@ cdef struct CUstreamMemOpFlushRemoteWritesParams_st:
     CUstreamBatchMemOpType operation
     unsigned int flags
 
+cdef struct CUstreamMemOpMemoryBarrierParams_st:
+    CUstreamBatchMemOpType operation
+    unsigned int flags
+
 cdef union CUstreamBatchMemOpParams_union:
     CUstreamBatchMemOpType operation
     CUstreamMemOpWaitValueParams_st waitValue
     CUstreamMemOpWriteValueParams_st writeValue
     CUstreamMemOpFlushRemoteWritesParams_st flushRemoteWrites
+    CUstreamMemOpMemoryBarrierParams_st memoryBarrier
     cuuint64_t pad[6]
 
 ctypedef CUstreamBatchMemOpParams_union CUstreamBatchMemOpParams_v1
 
 ctypedef CUstreamBatchMemOpParams_v1 CUstreamBatchMemOpParams
+
+cdef struct CUDA_BATCH_MEM_OP_NODE_PARAMS_st:
+    CUcontext ctx
+    unsigned int count
+    CUstreamBatchMemOpParams* paramArray
+    unsigned int flags
+
+ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_st CUDA_BATCH_MEM_OP_NODE_PARAMS
 
 cdef enum CUoccupancy_flags_enum:
     CU_OCCUPANCY_DEFAULT = 0
@@ -428,7 +448,10 @@ cdef enum CUdevice_attribute_enum:
     CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING = 118
     CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES = 119
     CU_DEVICE_ATTRIBUTE_DEFERRED_MAPPING_CUDA_ARRAY_SUPPORTED = 121
-    CU_DEVICE_ATTRIBUTE_MAX = 122
+    CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS_V2 = 122
+    CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR_V2 = 123
+    CU_DEVICE_ATTRIBUTE_DMA_BUF_SUPPORTED = 124
+    CU_DEVICE_ATTRIBUTE_MAX = 125
 
 ctypedef CUdevice_attribute_enum CUdevice_attribute
 
@@ -466,6 +489,9 @@ cdef enum CUpointer_attribute_enum:
     CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE = 15
     CU_POINTER_ATTRIBUTE_ACCESS_FLAGS = 16
     CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE = 17
+    CU_POINTER_ATTRIBUTE_MAPPING_SIZE = 18
+    CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR = 19
+    CU_POINTER_ATTRIBUTE_MEMORY_BLOCK_ID = 20
 
 ctypedef CUpointer_attribute_enum CUpointer_attribute
 
@@ -565,7 +591,12 @@ cdef enum CUjit_option_enum:
     CU_JIT_PREC_DIV = 22
     CU_JIT_PREC_SQRT = 23
     CU_JIT_FMA = 24
-    CU_JIT_NUM_OPTIONS = 25
+    CU_JIT_REFERENCED_KERNEL_NAMES = 25
+    CU_JIT_REFERENCED_KERNEL_COUNT = 26
+    CU_JIT_REFERENCED_VARIABLE_NAMES = 27
+    CU_JIT_REFERENCED_VARIABLE_COUNT = 28
+    CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES = 29
+    CU_JIT_NUM_OPTIONS = 30
 
 ctypedef CUjit_option_enum CUjit_option
 
@@ -587,6 +618,7 @@ cdef enum CUjit_target_enum:
     CU_TARGET_COMPUTE_75 = 75
     CU_TARGET_COMPUTE_80 = 80
     CU_TARGET_COMPUTE_86 = 86
+    CU_TARGET_COMPUTE_87 = 87
 
 ctypedef CUjit_target_enum CUjit_target
 
@@ -734,6 +766,7 @@ cdef enum CUgraphNodeType_enum:
     CU_GRAPH_NODE_TYPE_EXT_SEMAS_WAIT = 9
     CU_GRAPH_NODE_TYPE_MEM_ALLOC = 10
     CU_GRAPH_NODE_TYPE_MEM_FREE = 11
+    CU_GRAPH_NODE_TYPE_BATCH_MEM_OP = 12
 
 ctypedef CUgraphNodeType_enum CUgraphNodeType
 
@@ -748,12 +781,14 @@ ctypedef CUsynchronizationPolicy_enum CUsynchronizationPolicy
 cdef enum CUkernelNodeAttrID_enum:
     CU_KERNEL_NODE_ATTRIBUTE_ACCESS_POLICY_WINDOW = 1
     CU_KERNEL_NODE_ATTRIBUTE_COOPERATIVE = 2
+    CU_KERNEL_NODE_ATTRIBUTE_PRIORITY = 8
 
 ctypedef CUkernelNodeAttrID_enum CUkernelNodeAttrID
 
 cdef union CUkernelNodeAttrValue_union:
     CUaccessPolicyWindow accessPolicyWindow
     int cooperative
+    int priority
 
 ctypedef CUkernelNodeAttrValue_union CUkernelNodeAttrValue_v1
 
@@ -829,6 +864,7 @@ cdef enum cudaError_enum:
     CUDA_ERROR_PROFILER_ALREADY_STARTED = 7
     CUDA_ERROR_PROFILER_ALREADY_STOPPED = 8
     CUDA_ERROR_STUB_LIBRARY = 34
+    CUDA_ERROR_DEVICE_UNAVAILABLE = 46
     CUDA_ERROR_NO_DEVICE = 100
     CUDA_ERROR_INVALID_DEVICE = 101
     CUDA_ERROR_DEVICE_NOT_LICENSED = 102
@@ -1388,6 +1424,12 @@ cdef enum CUmemAllocationGranularity_flags_enum:
 
 ctypedef CUmemAllocationGranularity_flags_enum CUmemAllocationGranularity_flags
 
+cdef enum CUmemRangeHandleType_enum:
+    CU_MEM_RANGE_HANDLE_TYPE_DMA_BUF_FD = 1
+    CU_MEM_RANGE_HANDLE_TYPE_MAX = 2147483647
+
+ctypedef CUmemRangeHandleType_enum CUmemRangeHandleType
+
 cdef enum CUarraySparseSubresourceType_enum:
     CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL = 0
     CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL = 1
@@ -1585,6 +1627,7 @@ cdef enum CUgraphDebugDot_flags_enum:
     CU_GRAPH_DEBUG_DOT_FLAGS_HANDLES = 1024
     CU_GRAPH_DEBUG_DOT_FLAGS_MEM_ALLOC_NODE_PARAMS = 2048
     CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS = 4096
+    CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS = 8192
 
 ctypedef CUgraphDebugDot_flags_enum CUgraphDebugDot_flags
 
@@ -1600,6 +1643,7 @@ ctypedef CUuserObjectRetain_flags_enum CUuserObjectRetain_flags
 
 cdef enum CUgraphInstantiate_flags_enum:
     CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH = 1
+    CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY = 8
 
 ctypedef CUgraphInstantiate_flags_enum CUgraphInstantiate_flags
 
@@ -2017,6 +2061,16 @@ cdef CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuuint64_t
 
 cdef CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 
+cdef CUresult cuStreamWaitValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+
+cdef CUresult cuStreamWaitValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+
+cdef CUresult cuStreamWriteValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+
+cdef CUresult cuStreamWriteValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+
+cdef CUresult cuStreamBatchMemOp_v2(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+
 cdef CUresult cuFuncGetAttribute(int* pi, CUfunction_attribute attrib, CUfunction hfunc) nogil except ?CUDA_ERROR_NOT_FOUND
 
 cdef CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib, int value) nogil except ?CUDA_ERROR_NOT_FOUND
@@ -2110,6 +2164,14 @@ cdef CUresult cuGraphAddExternalSemaphoresWaitNode(CUgraphNode* phGraphNode, CUg
 cdef CUresult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode, CUDA_EXT_SEM_WAIT_NODE_PARAMS* params_out) nogil except ?CUDA_ERROR_NOT_FOUND
 
 cdef CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+
+cdef CUresult cuGraphAddBatchMemOpNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+
+cdef CUresult cuGraphBatchMemOpNodeGetParams(CUgraphNode hNode, CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams_out) nogil except ?CUDA_ERROR_NOT_FOUND
+
+cdef CUresult cuGraphBatchMemOpNodeSetParams(CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+
+cdef CUresult cuGraphExecBatchMemOpNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
 
 cdef CUresult cuGraphAddMemAllocNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUDA_MEM_ALLOC_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
 
@@ -2308,6 +2370,16 @@ cdef CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResource* res
 cdef CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource* resources, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
 
 cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags) nogil except ?CUDA_ERROR_NOT_FOUND
+
+cdef enum CUmoduleLoadingMode_enum:
+    CU_MODULE_EAGER_LOADING = 1
+    CU_MODULE_LAZY_LOADING = 2
+
+ctypedef CUmoduleLoadingMode_enum CUmoduleLoadingMode
+
+cdef CUresult cuModuleGetLoadingMode(CUmoduleLoadingMode* mode) nogil except ?CUDA_ERROR_NOT_FOUND
+
+cdef CUresult cuMemGetHandleForAddressRange(void* handle, CUdeviceptr dptr, size_t size, CUmemRangeHandleType handleType, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
 
 cdef CUresult cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) nogil except ?CUDA_ERROR_NOT_FOUND
 
@@ -2562,7 +2634,7 @@ cdef enum CUGLmap_flags_enum:
 
 ctypedef CUGLmap_flags_enum CUGLmap_flags
 
-cdef enum: CUDA_VERSION = 11060
+cdef enum: CUDA_VERSION = 11070
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 
@@ -2632,9 +2704,15 @@ cdef enum: CU_TRSF_DISABLE_TRILINEAR_OPTIMIZATION = 32
 
 cdef enum: CU_TRSF_SEAMLESS_CUBEMAP = 64
 
+cdef enum: CU_LAUNCH_PARAM_END_AS_INT = 0
+
 cdef enum: CU_LAUNCH_PARAM_END = 0
 
+cdef enum: CU_LAUNCH_PARAM_BUFFER_POINTER_AS_INT = 1
+
 cdef enum: CU_LAUNCH_PARAM_BUFFER_POINTER = 1
+
+cdef enum: CU_LAUNCH_PARAM_BUFFER_SIZE_AS_INT = 2
 
 cdef enum: CU_LAUNCH_PARAM_BUFFER_SIZE = 2
 

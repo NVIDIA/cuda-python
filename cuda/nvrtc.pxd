@@ -9,8 +9,9 @@ cimport cuda.cnvrtc as cnvrtc
 cimport cuda._lib.utils as utils
 
 cdef class nvrtcProgram:
-    """
+    """ nvrtcProgram is the unit of compilation, and an opaque handle for a program.
 
+    To compile a CUDA program string, an instance of nvrtcProgram must be created first with nvrtcCreateProgram, then compiled with nvrtcCompileProgram.
 
     Methods
     -------
@@ -18,5 +19,5 @@ cdef class nvrtcProgram:
         Get memory address of class instance
 
     """
+    cdef cnvrtc.nvrtcProgram  _val
     cdef cnvrtc.nvrtcProgram* _ptr
-    cdef bint _ptr_owner

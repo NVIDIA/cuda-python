@@ -628,6 +628,21 @@ cdef CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuuint64_t
 cdef CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuStreamBatchMemOp(stream, count, paramArray, flags)
 
+cdef CUresult cuStreamWaitValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuStreamWaitValue32_v2(stream, addr, value, flags)
+
+cdef CUresult cuStreamWaitValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuStreamWaitValue64_v2(stream, addr, value, flags)
+
+cdef CUresult cuStreamWriteValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuStreamWriteValue32_v2(stream, addr, value, flags)
+
+cdef CUresult cuStreamWriteValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuStreamWriteValue64_v2(stream, addr, value, flags)
+
+cdef CUresult cuStreamBatchMemOp_v2(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuStreamBatchMemOp_v2(stream, count, paramArray, flags)
+
 cdef CUresult cuFuncGetAttribute(int* pi, CUfunction_attribute attrib, CUfunction hfunc) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuFuncGetAttribute(pi, attrib, hfunc)
 
@@ -768,6 +783,18 @@ cdef CUresult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode, CUDA
 
 cdef CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams)
+
+cdef CUresult cuGraphAddBatchMemOpNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphAddBatchMemOpNode(phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
+
+cdef CUresult cuGraphBatchMemOpNodeGetParams(CUgraphNode hNode, CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams_out) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphBatchMemOpNodeGetParams(hNode, nodeParams_out)
+
+cdef CUresult cuGraphBatchMemOpNodeSetParams(CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphBatchMemOpNodeSetParams(hNode, nodeParams)
+
+cdef CUresult cuGraphExecBatchMemOpNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuGraphExecBatchMemOpNodeSetParams(hGraphExec, hNode, nodeParams)
 
 cdef CUresult cuGraphAddMemAllocNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUDA_MEM_ALLOC_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuGraphAddMemAllocNode(phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
@@ -1065,6 +1092,12 @@ cdef CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource* r
 
 cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuGetProcAddress(symbol, pfn, cudaVersion, flags)
+
+cdef CUresult cuModuleGetLoadingMode(CUmoduleLoadingMode* mode) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuModuleGetLoadingMode(mode)
+
+cdef CUresult cuMemGetHandleForAddressRange(void* handle, CUdeviceptr dptr, size_t size, CUmemRangeHandleType handleType, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuMemGetHandleForAddressRange(handle, dptr, size, handleType, flags)
 
 cdef CUresult cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuGetExportTable(ppExportTable, pExportTableId)

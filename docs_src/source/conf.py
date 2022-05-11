@@ -22,7 +22,7 @@ copyright = '2021-2022, NVIDIA'
 author = 'NVIDIA'
 
 # The full version, including alpha/beta/rc tags
-release = '11.6.0'
+release = '11.7.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -32,7 +32,7 @@ release = '11.6.0'
 # ones.
 extensions = [
 	'sphinx.ext.autodoc',
-	'numpydoc',
+	'sphinx.ext.napoleon',
 	'myst_nb',
 	'enum_tools.autoenum'
 ]

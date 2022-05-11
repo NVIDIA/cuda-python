@@ -6,7 +6,7 @@ CUDA Python is supported on all platforms that CUDA is supported. Specific
 dependencies are as follows:
 
 * Driver: Linux (450.80.02 or later) Windows(456.38 or later)
-* CUDA Toolkit 11.0 to 11.6
+* CUDA Toolkit 11.0 to 11.7
 
 ```{note} Only the NVRTC redistributable component is required from the CUDA Toolkit. [CUDA Toolkit Documentation](https://docs.nvidia.com/cuda/index.html) Installation Guides can be used for guidance. Note that the NVRTC component in the Toolkit can be obtained via PiPy, Conda or Local Installer.
 ```

@@ -2,11 +2,11 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="CUDA Python API Reference" href="../api.html" /><link rel="prev" title="CUDA Python 11.5.0 Release notes" href="11.5.0-notes.html" />
-        <link rel="canonical" href="docs/release/11.4.0-notes.html" />
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="CUDA Python 11.6.0 Release notes" href="11.6.0-notes.html" /><link rel="prev" title="Release Notes" href="../release.html" />
+        <link rel="canonical" href="docs/release/11.7.0-notes.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>CUDA Python 11.4.0 Release notes - CUDA Python 11.7.0 documentation</title>
+        <title>CUDA Python 11.7.0 Release notes - CUDA Python 11.7.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
@@ -168,10 +168,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../release.html">Release Notes</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="11.7.0-notes.html">    11.7.0</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">    11.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11.6.0-notes.html">    11.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11.5.0-notes.html">    11.5.0</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">    11.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.4.0-notes.html">    11.4.0</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">CUDA Python API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -212,52 +212,46 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="cuda-python-11-4-0-release-notes">
-<h1>CUDA Python 11.4.0 Release notes<a class="headerlink" href="#cuda-python-11-4-0-release-notes" title="Permalink to this headline">#</a></h1>
-<p>Released on August 16, 2021</p>
+          <div class="section" id="cuda-python-11-7-0-release-notes">
+<h1>CUDA Python 11.7.0 Release notes<a class="headerlink" href="#cuda-python-11-7-0-release-notes" title="Permalink to this headline">#</a></h1>
+<p>Released on TODO TODO, 2022</p>
 <div class="section" id="hightlights">
 <h2>Hightlights<a class="headerlink" href="#hightlights" title="Permalink to this headline">#</a></h2>
 <ul class="simple">
-<li><p>Initial EA release for CUDA Python</p></li>
-<li><p>Supports all platforms that CUDA is supported</p></li>
-<li><p>Supports all CUDA 11.x releases</p></li>
-<li><p>Low-level CUDA Cython bindings and Python wrappers</p></li>
+<li><p>Support CUDA Toolkit 11.7</p></li>
 </ul>
 </div>
 <div class="section" id="limitations">
 <h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">#</a></h2>
-<ul class="simple">
-<li><p>Source code release only; Python packages coming in a future release.</p></li>
-</ul>
 <div class="section" id="cuda-functions-not-supported-in-this-release">
 <h3>CUDA Functions Not Supported in this Release<a class="headerlink" href="#cuda-functions-not-supported-in-this-release" title="Permalink to this headline">#</a></h3>
 <ul class="simple">
-<li><p>cudaGetTextureReference</p></li>
-<li><p>cudaGetSurfaceReference</p></li>
-<li><p>cudaBindTexture</p></li>
-<li><p>cudaBindTexture2D</p></li>
-<li><p>cudaBindTextureToArray</p></li>
-<li><p>cudaBindTextureToMipmappedArray</p></li>
-<li><p>cudaLaunchKernel</p></li>
-<li><p>cudaLaunchCooperativeKernel</p></li>
-<li><p>cudaLaunchCooperativeKernelMultiDevice</p></li>
-<li><p>cudaMemcpyToSymbol</p></li>
-<li><p>cudaMemcpyFromSymbol</p></li>
-<li><p>cudaMemcpyToSymbolAsync</p></li>
-<li><p>cudaMemcpyFromSymbolAsync</p></li>
-<li><p>cudaGetSymbolAddress</p></li>
-<li><p>cudaGetSymbolSize</p></li>
-<li><p>cudaUnbindTexture</p></li>
-<li><p>cudaGetTextureAlignmentOffset</p></li>
-<li><p>cudaBindSurfaceToArray</p></li>
-<li><p>cudaGetFuncBySymbol</p></li>
-<li><p>cudaSetValidDevices</p></li>
+<li><p>Symbol APIs</p>
+<ul>
 <li><p>cudaGraphExecMemcpyNodeSetParamsFromSymbol</p></li>
 <li><p>cudaGraphExecMemcpyNodeSetParamsToSymbol</p></li>
 <li><p>cudaGraphAddMemcpyNodeToSymbol</p></li>
 <li><p>cudaGraphAddMemcpyNodeFromSymbol</p></li>
 <li><p>cudaGraphMemcpyNodeSetParamsToSymbol</p></li>
 <li><p>cudaGraphMemcpyNodeSetParamsFromSymbol</p></li>
+<li><p>cudaMemcpyToSymbol</p></li>
+<li><p>cudaMemcpyFromSymbol</p></li>
+<li><p>cudaMemcpyToSymbolAsync</p></li>
+<li><p>cudaMemcpyFromSymbolAsync</p></li>
+<li><p>cudaGetSymbolAddress</p></li>
+<li><p>cudaGetSymbolSize</p></li>
+<li><p>cudaGetFuncBySymbol</p></li>
+</ul>
+</li>
+<li><p>Launch Options</p>
+<ul>
+<li><p>cudaLaunchKernel</p></li>
+<li><p>cudaLaunchCooperativeKernel</p></li>
+<li><p>cudaLaunchCooperativeKernelMultiDevice</p></li>
+</ul>
+</li>
+<li><p>cudaSetValidDevices</p></li>
+<li><p>cudaVDPAUSetVDPAUDevice</p></li>
 </ul>
 </div>
 </div>
@@ -268,23 +262,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../api.html">
+          <a class="next-page" href="11.6.0-notes.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">CUDA Python API Reference</div>
+                <div class="title">CUDA Python 11.6.0 Release notes</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="11.5.0-notes.html">
+          <a class="prev-page" href="../release.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">CUDA Python 11.5.0 Release notes</div>
+                <div class="title">Release Notes</div>
                 
               </div>
             </a>
@@ -320,7 +314,7 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">CUDA Python 11.4.0 Release notes</a><ul>
+<li><a class="reference internal" href="#">CUDA Python 11.7.0 Release notes</a><ul>
 <li><a class="reference internal" href="#hightlights">Hightlights</a></li>
 <li><a class="reference internal" href="#limitations">Limitations</a><ul>
 <li><a class="reference internal" href="#cuda-functions-not-supported-in-this-release">CUDA Functions Not Supported in this Release</a></li>

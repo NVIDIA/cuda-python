@@ -222,6 +222,11 @@ cdef void *__cuStreamWaitValue64 = NULL
 cdef void *__cuStreamWriteValue32 = NULL
 cdef void *__cuStreamWriteValue64 = NULL
 cdef void *__cuStreamBatchMemOp = NULL
+cdef void *__cuStreamWaitValue32_v2 = NULL
+cdef void *__cuStreamWaitValue64_v2 = NULL
+cdef void *__cuStreamWriteValue32_v2 = NULL
+cdef void *__cuStreamWriteValue64_v2 = NULL
+cdef void *__cuStreamBatchMemOp_v2 = NULL
 cdef void *__cuFuncGetAttribute = NULL
 cdef void *__cuFuncSetAttribute = NULL
 cdef void *__cuFuncSetCacheConfig = NULL
@@ -269,6 +274,10 @@ cdef void *__cuGraphExternalSemaphoresSignalNodeSetParams = NULL
 cdef void *__cuGraphAddExternalSemaphoresWaitNode = NULL
 cdef void *__cuGraphExternalSemaphoresWaitNodeGetParams = NULL
 cdef void *__cuGraphExternalSemaphoresWaitNodeSetParams = NULL
+cdef void *__cuGraphAddBatchMemOpNode = NULL
+cdef void *__cuGraphBatchMemOpNodeGetParams = NULL
+cdef void *__cuGraphBatchMemOpNodeSetParams = NULL
+cdef void *__cuGraphExecBatchMemOpNodeSetParams = NULL
 cdef void *__cuGraphAddMemAllocNode = NULL
 cdef void *__cuGraphMemAllocNodeGetParams = NULL
 cdef void *__cuGraphAddMemFreeNode = NULL
@@ -368,6 +377,8 @@ cdef void *__cuGraphicsResourceSetMapFlags_v2 = NULL
 cdef void *__cuGraphicsMapResources = NULL
 cdef void *__cuGraphicsUnmapResources = NULL
 cdef void *__cuGetProcAddress = NULL
+cdef void *__cuModuleGetLoadingMode = NULL
+cdef void *__cuMemGetHandleForAddressRange = NULL
 cdef void *__cuGetExportTable = NULL
 cdef void *__cuProfilerInitialize = NULL
 cdef void *__cuProfilerStart = NULL
@@ -629,6 +640,11 @@ cdef int cuPythonInit() nogil except -1:
     global __cuStreamWriteValue32
     global __cuStreamWriteValue64
     global __cuStreamBatchMemOp
+    global __cuStreamWaitValue32_v2
+    global __cuStreamWaitValue64_v2
+    global __cuStreamWriteValue32_v2
+    global __cuStreamWriteValue64_v2
+    global __cuStreamBatchMemOp_v2
     global __cuFuncGetAttribute
     global __cuFuncSetAttribute
     global __cuFuncSetCacheConfig
@@ -676,6 +692,10 @@ cdef int cuPythonInit() nogil except -1:
     global __cuGraphAddExternalSemaphoresWaitNode
     global __cuGraphExternalSemaphoresWaitNodeGetParams
     global __cuGraphExternalSemaphoresWaitNodeSetParams
+    global __cuGraphAddBatchMemOpNode
+    global __cuGraphBatchMemOpNodeGetParams
+    global __cuGraphBatchMemOpNodeSetParams
+    global __cuGraphExecBatchMemOpNodeSetParams
     global __cuGraphAddMemAllocNode
     global __cuGraphMemAllocNodeGetParams
     global __cuGraphAddMemFreeNode
@@ -775,6 +795,8 @@ cdef int cuPythonInit() nogil except -1:
     global __cuGraphicsMapResources
     global __cuGraphicsUnmapResources
     global __cuGetProcAddress
+    global __cuModuleGetLoadingMode
+    global __cuMemGetHandleForAddressRange
     global __cuGetExportTable
     global __cuProfilerInitialize
     global __cuProfilerStart
@@ -878,6 +900,11 @@ cdef int cuPythonInit() nogil except -1:
             cuGetProcAddress('cuStreamWriteValue32', &__cuStreamWriteValue32, 8000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
             cuGetProcAddress('cuStreamWriteValue64', &__cuStreamWriteValue64, 9000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
             cuGetProcAddress('cuStreamBatchMemOp', &__cuStreamBatchMemOp, 8000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamWaitValue32', &__cuStreamWaitValue32_v2, 11070, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamWaitValue64', &__cuStreamWaitValue64_v2, 11070, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamWriteValue32', &__cuStreamWriteValue32_v2, 11070, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamWriteValue64', &__cuStreamWriteValue64_v2, 11070, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
+            cuGetProcAddress('cuStreamBatchMemOp', &__cuStreamBatchMemOp_v2, 11070, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
             cuGetProcAddress('cuLaunchKernel', &__cuLaunchKernel, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
             cuGetProcAddress('cuLaunchCooperativeKernel', &__cuLaunchCooperativeKernel, 9000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
             cuGetProcAddress('cuLaunchHostFunc', &__cuLaunchHostFunc, 10000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM)
@@ -954,6 +981,11 @@ cdef int cuPythonInit() nogil except -1:
             cuGetProcAddress('cuStreamWriteValue32', &__cuStreamWriteValue32, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
             cuGetProcAddress('cuStreamWriteValue64', &__cuStreamWriteValue64, 9000, CU_GET_PROC_ADDRESS_DEFAULT)
             cuGetProcAddress('cuStreamBatchMemOp', &__cuStreamBatchMemOp, 8000, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamWaitValue32', &__cuStreamWaitValue32_v2, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamWaitValue64', &__cuStreamWaitValue64_v2, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamWriteValue32', &__cuStreamWriteValue32_v2, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamWriteValue64', &__cuStreamWriteValue64_v2, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
+            cuGetProcAddress('cuStreamBatchMemOp', &__cuStreamBatchMemOp_v2, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
             cuGetProcAddress('cuLaunchKernel', &__cuLaunchKernel, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
             cuGetProcAddress('cuLaunchCooperativeKernel', &__cuLaunchCooperativeKernel, 9000, CU_GET_PROC_ADDRESS_DEFAULT)
             cuGetProcAddress('cuLaunchHostFunc', &__cuLaunchHostFunc, 10000, CU_GET_PROC_ADDRESS_DEFAULT)
@@ -1146,6 +1178,10 @@ cdef int cuPythonInit() nogil except -1:
         cuGetProcAddress('cuGraphAddExternalSemaphoresWaitNode', &__cuGraphAddExternalSemaphoresWaitNode, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
         cuGetProcAddress('cuGraphExternalSemaphoresWaitNodeGetParams', &__cuGraphExternalSemaphoresWaitNodeGetParams, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
         cuGetProcAddress('cuGraphExternalSemaphoresWaitNodeSetParams', &__cuGraphExternalSemaphoresWaitNodeSetParams, 11020, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphAddBatchMemOpNode', &__cuGraphAddBatchMemOpNode, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphBatchMemOpNodeGetParams', &__cuGraphBatchMemOpNodeGetParams, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphBatchMemOpNodeSetParams', &__cuGraphBatchMemOpNodeSetParams, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuGraphExecBatchMemOpNodeSetParams', &__cuGraphExecBatchMemOpNodeSetParams, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
         cuGetProcAddress('cuGraphAddMemAllocNode', &__cuGraphAddMemAllocNode, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
         cuGetProcAddress('cuGraphMemAllocNodeGetParams', &__cuGraphMemAllocNodeGetParams, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
         cuGetProcAddress('cuGraphAddMemFreeNode', &__cuGraphAddMemFreeNode, 11040, CU_GET_PROC_ADDRESS_DEFAULT)
@@ -1241,6 +1277,8 @@ cdef int cuPythonInit() nogil except -1:
         cuGetProcAddress('cuGraphicsResourceGetMappedPointer', &__cuGraphicsResourceGetMappedPointer_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT)
         cuGetProcAddress('cuGraphicsResourceSetMapFlags', &__cuGraphicsResourceSetMapFlags_v2, 6050, CU_GET_PROC_ADDRESS_DEFAULT)
         cuGetProcAddress('cuGetProcAddress', &__cuGetProcAddress, 11030, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuModuleGetLoadingMode', &__cuModuleGetLoadingMode, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
+        cuGetProcAddress('cuMemGetHandleForAddressRange', &__cuMemGetHandleForAddressRange, 11070, CU_GET_PROC_ADDRESS_DEFAULT)
         cuGetProcAddress('cuGetExportTable', &__cuGetExportTable, 3000, CU_GET_PROC_ADDRESS_DEFAULT)
         cuGetProcAddress('cuProfilerInitialize', &__cuProfilerInitialize, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
         cuGetProcAddress('cuProfilerStart', &__cuProfilerStart, 4000, CU_GET_PROC_ADDRESS_DEFAULT)
@@ -1539,6 +1577,26 @@ cdef int cuPythonInit() nogil except -1:
                 except:
                     pass
                 try:
+                    __cuStreamWaitValue32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue32_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamWaitValue64_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue64_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamWriteValue32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue32_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamWriteValue64_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue64_v2_ptsz')
+                except:
+                    pass
+                try:
+                    __cuStreamBatchMemOp_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBatchMemOp_v2_ptsz')
+                except:
+                    pass
+                try:
                     __cuLaunchKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchKernel_ptsz')
                 except:
                     pass
@@ -1834,6 +1892,26 @@ cdef int cuPythonInit() nogil except -1:
                     pass
                 try:
                     __cuStreamBatchMemOp = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBatchMemOp')
+                except:
+                    pass
+                try:
+                    __cuStreamWaitValue32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue32_v2')
+                except:
+                    pass
+                try:
+                    __cuStreamWaitValue64_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue64_v2')
+                except:
+                    pass
+                try:
+                    __cuStreamWriteValue32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue32_v2')
+                except:
+                    pass
+                try:
+                    __cuStreamWriteValue64_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue64_v2')
+                except:
+                    pass
+                try:
+                    __cuStreamBatchMemOp_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBatchMemOp_v2')
                 except:
                     pass
                 try:
@@ -2602,6 +2680,22 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
+                __cuGraphAddBatchMemOpNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddBatchMemOpNode')
+            except:
+                pass
+            try:
+                __cuGraphBatchMemOpNodeGetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphBatchMemOpNodeGetParams')
+            except:
+                pass
+            try:
+                __cuGraphBatchMemOpNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphBatchMemOpNodeSetParams')
+            except:
+                pass
+            try:
+                __cuGraphExecBatchMemOpNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecBatchMemOpNodeSetParams')
+            except:
+                pass
+            try:
                 __cuGraphAddMemAllocNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddMemAllocNode')
             except:
                 pass
@@ -2982,6 +3076,14 @@ cdef int cuPythonInit() nogil except -1:
             except:
                 pass
             try:
+                __cuModuleGetLoadingMode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleGetLoadingMode')
+            except:
+                pass
+            try:
+                __cuMemGetHandleForAddressRange = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemGetHandleForAddressRange')
+            except:
+                pass
+            try:
                 __cuGetExportTable = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetExportTable')
             except:
                 pass
@@ -3143,6 +3245,11 @@ cdef int cuPythonInit() nogil except -1:
             __cuStreamWriteValue32 = dlfcn.dlsym(handle, 'cuStreamWriteValue32_ptsz')
             __cuStreamWriteValue64 = dlfcn.dlsym(handle, 'cuStreamWriteValue64_ptsz')
             __cuStreamBatchMemOp = dlfcn.dlsym(handle, 'cuStreamBatchMemOp_ptsz')
+            __cuStreamWaitValue32_v2 = dlfcn.dlsym(handle, 'cuStreamWaitValue32_v2_ptsz')
+            __cuStreamWaitValue64_v2 = dlfcn.dlsym(handle, 'cuStreamWaitValue64_v2_ptsz')
+            __cuStreamWriteValue32_v2 = dlfcn.dlsym(handle, 'cuStreamWriteValue32_v2_ptsz')
+            __cuStreamWriteValue64_v2 = dlfcn.dlsym(handle, 'cuStreamWriteValue64_v2_ptsz')
+            __cuStreamBatchMemOp_v2 = dlfcn.dlsym(handle, 'cuStreamBatchMemOp_v2_ptsz')
             __cuLaunchKernel = dlfcn.dlsym(handle, 'cuLaunchKernel_ptsz')
             __cuLaunchCooperativeKernel = dlfcn.dlsym(handle, 'cuLaunchCooperativeKernel_ptsz')
             __cuLaunchHostFunc = dlfcn.dlsym(handle, 'cuLaunchHostFunc_ptsz')
@@ -3219,6 +3326,11 @@ cdef int cuPythonInit() nogil except -1:
             __cuStreamWriteValue32 = dlfcn.dlsym(handle, 'cuStreamWriteValue32')
             __cuStreamWriteValue64 = dlfcn.dlsym(handle, 'cuStreamWriteValue64')
             __cuStreamBatchMemOp = dlfcn.dlsym(handle, 'cuStreamBatchMemOp')
+            __cuStreamWaitValue32_v2 = dlfcn.dlsym(handle, 'cuStreamWaitValue32_v2')
+            __cuStreamWaitValue64_v2 = dlfcn.dlsym(handle, 'cuStreamWaitValue64_v2')
+            __cuStreamWriteValue32_v2 = dlfcn.dlsym(handle, 'cuStreamWriteValue32_v2')
+            __cuStreamWriteValue64_v2 = dlfcn.dlsym(handle, 'cuStreamWriteValue64_v2')
+            __cuStreamBatchMemOp_v2 = dlfcn.dlsym(handle, 'cuStreamBatchMemOp_v2')
             __cuLaunchKernel = dlfcn.dlsym(handle, 'cuLaunchKernel')
             __cuLaunchCooperativeKernel = dlfcn.dlsym(handle, 'cuLaunchCooperativeKernel')
             __cuLaunchHostFunc = dlfcn.dlsym(handle, 'cuLaunchHostFunc')
@@ -3411,6 +3523,10 @@ cdef int cuPythonInit() nogil except -1:
         __cuGraphAddExternalSemaphoresWaitNode = dlfcn.dlsym(handle, 'cuGraphAddExternalSemaphoresWaitNode')
         __cuGraphExternalSemaphoresWaitNodeGetParams = dlfcn.dlsym(handle, 'cuGraphExternalSemaphoresWaitNodeGetParams')
         __cuGraphExternalSemaphoresWaitNodeSetParams = dlfcn.dlsym(handle, 'cuGraphExternalSemaphoresWaitNodeSetParams')
+        __cuGraphAddBatchMemOpNode = dlfcn.dlsym(handle, 'cuGraphAddBatchMemOpNode')
+        __cuGraphBatchMemOpNodeGetParams = dlfcn.dlsym(handle, 'cuGraphBatchMemOpNodeGetParams')
+        __cuGraphBatchMemOpNodeSetParams = dlfcn.dlsym(handle, 'cuGraphBatchMemOpNodeSetParams')
+        __cuGraphExecBatchMemOpNodeSetParams = dlfcn.dlsym(handle, 'cuGraphExecBatchMemOpNodeSetParams')
         __cuGraphAddMemAllocNode = dlfcn.dlsym(handle, 'cuGraphAddMemAllocNode')
         __cuGraphMemAllocNodeGetParams = dlfcn.dlsym(handle, 'cuGraphMemAllocNodeGetParams')
         __cuGraphAddMemFreeNode = dlfcn.dlsym(handle, 'cuGraphAddMemFreeNode')
@@ -3506,6 +3622,8 @@ cdef int cuPythonInit() nogil except -1:
         __cuGraphicsResourceGetMappedPointer_v2 = dlfcn.dlsym(handle, 'cuGraphicsResourceGetMappedPointer_v2')
         __cuGraphicsResourceSetMapFlags_v2 = dlfcn.dlsym(handle, 'cuGraphicsResourceSetMapFlags_v2')
         __cuGetProcAddress = dlfcn.dlsym(handle, 'cuGetProcAddress')
+        __cuModuleGetLoadingMode = dlfcn.dlsym(handle, 'cuModuleGetLoadingMode')
+        __cuMemGetHandleForAddressRange = dlfcn.dlsym(handle, 'cuMemGetHandleForAddressRange')
         __cuGetExportTable = dlfcn.dlsym(handle, 'cuGetExportTable')
         __cuProfilerInitialize = dlfcn.dlsym(handle, 'cuProfilerInitialize')
         __cuProfilerStart = dlfcn.dlsym(handle, 'cuProfilerStart')
@@ -5393,6 +5511,51 @@ cdef CUresult _cuStreamBatchMemOp(CUstream stream, unsigned int count, CUstreamB
     err = (<CUresult (*)(CUstream, unsigned int, CUstreamBatchMemOpParams*, unsigned int) nogil> __cuStreamBatchMemOp)(stream, count, paramArray, flags)
     return err
 
+cdef CUresult _cuStreamWaitValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuStreamWaitValue32_v2
+    cuPythonInit()
+    if __cuStreamWaitValue32_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamWaitValue32_v2" not found')
+    err = (<CUresult (*)(CUstream, CUdeviceptr, cuuint32_t, unsigned int) nogil> __cuStreamWaitValue32_v2)(stream, addr, value, flags)
+    return err
+
+cdef CUresult _cuStreamWaitValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuStreamWaitValue64_v2
+    cuPythonInit()
+    if __cuStreamWaitValue64_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamWaitValue64_v2" not found')
+    err = (<CUresult (*)(CUstream, CUdeviceptr, cuuint64_t, unsigned int) nogil> __cuStreamWaitValue64_v2)(stream, addr, value, flags)
+    return err
+
+cdef CUresult _cuStreamWriteValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuStreamWriteValue32_v2
+    cuPythonInit()
+    if __cuStreamWriteValue32_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamWriteValue32_v2" not found')
+    err = (<CUresult (*)(CUstream, CUdeviceptr, cuuint32_t, unsigned int) nogil> __cuStreamWriteValue32_v2)(stream, addr, value, flags)
+    return err
+
+cdef CUresult _cuStreamWriteValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuStreamWriteValue64_v2
+    cuPythonInit()
+    if __cuStreamWriteValue64_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamWriteValue64_v2" not found')
+    err = (<CUresult (*)(CUstream, CUdeviceptr, cuuint64_t, unsigned int) nogil> __cuStreamWriteValue64_v2)(stream, addr, value, flags)
+    return err
+
+cdef CUresult _cuStreamBatchMemOp_v2(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuStreamBatchMemOp_v2
+    cuPythonInit()
+    if __cuStreamBatchMemOp_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamBatchMemOp_v2" not found')
+    err = (<CUresult (*)(CUstream, unsigned int, CUstreamBatchMemOpParams*, unsigned int) nogil> __cuStreamBatchMemOp_v2)(stream, count, paramArray, flags)
+    return err
+
 cdef CUresult _cuFuncGetAttribute(int* pi, CUfunction_attribute attrib, CUfunction hfunc) nogil except ?CUDA_ERROR_NOT_FOUND:
     global __cuFuncGetAttribute
     cuPythonInit()
@@ -5814,6 +5977,42 @@ cdef CUresult _cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode, con
         with gil:
             raise RuntimeError('Function "cuGraphExternalSemaphoresWaitNodeSetParams" not found')
     err = (<CUresult (*)(CUgraphNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS*) nogil> __cuGraphExternalSemaphoresWaitNodeSetParams)(hNode, nodeParams)
+    return err
+
+cdef CUresult _cuGraphAddBatchMemOpNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphAddBatchMemOpNode
+    cuPythonInit()
+    if __cuGraphAddBatchMemOpNode == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphAddBatchMemOpNode" not found')
+    err = (<CUresult (*)(CUgraphNode*, CUgraph, const CUgraphNode*, size_t, const CUDA_BATCH_MEM_OP_NODE_PARAMS*) nogil> __cuGraphAddBatchMemOpNode)(phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
+    return err
+
+cdef CUresult _cuGraphBatchMemOpNodeGetParams(CUgraphNode hNode, CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams_out) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphBatchMemOpNodeGetParams
+    cuPythonInit()
+    if __cuGraphBatchMemOpNodeGetParams == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphBatchMemOpNodeGetParams" not found')
+    err = (<CUresult (*)(CUgraphNode, CUDA_BATCH_MEM_OP_NODE_PARAMS*) nogil> __cuGraphBatchMemOpNodeGetParams)(hNode, nodeParams_out)
+    return err
+
+cdef CUresult _cuGraphBatchMemOpNodeSetParams(CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphBatchMemOpNodeSetParams
+    cuPythonInit()
+    if __cuGraphBatchMemOpNodeSetParams == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphBatchMemOpNodeSetParams" not found')
+    err = (<CUresult (*)(CUgraphNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS*) nogil> __cuGraphBatchMemOpNodeSetParams)(hNode, nodeParams)
+    return err
+
+cdef CUresult _cuGraphExecBatchMemOpNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuGraphExecBatchMemOpNodeSetParams
+    cuPythonInit()
+    if __cuGraphExecBatchMemOpNodeSetParams == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphExecBatchMemOpNodeSetParams" not found')
+    err = (<CUresult (*)(CUgraphExec, CUgraphNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS*) nogil> __cuGraphExecBatchMemOpNodeSetParams)(hGraphExec, hNode, nodeParams)
     return err
 
 cdef CUresult _cuGraphAddMemAllocNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUDA_MEM_ALLOC_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND:
@@ -6705,6 +6904,24 @@ cdef CUresult _cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion,
         with gil:
             raise RuntimeError('Function "cuGetProcAddress" not found')
     err = (<CUresult (*)(const char*, void**, int, cuuint64_t) nogil> __cuGetProcAddress)(symbol, pfn, cudaVersion, flags)
+    return err
+
+cdef CUresult _cuModuleGetLoadingMode(CUmoduleLoadingMode* mode) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuModuleGetLoadingMode
+    cuPythonInit()
+    if __cuModuleGetLoadingMode == NULL:
+        with gil:
+            raise RuntimeError('Function "cuModuleGetLoadingMode" not found')
+    err = (<CUresult (*)(CUmoduleLoadingMode*) nogil> __cuModuleGetLoadingMode)(mode)
+    return err
+
+cdef CUresult _cuMemGetHandleForAddressRange(void* handle, CUdeviceptr dptr, size_t size, CUmemRangeHandleType handleType, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuMemGetHandleForAddressRange
+    cuPythonInit()
+    if __cuMemGetHandleForAddressRange == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMemGetHandleForAddressRange" not found')
+    err = (<CUresult (*)(void*, CUdeviceptr, size_t, CUmemRangeHandleType, unsigned long long) nogil> __cuMemGetHandleForAddressRange)(handle, dptr, size, handleType, flags)
     return err
 
 cdef CUresult _cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) nogil except ?CUDA_ERROR_NOT_FOUND:
