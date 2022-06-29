@@ -22,7 +22,7 @@ copyright = '2021-2022, NVIDIA'
 author = 'NVIDIA'
 
 # The full version, including alpha/beta/rc tags
-release = '11.7.0'
+release = '11.7.1'
 
 
 # -- General configuration ---------------------------------------------------

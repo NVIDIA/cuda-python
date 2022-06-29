@@ -16,7 +16,9 @@ class KernelHelper:
         prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(code), b'sourceCode.cu', 0, [], []))
         CUDA_HOME = os.getenv('CUDA_HOME')
         if CUDA_HOME == None:
-            raise RuntimeError('Environment variable CUDA_HOME is not defined')
+            CUDA_HOME = os.getenv('CUDA_PATH')
+        if CUDA_HOME == None:
+            raise RuntimeError('Environment variable CUDA_HOME or CUDA_PATH is not set')
         include_dirs = os.path.join(CUDA_HOME, 'include')
 
         # Initialize CUDA

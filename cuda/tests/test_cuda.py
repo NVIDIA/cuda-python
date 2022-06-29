@@ -281,11 +281,9 @@ extra : 0
 
 def test_cuda_struct_list_of_enums():
     desc = cuda.CUDA_TEXTURE_DESC_st()
-    # print(desc)
     desc.addressMode = [cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_WRAP,
                         cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_CLAMP,
                         cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_MIRROR]
-    # print(desc)
 
     # # Too many args
     # desc.addressMode = [cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_WRAP,

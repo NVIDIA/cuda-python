@@ -78,7 +78,7 @@ cdef cudaError_t _cudaDriverGetVersion(int* driverVersion) nogil except ?cudaErr
 
 cdef cudaError_t _cudaRuntimeGetVersion(int* runtimeVersion) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaError_t err
-    runtimeVersion[0] = m_global.CUDART_VERSION
+    runtimeVersion[0] = m_global._CUDART_VERSION
     return cudaSuccess
 
 
@@ -316,7 +316,7 @@ cdef cudaError_t _cudaGraphExecMemcpyNodeSetParams1D(cudaGraphExec_t hGraphExec,
 
 cdef cudaError_t _cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, unsigned long long flags) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaError_t err
-    err = <cudaError_t>ccuda._cuGetProcAddress(symbol, funcPtr, m_global.CUDART_VERSION, flags)
+    err = <cudaError_t>ccuda._cuGetProcAddress(symbol, funcPtr, m_global._CUDART_VERSION, flags)
     if err != cudaSuccess:
         _setLastError(err)
     return err

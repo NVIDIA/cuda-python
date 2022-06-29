@@ -20,7 +20,7 @@ cdef class cudaArray_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaArray_t  _val
+    cdef ccudart.cudaArray_t  __val
     cdef ccudart.cudaArray_t* _ptr
 
 cdef class cudaArray_const_t:
@@ -34,7 +34,7 @@ cdef class cudaArray_const_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaArray_const_t  _val
+    cdef ccudart.cudaArray_const_t  __val
     cdef ccudart.cudaArray_const_t* _ptr
 
 cdef class cudaMipmappedArray_t:
@@ -48,7 +48,7 @@ cdef class cudaMipmappedArray_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaMipmappedArray_t  _val
+    cdef ccudart.cudaMipmappedArray_t  __val
     cdef ccudart.cudaMipmappedArray_t* _ptr
 
 cdef class cudaMipmappedArray_const_t:
@@ -62,7 +62,7 @@ cdef class cudaMipmappedArray_const_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaMipmappedArray_const_t  _val
+    cdef ccudart.cudaMipmappedArray_const_t  __val
     cdef ccudart.cudaMipmappedArray_const_t* _ptr
 
 cdef class cudaGraphicsResource_t:
@@ -76,7 +76,7 @@ cdef class cudaGraphicsResource_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaGraphicsResource_t  _val
+    cdef ccudart.cudaGraphicsResource_t  __val
     cdef ccudart.cudaGraphicsResource_t* _ptr
 
 cdef class cudaExternalMemory_t:
@@ -90,7 +90,7 @@ cdef class cudaExternalMemory_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalMemory_t  _val
+    cdef ccudart.cudaExternalMemory_t  __val
     cdef ccudart.cudaExternalMemory_t* _ptr
 
 cdef class cudaExternalSemaphore_t:
@@ -104,7 +104,7 @@ cdef class cudaExternalSemaphore_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalSemaphore_t  _val
+    cdef ccudart.cudaExternalSemaphore_t  __val
     cdef ccudart.cudaExternalSemaphore_t* _ptr
 
 cdef class EGLImageKHR:
@@ -116,7 +116,7 @@ cdef class EGLImageKHR:
         Get memory address of class instance
 
     """
-    cdef ccudart.EGLImageKHR  _val
+    cdef ccudart.EGLImageKHR  __val
     cdef ccudart.EGLImageKHR* _ptr
 
 cdef class EGLStreamKHR:
@@ -128,7 +128,7 @@ cdef class EGLStreamKHR:
         Get memory address of class instance
 
     """
-    cdef ccudart.EGLStreamKHR  _val
+    cdef ccudart.EGLStreamKHR  __val
     cdef ccudart.EGLStreamKHR* _ptr
 
 cdef class EGLSyncKHR:
@@ -140,7 +140,7 @@ cdef class EGLSyncKHR:
         Get memory address of class instance
 
     """
-    cdef ccudart.EGLSyncKHR  _val
+    cdef ccudart.EGLSyncKHR  __val
     cdef ccudart.EGLSyncKHR* _ptr
 
 cdef class cudaHostFn_t:
@@ -152,7 +152,7 @@ cdef class cudaHostFn_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaHostFn_t  _val
+    cdef ccudart.cudaHostFn_t  __val
     cdef ccudart.cudaHostFn_t* _ptr
 
 cdef class cudaStreamCallback_t:
@@ -164,7 +164,7 @@ cdef class cudaStreamCallback_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaStreamCallback_t  _val
+    cdef ccudart.cudaStreamCallback_t  __val
     cdef ccudart.cudaStreamCallback_t* _ptr
 
 cdef class dim3:
@@ -185,7 +185,7 @@ cdef class dim3:
         Get memory address of class instance
 
     """
-    cdef ccudart.dim3  _val
+    cdef ccudart.dim3  __val
     cdef ccudart.dim3* _ptr
 
 cdef class cudaChannelFormatDesc:
@@ -211,7 +211,7 @@ cdef class cudaChannelFormatDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaChannelFormatDesc  _val
+    cdef ccudart.cudaChannelFormatDesc  __val
     cdef ccudart.cudaChannelFormatDesc* _ptr
 
 cdef class _cudaArraySparseProperties_tileExtent_s:
@@ -257,7 +257,7 @@ cdef class cudaArraySparseProperties:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaArraySparseProperties  _val
+    cdef ccudart.cudaArraySparseProperties  __val
     cdef ccudart.cudaArraySparseProperties* _ptr
     cdef _cudaArraySparseProperties_tileExtent_s _tileExtent
 
@@ -280,7 +280,7 @@ cdef class cudaArrayMemoryRequirements:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaArrayMemoryRequirements  _val
+    cdef ccudart.cudaArrayMemoryRequirements  __val
     cdef ccudart.cudaArrayMemoryRequirements* _ptr
 
 cdef class cudaPitchedPtr:
@@ -304,7 +304,7 @@ cdef class cudaPitchedPtr:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaPitchedPtr  _val
+    cdef ccudart.cudaPitchedPtr  __val
     cdef ccudart.cudaPitchedPtr* _ptr
     cdef utils.HelperInputVoidPtr _cptr
 
@@ -328,7 +328,7 @@ cdef class cudaExtent:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExtent  _val
+    cdef ccudart.cudaExtent  __val
     cdef ccudart.cudaExtent* _ptr
 
 cdef class cudaPos:
@@ -350,7 +350,7 @@ cdef class cudaPos:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaPos  _val
+    cdef ccudart.cudaPos  __val
     cdef ccudart.cudaPos* _ptr
 
 cdef class cudaMemcpy3DParms:
@@ -382,7 +382,7 @@ cdef class cudaMemcpy3DParms:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaMemcpy3DParms  _val
+    cdef ccudart.cudaMemcpy3DParms  __val
     cdef ccudart.cudaMemcpy3DParms* _ptr
     cdef cudaArray_t _srcArray
     cdef cudaPos _srcPos
@@ -423,7 +423,7 @@ cdef class cudaMemcpy3DPeerParms:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaMemcpy3DPeerParms  _val
+    cdef ccudart.cudaMemcpy3DPeerParms  __val
     cdef ccudart.cudaMemcpy3DPeerParms* _ptr
     cdef cudaArray_t _srcArray
     cdef cudaPos _srcPos
@@ -458,7 +458,7 @@ cdef class cudaMemsetParams:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaMemsetParams  _val
+    cdef ccudart.cudaMemsetParams  __val
     cdef ccudart.cudaMemsetParams* _ptr
     cdef utils.HelperInputVoidPtr _cdst
 
@@ -496,7 +496,7 @@ cdef class cudaAccessPolicyWindow:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaAccessPolicyWindow  _val
+    cdef ccudart.cudaAccessPolicyWindow  __val
     cdef ccudart.cudaAccessPolicyWindow* _ptr
     cdef utils.HelperInputVoidPtr _cbase_ptr
 
@@ -517,7 +517,7 @@ cdef class cudaHostNodeParams:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaHostNodeParams  _val
+    cdef ccudart.cudaHostNodeParams  __val
     cdef ccudart.cudaHostNodeParams* _ptr
     cdef cudaHostFn_t _fn
     cdef utils.HelperInputVoidPtr _cuserData
@@ -647,7 +647,7 @@ cdef class cudaResourceDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaResourceDesc  _val
+    cdef ccudart.cudaResourceDesc  __val
     cdef ccudart.cudaResourceDesc* _ptr
     cdef _cudaResourceDesc_res_u _res
 
@@ -680,7 +680,7 @@ cdef class cudaResourceViewDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaResourceViewDesc  _val
+    cdef ccudart.cudaResourceViewDesc  __val
     cdef ccudart.cudaResourceViewDesc* _ptr
 
 cdef class cudaPointerAttributes:
@@ -715,7 +715,7 @@ cdef class cudaPointerAttributes:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaPointerAttributes  _val
+    cdef ccudart.cudaPointerAttributes  __val
     cdef ccudart.cudaPointerAttributes* _ptr
     cdef utils.HelperInputVoidPtr _cdevicePointer
     cdef utils.HelperInputVoidPtr _chostPointer
@@ -772,7 +772,7 @@ cdef class cudaFuncAttributes:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaFuncAttributes  _val
+    cdef ccudart.cudaFuncAttributes  __val
     cdef ccudart.cudaFuncAttributes* _ptr
 
 cdef class cudaMemLocation:
@@ -793,7 +793,7 @@ cdef class cudaMemLocation:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaMemLocation  _val
+    cdef ccudart.cudaMemLocation  __val
     cdef ccudart.cudaMemLocation* _ptr
 
 cdef class cudaMemAccessDesc:
@@ -813,7 +813,7 @@ cdef class cudaMemAccessDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaMemAccessDesc  _val
+    cdef ccudart.cudaMemAccessDesc  __val
     cdef ccudart.cudaMemAccessDesc* _ptr
     cdef cudaMemLocation _location
 
@@ -845,7 +845,7 @@ cdef class cudaMemPoolProps:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaMemPoolProps  _val
+    cdef ccudart.cudaMemPoolProps  __val
     cdef ccudart.cudaMemPoolProps* _ptr
     cdef cudaMemLocation _location
     cdef utils.HelperInputVoidPtr _cwin32SecurityAttributes
@@ -865,7 +865,7 @@ cdef class cudaMemPoolPtrExportData:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaMemPoolPtrExportData  _val
+    cdef ccudart.cudaMemPoolPtrExportData  __val
     cdef ccudart.cudaMemPoolPtrExportData* _ptr
 
 cdef class cudaMemAllocNodeParams:
@@ -895,7 +895,7 @@ cdef class cudaMemAllocNodeParams:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaMemAllocNodeParams  _val
+    cdef ccudart.cudaMemAllocNodeParams  __val
     cdef ccudart.cudaMemAllocNodeParams* _ptr
     cdef cudaMemPoolProps _poolProps
     cdef size_t _accessDescs_length
@@ -916,7 +916,7 @@ cdef class CUuuid_st:
         Get memory address of class instance
 
     """
-    cdef ccudart.CUuuid_st  _val
+    cdef ccudart.CUuuid_st  __val
     cdef ccudart.CUuuid_st* _ptr
 
 cdef class cudaDeviceProp:
@@ -1108,7 +1108,7 @@ cdef class cudaDeviceProp:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaDeviceProp  _val
+    cdef ccudart.cudaDeviceProp  __val
     cdef ccudart.cudaDeviceProp* _ptr
     cdef cudaUUID_t _uuid
 
@@ -1127,7 +1127,7 @@ cdef class cudaIpcEventHandle_st:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaIpcEventHandle_st  _val
+    cdef ccudart.cudaIpcEventHandle_st  __val
     cdef ccudart.cudaIpcEventHandle_st* _ptr
 
 cdef class cudaIpcMemHandle_st:
@@ -1145,7 +1145,7 @@ cdef class cudaIpcMemHandle_st:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaIpcMemHandle_st  _val
+    cdef ccudart.cudaIpcMemHandle_st  __val
     cdef ccudart.cudaIpcMemHandle_st* _ptr
 
 cdef class _cudaExternalMemoryHandleDesc_handle_handle_win32_s:
@@ -1211,7 +1211,7 @@ cdef class cudaExternalMemoryHandleDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalMemoryHandleDesc  _val
+    cdef ccudart.cudaExternalMemoryHandleDesc  __val
     cdef ccudart.cudaExternalMemoryHandleDesc* _ptr
     cdef _cudaExternalMemoryHandleDesc_handle_u _handle
 
@@ -1234,7 +1234,7 @@ cdef class cudaExternalMemoryBufferDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalMemoryBufferDesc  _val
+    cdef ccudart.cudaExternalMemoryBufferDesc  __val
     cdef ccudart.cudaExternalMemoryBufferDesc* _ptr
 
 cdef class cudaExternalMemoryMipmappedArrayDesc:
@@ -1262,7 +1262,7 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalMemoryMipmappedArrayDesc  _val
+    cdef ccudart.cudaExternalMemoryMipmappedArrayDesc  __val
     cdef ccudart.cudaExternalMemoryMipmappedArrayDesc* _ptr
     cdef cudaChannelFormatDesc _formatDesc
     cdef cudaExtent _extent
@@ -1328,7 +1328,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalSemaphoreHandleDesc  _val
+    cdef ccudart.cudaExternalSemaphoreHandleDesc  __val
     cdef ccudart.cudaExternalSemaphoreHandleDesc* _ptr
     cdef _cudaExternalSemaphoreHandleDesc_handle_u _handle
 
@@ -1434,7 +1434,7 @@ cdef class cudaExternalSemaphoreSignalParams:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalSemaphoreSignalParams  _val
+    cdef ccudart.cudaExternalSemaphoreSignalParams  __val
     cdef ccudart.cudaExternalSemaphoreSignalParams* _ptr
     cdef _cudaExternalSemaphoreSignalParams_params_s _params
 
@@ -1542,7 +1542,7 @@ cdef class cudaExternalSemaphoreWaitParams:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalSemaphoreWaitParams  _val
+    cdef ccudart.cudaExternalSemaphoreWaitParams  __val
     cdef ccudart.cudaExternalSemaphoreWaitParams* _ptr
     cdef _cudaExternalSemaphoreWaitParams_params_s _params
 
@@ -1571,7 +1571,7 @@ cdef class cudaKernelNodeParams:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaKernelNodeParams  _val
+    cdef ccudart.cudaKernelNodeParams  __val
     cdef ccudart.cudaKernelNodeParams* _ptr
     cdef utils.HelperInputVoidPtr _cfunc
     cdef dim3 _gridDim
@@ -1598,7 +1598,7 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalSemaphoreSignalNodeParams  _val
+    cdef ccudart.cudaExternalSemaphoreSignalNodeParams  __val
     cdef ccudart.cudaExternalSemaphoreSignalNodeParams* _ptr
     cdef size_t _extSemArray_length
     cdef ccudart.cudaExternalSemaphore_t* _extSemArray
@@ -1625,7 +1625,7 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalSemaphoreWaitNodeParams  _val
+    cdef ccudart.cudaExternalSemaphoreWaitNodeParams  __val
     cdef ccudart.cudaExternalSemaphoreWaitNodeParams* _ptr
     cdef size_t _extSemArray_length
     cdef ccudart.cudaExternalSemaphore_t* _extSemArray
@@ -1650,7 +1650,7 @@ cdef class cudaStreamAttrValue:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaStreamAttrValue  _val
+    cdef ccudart.cudaStreamAttrValue  __val
     cdef ccudart.cudaStreamAttrValue* _ptr
     cdef cudaAccessPolicyWindow _accessPolicyWindow
 
@@ -1674,7 +1674,7 @@ cdef class cudaKernelNodeAttrValue:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaKernelNodeAttrValue  _val
+    cdef ccudart.cudaKernelNodeAttrValue  __val
     cdef ccudart.cudaKernelNodeAttrValue* _ptr
     cdef cudaAccessPolicyWindow _accessPolicyWindow
 
@@ -1717,7 +1717,7 @@ cdef class cudaTextureDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaTextureDesc  _val
+    cdef ccudart.cudaTextureDesc  __val
     cdef ccudart.cudaTextureDesc* _ptr
 
 cdef class cudaEglPlaneDesc_st:
@@ -1748,7 +1748,7 @@ cdef class cudaEglPlaneDesc_st:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaEglPlaneDesc_st  _val
+    cdef ccudart.cudaEglPlaneDesc_st  __val
     cdef ccudart.cudaEglPlaneDesc_st* _ptr
     cdef cudaChannelFormatDesc _channelDesc
 
@@ -1800,7 +1800,7 @@ cdef class cudaEglFrame_st:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaEglFrame_st  _val
+    cdef ccudart.cudaEglFrame_st  __val
     cdef ccudart.cudaEglFrame_st* _ptr
     cdef _cudaEglFrame_cudaEglFrame_cudaEglFrame_st_frame_u _frame
 
@@ -2058,6 +2058,90 @@ cdef class cudaEglStreamConnection(cuda.CUeglStreamConnection):
     """
     pass
 
+cdef class GLenum:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.GLenum  __val
+    cdef ccudart.GLenum* _ptr
+
+cdef class GLuint:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.GLuint  __val
+    cdef ccudart.GLuint* _ptr
+
+cdef class EGLint:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.EGLint  __val
+    cdef ccudart.EGLint* _ptr
+
+cdef class VdpDevice:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.VdpDevice  __val
+    cdef ccudart.VdpDevice* _ptr
+
+cdef class VdpGetProcAddress:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.VdpGetProcAddress  __val
+    cdef ccudart.VdpGetProcAddress* _ptr
+
+cdef class VdpVideoSurface:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.VdpVideoSurface  __val
+    cdef ccudart.VdpVideoSurface* _ptr
+
+cdef class VdpOutputSurface:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.VdpOutputSurface  __val
+    cdef ccudart.VdpOutputSurface* _ptr
+
 cdef class cudaSurfaceObject_t:
     """
 
@@ -2069,7 +2153,7 @@ cdef class cudaSurfaceObject_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaSurfaceObject_t  _val
+    cdef ccudart.cudaSurfaceObject_t  __val
     cdef ccudart.cudaSurfaceObject_t* _ptr
 
 cdef class cudaTextureObject_t:
@@ -2083,89 +2167,5 @@ cdef class cudaTextureObject_t:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaTextureObject_t  _val
+    cdef ccudart.cudaTextureObject_t  __val
     cdef ccudart.cudaTextureObject_t* _ptr
-
-cdef class GLenum:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccudart.GLenum  _val
-    cdef ccudart.GLenum* _ptr
-
-cdef class GLuint:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccudart.GLuint  _val
-    cdef ccudart.GLuint* _ptr
-
-cdef class EGLint:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccudart.EGLint  _val
-    cdef ccudart.EGLint* _ptr
-
-cdef class VdpDevice:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccudart.VdpDevice  _val
-    cdef ccudart.VdpDevice* _ptr
-
-cdef class VdpGetProcAddress:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccudart.VdpGetProcAddress  _val
-    cdef ccudart.VdpGetProcAddress* _ptr
-
-cdef class VdpVideoSurface:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccudart.VdpVideoSurface  _val
-    cdef ccudart.VdpVideoSurface* _ptr
-
-cdef class VdpOutputSurface:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccudart.VdpOutputSurface  _val
-    cdef ccudart.VdpOutputSurface* _ptr

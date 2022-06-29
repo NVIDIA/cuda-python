@@ -1,6 +1,6 @@
 # CUDA Python 11.7.0 Release notes
 
-Released on TODO TODO, 2022
+Released on May 11, 2022
 
 ## Hightlights
 - Support CUDA Toolkit 11.7

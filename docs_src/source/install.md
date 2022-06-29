@@ -37,6 +37,8 @@ Unit-test dependencies:
 
 Latest list of dependencies can be found at [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/requirements.txt)
 
+As per release 11.7.1, the latest CTK headers are required. Mobile platforms facing "has not been declared" error may use headers in https://gitlab.com/nvidia/headers/cuda as a temporary workaround. Consult the release notes for further direction.
+
 ### In-place
 
 To compile the extension in-place, run:
