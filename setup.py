@@ -9,6 +9,7 @@ import os
 import shutil
 import sys
 import sysconfig
+import logging
 
 if sys.platform == 'win32':
     from distutils import _msvccompiler
@@ -28,8 +29,15 @@ try:
 except Exception:
     nthreads = 0
 
+CUDA_HOME = os.environ.get("CUDA_HOME")
+if not CUDA_HOME:
+    CUDA_HOME = os.environ.get("CUDA_PATH")
+if not CUDA_HOME:
+    raise RuntimeError('Environment variable CUDA_HOME or CUDA_PATH is not set')
+
 include_dirs = [
     os.path.dirname(sysconfig.get_path("include")),
+    f'{CUDA_HOME}/include',
 ]
 
 library_dirs = [get_python_lib(), os.path.join(os.sys.prefix, "lib")]
@@ -57,7 +65,7 @@ extensions = cythonize(
         Extension(
             "*",
             sources=["cuda/_cuda/*.pyx", "cuda/_cuda/loader.cpp"],
-            include_dirs=[],
+            include_dirs=include_dirs,
             library_dirs=[],
             runtime_library_dirs=[],
             libraries=[],
@@ -173,13 +181,6 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Environment :: GPU :: NVIDIA CUDA",
-        "Environment :: GPU :: NVIDIA CUDA :: 11.0",
-        "Environment :: GPU :: NVIDIA CUDA :: 11.1",
-        "Environment :: GPU :: NVIDIA CUDA :: 11.2",
-        "Environment :: GPU :: NVIDIA CUDA :: 11.3",
-        "Environment :: GPU :: NVIDIA CUDA :: 11.4",
-        "Environment :: GPU :: NVIDIA CUDA :: 11.5",
-        "Environment :: GPU :: NVIDIA CUDA :: 11.6",
     ],
     # Include the separately-compiled shared library
     setup_requires=["cython"],

@@ -19,5 +19,5 @@ cdef class nvrtcProgram:
         Get memory address of class instance
 
     """
-    cdef cnvrtc.nvrtcProgram  _val
+    cdef cnvrtc.nvrtcProgram  __val
     cdef cnvrtc.nvrtcProgram* _ptr

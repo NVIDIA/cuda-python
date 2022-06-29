@@ -290,12 +290,6 @@ __CUDART_API_VERSION = ccudart.__CUDART_API_VERSION
 #: Maximum number of planes per frame
 CUDA_EGL_MAX_PLANES = ccudart.CUDA_EGL_MAX_PLANES
 
-class cudaRoundMode(IntEnum):
-    cudaRoundNearest = ccudart.cudaRoundMode.cudaRoundNearest
-    cudaRoundZero = ccudart.cudaRoundMode.cudaRoundZero
-    cudaRoundPosInf = ccudart.cudaRoundMode.cudaRoundPosInf
-    cudaRoundMinInf = ccudart.cudaRoundMode.cudaRoundMinInf
-
 class cudaError_t(IntEnum):
     """
     impl_private CUDA error types
@@ -2297,6 +2291,42 @@ class cudaKernelNodeAttrID(IntEnum):
     #: Sets the priority of the kernel.
     cudaKernelNodeAttributePriority = ccudart.cudaKernelNodeAttrID.cudaKernelNodeAttributePriority
 
+class cudaGLDeviceList(IntEnum):
+    """
+    CUDA devices corresponding to the current OpenGL context
+    """
+
+    #: The CUDA devices for all GPUs used by the current OpenGL context
+    cudaGLDeviceListAll = ccudart.cudaGLDeviceList.cudaGLDeviceListAll
+
+    #: The CUDA devices for the GPUs used by the current OpenGL context in
+    #: its currently rendering frame
+    cudaGLDeviceListCurrentFrame = ccudart.cudaGLDeviceList.cudaGLDeviceListCurrentFrame
+
+    #: The CUDA devices for the GPUs to be used by the current OpenGL
+    #: context in the next frame
+    cudaGLDeviceListNextFrame = ccudart.cudaGLDeviceList.cudaGLDeviceListNextFrame
+
+class cudaGLMapFlags(IntEnum):
+    """
+    CUDA GL Map Flags
+    """
+
+    #: Default; Assume resource can be read/written
+    cudaGLMapFlagsNone = ccudart.cudaGLMapFlags.cudaGLMapFlagsNone
+
+    #: CUDA kernels will not write to this resource
+    cudaGLMapFlagsReadOnly = ccudart.cudaGLMapFlags.cudaGLMapFlagsReadOnly
+
+    #: CUDA kernels will only write to and will not read from this resource
+    cudaGLMapFlagsWriteDiscard = ccudart.cudaGLMapFlags.cudaGLMapFlagsWriteDiscard
+
+class cudaRoundMode(IntEnum):
+    cudaRoundNearest = ccudart.cudaRoundMode.cudaRoundNearest
+    cudaRoundZero = ccudart.cudaRoundMode.cudaRoundZero
+    cudaRoundPosInf = ccudart.cudaRoundMode.cudaRoundPosInf
+    cudaRoundMinInf = ccudart.cudaRoundMode.cudaRoundMinInf
+
 class cudaSurfaceBoundaryMode(IntEnum):
     """
     CUDA Surface boundary modes
@@ -2395,36 +2425,6 @@ class libraryPropertyType(IntEnum):
     MAJOR_VERSION = ccudart.libraryPropertyType_t.MAJOR_VERSION
     MINOR_VERSION = ccudart.libraryPropertyType_t.MINOR_VERSION
     PATCH_LEVEL = ccudart.libraryPropertyType_t.PATCH_LEVEL
-
-class cudaGLDeviceList(IntEnum):
-    """
-    CUDA devices corresponding to the current OpenGL context
-    """
-
-    #: The CUDA devices for all GPUs used by the current OpenGL context
-    cudaGLDeviceListAll = ccudart.cudaGLDeviceList.cudaGLDeviceListAll
-
-    #: The CUDA devices for the GPUs used by the current OpenGL context in
-    #: its currently rendering frame
-    cudaGLDeviceListCurrentFrame = ccudart.cudaGLDeviceList.cudaGLDeviceListCurrentFrame
-
-    #: The CUDA devices for the GPUs to be used by the current OpenGL
-    #: context in the next frame
-    cudaGLDeviceListNextFrame = ccudart.cudaGLDeviceList.cudaGLDeviceListNextFrame
-
-class cudaGLMapFlags(IntEnum):
-    """
-    CUDA GL Map Flags
-    """
-
-    #: Default; Assume resource can be read/written
-    cudaGLMapFlagsNone = ccudart.cudaGLMapFlags.cudaGLMapFlagsNone
-
-    #: CUDA kernels will not write to this resource
-    cudaGLMapFlagsReadOnly = ccudart.cudaGLMapFlags.cudaGLMapFlagsReadOnly
-
-    #: CUDA kernels will only write to and will not read from this resource
-    cudaGLMapFlagsWriteDiscard = ccudart.cudaGLMapFlags.cudaGLMapFlagsWriteDiscard
 
 class cudaEglFrameType(IntEnum):
     """
@@ -2900,7 +2900,7 @@ cdef class cudaArray_t:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.cudaArray_t>init_value
         else:
             self._ptr = <ccudart.cudaArray_t *>_ptr
@@ -2928,7 +2928,7 @@ cdef class cudaArray_const_t:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.cudaArray_const_t>init_value
         else:
             self._ptr = <ccudart.cudaArray_const_t *>_ptr
@@ -2956,7 +2956,7 @@ cdef class cudaMipmappedArray_t:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.cudaMipmappedArray_t>init_value
         else:
             self._ptr = <ccudart.cudaMipmappedArray_t *>_ptr
@@ -2984,7 +2984,7 @@ cdef class cudaMipmappedArray_const_t:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.cudaMipmappedArray_const_t>init_value
         else:
             self._ptr = <ccudart.cudaMipmappedArray_const_t *>_ptr
@@ -3012,7 +3012,7 @@ cdef class cudaGraphicsResource_t:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.cudaGraphicsResource_t>init_value
         else:
             self._ptr = <ccudart.cudaGraphicsResource_t *>_ptr
@@ -3040,7 +3040,7 @@ cdef class cudaExternalMemory_t:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.cudaExternalMemory_t>init_value
         else:
             self._ptr = <ccudart.cudaExternalMemory_t *>_ptr
@@ -3068,7 +3068,7 @@ cdef class cudaExternalSemaphore_t:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.cudaExternalSemaphore_t>init_value
         else:
             self._ptr = <ccudart.cudaExternalSemaphore_t *>_ptr
@@ -3094,7 +3094,7 @@ cdef class EGLImageKHR:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.EGLImageKHR>init_value
         else:
             self._ptr = <ccudart.EGLImageKHR *>_ptr
@@ -3120,7 +3120,7 @@ cdef class EGLStreamKHR:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.EGLStreamKHR>init_value
         else:
             self._ptr = <ccudart.EGLStreamKHR *>_ptr
@@ -3146,7 +3146,7 @@ cdef class EGLSyncKHR:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.EGLSyncKHR>init_value
         else:
             self._ptr = <ccudart.EGLSyncKHR *>_ptr
@@ -3172,7 +3172,7 @@ cdef class cudaHostFn_t:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.cudaHostFn_t>init_value
         else:
             self._ptr = <ccudart.cudaHostFn_t *>_ptr
@@ -3198,7 +3198,7 @@ cdef class cudaStreamCallback_t:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccudart.cudaStreamCallback_t>init_value
         else:
             self._ptr = <ccudart.cudaStreamCallback_t *>_ptr
@@ -3233,7 +3233,7 @@ cdef class dim3:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.dim3 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -3299,7 +3299,7 @@ cdef class cudaChannelFormatDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaChannelFormatDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -3437,7 +3437,7 @@ cdef class cudaArraySparseProperties:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaArraySparseProperties *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -3519,7 +3519,7 @@ cdef class cudaArrayMemoryRequirements:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaArrayMemoryRequirements *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -3583,7 +3583,7 @@ cdef class cudaPitchedPtr:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaPitchedPtr *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -3654,7 +3654,7 @@ cdef class cudaExtent:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaExtent *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -3716,7 +3716,7 @@ cdef class cudaPos:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaPos *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -3788,7 +3788,7 @@ cdef class cudaMemcpy3DParms:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaMemcpy3DParms *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -3944,7 +3944,7 @@ cdef class cudaMemcpy3DPeerParms:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaMemcpy3DPeerParms *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4102,7 +4102,7 @@ cdef class cudaMemsetParams:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaMemsetParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4203,7 +4203,7 @@ cdef class cudaAccessPolicyWindow:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaAccessPolicyWindow *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4279,7 +4279,7 @@ cdef class cudaHostNodeParams:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaHostNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4652,7 +4652,7 @@ cdef class cudaResourceDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaResourceDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4720,7 +4720,7 @@ cdef class cudaResourceViewDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaResourceViewDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4835,7 +4835,7 @@ cdef class cudaPointerAttributes:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaPointerAttributes *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4938,7 +4938,7 @@ cdef class cudaFuncAttributes:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaFuncAttributes *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5055,7 +5055,7 @@ cdef class cudaMemLocation:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaMemLocation *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5107,7 +5107,7 @@ cdef class cudaMemAccessDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaMemAccessDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5174,7 +5174,7 @@ cdef class cudaMemPoolProps:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaMemPoolProps *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5254,7 +5254,7 @@ cdef class cudaMemPoolPtrExportData:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaMemPoolPtrExportData *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5310,7 +5310,7 @@ cdef class cudaMemAllocNodeParams:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaMemAllocNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5401,7 +5401,7 @@ cdef class CUuuid_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.CUuuid_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5613,7 +5613,7 @@ cdef class cudaDeviceProp:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaDeviceProp *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6301,7 +6301,7 @@ cdef class cudaIpcEventHandle_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaIpcEventHandle_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6353,7 +6353,7 @@ cdef class cudaIpcMemHandle_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaIpcMemHandle_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6517,7 +6517,7 @@ cdef class cudaExternalMemoryHandleDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaExternalMemoryHandleDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6591,7 +6591,7 @@ cdef class cudaExternalMemoryBufferDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaExternalMemoryBufferDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6659,7 +6659,7 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaExternalMemoryMipmappedArrayDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6852,7 +6852,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaExternalSemaphoreHandleDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7123,7 +7123,7 @@ cdef class cudaExternalSemaphoreSignalParams:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaExternalSemaphoreSignalParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7404,7 +7404,7 @@ cdef class cudaExternalSemaphoreWaitParams:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaExternalSemaphoreWaitParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7476,7 +7476,7 @@ cdef class cudaKernelNodeParams:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaKernelNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7571,7 +7571,7 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaExternalSemaphoreSignalNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7663,7 +7663,7 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaExternalSemaphoreWaitNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7753,7 +7753,7 @@ cdef class cudaStreamAttrValue:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaStreamAttrValue *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7812,7 +7812,7 @@ cdef class cudaKernelNodeAttrValue:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaKernelNodeAttrValue *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7898,7 +7898,7 @@ cdef class cudaTextureDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaTextureDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -8048,7 +8048,7 @@ cdef class cudaEglPlaneDesc_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaEglPlaneDesc_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -8211,7 +8211,7 @@ cdef class cudaEglFrame_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaEglFrame_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -8277,6 +8277,181 @@ cdef class cudaEglFrame_st:
         pass
         self._ptr[0].eglColorFormat = eglColorFormat.value
 
+cdef class GLenum:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.GLenum *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        pass
+    def __repr__(self):
+        return '<GLenum ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned int>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class GLuint:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.GLuint *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        pass
+    def __repr__(self):
+        return '<GLuint ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned int>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class EGLint:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.EGLint *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        pass
+    def __repr__(self):
+        return '<EGLint ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned int>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class VdpDevice:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.VdpDevice *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        pass
+    def __repr__(self):
+        return '<VdpDevice ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <uint32_t>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class VdpGetProcAddress:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.VdpGetProcAddress *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        pass
+    def __repr__(self):
+        return '<VdpGetProcAddress ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <unsigned long long>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class VdpVideoSurface:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.VdpVideoSurface *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        pass
+    def __repr__(self):
+        return '<VdpVideoSurface ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <uint32_t>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
+cdef class VdpOutputSurface:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.VdpOutputSurface *>_ptr
+        if init_value:
+            self._ptr[0] = init_value
+    def __dealloc__(self):
+        pass
+    def __repr__(self):
+        return '<VdpOutputSurface ' + str(self.__int__()) + '>'
+    def __int__(self):
+        return <uint32_t>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+
 cdef class cudaSurfaceObject_t:
     """
 
@@ -8290,7 +8465,7 @@ cdef class cudaSurfaceObject_t:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaSurfaceObject_t *>_ptr
         if init_value:
@@ -8317,7 +8492,7 @@ cdef class cudaTextureObject_t:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaTextureObject_t *>_ptr
         if init_value:
@@ -8331,181 +8506,430 @@ cdef class cudaTextureObject_t:
     def getPtr(self):
         return <void_ptr>self._ptr
 
-cdef class GLenum:
-    """
 
-    Methods
+@cython.embedsignature(True)
+def cudaVDPAUGetDevice(vdpDevice, vdpGetProcAddress):
+    """ Gets the CUDA device associated with a VdpDevice.
+
+    Returns the CUDA device associated with a VdpDevice, if applicable.
+
+    Parameters
+    ----------
+    vdpDevice : :py:obj:`~.VdpDevice`
+        A VdpDevice handle
+    vdpGetProcAddress : :py:obj:`~.VdpGetProcAddress`
+        VDPAU's VdpGetProcAddress function pointer
+
+    Returns
     -------
-    getPtr()
-        Get memory address of class instance
+    cudaError_t
+        :py:obj:`~.cudaSuccess`
+    device : int
+        Returns the device associated with vdpDevice, or -1 if the device
+        associated with vdpDevice is not a compute device.
 
+    See Also
+    --------
+    :py:obj:`~.cudaVDPAUSetVDPAUDevice`, :py:obj:`~.cuVDPAUGetDevice`
     """
-    def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccudart.GLenum *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        pass
-    def __repr__(self):
-        return '<GLenum ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned int>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
+    cdef ccudart.VdpGetProcAddress *cvdpGetProcAddress
+    if vdpGetProcAddress is None:
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>NULL
+    elif isinstance(vdpGetProcAddress, (VdpGetProcAddress)):
+        pvdpGetProcAddress = vdpGetProcAddress.getPtr()
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>pvdpGetProcAddress
+    elif isinstance(vdpGetProcAddress, (int)):
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>vdpGetProcAddress
+    else:
+        raise TypeError("Argument 'vdpGetProcAddress' is not instance of type (expected <class 'int, cudart.VdpGetProcAddress'>, found " + str(type(vdpGetProcAddress)))
 
-cdef class GLuint:
-    """
+    cdef ccudart.VdpDevice cvdpDevice
+    if vdpDevice is None:
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>0
+    elif isinstance(vdpDevice, (VdpDevice)):
+        pvdpDevice = int(vdpDevice)
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
+    else:
+        pvdpDevice = int(VdpDevice(vdpDevice))
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
 
-    Methods
+    cdef int device = 0
+    err = ccudart.cudaVDPAUGetDevice(&device, cvdpDevice, cvdpGetProcAddress)
+    return (cudaError_t(err), device)
+
+@cython.embedsignature(True)
+def cudaVDPAUSetVDPAUDevice(int device, vdpDevice, vdpGetProcAddress):
+    """ Sets a CUDA device to use VDPAU interoperability.
+
+    Records `vdpDevice` as the VdpDevice for VDPAU interoperability with
+    the CUDA device `device` and sets `device` as the current device for
+    the calling host thread.
+
+    If `device` has already been initialized then this call will fail with
+    the error :py:obj:`~.cudaErrorSetOnActiveProcess`. In this case it is
+    necessary to reset `device` using :py:obj:`~.cudaDeviceReset()` before
+    VDPAU interoperability on `device` may be enabled.
+
+    Parameters
+    ----------
+    device : int
+        Device to use for VDPAU interoperability
+    vdpDevice : :py:obj:`~.VdpDevice`
+        The VdpDevice to interoperate with
+    vdpGetProcAddress : :py:obj:`~.VdpGetProcAddress`
+        VDPAU's VdpGetProcAddress function pointer
+
+    Returns
     -------
-    getPtr()
-        Get memory address of class instance
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorSetOnActiveProcess`
 
+    See Also
+    --------
+    :py:obj:`~.cudaGraphicsVDPAURegisterVideoSurface`, :py:obj:`~.cudaGraphicsVDPAURegisterOutputSurface`, :py:obj:`~.cudaDeviceReset`
     """
-    def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccudart.GLuint *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        pass
-    def __repr__(self):
-        return '<GLuint ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned int>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
+    cdef ccudart.VdpGetProcAddress *cvdpGetProcAddress
+    if vdpGetProcAddress is None:
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>NULL
+    elif isinstance(vdpGetProcAddress, (VdpGetProcAddress)):
+        pvdpGetProcAddress = vdpGetProcAddress.getPtr()
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>pvdpGetProcAddress
+    elif isinstance(vdpGetProcAddress, (int)):
+        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>vdpGetProcAddress
+    else:
+        raise TypeError("Argument 'vdpGetProcAddress' is not instance of type (expected <class 'int, cudart.VdpGetProcAddress'>, found " + str(type(vdpGetProcAddress)))
 
-cdef class EGLint:
-    """
+    cdef ccudart.VdpDevice cvdpDevice
+    if vdpDevice is None:
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>0
+    elif isinstance(vdpDevice, (VdpDevice)):
+        pvdpDevice = int(vdpDevice)
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
+    else:
+        pvdpDevice = int(VdpDevice(vdpDevice))
+        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
 
-    Methods
+    err = ccudart.cudaVDPAUSetVDPAUDevice(device, cvdpDevice, cvdpGetProcAddress)
+    return (cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaGraphicsVDPAURegisterVideoSurface(vdpSurface, unsigned int flags):
+    """ Register a VdpVideoSurface object.
+
+    Registers the VdpVideoSurface specified by `vdpSurface` for access by
+    CUDA. A handle to the registered object is returned as `resource`. The
+    surface's intended usage is specified using `flags`, as follows:
+
+    - :py:obj:`~.cudaGraphicsMapFlagsNone`: Specifies no hints about how
+      this resource will be used. It is therefore assumed that this
+      resource will be read from and written to by CUDA. This is the
+      default value.
+
+    - :py:obj:`~.cudaGraphicsMapFlagsReadOnly`: Specifies that CUDA will
+      not write to this resource.
+
+    - :py:obj:`~.cudaGraphicsMapFlagsWriteDiscard`: Specifies that CUDA
+      will not read from this resource and will write over the entire
+      contents of the resource, so none of the data previously stored in
+      the resource will be preserved.
+
+    Parameters
+    ----------
+    vdpSurface : :py:obj:`~.VdpVideoSurface`
+        VDPAU object to be registered
+    flags : unsigned int
+        Map flags
+
+    Returns
     -------
-    getPtr()
-        Get memory address of class instance
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
+    resource : :py:obj:`~.cudaGraphicsResource`
+        Pointer to the returned object handle
 
+    See Also
+    --------
+    :py:obj:`~.cudaVDPAUSetVDPAUDevice`, :py:obj:`~.cudaGraphicsUnregisterResource`, :py:obj:`~.cudaGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsVDPAURegisterVideoSurface`
     """
-    def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccudart.EGLint *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        pass
-    def __repr__(self):
-        return '<EGLint ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned int>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
+    cdef ccudart.VdpVideoSurface cvdpSurface
+    if vdpSurface is None:
+        cvdpSurface = <ccudart.VdpVideoSurface><void_ptr>0
+    elif isinstance(vdpSurface, (VdpVideoSurface)):
+        pvdpSurface = int(vdpSurface)
+        cvdpSurface = <ccudart.VdpVideoSurface><void_ptr>pvdpSurface
+    else:
+        pvdpSurface = int(VdpVideoSurface(vdpSurface))
+        cvdpSurface = <ccudart.VdpVideoSurface><void_ptr>pvdpSurface
 
-cdef class VdpDevice:
-    """
+    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
+    err = ccudart.cudaGraphicsVDPAURegisterVideoSurface(resource._ptr, cvdpSurface, flags)
+    return (cudaError_t(err), resource)
 
-    Methods
+@cython.embedsignature(True)
+def cudaGraphicsVDPAURegisterOutputSurface(vdpSurface, unsigned int flags):
+    """ Register a VdpOutputSurface object.
+
+    Registers the VdpOutputSurface specified by `vdpSurface` for access by
+    CUDA. A handle to the registered object is returned as `resource`. The
+    surface's intended usage is specified using `flags`, as follows:
+
+    - :py:obj:`~.cudaGraphicsMapFlagsNone`: Specifies no hints about how
+      this resource will be used. It is therefore assumed that this
+      resource will be read from and written to by CUDA. This is the
+      default value.
+
+    - :py:obj:`~.cudaGraphicsMapFlagsReadOnly`: Specifies that CUDA will
+      not write to this resource.
+
+    - :py:obj:`~.cudaGraphicsMapFlagsWriteDiscard`: Specifies that CUDA
+      will not read from this resource and will write over the entire
+      contents of the resource, so none of the data previously stored in
+      the resource will be preserved.
+
+    Parameters
+    ----------
+    vdpSurface : :py:obj:`~.VdpOutputSurface`
+        VDPAU object to be registered
+    flags : unsigned int
+        Map flags
+
+    Returns
     -------
-    getPtr()
-        Get memory address of class instance
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
+    resource : :py:obj:`~.cudaGraphicsResource`
+        Pointer to the returned object handle
 
+    See Also
+    --------
+    :py:obj:`~.cudaVDPAUSetVDPAUDevice`, :py:obj:`~.cudaGraphicsUnregisterResource`, :py:obj:`~.cudaGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsVDPAURegisterOutputSurface`
     """
-    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccudart.VdpDevice *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        pass
-    def __repr__(self):
-        return '<VdpDevice ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <uint32_t>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
+    cdef ccudart.VdpOutputSurface cvdpSurface
+    if vdpSurface is None:
+        cvdpSurface = <ccudart.VdpOutputSurface><void_ptr>0
+    elif isinstance(vdpSurface, (VdpOutputSurface)):
+        pvdpSurface = int(vdpSurface)
+        cvdpSurface = <ccudart.VdpOutputSurface><void_ptr>pvdpSurface
+    else:
+        pvdpSurface = int(VdpOutputSurface(vdpSurface))
+        cvdpSurface = <ccudart.VdpOutputSurface><void_ptr>pvdpSurface
 
-cdef class VdpGetProcAddress:
-    """
+    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
+    err = ccudart.cudaGraphicsVDPAURegisterOutputSurface(resource._ptr, cvdpSurface, flags)
+    return (cudaError_t(err), resource)
 
-    Methods
+@cython.embedsignature(True)
+def cudaGLGetDevices(unsigned int cudaDeviceCount, deviceList not None : cudaGLDeviceList):
+    """ Gets the CUDA devices associated with the current OpenGL context.
+
+    Returns in `*pCudaDeviceCount` the number of CUDA-compatible devices
+    corresponding to the current OpenGL context. Also returns in
+    `*pCudaDevices` at most `cudaDeviceCount` of the CUDA-compatible
+    devices corresponding to the current OpenGL context. If any of the GPUs
+    being used by the current OpenGL context are not CUDA capable then the
+    call will return cudaErrorNoDevice.
+
+    Parameters
+    ----------
+    cudaDeviceCount : unsigned int
+        The size of the output device array `pCudaDevices`
+    deviceList : cudaGLDeviceList
+        The set of devices to return. This set may be cudaGLDeviceListAll
+        for all devices, cudaGLDeviceListCurrentFrame for the devices used
+        to render the current frame (in SLI), or cudaGLDeviceListNextFrame
+        for the devices used to render the next frame (in SLI).
+
+    Returns
     -------
-    getPtr()
-        Get memory address of class instance
+    cudaError_t
+        cudaSuccess
+        cudaErrorNoDevice
+        cudaErrorInvalidGraphicsContext
+        cudaErrorUnknown
+    pCudaDeviceCount : unsigned int
+        Returned number of CUDA devices corresponding to the current OpenGL
+        context
+    pCudaDevices : List[int]
+        Returned CUDA devices corresponding to the current OpenGL context
+
+    See Also
+    --------
+    ~.cudaGraphicsUnregisterResource
+    ~.cudaGraphicsMapResources
+    ~.cudaGraphicsSubResourceGetMappedArray
+    ~.cudaGraphicsResourceGetMappedPointer
+    ~.cuGLGetDevices
+
+    Notes
+    -----
+    This function is not supported on Mac OS X.
 
     """
-    def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccudart.VdpGetProcAddress *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        pass
-    def __repr__(self):
-        return '<VdpGetProcAddress ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <unsigned long long>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
+    cdef unsigned int pCudaDeviceCount = 0
+    cdef int* cpCudaDevices = NULL
+    pypCudaDevices = []
+    if cudaDeviceCount != 0:
+        cpCudaDevices = <int*>calloc(cudaDeviceCount, sizeof(int))
+        if cpCudaDevices is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(cudaDeviceCount) + 'x' + str(sizeof(int)))
+    cdef ccudart.cudaGLDeviceList cdeviceList = deviceList.value
+    err = ccudart.cudaGLGetDevices(&pCudaDeviceCount, cpCudaDevices, cudaDeviceCount, cdeviceList)
+    if cudaError_t(err) == cudaError_t(0):
+        pypCudaDevices = [<void_ptr>cpCudaDevices[idx] for idx in range(cudaDeviceCount)]
+    if cpCudaDevices is not NULL:
+        free(cpCudaDevices)
+    return (cudaError_t(err), pCudaDeviceCount, pypCudaDevices)
 
-cdef class VdpVideoSurface:
-    """
+@cython.embedsignature(True)
+def cudaGraphicsGLRegisterImage(image, target, unsigned int flags):
+    """ Register an OpenGL texture or renderbuffer object.
 
-    Methods
+    Registers the texture or renderbuffer object specified by `image` for
+    access by CUDA. A handle to the registered object is returned as
+    `resource`.
+
+    `target` must match the type of the object, and must be one of
+    :py:obj:`~.GL_TEXTURE_2D`, :py:obj:`~.GL_TEXTURE_RECTANGLE`,
+    :py:obj:`~.GL_TEXTURE_CUBE_MAP`, :py:obj:`~.GL_TEXTURE_3D`,
+    :py:obj:`~.GL_TEXTURE_2D_ARRAY`, or :py:obj:`~.GL_RENDERBUFFER`.
+
+    The register flags `flags` specify the intended usage, as follows:
+
+    - :py:obj:`~.cudaGraphicsRegisterFlagsNone`: Specifies no hints about
+      how this resource will be used. It is therefore assumed that this
+      resource will be read from and written to by CUDA. This is the
+      default value.
+
+    - :py:obj:`~.cudaGraphicsRegisterFlagsReadOnly`: Specifies that CUDA
+      will not write to this resource.
+
+    - :py:obj:`~.cudaGraphicsRegisterFlagsWriteDiscard`: Specifies that
+      CUDA will not read from this resource and will write over the entire
+      contents of the resource, so none of the data previously stored in
+      the resource will be preserved.
+
+    - :py:obj:`~.cudaGraphicsRegisterFlagsSurfaceLoadStore`: Specifies that
+      CUDA will bind this resource to a surface reference.
+
+    - :py:obj:`~.cudaGraphicsRegisterFlagsTextureGather`: Specifies that
+      CUDA will perform texture gather operations on this resource.
+
+    The following image formats are supported. For brevity's sake, the list
+    is abbreviated. For ex., {GL_R, GL_RG} X {8, 16} would expand to the
+    following 4 formats {GL_R8, GL_R16, GL_RG8, GL_RG16} :
+
+    - GL_RED, GL_RG, GL_RGBA, GL_LUMINANCE, GL_ALPHA, GL_LUMINANCE_ALPHA,
+      GL_INTENSITY
+
+    - {GL_R, GL_RG, GL_RGBA} X {8, 16, 16F, 32F, 8UI, 16UI, 32UI, 8I, 16I,
+      32I}
+
+    - {GL_LUMINANCE, GL_ALPHA, GL_LUMINANCE_ALPHA, GL_INTENSITY} X {8, 16,
+      16F_ARB, 32F_ARB, 8UI_EXT, 16UI_EXT, 32UI_EXT, 8I_EXT, 16I_EXT,
+      32I_EXT}
+
+    The following image classes are currently disallowed:
+
+    - Textures with borders
+
+    - Multisampled renderbuffers
+
+    Parameters
+    ----------
+    image : :py:obj:`~.GLuint`
+        name of texture or renderbuffer object to be registered
+    target : :py:obj:`~.GLenum`
+        Identifies the type of object specified by `image`
+    flags : unsigned int
+        Register flags
+
+    Returns
     -------
-    getPtr()
-        Get memory address of class instance
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
+    resource : :py:obj:`~.cudaGraphicsResource`
+        Pointer to the returned object handle
 
+    See Also
+    --------
+    :py:obj:`~.cudaGraphicsUnregisterResource`, :py:obj:`~.cudaGraphicsMapResources`, :py:obj:`~.cudaGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsGLRegisterImage`
     """
-    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccudart.VdpVideoSurface *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        pass
-    def __repr__(self):
-        return '<VdpVideoSurface ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <uint32_t>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
+    cdef ccudart.GLenum ctarget
+    if target is None:
+        ctarget = <ccudart.GLenum><void_ptr>0
+    elif isinstance(target, (GLenum)):
+        ptarget = int(target)
+        ctarget = <ccudart.GLenum><void_ptr>ptarget
+    else:
+        ptarget = int(GLenum(target))
+        ctarget = <ccudart.GLenum><void_ptr>ptarget
 
-cdef class VdpOutputSurface:
-    """
+    cdef ccudart.GLuint cimage
+    if image is None:
+        cimage = <ccudart.GLuint><void_ptr>0
+    elif isinstance(image, (GLuint)):
+        pimage = int(image)
+        cimage = <ccudart.GLuint><void_ptr>pimage
+    else:
+        pimage = int(GLuint(image))
+        cimage = <ccudart.GLuint><void_ptr>pimage
 
-    Methods
+    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
+    err = ccudart.cudaGraphicsGLRegisterImage(resource._ptr, cimage, ctarget, flags)
+    return (cudaError_t(err), resource)
+
+@cython.embedsignature(True)
+def cudaGraphicsGLRegisterBuffer(buffer, unsigned int flags):
+    """ Registers an OpenGL buffer object.
+
+    Registers the buffer object specified by `buffer` for access by CUDA. A
+    handle to the registered object is returned as `resource`. The register
+    flags `flags` specify the intended usage, as follows:
+
+    - :py:obj:`~.cudaGraphicsRegisterFlagsNone`: Specifies no hints about
+      how this resource will be used. It is therefore assumed that this
+      resource will be read from and written to by CUDA. This is the
+      default value.
+
+    - :py:obj:`~.cudaGraphicsRegisterFlagsReadOnly`: Specifies that CUDA
+      will not write to this resource.
+
+    - :py:obj:`~.cudaGraphicsRegisterFlagsWriteDiscard`: Specifies that
+      CUDA will not read from this resource and will write over the entire
+      contents of the resource, so none of the data previously stored in
+      the resource will be preserved.
+
+    Parameters
+    ----------
+    buffer : :py:obj:`~.GLuint`
+        name of buffer object to be registered
+    flags : unsigned int
+        Register flags
+
+    Returns
     -------
-    getPtr()
-        Get memory address of class instance
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
+    resource : :py:obj:`~.cudaGraphicsResource`
+        Pointer to the returned object handle
 
+    See Also
+    --------
+    :py:obj:`~.cudaGraphicsUnregisterResource`, :py:obj:`~.cudaGraphicsMapResources`, :py:obj:`~.cudaGraphicsResourceGetMappedPointer`, :py:obj:`~.cuGraphicsGLRegisterBuffer`
     """
-    def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccudart.VdpOutputSurface *>_ptr
-        if init_value:
-            self._ptr[0] = init_value
-    def __dealloc__(self):
-        pass
-    def __repr__(self):
-        return '<VdpOutputSurface ' + str(self.__int__()) + '>'
-    def __int__(self):
-        return <uint32_t>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
+    cdef ccudart.GLuint cbuffer
+    if buffer is None:
+        cbuffer = <ccudart.GLuint><void_ptr>0
+    elif isinstance(buffer, (GLuint)):
+        pbuffer = int(buffer)
+        cbuffer = <ccudart.GLuint><void_ptr>pbuffer
+    else:
+        pbuffer = int(GLuint(buffer))
+        cbuffer = <ccudart.GLuint><void_ptr>pbuffer
 
+    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
+    err = ccudart.cudaGraphicsGLRegisterBuffer(resource._ptr, cbuffer, flags)
+    return (cudaError_t(err), resource)
 
 @cython.embedsignature(True)
 def cudaDeviceReset():
@@ -23194,430 +23618,6 @@ def cudaProfilerStop():
     return (cudaError_t(err),)
 
 @cython.embedsignature(True)
-def cudaVDPAUGetDevice(vdpDevice, vdpGetProcAddress):
-    """ Gets the CUDA device associated with a VdpDevice.
-
-    Returns the CUDA device associated with a VdpDevice, if applicable.
-
-    Parameters
-    ----------
-    vdpDevice : :py:obj:`~.VdpDevice`
-        A VdpDevice handle
-    vdpGetProcAddress : :py:obj:`~.VdpGetProcAddress`
-        VDPAU's VdpGetProcAddress function pointer
-
-    Returns
-    -------
-    cudaError_t
-        :py:obj:`~.cudaSuccess`
-    device : int
-        Returns the device associated with vdpDevice, or -1 if the device
-        associated with vdpDevice is not a compute device.
-
-    See Also
-    --------
-    :py:obj:`~.cudaVDPAUSetVDPAUDevice`, :py:obj:`~.cuVDPAUGetDevice`
-    """
-    cdef ccudart.VdpGetProcAddress *cvdpGetProcAddress
-    if vdpGetProcAddress is None:
-        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>NULL
-    elif isinstance(vdpGetProcAddress, (VdpGetProcAddress)):
-        pvdpGetProcAddress = vdpGetProcAddress.getPtr()
-        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>pvdpGetProcAddress
-    elif isinstance(vdpGetProcAddress, (int)):
-        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>vdpGetProcAddress
-    else:
-        raise TypeError("Argument 'vdpGetProcAddress' is not instance of type (expected <class 'int, cudart.VdpGetProcAddress'>, found " + str(type(vdpGetProcAddress)))
-
-    cdef ccudart.VdpDevice cvdpDevice
-    if vdpDevice is None:
-        cvdpDevice = <ccudart.VdpDevice><void_ptr>0
-    elif isinstance(vdpDevice, (VdpDevice)):
-        pvdpDevice = int(vdpDevice)
-        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
-    else:
-        pvdpDevice = int(VdpDevice(vdpDevice))
-        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
-
-    cdef int device = 0
-    err = ccudart.cudaVDPAUGetDevice(&device, cvdpDevice, cvdpGetProcAddress)
-    return (cudaError_t(err), device)
-
-@cython.embedsignature(True)
-def cudaVDPAUSetVDPAUDevice(int device, vdpDevice, vdpGetProcAddress):
-    """ Sets a CUDA device to use VDPAU interoperability.
-
-    Records `vdpDevice` as the VdpDevice for VDPAU interoperability with
-    the CUDA device `device` and sets `device` as the current device for
-    the calling host thread.
-
-    If `device` has already been initialized then this call will fail with
-    the error :py:obj:`~.cudaErrorSetOnActiveProcess`. In this case it is
-    necessary to reset `device` using :py:obj:`~.cudaDeviceReset()` before
-    VDPAU interoperability on `device` may be enabled.
-
-    Parameters
-    ----------
-    device : int
-        Device to use for VDPAU interoperability
-    vdpDevice : :py:obj:`~.VdpDevice`
-        The VdpDevice to interoperate with
-    vdpGetProcAddress : :py:obj:`~.VdpGetProcAddress`
-        VDPAU's VdpGetProcAddress function pointer
-
-    Returns
-    -------
-    cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorSetOnActiveProcess`
-
-    See Also
-    --------
-    :py:obj:`~.cudaGraphicsVDPAURegisterVideoSurface`, :py:obj:`~.cudaGraphicsVDPAURegisterOutputSurface`, :py:obj:`~.cudaDeviceReset`
-    """
-    cdef ccudart.VdpGetProcAddress *cvdpGetProcAddress
-    if vdpGetProcAddress is None:
-        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>NULL
-    elif isinstance(vdpGetProcAddress, (VdpGetProcAddress)):
-        pvdpGetProcAddress = vdpGetProcAddress.getPtr()
-        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>pvdpGetProcAddress
-    elif isinstance(vdpGetProcAddress, (int)):
-        cvdpGetProcAddress = <ccudart.VdpGetProcAddress*><void_ptr>vdpGetProcAddress
-    else:
-        raise TypeError("Argument 'vdpGetProcAddress' is not instance of type (expected <class 'int, cudart.VdpGetProcAddress'>, found " + str(type(vdpGetProcAddress)))
-
-    cdef ccudart.VdpDevice cvdpDevice
-    if vdpDevice is None:
-        cvdpDevice = <ccudart.VdpDevice><void_ptr>0
-    elif isinstance(vdpDevice, (VdpDevice)):
-        pvdpDevice = int(vdpDevice)
-        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
-    else:
-        pvdpDevice = int(VdpDevice(vdpDevice))
-        cvdpDevice = <ccudart.VdpDevice><void_ptr>pvdpDevice
-
-    err = ccudart.cudaVDPAUSetVDPAUDevice(device, cvdpDevice, cvdpGetProcAddress)
-    return (cudaError_t(err),)
-
-@cython.embedsignature(True)
-def cudaGraphicsVDPAURegisterVideoSurface(vdpSurface, unsigned int flags):
-    """ Register a VdpVideoSurface object.
-
-    Registers the VdpVideoSurface specified by `vdpSurface` for access by
-    CUDA. A handle to the registered object is returned as `resource`. The
-    surface's intended usage is specified using `flags`, as follows:
-
-    - :py:obj:`~.cudaGraphicsMapFlagsNone`: Specifies no hints about how
-      this resource will be used. It is therefore assumed that this
-      resource will be read from and written to by CUDA. This is the
-      default value.
-
-    - :py:obj:`~.cudaGraphicsMapFlagsReadOnly`: Specifies that CUDA will
-      not write to this resource.
-
-    - :py:obj:`~.cudaGraphicsMapFlagsWriteDiscard`: Specifies that CUDA
-      will not read from this resource and will write over the entire
-      contents of the resource, so none of the data previously stored in
-      the resource will be preserved.
-
-    Parameters
-    ----------
-    vdpSurface : :py:obj:`~.VdpVideoSurface`
-        VDPAU object to be registered
-    flags : unsigned int
-        Map flags
-
-    Returns
-    -------
-    cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
-    resource : :py:obj:`~.cudaGraphicsResource`
-        Pointer to the returned object handle
-
-    See Also
-    --------
-    :py:obj:`~.cudaVDPAUSetVDPAUDevice`, :py:obj:`~.cudaGraphicsUnregisterResource`, :py:obj:`~.cudaGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsVDPAURegisterVideoSurface`
-    """
-    cdef ccudart.VdpVideoSurface cvdpSurface
-    if vdpSurface is None:
-        cvdpSurface = <ccudart.VdpVideoSurface><void_ptr>0
-    elif isinstance(vdpSurface, (VdpVideoSurface)):
-        pvdpSurface = int(vdpSurface)
-        cvdpSurface = <ccudart.VdpVideoSurface><void_ptr>pvdpSurface
-    else:
-        pvdpSurface = int(VdpVideoSurface(vdpSurface))
-        cvdpSurface = <ccudart.VdpVideoSurface><void_ptr>pvdpSurface
-
-    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
-    err = ccudart.cudaGraphicsVDPAURegisterVideoSurface(resource._ptr, cvdpSurface, flags)
-    return (cudaError_t(err), resource)
-
-@cython.embedsignature(True)
-def cudaGraphicsVDPAURegisterOutputSurface(vdpSurface, unsigned int flags):
-    """ Register a VdpOutputSurface object.
-
-    Registers the VdpOutputSurface specified by `vdpSurface` for access by
-    CUDA. A handle to the registered object is returned as `resource`. The
-    surface's intended usage is specified using `flags`, as follows:
-
-    - :py:obj:`~.cudaGraphicsMapFlagsNone`: Specifies no hints about how
-      this resource will be used. It is therefore assumed that this
-      resource will be read from and written to by CUDA. This is the
-      default value.
-
-    - :py:obj:`~.cudaGraphicsMapFlagsReadOnly`: Specifies that CUDA will
-      not write to this resource.
-
-    - :py:obj:`~.cudaGraphicsMapFlagsWriteDiscard`: Specifies that CUDA
-      will not read from this resource and will write over the entire
-      contents of the resource, so none of the data previously stored in
-      the resource will be preserved.
-
-    Parameters
-    ----------
-    vdpSurface : :py:obj:`~.VdpOutputSurface`
-        VDPAU object to be registered
-    flags : unsigned int
-        Map flags
-
-    Returns
-    -------
-    cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
-    resource : :py:obj:`~.cudaGraphicsResource`
-        Pointer to the returned object handle
-
-    See Also
-    --------
-    :py:obj:`~.cudaVDPAUSetVDPAUDevice`, :py:obj:`~.cudaGraphicsUnregisterResource`, :py:obj:`~.cudaGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsVDPAURegisterOutputSurface`
-    """
-    cdef ccudart.VdpOutputSurface cvdpSurface
-    if vdpSurface is None:
-        cvdpSurface = <ccudart.VdpOutputSurface><void_ptr>0
-    elif isinstance(vdpSurface, (VdpOutputSurface)):
-        pvdpSurface = int(vdpSurface)
-        cvdpSurface = <ccudart.VdpOutputSurface><void_ptr>pvdpSurface
-    else:
-        pvdpSurface = int(VdpOutputSurface(vdpSurface))
-        cvdpSurface = <ccudart.VdpOutputSurface><void_ptr>pvdpSurface
-
-    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
-    err = ccudart.cudaGraphicsVDPAURegisterOutputSurface(resource._ptr, cvdpSurface, flags)
-    return (cudaError_t(err), resource)
-
-@cython.embedsignature(True)
-def cudaGLGetDevices(unsigned int cudaDeviceCount, deviceList not None : cudaGLDeviceList):
-    """ Gets the CUDA devices associated with the current OpenGL context.
-
-    Returns in `*pCudaDeviceCount` the number of CUDA-compatible devices
-    corresponding to the current OpenGL context. Also returns in
-    `*pCudaDevices` at most `cudaDeviceCount` of the CUDA-compatible
-    devices corresponding to the current OpenGL context. If any of the GPUs
-    being used by the current OpenGL context are not CUDA capable then the
-    call will return cudaErrorNoDevice.
-
-    Parameters
-    ----------
-    cudaDeviceCount : unsigned int
-        The size of the output device array `pCudaDevices`
-    deviceList : cudaGLDeviceList
-        The set of devices to return. This set may be cudaGLDeviceListAll
-        for all devices, cudaGLDeviceListCurrentFrame for the devices used
-        to render the current frame (in SLI), or cudaGLDeviceListNextFrame
-        for the devices used to render the next frame (in SLI).
-
-    Returns
-    -------
-    cudaError_t
-        cudaSuccess
-        cudaErrorNoDevice
-        cudaErrorInvalidGraphicsContext
-        cudaErrorUnknown
-    pCudaDeviceCount : unsigned int
-        Returned number of CUDA devices corresponding to the current OpenGL
-        context
-    pCudaDevices : List[int]
-        Returned CUDA devices corresponding to the current OpenGL context
-
-    See Also
-    --------
-    ~.cudaGraphicsUnregisterResource
-    ~.cudaGraphicsMapResources
-    ~.cudaGraphicsSubResourceGetMappedArray
-    ~.cudaGraphicsResourceGetMappedPointer
-    ~.cuGLGetDevices
-
-    Notes
-    -----
-    This function is not supported on Mac OS X.
-
-    """
-    cdef unsigned int pCudaDeviceCount = 0
-    cdef int* cpCudaDevices = NULL
-    pypCudaDevices = []
-    if cudaDeviceCount != 0:
-        cpCudaDevices = <int*>calloc(cudaDeviceCount, sizeof(int))
-        if cpCudaDevices is NULL:
-            raise MemoryError('Failed to allocate length x size memory: ' + str(cudaDeviceCount) + 'x' + str(sizeof(int)))
-    cdef ccudart.cudaGLDeviceList cdeviceList = deviceList.value
-    err = ccudart.cudaGLGetDevices(&pCudaDeviceCount, cpCudaDevices, cudaDeviceCount, cdeviceList)
-    if cudaError_t(err) == cudaError_t(0):
-        pypCudaDevices = [<void_ptr>cpCudaDevices[idx] for idx in range(cudaDeviceCount)]
-    if cpCudaDevices is not NULL:
-        free(cpCudaDevices)
-    return (cudaError_t(err), pCudaDeviceCount, pypCudaDevices)
-
-@cython.embedsignature(True)
-def cudaGraphicsGLRegisterImage(image, target, unsigned int flags):
-    """ Register an OpenGL texture or renderbuffer object.
-
-    Registers the texture or renderbuffer object specified by `image` for
-    access by CUDA. A handle to the registered object is returned as
-    `resource`.
-
-    `target` must match the type of the object, and must be one of
-    :py:obj:`~.GL_TEXTURE_2D`, :py:obj:`~.GL_TEXTURE_RECTANGLE`,
-    :py:obj:`~.GL_TEXTURE_CUBE_MAP`, :py:obj:`~.GL_TEXTURE_3D`,
-    :py:obj:`~.GL_TEXTURE_2D_ARRAY`, or :py:obj:`~.GL_RENDERBUFFER`.
-
-    The register flags `flags` specify the intended usage, as follows:
-
-    - :py:obj:`~.cudaGraphicsRegisterFlagsNone`: Specifies no hints about
-      how this resource will be used. It is therefore assumed that this
-      resource will be read from and written to by CUDA. This is the
-      default value.
-
-    - :py:obj:`~.cudaGraphicsRegisterFlagsReadOnly`: Specifies that CUDA
-      will not write to this resource.
-
-    - :py:obj:`~.cudaGraphicsRegisterFlagsWriteDiscard`: Specifies that
-      CUDA will not read from this resource and will write over the entire
-      contents of the resource, so none of the data previously stored in
-      the resource will be preserved.
-
-    - :py:obj:`~.cudaGraphicsRegisterFlagsSurfaceLoadStore`: Specifies that
-      CUDA will bind this resource to a surface reference.
-
-    - :py:obj:`~.cudaGraphicsRegisterFlagsTextureGather`: Specifies that
-      CUDA will perform texture gather operations on this resource.
-
-    The following image formats are supported. For brevity's sake, the list
-    is abbreviated. For ex., {GL_R, GL_RG} X {8, 16} would expand to the
-    following 4 formats {GL_R8, GL_R16, GL_RG8, GL_RG16} :
-
-    - GL_RED, GL_RG, GL_RGBA, GL_LUMINANCE, GL_ALPHA, GL_LUMINANCE_ALPHA,
-      GL_INTENSITY
-
-    - {GL_R, GL_RG, GL_RGBA} X {8, 16, 16F, 32F, 8UI, 16UI, 32UI, 8I, 16I,
-      32I}
-
-    - {GL_LUMINANCE, GL_ALPHA, GL_LUMINANCE_ALPHA, GL_INTENSITY} X {8, 16,
-      16F_ARB, 32F_ARB, 8UI_EXT, 16UI_EXT, 32UI_EXT, 8I_EXT, 16I_EXT,
-      32I_EXT}
-
-    The following image classes are currently disallowed:
-
-    - Textures with borders
-
-    - Multisampled renderbuffers
-
-    Parameters
-    ----------
-    image : :py:obj:`~.GLuint`
-        name of texture or renderbuffer object to be registered
-    target : :py:obj:`~.GLenum`
-        Identifies the type of object specified by `image`
-    flags : unsigned int
-        Register flags
-
-    Returns
-    -------
-    cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
-    resource : :py:obj:`~.cudaGraphicsResource`
-        Pointer to the returned object handle
-
-    See Also
-    --------
-    :py:obj:`~.cudaGraphicsUnregisterResource`, :py:obj:`~.cudaGraphicsMapResources`, :py:obj:`~.cudaGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsGLRegisterImage`
-    """
-    cdef ccudart.GLenum ctarget
-    if target is None:
-        ctarget = <ccudart.GLenum><void_ptr>0
-    elif isinstance(target, (GLenum)):
-        ptarget = int(target)
-        ctarget = <ccudart.GLenum><void_ptr>ptarget
-    else:
-        ptarget = int(GLenum(target))
-        ctarget = <ccudart.GLenum><void_ptr>ptarget
-
-    cdef ccudart.GLuint cimage
-    if image is None:
-        cimage = <ccudart.GLuint><void_ptr>0
-    elif isinstance(image, (GLuint)):
-        pimage = int(image)
-        cimage = <ccudart.GLuint><void_ptr>pimage
-    else:
-        pimage = int(GLuint(image))
-        cimage = <ccudart.GLuint><void_ptr>pimage
-
-    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
-    err = ccudart.cudaGraphicsGLRegisterImage(resource._ptr, cimage, ctarget, flags)
-    return (cudaError_t(err), resource)
-
-@cython.embedsignature(True)
-def cudaGraphicsGLRegisterBuffer(buffer, unsigned int flags):
-    """ Registers an OpenGL buffer object.
-
-    Registers the buffer object specified by `buffer` for access by CUDA. A
-    handle to the registered object is returned as `resource`. The register
-    flags `flags` specify the intended usage, as follows:
-
-    - :py:obj:`~.cudaGraphicsRegisterFlagsNone`: Specifies no hints about
-      how this resource will be used. It is therefore assumed that this
-      resource will be read from and written to by CUDA. This is the
-      default value.
-
-    - :py:obj:`~.cudaGraphicsRegisterFlagsReadOnly`: Specifies that CUDA
-      will not write to this resource.
-
-    - :py:obj:`~.cudaGraphicsRegisterFlagsWriteDiscard`: Specifies that
-      CUDA will not read from this resource and will write over the entire
-      contents of the resource, so none of the data previously stored in
-      the resource will be preserved.
-
-    Parameters
-    ----------
-    buffer : :py:obj:`~.GLuint`
-        name of buffer object to be registered
-    flags : unsigned int
-        Register flags
-
-    Returns
-    -------
-    cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
-    resource : :py:obj:`~.cudaGraphicsResource`
-        Pointer to the returned object handle
-
-    See Also
-    --------
-    :py:obj:`~.cudaGraphicsUnregisterResource`, :py:obj:`~.cudaGraphicsMapResources`, :py:obj:`~.cudaGraphicsResourceGetMappedPointer`, :py:obj:`~.cuGraphicsGLRegisterBuffer`
-    """
-    cdef ccudart.GLuint cbuffer
-    if buffer is None:
-        cbuffer = <ccudart.GLuint><void_ptr>0
-    elif isinstance(buffer, (GLuint)):
-        pbuffer = int(buffer)
-        cbuffer = <ccudart.GLuint><void_ptr>pbuffer
-    else:
-        pbuffer = int(GLuint(buffer))
-        cbuffer = <ccudart.GLuint><void_ptr>pbuffer
-
-    cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
-    err = ccudart.cudaGraphicsGLRegisterBuffer(resource._ptr, cbuffer, flags)
-    return (cudaError_t(err), resource)
-
-@cython.embedsignature(True)
 def cudaGraphicsEGLRegisterImage(image, unsigned int flags):
     """ Registers an EGL image.
 
@@ -24386,10 +24386,6 @@ def sizeof(objType):
         return sizeof(ccudart.cudaEglPlaneDesc)
     if objType == cudaEglFrame:
         return sizeof(ccudart.cudaEglFrame)
-    if objType == cudaSurfaceObject_t:
-        return sizeof(ccudart.cudaSurfaceObject_t)
-    if objType == cudaTextureObject_t:
-        return sizeof(ccudart.cudaTextureObject_t)
     if objType == GLenum:
         return sizeof(ccudart.GLenum)
     if objType == GLuint:
@@ -24404,4 +24400,8 @@ def sizeof(objType):
         return sizeof(ccudart.VdpVideoSurface)
     if objType == VdpOutputSurface:
         return sizeof(ccudart.VdpOutputSurface)
+    if objType == cudaSurfaceObject_t:
+        return sizeof(ccudart.cudaSurfaceObject_t)
+    if objType == cudaTextureObject_t:
+        return sizeof(ccudart.cudaTextureObject_t)
     raise TypeError("Unknown type: " + str(objType))

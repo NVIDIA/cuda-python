@@ -2,11 +2,11 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="CUDA Python 11.6.1 Release notes" href="11.6.1-notes.html" /><link rel="prev" title="CUDA Python 11.7.1 Release notes" href="11.7.1-notes.html" />
-        <link rel="canonical" href="docs/release/11.7.0-notes.html" />
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="CUDA Python 11.7.0 Release notes" href="11.7.0-notes.html" /><link rel="prev" title="Release Notes" href="../release.html" />
+        <link rel="canonical" href="docs/release/11.7.1-notes.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>CUDA Python 11.7.0 Release notes - CUDA Python 11.7.1 documentation</title>
+        <title>CUDA Python 11.7.1 Release notes - CUDA Python 11.7.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
@@ -168,8 +168,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../release.html">Release Notes</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="11.7.1-notes.html">    11.7.1</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">    11.7.0</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">    11.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.7.0-notes.html">    11.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11.6.1-notes.html">    11.6.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11.6.0-notes.html">    11.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11.5.0-notes.html">    11.5.0</a></li>
@@ -214,17 +214,35 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="cuda-python-11-7-0-release-notes">
-<h1>CUDA Python 11.7.0 Release notes<a class="headerlink" href="#cuda-python-11-7-0-release-notes" title="Permalink to this headline">#</a></h1>
-<p>Released on May 11, 2022</p>
+          <div class="section" id="cuda-python-11-7-1-release-notes">
+<h1>CUDA Python 11.7.1 Release notes<a class="headerlink" href="#cuda-python-11-7-1-release-notes" title="Permalink to this headline">#</a></h1>
+<p>Released on June 29, 2022</p>
 <div class="section" id="hightlights">
 <h2>Hightlights<a class="headerlink" href="#hightlights" title="Permalink to this headline">#</a></h2>
 <ul class="simple">
-<li><p>Support CUDA Toolkit 11.7</p></li>
+<li><p>Fix error propagation in CUDA Runtime bindings</p></li>
+<li><p>Resolves <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/22">issue #22</a></p></li>
 </ul>
 </div>
 <div class="section" id="limitations">
 <h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">#</a></h2>
+<div class="section" id="source-builds">
+<h3>Source builds<a class="headerlink" href="#source-builds" title="Permalink to this headline">#</a></h3>
+<p>CUDA Python no longer re-declares CUDA types, instead it uses the types from CUDA C headers. As such source builds now need to access to latest CTK headers. In particular:</p>
+<ol class="arabic simple">
+<li><p>“$CUDA_HOME/include” has latest CTK headers</p></li>
+<li><p>CTK headers have all types defined</p></li>
+</ol>
+<p>(2) Certain CUDA types are not declared on mobile platforms and may face a “has not been declared” error during source builds. A temporary workaround is to use the headers found in <a class="reference external" href="https://gitlab.com/nvidia/headers/cuda">https://gitlab.com/nvidia/headers/cuda</a>. In particular CUDA Python needs the following headers and their dependencies:</p>
+<ul class="simple">
+<li><p>cuda.h</p></li>
+<li><p>cudaProfiler.h</p></li>
+<li><p>driver_types.h</p></li>
+<li><p>cuda_runtime.h</p></li>
+<li><p>nvrtc.h</p></li>
+</ul>
+<p>This a short-term limitation and will be relaxed in a future release.</p>
+</div>
 <div class="section" id="cuda-functions-not-supported-in-this-release">
 <h3>CUDA Functions Not Supported in this Release<a class="headerlink" href="#cuda-functions-not-supported-in-this-release" title="Permalink to this headline">#</a></h3>
 <ul class="simple">
@@ -264,23 +282,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="11.6.1-notes.html">
+          <a class="next-page" href="11.7.0-notes.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">CUDA Python 11.6.1 Release notes</div>
+                <div class="title">CUDA Python 11.7.0 Release notes</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="11.7.1-notes.html">
+          <a class="prev-page" href="../release.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">CUDA Python 11.7.1 Release notes</div>
+                <div class="title">Release Notes</div>
                 
               </div>
             </a>
@@ -316,9 +334,10 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">CUDA Python 11.7.0 Release notes</a><ul>
+<li><a class="reference internal" href="#">CUDA Python 11.7.1 Release notes</a><ul>
 <li><a class="reference internal" href="#hightlights">Hightlights</a></li>
 <li><a class="reference internal" href="#limitations">Limitations</a><ul>
+<li><a class="reference internal" href="#source-builds">Source builds</a></li>
 <li><a class="reference internal" href="#cuda-functions-not-supported-in-this-release">CUDA Functions Not Supported in this Release</a></li>
 </ul>
 </li>

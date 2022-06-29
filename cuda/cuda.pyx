@@ -3417,7 +3417,7 @@ cdef class CUcontext:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUcontext>init_value
         else:
             self._ptr = <ccuda.CUcontext *>_ptr
@@ -3445,7 +3445,7 @@ cdef class CUmodule:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUmodule>init_value
         else:
             self._ptr = <ccuda.CUmodule *>_ptr
@@ -3473,7 +3473,7 @@ cdef class CUfunction:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUfunction>init_value
         else:
             self._ptr = <ccuda.CUfunction *>_ptr
@@ -3501,7 +3501,7 @@ cdef class CUarray:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUarray>init_value
         else:
             self._ptr = <ccuda.CUarray *>_ptr
@@ -3529,7 +3529,7 @@ cdef class CUmipmappedArray:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUmipmappedArray>init_value
         else:
             self._ptr = <ccuda.CUmipmappedArray *>_ptr
@@ -3557,7 +3557,7 @@ cdef class CUtexref:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUtexref>init_value
         else:
             self._ptr = <ccuda.CUtexref *>_ptr
@@ -3585,7 +3585,7 @@ cdef class CUsurfref:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUsurfref>init_value
         else:
             self._ptr = <ccuda.CUsurfref *>_ptr
@@ -3613,7 +3613,7 @@ cdef class CUevent:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUevent>init_value
         else:
             self._ptr = <ccuda.CUevent *>_ptr
@@ -3641,7 +3641,7 @@ cdef class CUstream:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUstream>init_value
         else:
             self._ptr = <ccuda.CUstream *>_ptr
@@ -3669,7 +3669,7 @@ cdef class CUgraphicsResource:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUgraphicsResource>init_value
         else:
             self._ptr = <ccuda.CUgraphicsResource *>_ptr
@@ -3697,7 +3697,7 @@ cdef class CUexternalMemory:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUexternalMemory>init_value
         else:
             self._ptr = <ccuda.CUexternalMemory *>_ptr
@@ -3725,7 +3725,7 @@ cdef class CUexternalSemaphore:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUexternalSemaphore>init_value
         else:
             self._ptr = <ccuda.CUexternalSemaphore *>_ptr
@@ -3753,7 +3753,7 @@ cdef class CUgraph:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUgraph>init_value
         else:
             self._ptr = <ccuda.CUgraph *>_ptr
@@ -3781,7 +3781,7 @@ cdef class CUgraphNode:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUgraphNode>init_value
         else:
             self._ptr = <ccuda.CUgraphNode *>_ptr
@@ -3809,7 +3809,7 @@ cdef class CUgraphExec:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUgraphExec>init_value
         else:
             self._ptr = <ccuda.CUgraphExec *>_ptr
@@ -3837,7 +3837,7 @@ cdef class CUmemoryPool:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUmemoryPool>init_value
         else:
             self._ptr = <ccuda.CUmemoryPool *>_ptr
@@ -3865,7 +3865,7 @@ cdef class CUuserObject:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUuserObject>init_value
         else:
             self._ptr = <ccuda.CUuserObject *>_ptr
@@ -3891,7 +3891,7 @@ cdef class CUlinkState:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUlinkState>init_value
         else:
             self._ptr = <ccuda.CUlinkState *>_ptr
@@ -3917,7 +3917,7 @@ cdef class EGLImageKHR:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.EGLImageKHR>init_value
         else:
             self._ptr = <ccuda.EGLImageKHR *>_ptr
@@ -3943,7 +3943,7 @@ cdef class EGLStreamKHR:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.EGLStreamKHR>init_value
         else:
             self._ptr = <ccuda.EGLStreamKHR *>_ptr
@@ -3969,7 +3969,7 @@ cdef class EGLSyncKHR:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.EGLSyncKHR>init_value
         else:
             self._ptr = <ccuda.EGLSyncKHR *>_ptr
@@ -3997,7 +3997,7 @@ cdef class CUeglStreamConnection:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUeglStreamConnection>init_value
         else:
             self._ptr = <ccuda.CUeglStreamConnection *>_ptr
@@ -4023,7 +4023,7 @@ cdef class CUhostFn:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUhostFn>init_value
         else:
             self._ptr = <ccuda.CUhostFn *>_ptr
@@ -4049,7 +4049,7 @@ cdef class CUstreamCallback:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUstreamCallback>init_value
         else:
             self._ptr = <ccuda.CUstreamCallback *>_ptr
@@ -4075,7 +4075,7 @@ cdef class CUoccupancyB2DSize:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <ccuda.CUoccupancyB2DSize>init_value
         else:
             self._ptr = <ccuda.CUoccupancyB2DSize *>_ptr
@@ -4106,7 +4106,7 @@ cdef class CUuuid_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUuuid_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4144,7 +4144,7 @@ cdef class CUipcEventHandle_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUipcEventHandle_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4196,7 +4196,7 @@ cdef class CUipcMemHandle_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUipcMemHandle_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4240,9 +4240,9 @@ cdef class CUstreamMemOpWaitValueParams_st:
 
     address : CUdeviceptr
 
-    flags : unsigned int
-
     value64 : cuuint64_t
+
+    flags : unsigned int
 
     alias : CUdeviceptr
         For driver internal use. Initial value is unimportant.
@@ -4253,17 +4253,12 @@ cdef class CUstreamMemOpWaitValueParams_st:
         Get memory address of class instance
 
     """
-    def __cinit__(self, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccuda.CUstreamMemOpWaitValueParams_st *>_ptr
-    def __init__(self, void_ptr _ptr = 0):
-        self._address = CUdeviceptr(_ptr=<void_ptr>&self._ptr[0].address)
-        self._value64 = cuuint64_t(_ptr=<void_ptr>&self._ptr[0].value64)
-        self._alias = CUdeviceptr(_ptr=<void_ptr>&self._ptr[0].alias)
-    def __dealloc__(self):
-        pass
+    def __cinit__(self, void_ptr _ptr):
+        self._ptr = <ccuda.CUstreamBatchMemOpParams_union *>_ptr
+    def __init__(self, void_ptr _ptr):
+        self._address = CUdeviceptr(_ptr=<void_ptr>&self._ptr[0].waitValue.address)
+        self._value64 = cuuint64_t(_ptr=<void_ptr>&self._ptr[0].waitValue.value64)
+        self._alias = CUdeviceptr(_ptr=<void_ptr>&self._ptr[0].waitValue.alias)
     def getPtr(self):
         return <void_ptr>self._ptr
     def __repr__(self):
@@ -4271,8 +4266,8 @@ cdef class CUstreamMemOpWaitValueParams_st:
             str_list = []
             str_list += ['operation : ' + str(self.operation)]
             str_list += ['address : ' + str(self.address)]
-            str_list += ['flags : ' + str(self.flags)]
             str_list += ['value64 : ' + str(self.value64)]
+            str_list += ['flags : ' + str(self.flags)]
             str_list += ['alias : ' + str(self.alias)]
             return '\n'.join(str_list)
         else:
@@ -4280,11 +4275,11 @@ cdef class CUstreamMemOpWaitValueParams_st:
 
     @property
     def operation(self):
-        return CUstreamBatchMemOpType(self._ptr[0].operation)
+        return CUstreamBatchMemOpType(self._ptr[0].waitValue.operation)
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
         pass
-        self._ptr[0].operation = operation.value
+        self._ptr[0].waitValue.operation = operation.value
     @property
     def address(self):
         return self._address
@@ -4301,13 +4296,6 @@ cdef class CUstreamMemOpWaitValueParams_st:
             caddress = <ccuda.CUdeviceptr><void_ptr>paddress
         self._address._ptr[0] = caddress
     @property
-    def flags(self):
-        return self._ptr[0].flags
-    @flags.setter
-    def flags(self, unsigned int flags):
-        pass
-        self._ptr[0].flags = flags
-    @property
     def value64(self):
         return self._value64
     @value64.setter
@@ -4322,6 +4310,13 @@ cdef class CUstreamMemOpWaitValueParams_st:
             pvalue64 = int(cuuint64_t(value64))
             cvalue64 = <ccuda.cuuint64_t><void_ptr>pvalue64
         self._value64._ptr[0] = cvalue64
+    @property
+    def flags(self):
+        return self._ptr[0].waitValue.flags
+    @flags.setter
+    def flags(self, unsigned int flags):
+        pass
+        self._ptr[0].waitValue.flags = flags
     @property
     def alias(self):
         return self._alias
@@ -4347,9 +4342,9 @@ cdef class CUstreamMemOpWriteValueParams_st:
 
     address : CUdeviceptr
 
-    flags : unsigned int
-
     value64 : cuuint64_t
+
+    flags : unsigned int
 
     alias : CUdeviceptr
         For driver internal use. Initial value is unimportant.
@@ -4360,17 +4355,12 @@ cdef class CUstreamMemOpWriteValueParams_st:
         Get memory address of class instance
 
     """
-    def __cinit__(self, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccuda.CUstreamMemOpWriteValueParams_st *>_ptr
-    def __init__(self, void_ptr _ptr = 0):
-        self._address = CUdeviceptr(_ptr=<void_ptr>&self._ptr[0].address)
-        self._value64 = cuuint64_t(_ptr=<void_ptr>&self._ptr[0].value64)
-        self._alias = CUdeviceptr(_ptr=<void_ptr>&self._ptr[0].alias)
-    def __dealloc__(self):
-        pass
+    def __cinit__(self, void_ptr _ptr):
+        self._ptr = <ccuda.CUstreamBatchMemOpParams_union *>_ptr
+    def __init__(self, void_ptr _ptr):
+        self._address = CUdeviceptr(_ptr=<void_ptr>&self._ptr[0].writeValue.address)
+        self._value64 = cuuint64_t(_ptr=<void_ptr>&self._ptr[0].writeValue.value64)
+        self._alias = CUdeviceptr(_ptr=<void_ptr>&self._ptr[0].writeValue.alias)
     def getPtr(self):
         return <void_ptr>self._ptr
     def __repr__(self):
@@ -4378,8 +4368,8 @@ cdef class CUstreamMemOpWriteValueParams_st:
             str_list = []
             str_list += ['operation : ' + str(self.operation)]
             str_list += ['address : ' + str(self.address)]
-            str_list += ['flags : ' + str(self.flags)]
             str_list += ['value64 : ' + str(self.value64)]
+            str_list += ['flags : ' + str(self.flags)]
             str_list += ['alias : ' + str(self.alias)]
             return '\n'.join(str_list)
         else:
@@ -4387,11 +4377,11 @@ cdef class CUstreamMemOpWriteValueParams_st:
 
     @property
     def operation(self):
-        return CUstreamBatchMemOpType(self._ptr[0].operation)
+        return CUstreamBatchMemOpType(self._ptr[0].writeValue.operation)
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
         pass
-        self._ptr[0].operation = operation.value
+        self._ptr[0].writeValue.operation = operation.value
     @property
     def address(self):
         return self._address
@@ -4408,13 +4398,6 @@ cdef class CUstreamMemOpWriteValueParams_st:
             caddress = <ccuda.CUdeviceptr><void_ptr>paddress
         self._address._ptr[0] = caddress
     @property
-    def flags(self):
-        return self._ptr[0].flags
-    @flags.setter
-    def flags(self, unsigned int flags):
-        pass
-        self._ptr[0].flags = flags
-    @property
     def value64(self):
         return self._value64
     @value64.setter
@@ -4429,6 +4412,13 @@ cdef class CUstreamMemOpWriteValueParams_st:
             pvalue64 = int(cuuint64_t(value64))
             cvalue64 = <ccuda.cuuint64_t><void_ptr>pvalue64
         self._value64._ptr[0] = cvalue64
+    @property
+    def flags(self):
+        return self._ptr[0].writeValue.flags
+    @flags.setter
+    def flags(self, unsigned int flags):
+        pass
+        self._ptr[0].writeValue.flags = flags
     @property
     def alias(self):
         return self._alias
@@ -4461,14 +4451,9 @@ cdef class CUstreamMemOpFlushRemoteWritesParams_st:
         Get memory address of class instance
 
     """
-    def __cinit__(self, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccuda.CUstreamMemOpFlushRemoteWritesParams_st *>_ptr
-    def __init__(self, void_ptr _ptr = 0):
-        pass
-    def __dealloc__(self):
+    def __cinit__(self, void_ptr _ptr):
+        self._ptr = <ccuda.CUstreamBatchMemOpParams_union *>_ptr
+    def __init__(self, void_ptr _ptr):
         pass
     def getPtr(self):
         return <void_ptr>self._ptr
@@ -4483,18 +4468,18 @@ cdef class CUstreamMemOpFlushRemoteWritesParams_st:
 
     @property
     def operation(self):
-        return CUstreamBatchMemOpType(self._ptr[0].operation)
+        return CUstreamBatchMemOpType(self._ptr[0].flushRemoteWrites.operation)
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
         pass
-        self._ptr[0].operation = operation.value
+        self._ptr[0].flushRemoteWrites.operation = operation.value
     @property
     def flags(self):
-        return self._ptr[0].flags
+        return self._ptr[0].flushRemoteWrites.flags
     @flags.setter
     def flags(self, unsigned int flags):
         pass
-        self._ptr[0].flags = flags
+        self._ptr[0].flushRemoteWrites.flags = flags
 
 cdef class CUstreamMemOpMemoryBarrierParams_st:
     """
@@ -4512,14 +4497,9 @@ cdef class CUstreamMemOpMemoryBarrierParams_st:
         Get memory address of class instance
 
     """
-    def __cinit__(self, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self._val
-        else:
-            self._ptr = <ccuda.CUstreamMemOpMemoryBarrierParams_st *>_ptr
-    def __init__(self, void_ptr _ptr = 0):
-        pass
-    def __dealloc__(self):
+    def __cinit__(self, void_ptr _ptr):
+        self._ptr = <ccuda.CUstreamBatchMemOpParams_union *>_ptr
+    def __init__(self, void_ptr _ptr):
         pass
     def getPtr(self):
         return <void_ptr>self._ptr
@@ -4534,18 +4514,18 @@ cdef class CUstreamMemOpMemoryBarrierParams_st:
 
     @property
     def operation(self):
-        return CUstreamBatchMemOpType(self._ptr[0].operation)
+        return CUstreamBatchMemOpType(self._ptr[0].memoryBarrier.operation)
     @operation.setter
     def operation(self, operation not None : CUstreamBatchMemOpType):
         pass
-        self._ptr[0].operation = operation.value
+        self._ptr[0].memoryBarrier.operation = operation.value
     @property
     def flags(self):
-        return self._ptr[0].flags
+        return self._ptr[0].memoryBarrier.flags
     @flags.setter
     def flags(self, unsigned int flags):
         pass
-        self._ptr[0].flags = flags
+        self._ptr[0].memoryBarrier.flags = flags
 
 cdef class CUstreamBatchMemOpParams_union:
     """
@@ -4574,7 +4554,7 @@ cdef class CUstreamBatchMemOpParams_union:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUstreamBatchMemOpParams_union *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4680,7 +4660,7 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4786,7 +4766,7 @@ cdef class CUdevprop_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUdevprop_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -4920,7 +4900,7 @@ cdef class CUaccessPolicyWindow_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUaccessPolicyWindow_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5012,7 +4992,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_KERNEL_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5143,7 +5123,7 @@ cdef class CUDA_MEMSET_NODE_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_MEMSET_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5235,7 +5215,7 @@ cdef class CUDA_HOST_NODE_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_HOST_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5299,7 +5279,7 @@ cdef class CUkernelNodeAttrValue_union:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUkernelNodeAttrValue_union *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5364,7 +5344,7 @@ cdef class CUstreamAttrValue_union:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUstreamAttrValue_union *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5418,7 +5398,7 @@ cdef class CUexecAffinitySmCount_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUexecAffinitySmCount_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5502,7 +5482,7 @@ cdef class CUexecAffinityParam_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUexecAffinityParam_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5586,7 +5566,7 @@ cdef class CUDA_MEMCPY2D_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_MEMCPY2D_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -5832,7 +5812,7 @@ cdef class CUDA_MEMCPY3D_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_MEMCPY3D_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6151,7 +6131,7 @@ cdef class CUDA_MEMCPY3D_PEER_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_MEMCPY3D_PEER_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6444,7 +6424,7 @@ cdef class CUDA_ARRAY_DESCRIPTOR_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_ARRAY_DESCRIPTOR_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6520,7 +6500,7 @@ cdef class CUDA_ARRAY3D_DESCRIPTOR_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_ARRAY3D_DESCRIPTOR_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6667,7 +6647,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -6749,7 +6729,7 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_ARRAY_MEMORY_REQUIREMENTS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7203,7 +7183,7 @@ cdef class CUDA_RESOURCE_DESC_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_RESOURCE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7283,7 +7263,7 @@ cdef class CUDA_TEXTURE_DESC_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_TEXTURE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7412,7 +7392,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_RESOURCE_VIEW_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7520,7 +7500,7 @@ cdef class CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7588,7 +7568,7 @@ cdef class CUDA_LAUNCH_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_LAUNCH_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7833,7 +7813,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7917,7 +7897,7 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -7990,7 +7970,7 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -8172,7 +8152,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -8451,7 +8431,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -8732,7 +8712,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -8799,7 +8779,7 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -8891,7 +8871,7 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -9323,7 +9303,7 @@ cdef class CUarrayMapInfo_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUarrayMapInfo_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -9461,7 +9441,7 @@ cdef class CUmemLocation_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUmemLocation_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -9591,7 +9571,7 @@ cdef class CUmemAllocationProp_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUmemAllocationProp_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -9676,7 +9656,7 @@ cdef class CUmemAccessDesc_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUmemAccessDesc_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -9743,7 +9723,7 @@ cdef class CUmemPoolProps_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUmemPoolProps_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -9823,7 +9803,7 @@ cdef class CUmemPoolPtrExportData_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUmemPoolPtrExportData_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -9879,7 +9859,7 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUDA_MEM_ALLOC_NODE_PARAMS_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -10052,7 +10032,7 @@ cdef class CUeglFrame_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUeglFrame_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
@@ -10164,7 +10144,7 @@ cdef class cuuint32_t:
     """
     def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.cuuint32_t *>_ptr
         if init_value:
@@ -10189,7 +10169,7 @@ cdef class cuuint64_t:
     """
     def __cinit__(self, uint64_t init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.cuuint64_t *>_ptr
         if init_value:
@@ -10216,7 +10196,7 @@ cdef class CUdeviceptr_v2:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUdeviceptr_v2 *>_ptr
         if init_value:
@@ -10243,7 +10223,7 @@ cdef class CUdeviceptr:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUdeviceptr *>_ptr
         if init_value:
@@ -10270,7 +10250,7 @@ cdef class CUdevice_v1:
     """
     def __cinit__(self, int init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUdevice_v1 *>_ptr
         if init_value:
@@ -10297,7 +10277,7 @@ cdef class CUdevice:
     """
     def __cinit__(self, int init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUdevice *>_ptr
         if init_value:
@@ -10324,7 +10304,7 @@ cdef class CUtexObject_v1:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUtexObject_v1 *>_ptr
         if init_value:
@@ -10351,7 +10331,7 @@ cdef class CUtexObject:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUtexObject *>_ptr
         if init_value:
@@ -10378,7 +10358,7 @@ cdef class CUsurfObject_v1:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUsurfObject_v1 *>_ptr
         if init_value:
@@ -10405,7 +10385,7 @@ cdef class CUsurfObject:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUsurfObject *>_ptr
         if init_value:
@@ -10430,7 +10410,7 @@ cdef class CUmemGenericAllocationHandle_v1:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUmemGenericAllocationHandle_v1 *>_ptr
         if init_value:
@@ -10455,7 +10435,7 @@ cdef class CUmemGenericAllocationHandle:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.CUmemGenericAllocationHandle *>_ptr
         if init_value:
@@ -10480,7 +10460,7 @@ cdef class GLenum:
     """
     def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.GLenum *>_ptr
         if init_value:
@@ -10505,7 +10485,7 @@ cdef class GLuint:
     """
     def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.GLuint *>_ptr
         if init_value:
@@ -10530,7 +10510,7 @@ cdef class EGLint:
     """
     def __cinit__(self, unsigned int init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.EGLint *>_ptr
         if init_value:
@@ -10555,7 +10535,7 @@ cdef class VdpDevice:
     """
     def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.VdpDevice *>_ptr
         if init_value:
@@ -10580,7 +10560,7 @@ cdef class VdpGetProcAddress:
     """
     def __cinit__(self, unsigned long long init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.VdpGetProcAddress *>_ptr
         if init_value:
@@ -10605,7 +10585,7 @@ cdef class VdpVideoSurface:
     """
     def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.VdpVideoSurface *>_ptr
         if init_value:
@@ -10630,7 +10610,7 @@ cdef class VdpOutputSurface:
     """
     def __cinit__(self, uint32_t init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
         else:
             self._ptr = <ccuda.VdpOutputSurface *>_ptr
         if init_value:
@@ -32696,14 +32676,6 @@ def sizeof(objType):
         return sizeof(ccuda.CUipcEventHandle_st)
     if objType == CUipcMemHandle_st:
         return sizeof(ccuda.CUipcMemHandle_st)
-    if objType == CUstreamMemOpWaitValueParams_st:
-        return sizeof(ccuda.CUstreamMemOpWaitValueParams_st)
-    if objType == CUstreamMemOpWriteValueParams_st:
-        return sizeof(ccuda.CUstreamMemOpWriteValueParams_st)
-    if objType == CUstreamMemOpFlushRemoteWritesParams_st:
-        return sizeof(ccuda.CUstreamMemOpFlushRemoteWritesParams_st)
-    if objType == CUstreamMemOpMemoryBarrierParams_st:
-        return sizeof(ccuda.CUstreamMemOpMemoryBarrierParams_st)
     if objType == CUstreamBatchMemOpParams_union:
         return sizeof(ccuda.CUstreamBatchMemOpParams_union)
     if objType == CUDA_BATCH_MEM_OP_NODE_PARAMS_st:

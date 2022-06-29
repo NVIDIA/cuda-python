@@ -71,7 +71,7 @@ cdef class nvrtcProgram:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self._val
+            self._ptr = &self.__val
             self._ptr[0] = <cnvrtc.nvrtcProgram>init_value
         else:
             self._ptr = <cnvrtc.nvrtcProgram *>_ptr

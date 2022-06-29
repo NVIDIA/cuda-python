@@ -38,3 +38,47 @@ def test_ccudart_memcpy():
     # Cleanup
     err = ccudart.cudaFree(dptr)
     assert(err == ccudart.cudaSuccess)
+
+from cuda.ccudart cimport dim3
+from cuda.ccudart cimport cudaMemAllocationHandleType
+from cuda.ccudart cimport CUuuid, cudaUUID_t
+
+cdef extern from *:
+    """
+    #include <cuda_runtime_api.h>
+    dim3 copy_and_append_dim3(dim3 copy) {
+        return dim3(copy.x + 1, copy.y + 1, copy.z + 1);
+    }
+    void foo(cudaMemAllocationHandleType x) {
+        return;
+    }
+    int compareUUID(CUuuid cuType, cudaUUID_t cudaType) {
+        return memcmp(&cuType, &cudaType, sizeof(CUuuid));
+    }
+    """
+    void foo(cudaMemAllocationHandleType x)
+    dim3 copy_and_append_dim3(dim3 copy)
+    int compareUUID(CUuuid cuType, cudaUUID_t cudaType)
+
+def test_ccudart_interoperable():
+    # struct
+    cdef dim3 oldDim, newDim
+    oldDim.x = 1
+    oldDim.y = 2
+    oldDim.z = 3
+    newDim = copy_and_append_dim3(oldDim)
+    assert oldDim.x + 1 == newDim.x
+    assert oldDim.y + 1 == newDim.y
+    assert oldDim.z + 1 == newDim.z
+
+    # Enum
+    foo(cudaMemAllocationHandleType.cudaMemHandleTypeNone)
+
+    # typedef struct
+    cdef CUuuid type_one
+    cdef cudaUUID_t type_two
+    memset(type_one.bytes, 1, sizeof(type_one.bytes))
+    memset(type_two.bytes, 1, sizeof(type_one.bytes))
+    assert compareUUID(type_one, type_two) == 0
+    memset(type_two.bytes, 2, sizeof(type_one.bytes))
+    assert compareUUID(type_one, type_two) != 0
