@@ -80,16 +80,6 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align = 0
         if min_granularity < granularity:
             min_granularity = granularity
 
-    # Get the minimum granularity needed for the accessing devices
-    # (the max of the minimum granularity of each participating device)
-    for device in residentDevices:
-        prop.location.id = device
-        status, granularity = cuda.cuMemGetAllocationGranularity(prop, cuda.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM)
-        if status != cuda.CUresult.CUDA_SUCCESS:
-            return status, None, None
-        if min_granularity < granularity:
-            min_granularity = granularity
-
     # Round up the size such that we can evenly split it into a stripe size tha meets the granularity requirements
     # Essentially size = N * residentDevices.size() * min_granularity is the requirement,
     # since each piece of the allocation will be stripeSize = N * min_granularity
