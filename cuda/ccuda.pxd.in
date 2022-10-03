@@ -142,6 +142,30 @@ cdef extern from "cuda.h":
 
     ctypedef CUctx_flags_enum CUctx_flags
 
+    cdef enum CUevent_sched_flags_enum:
+        CU_EVENT_SCHED_AUTO = 0
+        CU_EVENT_SCHED_SPIN = 1
+        CU_EVENT_SCHED_YIELD = 2
+        CU_EVENT_SCHED_BLOCKING_SYNC = 4
+
+    ctypedef CUevent_sched_flags_enum CUevent_sched_flags
+
+    cdef enum cl_event_flags_enum:
+        NVCL_EVENT_SCHED_AUTO = 0
+        NVCL_EVENT_SCHED_SPIN = 1
+        NVCL_EVENT_SCHED_YIELD = 2
+        NVCL_EVENT_SCHED_BLOCKING_SYNC = 4
+
+    ctypedef cl_event_flags_enum cl_event_flags
+
+    cdef enum cl_context_flags_enum:
+        NVCL_CTX_SCHED_AUTO = 0
+        NVCL_CTX_SCHED_SPIN = 1
+        NVCL_CTX_SCHED_YIELD = 2
+        NVCL_CTX_SCHED_BLOCKING_SYNC = 4
+
+    ctypedef cl_context_flags_enum cl_context_flags
+
     cdef enum CUstream_flags_enum:
         CU_STREAM_DEFAULT = 0
         CU_STREAM_NON_BLOCKING = 1
@@ -432,6 +456,7 @@ cdef extern from "cuda.h":
         CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_FLUSH_WRITES_OPTIONS = 117
         CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING = 118
         CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES = 119
+        CU_DEVICE_ATTRIBUTE_CLUSTER_LAUNCH = 120
         CU_DEVICE_ATTRIBUTE_DEFERRED_MAPPING_CUDA_ARRAY_SUPPORTED = 121
         CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS_V2 = 122
         CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR_V2 = 123
@@ -491,7 +516,13 @@ cdef extern from "cuda.h":
         CU_FUNC_ATTRIBUTE_CACHE_MODE_CA = 7
         CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES = 8
         CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT = 9
-        CU_FUNC_ATTRIBUTE_MAX = 10
+        CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET = 10
+        CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH = 11
+        CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT = 12
+        CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH = 13
+        CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED = 14
+        CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE = 15
+        CU_FUNC_ATTRIBUTE_MAX = 16
 
     ctypedef CUfunction_attribute_enum CUfunction_attribute
 
@@ -604,6 +635,8 @@ cdef extern from "cuda.h":
         CU_TARGET_COMPUTE_80 = 80
         CU_TARGET_COMPUTE_86 = 86
         CU_TARGET_COMPUTE_87 = 87
+        CU_TARGET_COMPUTE_89 = 89
+        CU_TARGET_COMPUTE_90 = 90
 
     ctypedef CUjit_target_enum CUjit_target
 
@@ -762,19 +795,72 @@ cdef extern from "cuda.h":
 
     ctypedef CUsynchronizationPolicy_enum CUsynchronizationPolicy
 
-    cdef enum CUkernelNodeAttrID_enum:
-        CU_KERNEL_NODE_ATTRIBUTE_ACCESS_POLICY_WINDOW = 1
-        CU_KERNEL_NODE_ATTRIBUTE_COOPERATIVE = 2
-        CU_KERNEL_NODE_ATTRIBUTE_PRIORITY = 8
+    cdef enum CUclusterSchedulingPolicy_enum:
+        CU_CLUSTER_SCHEDULING_POLICY_DEFAULT = 0
+        CU_CLUSTER_SCHEDULING_POLICY_SPREAD = 1
+        CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING = 2
 
-    ctypedef CUkernelNodeAttrID_enum CUkernelNodeAttrID
+    ctypedef CUclusterSchedulingPolicy_enum CUclusterSchedulingPolicy
 
-    cdef union CUkernelNodeAttrValue_union:
+    cdef enum CUlaunchAttributeID_enum:
+        CU_LAUNCH_ATTRIBUTE_IGNORE = 0
+        CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW = 1
+        CU_LAUNCH_ATTRIBUTE_COOPERATIVE = 2
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY = 3
+        CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION = 4
+        CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE = 5
+        CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION = 6
+        CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT = 7
+        CU_LAUNCH_ATTRIBUTE_PRIORITY = 8
+
+    ctypedef CUlaunchAttributeID_enum CUlaunchAttributeID
+
+    cdef struct _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s:
+        unsigned int x
+        unsigned int y
+        unsigned int z
+
+    cdef struct _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s:
+        CUevent event
+        int flags
+        int triggerAtBlockStart
+
+    cdef union CUlaunchAttributeValue_union:
+        char pad[64]
         CUaccessPolicyWindow accessPolicyWindow
         int cooperative
+        CUsynchronizationPolicy syncPolicy
+        _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s clusterDim
+        CUclusterSchedulingPolicy clusterSchedulingPolicyPreference
+        int programmaticStreamSerializationAllowed
+        _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s programmaticEvent
         int priority
 
-    ctypedef CUkernelNodeAttrValue_union CUkernelNodeAttrValue_v1
+    ctypedef CUlaunchAttributeValue_union CUlaunchAttributeValue
+
+    cdef struct CUlaunchAttribute_st:
+        CUlaunchAttributeID id
+        CUlaunchAttributeValue value
+
+    ctypedef CUlaunchAttribute_st CUlaunchAttribute
+
+    cdef struct CUlaunchConfig_st:
+        unsigned int gridDimX
+        unsigned int gridDimY
+        unsigned int gridDimZ
+        unsigned int blockDimX
+        unsigned int blockDimY
+        unsigned int blockDimZ
+        unsigned int sharedMemBytes
+        CUstream hStream
+        CUlaunchAttribute* attrs
+        unsigned int numAttrs
+
+    ctypedef CUlaunchConfig_st CUlaunchConfig
+
+    ctypedef CUlaunchAttributeID CUkernelNodeAttrID
+
+    ctypedef CUlaunchAttributeValue CUkernelNodeAttrValue_v1
 
     ctypedef CUkernelNodeAttrValue_v1 CUkernelNodeAttrValue
 
@@ -792,17 +878,9 @@ cdef extern from "cuda.h":
 
     ctypedef CUstreamCaptureMode_enum CUstreamCaptureMode
 
-    cdef enum CUstreamAttrID_enum:
-        CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW = 1
-        CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY = 3
+    ctypedef CUlaunchAttributeID CUstreamAttrID
 
-    ctypedef CUstreamAttrID_enum CUstreamAttrID
-
-    cdef union CUstreamAttrValue_union:
-        CUaccessPolicyWindow accessPolicyWindow
-        CUsynchronizationPolicy syncPolicy
-
-    ctypedef CUstreamAttrValue_union CUstreamAttrValue_v1
+    ctypedef CUlaunchAttributeValue CUstreamAttrValue_v1
 
     ctypedef CUstreamAttrValue_v1 CUstreamAttrValue
 
@@ -913,6 +991,7 @@ cdef extern from "cuda.h":
         CUDA_ERROR_MPS_SERVER_NOT_READY = 807
         CUDA_ERROR_MPS_MAX_CLIENTS_REACHED = 808
         CUDA_ERROR_MPS_MAX_CONNECTIONS_REACHED = 809
+        CUDA_ERROR_MPS_CLIENT_TERMINATED = 810
         CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED = 900
         CUDA_ERROR_STREAM_CAPTURE_INVALIDATED = 901
         CUDA_ERROR_STREAM_CAPTURE_MERGE = 902
@@ -925,6 +1004,7 @@ cdef extern from "cuda.h":
         CUDA_ERROR_TIMEOUT = 909
         CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE = 910
         CUDA_ERROR_EXTERNAL_DEVICE = 911
+        CUDA_ERROR_INVALID_CLUSTER_SIZE = 912
         CUDA_ERROR_UNKNOWN = 999
 
     ctypedef cudaError_enum CUresult
@@ -1637,735 +1717,1845 @@ cdef extern from "cuda.h":
 
     ctypedef CUmoduleLoadingMode_enum CUmoduleLoadingMode
 
+{{if 'cuGetErrorString' in found_functions}}
+
 cdef CUresult cuGetErrorString(CUresult error, const char** pStr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGetErrorName' in found_functions}}
 
 cdef CUresult cuGetErrorName(CUresult error, const char** pStr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuInit' in found_functions}}
 
 cdef CUresult cuInit(unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDriverGetVersion' in found_functions}}
 
 cdef CUresult cuDriverGetVersion(int* driverVersion) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGet' in found_functions}}
 
 cdef CUresult cuDeviceGet(CUdevice* device, int ordinal) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetCount' in found_functions}}
 
 cdef CUresult cuDeviceGetCount(int* count) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetName' in found_functions}}
 
 cdef CUresult cuDeviceGetName(char* name, int length, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetUuid' in found_functions}}
 
 cdef CUresult cuDeviceGetUuid(CUuuid* uuid, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetUuid_v2' in found_functions}}
 
 cdef CUresult cuDeviceGetUuid_v2(CUuuid* uuid, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetLuid' in found_functions}}
 
 cdef CUresult cuDeviceGetLuid(char* luid, unsigned int* deviceNodeMask, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceTotalMem_v2' in found_functions}}
 
 cdef CUresult cuDeviceTotalMem(size_t* numbytes, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetTexture1DLinearMaxWidth' in found_functions}}
 
 cdef CUresult cuDeviceGetTexture1DLinearMaxWidth(size_t* maxWidthInElements, CUarray_format pformat, unsigned numChannels, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetAttribute' in found_functions}}
 
 cdef CUresult cuDeviceGetAttribute(int* pi, CUdevice_attribute attrib, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetNvSciSyncAttributes' in found_functions}}
 
 cdef CUresult cuDeviceGetNvSciSyncAttributes(void* nvSciSyncAttrList, CUdevice dev, int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceSetMemPool' in found_functions}}
 
 cdef CUresult cuDeviceSetMemPool(CUdevice dev, CUmemoryPool pool) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetMemPool' in found_functions}}
 
 cdef CUresult cuDeviceGetMemPool(CUmemoryPool* pool, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetDefaultMemPool' in found_functions}}
 
 cdef CUresult cuDeviceGetDefaultMemPool(CUmemoryPool* pool_out, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuFlushGPUDirectRDMAWrites' in found_functions}}
 
 cdef CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetProperties' in found_functions}}
 
 cdef CUresult cuDeviceGetProperties(CUdevprop* prop, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceComputeCapability' in found_functions}}
 
 cdef CUresult cuDeviceComputeCapability(int* major, int* minor, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDevicePrimaryCtxRetain' in found_functions}}
 
 cdef CUresult cuDevicePrimaryCtxRetain(CUcontext* pctx, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDevicePrimaryCtxRelease_v2' in found_functions}}
 
 cdef CUresult cuDevicePrimaryCtxRelease(CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDevicePrimaryCtxSetFlags_v2' in found_functions}}
 
 cdef CUresult cuDevicePrimaryCtxSetFlags(CUdevice dev, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDevicePrimaryCtxGetState' in found_functions}}
 
 cdef CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, int* active) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDevicePrimaryCtxReset_v2' in found_functions}}
 
 cdef CUresult cuDevicePrimaryCtxReset(CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetExecAffinitySupport' in found_functions}}
 
 cdef CUresult cuDeviceGetExecAffinitySupport(int* pi, CUexecAffinityType typename, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxCreate_v2' in found_functions}}
 
 cdef CUresult cuCtxCreate(CUcontext* pctx, unsigned int flags, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxCreate_v3' in found_functions}}
 
 cdef CUresult cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray, int numParams, unsigned int flags, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxDestroy_v2' in found_functions}}
 
 cdef CUresult cuCtxDestroy(CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxPushCurrent_v2' in found_functions}}
 
 cdef CUresult cuCtxPushCurrent(CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxPopCurrent_v2' in found_functions}}
 
 cdef CUresult cuCtxPopCurrent(CUcontext* pctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxSetCurrent' in found_functions}}
 
 cdef CUresult cuCtxSetCurrent(CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxGetCurrent' in found_functions}}
 
 cdef CUresult cuCtxGetCurrent(CUcontext* pctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxGetDevice' in found_functions}}
 
 cdef CUresult cuCtxGetDevice(CUdevice* device) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxGetFlags' in found_functions}}
 
 cdef CUresult cuCtxGetFlags(unsigned int* flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxSynchronize' in found_functions}}
 
 cdef CUresult cuCtxSynchronize() nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxSetLimit' in found_functions}}
 
 cdef CUresult cuCtxSetLimit(CUlimit limit, size_t value) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxGetLimit' in found_functions}}
 
 cdef CUresult cuCtxGetLimit(size_t* pvalue, CUlimit limit) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxGetCacheConfig' in found_functions}}
 
 cdef CUresult cuCtxGetCacheConfig(CUfunc_cache* pconfig) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxSetCacheConfig' in found_functions}}
 
 cdef CUresult cuCtxSetCacheConfig(CUfunc_cache config) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxGetSharedMemConfig' in found_functions}}
 
 cdef CUresult cuCtxGetSharedMemConfig(CUsharedconfig* pConfig) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxSetSharedMemConfig' in found_functions}}
 
 cdef CUresult cuCtxSetSharedMemConfig(CUsharedconfig config) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxGetApiVersion' in found_functions}}
 
 cdef CUresult cuCtxGetApiVersion(CUcontext ctx, unsigned int* version) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxGetStreamPriorityRange' in found_functions}}
 
 cdef CUresult cuCtxGetStreamPriorityRange(int* leastPriority, int* greatestPriority) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxResetPersistingL2Cache' in found_functions}}
 
 cdef CUresult cuCtxResetPersistingL2Cache() nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxGetExecAffinity' in found_functions}}
 
 cdef CUresult cuCtxGetExecAffinity(CUexecAffinityParam* pExecAffinity, CUexecAffinityType typename) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxAttach' in found_functions}}
 
 cdef CUresult cuCtxAttach(CUcontext* pctx, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxDetach' in found_functions}}
 
 cdef CUresult cuCtxDetach(CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleLoad' in found_functions}}
 
 cdef CUresult cuModuleLoad(CUmodule* module, const char* fname) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleLoadData' in found_functions}}
 
 cdef CUresult cuModuleLoadData(CUmodule* module, const void* image) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleLoadDataEx' in found_functions}}
 
 cdef CUresult cuModuleLoadDataEx(CUmodule* module, const void* image, unsigned int numOptions, CUjit_option* options, void** optionValues) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleLoadFatBinary' in found_functions}}
 
 cdef CUresult cuModuleLoadFatBinary(CUmodule* module, const void* fatCubin) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleUnload' in found_functions}}
 
 cdef CUresult cuModuleUnload(CUmodule hmod) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
 
-cdef CUresult cuModuleGetFunction(CUfunction* hfunc, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuModuleGetGlobal(CUdeviceptr* dptr, size_t* numbytes, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuModuleGetTexRef(CUtexref* pTexRef, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuModuleGetSurfRef(CUsurfref* pSurfRef, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLinkCreate(unsigned int numOptions, CUjit_option* options, void** optionValues, CUlinkState* stateOut) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLinkAddData(CUlinkState state, CUjitInputType typename, void* data, size_t size, const char* name, unsigned int numOptions, CUjit_option* options, void** optionValues) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLinkAddFile(CUlinkState state, CUjitInputType typename, const char* path, unsigned int numOptions, CUjit_option* options, void** optionValues) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLinkComplete(CUlinkState state, void** cubinOut, size_t* sizeOut) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLinkDestroy(CUlinkState state) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemGetInfo(size_t* free, size_t* total) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemAlloc(CUdeviceptr* dptr, size_t bytesize) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemAllocPitch(CUdeviceptr* dptr, size_t* pPitch, size_t WidthInBytes, size_t Height, unsigned int ElementSizeBytes) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemFree(CUdeviceptr dptr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemGetAddressRange(CUdeviceptr* pbase, size_t* psize, CUdeviceptr dptr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemAllocHost(void** pp, size_t bytesize) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemFreeHost(void* p) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemHostAlloc(void** pp, size_t bytesize, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemHostGetDevicePointer(CUdeviceptr* pdptr, void* p, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemHostGetFlags(unsigned int* pFlags, void* p) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemAllocManaged(CUdeviceptr* dptr, size_t bytesize, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuDeviceGetByPCIBusId(CUdevice* dev, const char* pciBusId) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuDeviceGetPCIBusId(char* pciBusId, int length, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuIpcGetEventHandle(CUipcEventHandle* pHandle, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuIpcOpenEventHandle(CUevent* phEvent, CUipcEventHandle handle) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuIpcGetMemHandle(CUipcMemHandle* pHandle, CUdeviceptr dptr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuIpcOpenMemHandle(CUdeviceptr* pdptr, CUipcMemHandle handle, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuIpcCloseMemHandle(CUdeviceptr dptr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemHostRegister(void* p, size_t bytesize, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemHostUnregister(void* p) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CUdeviceptr srcDevice, CUcontext srcContext, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyHtoD(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyDtoH(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyDtoD(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyDtoA(CUarray dstArray, size_t dstOffset, CUdeviceptr srcDevice, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyAtoD(CUdeviceptr dstDevice, CUarray srcArray, size_t srcOffset, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyHtoA(CUarray dstArray, size_t dstOffset, const void* srcHost, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyAtoH(void* dstHost, CUarray srcArray, size_t srcOffset, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyAtoA(CUarray dstArray, size_t dstOffset, CUarray srcArray, size_t srcOffset, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpy2D(const CUDA_MEMCPY2D* pCopy) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpy2DUnaligned(const CUDA_MEMCPY2D* pCopy) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpy3D(const CUDA_MEMCPY3D* pCopy) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER* pCopy) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContext, CUdeviceptr srcDevice, CUcontext srcContext, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyHtoDAsync(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyDtoHAsync(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyDtoDAsync(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyHtoAAsync(CUarray dstArray, size_t dstOffset, const void* srcHost, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpyAtoHAsync(void* dstHost, CUarray srcArray, size_t srcOffset, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpy2DAsync(const CUDA_MEMCPY2D* pCopy, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpy3DAsync(const CUDA_MEMCPY3D* pCopy, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER* pCopy, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD8(CUdeviceptr dstDevice, unsigned char uc, size_t N) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD16(CUdeviceptr dstDevice, unsigned short us, size_t N) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD32(CUdeviceptr dstDevice, unsigned int ui, size_t N) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD2D8(CUdeviceptr dstDevice, size_t dstPitch, unsigned char uc, size_t Width, size_t Height) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD2D16(CUdeviceptr dstDevice, size_t dstPitch, unsigned short us, size_t Width, size_t Height) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD2D32(CUdeviceptr dstDevice, size_t dstPitch, unsigned int ui, size_t Width, size_t Height) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, size_t N, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, size_t N, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, size_t N, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned char uc, size_t Width, size_t Height, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned short us, size_t Width, size_t Height, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned int ui, size_t Width, size_t Height, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuArrayCreate(CUarray* pHandle, const CUDA_ARRAY_DESCRIPTOR* pAllocateArray) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuArrayGetDescriptor(CUDA_ARRAY_DESCRIPTOR* pArrayDescriptor, CUarray hArray) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparseProperties, CUarray array) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparseProperties, CUmipmappedArray mipmap) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUarray array, CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMipmappedArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUmipmappedArray mipmap, CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuArrayGetPlane(CUarray* pPlaneArray, CUarray hArray, unsigned int planeIdx) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuArrayDestroy(CUarray hArray) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuArray3DCreate(CUarray* pHandle, const CUDA_ARRAY3D_DESCRIPTOR* pAllocateArray) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuArray3DGetDescriptor(CUDA_ARRAY3D_DESCRIPTOR* pArrayDescriptor, CUarray hArray) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMipmappedArrayCreate(CUmipmappedArray* pHandle, const CUDA_ARRAY3D_DESCRIPTOR* pMipmappedArrayDesc, unsigned int numMipmapLevels) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMipmappedArrayGetLevel(CUarray* pLevelArray, CUmipmappedArray hMipmappedArray, unsigned int level) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemAddressReserve(CUdeviceptr* ptr, size_t size, size_t alignment, CUdeviceptr addr, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemAddressFree(CUdeviceptr ptr, size_t size) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemCreate(CUmemGenericAllocationHandle* handle, size_t size, const CUmemAllocationProp* prop, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemRelease(CUmemGenericAllocationHandle handle) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemGenericAllocationHandle handle, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemMapArrayAsync(CUarrayMapInfo* mapInfoList, unsigned int count, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemUnmap(CUdeviceptr ptr, size_t size) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAccessDesc* desc, size_t count) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemGetAccess(unsigned long long* flags, const CUmemLocation* location, CUdeviceptr ptr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemExportToShareableHandle(void* shareableHandle, CUmemGenericAllocationHandle handle, CUmemAllocationHandleType handleType, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemImportFromShareableHandle(CUmemGenericAllocationHandle* handle, void* osHandle, CUmemAllocationHandleType shHandleType) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemGetAllocationGranularity(size_t* granularity, const CUmemAllocationProp* prop, CUmemAllocationGranularity_flags option) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp* prop, CUmemGenericAllocationHandle handle) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemRetainAllocationHandle(CUmemGenericAllocationHandle* handle, void* addr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemAllocAsync(CUdeviceptr* dptr, size_t bytesize, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolTrimTo(CUmemoryPool pool, size_t minBytesToKeep) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, void* value) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, void* value) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc* map, size_t count) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolGetAccess(CUmemAccess_flags* flags, CUmemoryPool memPool, CUmemLocation* location) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolCreate(CUmemoryPool* pool, const CUmemPoolProps* poolProps) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolDestroy(CUmemoryPool pool) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemAllocFromPoolAsync(CUdeviceptr* dptr, size_t bytesize, CUmemoryPool pool, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolExportToShareableHandle(void* handle_out, CUmemoryPool pool, CUmemAllocationHandleType handleType, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolImportFromShareableHandle(CUmemoryPool* pool_out, void* handle, CUmemAllocationHandleType handleType, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData* shareData_out, CUdeviceptr ptr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPoolImportPointer(CUdeviceptr* ptr_out, CUmemoryPool pool, CUmemPoolPtrExportData* shareData) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuPointerGetAttribute(void* data, CUpointer_attribute attribute, CUdeviceptr ptr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevice dstDevice, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemRangeGetAttribute(void* data, size_t dataSize, CUmem_range_attribute attribute, CUdeviceptr devPtr, size_t count) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuMemRangeGetAttributes(void** data, size_t* dataSizes, CUmem_range_attribute* attributes, size_t numAttributes, CUdeviceptr devPtr, size_t count) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuPointerSetAttribute(const void* value, CUpointer_attribute attribute, CUdeviceptr ptr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuPointerGetAttributes(unsigned int numAttributes, CUpointer_attribute* attributes, void** data, CUdeviceptr ptr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamCreate(CUstream* phStream, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamCreateWithPriority(CUstream* phStream, unsigned int flags, int priority) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamGetPriority(CUstream hStream, int* priority) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamGetFlags(CUstream hStream, unsigned int* flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamGetCtx(CUstream hStream, CUcontext* pctx) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, void* userData, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamBeginCapture(CUstream hStream, CUstreamCaptureMode mode) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode* mode) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamEndCapture(CUstream hStream, CUgraph* phGraph) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* captureStatus) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode* dependencies, size_t numDependencies, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, size_t length, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamQuery(CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamSynchronize(CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamDestroy(CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamCopyAttributes(CUstream dst, CUstream src) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, CUstreamAttrValue* value_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, const CUstreamAttrValue* value) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuEventCreate(CUevent* phEvent, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuEventRecord(CUevent hEvent, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuEventRecordWithFlags(CUevent hEvent, CUstream hStream, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuEventQuery(CUevent hEvent) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuEventSynchronize(CUevent hEvent) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuEventDestroy(CUevent hEvent) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuEventElapsedTime(float* pMilliseconds, CUevent hStart, CUevent hEnd) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuImportExternalMemory(CUexternalMemory* extMem_out, const CUDA_EXTERNAL_MEMORY_HANDLE_DESC* memHandleDesc) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuExternalMemoryGetMappedBuffer(CUdeviceptr* devPtr, CUexternalMemory extMem, const CUDA_EXTERNAL_MEMORY_BUFFER_DESC* bufferDesc) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray* mipmap, CUexternalMemory extMem, const CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC* mipmapDesc) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuDestroyExternalMemory(CUexternalMemory extMem) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuImportExternalSemaphore(CUexternalSemaphore* extSem_out, const CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC* semHandleDesc) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuSignalExternalSemaphoresAsync(const CUexternalSemaphore* extSemArray, const CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* paramsArray, unsigned int numExtSems, CUstream stream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuWaitExternalSemaphoresAsync(const CUexternalSemaphore* extSemArray, const CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* paramsArray, unsigned int numExtSems, CUstream stream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuDestroyExternalSemaphore(CUexternalSemaphore extSem) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamWaitValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamWaitValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamWriteValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamWriteValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuStreamBatchMemOp_v2(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuFuncGetAttribute(int* pi, CUfunction_attribute attrib, CUfunction hfunc) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib, int value) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuFuncGetModule(CUmodule* hmod, CUfunction hfunc) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void** kernelParams, void** extra) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void** kernelParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int numbytes) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuParamSetf(CUfunction hfunc, int offset, float value) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuParamSetv(CUfunction hfunc, int offset, void* ptr, unsigned int numbytes) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLaunch(CUfunction f) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphCreate(CUgraph* phGraph, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddKernelNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddMemcpyNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_MEMCPY3D* copyParams, CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEMCPY3D* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddMemsetNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_MEMSET_NODE_PARAMS* memsetParams, CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEMSET_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddHostNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_HOST_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddChildGraphNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUgraph childGraph) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph* phGraph) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddEmptyNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddEventRecordNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent* event_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddEventWaitNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent* event_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphEventWaitNodeSetEvent(CUgraphNode hNode, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddExternalSemaphoresSignalNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNode, CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* params_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNode, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddExternalSemaphoresWaitNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode, CUDA_EXT_SEM_WAIT_NODE_PARAMS* params_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddBatchMemOpNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphBatchMemOpNodeGetParams(CUgraphNode hNode, CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphBatchMemOpNodeSetParams(CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecBatchMemOpNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddMemAllocNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUDA_MEM_ALLOC_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALLOC_NODE_PARAMS* params_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddMemFreeNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUdeviceptr dptr) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphMemFreeNodeGetParams(CUgraphNode hNode, CUdeviceptr* dptr_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuDeviceGraphMemTrim(CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_attribute attr, void* value) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_attribute attr, void* value) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphClone(CUgraph* phGraphClone, CUgraph originalGraph) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphNodeFindInClone(CUgraphNode* phNode, CUgraphNode hOriginalNode, CUgraph hClonedGraph) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType* typename) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphGetNodes(CUgraph hGraph, CUgraphNode* nodes, size_t* numNodes) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode* rootNodes, size_t* numRootNodes) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, size_t* numEdges) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode* dependencies, size_t* numDependencies) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode* dependentNodes, size_t* numDependentNodes) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphDestroyNode(CUgraphNode hNode) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphInstantiate(CUgraphExec* phGraphExec, CUgraph hGraph, CUgraphNode* phErrorNode, char* logBuffer, size_t bufferSize) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphInstantiateWithFlags(CUgraphExec* phGraphExec, CUgraph hGraph, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_MEMCPY3D* copyParams, CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_MEMSET_NODE_PARAMS* memsetParams, CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_HOST_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecChildGraphNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraph childGraph) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphNodeSetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int isEnabled) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphNodeGetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int* isEnabled) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphLaunch(CUgraphExec hGraphExec, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecDestroy(CUgraphExec hGraphExec) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphDestroy(CUgraph hGraph) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CUgraphNode* hErrorNode_out, CUgraphExecUpdateResult* updateResult_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode src) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, CUkernelNodeAttrValue* value_out) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, const CUkernelNodeAttrValue* value) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphDebugDotPrint(CUgraph hGraph, const char* path, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuUserObjectCreate(CUuserObject* object_out, void* ptr, CUhostFn destroy, unsigned int initialRefcount, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuUserObjectRetain(CUuserObject object, unsigned int count) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuUserObjectRelease(CUuserObject object, unsigned int count) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphRetainUserObject(CUgraph graph, CUuserObject object, unsigned int count, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphReleaseUserObject(CUgraph graph, CUuserObject object, unsigned int count) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int* numBlocks, CUfunction func, int blockSize, size_t dynamicSMemSize) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int* numBlocks, CUfunction func, int blockSize, size_t dynamicSMemSize, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuOccupancyMaxPotentialBlockSize(int* minGridSize, int* blockSize, CUfunction func, CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int blockSizeLimit) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int* minGridSize, int* blockSize, CUfunction func, CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int blockSizeLimit, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t* dynamicSmemSize, CUfunction func, int numBlocks, int blockSize) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray hMipmappedArray, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetAddress(size_t* ByteOffset, CUtexref hTexRef, CUdeviceptr dptr, size_t numbytes) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetAddress2D(CUtexref hTexRef, const CUDA_ARRAY_DESCRIPTOR* desc, CUdeviceptr dptr, size_t Pitch) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int NumPackedComponents) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_mode am) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUfilter_mode fm) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipmapLevelClamp, float maxMipmapLevelClamp) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, unsigned int maxAniso) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetBorderColor(CUtexref hTexRef, float* pBorderColor) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetAddress(CUdeviceptr* pdptr, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetArray(CUarray* phArray, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetMipmappedArray(CUmipmappedArray* phMipmappedArray, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetAddressMode(CUaddress_mode* pam, CUtexref hTexRef, int dim) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetFilterMode(CUfilter_mode* pfm, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetFormat(CUarray_format* pFormat, int* pNumChannels, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetMipmapFilterMode(CUfilter_mode* pfm, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetMipmapLevelBias(float* pbias, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetMipmapLevelClamp(float* pminMipmapLevelClamp, float* pmaxMipmapLevelClamp, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetMaxAnisotropy(int* pmaxAniso, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetBorderColor(float* pBorderColor, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefGetFlags(unsigned int* pFlags, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefCreate(CUtexref* pTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexRefDestroy(CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuSurfRefGetArray(CUarray* phArray, CUsurfref hSurfRef) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexObjectCreate(CUtexObject* pTexObject, const CUDA_RESOURCE_DESC* pResDesc, const CUDA_TEXTURE_DESC* pTexDesc, const CUDA_RESOURCE_VIEW_DESC* pResViewDesc) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexObjectDestroy(CUtexObject texObject) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUtexObject texObject) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC* pTexDesc, CUtexObject texObject) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC* pResViewDesc, CUtexObject texObject) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuSurfObjectCreate(CUsurfObject* pSurfObject, const CUDA_RESOURCE_DESC* pResDesc) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuSurfObjectDestroy(CUsurfObject surfObject) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUsurfObject surfObject) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuDeviceCanAccessPeer(int* canAccessPeer, CUdevice dev, CUdevice peerDev) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuCtxDisablePeerAccess(CUcontext peerContext) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuDeviceGetP2PAttribute(int* value, CUdevice_P2PAttribute attrib, CUdevice srcDevice, CUdevice dstDevice) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphicsUnregisterResource(CUgraphicsResource resource) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphicsSubResourceGetMappedArray(CUarray* pArray, CUgraphicsResource resource, unsigned int arrayIndex, unsigned int mipLevel) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray* pMipmappedArray, CUgraphicsResource resource) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphicsResourceGetMappedPointer(CUdeviceptr* pDevPtr, size_t* pSize, CUgraphicsResource resource) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphicsResourceSetMapFlags(CUgraphicsResource resource, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResource* resources, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource* resources, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
-
-cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{if 'cuModuleGetLoadingMode' in found_functions}}
 
 cdef CUresult cuModuleGetLoadingMode(CUmoduleLoadingMode* mode) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleGetFunction' in found_functions}}
+
+cdef CUresult cuModuleGetFunction(CUfunction* hfunc, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleGetGlobal_v2' in found_functions}}
+
+cdef CUresult cuModuleGetGlobal(CUdeviceptr* dptr, size_t* numbytes, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleGetTexRef' in found_functions}}
+
+cdef CUresult cuModuleGetTexRef(CUtexref* pTexRef, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleGetSurfRef' in found_functions}}
+
+cdef CUresult cuModuleGetSurfRef(CUsurfref* pSurfRef, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLinkCreate_v2' in found_functions}}
+
+cdef CUresult cuLinkCreate(unsigned int numOptions, CUjit_option* options, void** optionValues, CUlinkState* stateOut) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLinkAddData_v2' in found_functions}}
+
+cdef CUresult cuLinkAddData(CUlinkState state, CUjitInputType typename, void* data, size_t size, const char* name, unsigned int numOptions, CUjit_option* options, void** optionValues) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLinkAddFile_v2' in found_functions}}
+
+cdef CUresult cuLinkAddFile(CUlinkState state, CUjitInputType typename, const char* path, unsigned int numOptions, CUjit_option* options, void** optionValues) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLinkComplete' in found_functions}}
+
+cdef CUresult cuLinkComplete(CUlinkState state, void** cubinOut, size_t* sizeOut) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLinkDestroy' in found_functions}}
+
+cdef CUresult cuLinkDestroy(CUlinkState state) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemGetInfo_v2' in found_functions}}
+
+cdef CUresult cuMemGetInfo(size_t* free, size_t* total) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemAlloc_v2' in found_functions}}
+
+cdef CUresult cuMemAlloc(CUdeviceptr* dptr, size_t bytesize) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemAllocPitch_v2' in found_functions}}
+
+cdef CUresult cuMemAllocPitch(CUdeviceptr* dptr, size_t* pPitch, size_t WidthInBytes, size_t Height, unsigned int ElementSizeBytes) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemFree_v2' in found_functions}}
+
+cdef CUresult cuMemFree(CUdeviceptr dptr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemGetAddressRange_v2' in found_functions}}
+
+cdef CUresult cuMemGetAddressRange(CUdeviceptr* pbase, size_t* psize, CUdeviceptr dptr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemAllocHost_v2' in found_functions}}
+
+cdef CUresult cuMemAllocHost(void** pp, size_t bytesize) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemFreeHost' in found_functions}}
+
+cdef CUresult cuMemFreeHost(void* p) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemHostAlloc' in found_functions}}
+
+cdef CUresult cuMemHostAlloc(void** pp, size_t bytesize, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemHostGetDevicePointer_v2' in found_functions}}
+
+cdef CUresult cuMemHostGetDevicePointer(CUdeviceptr* pdptr, void* p, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemHostGetFlags' in found_functions}}
+
+cdef CUresult cuMemHostGetFlags(unsigned int* pFlags, void* p) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemAllocManaged' in found_functions}}
+
+cdef CUresult cuMemAllocManaged(CUdeviceptr* dptr, size_t bytesize, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetByPCIBusId' in found_functions}}
+
+cdef CUresult cuDeviceGetByPCIBusId(CUdevice* dev, const char* pciBusId) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetPCIBusId' in found_functions}}
+
+cdef CUresult cuDeviceGetPCIBusId(char* pciBusId, int length, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuIpcGetEventHandle' in found_functions}}
+
+cdef CUresult cuIpcGetEventHandle(CUipcEventHandle* pHandle, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuIpcOpenEventHandle' in found_functions}}
+
+cdef CUresult cuIpcOpenEventHandle(CUevent* phEvent, CUipcEventHandle handle) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuIpcGetMemHandle' in found_functions}}
+
+cdef CUresult cuIpcGetMemHandle(CUipcMemHandle* pHandle, CUdeviceptr dptr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuIpcOpenMemHandle_v2' in found_functions}}
+
+cdef CUresult cuIpcOpenMemHandle(CUdeviceptr* pdptr, CUipcMemHandle handle, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuIpcCloseMemHandle' in found_functions}}
+
+cdef CUresult cuIpcCloseMemHandle(CUdeviceptr dptr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemHostRegister_v2' in found_functions}}
+
+cdef CUresult cuMemHostRegister(void* p, size_t bytesize, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemHostUnregister' in found_functions}}
+
+cdef CUresult cuMemHostUnregister(void* p) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpy' in found_functions}}
+
+cdef CUresult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyPeer' in found_functions}}
+
+cdef CUresult cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CUdeviceptr srcDevice, CUcontext srcContext, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyHtoD_v2' in found_functions}}
+
+cdef CUresult cuMemcpyHtoD(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyDtoH_v2' in found_functions}}
+
+cdef CUresult cuMemcpyDtoH(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyDtoD_v2' in found_functions}}
+
+cdef CUresult cuMemcpyDtoD(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyDtoA_v2' in found_functions}}
+
+cdef CUresult cuMemcpyDtoA(CUarray dstArray, size_t dstOffset, CUdeviceptr srcDevice, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyAtoD_v2' in found_functions}}
+
+cdef CUresult cuMemcpyAtoD(CUdeviceptr dstDevice, CUarray srcArray, size_t srcOffset, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyHtoA_v2' in found_functions}}
+
+cdef CUresult cuMemcpyHtoA(CUarray dstArray, size_t dstOffset, const void* srcHost, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyAtoH_v2' in found_functions}}
+
+cdef CUresult cuMemcpyAtoH(void* dstHost, CUarray srcArray, size_t srcOffset, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyAtoA_v2' in found_functions}}
+
+cdef CUresult cuMemcpyAtoA(CUarray dstArray, size_t dstOffset, CUarray srcArray, size_t srcOffset, size_t ByteCount) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpy2D_v2' in found_functions}}
+
+cdef CUresult cuMemcpy2D(const CUDA_MEMCPY2D* pCopy) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpy2DUnaligned_v2' in found_functions}}
+
+cdef CUresult cuMemcpy2DUnaligned(const CUDA_MEMCPY2D* pCopy) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpy3D_v2' in found_functions}}
+
+cdef CUresult cuMemcpy3D(const CUDA_MEMCPY3D* pCopy) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpy3DPeer' in found_functions}}
+
+cdef CUresult cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER* pCopy) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyAsync' in found_functions}}
+
+cdef CUresult cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyPeerAsync' in found_functions}}
+
+cdef CUresult cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContext, CUdeviceptr srcDevice, CUcontext srcContext, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyHtoDAsync_v2' in found_functions}}
+
+cdef CUresult cuMemcpyHtoDAsync(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyDtoHAsync_v2' in found_functions}}
+
+cdef CUresult cuMemcpyDtoHAsync(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyDtoDAsync_v2' in found_functions}}
+
+cdef CUresult cuMemcpyDtoDAsync(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyHtoAAsync_v2' in found_functions}}
+
+cdef CUresult cuMemcpyHtoAAsync(CUarray dstArray, size_t dstOffset, const void* srcHost, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpyAtoHAsync_v2' in found_functions}}
+
+cdef CUresult cuMemcpyAtoHAsync(void* dstHost, CUarray srcArray, size_t srcOffset, size_t ByteCount, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpy2DAsync_v2' in found_functions}}
+
+cdef CUresult cuMemcpy2DAsync(const CUDA_MEMCPY2D* pCopy, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpy3DAsync_v2' in found_functions}}
+
+cdef CUresult cuMemcpy3DAsync(const CUDA_MEMCPY3D* pCopy, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemcpy3DPeerAsync' in found_functions}}
+
+cdef CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER* pCopy, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD8_v2' in found_functions}}
+
+cdef CUresult cuMemsetD8(CUdeviceptr dstDevice, unsigned char uc, size_t N) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD16_v2' in found_functions}}
+
+cdef CUresult cuMemsetD16(CUdeviceptr dstDevice, unsigned short us, size_t N) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD32_v2' in found_functions}}
+
+cdef CUresult cuMemsetD32(CUdeviceptr dstDevice, unsigned int ui, size_t N) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD2D8_v2' in found_functions}}
+
+cdef CUresult cuMemsetD2D8(CUdeviceptr dstDevice, size_t dstPitch, unsigned char uc, size_t Width, size_t Height) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD2D16_v2' in found_functions}}
+
+cdef CUresult cuMemsetD2D16(CUdeviceptr dstDevice, size_t dstPitch, unsigned short us, size_t Width, size_t Height) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD2D32_v2' in found_functions}}
+
+cdef CUresult cuMemsetD2D32(CUdeviceptr dstDevice, size_t dstPitch, unsigned int ui, size_t Width, size_t Height) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD8Async' in found_functions}}
+
+cdef CUresult cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, size_t N, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD16Async' in found_functions}}
+
+cdef CUresult cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, size_t N, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD32Async' in found_functions}}
+
+cdef CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, size_t N, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD2D8Async' in found_functions}}
+
+cdef CUresult cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned char uc, size_t Width, size_t Height, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD2D16Async' in found_functions}}
+
+cdef CUresult cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned short us, size_t Width, size_t Height, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemsetD2D32Async' in found_functions}}
+
+cdef CUresult cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned int ui, size_t Width, size_t Height, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuArrayCreate_v2' in found_functions}}
+
+cdef CUresult cuArrayCreate(CUarray* pHandle, const CUDA_ARRAY_DESCRIPTOR* pAllocateArray) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuArrayGetDescriptor_v2' in found_functions}}
+
+cdef CUresult cuArrayGetDescriptor(CUDA_ARRAY_DESCRIPTOR* pArrayDescriptor, CUarray hArray) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuArrayGetSparseProperties' in found_functions}}
+
+cdef CUresult cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparseProperties, CUarray array) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMipmappedArrayGetSparseProperties' in found_functions}}
+
+cdef CUresult cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES* sparseProperties, CUmipmappedArray mipmap) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuArrayGetMemoryRequirements' in found_functions}}
+
+cdef CUresult cuArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUarray array, CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMipmappedArrayGetMemoryRequirements' in found_functions}}
+
+cdef CUresult cuMipmappedArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS* memoryRequirements, CUmipmappedArray mipmap, CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuArrayGetPlane' in found_functions}}
+
+cdef CUresult cuArrayGetPlane(CUarray* pPlaneArray, CUarray hArray, unsigned int planeIdx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuArrayDestroy' in found_functions}}
+
+cdef CUresult cuArrayDestroy(CUarray hArray) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuArray3DCreate_v2' in found_functions}}
+
+cdef CUresult cuArray3DCreate(CUarray* pHandle, const CUDA_ARRAY3D_DESCRIPTOR* pAllocateArray) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuArray3DGetDescriptor_v2' in found_functions}}
+
+cdef CUresult cuArray3DGetDescriptor(CUDA_ARRAY3D_DESCRIPTOR* pArrayDescriptor, CUarray hArray) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMipmappedArrayCreate' in found_functions}}
+
+cdef CUresult cuMipmappedArrayCreate(CUmipmappedArray* pHandle, const CUDA_ARRAY3D_DESCRIPTOR* pMipmappedArrayDesc, unsigned int numMipmapLevels) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMipmappedArrayGetLevel' in found_functions}}
+
+cdef CUresult cuMipmappedArrayGetLevel(CUarray* pLevelArray, CUmipmappedArray hMipmappedArray, unsigned int level) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMipmappedArrayDestroy' in found_functions}}
+
+cdef CUresult cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemGetHandleForAddressRange' in found_functions}}
 
 cdef CUresult cuMemGetHandleForAddressRange(void* handle, CUdeviceptr dptr, size_t size, CUmemRangeHandleType handleType, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemAddressReserve' in found_functions}}
+
+cdef CUresult cuMemAddressReserve(CUdeviceptr* ptr, size_t size, size_t alignment, CUdeviceptr addr, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemAddressFree' in found_functions}}
+
+cdef CUresult cuMemAddressFree(CUdeviceptr ptr, size_t size) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemCreate' in found_functions}}
+
+cdef CUresult cuMemCreate(CUmemGenericAllocationHandle* handle, size_t size, const CUmemAllocationProp* prop, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemRelease' in found_functions}}
+
+cdef CUresult cuMemRelease(CUmemGenericAllocationHandle handle) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemMap' in found_functions}}
+
+cdef CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemGenericAllocationHandle handle, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemMapArrayAsync' in found_functions}}
+
+cdef CUresult cuMemMapArrayAsync(CUarrayMapInfo* mapInfoList, unsigned int count, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemUnmap' in found_functions}}
+
+cdef CUresult cuMemUnmap(CUdeviceptr ptr, size_t size) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemSetAccess' in found_functions}}
+
+cdef CUresult cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAccessDesc* desc, size_t count) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemGetAccess' in found_functions}}
+
+cdef CUresult cuMemGetAccess(unsigned long long* flags, const CUmemLocation* location, CUdeviceptr ptr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemExportToShareableHandle' in found_functions}}
+
+cdef CUresult cuMemExportToShareableHandle(void* shareableHandle, CUmemGenericAllocationHandle handle, CUmemAllocationHandleType handleType, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemImportFromShareableHandle' in found_functions}}
+
+cdef CUresult cuMemImportFromShareableHandle(CUmemGenericAllocationHandle* handle, void* osHandle, CUmemAllocationHandleType shHandleType) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemGetAllocationGranularity' in found_functions}}
+
+cdef CUresult cuMemGetAllocationGranularity(size_t* granularity, const CUmemAllocationProp* prop, CUmemAllocationGranularity_flags option) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemGetAllocationPropertiesFromHandle' in found_functions}}
+
+cdef CUresult cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp* prop, CUmemGenericAllocationHandle handle) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemRetainAllocationHandle' in found_functions}}
+
+cdef CUresult cuMemRetainAllocationHandle(CUmemGenericAllocationHandle* handle, void* addr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemFreeAsync' in found_functions}}
+
+cdef CUresult cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemAllocAsync' in found_functions}}
+
+cdef CUresult cuMemAllocAsync(CUdeviceptr* dptr, size_t bytesize, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolTrimTo' in found_functions}}
+
+cdef CUresult cuMemPoolTrimTo(CUmemoryPool pool, size_t minBytesToKeep) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolSetAttribute' in found_functions}}
+
+cdef CUresult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, void* value) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolGetAttribute' in found_functions}}
+
+cdef CUresult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute attr, void* value) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolSetAccess' in found_functions}}
+
+cdef CUresult cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc* map, size_t count) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolGetAccess' in found_functions}}
+
+cdef CUresult cuMemPoolGetAccess(CUmemAccess_flags* flags, CUmemoryPool memPool, CUmemLocation* location) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolCreate' in found_functions}}
+
+cdef CUresult cuMemPoolCreate(CUmemoryPool* pool, const CUmemPoolProps* poolProps) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolDestroy' in found_functions}}
+
+cdef CUresult cuMemPoolDestroy(CUmemoryPool pool) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemAllocFromPoolAsync' in found_functions}}
+
+cdef CUresult cuMemAllocFromPoolAsync(CUdeviceptr* dptr, size_t bytesize, CUmemoryPool pool, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolExportToShareableHandle' in found_functions}}
+
+cdef CUresult cuMemPoolExportToShareableHandle(void* handle_out, CUmemoryPool pool, CUmemAllocationHandleType handleType, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolImportFromShareableHandle' in found_functions}}
+
+cdef CUresult cuMemPoolImportFromShareableHandle(CUmemoryPool* pool_out, void* handle, CUmemAllocationHandleType handleType, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolExportPointer' in found_functions}}
+
+cdef CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData* shareData_out, CUdeviceptr ptr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPoolImportPointer' in found_functions}}
+
+cdef CUresult cuMemPoolImportPointer(CUdeviceptr* ptr_out, CUmemoryPool pool, CUmemPoolPtrExportData* shareData) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuPointerGetAttribute' in found_functions}}
+
+cdef CUresult cuPointerGetAttribute(void* data, CUpointer_attribute attribute, CUdeviceptr ptr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemPrefetchAsync' in found_functions}}
+
+cdef CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevice dstDevice, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemAdvise' in found_functions}}
+
+cdef CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemRangeGetAttribute' in found_functions}}
+
+cdef CUresult cuMemRangeGetAttribute(void* data, size_t dataSize, CUmem_range_attribute attribute, CUdeviceptr devPtr, size_t count) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMemRangeGetAttributes' in found_functions}}
+
+cdef CUresult cuMemRangeGetAttributes(void** data, size_t* dataSizes, CUmem_range_attribute* attributes, size_t numAttributes, CUdeviceptr devPtr, size_t count) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuPointerSetAttribute' in found_functions}}
+
+cdef CUresult cuPointerSetAttribute(const void* value, CUpointer_attribute attribute, CUdeviceptr ptr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuPointerGetAttributes' in found_functions}}
+
+cdef CUresult cuPointerGetAttributes(unsigned int numAttributes, CUpointer_attribute* attributes, void** data, CUdeviceptr ptr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamCreate' in found_functions}}
+
+cdef CUresult cuStreamCreate(CUstream* phStream, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamCreateWithPriority' in found_functions}}
+
+cdef CUresult cuStreamCreateWithPriority(CUstream* phStream, unsigned int flags, int priority) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamGetPriority' in found_functions}}
+
+cdef CUresult cuStreamGetPriority(CUstream hStream, int* priority) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamGetFlags' in found_functions}}
+
+cdef CUresult cuStreamGetFlags(CUstream hStream, unsigned int* flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamGetCtx' in found_functions}}
+
+cdef CUresult cuStreamGetCtx(CUstream hStream, CUcontext* pctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamWaitEvent' in found_functions}}
+
+cdef CUresult cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamAddCallback' in found_functions}}
+
+cdef CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, void* userData, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamBeginCapture_v2' in found_functions}}
+
+cdef CUresult cuStreamBeginCapture(CUstream hStream, CUstreamCaptureMode mode) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuThreadExchangeStreamCaptureMode' in found_functions}}
+
+cdef CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode* mode) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamEndCapture' in found_functions}}
+
+cdef CUresult cuStreamEndCapture(CUstream hStream, CUgraph* phGraph) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamIsCapturing' in found_functions}}
+
+cdef CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* captureStatus) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamGetCaptureInfo' in found_functions}}
+
+cdef CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamGetCaptureInfo_v2' in found_functions}}
+
+cdef CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
+
+cdef CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode* dependencies, size_t numDependencies, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamAttachMemAsync' in found_functions}}
+
+cdef CUresult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, size_t length, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamQuery' in found_functions}}
+
+cdef CUresult cuStreamQuery(CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamSynchronize' in found_functions}}
+
+cdef CUresult cuStreamSynchronize(CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamDestroy_v2' in found_functions}}
+
+cdef CUresult cuStreamDestroy(CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamCopyAttributes' in found_functions}}
+
+cdef CUresult cuStreamCopyAttributes(CUstream dst, CUstream src) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamGetAttribute' in found_functions}}
+
+cdef CUresult cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, CUstreamAttrValue* value_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamSetAttribute' in found_functions}}
+
+cdef CUresult cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, const CUstreamAttrValue* value) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuEventCreate' in found_functions}}
+
+cdef CUresult cuEventCreate(CUevent* phEvent, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuEventRecord' in found_functions}}
+
+cdef CUresult cuEventRecord(CUevent hEvent, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuEventRecordWithFlags' in found_functions}}
+
+cdef CUresult cuEventRecordWithFlags(CUevent hEvent, CUstream hStream, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuEventQuery' in found_functions}}
+
+cdef CUresult cuEventQuery(CUevent hEvent) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuEventSynchronize' in found_functions}}
+
+cdef CUresult cuEventSynchronize(CUevent hEvent) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuEventDestroy_v2' in found_functions}}
+
+cdef CUresult cuEventDestroy(CUevent hEvent) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuEventElapsedTime' in found_functions}}
+
+cdef CUresult cuEventElapsedTime(float* pMilliseconds, CUevent hStart, CUevent hEnd) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuImportExternalMemory' in found_functions}}
+
+cdef CUresult cuImportExternalMemory(CUexternalMemory* extMem_out, const CUDA_EXTERNAL_MEMORY_HANDLE_DESC* memHandleDesc) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuExternalMemoryGetMappedBuffer' in found_functions}}
+
+cdef CUresult cuExternalMemoryGetMappedBuffer(CUdeviceptr* devPtr, CUexternalMemory extMem, const CUDA_EXTERNAL_MEMORY_BUFFER_DESC* bufferDesc) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuExternalMemoryGetMappedMipmappedArray' in found_functions}}
+
+cdef CUresult cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray* mipmap, CUexternalMemory extMem, const CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC* mipmapDesc) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDestroyExternalMemory' in found_functions}}
+
+cdef CUresult cuDestroyExternalMemory(CUexternalMemory extMem) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuImportExternalSemaphore' in found_functions}}
+
+cdef CUresult cuImportExternalSemaphore(CUexternalSemaphore* extSem_out, const CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC* semHandleDesc) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuSignalExternalSemaphoresAsync' in found_functions}}
+
+cdef CUresult cuSignalExternalSemaphoresAsync(const CUexternalSemaphore* extSemArray, const CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* paramsArray, unsigned int numExtSems, CUstream stream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuWaitExternalSemaphoresAsync' in found_functions}}
+
+cdef CUresult cuWaitExternalSemaphoresAsync(const CUexternalSemaphore* extSemArray, const CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* paramsArray, unsigned int numExtSems, CUstream stream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDestroyExternalSemaphore' in found_functions}}
+
+cdef CUresult cuDestroyExternalSemaphore(CUexternalSemaphore extSem) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamWaitValue32' in found_functions}}
+
+cdef CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamWaitValue64' in found_functions}}
+
+cdef CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamWriteValue32' in found_functions}}
+
+cdef CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamWriteValue64' in found_functions}}
+
+cdef CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamBatchMemOp' in found_functions}}
+
+cdef CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamWaitValue32_v2' in found_functions}}
+
+cdef CUresult cuStreamWaitValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamWaitValue64_v2' in found_functions}}
+
+cdef CUresult cuStreamWaitValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamWriteValue32_v2' in found_functions}}
+
+cdef CUresult cuStreamWriteValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamWriteValue64_v2' in found_functions}}
+
+cdef CUresult cuStreamWriteValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuStreamBatchMemOp_v2' in found_functions}}
+
+cdef CUresult cuStreamBatchMemOp_v2(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuFuncGetAttribute' in found_functions}}
+
+cdef CUresult cuFuncGetAttribute(int* pi, CUfunction_attribute attrib, CUfunction hfunc) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuFuncSetAttribute' in found_functions}}
+
+cdef CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib, int value) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuFuncSetCacheConfig' in found_functions}}
+
+cdef CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuFuncSetSharedMemConfig' in found_functions}}
+
+cdef CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuFuncGetModule' in found_functions}}
+
+cdef CUresult cuFuncGetModule(CUmodule* hmod, CUfunction hfunc) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLaunchKernel' in found_functions}}
+
+cdef CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void** kernelParams, void** extra) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLaunchKernelEx' in found_functions}}
+
+cdef CUresult cuLaunchKernelEx(const CUlaunchConfig* config, CUfunction f, void** kernelParams, void** extra) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLaunchCooperativeKernel' in found_functions}}
+
+cdef CUresult cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void** kernelParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
+
+cdef CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchParamsList, unsigned int numDevices, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLaunchHostFunc' in found_functions}}
+
+cdef CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuFuncSetBlockShape' in found_functions}}
+
+cdef CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuFuncSetSharedSize' in found_functions}}
+
+cdef CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int numbytes) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuParamSetSize' in found_functions}}
+
+cdef CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuParamSeti' in found_functions}}
+
+cdef CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuParamSetf' in found_functions}}
+
+cdef CUresult cuParamSetf(CUfunction hfunc, int offset, float value) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuParamSetv' in found_functions}}
+
+cdef CUresult cuParamSetv(CUfunction hfunc, int offset, void* ptr, unsigned int numbytes) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLaunch' in found_functions}}
+
+cdef CUresult cuLaunch(CUfunction f) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLaunchGrid' in found_functions}}
+
+cdef CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLaunchGridAsync' in found_functions}}
+
+cdef CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuParamSetTexRef' in found_functions}}
+
+cdef CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphCreate' in found_functions}}
+
+cdef CUresult cuGraphCreate(CUgraph* phGraph, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddKernelNode' in found_functions}}
+
+cdef CUresult cuGraphAddKernelNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphKernelNodeGetParams' in found_functions}}
+
+cdef CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphKernelNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddMemcpyNode' in found_functions}}
+
+cdef CUresult cuGraphAddMemcpyNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_MEMCPY3D* copyParams, CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphMemcpyNodeGetParams' in found_functions}}
+
+cdef CUresult cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphMemcpyNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEMCPY3D* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddMemsetNode' in found_functions}}
+
+cdef CUresult cuGraphAddMemsetNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_MEMSET_NODE_PARAMS* memsetParams, CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphMemsetNodeGetParams' in found_functions}}
+
+cdef CUresult cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphMemsetNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEMSET_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddHostNode' in found_functions}}
+
+cdef CUresult cuGraphAddHostNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_HOST_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphHostNodeGetParams' in found_functions}}
+
+cdef CUresult cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphHostNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddChildGraphNode' in found_functions}}
+
+cdef CUresult cuGraphAddChildGraphNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUgraph childGraph) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphChildGraphNodeGetGraph' in found_functions}}
+
+cdef CUresult cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph* phGraph) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddEmptyNode' in found_functions}}
+
+cdef CUresult cuGraphAddEmptyNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddEventRecordNode' in found_functions}}
+
+cdef CUresult cuGraphAddEventRecordNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphEventRecordNodeGetEvent' in found_functions}}
+
+cdef CUresult cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent* event_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphEventRecordNodeSetEvent' in found_functions}}
+
+cdef CUresult cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddEventWaitNode' in found_functions}}
+
+cdef CUresult cuGraphAddEventWaitNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphEventWaitNodeGetEvent' in found_functions}}
+
+cdef CUresult cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent* event_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphEventWaitNodeSetEvent' in found_functions}}
+
+cdef CUresult cuGraphEventWaitNodeSetEvent(CUgraphNode hNode, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddExternalSemaphoresSignalNode' in found_functions}}
+
+cdef CUresult cuGraphAddExternalSemaphoresSignalNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExternalSemaphoresSignalNodeGetParams' in found_functions}}
+
+cdef CUresult cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNode, CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* params_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExternalSemaphoresSignalNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNode, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddExternalSemaphoresWaitNode' in found_functions}}
+
+cdef CUresult cuGraphAddExternalSemaphoresWaitNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExternalSemaphoresWaitNodeGetParams' in found_functions}}
+
+cdef CUresult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode, CUDA_EXT_SEM_WAIT_NODE_PARAMS* params_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExternalSemaphoresWaitNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddBatchMemOpNode' in found_functions}}
+
+cdef CUresult cuGraphAddBatchMemOpNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphBatchMemOpNodeGetParams' in found_functions}}
+
+cdef CUresult cuGraphBatchMemOpNodeGetParams(CUgraphNode hNode, CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphBatchMemOpNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphBatchMemOpNodeSetParams(CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecBatchMemOpNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphExecBatchMemOpNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddMemAllocNode' in found_functions}}
+
+cdef CUresult cuGraphAddMemAllocNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUDA_MEM_ALLOC_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphMemAllocNodeGetParams' in found_functions}}
+
+cdef CUresult cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALLOC_NODE_PARAMS* params_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddMemFreeNode' in found_functions}}
+
+cdef CUresult cuGraphAddMemFreeNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUdeviceptr dptr) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphMemFreeNodeGetParams' in found_functions}}
+
+cdef CUresult cuGraphMemFreeNodeGetParams(CUgraphNode hNode, CUdeviceptr* dptr_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGraphMemTrim' in found_functions}}
+
+cdef CUresult cuDeviceGraphMemTrim(CUdevice device) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetGraphMemAttribute' in found_functions}}
+
+cdef CUresult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_attribute attr, void* value) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceSetGraphMemAttribute' in found_functions}}
+
+cdef CUresult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_attribute attr, void* value) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphClone' in found_functions}}
+
+cdef CUresult cuGraphClone(CUgraph* phGraphClone, CUgraph originalGraph) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphNodeFindInClone' in found_functions}}
+
+cdef CUresult cuGraphNodeFindInClone(CUgraphNode* phNode, CUgraphNode hOriginalNode, CUgraph hClonedGraph) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphNodeGetType' in found_functions}}
+
+cdef CUresult cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType* typename) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphGetNodes' in found_functions}}
+
+cdef CUresult cuGraphGetNodes(CUgraph hGraph, CUgraphNode* nodes, size_t* numNodes) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphGetRootNodes' in found_functions}}
+
+cdef CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode* rootNodes, size_t* numRootNodes) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphGetEdges' in found_functions}}
+
+cdef CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, size_t* numEdges) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphNodeGetDependencies' in found_functions}}
+
+cdef CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode* dependencies, size_t* numDependencies) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphNodeGetDependentNodes' in found_functions}}
+
+cdef CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode* dependentNodes, size_t* numDependentNodes) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphAddDependencies' in found_functions}}
+
+cdef CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphRemoveDependencies' in found_functions}}
+
+cdef CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphDestroyNode' in found_functions}}
+
+cdef CUresult cuGraphDestroyNode(CUgraphNode hNode) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphInstantiate_v2' in found_functions}}
+
+cdef CUresult cuGraphInstantiate(CUgraphExec* phGraphExec, CUgraph hGraph, CUgraphNode* phErrorNode, char* logBuffer, size_t bufferSize) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphInstantiateWithFlags' in found_functions}}
+
+cdef CUresult cuGraphInstantiateWithFlags(CUgraphExec* phGraphExec, CUgraph hGraph, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecKernelNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecMemcpyNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_MEMCPY3D* copyParams, CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecMemsetNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_MEMSET_NODE_PARAMS* memsetParams, CUcontext ctx) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecHostNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_HOST_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecChildGraphNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphExecChildGraphNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraph childGraph) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecEventRecordNodeSetEvent' in found_functions}}
+
+cdef CUresult cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecEventWaitNodeSetEvent' in found_functions}}
+
+cdef CUresult cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUgraphNode hNode, CUevent event) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecExternalSemaphoresSignalNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecExternalSemaphoresWaitNodeSetParams' in found_functions}}
+
+cdef CUresult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_EXT_SEM_WAIT_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphNodeSetEnabled' in found_functions}}
+
+cdef CUresult cuGraphNodeSetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int isEnabled) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphNodeGetEnabled' in found_functions}}
+
+cdef CUresult cuGraphNodeGetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int* isEnabled) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphUpload' in found_functions}}
+
+cdef CUresult cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphLaunch' in found_functions}}
+
+cdef CUresult cuGraphLaunch(CUgraphExec hGraphExec, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecDestroy' in found_functions}}
+
+cdef CUresult cuGraphExecDestroy(CUgraphExec hGraphExec) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphDestroy' in found_functions}}
+
+cdef CUresult cuGraphDestroy(CUgraph hGraph) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecUpdate' in found_functions}}
+
+cdef CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CUgraphNode* hErrorNode_out, CUgraphExecUpdateResult* updateResult_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphKernelNodeCopyAttributes' in found_functions}}
+
+cdef CUresult cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode src) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphKernelNodeGetAttribute' in found_functions}}
+
+cdef CUresult cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, CUkernelNodeAttrValue* value_out) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphKernelNodeSetAttribute' in found_functions}}
+
+cdef CUresult cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNodeAttrID attr, const CUkernelNodeAttrValue* value) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphDebugDotPrint' in found_functions}}
+
+cdef CUresult cuGraphDebugDotPrint(CUgraph hGraph, const char* path, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuUserObjectCreate' in found_functions}}
+
+cdef CUresult cuUserObjectCreate(CUuserObject* object_out, void* ptr, CUhostFn destroy, unsigned int initialRefcount, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuUserObjectRetain' in found_functions}}
+
+cdef CUresult cuUserObjectRetain(CUuserObject object, unsigned int count) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuUserObjectRelease' in found_functions}}
+
+cdef CUresult cuUserObjectRelease(CUuserObject object, unsigned int count) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphRetainUserObject' in found_functions}}
+
+cdef CUresult cuGraphRetainUserObject(CUgraph graph, CUuserObject object, unsigned int count, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphReleaseUserObject' in found_functions}}
+
+cdef CUresult cuGraphReleaseUserObject(CUgraph graph, CUuserObject object, unsigned int count) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
+
+cdef CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int* numBlocks, CUfunction func, int blockSize, size_t dynamicSMemSize) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags' in found_functions}}
+
+cdef CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int* numBlocks, CUfunction func, int blockSize, size_t dynamicSMemSize, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuOccupancyMaxPotentialBlockSize' in found_functions}}
+
+cdef CUresult cuOccupancyMaxPotentialBlockSize(int* minGridSize, int* blockSize, CUfunction func, CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int blockSizeLimit) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuOccupancyMaxPotentialBlockSizeWithFlags' in found_functions}}
+
+cdef CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int* minGridSize, int* blockSize, CUfunction func, CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int blockSizeLimit, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuOccupancyAvailableDynamicSMemPerBlock' in found_functions}}
+
+cdef CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t* dynamicSmemSize, CUfunction func, int numBlocks, int blockSize) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuOccupancyMaxPotentialClusterSize' in found_functions}}
+
+cdef CUresult cuOccupancyMaxPotentialClusterSize(int* clusterSize, CUfunction func, const CUlaunchConfig* config) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuOccupancyMaxActiveClusters' in found_functions}}
+
+cdef CUresult cuOccupancyMaxActiveClusters(int* numClusters, CUfunction func, const CUlaunchConfig* config) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetArray' in found_functions}}
+
+cdef CUresult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetMipmappedArray' in found_functions}}
+
+cdef CUresult cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray hMipmappedArray, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetAddress_v2' in found_functions}}
+
+cdef CUresult cuTexRefSetAddress(size_t* ByteOffset, CUtexref hTexRef, CUdeviceptr dptr, size_t numbytes) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetAddress2D_v3' in found_functions}}
+
+cdef CUresult cuTexRefSetAddress2D(CUtexref hTexRef, const CUDA_ARRAY_DESCRIPTOR* desc, CUdeviceptr dptr, size_t Pitch) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetFormat' in found_functions}}
+
+cdef CUresult cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int NumPackedComponents) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetAddressMode' in found_functions}}
+
+cdef CUresult cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_mode am) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetFilterMode' in found_functions}}
+
+cdef CUresult cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetMipmapFilterMode' in found_functions}}
+
+cdef CUresult cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUfilter_mode fm) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetMipmapLevelBias' in found_functions}}
+
+cdef CUresult cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetMipmapLevelClamp' in found_functions}}
+
+cdef CUresult cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipmapLevelClamp, float maxMipmapLevelClamp) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetMaxAnisotropy' in found_functions}}
+
+cdef CUresult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, unsigned int maxAniso) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetBorderColor' in found_functions}}
+
+cdef CUresult cuTexRefSetBorderColor(CUtexref hTexRef, float* pBorderColor) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefSetFlags' in found_functions}}
+
+cdef CUresult cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetAddress_v2' in found_functions}}
+
+cdef CUresult cuTexRefGetAddress(CUdeviceptr* pdptr, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetArray' in found_functions}}
+
+cdef CUresult cuTexRefGetArray(CUarray* phArray, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetMipmappedArray' in found_functions}}
+
+cdef CUresult cuTexRefGetMipmappedArray(CUmipmappedArray* phMipmappedArray, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetAddressMode' in found_functions}}
+
+cdef CUresult cuTexRefGetAddressMode(CUaddress_mode* pam, CUtexref hTexRef, int dim) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetFilterMode' in found_functions}}
+
+cdef CUresult cuTexRefGetFilterMode(CUfilter_mode* pfm, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetFormat' in found_functions}}
+
+cdef CUresult cuTexRefGetFormat(CUarray_format* pFormat, int* pNumChannels, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetMipmapFilterMode' in found_functions}}
+
+cdef CUresult cuTexRefGetMipmapFilterMode(CUfilter_mode* pfm, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetMipmapLevelBias' in found_functions}}
+
+cdef CUresult cuTexRefGetMipmapLevelBias(float* pbias, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetMipmapLevelClamp' in found_functions}}
+
+cdef CUresult cuTexRefGetMipmapLevelClamp(float* pminMipmapLevelClamp, float* pmaxMipmapLevelClamp, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetMaxAnisotropy' in found_functions}}
+
+cdef CUresult cuTexRefGetMaxAnisotropy(int* pmaxAniso, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetBorderColor' in found_functions}}
+
+cdef CUresult cuTexRefGetBorderColor(float* pBorderColor, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefGetFlags' in found_functions}}
+
+cdef CUresult cuTexRefGetFlags(unsigned int* pFlags, CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefCreate' in found_functions}}
+
+cdef CUresult cuTexRefCreate(CUtexref* pTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexRefDestroy' in found_functions}}
+
+cdef CUresult cuTexRefDestroy(CUtexref hTexRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuSurfRefSetArray' in found_functions}}
+
+cdef CUresult cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuSurfRefGetArray' in found_functions}}
+
+cdef CUresult cuSurfRefGetArray(CUarray* phArray, CUsurfref hSurfRef) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexObjectCreate' in found_functions}}
+
+cdef CUresult cuTexObjectCreate(CUtexObject* pTexObject, const CUDA_RESOURCE_DESC* pResDesc, const CUDA_TEXTURE_DESC* pTexDesc, const CUDA_RESOURCE_VIEW_DESC* pResViewDesc) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexObjectDestroy' in found_functions}}
+
+cdef CUresult cuTexObjectDestroy(CUtexObject texObject) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexObjectGetResourceDesc' in found_functions}}
+
+cdef CUresult cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUtexObject texObject) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexObjectGetTextureDesc' in found_functions}}
+
+cdef CUresult cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC* pTexDesc, CUtexObject texObject) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTexObjectGetResourceViewDesc' in found_functions}}
+
+cdef CUresult cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC* pResViewDesc, CUtexObject texObject) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuSurfObjectCreate' in found_functions}}
+
+cdef CUresult cuSurfObjectCreate(CUsurfObject* pSurfObject, const CUDA_RESOURCE_DESC* pResDesc) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuSurfObjectDestroy' in found_functions}}
+
+cdef CUresult cuSurfObjectDestroy(CUsurfObject surfObject) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuSurfObjectGetResourceDesc' in found_functions}}
+
+cdef CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUsurfObject surfObject) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceCanAccessPeer' in found_functions}}
+
+cdef CUresult cuDeviceCanAccessPeer(int* canAccessPeer, CUdevice dev, CUdevice peerDev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxEnablePeerAccess' in found_functions}}
+
+cdef CUresult cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxDisablePeerAccess' in found_functions}}
+
+cdef CUresult cuCtxDisablePeerAccess(CUcontext peerContext) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuDeviceGetP2PAttribute' in found_functions}}
+
+cdef CUresult cuDeviceGetP2PAttribute(int* value, CUdevice_P2PAttribute attrib, CUdevice srcDevice, CUdevice dstDevice) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphicsUnregisterResource' in found_functions}}
+
+cdef CUresult cuGraphicsUnregisterResource(CUgraphicsResource resource) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphicsSubResourceGetMappedArray' in found_functions}}
+
+cdef CUresult cuGraphicsSubResourceGetMappedArray(CUarray* pArray, CUgraphicsResource resource, unsigned int arrayIndex, unsigned int mipLevel) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphicsResourceGetMappedMipmappedArray' in found_functions}}
+
+cdef CUresult cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray* pMipmappedArray, CUgraphicsResource resource) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphicsResourceGetMappedPointer_v2' in found_functions}}
+
+cdef CUresult cuGraphicsResourceGetMappedPointer(CUdeviceptr* pDevPtr, size_t* pSize, CUgraphicsResource resource) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphicsResourceSetMapFlags_v2' in found_functions}}
+
+cdef CUresult cuGraphicsResourceSetMapFlags(CUgraphicsResource resource, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphicsMapResources' in found_functions}}
+
+cdef CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResource* resources, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphicsUnmapResources' in found_functions}}
+
+cdef CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource* resources, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGetProcAddress' in found_functions}}
+
+cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGetExportTable' in found_functions}}
 
 cdef CUresult cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
 
 cdef extern from "cudaProfiler.h":
 
@@ -2375,11 +3565,20 @@ cdef extern from "cudaProfiler.h":
 
     ctypedef CUoutput_mode_enum CUoutput_mode
 
+{{if 'cuProfilerInitialize' in found_functions}}
+
 cdef CUresult cuProfilerInitialize(const char* configFile, const char* outputFile, CUoutput_mode outputMode) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuProfilerStart' in found_functions}}
 
 cdef CUresult cuProfilerStart() nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuProfilerStop' in found_functions}}
 
 cdef CUresult cuProfilerStop() nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
 
 from libc.stdint cimport uint32_t
 
@@ -2413,13 +3612,25 @@ ctypedef uint32_t VdpVideoSurface
 
 ctypedef uint32_t VdpOutputSurface
 
+{{if True or 'cuVDPAUGetDevice' in found_functions}}
+
 cdef CUresult cuVDPAUGetDevice(CUdevice* pDevice, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuVDPAUCtxCreate_v2' in found_functions}}
 
 cdef CUresult cuVDPAUCtxCreate(CUcontext* pCtx, unsigned int flags, CUdevice device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuGraphicsVDPAURegisterVideoSurface' in found_functions}}
 
 cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResource, VdpVideoSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuGraphicsVDPAURegisterOutputSurface' in found_functions}}
 
 cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
 
 
 cdef enum CUeglFrameType_enum:
@@ -2578,29 +3789,65 @@ cdef extern from "":
         pass
 ctypedef CUeglStreamConnection_st* CUeglStreamConnection
 
+{{if True or 'cuGraphicsEGLRegisterImage' in found_functions}}
+
 cdef CUresult cuGraphicsEGLRegisterImage(CUgraphicsResource* pCudaResource, EGLImageKHR image, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuEGLStreamConsumerConnect' in found_functions}}
 
 cdef CUresult cuEGLStreamConsumerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuEGLStreamConsumerConnectWithFlags' in found_functions}}
 
 cdef CUresult cuEGLStreamConsumerConnectWithFlags(CUeglStreamConnection* conn, EGLStreamKHR stream, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuEGLStreamConsumerDisconnect' in found_functions}}
 
 cdef CUresult cuEGLStreamConsumerDisconnect(CUeglStreamConnection* conn) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuEGLStreamConsumerAcquireFrame' in found_functions}}
 
 cdef CUresult cuEGLStreamConsumerAcquireFrame(CUeglStreamConnection* conn, CUgraphicsResource* pCudaResource, CUstream* pStream, unsigned int timeout) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuEGLStreamConsumerReleaseFrame' in found_functions}}
 
 cdef CUresult cuEGLStreamConsumerReleaseFrame(CUeglStreamConnection* conn, CUgraphicsResource pCudaResource, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuEGLStreamProducerConnect' in found_functions}}
 
 cdef CUresult cuEGLStreamProducerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream, EGLint width, EGLint height) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuEGLStreamProducerDisconnect' in found_functions}}
 
 cdef CUresult cuEGLStreamProducerDisconnect(CUeglStreamConnection* conn) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuEGLStreamProducerPresentFrame' in found_functions}}
 
 cdef CUresult cuEGLStreamProducerPresentFrame(CUeglStreamConnection* conn, CUeglFrame eglframe, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuEGLStreamProducerReturnFrame' in found_functions}}
 
 cdef CUresult cuEGLStreamProducerReturnFrame(CUeglStreamConnection* conn, CUeglFrame* eglframe, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuGraphicsResourceGetMappedEglFrame' in found_functions}}
 
 cdef CUresult cuGraphicsResourceGetMappedEglFrame(CUeglFrame* eglFrame, CUgraphicsResource resource, unsigned int index, unsigned int mipLevel) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuEventCreateFromEGLSync' in found_functions}}
 
 cdef CUresult cuEventCreateFromEGLSync(CUevent* phEvent, EGLSyncKHR eglSync, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
 
 
 cdef enum CUGLDeviceList_enum:
@@ -2617,19 +3864,42 @@ cdef enum CUGLmap_flags_enum:
 
 ctypedef CUGLmap_flags_enum CUGLmap_flags
 
+{{if True or 'cuGraphicsGLRegisterBuffer' in found_functions}}
+
 cdef CUresult cuGraphicsGLRegisterBuffer(CUgraphicsResource* pCudaResource, GLuint buffer, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuGraphicsGLRegisterImage' in found_functions}}
 
 cdef CUresult cuGraphicsGLRegisterImage(CUgraphicsResource* pCudaResource, GLuint image, GLenum target, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True or 'cuGLGetDevices_v2' in found_functions}}
 
 cdef CUresult cuGLGetDevices(unsigned int* pCudaDeviceCount, CUdevice* pCudaDevices, unsigned int cudaDeviceCount, CUGLDeviceList deviceList) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
 
-cdef enum: CUDA_VERSION = 11070
+cdef enum: CUDA_VERSION = 11080
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 
 cdef enum: CU_STREAM_LEGACY = 1
 
 cdef enum: CU_STREAM_PER_THREAD = 2
+
+cdef enum: CU_KERNEL_NODE_ATTRIBUTE_ACCESS_POLICY_WINDOW = 1
+
+cdef enum: CU_KERNEL_NODE_ATTRIBUTE_COOPERATIVE = 2
+
+cdef enum: CU_KERNEL_NODE_ATTRIBUTE_CLUSTER_DIMENSION = 4
+
+cdef enum: CU_KERNEL_NODE_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE = 5
+
+cdef enum: CU_KERNEL_NODE_ATTRIBUTE_PRIORITY = 8
+
+cdef enum: CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW = 1
+
+cdef enum: CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY = 3
 
 cdef enum: CU_MEMHOSTALLOC_PORTABLE = 1
 

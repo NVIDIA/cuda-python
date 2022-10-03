@@ -17,8 +17,9 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_st
 .. autoclass:: cuda.cuda.CUDA_MEMSET_NODE_PARAMS_st
 .. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS_st
-.. autoclass:: cuda.cuda.CUkernelNodeAttrValue_union
-.. autoclass:: cuda.cuda.CUstreamAttrValue_union
+.. autoclass:: cuda.cuda.CUlaunchAttributeValue_union
+.. autoclass:: cuda.cuda.CUlaunchAttribute_st
+.. autoclass:: cuda.cuda.CUlaunchConfig_st
 .. autoclass:: cuda.cuda.CUexecAffinitySmCount_st
 .. autoclass:: cuda.cuda.CUexecAffinityParam_st
 .. autoclass:: cuda.cuda.CUDA_MEMCPY2D_st
@@ -124,6 +125,81 @@ Data types used by CUDA driver
 
     .. autoattribute:: cuda.cuda.CUctx_flags.CU_CTX_FLAGS_MASK
 
+.. autoclass:: cuda.cuda.CUevent_sched_flags
+
+    .. autoattribute:: cuda.cuda.CUevent_sched_flags.CU_EVENT_SCHED_AUTO
+
+
+        Automatic scheduling
+
+
+    .. autoattribute:: cuda.cuda.CUevent_sched_flags.CU_EVENT_SCHED_SPIN
+
+
+        Set spin as default scheduling
+
+
+    .. autoattribute:: cuda.cuda.CUevent_sched_flags.CU_EVENT_SCHED_YIELD
+
+
+        Set yield as default scheduling
+
+
+    .. autoattribute:: cuda.cuda.CUevent_sched_flags.CU_EVENT_SCHED_BLOCKING_SYNC
+
+
+        Set blocking synchronization as default scheduling
+
+.. autoclass:: cuda.cuda.cl_event_flags
+
+    .. autoattribute:: cuda.cuda.cl_event_flags.NVCL_EVENT_SCHED_AUTO
+
+
+        Automatic scheduling
+
+
+    .. autoattribute:: cuda.cuda.cl_event_flags.NVCL_EVENT_SCHED_SPIN
+
+
+        Set spin as default scheduling
+
+
+    .. autoattribute:: cuda.cuda.cl_event_flags.NVCL_EVENT_SCHED_YIELD
+
+
+        Set yield as default scheduling
+
+
+    .. autoattribute:: cuda.cuda.cl_event_flags.NVCL_EVENT_SCHED_BLOCKING_SYNC
+
+
+        Set blocking synchronization as default scheduling
+
+.. autoclass:: cuda.cuda.cl_context_flags
+
+    .. autoattribute:: cuda.cuda.cl_context_flags.NVCL_CTX_SCHED_AUTO
+
+
+        Automatic scheduling
+
+
+    .. autoattribute:: cuda.cuda.cl_context_flags.NVCL_CTX_SCHED_SPIN
+
+
+        Set spin as default scheduling
+
+
+    .. autoattribute:: cuda.cuda.cl_context_flags.NVCL_CTX_SCHED_YIELD
+
+
+        Set yield as default scheduling
+
+
+    .. autoattribute:: cuda.cuda.cl_context_flags.NVCL_CTX_SCHED_BLOCKING_SYNC
+
+
+        Set blocking synchronization as default scheduling
+
 .. autoclass:: cuda.cuda.CUstream_flags
 
     .. autoattribute:: cuda.cuda.CUstream_flags.CU_STREAM_DEFAULT
@@ -217,7 +293,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_FLUSH
 
 
-        Follow the wait operation with a flush of outstanding remote writes. This means that, if a remote write operation is guaranteed to have reached the device before the wait can be satisfied, that write is guaranteed to be visible to downstream device work. The device is permitted to reorder remote writes internally. For example, this flag would be required if two remote writes arrive in a defined order, the wait is satisfied by the second write, and downstream work needs to observe the first write. Support for this operation is restricted to selected platforms and can be queried with :py:obj:`~.CU_DEVICE_ATTRIBUTE_CAN_USE_WAIT_VALUE_FLUSH`.
+        Follow the wait operation with a flush of outstanding remote writes. This means that, if a remote write operation is guaranteed to have reached the device before the wait can be satisfied, that write is guaranteed to be visible to downstream device work. The device is permitted to reorder remote writes internally. For example, this flag would be required if two remote writes arrive in a defined order, the wait is satisfied by the second write, and downstream work needs to observe the first write. Support for this operation is restricted to selected platforms and can be queried with :py:obj:`~.CU_DEVICE_ATTRIBUTE_CAN_FLUSH_REMOTE_WRITES`.
 
 .. autoclass:: cuda.cuda.CUstreamWriteValue_flags
 
@@ -1309,6 +1385,12 @@ Data types used by CUDA driver
         Handle types supported with mempool based IPC
 
 
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CLUSTER_LAUNCH
+
+
+        Indicates device supports cluster launch
+
+
     .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DEFERRED_MAPPING_CUDA_ARRAY_SUPPORTED
 
 
@@ -1516,6 +1598,70 @@ Data types used by CUDA driver
 
 
         On devices where the L1 cache and shared memory use the same hardware resources, this sets the shared memory carveout preference, in percent of the total shared memory. Refer to :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR`. This is only a hint, and the driver can choose a different ratio if required to execute the function. See :py:obj:`~.cuFuncSetAttribute`
+
+
+    .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
+
+
+        If this attribute is set, the kernel must launch with a valid cluster size specified. See :py:obj:`~.cuFuncSetAttribute`
+
+
+    .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
+
+
+        The required cluster width in blocks. The values must either all be 0 or all be positive. The validity of the cluster dimensions is otherwise checked at launch time.
+
+
+
+        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`
+
+
+    .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
+
+
+        The required cluster height in blocks. The values must either all be 0 or all be positive. The validity of the cluster dimensions is otherwise checked at launch time.
+
+
+
+        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`
+
+
+    .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
+
+
+        The required cluster depth in blocks. The values must either all be 0 or all be positive. The validity of the cluster dimensions is otherwise checked at launch time.
+
+
+
+        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`
+
+
+    .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED
+
+
+        Whether the function can be launched with non-portable cluster size. 1 is allowed, 0 is disallowed. A non-portable cluster size may only function on the specific SKUs the program is tested on. The launch might fail if the program is run on a different hardware platform.
+
+
+
+        CUDA API provides cudaOccupancyMaxActiveClusters to assist with checking whether the desired size can be launched on the current device.
+
+
+
+        Portable Cluster Size
+
+
+
+        A portable cluster size is guaranteed to be functional on all compute capabilities higher than the target compute capability. The portable cluster size for sm_90 is 8 blocks per cluster. This value may increase for future compute capabilities.
+
+
+
+        The specific hardware unit may support higher cluster sizes that’s not guaranteed to be portable. See :py:obj:`~.cuFuncSetAttribute`
+
+
+    .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+
+
+        The block scheduling policy of a function. The value type is CUclusterSchedulingPolicy / cudaClusterSchedulingPolicy. See :py:obj:`~.cuFuncSetAttribute`
 
 
     .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX
@@ -2120,6 +2266,24 @@ Data types used by CUDA driver
 
         Compute device class 8.6.
 
+
+    .. autoattribute:: cuda.cuda.CUjit_target.CU_TARGET_COMPUTE_87
+
+
+        Compute device class 8.7.
+
+
+    .. autoattribute:: cuda.cuda.CUjit_target.CU_TARGET_COMPUTE_89
+
+
+        Compute device class 8.9.
+
+
+    .. autoattribute:: cuda.cuda.CUjit_target.CU_TARGET_COMPUTE_90
+
+
+        Compute device class 9.0.
+
 .. autoclass:: cuda.cuda.CUjit_fallback
 
     .. autoattribute:: cuda.cuda.CUjit_fallback.CU_PREFER_PTX
@@ -2449,24 +2613,79 @@ Data types used by CUDA driver
 
     .. autoattribute:: cuda.cuda.CUsynchronizationPolicy.CU_SYNC_POLICY_BLOCKING_SYNC
 
-.. autoclass:: cuda.cuda.CUkernelNodeAttrID
+.. autoclass:: cuda.cuda.CUclusterSchedulingPolicy
 
-    .. autoattribute:: cuda.cuda.CUkernelNodeAttrID.CU_KERNEL_NODE_ATTRIBUTE_ACCESS_POLICY_WINDOW
-
-
-        Identifier for :py:obj:`~.CUkernelNodeAttrValue.accessPolicyWindow`.
+    .. autoattribute:: cuda.cuda.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT
 
 
-    .. autoattribute:: cuda.cuda.CUkernelNodeAttrID.CU_KERNEL_NODE_ATTRIBUTE_COOPERATIVE
+        the default policy
 
 
-        Allows a kernel node to be cooperative (see :py:obj:`~.cuLaunchCooperativeKernel`).
+    .. autoattribute:: cuda.cuda.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD
 
 
-    .. autoattribute:: cuda.cuda.CUkernelNodeAttrID.CU_KERNEL_NODE_ATTRIBUTE_PRIORITY
+        spread the blocks within a cluster to the SMs
 
 
-        Sets the priority of the kernel.
+    .. autoattribute:: cuda.cuda.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING
+
+
+        allow the hardware to load-balance the blocks in a cluster to the SMs
+
+.. autoclass:: cuda.cuda.CUstreamAttrID
+
+    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_IGNORE
+
+
+        Ignored entry, for convenient composition
+
+
+    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW
+
+
+        Valid for streams, graph nodes, launches.
+
+
+    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
+
+
+        Valid for graph nodes, launches.
+
+
+    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
+
+
+        Valid for streams.
+
+
+    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+
+
+        Valid for graph nodes, launches.
+
+
+    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+
+
+        Valid for graph nodes, launches.
+
+
+    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
+
+
+        Valid for launches. Setting programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap.
+
+
+    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+
+
+        Valid for launches. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event through PTX griddepcontrol.launch_dependents. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. Note that dependents (including the CPU thread calling :py:obj:`~.cuEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cuEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. created with :py:obj:`~.CU_EVENT_DISABLE_TIMING` flag set).
+
+
+    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+
+
+        Valid for graph nodes.
 
 .. autoclass:: cuda.cuda.CUstreamCaptureStatus
 
@@ -2496,19 +2715,6 @@ Data types used by CUDA driver
 
 
     .. autoattribute:: cuda.cuda.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_RELAXED
-
-.. autoclass:: cuda.cuda.CUstreamAttrID
-
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW
-
-
-        Identifier for :py:obj:`~.CUstreamAttrValue.accessPolicyWindow`.
-
-
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY
-
-
-        :py:obj:`~.CUsynchronizationPolicy` for work queued up in this stream
 
 .. autoclass:: cuda.cuda.CUdriverProcAddress_flags
 
@@ -2991,6 +3197,12 @@ Data types used by CUDA driver
         This error indicates the the hardware resources required to support device connections have been exhausted.
 
 
+    .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_MPS_CLIENT_TERMINATED
+
+
+        This error indicates that the MPS client has been terminated by the server. To continue using CUDA, the process must be terminated and relaunched.
+
+
     .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED
 
 
@@ -3061,6 +3273,12 @@ Data types used by CUDA driver
 
 
         This indicates that an async error has occurred in a device outside of CUDA. If CUDA was waiting for an external device's signal before consuming shared data, the external device signaled an error indicating that the data is not valid for consumption. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
+
+
+    .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_INVALID_CLUSTER_SIZE
+
+
+        Indicates a kernel launch error due to cluster misconfiguration.
 
 
     .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_UNKNOWN
@@ -4612,6 +4830,9 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUDA_MEMSET_NODE_PARAMS
 .. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUlaunchAttributeValue
+.. autoclass:: cuda.cuda.CUlaunchAttribute
+.. autoclass:: cuda.cuda.CUlaunchConfig
 .. autoclass:: cuda.cuda.CUkernelNodeAttrValue_v1
 .. autoclass:: cuda.cuda.CUkernelNodeAttrValue
 .. autoclass:: cuda.cuda.CUstreamAttrValue_v1
@@ -4717,6 +4938,13 @@ Data types used by CUDA driver
     See details of the \link_sync_behavior
 
 .. autoattribute:: cuda.cuda.CUDA_CB
+.. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_ACCESS_POLICY_WINDOW
+.. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_COOPERATIVE
+.. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_CLUSTER_DIMENSION
+.. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+.. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_PRIORITY
+.. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW
+.. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY
 .. autoattribute:: cuda.cuda.CU_MEMHOSTALLOC_PORTABLE
 
     If set, host memory is portable between CUDA contexts. Flag for :py:obj:`~.cuMemHostAlloc()`
@@ -4978,11 +5206,25 @@ Module Management
 
 This section describes the module management functions of the low-level CUDA driver application programming interface.
 
+.. autoclass:: cuda.cuda.CUmoduleLoadingMode
+
+    .. autoattribute:: cuda.cuda.CUmoduleLoadingMode.CU_MODULE_EAGER_LOADING
+
+
+        Lazy Kernel Loading is not enabled
+
+
+    .. autoattribute:: cuda.cuda.CUmoduleLoadingMode.CU_MODULE_LAZY_LOADING
+
+
+        Lazy Kernel Loading is enabled
+
 .. autofunction:: cuda.cuda.cuModuleLoad
 .. autofunction:: cuda.cuda.cuModuleLoadData
 .. autofunction:: cuda.cuda.cuModuleLoadDataEx
 .. autofunction:: cuda.cuda.cuModuleLoadFatBinary
 .. autofunction:: cuda.cuda.cuModuleUnload
+.. autofunction:: cuda.cuda.cuModuleGetLoadingMode
 .. autofunction:: cuda.cuda.cuModuleGetFunction
 .. autofunction:: cuda.cuda.cuModuleGetGlobal
 .. autofunction:: cuda.cuda.cuModuleGetTexRef
@@ -5067,6 +5309,7 @@ This section describes the memory management functions of the low-level CUDA dri
 .. autofunction:: cuda.cuda.cuMipmappedArrayCreate
 .. autofunction:: cuda.cuda.cuMipmappedArrayGetLevel
 .. autofunction:: cuda.cuda.cuMipmappedArrayDestroy
+.. autofunction:: cuda.cuda.cuMemGetHandleForAddressRange
 
 Virtual Memory Management
 -------------------------
@@ -5334,7 +5577,7 @@ None of the operations accepts pointers to managed memory buffers (cuMemAllocMan
 
 
 
-Warning: Improper use of these APIs may deadlock the application. Synchronization ordering established through these APIs is not visible to CUDA. CUDA tasks that are (even indirectly) ordered by these APIs should also have that order expressed with CUDA-visible dependencies such as events. This ensures that the scheduler does not serialize them in an improper order. For more information, see the Stream Memory Operations section in the programming guide(https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html).
+Warning: Improper use of these APIs may deadlock the application. Synchronization ordering established through these APIs is not visible to CUDA. CUDA tasks that are (even indirectly) ordered by these APIs should also have that order expressed with CUDA-visible dependencies such as events. This ensures that the scheduler does not serialize them in an improper order.
 
 .. autofunction:: cuda.cuda.cuStreamWaitValue32
 .. autofunction:: cuda.cuda.cuStreamWaitValue64
@@ -5358,6 +5601,7 @@ This section describes the execution control functions of the low-level CUDA dri
 .. autofunction:: cuda.cuda.cuFuncSetSharedMemConfig
 .. autofunction:: cuda.cuda.cuFuncGetModule
 .. autofunction:: cuda.cuda.cuLaunchKernel
+.. autofunction:: cuda.cuda.cuLaunchKernelEx
 .. autofunction:: cuda.cuda.cuLaunchCooperativeKernel
 .. autofunction:: cuda.cuda.cuLaunchCooperativeKernelMultiDevice
 .. autofunction:: cuda.cuda.cuLaunchHostFunc
@@ -5455,6 +5699,8 @@ This section describes the occupancy calculation functions of the low-level CUDA
 .. autofunction:: cuda.cuda.cuOccupancyMaxPotentialBlockSize
 .. autofunction:: cuda.cuda.cuOccupancyMaxPotentialBlockSizeWithFlags
 .. autofunction:: cuda.cuda.cuOccupancyAvailableDynamicSMemPerBlock
+.. autofunction:: cuda.cuda.cuOccupancyMaxPotentialClusterSize
+.. autofunction:: cuda.cuda.cuOccupancyMaxActiveClusters
 
 Texture Object Management
 -------------------------

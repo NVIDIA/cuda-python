@@ -6,7 +6,7 @@
         <link rel="canonical" href="docs/module/nvrtc.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>nvrtc - CUDA Python 11.7.1 documentation</title>
+        <title>nvrtc - CUDA Python 11.8.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">CUDA Python 11.7.1 documentation</div></a>
+      <a href="../index.html"><div class="brand">CUDA Python 11.8.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 11.7.1 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 11.8.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.0-notes.html">    11.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.7.1-notes.html">    11.7.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.7.0-notes.html">    11.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.6.1-notes.html">    11.6.1</a></li>
@@ -771,6 +772,9 @@ expression.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">compute_72</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">compute_75</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">compute_80</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_87</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_89</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_90</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_35</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_37</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_50</span></code></p></li>
@@ -783,6 +787,9 @@ expression.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_72</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_75</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_80</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_87</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_89</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_90</span></code></p></li>
 </ul>
 </li>
 <li><p>Default: <code class="docutils literal notranslate"><span class="pre">compute_52</span></code></p></li>
@@ -826,7 +833,7 @@ expression.</p></li>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">--dopt</span></code> on (<code class="docutils literal notranslate"><span class="pre">-dopt</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--dopt=on</span></code></p>
-<p>Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation for optimized device code. When ‘-G’ is not specified, ‘-dopt=on’ is implicit.</p>
+<p>Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation for optimized device code (currently, only line number information). When ‘-G’ is not specified, ‘-dopt=on’ is implicit.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options</span></code> &lt;options&gt; (<code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options=&lt;options&gt;</span></code></p>
@@ -873,7 +880,7 @@ expression.</p></li>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--dlink-time-opt</span></code> (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>)</p>
 <p>Generate intermediate code for later link-time optimization. It implies <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code>.</p>
-<p>Note: when this is used the nvvmGetNVVM API should be used, as PTX or Cubin will not be generated.</p>
+<p>Note: when this is used the nvrtcGetNVVM API should be used, as PTX or Cubin will not be generated.</p>
 </li>
 </ul>
 </li>
@@ -904,8 +911,8 @@ expression.</p></li>
 </li>
 <li><p>Language Dialect</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20}</span></code> (<code class="docutils literal notranslate"><span class="pre">-std={c++11|c++14|c++17|c++20}</span></code>)</p>
-<p>Set language dialect to C++03, C++11, C++14, C++17 or C++20</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17}</span></code> (<code class="docutils literal notranslate"><span class="pre">-std={c++11|c++14|c++17}</span></code>)</p>
+<p>Set language dialect to C++03, C++11, C++14 or C++17</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--builtin-move-forward={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-move-forward</span></code>)</p>
 <p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::move</span></code> and <code class="docutils literal notranslate"><span class="pre">std::forward</span></code>, when C++11 language dialect is selected.</p>

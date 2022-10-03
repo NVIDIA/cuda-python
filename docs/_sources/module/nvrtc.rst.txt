@@ -208,6 +208,30 @@ The valid compiler options are:
 
 
 
+      - ``compute_87``\  
+
+
+
+
+
+
+
+      - ``compute_89``\  
+
+
+
+
+
+
+
+      - ``compute_90``\  
+
+
+
+
+
+
+
       - ``sm_35``\  
 
 
@@ -297,6 +321,30 @@ The valid compiler options are:
 
 
       - ``sm_80``\  
+
+
+
+
+
+
+
+      - ``sm_87``\  
+
+
+
+
+
+
+
+      - ``sm_89``\  
+
+
+
+
+
+
+
+      - ``sm_90``\  
 
 
 
@@ -442,7 +490,7 @@ The valid compiler options are:
 
 
 
-    Enable device code optimization. When specified along with '-G', enables limited debug information generation for optimized device code. When '-G' is not specified, '-dopt=on' is implicit.
+    Enable device code optimization. When specified along with '-G', enables limited debug information generation for optimized device code (currently, only line number information). When '-G' is not specified, '-dopt=on' is implicit.
 
 
 
@@ -616,7 +664,7 @@ The valid compiler options are:
 
 
 
-    Note: when this is used the nvvmGetNVVM API should be used, as PTX or Cubin will not be generated.
+    Note: when this is used the nvrtcGetNVVM API should be used, as PTX or Cubin will not be generated.
 
 
 
@@ -720,11 +768,11 @@ The valid compiler options are:
 
 
 
-  - ``--std={c++03|c++11|c++14|c++17|c++20}``\  (``-std={c++11|c++14|c++17|c++20}``\ )
+  - ``--std={c++03|c++11|c++14|c++17}``\  (``-std={c++11|c++14|c++17}``\ )
 
 
 
-    Set language dialect to C++03, C++11, C++14, C++17 or C++20
+    Set language dialect to C++03, C++11, C++14 or C++17
 
 
 

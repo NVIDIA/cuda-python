@@ -446,9 +446,11 @@ This section describes the low level texture object management functions of the 
 .. autofunction:: cuda.cudart.cudaGetChannelDesc
 .. autofunction:: cuda.cudart.cudaCreateChannelDesc
 .. autofunction:: cuda.cudart.cudaCreateTextureObject
+.. autofunction:: cuda.cudart.cudaCreateTextureObject_v2
 .. autofunction:: cuda.cudart.cudaDestroyTextureObject
 .. autofunction:: cuda.cudart.cudaGetTextureObjectResourceDesc
 .. autofunction:: cuda.cudart.cudaGetTextureObjectTextureDesc
+.. autofunction:: cuda.cudart.cudaGetTextureObjectTextureDesc_v2
 .. autofunction:: cuda.cudart.cudaGetTextureObjectResourceViewDesc
 
 Surface Object Management
@@ -758,11 +760,13 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaKernelNodeParams
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreSignalNodeParams
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreWaitNodeParams
-.. autoclass:: cuda.cudart.cudaStreamAttrValue
-.. autoclass:: cuda.cudart.cudaKernelNodeAttrValue
+.. autoclass:: cuda.cudart.cudaLaunchAttributeValue
+.. autoclass:: cuda.cudart.cudaLaunchAttribute_st
+.. autoclass:: cuda.cudart.cudaLaunchConfig_st
 .. autoclass:: cuda.cudart.surfaceReference
 .. autoclass:: cuda.cudart.textureReference
 .. autoclass:: cuda.cudart.cudaTextureDesc
+.. autoclass:: cuda.cudart.cudaTextureDesc_v2
 .. autoclass:: cuda.cudart.cudaEglFrameType
 
     .. autoattribute:: cuda.cudart.cudaEglFrameType.cudaEglFrameTypeArray
@@ -2106,6 +2110,12 @@ Data types used by CUDA Runtime
         This error indicates the the hardware resources required to device connections have been exhausted.
 
 
+    .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorMpsClientTerminated
+
+
+        This error indicates that the MPS client has been terminated by the server. To continue using CUDA, the process must be terminated and relaunched.
+
+
     .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorStreamCaptureUnsupported
 
 
@@ -2176,6 +2186,12 @@ Data types used by CUDA Runtime
 
 
         This indicates that an async error has occurred in a device outside of CUDA. If CUDA was waiting for an external device's signal before consuming shared data, the external device signaled an error indicating that the data is not valid for consumption. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
+
+
+    .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorInvalidClusterSize
+
+
+        This indicates that a kernel launch error has occurred due to cluster misconfiguration.
 
 
     .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorUnknown
@@ -2492,6 +2508,25 @@ Data types used by CUDA Runtime
 
 
     .. autoattribute:: cuda.cudart.cudaSynchronizationPolicy.cudaSyncPolicyBlockingSync
+
+.. autoclass:: cuda.cudart.cudaClusterSchedulingPolicy
+
+    .. autoattribute:: cuda.cudart.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyDefault
+
+
+        the default policy
+
+
+    .. autoattribute:: cuda.cudart.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicySpread
+
+
+        spread the blocks within a cluster to the SMs
+
+
+    .. autoattribute:: cuda.cudart.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyLoadBalancing
+
+
+        allow the hardware to load-balance the blocks in a cluster to the SMs
 
 .. autoclass:: cuda.cudart.cudaStreamUpdateCaptureDependenciesFlags
 
@@ -2855,6 +2890,42 @@ Data types used by CUDA Runtime
 
 
         Preferred shared memory-L1 cache split
+
+
+    .. autoattribute:: cuda.cudart.cudaFuncAttribute.cudaFuncAttributeClusterDimMustBeSet
+
+
+        Indicator to enforce valid cluster dimension specification on kernel launch
+
+
+    .. autoattribute:: cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterWidth
+
+
+        Required cluster width
+
+
+    .. autoattribute:: cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterHeight
+
+
+        Required cluster height
+
+
+    .. autoattribute:: cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterDepth
+
+
+        Required cluster depth
+
+
+    .. autoattribute:: cuda.cudart.cudaFuncAttribute.cudaFuncAttributeNonPortableClusterSizeAllowed
+
+
+        Whether non-portable cluster scheduling policy is supported
+
+
+    .. autoattribute:: cuda.cudart.cudaFuncAttribute.cudaFuncAttributeClusterSchedulingPolicyPreference
+
+
+        Required cluster scheduling policy preference
 
 
     .. autoattribute:: cuda.cudart.cudaFuncAttribute.cudaFuncAttributeMax
@@ -3779,6 +3850,12 @@ Data types used by CUDA Runtime
         Handle types supported with mempool based IPC
 
 
+    .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrClusterLaunch
+
+
+        Indicates device supports cluster launch
+
+
     .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrDeferredMappingCudaArraySupported
 
 
@@ -4306,37 +4383,60 @@ Data types used by CUDA Runtime
 
         Run the graph using the per-node priority attributes rather than the priority of the stream it is launched into.
 
-.. autoclass:: cuda.cudart.cudaStreamAttrID
+.. autoclass:: cuda.cudart.cudaLaunchAttributeID
 
-    .. autoattribute:: cuda.cudart.cudaStreamAttrID.cudaStreamAttributeAccessPolicyWindow
-
-
-        Identifier for :py:obj:`~.cudaStreamAttrValue`::accessPolicyWindow.
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeIgnore
 
 
-    .. autoattribute:: cuda.cudart.cudaStreamAttrID.cudaStreamAttributeSynchronizationPolicy
+        Ignored entry, for convenient composition
 
 
-        :py:obj:`~.cudaSynchronizationPolicy` for work queued up in this stream
-
-.. autoclass:: cuda.cudart.cudaKernelNodeAttrID
-
-    .. autoattribute:: cuda.cudart.cudaKernelNodeAttrID.cudaKernelNodeAttributeAccessPolicyWindow
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow
 
 
-        Identifier for :py:obj:`~.cudaKernelNodeAttrValue.accessPolicyWindow`.
+        Valid for streams, graph nodes, launches.
 
 
-    .. autoattribute:: cuda.cudart.cudaKernelNodeAttrID.cudaKernelNodeAttributeCooperative
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeCooperative
 
 
-        Allows a kernel node to be cooperative (see :py:obj:`~.cudaLaunchCooperativeKernel`).
+        Valid for graph nodes, launches.
 
 
-    .. autoattribute:: cuda.cudart.cudaKernelNodeAttrID.cudaKernelNodeAttributePriority
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy
 
 
-        Sets the priority of the kernel.
+        Valid for streams.
+
+
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension
+
+
+        Valid for graph nodes, launches.
+
+
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference
+
+
+        Valid for graph nodes, launches.
+
+
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization
+
+
+        Valid for launches. Setting programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap.
+
+
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent
+
+
+        Valid for launches. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event through PTX griddepcontrol.launch_dependents. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. created with :py:obj:`~.cudaEventDisableTiming` flag set).
+
+
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributePriority
+
+
+        Valid for graph nodes.
 
 .. autoclass:: cuda.cudart.cudaSurfaceBoundaryMode
 
@@ -4444,8 +4544,9 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaFunction_t
 .. autoclass:: cuda.cudart.cudaMemPool_t
 .. autoclass:: cuda.cudart.cudaGraphExec_t
-.. autoclass:: cuda.cudart.cudaStreamAttrValue
-.. autoclass:: cuda.cudart.cudaKernelNodeAttrValue
+.. autoclass:: cuda.cudart.cudaLaunchAttributeValue
+.. autoclass:: cuda.cudart.cudaLaunchAttribute
+.. autoclass:: cuda.cudart.cudaLaunchConfig_t
 .. autoclass:: cuda.cudart.cudaSurfaceObject_t
 .. autoclass:: cuda.cudart.cudaTextureObject_t
 .. autoattribute:: cuda.cudart.CUDA_EGL_MAX_PLANES
@@ -4700,6 +4801,29 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.cudart.cudaNvSciSyncAttrWait
 
     When /p flags of :py:obj:`~.cudaDeviceGetNvSciSyncAttributes` is set to this, it indicates that application need waiter specific NvSciSyncAttr to be filled by :py:obj:`~.cudaDeviceGetNvSciSyncAttributes`.
+
+.. autoattribute:: cuda.cudart.cudaStreamAttrID
+
+    Stream Attributes
+
+.. autoattribute:: cuda.cudart.cudaStreamAttributeAccessPolicyWindow
+.. autoattribute:: cuda.cudart.cudaStreamAttributeSynchronizationPolicy
+.. autoattribute:: cuda.cudart.cudaStreamAttrValue
+
+    Stream attributes union used with :py:obj:`~.cudaStreamSetAttribute`/:py:obj:`~.cudaStreamGetAttribute`
+
+.. autoattribute:: cuda.cudart.cudaKernelNodeAttrID
+
+    Graph kernel node Attributes
+
+.. autoattribute:: cuda.cudart.cudaKernelNodeAttributeAccessPolicyWindow
+.. autoattribute:: cuda.cudart.cudaKernelNodeAttributeCooperative
+.. autoattribute:: cuda.cudart.cudaKernelNodeAttributePriority
+.. autoattribute:: cuda.cudart.cudaKernelNodeAttributeClusterDimension
+.. autoattribute:: cuda.cudart.cudaKernelNodeAttributeClusterSchedulingPolicyPreference
+.. autoattribute:: cuda.cudart.cudaKernelNodeAttrValue
+
+    Graph kernel node attributes union, used with :py:obj:`~.cudaGraphKernelNodeSetAttribute`/:py:obj:`~.cudaGraphKernelNodeGetAttribute`
 
 .. autoattribute:: cuda.cudart.cudaSurfaceType1D
 .. autoattribute:: cuda.cudart.cudaSurfaceType2D

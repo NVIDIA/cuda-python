@@ -6,7 +6,7 @@
         <link rel="canonical" href="docs/module/cudart.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>cudart - CUDA Python 11.7.1 documentation</title>
+        <title>cudart - CUDA Python 11.8.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">CUDA Python 11.7.1 documentation</div></a>
+      <a href="../index.html"><div class="brand">CUDA Python 11.8.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 11.7.1 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 11.8.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.0-notes.html">    11.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.7.1-notes.html">    11.7.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.7.0-notes.html">    11.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.6.1-notes.html">    11.6.1</a></li>
@@ -421,26 +422,28 @@ and it can be ignored or clamped depending on the platform.</p></li>
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceGetLimit">
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetLimit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.cudart.cudaLimit" title="cuda.cudart.cudaLimit"><span class="pre">cudaLimit</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaDeviceGetLimit" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns resource limits.</p>
-<p>Returns in <cite>*pValue</cite> the current size of <cite>limit</cite>. The supported
-<a class="reference internal" href="#cuda.cudart.cudaLimit" title="cuda.cudart.cudaLimit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimit</span></code></a> values are:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitStackSize" title="cuda.cudart.cudaLimit.cudaLimitStackSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitStackSize</span></code></a>: stack size in bytes of each GPU
-thread;</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitPrintfFifoSize" title="cuda.cudart.cudaLimit.cudaLimitPrintfFifoSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitPrintfFifoSize</span></code></a>: size in bytes of the shared FIFO
-used by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">printf()</span></code> device system call.</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitMallocHeapSize" title="cuda.cudart.cudaLimit.cudaLimitMallocHeapSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitMallocHeapSize</span></code></a>: size in bytes of the heap used
-by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">malloc()</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">free()</span></code> device system
-calls;</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitDevRuntimeSyncDepth" title="cuda.cudart.cudaLimit.cudaLimitDevRuntimeSyncDepth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitDevRuntimeSyncDepth</span></code></a>: maximum grid depth at which
-a thread can isssue the device runtime call
+<li><p>Returns in <cite>*pValue</cite> the current size of <cite>limit</cite>. The following
+<a class="reference internal" href="#cuda.cudart.cudaLimit" title="cuda.cudart.cudaLimit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimit</span></code></a> values are supported.</p></li>
+</ul>
+<p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitStackSize" title="cuda.cudart.cudaLimit.cudaLimitStackSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitStackSize</span></code></a> is the stack size in bytes of each GPU
+thread.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitPrintfFifoSize" title="cuda.cudart.cudaLimit.cudaLimitPrintfFifoSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitPrintfFifoSize</span></code></a> is the size in bytes of the
+shared FIFO used by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">printf()</span></code> device system call.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitMallocHeapSize" title="cuda.cudart.cudaLimit.cudaLimitMallocHeapSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitMallocHeapSize</span></code></a> is the size in bytes of the heap
+used by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">malloc()</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">free()</span></code> device system
+calls.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitDevRuntimeSyncDepth" title="cuda.cudart.cudaLimit.cudaLimitDevRuntimeSyncDepth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitDevRuntimeSyncDepth</span></code></a> is the maximum grid depth at
+which a thread can isssue the device runtime call
 <a class="reference internal" href="#cuda.cudart.cudaDeviceSynchronize" title="cuda.cudart.cudaDeviceSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code></a> to wait on child grid launches to
 complete.</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitDevRuntimePendingLaunchCount" title="cuda.cudart.cudaLimit.cudaLimitDevRuntimePendingLaunchCount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitDevRuntimePendingLaunchCount</span></code></a>: maximum number of
-outstanding device runtime launches.</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitMaxL2FetchGranularity" title="cuda.cudart.cudaLimit.cudaLimitMaxL2FetchGranularity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitMaxL2FetchGranularity</span></code></a>: L2 cache fetch
+<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitDevRuntimePendingLaunchCount" title="cuda.cudart.cudaLimit.cudaLimitDevRuntimePendingLaunchCount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitDevRuntimePendingLaunchCount</span></code></a> is the maximum
+number of outstanding device runtime launches.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitMaxL2FetchGranularity" title="cuda.cudart.cudaLimit.cudaLimitMaxL2FetchGranularity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitMaxL2FetchGranularity</span></code></a> is the L2 cache fetch
 granularity.</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitPersistingL2CacheSize" title="cuda.cudart.cudaLimit.cudaLimitPersistingL2CacheSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitPersistingL2CacheSize</span></code></a>: Persisting L2 cache size
-in bytes</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitPersistingL2CacheSize" title="cuda.cudart.cudaLimit.cudaLimitPersistingL2CacheSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitPersistingL2CacheSize</span></code></a> is the persisting L2 cache
+size in bytes.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -989,39 +992,39 @@ equal to 2.0</p></li>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
 <p>where:</p>
 <ul class="simple">
-<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name[256]</span></code> is an ASCII string identifying the device;</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name[256]</span></code> is an ASCII string identifying the device.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.uuid" title="cuda.cudart.cudaDeviceProp.uuid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uuid</span></code></a> is a 16-byte unique identifier.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.totalGlobalMem" title="cuda.cudart.cudaDeviceProp.totalGlobalMem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">totalGlobalMem</span></code></a> is the total amount of global memory
-available on the device in bytes;</p></li>
+available on the device in bytes.</p></li>
 <li><p><a class="reference internal" href="cuda.html#cuda.cuda.CUdevprop_st.sharedMemPerBlock" title="cuda.cuda.CUdevprop_st.sharedMemPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sharedMemPerBlock</span></code></a> is the maximum amount of shared memory
-available to a thread block in bytes;</p></li>
+available to a thread block in bytes.</p></li>
 <li><p><a class="reference internal" href="cuda.html#cuda.cuda.CUdevprop_st.regsPerBlock" title="cuda.cuda.CUdevprop_st.regsPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regsPerBlock</span></code></a> is the maximum number of 32-bit registers
-available to a thread block;</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.warpSize" title="cuda.cudart.cudaDeviceProp.warpSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">warpSize</span></code></a> is the warp size in threads;</p></li>
+available to a thread block.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.warpSize" title="cuda.cudart.cudaDeviceProp.warpSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">warpSize</span></code></a> is the warp size in threads.</p></li>
 <li><p><a class="reference internal" href="cuda.html#cuda.cuda.CUdevprop_st.memPitch" title="cuda.cuda.CUdevprop_st.memPitch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memPitch</span></code></a> is the maximum pitch in bytes allowed by the
 memory copy functions that involve memory regions allocated through
-<a class="reference internal" href="#cuda.cudart.cudaMallocPitch" title="cuda.cudart.cudaMallocPitch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocPitch()</span></code></a>;</p></li>
+<a class="reference internal" href="#cuda.cudart.cudaMallocPitch" title="cuda.cudart.cudaMallocPitch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocPitch()</span></code></a>.</p></li>
 <li><p><a class="reference internal" href="cuda.html#cuda.cuda.CUdevprop_st.maxThreadsPerBlock" title="cuda.cuda.CUdevprop_st.maxThreadsPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxThreadsPerBlock</span></code></a> is the maximum number of threads per
-block;</p></li>
+block.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxThreadsDim[3]</span></code> contains the maximum size of each
-dimension of a block;</p></li>
+dimension of a block.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxGridSize[3]</span></code> contains the maximum size of each
-dimension of a grid;</p></li>
-<li><p><a class="reference internal" href="cuda.html#cuda.cuda.CUdevprop_st.clockRate" title="cuda.cuda.CUdevprop_st.clockRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clockRate</span></code></a> is the clock frequency in kilohertz;</p></li>
+dimension of a grid.</p></li>
+<li><p><a class="reference internal" href="cuda.html#cuda.cuda.CUdevprop_st.clockRate" title="cuda.cuda.CUdevprop_st.clockRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clockRate</span></code></a> is the clock frequency in kilohertz.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.totalConstMem" title="cuda.cudart.cudaDeviceProp.totalConstMem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">totalConstMem</span></code></a> is the total amount of constant memory
-available on the device in bytes;</p></li>
+available on the device in bytes.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.major" title="cuda.cudart.cudaDeviceProp.major"><code class="xref py py-obj docutils literal notranslate"><span class="pre">major</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaDeviceProp.minor" title="cuda.cudart.cudaDeviceProp.minor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minor</span></code></a> are the major and minor revision
-numbers defining the device’s compute capability;</p></li>
+numbers defining the device’s compute capability.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.textureAlignment" title="cuda.cudart.cudaDeviceProp.textureAlignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">textureAlignment</span></code></a> is the alignment requirement; texture
 base addresses that are aligned to <a class="reference internal" href="#cuda.cudart.cudaDeviceProp.textureAlignment" title="cuda.cudart.cudaDeviceProp.textureAlignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">textureAlignment</span></code></a> bytes
-do not need an offset applied to texture fetches;</p></li>
+do not need an offset applied to texture fetches.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.texturePitchAlignment" title="cuda.cudart.cudaDeviceProp.texturePitchAlignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">texturePitchAlignment</span></code></a> is the pitch alignment requirement
-for 2D texture references that are bound to pitched memory;</p></li>
+for 2D texture references that are bound to pitched memory.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.deviceOverlap" title="cuda.cudart.cudaDeviceProp.deviceOverlap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deviceOverlap</span></code></a> is 1 if the device can concurrently copy
 memory between host and device while executing a kernel, or 0 if not.
 Deprecated, use instead asyncEngineCount.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.multiProcessorCount" title="cuda.cudart.cudaDeviceProp.multiProcessorCount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiProcessorCount</span></code></a> is the number of multiprocessors on
-the device;</p></li>
+the device.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.kernelExecTimeoutEnabled" title="cuda.cudart.cudaDeviceProp.kernelExecTimeoutEnabled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kernelExecTimeoutEnabled</span></code></a> is 1 if there is a run time
 limit for kernels executed on the device, or 0 if not.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.integrated" title="cuda.cudart.cudaDeviceProp.integrated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">integrated</span></code></a> is 1 if the device is an integrated
@@ -1029,7 +1032,7 @@ limit for kernels executed on the device, or 0 if not.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.canMapHostMemory" title="cuda.cudart.cudaDeviceProp.canMapHostMemory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canMapHostMemory</span></code></a> is 1 if the device can map host memory
 into the CUDA address space for use with
 <a class="reference internal" href="#cuda.cudart.cudaHostAlloc" title="cuda.cudart.cudaHostAlloc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code></a>/<a class="reference internal" href="#cuda.cudart.cudaHostGetDevicePointer" title="cuda.cudart.cudaHostGetDevicePointer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code></a>,
-or 0 if not;</p></li>
+or 0 if not.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.computeMode" title="cuda.cudart.cudaDeviceProp.computeMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">computeMode</span></code></a> is the compute mode that the device is
 currently in. Available modes are as follows:</p>
 <ul>
@@ -1090,7 +1093,7 @@ surfaces.</p></li>
 multiple kernels within the same context simultaneously, or 0 if not.
 It is not guaranteed that multiple kernels will be resident on the
 device concurrently so this feature should not be relied upon for
-correctness;</p></li>
+correctness.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.ECCEnabled" title="cuda.cudart.cudaDeviceProp.ECCEnabled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ECCEnabled</span></code></a> is 1 if the device has ECC support turned on,
 or 0 if not.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.pciBusID" title="cuda.cudart.cudaDeviceProp.pciBusID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pciBusID</span></code></a> is the PCI bus identifier of the device.</p></li>
@@ -1123,17 +1126,17 @@ of locals in L1 cache, or 0 if it is not supported.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.sharedMemPerMultiprocessor" title="cuda.cudart.cudaDeviceProp.sharedMemPerMultiprocessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sharedMemPerMultiprocessor</span></code></a> is the maximum amount of
 shared memory available to a multiprocessor in bytes; this amount is
 shared by all thread blocks simultaneously resident on a
-multiprocessor;</p></li>
+multiprocessor.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.regsPerMultiprocessor" title="cuda.cudart.cudaDeviceProp.regsPerMultiprocessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regsPerMultiprocessor</span></code></a> is the maximum number of 32-bit
 registers available to a multiprocessor; this number is shared by all
-thread blocks simultaneously resident on a multiprocessor;</p></li>
+thread blocks simultaneously resident on a multiprocessor.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.managedMemory" title="cuda.cudart.cudaDeviceProp.managedMemory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">managedMemory</span></code></a> is 1 if the device supports allocating
 managed memory on this system, or 0 if it is not supported.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.isMultiGpuBoard" title="cuda.cudart.cudaDeviceProp.isMultiGpuBoard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isMultiGpuBoard</span></code></a> is 1 if the device is on a multi-GPU
 board (e.g. Gemini cards), and 0 if not;</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.multiGpuBoardGroupID" title="cuda.cudart.cudaDeviceProp.multiGpuBoardGroupID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiGpuBoardGroupID</span></code></a> is a unique identifier for a group
 of devices associated with the same board. Devices on the same multi-
-GPU board will share the same identifier;</p></li>
+GPU board will share the same identifier.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.singleToDoublePrecisionPerfRatio" title="cuda.cudart.cudaDeviceProp.singleToDoublePrecisionPerfRatio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">singleToDoublePrecisionPerfRatio</span></code></a>   is the ratio of single
 precision performance (in floating-point operations per second) to
 double precision performance.</p></li>
@@ -2095,7 +2098,7 @@ Both streams must have the same context.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaStreamGetAttribute">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamGetAttribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hStream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.cudart.cudaStreamAttrID" title="cuda.cudart.cudaStreamAttrID"><span class="pre">cudaStreamAttrID</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamGetAttribute" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamGetAttribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hStream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cudaStreamAttrID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamGetAttribute" title="Permalink to this definition">#</a></dt>
 <dd><p>Queries stream attribute.</p>
 <p>Queries attribute <cite>attr</cite> from <cite>hStream</cite> and stores it in corresponding
 member of <cite>value_out</cite>.</p>
@@ -2109,7 +2112,7 @@ member of <cite>value_out</cite>.</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidResourceHandle" title="cuda.cudart.cudaError_t.cudaErrorInvalidResourceHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidResourceHandle</span></code></a></p></li>
-<li><p><strong>value_out</strong> (<a class="reference internal" href="#id0" title="cuda.cudart.cudaStreamAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrValue</span></code></a>)</p></li>
+<li><p><strong>value_out</strong> (<a class="reference internal" href="#cuda.cudart.cudaStreamAttrValue" title="cuda.cudart.cudaStreamAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrValue</span></code></a>)</p></li>
 </ul>
 </p>
 </dd>
@@ -2121,7 +2124,7 @@ member of <cite>value_out</cite>.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaStreamSetAttribute">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamSetAttribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hStream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr:</span> <span class="pre">cudaStreamAttrID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cudaStreamAttrValue</span> <span class="pre">value:</span> <span class="pre">cudaStreamAttrValue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamSetAttribute" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamSetAttribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hStream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr:</span> <span class="pre">cudaStreamAttrID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cudaLaunchAttributeValue</span> <span class="pre">value:</span> <span class="pre">cudaLaunchAttributeValue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamSetAttribute" title="Permalink to this definition">#</a></dt>
 <dd><p>Sets stream attribute.</p>
 <p>Sets attribute <cite>attr</cite> on <cite>hStream</cite> from corresponding attribute of
 <cite>value</cite>. The updated attribute will be applied to subsequent work
@@ -2131,7 +2134,7 @@ submitted to the stream. It will not affect previously submitted work.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hStream</strong> (<a class="reference internal" href="cuda.html#cuda.cuda.CUstream" title="cuda.cuda.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.cudart.cudaStream_t" title="cuda.cudart.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – </p></li>
 <li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.cudart.cudaStreamAttrID" title="cuda.cudart.cudaStreamAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code></a>) – </p></li>
-<li><p><strong>value</strong> (<a class="reference internal" href="#id0" title="cuda.cudart.cudaStreamAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrValue</span></code></a>) – </p></li>
+<li><p><strong>value</strong> (<a class="reference internal" href="#cuda.cudart.cudaStreamAttrValue" title="cuda.cudart.cudaStreamAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrValue</span></code></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2971,7 +2974,7 @@ returned. If either event was created with the
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorNotReady" title="cuda.cudart.cudaError_t.cudaErrorNotReady"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotReady</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidResourceHandle" title="cuda.cudart.cudaError_t.cudaErrorInvalidResourceHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidResourceHandle</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorLaunchFailure" title="cuda.cudart.cudaError_t.cudaErrorLaunchFailure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorLaunchFailure</span></code></a></p></li>
+<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorNotReady" title="cuda.cudart.cudaError_t.cudaErrorNotReady"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotReady</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidResourceHandle" title="cuda.cudart.cudaError_t.cudaErrorInvalidResourceHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidResourceHandle</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorLaunchFailure" title="cuda.cudart.cudaError_t.cudaErrorLaunchFailure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorLaunchFailure</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorUnknown" title="cuda.cudart.cudaError_t.cudaErrorUnknown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorUnknown</span></code></a></p></li>
 <li><p><strong>ms</strong> (<em>float</em>) – Time between <cite>start</cite> and <cite>end</cite> in ms</p></li>
 </ul>
 </p>
@@ -8143,19 +8146,6 @@ end of the mipmap level range to clamp access to.</p></li>
 end of the mipmap level range to clamp access to.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc.disableTrilinearOptimization" title="cuda.cudart.cudaTextureDesc.disableTrilinearOptimization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disableTrilinearOptimization</span></code></a> specifies
 whether the trilinear filtering optimizations will be disabled.</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc.seamlessCubemap" title="cuda.cudart.cudaTextureDesc.seamlessCubemap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seamlessCubemap</span></code></a> specifies whether
-seamless cube map filtering is enabled. This flag can only be
-specified if the underlying resource is a CUDA array or a CUDA
-mipmapped array that was created with the flag
-<a class="reference internal" href="#cuda.cudart.cudaArrayCubemap" title="cuda.cudart.cudaArrayCubemap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArrayCubemap</span></code></a>. When seamless cube map filtering is
-enabled, texture address modes specified by
-<a class="reference internal" href="#cuda.cudart.cudaTextureDesc.addressMode" title="cuda.cudart.cudaTextureDesc.addressMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addressMode</span></code></a> are ignored. Instead, if the
-<a class="reference internal" href="#cuda.cudart.cudaTextureDesc.filterMode" title="cuda.cudart.cudaTextureDesc.filterMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filterMode</span></code></a> is set to
-<a class="reference internal" href="#cuda.cudart.cudaTextureFilterMode.cudaFilterModePoint" title="cuda.cudart.cudaTextureFilterMode.cudaFilterModePoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFilterModePoint</span></code></a> the address mode
-<a class="reference internal" href="#cuda.cudart.cudaTextureAddressMode.cudaAddressModeClamp" title="cuda.cudart.cudaTextureAddressMode.cudaAddressModeClamp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAddressModeClamp</span></code></a> will be applied for all dimensions.
-If the <a class="reference internal" href="#cuda.cudart.cudaTextureDesc.filterMode" title="cuda.cudart.cudaTextureDesc.filterMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filterMode</span></code></a> is set to
-<a class="reference internal" href="#cuda.cudart.cudaTextureFilterMode.cudaFilterModeLinear" title="cuda.cudart.cudaTextureFilterMode.cudaFilterModeLinear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFilterModeLinear</span></code></a> seamless cube map filtering will be
-performed when sampling along the cube face borders.</p></li>
 </ul>
 <p>The <a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc" title="cuda.cudart.cudaResourceViewDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceViewDesc</span></code></a> struct is defined as</p>
 <p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
@@ -8207,6 +8197,191 @@ to be zero.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pResDesc</strong> (<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>) – Resource descriptor</p></li>
 <li><p><strong>pTexDesc</strong> (<a class="reference internal" href="#cuda.cudart.cudaTextureDesc" title="cuda.cudart.cudaTextureDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureDesc</span></code></a>) – Texture descriptor</p></li>
+<li><p><strong>pResViewDesc</strong> (<a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc" title="cuda.cudart.cudaResourceViewDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceViewDesc</span></code></a>) – Resource view descriptor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
+<li><p><strong>pTexObject</strong> (<a class="reference internal" href="#cuda.cudart.cudaTextureObject_t" title="cuda.cudart.cudaTextureObject_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code></a>) – Texture object to create</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.cudart.cudaDestroyTextureObject" title="cuda.cudart.cudaDestroyTextureObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDestroyTextureObject</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuTexObjectCreate" title="cuda.cuda.cuTexObjectCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuTexObjectCreate</span></code></a></p>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.cudart.cudaCreateTextureObject_v2">
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaCreateTextureObject_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cudaResourceDesc</span> <span class="pre">pResDesc:</span> <span class="pre">cudaResourceDesc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cudaTextureDesc_v2</span> <span class="pre">pTexDesc:</span> <span class="pre">cudaTextureDesc_v2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cudaResourceViewDesc</span> <span class="pre">pResViewDesc:</span> <span class="pre">cudaResourceViewDesc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaCreateTextureObject_v2" title="Permalink to this definition">#</a></dt>
+<dd><p>Creates a texture object.</p>
+<p>Creates a texture object and returns it in <cite>pTexObject</cite>. <cite>pResDesc</cite>
+describes the data to texture from. <cite>pTexDesc</cite> describes how the data
+should be sampled. <cite>pResViewDesc</cite> is an optional argument that
+specifies an alternate format for the data described by <cite>pResDesc</cite>, and
+also describes the subresource region to restrict access to when
+texturing. <cite>pResViewDesc</cite> can only be specified if the type of resource
+is a CUDA array or a CUDA mipmapped array.</p>
+<p>Texture objects are only supported on devices of compute capability 3.0
+or higher. Additionally, a texture object is an opaque value, and, as
+such, should only be accessed through CUDA API calls.</p>
+<p>The <a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a> structure is defined as:</p>
+<p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
+<p>where:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#cuda.cudart.cudaResourceDesc.resType" title="cuda.cudart.cudaResourceDesc.resType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resType</span></code></a> specifies the type of resource
+to texture from. CUresourceType is defined as:</p></li>
+<li><p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p></li>
+</ul>
+<p>If <a class="reference internal" href="#cuda.cudart.cudaResourceDesc.resType" title="cuda.cudart.cudaResourceDesc.resType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resType</span></code></a> is set to
+<a class="reference internal" href="#cuda.cudart.cudaResourceType.cudaResourceTypeArray" title="cuda.cudart.cudaResourceType.cudaResourceTypeArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceTypeArray</span></code></a>,
+<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>::<a class="reference external" href="res::array::array">res::array::array</a> must be set to a valid
+CUDA array handle.</p>
+<p>If <a class="reference internal" href="#cuda.cudart.cudaResourceDesc.resType" title="cuda.cudart.cudaResourceDesc.resType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resType</span></code></a> is set to
+<a class="reference internal" href="#cuda.cudart.cudaResourceType.cudaResourceTypeMipmappedArray" title="cuda.cudart.cudaResourceType.cudaResourceTypeMipmappedArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceTypeMipmappedArray</span></code></a>,
+<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>::<a class="reference external" href="res::mipmap::mipmap">res::mipmap::mipmap</a> must be set to a
+valid CUDA mipmapped array handle and
+<a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.normalizedCoords" title="cuda.cudart.cudaTextureDesc_v2.normalizedCoords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalizedCoords</span></code></a> must be set to true.</p>
+<p>If <a class="reference internal" href="#cuda.cudart.cudaResourceDesc.resType" title="cuda.cudart.cudaResourceDesc.resType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resType</span></code></a> is set to
+<a class="reference internal" href="#cuda.cudart.cudaResourceType.cudaResourceTypeLinear" title="cuda.cudart.cudaResourceType.cudaResourceTypeLinear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceTypeLinear</span></code></a>,
+<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>::<a class="reference external" href="res::linear::devPtr">res::linear::devPtr</a> must be set to a
+valid device pointer, that is aligned to
+<a class="reference internal" href="#cuda.cudart.cudaDeviceProp.textureAlignment" title="cuda.cudart.cudaDeviceProp.textureAlignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">textureAlignment</span></code></a>.
+<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>::<a class="reference external" href="res::linear::desc">res::linear::desc</a> describes the format
+and the number of components per array element.
+<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>::<a class="reference external" href="res::linear::sizeInBytes">res::linear::sizeInBytes</a> specifies the
+size of the array in bytes. The total number of elements in the linear
+address range cannot exceed
+<a class="reference internal" href="#cuda.cudart.cudaDeviceProp.maxTexture1DLinear" title="cuda.cudart.cudaDeviceProp.maxTexture1DLinear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxTexture1DLinear</span></code></a>. The number of elements
+is computed as (sizeInBytes / sizeof(desc)).</p>
+<p>If <a class="reference internal" href="#cuda.cudart.cudaResourceDesc.resType" title="cuda.cudart.cudaResourceDesc.resType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resType</span></code></a> is set to
+<a class="reference internal" href="#cuda.cudart.cudaResourceType.cudaResourceTypePitch2D" title="cuda.cudart.cudaResourceType.cudaResourceTypePitch2D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceTypePitch2D</span></code></a>,
+<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>::<a class="reference external" href="res::pitch2D::devPtr">res::pitch2D::devPtr</a> must be set to a
+valid device pointer, that is aligned to
+<a class="reference internal" href="#cuda.cudart.cudaDeviceProp.textureAlignment" title="cuda.cudart.cudaDeviceProp.textureAlignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">textureAlignment</span></code></a>.
+<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>::<a class="reference external" href="res::pitch2D::desc">res::pitch2D::desc</a> describes the format
+and the number of components per array element.
+<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>::<a class="reference external" href="res::pitch2D::width">res::pitch2D::width</a> and
+<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>::<a class="reference external" href="res::pitch2D::height">res::pitch2D::height</a> specify the width
+and height of the array in elements, and cannot exceed
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code>::<a class="reference external" href="res::pitch2D::pitchInBytes">res::pitch2D::pitchInBytes</a> specifies the
+pitch between two rows in bytes and has to be aligned to
+<a class="reference internal" href="#cuda.cudart.cudaDeviceProp.texturePitchAlignment" title="cuda.cudart.cudaDeviceProp.texturePitchAlignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">texturePitchAlignment</span></code></a>. Pitch cannot exceed
+:py:obj:<a href="#id13"><span class="problematic" id="id14">`</span></a>~.cudaDeviceProp.maxTexture2DLinear`[2].</p>
+<p>The <a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2" title="cuda.cudart.cudaTextureDesc_v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureDesc_v2</span></code></a> struct is defined as</p>
+<p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
+<p>where</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.addressMode" title="cuda.cudart.cudaTextureDesc_v2.addressMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addressMode</span></code></a> specifies the addressing
+mode for each dimension of the texture data.
+<a class="reference internal" href="#cuda.cudart.cudaTextureAddressMode" title="cuda.cudart.cudaTextureAddressMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureAddressMode</span></code></a> is defined as:</p></li>
+<li><p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p></li>
+<li><p>This is ignored if <a class="reference internal" href="#cuda.cudart.cudaResourceDesc.resType" title="cuda.cudart.cudaResourceDesc.resType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resType</span></code></a> is
+<a class="reference internal" href="#cuda.cudart.cudaResourceType.cudaResourceTypeLinear" title="cuda.cudart.cudaResourceType.cudaResourceTypeLinear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceTypeLinear</span></code></a>. Also, if
+<a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.normalizedCoords" title="cuda.cudart.cudaTextureDesc_v2.normalizedCoords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalizedCoords</span></code></a> is set to zero,
+<a class="reference internal" href="#cuda.cudart.cudaTextureAddressMode.cudaAddressModeWrap" title="cuda.cudart.cudaTextureAddressMode.cudaAddressModeWrap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAddressModeWrap</span></code></a> and <a class="reference internal" href="#cuda.cudart.cudaTextureAddressMode.cudaAddressModeMirror" title="cuda.cudart.cudaTextureAddressMode.cudaAddressModeMirror"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAddressModeMirror</span></code></a>
+won’t be supported and will be switched to
+<a class="reference internal" href="#cuda.cudart.cudaTextureAddressMode.cudaAddressModeClamp" title="cuda.cudart.cudaTextureAddressMode.cudaAddressModeClamp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAddressModeClamp</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.filterMode" title="cuda.cudart.cudaTextureDesc_v2.filterMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filterMode</span></code></a> specifies the filtering
+mode to be used when fetching from the texture.
+<a class="reference internal" href="#cuda.cudart.cudaTextureFilterMode" title="cuda.cudart.cudaTextureFilterMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureFilterMode</span></code></a> is defined as:</p></li>
+<li><p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p></li>
+<li><p>This is ignored if <a class="reference internal" href="#cuda.cudart.cudaResourceDesc.resType" title="cuda.cudart.cudaResourceDesc.resType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resType</span></code></a> is
+<a class="reference internal" href="#cuda.cudart.cudaResourceType.cudaResourceTypeLinear" title="cuda.cudart.cudaResourceType.cudaResourceTypeLinear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceTypeLinear</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.readMode" title="cuda.cudart.cudaTextureDesc_v2.readMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">readMode</span></code></a> specifies whether integer
+data should be converted to floating point or not.
+<a class="reference internal" href="#cuda.cudart.cudaTextureReadMode" title="cuda.cudart.cudaTextureReadMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureReadMode</span></code></a> is defined as:</p></li>
+<li><p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p></li>
+<li><p>Note that this applies only to 8-bit and 16-bit integer formats.
+32-bit integer format would not be promoted, regardless of whether or
+not this <a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.readMode" title="cuda.cudart.cudaTextureDesc_v2.readMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">readMode</span></code></a> is set
+<a class="reference internal" href="#cuda.cudart.cudaTextureReadMode.cudaReadModeNormalizedFloat" title="cuda.cudart.cudaTextureReadMode.cudaReadModeNormalizedFloat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaReadModeNormalizedFloat</span></code></a> is specified.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.sRGB" title="cuda.cudart.cudaTextureDesc_v2.sRGB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sRGB</span></code></a> specifies whether sRGB to linear
+conversion should be performed during texture fetch.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.borderColor" title="cuda.cudart.cudaTextureDesc_v2.borderColor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">borderColor</span></code></a> specifies the float values
+of color. where: <code class="xref py py-obj docutils literal notranslate"><span class="pre">addressMode</span></code> is cudaAddressModeBorder.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.normalizedCoords" title="cuda.cudart.cudaTextureDesc_v2.normalizedCoords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalizedCoords</span></code></a> specifies whether the
+texture coordinates will be normalized or not.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.maxAnisotropy" title="cuda.cudart.cudaTextureDesc_v2.maxAnisotropy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxAnisotropy</span></code></a> specifies the maximum
+anistropy ratio to be used when doing anisotropic filtering. This
+value will be clamped to the range [1,16].</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.mipmapFilterMode" title="cuda.cudart.cudaTextureDesc_v2.mipmapFilterMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapFilterMode</span></code></a> specifies the filter
+mode when the calculated mipmap level lies between two defined mipmap
+levels.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.mipmapLevelBias" title="cuda.cudart.cudaTextureDesc_v2.mipmapLevelBias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapLevelBias</span></code></a> specifies the offset
+to be applied to the calculated mipmap level.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.minMipmapLevelClamp" title="cuda.cudart.cudaTextureDesc_v2.minMipmapLevelClamp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minMipmapLevelClamp</span></code></a> specifies the
+lower end of the mipmap level range to clamp access to.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.maxMipmapLevelClamp" title="cuda.cudart.cudaTextureDesc_v2.maxMipmapLevelClamp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxMipmapLevelClamp</span></code></a> specifies the
+upper end of the mipmap level range to clamp access to.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.disableTrilinearOptimization" title="cuda.cudart.cudaTextureDesc_v2.disableTrilinearOptimization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disableTrilinearOptimization</span></code></a> specifies
+whether the trilinear filtering optimizations will be disabled.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.seamlessCubemap" title="cuda.cudart.cudaTextureDesc_v2.seamlessCubemap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seamlessCubemap</span></code></a> specifies whether
+seamless cube map filtering is enabled. This flag can only be
+specified if the underlying resource is a CUDA array or a CUDA
+mipmapped array that was created with the flag
+<a class="reference internal" href="#cuda.cudart.cudaArrayCubemap" title="cuda.cudart.cudaArrayCubemap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArrayCubemap</span></code></a>. When seamless cube map filtering is
+enabled, texture address modes specified by
+<a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.addressMode" title="cuda.cudart.cudaTextureDesc_v2.addressMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addressMode</span></code></a> are ignored. Instead, if
+the <a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.filterMode" title="cuda.cudart.cudaTextureDesc_v2.filterMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filterMode</span></code></a> is set to
+<a class="reference internal" href="#cuda.cudart.cudaTextureFilterMode.cudaFilterModePoint" title="cuda.cudart.cudaTextureFilterMode.cudaFilterModePoint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFilterModePoint</span></code></a> the address mode
+<a class="reference internal" href="#cuda.cudart.cudaTextureAddressMode.cudaAddressModeClamp" title="cuda.cudart.cudaTextureAddressMode.cudaAddressModeClamp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAddressModeClamp</span></code></a> will be applied for all dimensions.
+If the <a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.filterMode" title="cuda.cudart.cudaTextureDesc_v2.filterMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filterMode</span></code></a> is set to
+<a class="reference internal" href="#cuda.cudart.cudaTextureFilterMode.cudaFilterModeLinear" title="cuda.cudart.cudaTextureFilterMode.cudaFilterModeLinear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFilterModeLinear</span></code></a> seamless cube map filtering will be
+performed when sampling along the cube face borders.</p></li>
+</ul>
+<p>The <a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc" title="cuda.cudart.cudaResourceViewDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceViewDesc</span></code></a> struct is defined as</p>
+<p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
+<p>where:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc.format" title="cuda.cudart.cudaResourceViewDesc.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format</span></code></a> specifies how the data
+contained in the CUDA array or CUDA mipmapped array should be
+interpreted. Note that this can incur a change in size of the texture
+data. If the resource view format is a block compressed format, then
+the underlying CUDA array or CUDA mipmapped array has to have a
+32-bit unsigned integer format with 2 or 4 channels, depending on the
+block compressed format. For ex., BC1 and BC4 require the underlying
+CUDA array to have a 32-bit unsigned int with 2 channels. The other
+BC formats require the underlying resource to have the same 32-bit
+unsigned int format but with 4 channels.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc.width" title="cuda.cudart.cudaResourceViewDesc.width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code></a> specifies the new width of the
+texture data. If the resource view format is a block compressed
+format, this value has to be 4 times the original width of the
+resource. For non block compressed formats, this value has to be
+equal to that of the original resource.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc.height" title="cuda.cudart.cudaResourceViewDesc.height"><code class="xref py py-obj docutils literal notranslate"><span class="pre">height</span></code></a> specifies the new height of
+the texture data. If the resource view format is a block compressed
+format, this value has to be 4 times the original height of the
+resource. For non block compressed formats, this value has to be
+equal to that of the original resource.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc.depth" title="cuda.cudart.cudaResourceViewDesc.depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">depth</span></code></a> specifies the new depth of the
+texture data. This value has to be equal to that of the original
+resource.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc.firstMipmapLevel" title="cuda.cudart.cudaResourceViewDesc.firstMipmapLevel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">firstMipmapLevel</span></code></a> specifies the most
+detailed mipmap level. This will be the new mipmap level zero. For
+non-mipmapped resources, this value has to be
+zero.:py:obj:<cite>~.cudaTextureDesc_v2.minMipmapLevelClamp</cite> and
+<a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2.maxMipmapLevelClamp" title="cuda.cudart.cudaTextureDesc_v2.maxMipmapLevelClamp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxMipmapLevelClamp</span></code></a> will be relative
+to this value. For ex., if the firstMipmapLevel is set to 2, and a
+minMipmapLevelClamp of 1.2 is specified, then the actual minimum
+mipmap level clamp will be 3.2.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc.lastMipmapLevel" title="cuda.cudart.cudaResourceViewDesc.lastMipmapLevel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lastMipmapLevel</span></code></a> specifies the least
+detailed mipmap level. For non-mipmapped resources, this value has to
+be zero.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc.firstLayer" title="cuda.cudart.cudaResourceViewDesc.firstLayer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">firstLayer</span></code></a> specifies the first layer
+index for layered textures. This will be the new layer zero. For non-
+layered resources, this value has to be zero.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc.lastLayer" title="cuda.cudart.cudaResourceViewDesc.lastLayer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lastLayer</span></code></a> specifies the last layer
+index for layered textures. For non-layered resources, this value has
+to be zero.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pResDesc</strong> (<a class="reference internal" href="#cuda.cudart.cudaResourceDesc" title="cuda.cudart.cudaResourceDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceDesc</span></code></a>) – Resource descriptor</p></li>
+<li><p><strong>pTexDesc</strong> (<a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2" title="cuda.cudart.cudaTextureDesc_v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureDesc_v2</span></code></a>) – Texture descriptor</p></li>
 <li><p><strong>pResViewDesc</strong> (<a class="reference internal" href="#cuda.cudart.cudaResourceViewDesc" title="cuda.cudart.cudaResourceViewDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaResourceViewDesc</span></code></a>) – Resource view descriptor</p></li>
 </ul>
 </dd>
@@ -8281,6 +8456,29 @@ to be zero.</p></li>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
 <li><p><strong>pTexDesc</strong> (<a class="reference internal" href="#cuda.cudart.cudaTextureDesc" title="cuda.cudart.cudaTextureDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureDesc</span></code></a>) – Texture descriptor</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.cudart.cudaCreateTextureObject" title="cuda.cudart.cudaCreateTextureObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaCreateTextureObject</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuTexObjectGetTextureDesc" title="cuda.cuda.cuTexObjectGetTextureDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuTexObjectGetTextureDesc</span></code></a></p>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGetTextureObjectTextureDesc_v2">
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGetTextureObjectTextureDesc_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">texObject</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGetTextureObjectTextureDesc_v2" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a texture object’s texture descriptor.</p>
+<p>Returns the texture descriptor for the texture object specified by
+<cite>texObject</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>texObject</strong> (<a class="reference internal" href="#cuda.cudart.cudaTextureObject_t" title="cuda.cudart.cudaTextureObject_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code></a>) – Texture object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
+<li><p><strong>pTexDesc</strong> (<a class="reference internal" href="#cuda.cudart.cudaTextureDesc_v2" title="cuda.cudart.cudaTextureDesc_v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureDesc_v2</span></code></a>) – Texture descriptor</p></li>
 </ul>
 </p>
 </dd>
@@ -8486,7 +8684,7 @@ available to each thread block.</p>
 <p>Kernel parameters to <cite>func</cite> can be specified in one of two ways:</p>
 <p>1) Kernel parameters can be specified via <cite>kernelParams</cite>. If the kernel
 has N parameters, then <cite>kernelParams</cite> needs to be an array of N
-pointers. Each pointer, from <a href="#id13"><span class="problematic" id="id14">`</span></a>kernelParams`[0] to <a href="#id15"><span class="problematic" id="id16">`</span></a>kernelParams`[N-1],
+pointers. Each pointer, from <a href="#id15"><span class="problematic" id="id16">`</span></a>kernelParams`[0] to <a href="#id17"><span class="problematic" id="id18">`</span></a>kernelParams`[N-1],
 points to the region of memory from which the actual parameter will be
 copied. The number of kernel parameters and their offsets and sizes do
 not need to be specified as that information is retrieved directly from
@@ -8622,7 +8820,7 @@ Both node must have the same context.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeGetAttribute">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphKernelNodeGetAttribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.cudart.cudaKernelNodeAttrID" title="cuda.cudart.cudaKernelNodeAttrID"><span class="pre">cudaKernelNodeAttrID</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeGetAttribute" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphKernelNodeGetAttribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cudaKernelNodeAttrID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeGetAttribute" title="Permalink to this definition">#</a></dt>
 <dd><p>Queries node attribute.</p>
 <p>Queries attribute <cite>attr</cite> from node <cite>hNode</cite> and stores it in
 corresponding member of <cite>value_out</cite>.</p>
@@ -8636,7 +8834,7 @@ corresponding member of <cite>value_out</cite>.</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidResourceHandle" title="cuda.cudart.cudaError_t.cudaErrorInvalidResourceHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidResourceHandle</span></code></a></p></li>
-<li><p><strong>value_out</strong> (<a class="reference internal" href="#id28" title="cuda.cudart.cudaKernelNodeAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrValue</span></code></a>)</p></li>
+<li><p><strong>value_out</strong> (<a class="reference internal" href="#cuda.cudart.cudaKernelNodeAttrValue" title="cuda.cudart.cudaKernelNodeAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrValue</span></code></a>)</p></li>
 </ul>
 </p>
 </dd>
@@ -8648,7 +8846,7 @@ corresponding member of <cite>value_out</cite>.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeSetAttribute">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphKernelNodeSetAttribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr:</span> <span class="pre">cudaKernelNodeAttrID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cudaKernelNodeAttrValue</span> <span class="pre">value:</span> <span class="pre">cudaKernelNodeAttrValue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeSetAttribute" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphKernelNodeSetAttribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr:</span> <span class="pre">cudaKernelNodeAttrID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cudaLaunchAttributeValue</span> <span class="pre">value:</span> <span class="pre">cudaLaunchAttributeValue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeSetAttribute" title="Permalink to this definition">#</a></dt>
 <dd><p>Sets node attribute.</p>
 <p>Sets attribute <cite>attr</cite> on node <cite>hNode</cite> from corresponding attribute of
 <cite>value</cite>.</p>
@@ -8657,7 +8855,7 @@ corresponding member of <cite>value_out</cite>.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hNode</strong> (<a class="reference internal" href="cuda.html#cuda.cuda.CUgraphNode" title="cuda.cuda.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.cudart.cudaGraphNode_t" title="cuda.cudart.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>) – </p></li>
 <li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.cudart.cudaKernelNodeAttrID" title="cuda.cudart.cudaKernelNodeAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code></a>) – </p></li>
-<li><p><strong>value</strong> (<a class="reference internal" href="#id28" title="cuda.cudart.cudaKernelNodeAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrValue</span></code></a>) – </p></li>
+<li><p><strong>value</strong> (<a class="reference internal" href="#cuda.cudart.cudaKernelNodeAttrValue" title="cuda.cudart.cudaKernelNodeAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrValue</span></code></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -10074,6 +10272,11 @@ subsequent graph launches. Valid flags are:</p>
 configures a graph containing memory allocation nodes to
 automatically free any unfreed memory allocations before the graph is
 relaunched.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagUseNodePriority" title="cuda.cudart.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagUseNodePriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagUseNodePriority</span></code></a>, which causes the
+graph to use the priorities from the per-node attributes rather than
+the priority of the launch stream during execution. Note that
+priorities are only available on kernel nodes, and are copied from
+stream priority during stream capture.</p></li>
 </ul>
 <p>If <cite>graph</cite> contains any allocation or free nodes, there can be at most
 one executable graph in existence for that graph at a time.</p>
@@ -10534,6 +10737,11 @@ graph specified by <cite>hGraph</cite>.</p>
 parallelism cannot be updated to a function which uses CDP.</p></li>
 <li><p>A cooperative node cannot be updated to a non-cooperative node, and
 vice-versa.</p></li>
+<li><p>If the graph was instantiated with
+cudaGraphInstantiateFlagUseNodePriority, the priority attribute
+cannot change. Equality is checked on the originally requested
+priority values, before they are clamped to the device’s supported
+range.</p></li>
 </ul>
 </li>
 <li><p>Memset and memcpy nodes:</p>
@@ -11011,7 +11219,7 @@ impl_private</p>
 <p>The types ::CUevent and cudaEvent_t are identical and may be used interchangeably.</p>
 <p><strong>Interactions between CUarray and cudaArray_t</strong></p>
 <p>The types ::CUarray and struct ::cudaArray * represent the same data type and may be used interchangeably by casting the two types between each other.</p>
-<p>In order to use a ::CUarray in a CUDA Runtime API function which takes a struct ::cudaArray <a href="#id17"><span class="problematic" id="id18">*</span></a>, it is necessary to explicitly cast the ::CUarray to a struct ::cudaArray <a href="#id19"><span class="problematic" id="id20">*</span></a>.</p>
+<p>In order to use a ::CUarray in a CUDA Runtime API function which takes a struct ::cudaArray <a href="#id19"><span class="problematic" id="id20">*</span></a>, it is necessary to explicitly cast the ::CUarray to a struct ::cudaArray <a href="#id21"><span class="problematic" id="id22">*</span></a>.</p>
 <p>In order to use a struct ::cudaArray * in a CUDA Driver API function which takes a ::CUarray, it is necessary to explicitly cast the struct ::cudaArray * to a ::CUarray .</p>
 <p><strong>Interactions between CUgraphicsResource and cudaGraphicsResource_t</strong></p>
 <p>The types ::CUgraphicsResource and cudaGraphicsResource_t represent the same data type and may be used interchangeably by casting the two types between each other.</p>
@@ -12312,7 +12520,7 @@ of GPUs.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaMemAllocNodeParams.accessDescCount">
 <span class="sig-name descname"><span class="pre">accessDescCount</span></span><a class="headerlink" href="#cuda.cudart.cudaMemAllocNodeParams.accessDescCount" title="Permalink to this definition">#</a></dt>
-<dd><p>in: Number of <a href="#id21"><span class="problematic" id="id22">`</span></a>accessDescs`s</p>
+<dd><p>in: Number of <a href="#id23"><span class="problematic" id="id24">`</span></a>accessDescs`s</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>size_t</p>
@@ -13661,13 +13869,22 @@ paramsArray.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.cudart.cudaStreamAttrValue">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttrValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamAttrValue" title="Permalink to this definition">#</a></dt>
-<dd><p>Stream attributes union used with
-cudaStreamSetAttribute/cudaStreamGetAttribute</p>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaLaunchAttributeValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue" title="Permalink to this definition">#</a></dt>
+<dd><p>Launch attributes union; used as value field of
+::cudaLaunchAttribute</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaStreamAttrValue.accessPolicyWindow">
-<span class="sig-name descname"><span class="pre">accessPolicyWindow</span></span><a class="headerlink" href="#cuda.cudart.cudaStreamAttrValue.accessPolicyWindow" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.pad">
+<span class="sig-name descname"><span class="pre">pad</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.pad" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.accessPolicyWindow">
+<span class="sig-name descname"><span class="pre">accessPolicyWindow</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.accessPolicyWindow" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaAccessPolicyWindow" title="cuda.cudart.cudaAccessPolicyWindow">cudaAccessPolicyWindow</a></p>
@@ -13675,56 +13892,99 @@ cudaStreamSetAttribute/cudaStreamGetAttribute</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaStreamAttrValue.syncPolicy">
-<span class="sig-name descname"><span class="pre">syncPolicy</span></span><a class="headerlink" href="#cuda.cudart.cudaStreamAttrValue.syncPolicy" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.cooperative">
+<span class="sig-name descname"><span class="pre">cooperative</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.cooperative" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.syncPolicy">
+<span class="sig-name descname"><span class="pre">syncPolicy</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.syncPolicy" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaSynchronizationPolicy" title="cuda.cudart.cudaSynchronizationPolicy">cudaSynchronizationPolicy</a></p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.clusterDim">
+<span class="sig-name descname"><span class="pre">clusterDim</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.clusterDim" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>_cudaLaunchAttributeValue_cudaLaunchAttributeValue_cudaLaunchAttributeValue_clusterDim_s</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference">
+<span class="sig-name descname"><span class="pre">clusterSchedulingPolicyPreference</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaClusterSchedulingPolicy" title="cuda.cudart.cudaClusterSchedulingPolicy">cudaClusterSchedulingPolicy</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.programmaticStreamSerializationAllowed">
+<span class="sig-name descname"><span class="pre">programmaticStreamSerializationAllowed</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.programmaticStreamSerializationAllowed" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.programmaticEvent">
+<span class="sig-name descname"><span class="pre">programmaticEvent</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.programmaticEvent" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>_cudaLaunchAttributeValue_cudaLaunchAttributeValue_cudaLaunchAttributeValue_programmaticEvent_s</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.priority">
+<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.priority" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.cudart.cudaStreamAttrValue.getPtr">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamAttrValue.getPtr" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.getPtr" title="Permalink to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrValue">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttrValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrValue" title="Permalink to this definition">#</a></dt>
-<dd><p>Graph kernel node attributes union, used with
-cudaGraphKernelNodeSetAttribute/cudaGraphKernelNodeGetAttribute</p>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttribute_st">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaLaunchAttribute_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttribute_st" title="Permalink to this definition">#</a></dt>
+<dd><p>Launch attribute</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrValue.accessPolicyWindow">
-<span class="sig-name descname"><span class="pre">accessPolicyWindow</span></span><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrValue.accessPolicyWindow" title="Permalink to this definition">#</a></dt>
-<dd><p>Attribute ::CUaccessPolicyWindow.</p>
-<dl class="field-list simple">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttribute_st.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttribute_st.id" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaAccessPolicyWindow" title="cuda.cudart.cudaAccessPolicyWindow">cudaAccessPolicyWindow</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaLaunchAttributeID" title="cuda.cudart.cudaLaunchAttributeID">cudaLaunchAttributeID</a></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrValue.cooperative">
-<span class="sig-name descname"><span class="pre">cooperative</span></span><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrValue.cooperative" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttribute_st.val">
+<span class="sig-name descname"><span class="pre">val</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttribute_st.val" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrValue.priority">
-<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrValue.priority" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dd class="field-odd"><p><a class="reference internal" href="#id0" title="cuda.cudart.cudaLaunchAttributeValue">cudaLaunchAttributeValue</a></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrValue.getPtr">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrValue.getPtr" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttribute_st.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttribute_st.getPtr" title="Permalink to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 </dd></dl>
@@ -13852,9 +14112,138 @@ cudaGraphKernelNodeSetAttribute/cudaGraphKernelNodeGetAttribute</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc.getPtr" title="Permalink to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaTextureDesc_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.addressMode">
+<span class="sig-name descname"><span class="pre">addressMode</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.addressMode" title="Permalink to this definition">#</a></dt>
+<dd><p>Texture address mode for up to 3 dimensions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#cuda.cudart.cudaTextureAddressMode" title="cuda.cudart.cudaTextureAddressMode">cudaTextureAddressMode</a>]</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc.seamlessCubemap">
-<span class="sig-name descname"><span class="pre">seamlessCubemap</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc.seamlessCubemap" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.filterMode">
+<span class="sig-name descname"><span class="pre">filterMode</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.filterMode" title="Permalink to this definition">#</a></dt>
+<dd><p>Texture filter mode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaTextureFilterMode" title="cuda.cudart.cudaTextureFilterMode">cudaTextureFilterMode</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.readMode">
+<span class="sig-name descname"><span class="pre">readMode</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.readMode" title="Permalink to this definition">#</a></dt>
+<dd><p>Texture read mode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaTextureReadMode" title="cuda.cudart.cudaTextureReadMode">cudaTextureReadMode</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.sRGB">
+<span class="sig-name descname"><span class="pre">sRGB</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.sRGB" title="Permalink to this definition">#</a></dt>
+<dd><p>Perform sRGB-&gt;linear conversion during texture read</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.borderColor">
+<span class="sig-name descname"><span class="pre">borderColor</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.borderColor" title="Permalink to this definition">#</a></dt>
+<dd><p>Texture Border Color</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.normalizedCoords">
+<span class="sig-name descname"><span class="pre">normalizedCoords</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.normalizedCoords" title="Permalink to this definition">#</a></dt>
+<dd><p>Indicates whether texture reads are normalized or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.maxAnisotropy">
+<span class="sig-name descname"><span class="pre">maxAnisotropy</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.maxAnisotropy" title="Permalink to this definition">#</a></dt>
+<dd><p>Limit to the anisotropy ratio</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>unsigned int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.mipmapFilterMode">
+<span class="sig-name descname"><span class="pre">mipmapFilterMode</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.mipmapFilterMode" title="Permalink to this definition">#</a></dt>
+<dd><p>Mipmap filter mode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaTextureFilterMode" title="cuda.cudart.cudaTextureFilterMode">cudaTextureFilterMode</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.mipmapLevelBias">
+<span class="sig-name descname"><span class="pre">mipmapLevelBias</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.mipmapLevelBias" title="Permalink to this definition">#</a></dt>
+<dd><p>Offset applied to the supplied mipmap level</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.minMipmapLevelClamp">
+<span class="sig-name descname"><span class="pre">minMipmapLevelClamp</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.minMipmapLevelClamp" title="Permalink to this definition">#</a></dt>
+<dd><p>Lower end of the mipmap level range to clamp access to</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.maxMipmapLevelClamp">
+<span class="sig-name descname"><span class="pre">maxMipmapLevelClamp</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.maxMipmapLevelClamp" title="Permalink to this definition">#</a></dt>
+<dd><p>Upper end of the mipmap level range to clamp access to</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.disableTrilinearOptimization">
+<span class="sig-name descname"><span class="pre">disableTrilinearOptimization</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.disableTrilinearOptimization" title="Permalink to this definition">#</a></dt>
+<dd><p>Disable any trilinear filtering optimizations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.seamlessCubemap">
+<span class="sig-name descname"><span class="pre">seamlessCubemap</span></span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.seamlessCubemap" title="Permalink to this definition">#</a></dt>
 <dd><p>Enable seamless cube map filtering.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -13863,8 +14252,8 @@ cudaGraphKernelNodeSetAttribute/cudaGraphKernelNodeGetAttribute</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc.getPtr">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc.getPtr" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.cudart.cudaTextureDesc_v2.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaTextureDesc_v2.getPtr" title="Permalink to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 </dd></dl>
@@ -14646,7 +15035,7 @@ formats currently supported for CUDA_EGL interops.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorIncompatibleDriverContext">
 <span class="sig-name descname"><span class="pre">cudaErrorIncompatibleDriverContext</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">49</span></em><a class="headerlink" href="#cuda.cudart.cudaError_t.cudaErrorIncompatibleDriverContext" title="Permalink to this definition">#</a></dt>
-<dd><p>This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see :py:obj:<a href="#id23"><span class="problematic" id="id24">`</span></a>~.Interactions`with the CUDA Driver API” for more information.</p>
+<dd><p>This indicates that the current context is not compatible with this the CUDA Runtime. This can only occur if you are using CUDA Runtime/Driver interoperability and have created an existing Driver context using the driver API. The Driver context may be incompatible either because the Driver context was created using an older version of the API, because the Runtime API call expects a primary driver context and the Driver context is not primary, or because the Driver context has been destroyed. Please see :py:obj:<a href="#id25"><span class="problematic" id="id26">`</span></a>~.Interactions`with the CUDA Driver API” for more information.</p>
 </dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorMissingConfiguration">
@@ -15014,6 +15403,11 @@ formats currently supported for CUDA_EGL interops.</p>
 <dd><p>This error indicates the the hardware resources required to device connections have been exhausted.</p>
 </dd></dl>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorMpsClientTerminated">
+<span class="sig-name descname"><span class="pre">cudaErrorMpsClientTerminated</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">810</span></em><a class="headerlink" href="#cuda.cudart.cudaError_t.cudaErrorMpsClientTerminated" title="Permalink to this definition">#</a></dt>
+<dd><p>This error indicates that the MPS client has been terminated by the server. To continue using CUDA, the process must be terminated and relaunched.</p>
+</dd></dl>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorStreamCaptureUnsupported">
 <span class="sig-name descname"><span class="pre">cudaErrorStreamCaptureUnsupported</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">900</span></em><a class="headerlink" href="#cuda.cudart.cudaError_t.cudaErrorStreamCaptureUnsupported" title="Permalink to this definition">#</a></dt>
 <dd><p>The operation is not permitted when the stream is capturing.</p>
@@ -15072,6 +15466,11 @@ formats currently supported for CUDA_EGL interops.</p>
 <dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorExternalDevice">
 <span class="sig-name descname"><span class="pre">cudaErrorExternalDevice</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">911</span></em><a class="headerlink" href="#cuda.cudart.cudaError_t.cudaErrorExternalDevice" title="Permalink to this definition">#</a></dt>
 <dd><p>This indicates that an async error has occurred in a device outside of CUDA. If CUDA was waiting for an external device’s signal before consuming shared data, the external device signaled an error indicating that the data is not valid for consumption. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorInvalidClusterSize">
+<span class="sig-name descname"><span class="pre">cudaErrorInvalidClusterSize</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">912</span></em><a class="headerlink" href="#cuda.cudart.cudaError_t.cudaErrorInvalidClusterSize" title="Permalink to this definition">#</a></dt>
+<dd><p>This indicates that a kernel launch error has occurred due to cluster misconfiguration.</p>
 </dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorUnknown">
@@ -15379,6 +15778,27 @@ details see <a class="reference internal" href="#cuda.cudart.cudaStreamBeginCapt
 <dt class="sig sig-object py" id="cuda.cudart.cudaSynchronizationPolicy.cudaSyncPolicyBlockingSync">
 <span class="sig-name descname"><span class="pre">cudaSyncPolicyBlockingSync</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#cuda.cudart.cudaSynchronizationPolicy.cudaSyncPolicyBlockingSync" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.cudart.cudaClusterSchedulingPolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaClusterSchedulingPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaClusterSchedulingPolicy" title="Permalink to this definition">#</a></dt>
+<dd><p>Cluster scheduling policies. These may be passed to
+<a class="reference internal" href="#cuda.cudart.cudaFuncSetAttribute" title="cuda.cudart.cudaFuncSetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyDefault">
+<span class="sig-name descname"><span class="pre">cudaClusterSchedulingPolicyDefault</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.cudart.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyDefault" title="Permalink to this definition">#</a></dt>
+<dd><p>the default policy</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicySpread">
+<span class="sig-name descname"><span class="pre">cudaClusterSchedulingPolicySpread</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.cudart.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicySpread" title="Permalink to this definition">#</a></dt>
+<dd><p>spread the blocks within a cluster to the SMs</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyLoadBalancing">
+<span class="sig-name descname"><span class="pre">cudaClusterSchedulingPolicyLoadBalancing</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.cudart.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyLoadBalancing" title="Permalink to this definition">#</a></dt>
+<dd><p>allow the hardware to load-balance the blocks in a cluster to the SMs</p>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.cudart.cudaStreamUpdateCaptureDependenciesFlags">
@@ -15721,8 +16141,38 @@ details see <a class="reference internal" href="#cuda.cudart.cudaStreamBeginCapt
 <dd><p>Preferred shared memory-L1 cache split</p>
 </dd></dl>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeClusterDimMustBeSet">
+<span class="sig-name descname"><span class="pre">cudaFuncAttributeClusterDimMustBeSet</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeClusterDimMustBeSet" title="Permalink to this definition">#</a></dt>
+<dd><p>Indicator to enforce valid cluster dimension specification on kernel launch</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterWidth">
+<span class="sig-name descname"><span class="pre">cudaFuncAttributeRequiredClusterWidth</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterWidth" title="Permalink to this definition">#</a></dt>
+<dd><p>Required cluster width</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterHeight">
+<span class="sig-name descname"><span class="pre">cudaFuncAttributeRequiredClusterHeight</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterHeight" title="Permalink to this definition">#</a></dt>
+<dd><p>Required cluster height</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterDepth">
+<span class="sig-name descname"><span class="pre">cudaFuncAttributeRequiredClusterDepth</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterDepth" title="Permalink to this definition">#</a></dt>
+<dd><p>Required cluster depth</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeNonPortableClusterSizeAllowed">
+<span class="sig-name descname"><span class="pre">cudaFuncAttributeNonPortableClusterSizeAllowed</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14</span></em><a class="headerlink" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeNonPortableClusterSizeAllowed" title="Permalink to this definition">#</a></dt>
+<dd><p>Whether non-portable cluster scheduling policy is supported</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeClusterSchedulingPolicyPreference">
+<span class="sig-name descname"><span class="pre">cudaFuncAttributeClusterSchedulingPolicyPreference</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeClusterSchedulingPolicyPreference" title="Permalink to this definition">#</a></dt>
+<dd><p>Required cluster scheduling policy preference</p>
+</dd></dl>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeMax">
-<span class="sig-name descname"><span class="pre">cudaFuncAttributeMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeMax" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cudaFuncAttributeMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeMax" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py class">
@@ -16555,6 +17005,11 @@ cudaFuncSetAttribute</p>
 <dd><p>Handle types supported with mempool based IPC</p>
 </dd></dl>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaDeviceAttr.cudaDevAttrClusterLaunch">
+<span class="sig-name descname"><span class="pre">cudaDevAttrClusterLaunch</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">120</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrClusterLaunch" title="Permalink to this definition">#</a></dt>
+<dd><p>Indicates device supports cluster launch</p>
+</dd></dl>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceAttr.cudaDevAttrDeferredMappingCudaArraySupported">
 <span class="sig-name descname"><span class="pre">cudaDevAttrDeferredMappingCudaArraySupported</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">121</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrDeferredMappingCudaArraySupported" title="Permalink to this definition">#</a></dt>
 <dd><p>Device supports deferred mapping CUDA arrays and CUDA mipmapped arrays</p>
@@ -17068,38 +17523,54 @@ cudaFuncSetAttribute</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.cudart.cudaStreamAttrID">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttrID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamAttrID" title="Permalink to this definition">#</a></dt>
-<dd><p>Stream Attributes</p>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaLaunchAttributeID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID" title="Permalink to this definition">#</a></dt>
+<dd><p>Launch attributes enum; used as id field of
+<a class="reference internal" href="#cuda.cudart.cudaLaunchAttribute" title="cuda.cudart.cudaLaunchAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLaunchAttribute</span></code></a></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaStreamAttrID.cudaStreamAttributeAccessPolicyWindow">
-<span class="sig-name descname"><span class="pre">cudaStreamAttributeAccessPolicyWindow</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.cudart.cudaStreamAttrID.cudaStreamAttributeAccessPolicyWindow" title="Permalink to this definition">#</a></dt>
-<dd><p>Identifier for <a class="reference internal" href="#id0" title="cuda.cudart.cudaStreamAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrValue</span></code></a>::accessPolicyWindow.</p>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeIgnore">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributeIgnore</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeIgnore" title="Permalink to this definition">#</a></dt>
+<dd><p>Ignored entry, for convenient composition</p>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaStreamAttrID.cudaStreamAttributeSynchronizationPolicy">
-<span class="sig-name descname"><span class="pre">cudaStreamAttributeSynchronizationPolicy</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cuda.cudart.cudaStreamAttrID.cudaStreamAttributeSynchronizationPolicy" title="Permalink to this definition">#</a></dt>
-<dd><p><a class="reference internal" href="#cuda.cudart.cudaSynchronizationPolicy" title="cuda.cudart.cudaSynchronizationPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSynchronizationPolicy</span></code></a> for work queued up in this stream</p>
-</dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrID">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttrID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrID" title="Permalink to this definition">#</a></dt>
-<dd><p>Graph kernel node Attributes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrID.cudaKernelNodeAttributeAccessPolicyWindow">
-<span class="sig-name descname"><span class="pre">cudaKernelNodeAttributeAccessPolicyWindow</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrID.cudaKernelNodeAttributeAccessPolicyWindow" title="Permalink to this definition">#</a></dt>
-<dd><p>Identifier for <a class="reference internal" href="#id29" title="cuda.cudart.cudaKernelNodeAttrValue.accessPolicyWindow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code></a>.</p>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributeAccessPolicyWindow</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow" title="Permalink to this definition">#</a></dt>
+<dd><p>Valid for streams, graph nodes, launches.</p>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrID.cudaKernelNodeAttributeCooperative">
-<span class="sig-name descname"><span class="pre">cudaKernelNodeAttributeCooperative</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrID.cudaKernelNodeAttributeCooperative" title="Permalink to this definition">#</a></dt>
-<dd><p>Allows a kernel node to be cooperative (see <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLaunchCooperativeKernel</span></code>).</p>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeCooperative">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributeCooperative</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeCooperative" title="Permalink to this definition">#</a></dt>
+<dd><p>Valid for graph nodes, launches.</p>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrID.cudaKernelNodeAttributePriority">
-<span class="sig-name descname"><span class="pre">cudaKernelNodeAttributePriority</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrID.cudaKernelNodeAttributePriority" title="Permalink to this definition">#</a></dt>
-<dd><p>Sets the priority of the kernel.</p>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributeSynchronizationPolicy</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy" title="Permalink to this definition">#</a></dt>
+<dd><p>Valid for streams.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributeClusterDimension</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension" title="Permalink to this definition">#</a></dt>
+<dd><p>Valid for graph nodes, launches.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributeClusterSchedulingPolicyPreference</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference" title="Permalink to this definition">#</a></dt>
+<dd><p>Valid for graph nodes, launches.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributeProgrammaticStreamSerialization</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization" title="Permalink to this definition">#</a></dt>
+<dd><p>Valid for launches. Setting programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid’s execution to overlap with the previous kernel in the stream, if that kernel requests the overlap.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributeProgrammaticEvent</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent" title="Permalink to this definition">#</a></dt>
+<dd><p>Valid for launches. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event through PTX griddepcontrol.launch_dependents. A trigger can also be inserted at the beginning of each block’s execution if triggerAtBlockStart is set to non-0. Note that dependents (including the CPU thread calling <a class="reference internal" href="#cuda.cudart.cudaEventSynchronize" title="cuda.cudart.cudaEventSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code></a>) are not guaranteed to observe the release precisely when it is released. For example, <a class="reference internal" href="#cuda.cudart.cudaEventSynchronize" title="cuda.cudart.cudaEventSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code></a> may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. created with <a class="reference internal" href="#cuda.cudart.cudaEventDisableTiming" title="cuda.cudart.cudaEventDisableTiming"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEventDisableTiming</span></code></a> flag set).</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributePriority">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributePriority</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributePriority" title="Permalink to this definition">#</a></dt>
+<dd><p>Valid for graph nodes.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
@@ -17586,12 +18057,21 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttrValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
-<dd><p>Stream attributes union used with
-cudaStreamSetAttribute/cudaStreamGetAttribute</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaLaunchAttributeValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
+<dd><p>Launch attributes union; used as value field of
+::cudaLaunchAttribute</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id25">
-<span class="sig-name descname"><span class="pre">accessPolicyWindow</span></span><a class="headerlink" href="#id25" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id27">
+<span class="sig-name descname"><span class="pre">pad</span></span><a class="headerlink" href="#id27" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id28">
+<span class="sig-name descname"><span class="pre">accessPolicyWindow</span></span><a class="headerlink" href="#id28" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaAccessPolicyWindow" title="cuda.cudart.cudaAccessPolicyWindow">cudaAccessPolicyWindow</a></p>
@@ -17599,56 +18079,99 @@ cudaStreamSetAttribute/cudaStreamGetAttribute</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id26">
-<span class="sig-name descname"><span class="pre">syncPolicy</span></span><a class="headerlink" href="#id26" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id29">
+<span class="sig-name descname"><span class="pre">cooperative</span></span><a class="headerlink" href="#id29" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id30">
+<span class="sig-name descname"><span class="pre">syncPolicy</span></span><a class="headerlink" href="#id30" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaSynchronizationPolicy" title="cuda.cudart.cudaSynchronizationPolicy">cudaSynchronizationPolicy</a></p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id31">
+<span class="sig-name descname"><span class="pre">clusterDim</span></span><a class="headerlink" href="#id31" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>_cudaLaunchAttributeValue_cudaLaunchAttributeValue_cudaLaunchAttributeValue_clusterDim_s</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id32">
+<span class="sig-name descname"><span class="pre">clusterSchedulingPolicyPreference</span></span><a class="headerlink" href="#id32" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaClusterSchedulingPolicy" title="cuda.cudart.cudaClusterSchedulingPolicy">cudaClusterSchedulingPolicy</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id33">
+<span class="sig-name descname"><span class="pre">programmaticStreamSerializationAllowed</span></span><a class="headerlink" href="#id33" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id34">
+<span class="sig-name descname"><span class="pre">programmaticEvent</span></span><a class="headerlink" href="#id34" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>_cudaLaunchAttributeValue_cudaLaunchAttributeValue_cudaLaunchAttributeValue_programmaticEvent_s</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id35">
+<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#id35" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="id27">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id27" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id36">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id36" title="Permalink to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="id28">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttrValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id28" title="Permalink to this definition">#</a></dt>
-<dd><p>Graph kernel node attributes union, used with
-cudaGraphKernelNodeSetAttribute/cudaGraphKernelNodeGetAttribute</p>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttribute">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaLaunchAttribute</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttribute" title="Permalink to this definition">#</a></dt>
+<dd><p>Launch attribute</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id29">
-<span class="sig-name descname"><span class="pre">accessPolicyWindow</span></span><a class="headerlink" href="#id29" title="Permalink to this definition">#</a></dt>
-<dd><p>Attribute ::CUaccessPolicyWindow.</p>
-<dl class="field-list simple">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttribute.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttribute.id" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaAccessPolicyWindow" title="cuda.cudart.cudaAccessPolicyWindow">cudaAccessPolicyWindow</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaLaunchAttributeID" title="cuda.cudart.cudaLaunchAttributeID">cudaLaunchAttributeID</a></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id30">
-<span class="sig-name descname"><span class="pre">cooperative</span></span><a class="headerlink" href="#id30" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttribute.val">
+<span class="sig-name descname"><span class="pre">val</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttribute.val" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id31">
-<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#id31" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dd class="field-odd"><p><a class="reference internal" href="#id0" title="cuda.cudart.cudaLaunchAttributeValue">cudaLaunchAttributeValue</a></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="id32">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id32" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttribute.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttribute.getPtr" title="Permalink to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 </dd></dl>
@@ -17960,6 +18483,34 @@ cudaGraphKernelNodeSetAttribute/cudaGraphKernelNodeGetAttribute</p>
 <dt class="sig sig-object py" id="cuda.cudart.cudaNvSciSyncAttrWait">
 <span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaNvSciSyncAttrWait</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.cudart.cudaNvSciSyncAttrWait" title="Permalink to this definition">#</a></dt>
 <dd><p>When /p flags of <a class="reference internal" href="#cuda.cudart.cudaDeviceGetNvSciSyncAttributes" title="cuda.cudart.cudaDeviceGetNvSciSyncAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetNvSciSyncAttributes</span></code></a> is set to this, it indicates that application need waiter specific NvSciSyncAttr to be filled by <a class="reference internal" href="#cuda.cudart.cudaDeviceGetNvSciSyncAttributes" title="cuda.cudart.cudaDeviceGetNvSciSyncAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetNvSciSyncAttributes</span></code></a>.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaStreamAttrID">
+<span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttrID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;enum</span> <span class="pre">'cudaStreamAttrID'&gt;</span></em><a class="headerlink" href="#cuda.cudart.cudaStreamAttrID" title="Permalink to this definition">#</a></dt>
+<dd><p>Stream Attributes</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaStreamAttrValue">
+<span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttrValue</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.cudart.cudaStreamAttrValue'&gt;</span></em><a class="headerlink" href="#cuda.cudart.cudaStreamAttrValue" title="Permalink to this definition">#</a></dt>
+<dd><p>Stream attributes union used with <a class="reference internal" href="#cuda.cudart.cudaStreamSetAttribute" title="cuda.cudart.cudaStreamSetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamSetAttribute</span></code></a>/<a class="reference internal" href="#cuda.cudart.cudaStreamGetAttribute" title="cuda.cudart.cudaStreamGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamGetAttribute</span></code></a></p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrID">
+<span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttrID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;enum</span> <span class="pre">'cudaKernelNodeAttrID'&gt;</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrID" title="Permalink to this definition">#</a></dt>
+<dd><p>Graph kernel node Attributes</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttributeClusterDimension">
+<span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttributeClusterDimension</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttributeClusterDimension" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttributeClusterSchedulingPolicyPreference">
+<span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttributeClusterSchedulingPolicyPreference</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttributeClusterSchedulingPolicyPreference" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrValue">
+<span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttrValue</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.cudart.cudaKernelNodeAttrValue'&gt;</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrValue" title="Permalink to this definition">#</a></dt>
+<dd><p>Graph kernel node attributes union, used with <a class="reference internal" href="#cuda.cudart.cudaGraphKernelNodeSetAttribute" title="cuda.cudart.cudaGraphKernelNodeSetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphKernelNodeSetAttribute</span></code></a>/<a class="reference internal" href="#cuda.cudart.cudaGraphKernelNodeGetAttribute" title="cuda.cudart.cudaGraphKernelNodeGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphKernelNodeGetAttribute</span></code></a></p>
 </dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaSurfaceType1D">

@@ -8,6 +8,8 @@
 cimport cuda.cnvrtc as cnvrtc
 cimport cuda._lib.utils as utils
 
+{{if 'nvrtcProgram' in found_types}}
+
 cdef class nvrtcProgram:
     """ nvrtcProgram is the unit of compilation, and an opaque handle for a program.
 
@@ -21,3 +23,4 @@ cdef class nvrtcProgram:
     """
     cdef cnvrtc.nvrtcProgram  __val
     cdef cnvrtc.nvrtcProgram* _ptr
+{{endif}}

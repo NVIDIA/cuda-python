@@ -14,6 +14,30 @@ __pycache__/
 !cuda/_lib/param_packer.cpp
 !cuda/_cuda/loader.cpp
 
+# CUDA Python specific (auto-generated)
+cuda/_cuda/ccuda.pxd
+cuda/_cuda/ccuda.pyx
+cuda/_cuda/cnvrtc.pxd
+cuda/_cuda/cnvrtc.pyx
+cuda/_lib/ccudart/ccudart.pxd
+cuda/_lib/ccudart/ccudart.pyx
+cuda/_lib/ccudart/utils.pxd
+cuda/_lib/ccudart/utils.pyx
+cuda/_lib/utils.pxd
+cuda/_lib/utils.pyx
+cuda/ccuda.pxd
+cuda/ccuda.pyx
+cuda/ccudart.pxd
+cuda/ccudart.pyx
+cuda/cnvrtc.pxd
+cuda/cnvrtc.pyx
+cuda/cuda.pxd
+cuda/cuda.pyx
+cuda/cudart.pxd
+cuda/cudart.pyx
+cuda/nvrtc.pxd
+cuda/nvrtc.pyx
+
 # Distribution / packaging
 .Python
 build/

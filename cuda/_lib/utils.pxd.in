@@ -21,6 +21,7 @@ cdef class HelperInputVoidPtr:
     cdef Py_buffer _pybuffer
     cdef void* _cptr
     cdef bint _pyobj_acquired
+{{if 'CUmemPool_attribute_enum' in found_types}}
 
 cdef class HelperCUmemPool_attribute:
     cdef void* _cptr
@@ -30,6 +31,8 @@ cdef class HelperCUmemPool_attribute:
     # Return values
     cdef int _int_val
     cdef cuda.cuuint64_t _cuuint64_t_val
+{{endif}}
+{{if 'CUmem_range_attribute_enum' in found_types}}
 
 cdef class HelperCUmem_range_attribute:
     cdef void* _cptr
@@ -39,6 +42,8 @@ cdef class HelperCUmem_range_attribute:
     # Return values
     cdef int _int_val # 32 bit integer
     cdef int* _int_val_list # 32 bit integer array
+{{endif}}
+{{if 'CUpointer_attribute_enum' in found_types}}
 
 cdef class HelperCUpointer_attribute:
     cdef void* _cptr
@@ -55,6 +60,8 @@ cdef class HelperCUpointer_attribute:
     cdef unsigned long long _ull
     cdef size_t _size
     cdef cuda.CUmemoryPool _mempool
+{{endif}}
+{{if 'CUgraphMem_attribute_enum' in found_types}}
 
 cdef class HelperCUgraphMem_attribute:
     cdef void* _cptr
@@ -63,6 +70,8 @@ cdef class HelperCUgraphMem_attribute:
 
     # Return values
     cdef cuda.cuuint64_t _cuuint64_t_val
+{{endif}}
+{{if 'CUjit_option_enum' in found_types}}
 
 cdef class HelperCUjit_option:
     cdef void* _cptr
@@ -78,6 +87,7 @@ cdef class HelperCUjit_option:
     cdef ccuda.CUjit_cacheMode_enum _cacheMode
     cdef vector[char*] _charstarstar # list of names
     cdef InputVoidPtrPtrHelper _voidstarstar # list of addresses
+{{endif}}
 
 cdef class InputVoidPtrPtrHelper:
     cdef void** _cptr
