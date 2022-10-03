@@ -1088,6 +1088,52 @@ cdef cudaError_t getArrayBlockExtent(cudaExtent *blockExtent, ccuda.CUarray_form
         return cudaErrorInvalidChannelDescriptor
     return cudaSuccess
 
+cdef cudaError_t getArrayBlockExtent(cudaExtent *blockExtent, ccuda.CUarray_format format) nogil except ?cudaErrorCallRequiresNewerDriver:
+    if format in (ccuda.CU_AD_FORMAT_FLOAT,
+                  ccuda.CU_AD_FORMAT_UNSIGNED_INT32,
+                  ccuda.CU_AD_FORMAT_SIGNED_INT32,
+                  ccuda.CU_AD_FORMAT_HALF,
+                  ccuda.CU_AD_FORMAT_SIGNED_INT16,
+                  ccuda.CU_AD_FORMAT_UNSIGNED_INT16,
+                  ccuda.CU_AD_FORMAT_SIGNED_INT8,
+                  ccuda.CU_AD_FORMAT_UNSIGNED_INT8,
+                  ccuda.CU_AD_FORMAT_NV12,
+                  ccuda.CU_AD_FORMAT_SNORM_INT8X1,
+                  ccuda.CU_AD_FORMAT_UNORM_INT8X1,
+                  ccuda.CU_AD_FORMAT_SNORM_INT8X2,
+                  ccuda.CU_AD_FORMAT_UNORM_INT8X2,
+                  ccuda.CU_AD_FORMAT_SNORM_INT16X1,
+                  ccuda.CU_AD_FORMAT_UNORM_INT16X1,
+                  ccuda.CU_AD_FORMAT_SNORM_INT8X4,
+                  ccuda.CU_AD_FORMAT_UNORM_INT8X4,
+                  ccuda.CU_AD_FORMAT_SNORM_INT16X2,
+                  ccuda.CU_AD_FORMAT_UNORM_INT16X2,
+                  ccuda.CU_AD_FORMAT_SNORM_INT16X4,
+                  ccuda.CU_AD_FORMAT_UNORM_INT16X4):
+        blockExtent[0].width = 1
+        blockExtent[0].height = 1
+        blockExtent[0].depth = 1
+    elif format in (ccuda.CU_AD_FORMAT_BC1_UNORM,
+                    ccuda.CU_AD_FORMAT_BC1_UNORM_SRGB,
+                    ccuda.CU_AD_FORMAT_BC4_UNORM,
+                    ccuda.CU_AD_FORMAT_BC4_SNORM,
+                    ccuda.CU_AD_FORMAT_BC2_UNORM,
+                    ccuda.CU_AD_FORMAT_BC2_UNORM_SRGB,
+                    ccuda.CU_AD_FORMAT_BC3_UNORM,
+                    ccuda.CU_AD_FORMAT_BC3_UNORM_SRGB,
+                    ccuda.CU_AD_FORMAT_BC5_UNORM,
+                    ccuda.CU_AD_FORMAT_BC5_SNORM,
+                    ccuda.CU_AD_FORMAT_BC6H_UF16,
+                    ccuda.CU_AD_FORMAT_BC6H_SF16,
+                    ccuda.CU_AD_FORMAT_BC7_UNORM,
+                    ccuda.CU_AD_FORMAT_BC7_UNORM_SRGB):
+        blockExtent[0].width = 4
+        blockExtent[0].height = 4
+        blockExtent[0].depth = 1
+    else:
+        return cudaErrorInvalidChannelDescriptor
+    return cudaSuccess
+
 
 cdef cudaError_t getLocalState(cudaArrayLocalState *state, cudaArray_const_t thisArray) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaArrayLocalState arrayState

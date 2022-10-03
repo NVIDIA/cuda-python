@@ -518,6 +518,32 @@ class CUarray_format(IntEnum):
 
     #: 8-bit YUV planar format, with 4:2:0 sampling
     CU_AD_FORMAT_NV12 = ccuda.CUarray_format_enum.CU_AD_FORMAT_NV12
+    CU_AD_FORMAT_UNORM_INT8X1 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X1
+    CU_AD_FORMAT_UNORM_INT8X2 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X2
+    CU_AD_FORMAT_UNORM_INT8X4 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X4
+    CU_AD_FORMAT_UNORM_INT16X1 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X1
+    CU_AD_FORMAT_UNORM_INT16X2 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X2
+    CU_AD_FORMAT_UNORM_INT16X4 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT16X4
+    CU_AD_FORMAT_SNORM_INT8X1 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X1
+    CU_AD_FORMAT_SNORM_INT8X2 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X2
+    CU_AD_FORMAT_SNORM_INT8X4 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT8X4
+    CU_AD_FORMAT_SNORM_INT16X1 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X1
+    CU_AD_FORMAT_SNORM_INT16X2 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X2
+    CU_AD_FORMAT_SNORM_INT16X4 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X4
+    CU_AD_FORMAT_BC1_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC1_UNORM
+    CU_AD_FORMAT_BC1_UNORM_SRGB = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC1_UNORM_SRGB
+    CU_AD_FORMAT_BC2_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC2_UNORM
+    CU_AD_FORMAT_BC2_UNORM_SRGB = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC2_UNORM_SRGB
+    CU_AD_FORMAT_BC3_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC3_UNORM
+    CU_AD_FORMAT_BC3_UNORM_SRGB = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC3_UNORM_SRGB
+    CU_AD_FORMAT_BC4_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC4_UNORM
+    CU_AD_FORMAT_BC4_SNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC4_SNORM
+    CU_AD_FORMAT_BC5_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC5_UNORM
+    CU_AD_FORMAT_BC5_SNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC5_SNORM
+    CU_AD_FORMAT_BC6H_UF16 = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC6H_UF16
+    CU_AD_FORMAT_BC6H_SF16 = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC6H_SF16
+    CU_AD_FORMAT_BC7_UNORM = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC7_UNORM
+    CU_AD_FORMAT_BC7_UNORM_SRGB = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC7_UNORM_SRGB
 
     #: 1 channel unsigned 8-bit normalized integer
     CU_AD_FORMAT_UNORM_INT8X1 = ccuda.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT8X1
@@ -4011,6 +4037,17 @@ cdef class CUeglStreamConnection:
         return <void_ptr>self._ptr[0]
     def getPtr(self):
         return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            str_list += ['operation : ' + str(self.operation)]
+            str_list += ['address : ' + str(self.address)]
+            str_list += ['flags : ' + str(self.flags)]
+            str_list += ['value64 : ' + str(self.value64)]
+            str_list += ['alias : ' + str(self.alias)]
+            return '\n'.join(str_list)
+        else:
+            return ''
 
 cdef class CUhostFn:
     """
@@ -4118,14 +4155,26 @@ cdef class CUuuid_st:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['bytes : ' + str(self.bytes.hex())]
+            str_list += ['operation : ' + str(self.operation)]
+            str_list += ['flags : ' + str(self.flags)]
             return '\n'.join(str_list)
         else:
             return ''
 
     @property
-    def bytes(self):
-        return PyBytes_FromStringAndSize(self._ptr[0].bytes, 16)
+    def operation(self):
+        return CUstreamBatchMemOpType(self._ptr[0].operation)
+    @operation.setter
+    def operation(self, operation not None : CUstreamBatchMemOpType):
+        pass
+        self._ptr[0].operation = operation.value
+    @property
+    def flags(self):
+        return self._ptr[0].flags
+    @flags.setter
+    def flags(self, unsigned int flags):
+        pass
+        self._ptr[0].flags = flags
 
 cdef class CUipcEventHandle_st:
     """
@@ -9581,61 +9630,9 @@ cdef class CUmemAllocationProp_st:
         pass
     def getPtr(self):
         return <void_ptr>self._ptr
-    def __repr__(self):
-        if self._ptr is not NULL:
-            str_list = []
-            str_list += ['type : ' + str(self.type)]
-            str_list += ['requestedHandleTypes : ' + str(self.requestedHandleTypes)]
-            str_list += ['location :\n' + '\n'.join(['    ' + line for line in str(self.location).splitlines()])]
-            str_list += ['win32HandleMetaData : ' + hex(self.win32HandleMetaData)]
-            str_list += ['allocFlags :\n' + '\n'.join(['    ' + line for line in str(self.allocFlags).splitlines()])]
-            return '\n'.join(str_list)
-        else:
-            return ''
 
-    @property
-    def type(self):
-        return CUmemAllocationType(self._ptr[0].type)
-    @type.setter
-    def type(self, type not None : CUmemAllocationType):
-        pass
-        self._ptr[0].type = type.value
-    @property
-    def requestedHandleTypes(self):
-        return CUmemAllocationHandleType(self._ptr[0].requestedHandleTypes)
-    @requestedHandleTypes.setter
-    def requestedHandleTypes(self, requestedHandleTypes not None : CUmemAllocationHandleType):
-        pass
-        self._ptr[0].requestedHandleTypes = requestedHandleTypes.value
-    @property
-    def location(self):
-        return self._location
-    @location.setter
-    def location(self, location not None : CUmemLocation):
-        pass
-        for _attr in dir(location):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._location, _attr, getattr(location, _attr))
-    @property
-    def win32HandleMetaData(self):
-        return <void_ptr>self._ptr[0].win32HandleMetaData
-    @win32HandleMetaData.setter
-    def win32HandleMetaData(self, win32HandleMetaData):
-        _cwin32HandleMetaData = utils.HelperInputVoidPtr(win32HandleMetaData)
-        self._ptr[0].win32HandleMetaData = <void*><void_ptr>_cwin32HandleMetaData.cptr
-    @property
-    def allocFlags(self):
-        return self._allocFlags
-    @allocFlags.setter
-    def allocFlags(self, allocFlags not None : _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s):
-        pass
-        for _attr in dir(allocFlags):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._allocFlags, _attr, getattr(allocFlags, _attr))
+cdef class CUsurfObject_v1:
+    """
 
 cdef class CUmemAccessDesc_st:
     """
@@ -9665,33 +9662,9 @@ cdef class CUmemAccessDesc_st:
         pass
     def getPtr(self):
         return <void_ptr>self._ptr
-    def __repr__(self):
-        if self._ptr is not NULL:
-            str_list = []
-            str_list += ['location :\n' + '\n'.join(['    ' + line for line in str(self.location).splitlines()])]
-            str_list += ['flags : ' + str(self.flags)]
-            return '\n'.join(str_list)
-        else:
-            return ''
 
-    @property
-    def location(self):
-        return self._location
-    @location.setter
-    def location(self, location not None : CUmemLocation):
-        pass
-        for _attr in dir(location):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._location, _attr, getattr(location, _attr))
-    @property
-    def flags(self):
-        return CUmemAccess_flags(self._ptr[0].flags)
-    @flags.setter
-    def flags(self, flags not None : CUmemAccess_flags):
-        pass
-        self._ptr[0].flags = flags.value
+cdef class CUsurfObject:
+    """
 
 cdef class CUmemPoolProps_st:
     """
@@ -9732,59 +9705,9 @@ cdef class CUmemPoolProps_st:
         pass
     def getPtr(self):
         return <void_ptr>self._ptr
-    def __repr__(self):
-        if self._ptr is not NULL:
-            str_list = []
-            str_list += ['allocType : ' + str(self.allocType)]
-            str_list += ['handleTypes : ' + str(self.handleTypes)]
-            str_list += ['location :\n' + '\n'.join(['    ' + line for line in str(self.location).splitlines()])]
-            str_list += ['win32SecurityAttributes : ' + hex(self.win32SecurityAttributes)]
-            str_list += ['reserved : ' + str(self.reserved)]
-            return '\n'.join(str_list)
-        else:
-            return ''
 
-    @property
-    def allocType(self):
-        return CUmemAllocationType(self._ptr[0].allocType)
-    @allocType.setter
-    def allocType(self, allocType not None : CUmemAllocationType):
-        pass
-        self._ptr[0].allocType = allocType.value
-    @property
-    def handleTypes(self):
-        return CUmemAllocationHandleType(self._ptr[0].handleTypes)
-    @handleTypes.setter
-    def handleTypes(self, handleTypes not None : CUmemAllocationHandleType):
-        pass
-        self._ptr[0].handleTypes = handleTypes.value
-    @property
-    def location(self):
-        return self._location
-    @location.setter
-    def location(self, location not None : CUmemLocation):
-        pass
-        for _attr in dir(location):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._location, _attr, getattr(location, _attr))
-    @property
-    def win32SecurityAttributes(self):
-        return <void_ptr>self._ptr[0].win32SecurityAttributes
-    @win32SecurityAttributes.setter
-    def win32SecurityAttributes(self, win32SecurityAttributes):
-        _cwin32SecurityAttributes = utils.HelperInputVoidPtr(win32SecurityAttributes)
-        self._ptr[0].win32SecurityAttributes = <void*><void_ptr>_cwin32SecurityAttributes.cptr
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._ptr[0].reserved[i] = b
+cdef class CUmemGenericAllocationHandle_v1:
+    """
 
 cdef class CUmemPoolPtrExportData_st:
     """
@@ -9812,23 +9735,9 @@ cdef class CUmemPoolPtrExportData_st:
         pass
     def getPtr(self):
         return <void_ptr>self._ptr
-    def __repr__(self):
-        if self._ptr is not NULL:
-            str_list = []
-            str_list += ['reserved : ' + str(self.reserved)]
-            return '\n'.join(str_list)
-        else:
-            return ''
 
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._ptr[0].reserved[i] = b
+cdef class CUmemGenericAllocationHandle:
+    """
 
 cdef class CUDA_MEM_ALLOC_NODE_PARAMS_st:
     """

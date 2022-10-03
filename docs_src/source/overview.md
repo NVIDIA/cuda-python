@@ -139,6 +139,7 @@ After loading into the module, extract a specific kernel with
 ```{code-cell} python
 # Load PTX as module data and retrieve function
 ptx = np.char.array(ptx)
+
 # Note: Incompatible --gpu-architecture would be detected here
 err, module = cuda.cuModuleLoadData(ptx.ctypes.data)
 ASSERT_DRV(err)
