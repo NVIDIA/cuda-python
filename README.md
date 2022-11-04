@@ -11,63 +11,15 @@ work are as follows:
 * CUDA Toolkit 11.0 to 11.8
 * Cython - e.g. 0.29.21
 
-### Compilation
+### Installing
 
-To compile the extension in-place, run:
-
-```
-python setup.py build_ext --inplace
-```
-
-To compile for debugging the extension modules with gdb, pass the `--debug`
-argument to setup.py.
-
-
-### Develop installation
-
-You can use
-
-```
-pip install -e .
-```
-
-to install the module  as editible in your current Python environment (e.g. for
-testing of porting other libraries to use the binding).
-
-
-### Build the Docs
-
-```
-conda env create -f docs_src/environment-docs.yml
-conda activate cuda-python-docs
-```
-Then compile and install `cuda-python` following the steps above.
-
-```
-cd docs_src
-make html
-open build/html/index.html
-```
-
-### Publish the Docs
-
-```
-git checkout gh-pages
-cd docs_src
-make html
-cp -a build/html/. ../docs/
-```
+Refer to documentation for installation options and requirements: [nvidia.github.io/cuda-python/](https://nvidia.github.io/cuda-python/install.html)
 
 ## Testing
 
 ### Requirements
 
-Dependencies of the test execution and some versions that are known to
-work are as follows:
-
-* numpy-1.19.5
-* scipy-1.6.3
-* pytest-benchmark-3.4.1
+Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/requirements.txt).
 
 ### Unit-tests
 
@@ -76,6 +28,7 @@ You can run the included tests with:
 ```
 python -m pytest
 ```
+
 ### Benchmark
 
 You can run benchmark only tests with:

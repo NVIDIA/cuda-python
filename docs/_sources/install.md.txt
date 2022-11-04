@@ -27,15 +27,14 @@ conda install -c nvidia cuda-python
 
 ### Requirements
 
-Building dependencies:
-* cython>=0.29.24
+Installing from source requires the latest CUDA Toolkit (CTK), matching the major.minor of CUDA Python. The installed package will still be compatible with all minor CTK versions.
 
-Unit-test dependencies:
-* pytest>=6.2.4
-* pytest-benchmark>=3.4.1
-* numpy>=1.21.1
+Environment variable CUDA_HOME must be set to CTK root directory:
+```
+export CUDA_HOME=/usr/local/cuda
+```
 
-Latest list of dependencies can be found at [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/requirements.txt)
+Remaining build and test dependencies are outlined in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/requirements.txt)
 
 ### In-place
 
@@ -56,7 +55,7 @@ You can use
 pip install -e .
 ```
 
-to install the module  as editible in your current Python environment (e.g. for
+to install the module as editible in your current Python environment (e.g. for
 testing of porting other libraries to use the binding).
 
 ## Build the Docs

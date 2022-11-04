@@ -6,7 +6,7 @@
         <link rel="canonical" href="docs/module/cuda.html" />
 
     <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>cuda - CUDA Python 11.8.0 documentation</title>
+        <title>cuda - CUDA Python 11.8.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">CUDA Python 11.8.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">CUDA Python 11.8.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 11.8.0 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 11.8.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.1-notes.html">    11.8.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.8.0-notes.html">    11.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.7.1-notes.html">    11.7.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.7.0-notes.html">    11.7.0</a></li>
@@ -14712,7 +14713,7 @@ arrays.</p></li>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cuda.cuDeviceGetNvSciSyncAttributes">
-<span class="sig-prename descclassname"><span class="pre">cuda.cuda.</span></span><span class="sig-name descname"><span class="pre">cuDeviceGetNvSciSyncAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cuda.cuDeviceGetNvSciSyncAttributes" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cuda.</span></span><span class="sig-name descname"><span class="pre">cuDeviceGetNvSciSyncAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nvSciSyncAttrList</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cuda.cuDeviceGetNvSciSyncAttributes" title="Permalink to this definition">#</a></dt>
 <dd><p>Return NvSciSync attributes that this device can support.</p>
 <p>Returns in <cite>nvSciSyncAttrList</cite>, the properties of NvSciSync that this
 CUDA device, <cite>dev</cite> can support. The returned <cite>nvSciSyncAttrList</cite> can be
@@ -14746,16 +14747,13 @@ both wait and signal specific attributes in the same
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>nvSciSyncAttrList</strong> (<em>Any</em>) – Return NvSciSync attributes supported.</p></li>
 <li><p><strong>dev</strong> (<a class="reference internal" href="#cuda.cuda.CUdevice" title="cuda.cuda.CUdevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUdevice</span></code></a>) – Valid Cuda Device to get NvSciSync attributes for.</p></li>
 <li><p><strong>flags</strong> (<em>int</em>) – flags describing NvSciSync usage.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>CUresult</em></p></li>
-<li><p><strong>nvSciSyncAttrList</strong> (<em>Any</em>) – Return NvSciSync attributes supported.</p></li>
-</ul>
-</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.cuda.CUresult" title="cuda.cuda.CUresult">CUresult</a></p>
 </dd>
 </dl>
 <div class="admonition seealso">

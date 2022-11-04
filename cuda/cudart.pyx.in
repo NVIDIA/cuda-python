@@ -12312,7 +12312,7 @@ def cudaDeviceGetMemPool(int device):
 {{if 'cudaDeviceGetNvSciSyncAttributes' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaDeviceGetNvSciSyncAttributes(int device, int flags):
+def cudaDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, int device, int flags):
     """ Return NvSciSync attributes that this device can support.
 
     Returns in `nvSciSyncAttrList`, the properties of NvSciSync that this
@@ -12347,6 +12347,8 @@ def cudaDeviceGetNvSciSyncAttributes(int device, int flags):
 
     Parameters
     ----------
+    nvSciSyncAttrList : Any
+        Return NvSciSync attributes supported.
     device : int
         Valid Cuda Device to get NvSciSync attributes for.
     flags : int
@@ -12356,17 +12358,15 @@ def cudaDeviceGetNvSciSyncAttributes(int device, int flags):
     -------
     cudaError_t
 
-    nvSciSyncAttrList : Any
-        Return NvSciSync attributes supported.
 
     See Also
     --------
     :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaDestroyExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
     """
-    cdef void_ptr nvSciSyncAttrList = 0
-    cdef void* cnvSciSyncAttrList_ptr = <void*>nvSciSyncAttrList
+    cnvSciSyncAttrList = utils.HelperInputVoidPtr(nvSciSyncAttrList)
+    cdef void* cnvSciSyncAttrList_ptr = <void*><void_ptr>cnvSciSyncAttrList.cptr
     err = ccudart.cudaDeviceGetNvSciSyncAttributes(cnvSciSyncAttrList_ptr, device, flags)
-    return (cudaError_t(err), nvSciSyncAttrList)
+    return (cudaError_t(err),)
 {{endif}}
 
 {{if 'cudaDeviceGetP2PAttribute' in found_functions}}
@@ -19805,11 +19805,11 @@ def cudaMemPoolExportToShareableHandle(memPool, handleType not None : cudaMemAll
         pmemPool = int(cudaMemPool_t(memPool))
         cmemPool = <ccudart.cudaMemPool_t><void_ptr>pmemPool
 
-    cdef void_ptr shareableHandle = 0
-    cdef void* cshareableHandle_ptr = <void*>shareableHandle
+    cdef utils.HelperCUmemAllocationHandleType cshareableHandle = utils.HelperCUmemAllocationHandleType(handleType)
+    cdef void* cshareableHandle_ptr = <void*><void_ptr>cshareableHandle.cptr
     cdef ccudart.cudaMemAllocationHandleType chandleType = handleType.value
     err = ccudart.cudaMemPoolExportToShareableHandle(cshareableHandle_ptr, cmemPool, chandleType, flags)
-    return (cudaError_t(err), shareableHandle)
+    return (cudaError_t(err), cshareableHandle.pyObj())
 {{endif}}
 
 {{if 'cudaMemPoolImportFromShareableHandle' in found_functions}}
@@ -23522,7 +23522,7 @@ def cudaGraphMemFreeNodeGetParams(node):
         cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
 
     cdef void_ptr dptr_out = 0
-    cdef void* cdptr_out_ptr = <void*>dptr_out
+    cdef void* cdptr_out_ptr = <void*>&dptr_out
     err = ccudart.cudaGraphMemFreeNodeGetParams(cnode, cdptr_out_ptr)
     return (cudaError_t(err), dptr_out)
 {{endif}}

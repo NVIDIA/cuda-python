@@ -13365,7 +13365,7 @@ def cuDeviceGetAttribute(attrib not None : CUdevice_attribute, dev):
 {{if 'cuDeviceGetNvSciSyncAttributes' in found_functions}}
 
 @cython.embedsignature(True)
-def cuDeviceGetNvSciSyncAttributes(dev, int flags):
+def cuDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, dev, int flags):
     """ Return NvSciSync attributes that this device can support.
 
     Returns in `nvSciSyncAttrList`, the properties of NvSciSync that this
@@ -13405,6 +13405,8 @@ def cuDeviceGetNvSciSyncAttributes(dev, int flags):
 
     Parameters
     ----------
+    nvSciSyncAttrList : Any
+        Return NvSciSync attributes supported.
     dev : :py:obj:`~.CUdevice`
         Valid Cuda Device to get NvSciSync attributes for.
     flags : int
@@ -13414,8 +13416,6 @@ def cuDeviceGetNvSciSyncAttributes(dev, int flags):
     -------
     CUresult
 
-    nvSciSyncAttrList : Any
-        Return NvSciSync attributes supported.
 
     See Also
     --------
@@ -13431,10 +13431,10 @@ def cuDeviceGetNvSciSyncAttributes(dev, int flags):
         pdev = int(CUdevice(dev))
         cdev = <ccuda.CUdevice>pdev
 
-    cdef void_ptr nvSciSyncAttrList = 0
-    cdef void* cnvSciSyncAttrList_ptr = <void*>nvSciSyncAttrList
+    cnvSciSyncAttrList = utils.HelperInputVoidPtr(nvSciSyncAttrList)
+    cdef void* cnvSciSyncAttrList_ptr = <void*><void_ptr>cnvSciSyncAttrList.cptr
     err = ccuda.cuDeviceGetNvSciSyncAttributes(cnvSciSyncAttrList_ptr, cdev, flags)
-    return (CUresult(err), nvSciSyncAttrList)
+    return (CUresult(err),)
 {{endif}}
 
 {{if 'cuDeviceSetMemPool' in found_functions}}
@@ -20150,8 +20150,8 @@ def cuMemGetHandleForAddressRange(dptr, size_t size, handleType not None : CUmem
         pdptr = int(CUdeviceptr(dptr))
         cdptr = <ccuda.CUdeviceptr><void_ptr>pdptr
 
-    cdef void_ptr handle = 0
-    cdef void* chandle_ptr = <void*>handle
+    cdef int handle = 0
+    cdef void* chandle_ptr = <void*>&handle
     cdef ccuda.CUmemRangeHandleType chandleType = handleType.value
     err = ccuda.cuMemGetHandleForAddressRange(chandle_ptr, cdptr, size, chandleType, flags)
     return (CUresult(err), handle)
@@ -20794,11 +20794,11 @@ def cuMemExportToShareableHandle(handle, handleType not None : CUmemAllocationHa
         phandle = int(CUmemGenericAllocationHandle(handle))
         chandle = <ccuda.CUmemGenericAllocationHandle><void_ptr>phandle
 
-    cdef void_ptr shareableHandle = 0
-    cdef void* cshareableHandle_ptr = <void*>shareableHandle
+    cdef utils.HelperCUmemAllocationHandleType cshareableHandle = utils.HelperCUmemAllocationHandleType(handleType)
+    cdef void* cshareableHandle_ptr = <void*><void_ptr>cshareableHandle.cptr
     cdef ccuda.CUmemAllocationHandleType chandleType = handleType.value
     err = ccuda.cuMemExportToShareableHandle(cshareableHandle_ptr, chandle, chandleType, flags)
-    return (CUresult(err), shareableHandle)
+    return (CUresult(err), cshareableHandle.pyObj())
 {{endif}}
 
 {{if 'cuMemImportFromShareableHandle' in found_functions}}
@@ -21560,11 +21560,11 @@ def cuMemPoolExportToShareableHandle(pool, handleType not None : CUmemAllocation
         ppool = int(CUmemoryPool(pool))
         cpool = <ccuda.CUmemoryPool><void_ptr>ppool
 
-    cdef void_ptr handle_out = 0
-    cdef void* chandle_out_ptr = <void*>handle_out
+    cdef utils.HelperCUmemAllocationHandleType chandle_out = utils.HelperCUmemAllocationHandleType(handleType)
+    cdef void* chandle_out_ptr = <void*><void_ptr>chandle_out.cptr
     cdef ccuda.CUmemAllocationHandleType chandleType = handleType.value
     err = ccuda.cuMemPoolExportToShareableHandle(chandle_out_ptr, cpool, chandleType, flags)
-    return (CUresult(err), handle_out)
+    return (CUresult(err), chandle_out.pyObj())
 {{endif}}
 
 {{if 'cuMemPoolImportFromShareableHandle' in found_functions}}

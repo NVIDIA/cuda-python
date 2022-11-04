@@ -88,6 +88,17 @@ cdef class HelperCUjit_option:
     cdef vector[char*] _charstarstar # list of names
     cdef InputVoidPtrPtrHelper _voidstarstar # list of addresses
 {{endif}}
+{{if 'CUmemAllocationHandleType_enum' in found_types}}
+
+cdef class HelperCUmemAllocationHandleType:
+    cdef void* _cptr
+    cdef ccuda.CUmemAllocationHandleType_enum _type
+
+    # Return values
+    cdef int _int
+    cdef void* _handle
+    cdef unsigned int _d3dkmt_handle
+{{endif}}
 
 cdef class InputVoidPtrPtrHelper:
     cdef void** _cptr

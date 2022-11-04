@@ -426,6 +426,61 @@ cdef class HelperCUjit_option:
     def cptr(self):
         return <void_ptr>self._cptr
 {{endif}}
+{{if 'CUmemAllocationHandleType_enum' in found_types}}
+
+cdef class HelperCUmemAllocationHandleType:
+    def __cinit__(self, attr):
+        self._type = attr.value
+        if False:
+            pass
+        {{if 'CU_MEM_HANDLE_TYPE_NONE' in found_values}}
+        elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_NONE,):
+            self._cptr = <void*>&self._int
+        {{endif}}
+        {{if 'CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR' in found_values}}
+        elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,):
+            self._cptr = <void*>&self._int
+        {{endif}}
+        {{if 'CU_MEM_HANDLE_TYPE_WIN32' in found_values}}
+        elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32,):
+            self._cptr = <void*>&self._handle
+        {{endif}}
+        {{if 'CU_MEM_HANDLE_TYPE_WIN32_KMT' in found_values}}
+        elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32_KMT,):
+            self._cptr = <void*>&self._d3dkmt_handle
+        {{endif}}
+        else:
+            raise TypeError('Unsupported attribute: {}'.format(attr.name))
+
+    def __dealloc__(self):
+        pass
+
+    @property
+    def cptr(self):
+        return <void_ptr>self._cptr
+
+    def pyObj(self):
+        if False:
+            pass
+        {{if 'CU_MEM_HANDLE_TYPE_NONE' in found_values}}
+        elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_NONE,):
+            return self._int
+        {{endif}}
+        {{if 'CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR' in found_values}}
+        elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,):
+            return self._int
+        {{endif}}
+        {{if 'CU_MEM_HANDLE_TYPE_WIN32' in found_values}}
+        elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32,):
+            return <void_ptr>self._handle
+        {{endif}}
+        {{if 'CU_MEM_HANDLE_TYPE_WIN32_KMT' in found_values}}
+        elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32_KMT,):
+            return self._d3dkmt_handle
+        {{endif}}
+        else:
+            raise TypeError('Unsupported attribute: {}'.format(self._type))
+{{endif}}
 
 cdef class InputVoidPtrPtrHelper:
     def __cinit__(self, lst):
