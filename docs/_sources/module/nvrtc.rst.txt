@@ -4,8 +4,8 @@ nvrtc
 
 Error Handling
 --------------
-
 NVRTC defines the following enumeration type and function for API call error handling.
+
 
 .. autoclass:: cuda.nvrtc.nvrtcResult
 
@@ -48,8 +48,8 @@ NVRTC defines the following enumeration type and function for API call error han
 
 General Information Query
 -------------------------
-
 NVRTC defines the following function for general information query.
+
 
 .. autofunction:: cuda.nvrtc.nvrtcVersion
 .. autofunction:: cuda.nvrtc.nvrtcGetNumSupportedArchs
@@ -57,8 +57,8 @@ NVRTC defines the following function for general information query.
 
 Compilation
 -----------
-
 NVRTC defines the following type and functions for actual compilation.
+
 
 .. autoclass:: cuda.nvrtc.nvrtcProgram
 .. autofunction:: cuda.nvrtc.nvrtcCreateProgram
@@ -70,6 +70,10 @@ NVRTC defines the following type and functions for actual compilation.
 .. autofunction:: cuda.nvrtc.nvrtcGetCUBIN
 .. autofunction:: cuda.nvrtc.nvrtcGetNVVMSize
 .. autofunction:: cuda.nvrtc.nvrtcGetNVVM
+.. autofunction:: cuda.nvrtc.nvrtcGetLTOIRSize
+.. autofunction:: cuda.nvrtc.nvrtcGetLTOIR
+.. autofunction:: cuda.nvrtc.nvrtcGetOptiXIRSize
+.. autofunction:: cuda.nvrtc.nvrtcGetOptiXIR
 .. autofunction:: cuda.nvrtc.nvrtcGetProgramLogSize
 .. autofunction:: cuda.nvrtc.nvrtcGetProgramLog
 .. autofunction:: cuda.nvrtc.nvrtcAddNameExpression
@@ -77,11 +81,7 @@ NVRTC defines the following type and functions for actual compilation.
 
 Supported Compile Options
 -------------------------
-
-NVRTC supports the compile options below. Option names with two preceding dashs (``--``\ ) are long option names and option names with one preceding dash (``-``\ ) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (``=``\ ) is used to separate the compile option argument from the compile option name, e.g., ``"--gpu-architecture=compute_60"``\ . Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, ``"--gpu-architecture"``\  ``"compute_60"``\ . Single-character short option names, such as ``-D``\ , ``-U``\ , and ``-I``\ , do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, ``"-D=<def>"``\ , ``"-D<def>"``\ , and ``"-D <def>"``\  are all supported.
-
-
-
+NVRTC supports the compile options below. Option names with two preceding dashs (`None`) are long option names and option names with one preceding dash (`-`) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (`=`) is used to separate the compile option argument from the compile option name, e.g., `"--gpu-architecture=compute_60"`. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, `"--gpu-architecture"` `"compute_60"`. Single-character short option names, such as `-D`, `-U`, and `-I`, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, `"-D=<def>"`, `"-D<def>"`, and `"-D <def>"` are all supported.
 The valid compiler options are:
 
 
@@ -107,22 +107,6 @@ The valid compiler options are:
 
 
     - Valid ``<arch>``\ s:
-
-
-
-
-
-      - ``compute_35``\  
-
-
-
-
-
-
-
-      - ``compute_37``\  
-
-
 
 
 
@@ -225,22 +209,6 @@ The valid compiler options are:
 
 
       - ``compute_90``\  
-
-
-
-
-
-
-
-      - ``sm_35``\  
-
-
-
-
-
-
-
-      - ``sm_37``\  
 
 
 
@@ -660,11 +628,33 @@ The valid compiler options are:
 
 
 
-    Generate intermediate code for later link-time optimization. It implies ``-rdc=true``\ . 
+    Generate intermediate code for later link-time optimization. It implies ``-rdc=true``\ . Note: when this option is used the nvrtcGetLTOIR API should be used, as PTX or Cubin will not be generated.
 
 
 
-    Note: when this is used the nvrtcGetNVVM API should be used, as PTX or Cubin will not be generated.
+
+
+
+
+  - ``--gen-opt-lto``\  (``-gen-opt-lto``\ )
+
+
+
+    Run the optimizer passes before generating the LTO IR.
+
+
+
+
+
+
+
+  - ``--optix-ir``\  (``-optix-ir``\ )
+
+
+
+    Generate OptiX IR. The Optix IR is only intended for consumption by OptiX through appropriate APIs. This feature is not supported with link-time-optimization (``-dlto``\ )
+
+. Note: when this option is used the nvrtcGetOptiX API should be used, as PTX or Cubin will not be generated.
 
 
 
@@ -768,11 +758,11 @@ The valid compiler options are:
 
 
 
-  - ``--std={c++03|c++11|c++14|c++17}``\  (``-std={c++11|c++14|c++17}``\ )
+  - ``--std={c++03|c++11|c++14|c++17|c++20}``\  (``-std={c++11|c++14|c++17|c++20}``\ )
 
 
 
-    Set language dialect to C++03, C++11, C++14 or C++17
+    Set language dialect to C++03, C++11, C++14, C++17 or C++20
 
 
 

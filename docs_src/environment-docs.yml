@@ -16,3 +16,4 @@ dependencies:
     - myst-nb
     - enum-tools
     - sphinx_toolbox
+    - pyclibrary

@@ -72,6 +72,26 @@ cdef nvrtcResult _nvrtcGetNVVMSize(nvrtcProgram prog, size_t* nvvmSizeRet) nogil
 cdef nvrtcResult _nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) nogil except ?NVRTC_ERROR_INVALID_INPUT
 {{endif}}
 
+{{if 'nvrtcGetLTOIRSize' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT
+{{endif}}
+
+{{if 'nvrtcGetLTOIR' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) nogil except ?NVRTC_ERROR_INVALID_INPUT
+{{endif}}
+
+{{if 'nvrtcGetOptiXIRSize' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT
+{{endif}}
+
+{{if 'nvrtcGetOptiXIR' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) nogil except ?NVRTC_ERROR_INVALID_INPUT
+{{endif}}
+
 {{if 'nvrtcGetProgramLogSize' in found_functions}}
 
 cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT
@@ -91,3 +111,4 @@ cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_exp
 
 cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) nogil except ?NVRTC_ERROR_INVALID_INPUT
 {{endif}}
+

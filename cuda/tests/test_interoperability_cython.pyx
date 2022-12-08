@@ -181,7 +181,6 @@ def test_interop_graphExec():
 
     cdef ccuda.CUgraph* graph_dr = <ccuda.CUgraph*>calloc(1, sizeof(ccuda.CUgraph))
     cdef ccuda.CUgraphNode* graph_node_dr = <ccuda.CUgraphNode*>calloc(1, sizeof(ccuda.CUgraphNode))
-    cdef ccuda.CUgraphNode* graph_error_node_dr = <ccuda.CUgraphNode*>calloc(1, sizeof(ccuda.CUgraphNode))
     cdef ccuda.CUgraphExec* graph_exec_dr = <ccuda.CUgraphExec*>calloc(1, sizeof(ccuda.CUgraphExec))
     cdef ccuda.CUgraphNode* dependencies_dr = NULL
 
@@ -191,16 +190,15 @@ def test_interop_graphExec():
     assert(cerr_dr == ccuda.CUDA_SUCCESS)
 
     # DRV to RT
-    cerr_dr = ccuda.cuGraphInstantiate(graph_exec_dr, graph_dr[0], graph_error_node_dr, b'', 0)
+    cerr_dr = ccuda.cuGraphInstantiate(graph_exec_dr, graph_dr[0], 0)
     assert(cerr_dr == ccuda.CUDA_SUCCESS)
     cerr_rt = ccudart.cudaGraphExecDestroy(graph_exec_dr[0])
     assert(cerr_rt == ccudart.cudaSuccess)
 
     # RT to DRV
-    cdef ccudart.cudaGraphNode_t* graph_error_node_rt = <ccudart.cudaGraphNode_t*>calloc(1, sizeof(ccudart.cudaGraphNode_t))
     cdef ccudart.cudaGraphExec_t* graph_exec_rt = <ccudart.cudaGraphExec_t*>calloc(1, sizeof(ccudart.cudaGraphExec_t))
 
-    cerr_rt = ccudart.cudaGraphInstantiate(graph_exec_rt, graph_dr[0], graph_error_node_rt, b'', 0)
+    cerr_rt = ccudart.cudaGraphInstantiate(graph_exec_rt, graph_dr[0], 0)
     assert(cerr_rt == ccudart.cudaSuccess)
     cerr_dr = ccuda.cuGraphExecDestroy(graph_exec_rt[0])
     assert(cerr_dr == ccuda.CUDA_SUCCESS)
@@ -209,9 +207,7 @@ def test_interop_graphExec():
 
     free(graph_dr)
     free(graph_node_dr)
-    free(graph_error_node_dr)
     free(graph_exec_dr)
-    free(graph_error_node_rt)
     free(graph_exec_rt)
 
     err_dr, = cuda.cuCtxDestroy(ctx)

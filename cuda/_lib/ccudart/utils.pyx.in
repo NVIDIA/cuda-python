@@ -880,15 +880,10 @@ cdef cudaError_t streamGetCaptureInfoCommon(
 
     cdef ccuda.CUstreamCaptureStatus driverCaptureStatus
 
-    if graph_out or dependencies_out or numDependencies_out:
-        err = <cudaError_t>ccuda._cuStreamGetCaptureInfo_v2(stream, &driverCaptureStatus, <ccuda.cuuint64_t*>id_out,
-                graph_out, dependencies_out, numDependencies_out)
-        if err != cudaSuccess:
-            return err
-    else:
-        err = <cudaError_t>ccuda._cuStreamGetCaptureInfo(stream, &driverCaptureStatus, <ccuda.cuuint64_t*>id_out)
-        if err != cudaSuccess:
-            return err
+    err = <cudaError_t>ccuda._cuStreamGetCaptureInfo_v2(stream, &driverCaptureStatus, <ccuda.cuuint64_t*>id_out,
+            graph_out, dependencies_out, numDependencies_out)
+    if err != cudaSuccess:
+        return err
 
     return toRuntimeStreamCaptureStatus(driverCaptureStatus, captureStatus_out)
 
@@ -1374,7 +1369,7 @@ cdef cudaError_t getFormat(cudaArray_const_t thisArray, int &numberOfChannels, c
 
 
 cdef cudaError_t getDriverResDescFromResDesc(ccuda.CUDA_RESOURCE_DESC *rdDst, const cudaResourceDesc *rdSrc,
-                                             ccuda.CUDA_TEXTURE_DESC *tdDst, const cudaTextureDesc_v2 *tdSrc,
+                                             ccuda.CUDA_TEXTURE_DESC *tdDst, const cudaTextureDesc *tdSrc,
                                              ccuda.CUDA_RESOURCE_VIEW_DESC *rvdDst, const cudaResourceViewDesc *rvdSrc) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef int i = 0
     cdef int numChannels = 0
@@ -1525,7 +1520,7 @@ cdef cudaError_t getDriverResDescFromResDesc(ccuda.CUDA_RESOURCE_DESC *rdDst, co
 
 
 cdef cudaError_t getResDescFromDriverResDesc(cudaResourceDesc *rdDst, const ccuda.CUDA_RESOURCE_DESC *rdSrc,
-                                             cudaTextureDesc_v2 *tdDst, const ccuda.CUDA_TEXTURE_DESC *tdSrc,
+                                             cudaTextureDesc *tdDst, const ccuda.CUDA_TEXTURE_DESC *tdSrc,
                                              cudaResourceViewDesc *rvdDst, const ccuda.CUDA_RESOURCE_VIEW_DESC *rvdSrc) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef int i = 0
     cdef int numChannels = 0

@@ -380,7 +380,9 @@ cdef class HelperCUjit_option:
                           {{if 'CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES' in found_values}}ccuda.CUjit_option_enum.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,{{endif}}
                           {{if 'CU_JIT_OPTIMIZATION_LEVEL' in found_values}}ccuda.CUjit_option_enum.CU_JIT_OPTIMIZATION_LEVEL,{{endif}}
                           {{if 'CU_JIT_GLOBAL_SYMBOL_COUNT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_COUNT,{{endif}}
-                          {{if 'CU_JIT_TARGET_FROM_CUCONTEXT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_TARGET_FROM_CUCONTEXT,{{endif}}):
+                          {{if 'CU_JIT_TARGET_FROM_CUCONTEXT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_TARGET_FROM_CUCONTEXT,{{endif}}
+                          {{if 'CU_JIT_REFERENCED_KERNEL_COUNT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_REFERENCED_KERNEL_COUNT,{{endif}}
+                          {{if 'CU_JIT_REFERENCED_VARIABLE_COUNT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_COUNT,{{endif}}):
             self._uint = init_value
             self._cptr = <void*><void_ptr>self._uint
         elif self._attr in ({{if 'CU_JIT_WALL_TIME' in found_values}}ccuda.CUjit_option_enum.CU_JIT_WALL_TIME,{{endif}}):
@@ -403,13 +405,16 @@ cdef class HelperCUjit_option:
                             {{if 'CU_JIT_FTZ' in found_values}}ccuda.CUjit_option_enum.CU_JIT_FTZ,{{endif}}
                             {{if 'CU_JIT_PREC_DIV' in found_values}}ccuda.CUjit_option_enum.CU_JIT_PREC_DIV,{{endif}}
                             {{if 'CU_JIT_PREC_SQRT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_PREC_SQRT,{{endif}}
-                            {{if 'CU_JIT_FMA' in found_values}}ccuda.CUjit_option_enum.CU_JIT_FMA,{{endif}}):
+                            {{if 'CU_JIT_FMA' in found_values}}ccuda.CUjit_option_enum.CU_JIT_FMA,{{endif}}
+                            {{if 'CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES' in found_values}}ccuda.CUjit_option_enum.CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES,{{endif}}):
             self._int = init_value
             self._cptr = <void*><void_ptr>self._int
         elif self._attr in ({{if 'CU_JIT_CACHE_MODE' in found_values}}ccuda.CUjit_option_enum.CU_JIT_CACHE_MODE,{{endif}}):
             self._cacheMode = init_value.value
             self._cptr = <void*><void_ptr>self._cacheMode
-        elif self._attr in ({{if 'CU_JIT_GLOBAL_SYMBOL_NAMES' in found_values}}ccuda.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_NAMES,{{endif}}):
+        elif self._attr in ({{if 'CU_JIT_GLOBAL_SYMBOL_NAMES' in found_values}}ccuda.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_NAMES,{{endif}}
+                            {{if 'CU_JIT_REFERENCED_KERNEL_NAMES' in found_values}}ccuda.CUjit_option_enum.CU_JIT_REFERENCED_KERNEL_NAMES,{{endif}}
+                            {{if 'CU_JIT_REFERENCED_VARIABLE_NAMES' in found_values}}ccuda.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_NAMES,{{endif}}):
             self._charstarstar = init_value
             self._cptr = <void*>&self._charstarstar[0]
         elif self._attr in ({{if 'CU_JIT_GLOBAL_SYMBOL_ADDRESSES' in found_values}}ccuda.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_ADDRESSES,{{endif}}):
@@ -426,6 +431,34 @@ cdef class HelperCUjit_option:
     def cptr(self):
         return <void_ptr>self._cptr
 {{endif}}
+
+{{if 'CUlibraryOption_enum' in found_types}}
+
+cdef class HelperCUlibraryOption:
+    def __cinit__(self, attr, init_value):
+        self._attr = attr.value
+        if False:
+            pass
+        {{if 'CU_LIBRARY_HOST_UNIVERSAL_FUNCTION_AND_DATA_TABLE' in found_values}}
+        elif self._attr in (ccuda.CUlibraryOption_enum.CU_LIBRARY_HOST_UNIVERSAL_FUNCTION_AND_DATA_TABLE,):
+            self._cptr = <void*><void_ptr>init_value.getPtr()
+        {{endif}}
+        {{if 'CU_LIBRARY_BINARY_IS_PRESERVED' in found_values}}
+        elif self._attr in (ccuda.CUlibraryOption_enum.CU_LIBRARY_BINARY_IS_PRESERVED,):
+            self._uint = init_value
+            self._cptr = <void*><void_ptr>self._uint
+        {{endif}}
+        else:
+            raise TypeError('Unsupported attribute: {}'.format(attr.name))
+
+    def __dealloc__(self):
+        pass
+
+    @property
+    def cptr(self):
+        return <void_ptr>self._cptr
+{{endif}}
+
 {{if 'CUmemAllocationHandleType_enum' in found_types}}
 
 cdef class HelperCUmemAllocationHandleType:

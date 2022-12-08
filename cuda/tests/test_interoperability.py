@@ -176,13 +176,13 @@ def test_interop_graphExec():
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
 
     # DRV to RT
-    err_dr, graphExec, errorNode = cuda.cuGraphInstantiate(graph, b'', 0)
+    err_dr, graphExec = cuda.cuGraphInstantiate(graph, 0)
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
     err_rt, = cudart.cudaGraphExecDestroy(graphExec)
     assert(err_rt == cudart.cudaError_t.cudaSuccess)
 
     # RT to DRV
-    err_rt, graphExec, errorNode = cudart.cudaGraphInstantiate(graph, b'', 0)
+    err_rt, graphExec = cudart.cudaGraphInstantiate(graph, 0)
     assert(err_rt == cudart.cudaError_t.cudaSuccess)
     err_dr, = cuda.cuGraphExecDestroy(graphExec)
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)

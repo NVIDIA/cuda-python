@@ -39,8 +39,7 @@ header_dict = {
                 'cudaProfiler.h',
                 'cudaEGL.h',
                 'cudaGL.h',
-                'cudaVDPAU.h',
-                ],
+                'cudaVDPAU.h'],
     'runtime' : ['driver_types.h',
                  'vector_types.h',
                  'cuda_runtime.h',
@@ -53,8 +52,7 @@ header_dict = {
                  'cuda_profiler_api.h',
                  'cuda_egl_interop.h',
                  'cuda_gl_interop.h',
-                 'cuda_vdpau_interop.h',
-                 ],
+                 'cuda_vdpau_interop.h'],
     'nvrtc' : ['nvrtc.h']}
 
 replace = {' __device_builtin__ ':' ',
@@ -78,7 +76,6 @@ found_values = []
 include_path = os.path.join(CUDA_HOME, 'include')
 print(f'Parsing headers in "{include_path}" (Caching {PARSER_CACHING})')
 for library, header_list in header_dict.items():
-    print(f'Parsing {library} headers')
     header_paths = []
     for header in header_list:
         path = os.path.join(include_path, header)
@@ -87,6 +84,7 @@ for library, header_list in header_dict.items():
             continue
         header_paths += [path]
 
+    print(f'Parsing {library} headers')
     parser = CParser(header_paths,
                      cache='./cache_{}'.format(library.split('.')[0]) if PARSER_CACHING else None,
                      replace=replace)
@@ -100,20 +98,6 @@ for library, header_list in header_dict.items():
     found_types += {key for key in parser.defs['enums']}
     found_functions += {key for key in parser.defs['functions']}
     found_values += {key for key in parser.defs['values']}
-
-    # WAR: Temporary patch for select anon_ types
-    if 'CUlaunchAttributeValue_union' in parser.defs['unions']:
-        for name, typeName, _ in parser.defs['unions']['CUlaunchAttributeValue_union']['members']:
-            if name == 'clusterDim':
-                found_types += {'struct _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s'}
-            elif name == 'programmaticEvent':
-                found_types += {'struct _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s'}
-    if 'cudaLaunchAttributeValue' in parser.defs['unions']:
-        for name, typeName, _ in parser.defs['unions']['cudaLaunchAttributeValue']['members']:
-            if name == 'clusterDim':
-                found_types += {'struct _cudaLaunchAttributeValue_cudaLaunchAttributeValue_cudaLaunchAttributeValue_clusterDim_s'}
-            elif name == 'programmaticEvent':
-                found_types += {'struct _cudaLaunchAttributeValue_cudaLaunchAttributeValue_cudaLaunchAttributeValue_programmaticEvent_s'}
 
 if len(found_functions) == 0:
     if pyparsing.__version__ != '2.4.7':

@@ -85,6 +85,30 @@ cdef nvrtcResult nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) nogil except ?NVRTC
     return cnvrtc._nvrtcGetNVVM(prog, nvvm)
 {{endif}}
 
+{{if 'nvrtcGetLTOIRSize' in found_functions}}
+
+cdef nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+    return cnvrtc._nvrtcGetLTOIRSize(prog, LTOIRSizeRet)
+{{endif}}
+
+{{if 'nvrtcGetLTOIR' in found_functions}}
+
+cdef nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+    return cnvrtc._nvrtcGetLTOIR(prog, LTOIR)
+{{endif}}
+
+{{if 'nvrtcGetOptiXIRSize' in found_functions}}
+
+cdef nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+    return cnvrtc._nvrtcGetOptiXIRSize(prog, optixirSizeRet)
+{{endif}}
+
+{{if 'nvrtcGetOptiXIR' in found_functions}}
+
+cdef nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+    return cnvrtc._nvrtcGetOptiXIR(prog, optixir)
+{{endif}}
+
 {{if 'nvrtcGetProgramLogSize' in found_functions}}
 
 cdef nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:

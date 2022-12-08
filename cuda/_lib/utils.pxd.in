@@ -88,6 +88,15 @@ cdef class HelperCUjit_option:
     cdef vector[char*] _charstarstar # list of names
     cdef InputVoidPtrPtrHelper _voidstarstar # list of addresses
 {{endif}}
+{{if 'CUlibraryOption_enum' in found_types}}
+
+cdef class HelperCUlibraryOption:
+    cdef void* _cptr
+    cdef ccuda.CUlibraryOption_enum _attr
+
+    # Return values
+    cdef unsigned int _uint
+{{endif}}
 {{if 'CUmemAllocationHandleType_enum' in found_types}}
 
 cdef class HelperCUmemAllocationHandleType:

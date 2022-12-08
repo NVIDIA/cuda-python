@@ -380,7 +380,7 @@ def test_cudart_cudaStreamGetCaptureInfo():
     assertSuccess(err)
 
     # validate that stream is not capturing
-    err, status, pid = cudart.cudaStreamGetCaptureInfo(stream)
+    err, status, *info = cudart.cudaStreamGetCaptureInfo(stream)
     assertSuccess(err)
     assert(status == cudart.cudaStreamCaptureStatus.cudaStreamCaptureStatusNone)
 
@@ -391,33 +391,7 @@ def test_cudart_cudaStreamGetCaptureInfo():
     assertSuccess(err)
 
     # validate that stream is capturing now
-    err, status, pid = cudart.cudaStreamGetCaptureInfo(stream)
-    assertSuccess(err)
-    assert(status == cudart.cudaStreamCaptureStatus.cudaStreamCaptureStatusActive)
-
-    # clean up
-    err, pgraph = cudart.cudaStreamEndCapture(stream)
-    assertSuccess(err)
-
-@pytest.mark.skipif(driverVersionLessThan(11030), reason='When cudaStreamGetCaptureInfo_v2 was introduced')
-def test_cudart_cudaStreamGetCaptureInfo_v2():
-    # create stream
-    err, stream = cudart.cudaStreamCreate()
-    assertSuccess(err)
-
-    # validate that stream is not capturing
-    err, status, *info = cudart.cudaStreamGetCaptureInfo_v2(stream)
-    assertSuccess(err)
-    assert(status == cudart.cudaStreamCaptureStatus.cudaStreamCaptureStatusNone)
-
-    # start capture
-    err, = cudart.cudaStreamBeginCapture(
-        stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal
-    )
-    assertSuccess(err)
-
-    # validate that stream is capturing now
-    err, status, *info = cudart.cudaStreamGetCaptureInfo_v2(stream)
+    err, status, *info = cudart.cudaStreamGetCaptureInfo(stream)
     assertSuccess(err)
     assert(status == cudart.cudaStreamCaptureStatus.cudaStreamCaptureStatusActive)
 
@@ -948,8 +922,7 @@ def test_cudart_cudaGraphAddMemcpyNode1D():
     assertSuccess(err)
 
     # execute graph
-    buf = bytes()
-    err, execGraph, errNode = cudart.cudaGraphInstantiate(graph, buf, 1024)
+    err, execGraph = cudart.cudaGraphInstantiate(graph, 0)
     assertSuccess(err)
     err, = cudart.cudaGraphLaunch(execGraph, stream)
 
@@ -1005,8 +978,7 @@ def test_cudart_cudaGraphAddMemsetNode():
     assertSuccess(err)
 
     # execute graph
-    buf = bytes()
-    err, execGraph, errNode = cudart.cudaGraphInstantiate(graph, buf, 1024)
+    err, execGraph = cudart.cudaGraphInstantiate(graph, 0)
     assertSuccess(err)
     err, = cudart.cudaGraphLaunch(execGraph, stream)
     assertSuccess(err)

@@ -217,10 +217,10 @@ def cudaGraphsManual(inputVec_h, inputVec_d, outputVec_d, result_d, inputSize, n
     nodes, numNodes = checkCudaErrors(cudart.cudaGraphGetNodes(graph))
     print("\nNum of nodes in the graph created manually = {}".format(numNodes))
 
-    graphExec, errorNode = checkCudaErrors(cudart.cudaGraphInstantiate(graph, b'', 0))
+    graphExec = checkCudaErrors(cudart.cudaGraphInstantiate(graph, 0))
 
     clonedGraph = checkCudaErrors(cudart.cudaGraphClone(graph))
-    clonedGraphExec, errorNode = checkCudaErrors(cudart.cudaGraphInstantiate(clonedGraph, b'', 0))
+    clonedGraphExec = checkCudaErrors(cudart.cudaGraphInstantiate(clonedGraph, 0))
 
     for i in range(GRAPH_LAUNCH_ITERATIONS):
         checkCudaErrors(cudart.cudaGraphLaunch(graphExec, streamForGraph))
@@ -298,10 +298,10 @@ def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, 
     nodes, numNodes = checkCudaErrors(cudart.cudaGraphGetNodes(graph))
     print("\nNum of nodes in the graph created using stream capture API = {}".format(numNodes))
 
-    graphExec, errorNode = checkCudaErrors(cudart.cudaGraphInstantiate(graph, b'', 0))
+    graphExec = checkCudaErrors(cudart.cudaGraphInstantiate(graph, 0))
 
     clonedGraph = checkCudaErrors(cudart.cudaGraphClone(graph))
-    clonedGraphExec, errorNode = checkCudaErrors(cudart.cudaGraphInstantiate(clonedGraph, b'', 0))
+    clonedGraphExec = checkCudaErrors(cudart.cudaGraphInstantiate(clonedGraph, 0))
 
     for i in range(GRAPH_LAUNCH_ITERATIONS):
         checkCudaErrors(cudart.cudaGraphLaunch(graphExec, streamForGraph))

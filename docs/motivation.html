@@ -1,16 +1,16 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Code of Conduct" href="conduct.html" /><link rel="prev" title="Overview" href="overview.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Code of Conduct" href="conduct.html" /><link rel="prev" title="Overview" href="overview.html" />
         <link rel="canonical" href="docs/motivation.html" />
 
-    <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Motivation - CUDA Python 11.8.1 documentation</title>
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>Motivation - CUDA Python 12.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
-    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">CUDA Python 11.8.1 documentation</div></a>
+      <a href="index.html"><div class="brand">CUDA Python 12.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 11.8.1 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/12.0.0-notes.html">    12.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.1-notes.html">    11.8.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.0-notes.html">    11.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.7.1-notes.html">    11.7.1</a></li>
@@ -202,7 +203,9 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -216,10 +219,10 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="motivation">
-<h1>Motivation<a class="headerlink" href="#motivation" title="Permalink to this headline">#</a></h1>
-<div class="section" id="what-is-cuda-python">
-<h2>What is CUDA Python?<a class="headerlink" href="#what-is-cuda-python" title="Permalink to this headline">#</a></h2>
+          <section id="motivation">
+<h1>Motivation<a class="headerlink" href="#motivation" title="Permalink to this heading">#</a></h1>
+<section id="what-is-cuda-python">
+<h2>What is CUDA Python?<a class="headerlink" href="#what-is-cuda-python" title="Permalink to this heading">#</a></h2>
 <p>NVIDIA’s CUDA Python provides <a class="reference external" href="https://cython.org/">Cython</a> bindings and Python
 wrappers for the driver and runtime API for existing toolkits and libraries to
 simplify GPU-based accelerated processing. Python is one of the most popular
@@ -227,9 +230,9 @@ programming languages for science, engineering, data analytics, and deep
 learning applications.  The goal of CUDA Python is to unify
 the Python ecosystem with a single set of interfaces that provide full coverage
 of and access to the CUDA host APIs from Python.</p>
-</div>
-<div class="section" id="why-cuda-python">
-<h2>Why CUDA Python?<a class="headerlink" href="#why-cuda-python" title="Permalink to this headline">#</a></h2>
+</section>
+<section id="why-cuda-python">
+<h2>Why CUDA Python?<a class="headerlink" href="#why-cuda-python" title="Permalink to this heading">#</a></h2>
 <p>CUDA Python provides uniform APIs and bindings for inclusion into existing
 toolkits and libraries to simplify GPU-based parallel processing for HPC, data
 science, and AI.</p>
@@ -255,8 +258,8 @@ from Python. We want to provide a foundation for the ecosystem to build on top
 of in unison to allow composing different accelerated libraries together to
 solve the problems at hand. We also want to lower the barrier to entry for
 Python developers to utilize NVIDIA GPUs.</p>
-</div>
-</div>
+</section>
+</section>
 
         </article>
       </div>
@@ -270,10 +273,10 @@ Python developers to utilize NVIDIA GPUs.</p>
                 </div>
                 <div class="title">Code of Conduct</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="overview.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -309,7 +312,7 @@ Python developers to utilize NVIDIA GPUs.</p>
       <div class="toc-sticky toc-scroll">
         <div class="toc-title-container">
           <span class="toc-title">
-            Contents
+            On this page
           </span>
         </div>
         <div class="toc-tree-container">
@@ -332,12 +335,9 @@ Python developers to utilize NVIDIA GPUs.</p>
 </div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>
-    <script>let toggleHintShow = 'Click to show';</script>
-    <script>let toggleHintHide = 'Click to hide';</script>
-    <script>let toggleOpenOnPrint = 'true';</script>
-    <script src="_static/togglebutton.js"></script>
-    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
     </body>
 </html>

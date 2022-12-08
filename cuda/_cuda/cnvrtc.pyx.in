@@ -27,6 +27,10 @@ cdef bint __cuPythonInit = False
 {{if 'nvrtcGetCUBIN' in found_functions}}cdef void *__nvrtcGetCUBIN = NULL{{endif}}
 {{if 'nvrtcGetNVVMSize' in found_functions}}cdef void *__nvrtcGetNVVMSize = NULL{{endif}}
 {{if 'nvrtcGetNVVM' in found_functions}}cdef void *__nvrtcGetNVVM = NULL{{endif}}
+{{if 'nvrtcGetLTOIRSize' in found_functions}}cdef void *__nvrtcGetLTOIRSize = NULL{{endif}}
+{{if 'nvrtcGetLTOIR' in found_functions}}cdef void *__nvrtcGetLTOIR = NULL{{endif}}
+{{if 'nvrtcGetOptiXIRSize' in found_functions}}cdef void *__nvrtcGetOptiXIRSize = NULL{{endif}}
+{{if 'nvrtcGetOptiXIR' in found_functions}}cdef void *__nvrtcGetOptiXIR = NULL{{endif}}
 {{if 'nvrtcGetProgramLogSize' in found_functions}}cdef void *__nvrtcGetProgramLogSize = NULL{{endif}}
 {{if 'nvrtcGetProgramLog' in found_functions}}cdef void *__nvrtcGetProgramLog = NULL{{endif}}
 {{if 'nvrtcAddNameExpression' in found_functions}}cdef void *__nvrtcAddNameExpression = NULL{{endif}}
@@ -43,26 +47,16 @@ cdef int cuPythonInit() nogil except -1:
     LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
     with gil:
         try:
-            handle = win32api.LoadLibraryEx("nvrtc64_112_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+            handle = win32api.LoadLibraryEx("nvrtc64_120_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
         except:
-            try:
-                handle = win32api.LoadLibraryEx("nvrtc64_111_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
-            except:
-                try:
-                    handle = win32api.LoadLibraryEx("nvrtc64_110_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
-                except:
-                    raise RuntimeError('Failed to LoadLibraryEx nvrtc64_112_0.dll, or nvrtc64_111_0.dll, or nvrtc64_110_0.dll')
+            raise RuntimeError('Failed to LoadLibraryEx nvrtc64_120_0.dll')
     {{else}}
     handle = NULL
     if handle == NULL:
-        handle = dlfcn.dlopen('libnvrtc.so.11.2', dlfcn.RTLD_NOW)
-    if handle == NULL:
-        handle = dlfcn.dlopen('libnvrtc.so.11.1', dlfcn.RTLD_NOW)
-    if handle == NULL:
-        handle = dlfcn.dlopen('libnvrtc.so.11.0', dlfcn.RTLD_NOW)
+        handle = dlfcn.dlopen('libnvrtc.so.12', dlfcn.RTLD_NOW)
     if handle == NULL:
         with gil:
-            raise RuntimeError('Failed to dlopen libnvrtc.so.11.2, or libnvrtc.so.11.1, or libnvrtc.so.11.0')
+            raise RuntimeError('Failed to dlopen libnvrtc.so.12')
     {{endif}}
 
 
@@ -160,6 +154,34 @@ cdef int cuPythonInit() nogil except -1:
         except:
             pass
         {{endif}}
+        {{if 'nvrtcGetLTOIRSize' in found_functions}}
+        try:
+            global __nvrtcGetLTOIRSize
+            __nvrtcGetLTOIRSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetLTOIRSize')
+        except:
+            pass
+        {{endif}}
+        {{if 'nvrtcGetLTOIR' in found_functions}}
+        try:
+            global __nvrtcGetLTOIR
+            __nvrtcGetLTOIR = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetLTOIR')
+        except:
+            pass
+        {{endif}}
+        {{if 'nvrtcGetOptiXIRSize' in found_functions}}
+        try:
+            global __nvrtcGetOptiXIRSize
+            __nvrtcGetOptiXIRSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetOptiXIRSize')
+        except:
+            pass
+        {{endif}}
+        {{if 'nvrtcGetOptiXIR' in found_functions}}
+        try:
+            global __nvrtcGetOptiXIR
+            __nvrtcGetOptiXIR = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetOptiXIR')
+        except:
+            pass
+        {{endif}}
         {{if 'nvrtcGetProgramLogSize' in found_functions}}
         try:
             global __nvrtcGetProgramLogSize
@@ -241,6 +263,22 @@ cdef int cuPythonInit() nogil except -1:
     {{if 'nvrtcGetNVVM' in found_functions}}
     global __nvrtcGetNVVM
     __nvrtcGetNVVM = dlfcn.dlsym(handle, 'nvrtcGetNVVM')
+    {{endif}}
+    {{if 'nvrtcGetLTOIRSize' in found_functions}}
+    global __nvrtcGetLTOIRSize
+    __nvrtcGetLTOIRSize = dlfcn.dlsym(handle, 'nvrtcGetLTOIRSize')
+    {{endif}}
+    {{if 'nvrtcGetLTOIR' in found_functions}}
+    global __nvrtcGetLTOIR
+    __nvrtcGetLTOIR = dlfcn.dlsym(handle, 'nvrtcGetLTOIR')
+    {{endif}}
+    {{if 'nvrtcGetOptiXIRSize' in found_functions}}
+    global __nvrtcGetOptiXIRSize
+    __nvrtcGetOptiXIRSize = dlfcn.dlsym(handle, 'nvrtcGetOptiXIRSize')
+    {{endif}}
+    {{if 'nvrtcGetOptiXIR' in found_functions}}
+    global __nvrtcGetOptiXIR
+    __nvrtcGetOptiXIR = dlfcn.dlsym(handle, 'nvrtcGetOptiXIR')
     {{endif}}
     {{if 'nvrtcGetProgramLogSize' in found_functions}}
     global __nvrtcGetProgramLogSize
@@ -414,6 +452,54 @@ cdef nvrtcResult _nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) nogil except ?NVRT
         with gil:
             raise RuntimeError('Function "nvrtcGetNVVM" not found')
     err = (<nvrtcResult (*)(nvrtcProgram, char*) nogil> __nvrtcGetNVVM)(prog, nvvm)
+    return err
+{{endif}}
+
+{{if 'nvrtcGetLTOIRSize' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+    global __nvrtcGetLTOIRSize
+    cuPythonInit()
+    if __nvrtcGetLTOIRSize == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcGetLTOIRSize" not found')
+    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) nogil> __nvrtcGetLTOIRSize)(prog, LTOIRSizeRet)
+    return err
+{{endif}}
+
+{{if 'nvrtcGetLTOIR' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+    global __nvrtcGetLTOIR
+    cuPythonInit()
+    if __nvrtcGetLTOIR == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcGetLTOIR" not found')
+    err = (<nvrtcResult (*)(nvrtcProgram, char*) nogil> __nvrtcGetLTOIR)(prog, LTOIR)
+    return err
+{{endif}}
+
+{{if 'nvrtcGetOptiXIRSize' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+    global __nvrtcGetOptiXIRSize
+    cuPythonInit()
+    if __nvrtcGetOptiXIRSize == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcGetOptiXIRSize" not found')
+    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) nogil> __nvrtcGetOptiXIRSize)(prog, optixirSizeRet)
+    return err
+{{endif}}
+
+{{if 'nvrtcGetOptiXIR' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+    global __nvrtcGetOptiXIR
+    cuPythonInit()
+    if __nvrtcGetOptiXIR == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcGetOptiXIR" not found')
+    err = (<nvrtcResult (*)(nvrtcProgram, char*) nogil> __nvrtcGetOptiXIR)(prog, optixir)
     return err
 {{endif}}
 

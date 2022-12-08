@@ -82,7 +82,7 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align = 0
 
     # Get the minimum granularity needed for the accessing devices
     # (the max of the minimum granularity of each participating device)
-    for device in residentDevices:
+    for device in mappingDevices:
         prop.location.id = device
         status, granularity = cuda.cuMemGetAllocationGranularity(prop, cuda.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM)
         if status != cuda.CUresult.CUDA_SUCCESS:

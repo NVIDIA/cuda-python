@@ -499,7 +499,7 @@ def test_cuda_graphMem_attr():
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
 
-    err, graphExec, _ = cuda.cuGraphInstantiate(graph, b'', 0)
+    err, graphExec = cuda.cuGraphInstantiate(graph, 0)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
 
     err, = cuda.cuGraphLaunch(graphExec, stream)
@@ -624,7 +624,7 @@ def test_eglFrame():
     assert(int(val.frame.pArray[0]) == 4)
     assert(int(val.frame.pArray[1]) == 2)
     assert(int(val.frame.pArray[2]) == 3)
-    val.frame.pPitch
+    val.frame.pPitch = [4, 2, 3]
     # [4, 2, 3]
     assert(int(val.frame.pPitch[0]) == 4)
     assert(int(val.frame.pPitch[1]) == 2)
@@ -633,3 +633,12 @@ def test_eglFrame():
     assert(int(val.frame.pPitch[0]) == 1)
     assert(int(val.frame.pPitch[1]) == 2)
     assert(int(val.frame.pPitch[2]) == 3)
+
+def test_char_range():
+    val = cuda.CUipcMemHandle_st()
+    for x in range(-128, 0):
+        val.reserved = [x] * 64
+        assert(val.reserved[0] == 256 + x)
+    for x in range(0, 256):
+        val.reserved = [x] * 64
+        assert(val.reserved[0] == x)

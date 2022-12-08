@@ -15,13 +15,17 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUdevprop_st
 .. autoclass:: cuda.cuda.CUaccessPolicyWindow_st
 .. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_v2_st
 .. autoclass:: cuda.cuda.CUDA_MEMSET_NODE_PARAMS_st
 .. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_GRAPH_INSTANTIATE_PARAMS_st
+.. autoclass:: cuda.cuda.CUlaunchMemSyncDomainMap_st
 .. autoclass:: cuda.cuda.CUlaunchAttributeValue_union
 .. autoclass:: cuda.cuda.CUlaunchAttribute_st
 .. autoclass:: cuda.cuda.CUlaunchConfig_st
 .. autoclass:: cuda.cuda.CUexecAffinitySmCount_st
 .. autoclass:: cuda.cuda.CUexecAffinityParam_st
+.. autoclass:: cuda.cuda.CUlibraryHostUniversalFunctionAndDataTable_st
 .. autoclass:: cuda.cuda.CUDA_MEMCPY2D_st
 .. autoclass:: cuda.cuda.CUDA_MEMCPY3D_st
 .. autoclass:: cuda.cuda.CUDA_MEMCPY3D_PEER_st
@@ -32,6 +36,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUDA_RESOURCE_DESC_st
 .. autoclass:: cuda.cuda.CUDA_TEXTURE_DESC_st
 .. autoclass:: cuda.cuda.CUDA_RESOURCE_VIEW_DESC_st
+.. autoclass:: cuda.cuda.CUtensorMap_st
 .. autoclass:: cuda.cuda.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st
 .. autoclass:: cuda.cuda.CUDA_LAUNCH_PARAMS_st
 .. autoclass:: cuda.cuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st
@@ -46,6 +51,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUmemLocation_st
 .. autoclass:: cuda.cuda.CUmemAllocationProp_st
 .. autoclass:: cuda.cuda.CUmemAccessDesc_st
+.. autoclass:: cuda.cuda.CUgraphExecUpdateResultInfo_st
 .. autoclass:: cuda.cuda.CUmemPoolProps_st
 .. autoclass:: cuda.cuda.CUmemPoolPtrExportData_st
 .. autoclass:: cuda.cuda.CUDA_MEM_ALLOC_NODE_PARAMS_st
@@ -1211,22 +1217,22 @@ Data types used by CUDA driver
         Device can access host registered memory at the same virtual address as the CPU
 
 
-    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS_V1
 
 
-        :py:obj:`~.cuStreamBatchMemOp` and related APIs are supported.
+        Deprecated, along with v1 MemOps API, :py:obj:`~.cuStreamBatchMemOp` and related APIs are supported.
 
 
-    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS_V1
 
 
-        64-bit operations are supported in :py:obj:`~.cuStreamBatchMemOp` and related APIs.
+        Deprecated, along with v1 MemOps API, 64-bit operations are supported in :py:obj:`~.cuStreamBatchMemOp` and related APIs.
 
 
-    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR_V1
 
 
-        :py:obj:`~.CU_STREAM_WAIT_VALUE_NOR` is supported.
+        Deprecated, along with v1 MemOps API, :py:obj:`~.CU_STREAM_WAIT_VALUE_NOR` is supported.
 
 
     .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COOPERATIVE_LAUNCH
@@ -1397,22 +1403,46 @@ Data types used by CUDA driver
         Device supports deferred mapping CUDA arrays and CUDA mipmapped arrays
 
 
-    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS_V2
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS
 
 
-        64-bit operations are supported in :py:obj:`~.cuStreamBatchMemOp_v2` and related v2 MemOp APIs.
+        64-bit operations are supported in :py:obj:`~.cuStreamBatchMemOp` and related MemOp APIs.
 
 
-    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR_V2
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR
 
 
-        :py:obj:`~.CU_STREAM_WAIT_VALUE_NOR` is supported by v2 MemOp APIs.
+        :py:obj:`~.CU_STREAM_WAIT_VALUE_NOR` is supported by MemOp APIs.
 
 
     .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DMA_BUF_SUPPORTED
 
 
         Device supports buffer sharing with dma_buf mechanism.
+
+
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED
+
+
+        Device supports IPC Events.
+
+
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_SYNC_DOMAIN_COUNT
+
+
+        Number of memory domains the device supports.
+
+
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TENSOR_MAP_ACCESS_SUPPORTED
+
+
+        Device supports accessing memory using Tensor Map.
+
+
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_FUNCTION_POINTERS
+
+
+        Device supports unified function pointers.
 
 
     .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX
@@ -1591,19 +1621,19 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
 
 
-        The maximum size in bytes of dynamically-allocated shared memory that can be used by this function. If the user-specified dynamic shared memory size is larger than this value, the launch will fail. See :py:obj:`~.cuFuncSetAttribute`
+        The maximum size in bytes of dynamically-allocated shared memory that can be used by this function. If the user-specified dynamic shared memory size is larger than this value, the launch will fail. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
 
 
-        On devices where the L1 cache and shared memory use the same hardware resources, this sets the shared memory carveout preference, in percent of the total shared memory. Refer to :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR`. This is only a hint, and the driver can choose a different ratio if required to execute the function. See :py:obj:`~.cuFuncSetAttribute`
+        On devices where the L1 cache and shared memory use the same hardware resources, this sets the shared memory carveout preference, in percent of the total shared memory. Refer to :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR`. This is only a hint, and the driver can choose a different ratio if required to execute the function. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
 
 
-        If this attribute is set, the kernel must launch with a valid cluster size specified. See :py:obj:`~.cuFuncSetAttribute`
+        If this attribute is set, the kernel must launch with a valid cluster size specified. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
@@ -1613,7 +1643,7 @@ Data types used by CUDA driver
 
 
 
-        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`
+        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime will return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
@@ -1623,7 +1653,7 @@ Data types used by CUDA driver
 
 
 
-        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`
+        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
@@ -1633,7 +1663,7 @@ Data types used by CUDA driver
 
 
 
-        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`
+        If the value is set during compile time, it cannot be set at runtime. Setting it at runtime should return CUDA_ERROR_NOT_PERMITTED. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED
@@ -1655,13 +1685,13 @@ Data types used by CUDA driver
 
 
 
-        The specific hardware unit may support higher cluster sizes that’s not guaranteed to be portable. See :py:obj:`~.cuFuncSetAttribute`
+        The specific hardware unit may support higher cluster sizes that’s not guaranteed to be portable. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
 
 
-        The block scheduling policy of a function. The value type is CUclusterSchedulingPolicy / cudaClusterSchedulingPolicy. See :py:obj:`~.cuFuncSetAttribute`
+        The block scheduling policy of a function. The value type is CUclusterSchedulingPolicy / cudaClusterSchedulingPolicy. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX
@@ -2052,130 +2082,116 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_LTO
 
 
-        Enable link-time optimization (-dlto) for device code (Disabled by default).
+        [Deprecated]
 
-        This option is not supported on 32-bit platforms.
 
-        Option type: int
 
-        Applies to: compiler and linker
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
 
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_FTZ
 
 
-        Control single-precision denormals (-ftz) support (0: false, default). 1 : flushes denormal values to zero 0 : preserves denormal values Option type: int
+        [Deprecated]
 
-        Applies to: link-time optimization specified with CU_JIT_LTO
+
+
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
 
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_PREC_DIV
 
 
-        Control single-precision floating-point division and reciprocals (-prec-div) support (1: true, default). 1 : Enables the IEEE round-to-nearest mode 0 : Enables the fast approximation mode Option type: int
+        [Deprecated]
 
-        Applies to: link-time optimization specified with CU_JIT_LTO
+
+
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
 
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_PREC_SQRT
 
 
-        Control single-precision floating-point square root (-prec-sqrt) support (1: true, default). 1 : Enables the IEEE round-to-nearest mode 0 : Enables the fast approximation mode Option type: int
+        [Deprecated]
 
-        Applies to: link-time optimization specified with CU_JIT_LTO
+
+
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
 
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_FMA
 
 
-        Enable/Disable the contraction of floating-point multiplies and adds/subtracts into floating-point multiply-add (-fma) operations (1: Enable, default; 0: Disable). Option type: int
+        [Deprecated]
 
-        Applies to: link-time optimization specified with CU_JIT_LTO
+
+
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
 
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_REFERENCED_KERNEL_NAMES
 
 
-        Array of kernel names that should be preserved at link time while others can be removed.
+        [Deprecated]
 
-        Must contain :py:obj:`~.CU_JIT_REFERENCED_KERNEL_COUNT` entries.
 
-        Note that kernel names can be mangled by the compiler in which case the mangled name needs to be specified.
 
-        Wildcard "*" can be used to represent zero or more characters instead of specifying the full or mangled name.
-
-        It is important to note that the wildcard "*" is also added implicitly. For example, specifying "foo" will match "foobaz", "barfoo", "barfoobaz" and thus preserve all kernels with those names. This can be avoided by providing a more specific name like "barfoobaz".
-
-        Option type: const char **
-
-        Applies to: dynamic linker only
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
 
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_REFERENCED_KERNEL_COUNT
 
 
-        Number of entries in :py:obj:`~.CU_JIT_REFERENCED_KERNEL_NAMES` array.
+        [Deprecated]
 
-        Option type: unsigned int
 
-        Applies to: dynamic linker only
+
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
 
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_REFERENCED_VARIABLE_NAMES
 
 
-        Array of variable names (device and/or constant) that should be preserved at link time while others can be removed.
+        [Deprecated]
 
-        Must contain :py:obj:`~.CU_JIT_REFERENCED_VARIABLE_COUNT` entries.
 
-        Note that variable names can be mangled by the compiler in which case the mangled name needs to be specified.
 
-        Wildcard "*" can be used to represent zero or more characters instead of specifying the full or mangled name.
-
-        It is important to note that the wildcard "*" is also added implicitly. For example, specifying "foo" will match "foobaz", "barfoo", "barfoobaz" and thus preserve all variables with those names. This can be avoided by providing a more specific name like "barfoobaz".
-
-        Option type: const char **
-
-        Applies to: link-time optimization specified with CU_JIT_LTO
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
 
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_REFERENCED_VARIABLE_COUNT
 
 
-        Number of entries in :py:obj:`~.CU_JIT_REFERENCED_VARIABLE_NAMES` array.
+        [Deprecated]
 
-        Option type: unsigned int
 
-        Applies to: link-time optimization specified with CU_JIT_LTO
+
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
 
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES
 
 
-        This option serves as a hint to enable the JIT compiler/linker to remove constant (constant) and device (device) variables unreferenced in device code (Disabled by default).
+        [Deprecated]
 
-        Note that host references to constant and device variables using APIs like :py:obj:`~.cuModuleGetGlobal()` with this option specified may result in undefined behavior unless the variables are explicitly specified using :py:obj:`~.CU_JIT_REFERENCED_VARIABLE_NAMES`.
+
+
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
+
+
+    .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_POSITION_INDEPENDENT_CODE
+
+
+        Generate position independent code (0: false)
 
         Option type: int
 
-        Applies to: link-time optimization specified with CU_JIT_LTO
+        Applies to: compiler only
 
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_NUM_OPTIONS
 
 .. autoclass:: cuda.cuda.CUjit_target
-
-    .. autoattribute:: cuda.cuda.CUjit_target.CU_TARGET_COMPUTE_20
-
-
-        Compute device class 2.0
-
-
-    .. autoattribute:: cuda.cuda.CUjit_target.CU_TARGET_COMPUTE_21
-
-
-        Compute device class 2.1
-
 
     .. autoattribute:: cuda.cuda.CUjit_target.CU_TARGET_COMPUTE_30
 
@@ -2282,7 +2298,10 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUjit_target.CU_TARGET_COMPUTE_90
 
 
-        Compute device class 9.0.
+        Compute device class 9.0. Compute device class 9.0. with accelerated features.
+
+
+    .. autoattribute:: cuda.cuda.CUjit_target.CU_TARGET_COMPUTE_90A
 
 .. autoclass:: cuda.cuda.CUjit_fallback
 
@@ -2361,9 +2380,11 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUjitInputType.CU_JIT_INPUT_NVVM
 
 
-        High-level intermediate code for link-time optimization
+        [Deprecated]
 
-        Applicable options: NVVM compiler options, PTX compiler options
+
+
+        Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0
 
 
     .. autoattribute:: cuda.cuda.CUjitInputType.CU_JIT_NUM_INPUT_TYPES
@@ -2600,6 +2621,37 @@ Data types used by CUDA driver
 
         Batch MemOp Node
 
+.. autoclass:: cuda.cuda.CUgraphInstantiateResult
+
+    .. autoattribute:: cuda.cuda.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS
+
+
+        Instantiation succeeded
+
+
+    .. autoattribute:: cuda.cuda.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_ERROR
+
+
+        Instantiation failed for an unexpected reason which is described in the return value of the function
+
+
+    .. autoattribute:: cuda.cuda.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_INVALID_STRUCTURE
+
+
+        Instantiation failed due to invalid structure, such as cycles
+
+
+    .. autoattribute:: cuda.cuda.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_NODE_OPERATION_NOT_SUPPORTED
+
+
+        Instantiation for device launch failed because the graph contained an unsupported operation
+
+
+    .. autoattribute:: cuda.cuda.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_MULTIPLE_CTXS_NOT_SUPPORTED
+
+
+        Instantiation for device launch failed due to the nodes belonging to different contexts
+
 .. autoclass:: cuda.cuda.CUsynchronizationPolicy
 
     .. autoattribute:: cuda.cuda.CUsynchronizationPolicy.CU_SYNC_POLICY_AUTO
@@ -2632,60 +2684,73 @@ Data types used by CUDA driver
 
         allow the hardware to load-balance the blocks in a cluster to the SMs
 
-.. autoclass:: cuda.cuda.CUstreamAttrID
+.. autoclass:: cuda.cuda.CUlaunchMemSyncDomain
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_IGNORE
+    .. autoattribute:: cuda.cuda.CUlaunchMemSyncDomain.CU_LAUNCH_MEM_SYNC_DOMAIN_DEFAULT
+
+
+    .. autoattribute:: cuda.cuda.CUlaunchMemSyncDomain.CU_LAUNCH_MEM_SYNC_DOMAIN_REMOTE
+
+.. autoclass:: cuda.cuda.CUlaunchAttributeID
+
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_IGNORE
 
 
         Ignored entry, for convenient composition
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW
 
 
         Valid for streams, graph nodes, launches.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
 
 
         Valid for graph nodes, launches.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
 
 
         Valid for streams.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
 
 
         Valid for graph nodes, launches.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
 
 
         Valid for graph nodes, launches.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
 
 
-        Valid for launches. Setting programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap.
+        Valid for launches. Setting programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
 
 
-        Valid for launches. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event through PTX griddepcontrol.launch_dependents. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. Note that dependents (including the CPU thread calling :py:obj:`~.cuEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cuEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. created with :py:obj:`~.CU_EVENT_DISABLE_TIMING` flag set).
+        Valid for launches. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event through PTX launchdep.release or CUDA builtin function cudaTriggerProgrammaticLaunchCompletion(). A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cuEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cuEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. created with :py:obj:`~.CU_EVENT_DISABLE_TIMING` flag set).
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
 
 
-        Valid for graph nodes.
+        Valid for streams, graph nodes, launches.
+
+
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP
+
+
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN
 
 .. autoclass:: cuda.cuda.CUstreamCaptureStatus
 
@@ -2735,6 +2800,25 @@ Data types used by CUDA driver
 
         Search for per-thread versions of driver symbols.
 
+.. autoclass:: cuda.cuda.CUdriverProcAddressQueryResult
+
+    .. autoattribute:: cuda.cuda.CUdriverProcAddressQueryResult.CU_GET_PROC_ADDRESS_SUCCESS
+
+
+        Symbol was succesfully found
+
+
+    .. autoattribute:: cuda.cuda.CUdriverProcAddressQueryResult.CU_GET_PROC_ADDRESS_SYMBOL_NOT_FOUND
+
+
+        Symbol was not found in search
+
+
+    .. autoattribute:: cuda.cuda.CUdriverProcAddressQueryResult.CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT
+
+
+        Symbol was found but version supplied was not sufficient
+
 .. autoclass:: cuda.cuda.CUexecAffinityType
 
     .. autoattribute:: cuda.cuda.CUexecAffinityType.CU_EXEC_AFFINITY_TYPE_SM_COUNT
@@ -2744,6 +2828,19 @@ Data types used by CUDA driver
 
 
     .. autoattribute:: cuda.cuda.CUexecAffinityType.CU_EXEC_AFFINITY_TYPE_MAX
+
+.. autoclass:: cuda.cuda.CUlibraryOption
+
+    .. autoattribute:: cuda.cuda.CUlibraryOption.CU_LIBRARY_HOST_UNIVERSAL_FUNCTION_AND_DATA_TABLE
+
+
+    .. autoattribute:: cuda.cuda.CUlibraryOption.CU_LIBRARY_BINARY_IS_PRESERVED
+
+
+        Specifes that the argument `code` passed to :py:obj:`~.cuLibraryLoadData()` will be preserved. Specifying this option will let the driver know that `code` can be accessed at any point until :py:obj:`~.cuLibraryUnload()`. The default behavior is for the driver to allocate and maintain its own copy of `code`. Note that this is only a memory usage optimization hint and the driver can choose to ignore it if required. Specifying this option with :py:obj:`~.cuLibraryLoadFromFile()` is invalid and will return :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
+
+
+    .. autoattribute:: cuda.cuda.CUlibraryOption.CU_LIBRARY_NUM_OPTIONS
 
 .. autoclass:: cuda.cuda.CUresult
 
@@ -3203,6 +3300,18 @@ Data types used by CUDA driver
         This error indicates that the MPS client has been terminated by the server. To continue using CUDA, the process must be terminated and relaunched.
 
 
+    .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_CDP_NOT_SUPPORTED
+
+
+        This error indicates that the module is using CUDA Dynamic Parallelism, but the current configuration, like MPS, does not support it.
+
+
+    .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_CDP_VERSION_MISMATCH
+
+
+        This error indicates that a module contains an unsupported interaction between different versions of CUDA Dynamic Parallelism.
+
+
     .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED
 
 
@@ -3527,6 +3636,89 @@ Data types used by CUDA driver
 
 
         Block compressed 7
+
+.. autoclass:: cuda.cuda.CUtensorMapDataType
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_UINT8
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_UINT16
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_UINT32
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_INT32
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_UINT64
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_INT64
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_FLOAT16
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_FLOAT32
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_FLOAT64
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_BFLOAT16
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_FLOAT32_FTZ
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32_FTZ
+
+.. autoclass:: cuda.cuda.CUtensorMapInterleave
+
+    .. autoattribute:: cuda.cuda.CUtensorMapInterleave.CU_TENSOR_MAP_INTERLEAVE_NONE
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapInterleave.CU_TENSOR_MAP_INTERLEAVE_16B
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapInterleave.CU_TENSOR_MAP_INTERLEAVE_32B
+
+.. autoclass:: cuda.cuda.CUtensorMapSwizzle
+
+    .. autoattribute:: cuda.cuda.CUtensorMapSwizzle.CU_TENSOR_MAP_SWIZZLE_NONE
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapSwizzle.CU_TENSOR_MAP_SWIZZLE_32B
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapSwizzle.CU_TENSOR_MAP_SWIZZLE_64B
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapSwizzle.CU_TENSOR_MAP_SWIZZLE_128B
+
+.. autoclass:: cuda.cuda.CUtensorMapL2promotion
+
+    .. autoattribute:: cuda.cuda.CUtensorMapL2promotion.CU_TENSOR_MAP_L2_PROMOTION_NONE
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapL2promotion.CU_TENSOR_MAP_L2_PROMOTION_L2_64B
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapL2promotion.CU_TENSOR_MAP_L2_PROMOTION_L2_128B
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapL2promotion.CU_TENSOR_MAP_L2_PROMOTION_L2_256B
+
+.. autoclass:: cuda.cuda.CUtensorMapFloatOOBfill
+
+    .. autoattribute:: cuda.cuda.CUtensorMapFloatOOBfill.CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE
+
+
+    .. autoattribute:: cuda.cuda.CUtensorMapFloatOOBfill.CU_TENSOR_MAP_FLOAT_OOB_FILL_NAN_REQUEST_ZERO_FMA
 
 .. autoclass:: cuda.cuda.CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS
 
@@ -4044,6 +4236,12 @@ Data types used by CUDA driver
 
     .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS
 
+
+        Adds memory free node parameters to output
+
+
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO
+
 .. autoclass:: cuda.cuda.CUuserObject_flags
 
     .. autoattribute:: cuda.cuda.CUuserObject_flags.CU_USER_OBJECT_NO_DESTRUCTOR_SYNC
@@ -4064,6 +4262,18 @@ Data types used by CUDA driver
 
 
         Automatically free memory allocated in a graph before relaunching.
+
+
+    .. autoattribute:: cuda.cuda.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_UPLOAD
+
+
+        Automatically upload the graph after instantiaton.
+
+
+    .. autoattribute:: cuda.cuda.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_DEVICE_LAUNCH
+
+
+        Instantiate the graph to be launchable from the device.
 
 
     .. autoattribute:: cuda.cuda.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
@@ -4792,6 +5002,8 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUcontext
 .. autoclass:: cuda.cuda.CUmodule
 .. autoclass:: cuda.cuda.CUfunction
+.. autoclass:: cuda.cuda.CUlibrary
+.. autoclass:: cuda.cuda.CUkernel
 .. autoclass:: cuda.cuda.CUarray
 .. autoclass:: cuda.cuda.CUmipmappedArray
 .. autoclass:: cuda.cuda.CUtexref
@@ -4825,22 +5037,28 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUaccessPolicyWindow_v1
 .. autoclass:: cuda.cuda.CUaccessPolicyWindow
 .. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_v1
+.. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_v2
 .. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS
 .. autoclass:: cuda.cuda.CUDA_MEMSET_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_MEMSET_NODE_PARAMS
 .. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_GRAPH_INSTANTIATE_PARAMS
+.. autoclass:: cuda.cuda.CUlaunchMemSyncDomainMap
 .. autoclass:: cuda.cuda.CUlaunchAttributeValue
 .. autoclass:: cuda.cuda.CUlaunchAttribute
 .. autoclass:: cuda.cuda.CUlaunchConfig
+.. autoclass:: cuda.cuda.CUkernelNodeAttrID
 .. autoclass:: cuda.cuda.CUkernelNodeAttrValue_v1
 .. autoclass:: cuda.cuda.CUkernelNodeAttrValue
+.. autoclass:: cuda.cuda.CUstreamAttrID
 .. autoclass:: cuda.cuda.CUstreamAttrValue_v1
 .. autoclass:: cuda.cuda.CUstreamAttrValue
 .. autoclass:: cuda.cuda.CUexecAffinitySmCount_v1
 .. autoclass:: cuda.cuda.CUexecAffinitySmCount
 .. autoclass:: cuda.cuda.CUexecAffinityParam_v1
 .. autoclass:: cuda.cuda.CUexecAffinityParam
+.. autoclass:: cuda.cuda.CUlibraryHostUniversalFunctionAndDataTable
 .. autoclass:: cuda.cuda.CUstreamCallback
 .. autoclass:: cuda.cuda.CUoccupancyB2DSize
 .. autoclass:: cuda.cuda.CUDA_MEMCPY2D_v2
@@ -4863,6 +5081,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUDA_TEXTURE_DESC
 .. autoclass:: cuda.cuda.CUDA_RESOURCE_VIEW_DESC_v1
 .. autoclass:: cuda.cuda.CUDA_RESOURCE_VIEW_DESC
+.. autoclass:: cuda.cuda.CUtensorMap
 .. autoclass:: cuda.cuda.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1
 .. autoclass:: cuda.cuda.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS
 .. autoclass:: cuda.cuda.CUDA_LAUNCH_PARAMS_v1
@@ -4893,6 +5112,8 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUmemAllocationProp
 .. autoclass:: cuda.cuda.CUmemAccessDesc_v1
 .. autoclass:: cuda.cuda.CUmemAccessDesc
+.. autoclass:: cuda.cuda.CUgraphExecUpdateResultInfo_v1
+.. autoclass:: cuda.cuda.CUgraphExecUpdateResultInfo
 .. autoclass:: cuda.cuda.CUmemPoolProps_v1
 .. autoclass:: cuda.cuda.CUmemPoolProps
 .. autoclass:: cuda.cuda.CUmemPoolPtrExportData_v1
@@ -4937,14 +5158,20 @@ Data types used by CUDA driver
 
     See details of the \link_sync_behavior
 
+.. autoattribute:: cuda.cuda.CU_COMPUTE_ACCELERATED_TARGET_BASE
 .. autoattribute:: cuda.cuda.CUDA_CB
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_ACCESS_POLICY_WINDOW
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_COOPERATIVE
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_CLUSTER_DIMENSION
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_PRIORITY
+.. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP
+.. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN
 .. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW
 .. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY
+.. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_PRIORITY
+.. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP
+.. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_MEM_SYNC_DOMAIN
 .. autoattribute:: cuda.cuda.CU_MEMHOSTALLOC_PORTABLE
 
     If set, host memory is portable between CUDA contexts. Flag for :py:obj:`~.cuMemHostAlloc()`
@@ -4976,6 +5203,10 @@ Data types used by CUDA driver
 .. autoattribute:: cuda.cuda.CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
 
     Indicates that the layered sparse CUDA array or CUDA mipmapped array has a single mip tail region for all layers
+
+.. autoattribute:: cuda.cuda.CU_TENSOR_MAP_NUM_QWORDS
+
+    Size of tensor map descriptor
 
 .. autoattribute:: cuda.cuda.CUDA_EXTERNAL_MEMORY_DEDICATED
 
@@ -5154,6 +5385,7 @@ This section describes the device management functions of the low-level CUDA dri
 .. autofunction:: cuda.cuda.cuDeviceSetMemPool
 .. autofunction:: cuda.cuda.cuDeviceGetMemPool
 .. autofunction:: cuda.cuda.cuDeviceGetDefaultMemPool
+.. autofunction:: cuda.cuda.cuDeviceGetExecAffinitySupport
 .. autofunction:: cuda.cuda.cuFlushGPUDirectRDMAWrites
 
 Primary Context Management
@@ -5189,6 +5421,7 @@ Please note that some functions are described in Primary Context Management sect
 .. autofunction:: cuda.cuda.cuCtxGetCurrent
 .. autofunction:: cuda.cuda.cuCtxGetDevice
 .. autofunction:: cuda.cuda.cuCtxGetFlags
+.. autofunction:: cuda.cuda.cuCtxGetId
 .. autofunction:: cuda.cuda.cuCtxSynchronize
 .. autofunction:: cuda.cuda.cuCtxSetLimit
 .. autofunction:: cuda.cuda.cuCtxGetLimit
@@ -5227,13 +5460,29 @@ This section describes the module management functions of the low-level CUDA dri
 .. autofunction:: cuda.cuda.cuModuleGetLoadingMode
 .. autofunction:: cuda.cuda.cuModuleGetFunction
 .. autofunction:: cuda.cuda.cuModuleGetGlobal
-.. autofunction:: cuda.cuda.cuModuleGetTexRef
-.. autofunction:: cuda.cuda.cuModuleGetSurfRef
 .. autofunction:: cuda.cuda.cuLinkCreate
 .. autofunction:: cuda.cuda.cuLinkAddData
 .. autofunction:: cuda.cuda.cuLinkAddFile
 .. autofunction:: cuda.cuda.cuLinkComplete
 .. autofunction:: cuda.cuda.cuLinkDestroy
+
+Library Management
+------------------
+
+This section describes the library management functions of the low-level CUDA driver application programming interface.
+
+.. autofunction:: cuda.cuda.cuLibraryLoadData
+.. autofunction:: cuda.cuda.cuLibraryLoadFromFile
+.. autofunction:: cuda.cuda.cuLibraryUnload
+.. autofunction:: cuda.cuda.cuLibraryGetKernel
+.. autofunction:: cuda.cuda.cuLibraryGetModule
+.. autofunction:: cuda.cuda.cuKernelGetFunction
+.. autofunction:: cuda.cuda.cuLibraryGetGlobal
+.. autofunction:: cuda.cuda.cuLibraryGetManaged
+.. autofunction:: cuda.cuda.cuLibraryGetUnifiedFunction
+.. autofunction:: cuda.cuda.cuKernelGetAttribute
+.. autofunction:: cuda.cuda.cuKernelSetAttribute
+.. autofunction:: cuda.cuda.cuKernelSetCacheConfig
 
 Memory Management
 -----------------
@@ -5465,6 +5714,7 @@ This section describes the stream management functions of the low-level CUDA dri
 .. autofunction:: cuda.cuda.cuStreamCreateWithPriority
 .. autofunction:: cuda.cuda.cuStreamGetPriority
 .. autofunction:: cuda.cuda.cuStreamGetFlags
+.. autofunction:: cuda.cuda.cuStreamGetId
 .. autofunction:: cuda.cuda.cuStreamGetCtx
 .. autofunction:: cuda.cuda.cuStreamWaitEvent
 .. autofunction:: cuda.cuda.cuStreamAddCallback
@@ -5473,7 +5723,6 @@ This section describes the stream management functions of the low-level CUDA dri
 .. autofunction:: cuda.cuda.cuStreamEndCapture
 .. autofunction:: cuda.cuda.cuStreamIsCapturing
 .. autofunction:: cuda.cuda.cuStreamGetCaptureInfo
-.. autofunction:: cuda.cuda.cuStreamGetCaptureInfo_v2
 .. autofunction:: cuda.cuda.cuStreamUpdateCaptureDependencies
 .. autofunction:: cuda.cuda.cuStreamAttachMemAsync
 .. autofunction:: cuda.cuda.cuStreamQuery
@@ -5517,23 +5766,7 @@ This section describes the stream memory operations of the low-level CUDA driver
 
 
 
-There are two versions of these APIs, a legacy version and a newer V2 version.
-
-
-
-V1:
-
-
-
-The V1 API is disabled by default. Users are required to explicitly enable it, e.g. on Linux by passing the kernel module parameter shown below: modprobe nvidia NVreg_EnableStreamMemOPs=1 There is currently no way to enable these operations on other operating systems.
-
-
-
-Users can programmatically query whether the device supports these operations with cuDeviceGetAttribute() and CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS.
-
-
-
-Support for the CU_STREAM_WAIT_VALUE_NOR flag can be queried with CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR.
+Support for the CU_STREAM_WAIT_VALUE_NOR flag can be queried with ::CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR_V2.
 
 
 
@@ -5542,30 +5775,6 @@ Support for the cuStreamWriteValue64() and cuStreamWaitValue64() functions, as w
 
 
 Support for both CU_STREAM_WAIT_VALUE_FLUSH and CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES requires dedicated platform hardware features and can be queried with cuDeviceGetAttribute() and CU_DEVICE_ATTRIBUTE_CAN_FLUSH_REMOTE_WRITES.
-
-
-
-V2:
-
-
-
-The V2 APIs are available by default on all platforms.
-
-
-
-Support for the CU_STREAM_WAIT_VALUE_NOR flag can be queried with CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR_V2.
-
-
-
-Support for the cuStreamWriteValue64() and cuStreamWaitValue64() functions, as well as for the CU_STREAM_MEM_OP_WAIT_VALUE_64 and CU_STREAM_MEM_OP_WRITE_VALUE_64 flags, can be queried with CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS_V2.
-
-
-
-Support for both CU_STREAM_WAIT_VALUE_FLUSH and CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES requires dedicated platform hardware features and can be queried with cuDeviceGetAttribute() and CU_DEVICE_ATTRIBUTE_CAN_FLUSH_REMOTE_WRITES.
-
-
-
-V1 & V2:
 
 
 
@@ -5584,11 +5793,6 @@ Warning: Improper use of these APIs may deadlock the application. Synchronizatio
 .. autofunction:: cuda.cuda.cuStreamWriteValue32
 .. autofunction:: cuda.cuda.cuStreamWriteValue64
 .. autofunction:: cuda.cuda.cuStreamBatchMemOp
-.. autofunction:: cuda.cuda.cuStreamWaitValue32_v2
-.. autofunction:: cuda.cuda.cuStreamWaitValue64_v2
-.. autofunction:: cuda.cuda.cuStreamWriteValue32_v2
-.. autofunction:: cuda.cuda.cuStreamWriteValue64_v2
-.. autofunction:: cuda.cuda.cuStreamBatchMemOp_v2
 
 Execution Control
 -----------------
@@ -5662,7 +5866,8 @@ This section describes the graph management functions of the low-level CUDA driv
 .. autofunction:: cuda.cuda.cuGraphRemoveDependencies
 .. autofunction:: cuda.cuda.cuGraphDestroyNode
 .. autofunction:: cuda.cuda.cuGraphInstantiate
-.. autofunction:: cuda.cuda.cuGraphInstantiateWithFlags
+.. autofunction:: cuda.cuda.cuGraphInstantiateWithParams
+.. autofunction:: cuda.cuda.cuGraphExecGetFlags
 .. autofunction:: cuda.cuda.cuGraphExecKernelNodeSetParams
 .. autofunction:: cuda.cuda.cuGraphExecMemcpyNodeSetParams
 .. autofunction:: cuda.cuda.cuGraphExecMemsetNodeSetParams
@@ -5721,6 +5926,15 @@ This section describes the surface object management functions of the low-level 
 .. autofunction:: cuda.cuda.cuSurfObjectCreate
 .. autofunction:: cuda.cuda.cuSurfObjectDestroy
 .. autofunction:: cuda.cuda.cuSurfObjectGetResourceDesc
+
+Tensor Core Managment
+---------------------
+
+This section describes the tensor core management functions of the low-level CUDA driver application programming interface. The tensor core API is only supported on devices of compute capability 9.0 or higher.
+
+.. autofunction:: cuda.cuda.cuTensorMapEncodeTiled
+.. autofunction:: cuda.cuda.cuTensorMapEncodeIm2col
+.. autofunction:: cuda.cuda.cuTensorMapReplaceAddress
 
 Peer Context Memory Access
 --------------------------

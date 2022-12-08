@@ -59,6 +59,40 @@ cdef class CUfunction:
     cdef ccuda.CUfunction* _ptr
 {{endif}}
 
+{{if 'CUlibrary' in found_types}}
+
+cdef class CUlibrary:
+    """
+
+    CUDA library
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUlibrary  __val
+    cdef ccuda.CUlibrary* _ptr
+{{endif}}
+
+{{if 'CUkernel' in found_types}}
+
+cdef class CUkernel:
+    """
+
+    CUDA kernel
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUkernel  __val
+    cdef ccuda.CUkernel* _ptr
+{{endif}}
+
 {{if 'CUarray' in found_types}}
 
 cdef class CUarray:
@@ -313,52 +347,7 @@ cdef class CUlinkState:
     cdef list _keepalive
 {{endif}}
 
-{{if True or 'EGLImageKHR' in found_types}}
-
-cdef class EGLImageKHR:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccuda.EGLImageKHR  __val
-    cdef ccuda.EGLImageKHR* _ptr
-{{endif}}
-
-{{if True or 'EGLStreamKHR' in found_types}}
-
-cdef class EGLStreamKHR:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccuda.EGLStreamKHR  __val
-    cdef ccuda.EGLStreamKHR* _ptr
-{{endif}}
-
-{{if True or 'EGLSyncKHR' in found_types}}
-
-cdef class EGLSyncKHR:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccuda.EGLSyncKHR  __val
-    cdef ccuda.EGLSyncKHR* _ptr
-{{endif}}
-
-{{if True or 'CUeglStreamConnection' in found_types}}
+{{if True}}
 
 cdef class CUeglStreamConnection:
     """
@@ -373,6 +362,51 @@ cdef class CUeglStreamConnection:
     """
     cdef ccuda.CUeglStreamConnection  __val
     cdef ccuda.CUeglStreamConnection* _ptr
+{{endif}}
+
+{{if True}}
+
+cdef class EGLImageKHR:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.EGLImageKHR  __val
+    cdef ccuda.EGLImageKHR* _ptr
+{{endif}}
+
+{{if True}}
+
+cdef class EGLStreamKHR:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.EGLStreamKHR  __val
+    cdef ccuda.EGLStreamKHR* _ptr
+{{endif}}
+
+{{if True}}
+
+cdef class EGLSyncKHR:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.EGLSyncKHR  __val
+    cdef ccuda.EGLSyncKHR* _ptr
 {{endif}}
 
 {{if 'CUhostFn' in found_types}}
@@ -420,11 +454,10 @@ cdef class CUoccupancyB2DSize:
     cdef ccuda.CUoccupancyB2DSize* _ptr
 {{endif}}
 
-{{if 'CUuuid_st' in found_types}}
+{{if 'struct CUuuid_st' in found_types}}
 
 cdef class CUuuid_st:
     """
-
     Attributes
     ----------
     bytes : bytes
@@ -436,10 +469,10 @@ cdef class CUuuid_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUuuid_st  __val
+    cdef ccuda.CUuuid_st __val
     cdef ccuda.CUuuid_st* _ptr
 {{endif}}
-{{if 'CUipcEventHandle_st' in found_types}}
+{{if 'struct CUipcEventHandle_st' in found_types}}
 
 cdef class CUipcEventHandle_st:
     """
@@ -456,10 +489,10 @@ cdef class CUipcEventHandle_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUipcEventHandle_st  __val
+    cdef ccuda.CUipcEventHandle_st __val
     cdef ccuda.CUipcEventHandle_st* _ptr
 {{endif}}
-{{if 'CUipcMemHandle_st' in found_types}}
+{{if 'struct CUipcMemHandle_st' in found_types}}
 
 cdef class CUipcMemHandle_st:
     """
@@ -476,14 +509,13 @@ cdef class CUipcMemHandle_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUipcMemHandle_st  __val
+    cdef ccuda.CUipcMemHandle_st __val
     cdef ccuda.CUipcMemHandle_st* _ptr
 {{endif}}
-{{if 'CUstreamBatchMemOpParams_union' in found_types}}
+{{if 'union CUstreamBatchMemOpParams_union' in found_types}}
 
 cdef class CUstreamMemOpWaitValueParams_st:
     """
-
     Attributes
     ----------
     operation : CUstreamBatchMemOpType
@@ -508,11 +540,10 @@ cdef class CUstreamMemOpWaitValueParams_st:
     cdef cuuint64_t _value64
     cdef CUdeviceptr _alias
 {{endif}}
-{{if 'CUstreamBatchMemOpParams_union' in found_types}}
+{{if 'union CUstreamBatchMemOpParams_union' in found_types}}
 
 cdef class CUstreamMemOpWriteValueParams_st:
     """
-
     Attributes
     ----------
     operation : CUstreamBatchMemOpType
@@ -537,11 +568,10 @@ cdef class CUstreamMemOpWriteValueParams_st:
     cdef cuuint64_t _value64
     cdef CUdeviceptr _alias
 {{endif}}
-{{if 'CUstreamBatchMemOpParams_union' in found_types}}
+{{if 'union CUstreamBatchMemOpParams_union' in found_types}}
 
 cdef class CUstreamMemOpFlushRemoteWritesParams_st:
     """
-
     Attributes
     ----------
     operation : CUstreamBatchMemOpType
@@ -557,11 +587,10 @@ cdef class CUstreamMemOpFlushRemoteWritesParams_st:
     """
     cdef ccuda.CUstreamBatchMemOpParams_union* _ptr
 {{endif}}
-{{if 'CUstreamBatchMemOpParams_union' in found_types}}
+{{if 'union CUstreamBatchMemOpParams_union' in found_types}}
 
 cdef class CUstreamMemOpMemoryBarrierParams_st:
     """
-
     Attributes
     ----------
     operation : CUstreamBatchMemOpType
@@ -604,19 +633,17 @@ cdef class CUstreamBatchMemOpParams_union:
         Get memory address of class instance
 
     """
-
     cdef ccuda.CUstreamBatchMemOpParams_union __val
     cdef ccuda.CUstreamBatchMemOpParams_union* _ptr
-    {{if 'waitValue' in found_unions['CUstreamBatchMemOpParams_union']['members']}}cdef CUstreamMemOpWaitValueParams_st _waitValue{{endif}}
-    {{if 'writeValue' in found_unions['CUstreamBatchMemOpParams_union']['members']}}cdef CUstreamMemOpWriteValueParams_st _writeValue{{endif}}
-    {{if 'flushRemoteWrites' in found_unions['CUstreamBatchMemOpParams_union']['members']}}cdef CUstreamMemOpFlushRemoteWritesParams_st _flushRemoteWrites{{endif}}
-    {{if 'memoryBarrier' in found_unions['CUstreamBatchMemOpParams_union']['members']}}cdef CUstreamMemOpMemoryBarrierParams_st _memoryBarrier{{endif}}
+    cdef CUstreamMemOpWaitValueParams_st _waitValue
+    cdef CUstreamMemOpWriteValueParams_st _writeValue
+    cdef CUstreamMemOpFlushRemoteWritesParams_st _flushRemoteWrites
+    cdef CUstreamMemOpMemoryBarrierParams_st _memoryBarrier
 {{endif}}
-{{if 'CUDA_BATCH_MEM_OP_NODE_PARAMS_st' in found_types}}
+{{if 'struct CUDA_BATCH_MEM_OP_NODE_PARAMS_st' in found_types}}
 
 cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_st:
     """
-
     Attributes
     ----------
     ctx : CUcontext
@@ -634,13 +661,14 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_st  __val
+    cdef ccuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_st __val
     cdef ccuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_st* _ptr
     cdef CUcontext _ctx
     cdef size_t _paramArray_length
     cdef ccuda.CUstreamBatchMemOpParams* _paramArray
+
 {{endif}}
-{{if 'CUdevprop_st' in found_types}}
+{{if 'struct CUdevprop_st' in found_types}}
 
 cdef class CUdevprop_st:
     """
@@ -675,10 +703,10 @@ cdef class CUdevprop_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUdevprop_st  __val
+    cdef ccuda.CUdevprop_st __val
     cdef ccuda.CUdevprop_st* _ptr
 {{endif}}
-{{if 'CUaccessPolicyWindow_st' in found_types}}
+{{if 'struct CUaccessPolicyWindow_st' in found_types}}
 
 cdef class CUaccessPolicyWindow_st:
     """
@@ -715,11 +743,10 @@ cdef class CUaccessPolicyWindow_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUaccessPolicyWindow_st  __val
+    cdef ccuda.CUaccessPolicyWindow_st __val
     cdef ccuda.CUaccessPolicyWindow_st* _ptr
-    cdef utils.HelperInputVoidPtr _cbase_ptr
 {{endif}}
-{{if 'CUDA_KERNEL_NODE_PARAMS_st' in found_types}}
+{{if 'struct CUDA_KERNEL_NODE_PARAMS_st' in found_types}}
 
 cdef class CUDA_KERNEL_NODE_PARAMS_st:
     """
@@ -754,12 +781,60 @@ cdef class CUDA_KERNEL_NODE_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_KERNEL_NODE_PARAMS_st  __val
+    cdef ccuda.CUDA_KERNEL_NODE_PARAMS_st __val
     cdef ccuda.CUDA_KERNEL_NODE_PARAMS_st* _ptr
     cdef CUfunction _func
     cdef utils.HelperKernelParams _ckernelParams
 {{endif}}
-{{if 'CUDA_MEMSET_NODE_PARAMS_st' in found_types}}
+{{if 'struct CUDA_KERNEL_NODE_PARAMS_v2_st' in found_types}}
+
+cdef class CUDA_KERNEL_NODE_PARAMS_v2_st:
+    """
+    GPU kernel node parameters
+
+    Attributes
+    ----------
+    func : CUfunction
+        Kernel to launch
+    gridDimX : unsigned int
+        Width of grid in blocks
+    gridDimY : unsigned int
+        Height of grid in blocks
+    gridDimZ : unsigned int
+        Depth of grid in blocks
+    blockDimX : unsigned int
+        X dimension of each thread block
+    blockDimY : unsigned int
+        Y dimension of each thread block
+    blockDimZ : unsigned int
+        Z dimension of each thread block
+    sharedMemBytes : unsigned int
+        Dynamic shared-memory size per thread block in bytes
+    kernelParams : Any
+        Array of pointers to kernel parameters
+    extra : Any
+        Extra options
+    kern : CUkernel
+        Kernel to launch, will only be referenced if func is NULL
+    ctx : CUcontext
+        Context for the kernel task to run in. The value NULL will indicate
+        the current context should be used by the api. This field is
+        ignored if func is set.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_KERNEL_NODE_PARAMS_v2_st __val
+    cdef ccuda.CUDA_KERNEL_NODE_PARAMS_v2_st* _ptr
+    cdef CUfunction _func
+    cdef utils.HelperKernelParams _ckernelParams
+    cdef CUkernel _kern
+    cdef CUcontext _ctx
+{{endif}}
+{{if 'struct CUDA_MEMSET_NODE_PARAMS_st' in found_types}}
 
 cdef class CUDA_MEMSET_NODE_PARAMS_st:
     """
@@ -786,11 +861,11 @@ cdef class CUDA_MEMSET_NODE_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_MEMSET_NODE_PARAMS_st  __val
+    cdef ccuda.CUDA_MEMSET_NODE_PARAMS_st __val
     cdef ccuda.CUDA_MEMSET_NODE_PARAMS_st* _ptr
     cdef CUdeviceptr _dst
 {{endif}}
-{{if 'CUDA_HOST_NODE_PARAMS_st' in found_types}}
+{{if 'struct CUDA_HOST_NODE_PARAMS_st' in found_types}}
 
 cdef class CUDA_HOST_NODE_PARAMS_st:
     """
@@ -809,16 +884,63 @@ cdef class CUDA_HOST_NODE_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_HOST_NODE_PARAMS_st  __val
+    cdef ccuda.CUDA_HOST_NODE_PARAMS_st __val
     cdef ccuda.CUDA_HOST_NODE_PARAMS_st* _ptr
     cdef CUhostFn _fn
-    cdef utils.HelperInputVoidPtr _cuserData
 {{endif}}
-{{if 'struct _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s' in found_types}}
+{{if 'struct CUDA_GRAPH_INSTANTIATE_PARAMS_st' in found_types}}
 
-cdef class _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s:
+cdef class CUDA_GRAPH_INSTANTIATE_PARAMS_st:
     """
+    Graph instantiation parameters
 
+    Attributes
+    ----------
+    flags : cuuint64_t
+        Instantiation flags
+    hUploadStream : CUstream
+        Upload stream
+    hErrNode_out : CUgraphNode
+        The node which caused instantiation to fail, if any
+    result_out : CUgraphInstantiateResult
+        Whether instantiation was successful. If it failed, the reason why
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_GRAPH_INSTANTIATE_PARAMS_st __val
+    cdef ccuda.CUDA_GRAPH_INSTANTIATE_PARAMS_st* _ptr
+    cdef cuuint64_t _flags
+    cdef CUstream _hUploadStream
+    cdef CUgraphNode _hErrNode_out
+{{endif}}
+{{if 'struct CUlaunchMemSyncDomainMap_st' in found_types}}
+
+cdef class CUlaunchMemSyncDomainMap_st:
+    """
+    Attributes
+    ----------
+    default_ : bytes
+
+    remote : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUlaunchMemSyncDomainMap_st __val
+    cdef ccuda.CUlaunchMemSyncDomainMap_st* _ptr
+{{endif}}
+{{if 'union CUlaunchAttributeValue_union' in found_types}}
+
+cdef class anon_struct0:
+    """
     Attributes
     ----------
     x : unsigned int
@@ -836,11 +958,10 @@ cdef class _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue
     """
     cdef ccuda.CUlaunchAttributeValue_union* _ptr
 {{endif}}
-{{if 'struct _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s' in found_types}}
+{{if 'union CUlaunchAttributeValue_union' in found_types}}
 
-cdef class _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s:
+cdef class anon_struct1:
     """
-
     Attributes
     ----------
     event : CUevent
@@ -863,26 +984,30 @@ cdef class _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue
 
 cdef class CUlaunchAttributeValue_union:
     """
-
     Attributes
     ----------
     pad : bytes
         Pad to 64 bytes
     accessPolicyWindow : CUaccessPolicyWindow
-
+        Attribute CUaccessPolicyWindow.
     cooperative : int
-
+        Nonzero indicates a cooperative kernel (see
+        cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
-
-    clusterDim : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s
-
+        ::CUsynchronizationPolicy for work queued up in this stream
+    clusterDim : anon_struct0
+        Cluster dimensions for the kernel node.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-
+        Cluster scheduling policy preference for the kernel node.
     programmaticStreamSerializationAllowed : int
 
-    programmaticEvent : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s
+    programmaticEvent : anon_struct1
 
     priority : int
+        Execution priority of the kernel.
+    memSyncDomainMap : CUlaunchMemSyncDomainMap
+
+    memSyncDomain : CUlaunchMemSyncDomain
 
 
     Methods
@@ -891,18 +1016,17 @@ cdef class CUlaunchAttributeValue_union:
         Get memory address of class instance
 
     """
-
     cdef ccuda.CUlaunchAttributeValue_union __val
     cdef ccuda.CUlaunchAttributeValue_union* _ptr
-    {{if 'accessPolicyWindow' in found_unions['CUlaunchAttributeValue_union']['members']}}cdef CUaccessPolicyWindow _accessPolicyWindow{{endif}}
-    {{if 'clusterDim' in found_unions['CUlaunchAttributeValue_union']['members']}}cdef _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s _clusterDim{{endif}}
-    {{if 'programmaticEvent' in found_unions['CUlaunchAttributeValue_union']['members']}}cdef _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s _programmaticEvent{{endif}}
+    cdef CUaccessPolicyWindow _accessPolicyWindow
+    cdef anon_struct0 _clusterDim
+    cdef anon_struct1 _programmaticEvent
+    cdef CUlaunchMemSyncDomainMap _memSyncDomainMap
 {{endif}}
-{{if 'CUlaunchAttribute_st' in found_types}}
+{{if 'struct CUlaunchAttribute_st' in found_types}}
 
 cdef class CUlaunchAttribute_st:
     """
-
     Attributes
     ----------
     id : CUlaunchAttributeID
@@ -916,15 +1040,14 @@ cdef class CUlaunchAttribute_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUlaunchAttribute_st  __val
+    cdef ccuda.CUlaunchAttribute_st __val
     cdef ccuda.CUlaunchAttribute_st* _ptr
     cdef CUlaunchAttributeValue _value
 {{endif}}
-{{if 'CUlaunchConfig_st' in found_types}}
+{{if 'struct CUlaunchConfig_st' in found_types}}
 
 cdef class CUlaunchConfig_st:
     """
-
     Attributes
     ----------
     gridDimX : unsigned int
@@ -954,13 +1077,14 @@ cdef class CUlaunchConfig_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUlaunchConfig_st  __val
+    cdef ccuda.CUlaunchConfig_st __val
     cdef ccuda.CUlaunchConfig_st* _ptr
     cdef CUstream _hStream
     cdef size_t _attrs_length
     cdef ccuda.CUlaunchAttribute* _attrs
+
 {{endif}}
-{{if 'CUexecAffinitySmCount_st' in found_types}}
+{{if 'struct CUexecAffinitySmCount_st' in found_types}}
 
 cdef class CUexecAffinitySmCount_st:
     """
@@ -977,14 +1101,13 @@ cdef class CUexecAffinitySmCount_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUexecAffinitySmCount_st  __val
+    cdef ccuda.CUexecAffinitySmCount_st __val
     cdef ccuda.CUexecAffinitySmCount_st* _ptr
 {{endif}}
-{{if 'CUexecAffinityParam_st' in found_types}}
+{{if 'struct CUexecAffinityParam_st' in found_types}}
 
-cdef class _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st_param_u:
+cdef class anon_union2:
     """
-
     Attributes
     ----------
     smCount : CUexecAffinitySmCount
@@ -999,7 +1122,7 @@ cdef class _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st
     cdef ccuda.CUexecAffinityParam_st* _ptr
     cdef CUexecAffinitySmCount _smCount
 {{endif}}
-{{if 'CUexecAffinityParam_st' in found_types}}
+{{if 'struct CUexecAffinityParam_st' in found_types}}
 
 cdef class CUexecAffinityParam_st:
     """
@@ -1009,7 +1132,7 @@ cdef class CUexecAffinityParam_st:
     ----------
     type : CUexecAffinityType
 
-    param : _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st_param_u
+    param : anon_union2
 
 
     Methods
@@ -1018,11 +1141,35 @@ cdef class CUexecAffinityParam_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUexecAffinityParam_st  __val
+    cdef ccuda.CUexecAffinityParam_st __val
     cdef ccuda.CUexecAffinityParam_st* _ptr
-    cdef _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st_param_u _param
+    cdef anon_union2 _param
 {{endif}}
-{{if 'CUDA_MEMCPY2D_st' in found_types}}
+{{if 'struct CUlibraryHostUniversalFunctionAndDataTable_st' in found_types}}
+
+cdef class CUlibraryHostUniversalFunctionAndDataTable_st:
+    """
+    Attributes
+    ----------
+    functionTable : Any
+
+    functionWindowSize : size_t
+
+    dataTable : Any
+
+    dataWindowSize : size_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUlibraryHostUniversalFunctionAndDataTable_st __val
+    cdef ccuda.CUlibraryHostUniversalFunctionAndDataTable_st* _ptr
+{{endif}}
+{{if 'struct CUDA_MEMCPY2D_st' in found_types}}
 
 cdef class CUDA_MEMCPY2D_st:
     """
@@ -1069,16 +1216,14 @@ cdef class CUDA_MEMCPY2D_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_MEMCPY2D_st  __val
+    cdef ccuda.CUDA_MEMCPY2D_st __val
     cdef ccuda.CUDA_MEMCPY2D_st* _ptr
-    cdef utils.HelperInputVoidPtr _csrcHost
     cdef CUdeviceptr _srcDevice
     cdef CUarray _srcArray
-    cdef utils.HelperInputVoidPtr _cdstHost
     cdef CUdeviceptr _dstDevice
     cdef CUarray _dstArray
 {{endif}}
-{{if 'CUDA_MEMCPY3D_st' in found_types}}
+{{if 'struct CUDA_MEMCPY3D_st' in found_types}}
 
 cdef class CUDA_MEMCPY3D_st:
     """
@@ -1144,18 +1289,14 @@ cdef class CUDA_MEMCPY3D_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_MEMCPY3D_st  __val
+    cdef ccuda.CUDA_MEMCPY3D_st __val
     cdef ccuda.CUDA_MEMCPY3D_st* _ptr
-    cdef utils.HelperInputVoidPtr _csrcHost
     cdef CUdeviceptr _srcDevice
     cdef CUarray _srcArray
-    cdef utils.HelperInputVoidPtr _creserved0
-    cdef utils.HelperInputVoidPtr _cdstHost
     cdef CUdeviceptr _dstDevice
     cdef CUarray _dstArray
-    cdef utils.HelperInputVoidPtr _creserved1
 {{endif}}
-{{if 'CUDA_MEMCPY3D_PEER_st' in found_types}}
+{{if 'struct CUDA_MEMCPY3D_PEER_st' in found_types}}
 
 cdef class CUDA_MEMCPY3D_PEER_st:
     """
@@ -1222,18 +1363,16 @@ cdef class CUDA_MEMCPY3D_PEER_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_MEMCPY3D_PEER_st  __val
+    cdef ccuda.CUDA_MEMCPY3D_PEER_st __val
     cdef ccuda.CUDA_MEMCPY3D_PEER_st* _ptr
-    cdef utils.HelperInputVoidPtr _csrcHost
     cdef CUdeviceptr _srcDevice
     cdef CUarray _srcArray
     cdef CUcontext _srcContext
-    cdef utils.HelperInputVoidPtr _cdstHost
     cdef CUdeviceptr _dstDevice
     cdef CUarray _dstArray
     cdef CUcontext _dstContext
 {{endif}}
-{{if 'CUDA_ARRAY_DESCRIPTOR_st' in found_types}}
+{{if 'struct CUDA_ARRAY_DESCRIPTOR_st' in found_types}}
 
 cdef class CUDA_ARRAY_DESCRIPTOR_st:
     """
@@ -1256,10 +1395,10 @@ cdef class CUDA_ARRAY_DESCRIPTOR_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_ARRAY_DESCRIPTOR_st  __val
+    cdef ccuda.CUDA_ARRAY_DESCRIPTOR_st __val
     cdef ccuda.CUDA_ARRAY_DESCRIPTOR_st* _ptr
 {{endif}}
-{{if 'CUDA_ARRAY3D_DESCRIPTOR_st' in found_types}}
+{{if 'struct CUDA_ARRAY3D_DESCRIPTOR_st' in found_types}}
 
 cdef class CUDA_ARRAY3D_DESCRIPTOR_st:
     """
@@ -1286,14 +1425,13 @@ cdef class CUDA_ARRAY3D_DESCRIPTOR_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_ARRAY3D_DESCRIPTOR_st  __val
+    cdef ccuda.CUDA_ARRAY3D_DESCRIPTOR_st __val
     cdef ccuda.CUDA_ARRAY3D_DESCRIPTOR_st* _ptr
 {{endif}}
-{{if 'CUDA_ARRAY_SPARSE_PROPERTIES_st' in found_types}}
+{{if 'struct CUDA_ARRAY_SPARSE_PROPERTIES_st' in found_types}}
 
-cdef class _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s:
+cdef class anon_struct2:
     """
-
     Attributes
     ----------
     width : unsigned int
@@ -1311,7 +1449,7 @@ cdef class _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA
     """
     cdef ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st* _ptr
 {{endif}}
-{{if 'CUDA_ARRAY_SPARSE_PROPERTIES_st' in found_types}}
+{{if 'struct CUDA_ARRAY_SPARSE_PROPERTIES_st' in found_types}}
 
 cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
     """
@@ -1319,7 +1457,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
 
     Attributes
     ----------
-    tileExtent : _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s
+    tileExtent : anon_struct2
 
     miptailFirstLevel : unsigned int
         First mip level at which the mip tail begins.
@@ -1337,11 +1475,11 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st  __val
+    cdef ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st __val
     cdef ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st* _ptr
-    cdef _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s _tileExtent
+    cdef anon_struct2 _tileExtent
 {{endif}}
-{{if 'CUDA_ARRAY_MEMORY_REQUIREMENTS_st' in found_types}}
+{{if 'struct CUDA_ARRAY_MEMORY_REQUIREMENTS_st' in found_types}}
 
 cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
     """
@@ -1362,14 +1500,13 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_ARRAY_MEMORY_REQUIREMENTS_st  __val
+    cdef ccuda.CUDA_ARRAY_MEMORY_REQUIREMENTS_st __val
     cdef ccuda.CUDA_ARRAY_MEMORY_REQUIREMENTS_st* _ptr
 {{endif}}
-{{if 'CUDA_RESOURCE_DESC_st' in found_types}}
+{{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_array_s:
+cdef class anon_struct3:
     """
-
     Attributes
     ----------
     hArray : CUarray
@@ -1384,11 +1521,10 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
     cdef ccuda.CUDA_RESOURCE_DESC_st* _ptr
     cdef CUarray _hArray
 {{endif}}
-{{if 'CUDA_RESOURCE_DESC_st' in found_types}}
+{{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_mipmap_s:
+cdef class anon_struct4:
     """
-
     Attributes
     ----------
     hMipmappedArray : CUmipmappedArray
@@ -1403,11 +1539,10 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
     cdef ccuda.CUDA_RESOURCE_DESC_st* _ptr
     cdef CUmipmappedArray _hMipmappedArray
 {{endif}}
-{{if 'CUDA_RESOURCE_DESC_st' in found_types}}
+{{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_linear_s:
+cdef class anon_struct5:
     """
-
     Attributes
     ----------
     devPtr : CUdeviceptr
@@ -1428,11 +1563,10 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
     cdef ccuda.CUDA_RESOURCE_DESC_st* _ptr
     cdef CUdeviceptr _devPtr
 {{endif}}
-{{if 'CUDA_RESOURCE_DESC_st' in found_types}}
+{{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_pitch2D_s:
+cdef class anon_struct6:
     """
-
     Attributes
     ----------
     devPtr : CUdeviceptr
@@ -1457,11 +1591,10 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
     cdef ccuda.CUDA_RESOURCE_DESC_st* _ptr
     cdef CUdeviceptr _devPtr
 {{endif}}
-{{if 'CUDA_RESOURCE_DESC_st' in found_types}}
+{{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_reserved_s:
+cdef class anon_struct7:
     """
-
     Attributes
     ----------
     reserved : List[int]
@@ -1475,22 +1608,21 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
     """
     cdef ccuda.CUDA_RESOURCE_DESC_st* _ptr
 {{endif}}
-{{if 'CUDA_RESOURCE_DESC_st' in found_types}}
+{{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_u:
+cdef class anon_union3:
     """
-
     Attributes
     ----------
-    array : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_array_s
+    array : anon_struct3
 
-    mipmap : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_mipmap_s
+    mipmap : anon_struct4
 
-    linear : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_linear_s
+    linear : anon_struct5
 
-    pitch2D : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_pitch2D_s
+    pitch2D : anon_struct6
 
-    reserved : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_reserved_s
+    reserved : anon_struct7
 
 
     Methods
@@ -1500,13 +1632,13 @@ cdef class _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_re
 
     """
     cdef ccuda.CUDA_RESOURCE_DESC_st* _ptr
-    cdef _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_array_s _array
-    cdef _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_mipmap_s _mipmap
-    cdef _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_linear_s _linear
-    cdef _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_pitch2D_s _pitch2D
-    cdef _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_reserved_s _reserved
+    cdef anon_struct3 _array
+    cdef anon_struct4 _mipmap
+    cdef anon_struct5 _linear
+    cdef anon_struct6 _pitch2D
+    cdef anon_struct7 _reserved
 {{endif}}
-{{if 'CUDA_RESOURCE_DESC_st' in found_types}}
+{{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
 cdef class CUDA_RESOURCE_DESC_st:
     """
@@ -1516,7 +1648,7 @@ cdef class CUDA_RESOURCE_DESC_st:
     ----------
     resType : CUresourcetype
         Resource type
-    res : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_u
+    res : anon_union3
 
     flags : unsigned int
         Flags (must be zero)
@@ -1527,11 +1659,11 @@ cdef class CUDA_RESOURCE_DESC_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_RESOURCE_DESC_st  __val
+    cdef ccuda.CUDA_RESOURCE_DESC_st __val
     cdef ccuda.CUDA_RESOURCE_DESC_st* _ptr
-    cdef _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_u _res
+    cdef anon_union3 _res
 {{endif}}
-{{if 'CUDA_TEXTURE_DESC_st' in found_types}}
+{{if 'struct CUDA_TEXTURE_DESC_st' in found_types}}
 
 cdef class CUDA_TEXTURE_DESC_st:
     """
@@ -1566,10 +1698,10 @@ cdef class CUDA_TEXTURE_DESC_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_TEXTURE_DESC_st  __val
+    cdef ccuda.CUDA_TEXTURE_DESC_st __val
     cdef ccuda.CUDA_TEXTURE_DESC_st* _ptr
 {{endif}}
-{{if 'CUDA_RESOURCE_VIEW_DESC_st' in found_types}}
+{{if 'struct CUDA_RESOURCE_VIEW_DESC_st' in found_types}}
 
 cdef class CUDA_RESOURCE_VIEW_DESC_st:
     """
@@ -1602,10 +1734,31 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_RESOURCE_VIEW_DESC_st  __val
+    cdef ccuda.CUDA_RESOURCE_VIEW_DESC_st __val
     cdef ccuda.CUDA_RESOURCE_VIEW_DESC_st* _ptr
 {{endif}}
-{{if 'CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st' in found_types}}
+{{if 'struct CUtensorMap_st' in found_types}}
+
+cdef class CUtensorMap_st:
+    """
+    Tensor map descriptor. Requires compiler support for aligning to 64
+    bytes.
+
+    Attributes
+    ----------
+    opaque : List[cuuint64_t]
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUtensorMap_st __val
+    cdef ccuda.CUtensorMap_st* _ptr
+{{endif}}
+{{if 'struct CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st' in found_types}}
 
 cdef class CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st:
     """
@@ -1624,10 +1777,10 @@ cdef class CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st  __val
+    cdef ccuda.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st __val
     cdef ccuda.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st* _ptr
 {{endif}}
-{{if 'CUDA_LAUNCH_PARAMS_st' in found_types}}
+{{if 'struct CUDA_LAUNCH_PARAMS_st' in found_types}}
 
 cdef class CUDA_LAUNCH_PARAMS_st:
     """
@@ -1662,22 +1815,21 @@ cdef class CUDA_LAUNCH_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_LAUNCH_PARAMS_st  __val
+    cdef ccuda.CUDA_LAUNCH_PARAMS_st __val
     cdef ccuda.CUDA_LAUNCH_PARAMS_st* _ptr
     cdef CUfunction _function
     cdef CUstream _hStream
     cdef utils.HelperKernelParams _ckernelParams
 {{endif}}
-{{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_handle_win32_s:
+cdef class anon_struct8:
     """
-
     Attributes
     ----------
-    handle : void
+    handle : Any
 
-    name : void
+    name : Any
 
 
     Methods
@@ -1687,21 +1839,18 @@ cdef class _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC
 
     """
     cdef ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st* _ptr
-    cdef utils.HelperInputVoidPtr _chandle
-    cdef utils.HelperInputVoidPtr _cname
 {{endif}}
-{{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_u:
+cdef class anon_union4:
     """
-
     Attributes
     ----------
     fd : int
 
-    win32 : _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_handle_win32_s
+    win32 : anon_struct8
 
-    nvSciBufObject : void
+    nvSciBufObject : Any
 
 
     Methods
@@ -1711,10 +1860,9 @@ cdef class _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC
 
     """
     cdef ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st* _ptr
-    cdef _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_handle_win32_s _win32
-    cdef utils.HelperInputVoidPtr _cnvSciBufObject
+    cdef anon_struct8 _win32
 {{endif}}
-{{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st' in found_types}}
 
 cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
     """
@@ -1724,7 +1872,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
     ----------
     type : CUexternalMemoryHandleType
         Type of the handle
-    handle : _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_u
+    handle : anon_union4
 
     size : unsigned long long
         Size of the memory allocation
@@ -1739,11 +1887,11 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st  __val
+    cdef ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st __val
     cdef ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st* _ptr
-    cdef _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_u _handle
+    cdef anon_union4 _handle
 {{endif}}
-{{if 'CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st' in found_types}}
 
 cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
     """
@@ -1766,10 +1914,10 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st  __val
+    cdef ccuda.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st __val
     cdef ccuda.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st* _ptr
 {{endif}}
-{{if 'CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st' in found_types}}
 
 cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
     """
@@ -1793,20 +1941,19 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st  __val
+    cdef ccuda.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st __val
     cdef ccuda.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st* _ptr
     cdef CUDA_ARRAY3D_DESCRIPTOR _arrayDesc
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_handle_win32_s:
+cdef class anon_struct9:
     """
-
     Attributes
     ----------
-    handle : void
+    handle : Any
 
-    name : void
+    name : Any
 
 
     Methods
@@ -1816,21 +1963,18 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDL
 
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st* _ptr
-    cdef utils.HelperInputVoidPtr _chandle
-    cdef utils.HelperInputVoidPtr _cname
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_u:
+cdef class anon_union5:
     """
-
     Attributes
     ----------
     fd : int
 
-    win32 : _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_handle_win32_s
+    win32 : anon_struct9
 
-    nvSciSyncObj : void
+    nvSciSyncObj : Any
 
 
     Methods
@@ -1840,10 +1984,9 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDL
 
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st* _ptr
-    cdef _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_handle_win32_s _win32
-    cdef utils.HelperInputVoidPtr _cnvSciSyncObj
+    cdef anon_struct9 _win32
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st' in found_types}}
 
 cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
     """
@@ -1853,7 +1996,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
     ----------
     type : CUexternalSemaphoreHandleType
         Type of the handle
-    handle : _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_u
+    handle : anon_union5
 
     flags : unsigned int
         Flags reserved for the future. Must be zero.
@@ -1866,15 +2009,14 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st  __val
+    cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st __val
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st* _ptr
-    cdef _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_u _handle
+    cdef anon_union5 _handle
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_fence_s:
+cdef class anon_struct10:
     """
-
     Attributes
     ----------
     value : unsigned long long
@@ -1888,14 +2030,13 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIG
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_nvSciSync_u:
+cdef class anon_union6:
     """
-
     Attributes
     ----------
-    fence : void
+    fence : Any
 
     reserved : unsigned long long
 
@@ -1907,13 +2048,11 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIG
 
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
-    cdef utils.HelperInputVoidPtr _cfence
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_keyedMutex_s:
+cdef class anon_struct11:
     """
-
     Attributes
     ----------
     key : unsigned long long
@@ -1927,18 +2066,17 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIG
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_s:
+cdef class anon_struct12:
     """
-
     Attributes
     ----------
-    fence : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_fence_s
+    fence : anon_struct10
 
-    nvSciSync : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_nvSciSync_u
+    nvSciSync : anon_union6
 
-    keyedMutex : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_keyedMutex_s
+    keyedMutex : anon_struct11
 
     reserved : List[unsigned int]
 
@@ -1950,11 +2088,11 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIG
 
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
-    cdef _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_fence_s _fence
-    cdef _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_nvSciSync_u _nvSciSync
-    cdef _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_keyedMutex_s _keyedMutex
+    cdef anon_struct10 _fence
+    cdef anon_union6 _nvSciSync
+    cdef anon_struct11 _keyedMutex
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
 
 cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
     """
@@ -1962,7 +2100,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
 
     Attributes
     ----------
-    params : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_s
+    params : anon_struct12
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal
@@ -1982,15 +2120,14 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st  __val
+    cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st __val
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
-    cdef _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_s _params
+    cdef anon_struct12 _params
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_fence_s:
+cdef class anon_struct13:
     """
-
     Attributes
     ----------
     value : unsigned long long
@@ -2004,14 +2141,13 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_nvSciSync_u:
+cdef class anon_union7:
     """
-
     Attributes
     ----------
-    fence : void
+    fence : Any
 
     reserved : unsigned long long
 
@@ -2023,13 +2159,11 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_
 
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
-    cdef utils.HelperInputVoidPtr _cfence
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_keyedMutex_s:
+cdef class anon_struct14:
     """
-
     Attributes
     ----------
     key : unsigned long long
@@ -2045,18 +2179,17 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
 
-cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_s:
+cdef class anon_struct15:
     """
-
     Attributes
     ----------
-    fence : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_fence_s
+    fence : anon_struct13
 
-    nvSciSync : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_nvSciSync_u
+    nvSciSync : anon_union7
 
-    keyedMutex : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_keyedMutex_s
+    keyedMutex : anon_struct14
 
     reserved : List[unsigned int]
 
@@ -2068,11 +2201,11 @@ cdef class _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_
 
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
-    cdef _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_fence_s _fence
-    cdef _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_nvSciSync_u _nvSciSync
-    cdef _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_keyedMutex_s _keyedMutex
+    cdef anon_struct13 _fence
+    cdef anon_union7 _nvSciSync
+    cdef anon_struct14 _keyedMutex
 {{endif}}
-{{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
 
 cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
     """
@@ -2080,7 +2213,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
 
     Attributes
     ----------
-    params : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_s
+    params : anon_struct15
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on
@@ -2100,11 +2233,11 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st  __val
+    cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st __val
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
-    cdef _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_s _params
+    cdef anon_struct15 _params
 {{endif}}
-{{if 'CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st' in found_types}}
 
 cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
     """
@@ -2126,14 +2259,16 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st  __val
+    cdef ccuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st __val
     cdef ccuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st* _ptr
     cdef size_t _extSemArray_length
     cdef ccuda.CUexternalSemaphore* _extSemArray
+
     cdef size_t _paramsArray_length
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* _paramsArray
+
 {{endif}}
-{{if 'CUDA_EXT_SEM_WAIT_NODE_PARAMS_st' in found_types}}
+{{if 'struct CUDA_EXT_SEM_WAIT_NODE_PARAMS_st' in found_types}}
 
 cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
     """
@@ -2155,18 +2290,19 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_st  __val
+    cdef ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_st __val
     cdef ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_st* _ptr
     cdef size_t _extSemArray_length
     cdef ccuda.CUexternalSemaphore* _extSemArray
+
     cdef size_t _paramsArray_length
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* _paramsArray
+
 {{endif}}
-{{if 'CUarrayMapInfo_st' in found_types}}
+{{if 'struct CUarrayMapInfo_st' in found_types}}
 
-cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u:
+cdef class anon_union8:
     """
-
     Attributes
     ----------
     mipmap : CUmipmappedArray
@@ -2184,11 +2320,10 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u:
     cdef CUmipmappedArray _mipmap
     cdef CUarray _array
 {{endif}}
-{{if 'CUarrayMapInfo_st' in found_types}}
+{{if 'struct CUarrayMapInfo_st' in found_types}}
 
-cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_sparseLevel_s:
+cdef class anon_struct16:
     """
-
     Attributes
     ----------
     level : unsigned int
@@ -2216,11 +2351,10 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_su
     """
     cdef ccuda.CUarrayMapInfo_st* _ptr
 {{endif}}
-{{if 'CUarrayMapInfo_st' in found_types}}
+{{if 'struct CUarrayMapInfo_st' in found_types}}
 
-cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_miptail_s:
+cdef class anon_struct17:
     """
-
     Attributes
     ----------
     layer : unsigned int
@@ -2238,16 +2372,15 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_su
     """
     cdef ccuda.CUarrayMapInfo_st* _ptr
 {{endif}}
-{{if 'CUarrayMapInfo_st' in found_types}}
+{{if 'struct CUarrayMapInfo_st' in found_types}}
 
-cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u:
+cdef class anon_union9:
     """
-
     Attributes
     ----------
-    sparseLevel : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_sparseLevel_s
+    sparseLevel : anon_struct16
 
-    miptail : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_miptail_s
+    miptail : anon_struct17
 
 
     Methods
@@ -2257,14 +2390,13 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u:
 
     """
     cdef ccuda.CUarrayMapInfo_st* _ptr
-    cdef _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_sparseLevel_s _sparseLevel
-    cdef _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_miptail_s _miptail
+    cdef anon_struct16 _sparseLevel
+    cdef anon_struct17 _miptail
 {{endif}}
-{{if 'CUarrayMapInfo_st' in found_types}}
+{{if 'struct CUarrayMapInfo_st' in found_types}}
 
-cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u:
+cdef class anon_union10:
     """
-
     Attributes
     ----------
     memHandle : CUmemGenericAllocationHandle
@@ -2279,7 +2411,7 @@ cdef class _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u:
     cdef ccuda.CUarrayMapInfo_st* _ptr
     cdef CUmemGenericAllocationHandle _memHandle
 {{endif}}
-{{if 'CUarrayMapInfo_st' in found_types}}
+{{if 'struct CUarrayMapInfo_st' in found_types}}
 
 cdef class CUarrayMapInfo_st:
     """
@@ -2290,17 +2422,17 @@ cdef class CUarrayMapInfo_st:
     ----------
     resourceType : CUresourcetype
         Resource type
-    resource : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u
+    resource : anon_union8
 
     subresourceType : CUarraySparseSubresourceType
         Sparse subresource type
-    subresource : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u
+    subresource : anon_union9
 
     memOperationType : CUmemOperationType
         Memory operation type
     memHandleType : CUmemHandleType
         Memory handle type
-    memHandle : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u
+    memHandle : anon_union10
 
     offset : unsigned long long
         Offset within mip tail  Offset within the memory
@@ -2317,13 +2449,13 @@ cdef class CUarrayMapInfo_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUarrayMapInfo_st  __val
+    cdef ccuda.CUarrayMapInfo_st __val
     cdef ccuda.CUarrayMapInfo_st* _ptr
-    cdef _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u _resource
-    cdef _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u _subresource
-    cdef _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u _memHandle
+    cdef anon_union8 _resource
+    cdef anon_union9 _subresource
+    cdef anon_union10 _memHandle
 {{endif}}
-{{if 'CUmemLocation_st' in found_types}}
+{{if 'struct CUmemLocation_st' in found_types}}
 
 cdef class CUmemLocation_st:
     """
@@ -2342,23 +2474,22 @@ cdef class CUmemLocation_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUmemLocation_st  __val
+    cdef ccuda.CUmemLocation_st __val
     cdef ccuda.CUmemLocation_st* _ptr
 {{endif}}
-{{if 'CUmemAllocationProp_st' in found_types}}
+{{if 'struct CUmemAllocationProp_st' in found_types}}
 
-cdef class _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s:
+cdef class anon_struct18:
     """
-
     Attributes
     ----------
-    compressionType : unsigned char
+    compressionType : bytes
 
-    gpuDirectRDMACapable : unsigned char
+    gpuDirectRDMACapable : bytes
 
     usage : unsigned short
 
-    reserved : unsigned char
+    reserved : bytes
 
 
     Methods
@@ -2369,7 +2500,7 @@ cdef class _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st
     """
     cdef ccuda.CUmemAllocationProp_st* _ptr
 {{endif}}
-{{if 'CUmemAllocationProp_st' in found_types}}
+{{if 'struct CUmemAllocationProp_st' in found_types}}
 
 cdef class CUmemAllocationProp_st:
     """
@@ -2389,7 +2520,7 @@ cdef class CUmemAllocationProp_st:
         structure includes security attributes that define the scope of
         which exported allocations may be tranferred to other processes. In
         all other cases, this field is required to be zero.
-    allocFlags : _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s
+    allocFlags : anon_struct18
 
 
     Methods
@@ -2398,13 +2529,12 @@ cdef class CUmemAllocationProp_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUmemAllocationProp_st  __val
+    cdef ccuda.CUmemAllocationProp_st __val
     cdef ccuda.CUmemAllocationProp_st* _ptr
     cdef CUmemLocation _location
-    cdef utils.HelperInputVoidPtr _cwin32HandleMetaData
-    cdef _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s _allocFlags
+    cdef anon_struct18 _allocFlags
 {{endif}}
-{{if 'CUmemAccessDesc_st' in found_types}}
+{{if 'struct CUmemAccessDesc_st' in found_types}}
 
 cdef class CUmemAccessDesc_st:
     """
@@ -2423,11 +2553,40 @@ cdef class CUmemAccessDesc_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUmemAccessDesc_st  __val
+    cdef ccuda.CUmemAccessDesc_st __val
     cdef ccuda.CUmemAccessDesc_st* _ptr
     cdef CUmemLocation _location
 {{endif}}
-{{if 'CUmemPoolProps_st' in found_types}}
+{{if 'struct CUgraphExecUpdateResultInfo_st' in found_types}}
+
+cdef class CUgraphExecUpdateResultInfo_st:
+    """
+    Result information returned by cuGraphExecUpdate
+
+    Attributes
+    ----------
+    result : CUgraphExecUpdateResult
+        Gives more specific detail when a cuda graph update fails.
+    errorNode : CUgraphNode
+        The "to node" of the error edge when the topologies do not match.
+        The error node when the error is associated with a specific node.
+        NULL when the error is generic.
+    errorFromNode : CUgraphNode
+        The from node of error edge when the topologies do not match.
+        Otherwise NULL.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUgraphExecUpdateResultInfo_st __val
+    cdef ccuda.CUgraphExecUpdateResultInfo_st* _ptr
+    cdef CUgraphNode _errorNode
+    cdef CUgraphNode _errorFromNode
+{{endif}}
+{{if 'struct CUmemPoolProps_st' in found_types}}
 
 cdef class CUmemPoolProps_st:
     """
@@ -2457,12 +2616,11 @@ cdef class CUmemPoolProps_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUmemPoolProps_st  __val
+    cdef ccuda.CUmemPoolProps_st __val
     cdef ccuda.CUmemPoolProps_st* _ptr
     cdef CUmemLocation _location
-    cdef utils.HelperInputVoidPtr _cwin32SecurityAttributes
 {{endif}}
-{{if 'CUmemPoolPtrExportData_st' in found_types}}
+{{if 'struct CUmemPoolPtrExportData_st' in found_types}}
 
 cdef class CUmemPoolPtrExportData_st:
     """
@@ -2479,10 +2637,10 @@ cdef class CUmemPoolPtrExportData_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUmemPoolPtrExportData_st  __val
+    cdef ccuda.CUmemPoolPtrExportData_st __val
     cdef ccuda.CUmemPoolPtrExportData_st* _ptr
 {{endif}}
-{{if 'CUDA_MEM_ALLOC_NODE_PARAMS_st' in found_types}}
+{{if 'struct CUDA_MEM_ALLOC_NODE_PARAMS_st' in found_types}}
 
 cdef class CUDA_MEM_ALLOC_NODE_PARAMS_st:
     """
@@ -2511,23 +2669,23 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_MEM_ALLOC_NODE_PARAMS_st  __val
+    cdef ccuda.CUDA_MEM_ALLOC_NODE_PARAMS_st __val
     cdef ccuda.CUDA_MEM_ALLOC_NODE_PARAMS_st* _ptr
     cdef CUmemPoolProps _poolProps
     cdef size_t _accessDescs_length
     cdef ccuda.CUmemAccessDesc* _accessDescs
+
     cdef CUdeviceptr _dptr
 {{endif}}
-{{if True or 'CUeglFrame_st' in found_types}}
+{{if True}}
 
-cdef class _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u:
+cdef class anon_union11:
     """
-
     Attributes
     ----------
     pArray : List[CUarray]
 
-    pPitch : List[void]
+    pPitch : List[Any]
 
 
     Methods
@@ -2538,7 +2696,7 @@ cdef class _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u:
     """
     cdef ccuda.CUeglFrame_st* _ptr
 {{endif}}
-{{if True or 'CUeglFrame_st' in found_types}}
+{{if True}}
 
 cdef class CUeglFrame_st:
     """
@@ -2548,7 +2706,7 @@ cdef class CUeglFrame_st:
 
     Attributes
     ----------
-    frame : _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u
+    frame : anon_union11
 
     width : unsigned int
         Width of first plane
@@ -2575,15 +2733,78 @@ cdef class CUeglFrame_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUeglFrame_st  __val
+    cdef ccuda.CUeglFrame_st __val
     cdef ccuda.CUeglFrame_st* _ptr
-    cdef _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u _frame
+    cdef anon_union11 _frame
+{{endif}}
+{{if 'CUdeviceptr' in found_types}}
+
+cdef class CUdeviceptr:
+    """
+
+    CUDA device pointer CUdeviceptr is defined as an unsigned integer type whose size matches the size of a pointer on the target platform.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUdeviceptr __val
+    cdef ccuda.CUdeviceptr* _ptr
+{{endif}}
+{{if 'CUdevice' in found_types}}
+
+cdef class CUdevice:
+    """
+
+    CUDA device
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUdevice __val
+    cdef ccuda.CUdevice* _ptr
+{{endif}}
+{{if 'CUtexObject' in found_types}}
+
+cdef class CUtexObject:
+    """
+
+    An opaque value that represents a CUDA texture object
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUtexObject __val
+    cdef ccuda.CUtexObject* _ptr
+{{endif}}
+{{if 'CUsurfObject' in found_types}}
+
+cdef class CUsurfObject:
+    """
+
+    An opaque value that represents a CUDA surface object
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUsurfObject __val
+    cdef ccuda.CUsurfObject* _ptr
 {{endif}}
 {{if 'CUuuid' in found_types}}
 
 cdef class CUuuid(CUuuid_st):
     """
-
     Attributes
     ----------
     bytes : bytes
@@ -2618,7 +2839,7 @@ cdef class CUipcEventHandle_v1(CUipcEventHandle_st):
 {{endif}}
 {{if 'CUipcEventHandle' in found_types}}
 
-cdef class CUipcEventHandle(CUipcEventHandle_st):
+cdef class CUipcEventHandle(CUipcEventHandle_v1):
     """
     CUDA IPC event handle
 
@@ -2656,7 +2877,7 @@ cdef class CUipcMemHandle_v1(CUipcMemHandle_st):
 {{endif}}
 {{if 'CUipcMemHandle' in found_types}}
 
-cdef class CUipcMemHandle(CUipcMemHandle_st):
+cdef class CUipcMemHandle(CUipcMemHandle_v1):
     """
     CUDA IPC mem handle
 
@@ -2704,7 +2925,7 @@ cdef class CUstreamBatchMemOpParams_v1(CUstreamBatchMemOpParams_union):
 {{endif}}
 {{if 'CUstreamBatchMemOpParams' in found_types}}
 
-cdef class CUstreamBatchMemOpParams(CUstreamBatchMemOpParams_union):
+cdef class CUstreamBatchMemOpParams(CUstreamBatchMemOpParams_v1):
     """
     Per-operation parameters for cuStreamBatchMemOp
 
@@ -2735,7 +2956,6 @@ cdef class CUstreamBatchMemOpParams(CUstreamBatchMemOpParams_union):
 
 cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS(CUDA_BATCH_MEM_OP_NODE_PARAMS_st):
     """
-
     Attributes
     ----------
     ctx : CUcontext
@@ -2794,7 +3014,7 @@ cdef class CUdevprop_v1(CUdevprop_st):
 {{endif}}
 {{if 'CUdevprop' in found_types}}
 
-cdef class CUdevprop(CUdevprop_st):
+cdef class CUdevprop(CUdevprop_v1):
     """
     Legacy device properties
 
@@ -2870,7 +3090,7 @@ cdef class CUaccessPolicyWindow_v1(CUaccessPolicyWindow_st):
 {{endif}}
 {{if 'CUaccessPolicyWindow' in found_types}}
 
-cdef class CUaccessPolicyWindow(CUaccessPolicyWindow_st):
+cdef class CUaccessPolicyWindow(CUaccessPolicyWindow_v1):
     """
     Specifies an access policy for a window, a contiguous extent of
     memory beginning at base_ptr and ending at base_ptr + num_bytes.
@@ -2944,9 +3164,9 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v1(CUDA_KERNEL_NODE_PARAMS_st):
     """
     pass
 {{endif}}
-{{if 'CUDA_KERNEL_NODE_PARAMS' in found_types}}
+{{if 'CUDA_KERNEL_NODE_PARAMS_v2' in found_types}}
 
-cdef class CUDA_KERNEL_NODE_PARAMS(CUDA_KERNEL_NODE_PARAMS_st):
+cdef class CUDA_KERNEL_NODE_PARAMS_v2(CUDA_KERNEL_NODE_PARAMS_v2_st):
     """
     GPU kernel node parameters
 
@@ -2972,6 +3192,55 @@ cdef class CUDA_KERNEL_NODE_PARAMS(CUDA_KERNEL_NODE_PARAMS_st):
         Array of pointers to kernel parameters
     extra : Any
         Extra options
+    kern : CUkernel
+        Kernel to launch, will only be referenced if func is NULL
+    ctx : CUcontext
+        Context for the kernel task to run in. The value NULL will indicate
+        the current context should be used by the api. This field is
+        ignored if func is set.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUDA_KERNEL_NODE_PARAMS' in found_types}}
+
+cdef class CUDA_KERNEL_NODE_PARAMS(CUDA_KERNEL_NODE_PARAMS_v2):
+    """
+    GPU kernel node parameters
+
+    Attributes
+    ----------
+    func : CUfunction
+        Kernel to launch
+    gridDimX : unsigned int
+        Width of grid in blocks
+    gridDimY : unsigned int
+        Height of grid in blocks
+    gridDimZ : unsigned int
+        Depth of grid in blocks
+    blockDimX : unsigned int
+        X dimension of each thread block
+    blockDimY : unsigned int
+        Y dimension of each thread block
+    blockDimZ : unsigned int
+        Z dimension of each thread block
+    sharedMemBytes : unsigned int
+        Dynamic shared-memory size per thread block in bytes
+    kernelParams : Any
+        Array of pointers to kernel parameters
+    extra : Any
+        Extra options
+    kern : CUkernel
+        Kernel to launch, will only be referenced if func is NULL
+    ctx : CUcontext
+        Context for the kernel task to run in. The value NULL will indicate
+        the current context should be used by the api. This field is
+        ignored if func is set.
 
     Methods
     -------
@@ -3012,7 +3281,7 @@ cdef class CUDA_MEMSET_NODE_PARAMS_v1(CUDA_MEMSET_NODE_PARAMS_st):
 {{endif}}
 {{if 'CUDA_MEMSET_NODE_PARAMS' in found_types}}
 
-cdef class CUDA_MEMSET_NODE_PARAMS(CUDA_MEMSET_NODE_PARAMS_st):
+cdef class CUDA_MEMSET_NODE_PARAMS(CUDA_MEMSET_NODE_PARAMS_v1):
     """
     Memset node parameters
 
@@ -3062,7 +3331,7 @@ cdef class CUDA_HOST_NODE_PARAMS_v1(CUDA_HOST_NODE_PARAMS_st):
 {{endif}}
 {{if 'CUDA_HOST_NODE_PARAMS' in found_types}}
 
-cdef class CUDA_HOST_NODE_PARAMS(CUDA_HOST_NODE_PARAMS_st):
+cdef class CUDA_HOST_NODE_PARAMS(CUDA_HOST_NODE_PARAMS_v1):
     """
     Host node parameters
 
@@ -3081,30 +3350,78 @@ cdef class CUDA_HOST_NODE_PARAMS(CUDA_HOST_NODE_PARAMS_st):
     """
     pass
 {{endif}}
+{{if 'CUDA_GRAPH_INSTANTIATE_PARAMS' in found_types}}
+
+cdef class CUDA_GRAPH_INSTANTIATE_PARAMS(CUDA_GRAPH_INSTANTIATE_PARAMS_st):
+    """
+    Graph instantiation parameters
+
+    Attributes
+    ----------
+    flags : cuuint64_t
+        Instantiation flags
+    hUploadStream : CUstream
+        Upload stream
+    hErrNode_out : CUgraphNode
+        The node which caused instantiation to fail, if any
+    result_out : CUgraphInstantiateResult
+        Whether instantiation was successful. If it failed, the reason why
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUlaunchMemSyncDomainMap' in found_types}}
+
+cdef class CUlaunchMemSyncDomainMap(CUlaunchMemSyncDomainMap_st):
+    """
+    Attributes
+    ----------
+    default_ : bytes
+
+    remote : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
 {{if 'CUlaunchAttributeValue' in found_types}}
 
 cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
     """
-
     Attributes
     ----------
     pad : bytes
         Pad to 64 bytes
     accessPolicyWindow : CUaccessPolicyWindow
-
+        Attribute CUaccessPolicyWindow.
     cooperative : int
-
+        Nonzero indicates a cooperative kernel (see
+        cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
-
-    clusterDim : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s
-
+        ::CUsynchronizationPolicy for work queued up in this stream
+    clusterDim : anon_struct0
+        Cluster dimensions for the kernel node.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-
+        Cluster scheduling policy preference for the kernel node.
     programmaticStreamSerializationAllowed : int
 
-    programmaticEvent : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s
+    programmaticEvent : anon_struct1
 
     priority : int
+        Execution priority of the kernel.
+    memSyncDomainMap : CUlaunchMemSyncDomainMap
+
+    memSyncDomain : CUlaunchMemSyncDomain
 
 
     Methods
@@ -3119,7 +3436,6 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
 
 cdef class CUlaunchAttribute(CUlaunchAttribute_st):
     """
-
     Attributes
     ----------
     id : CUlaunchAttributeID
@@ -3139,7 +3455,6 @@ cdef class CUlaunchAttribute(CUlaunchAttribute_st):
 
 cdef class CUlaunchConfig(CUlaunchConfig_st):
     """
-
     Attributes
     ----------
     gridDimX : unsigned int
@@ -3173,28 +3488,32 @@ cdef class CUlaunchConfig(CUlaunchConfig_st):
 {{endif}}
 {{if 'CUkernelNodeAttrValue_v1' in found_types}}
 
-cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue_union):
+cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
     """
-
     Attributes
     ----------
     pad : bytes
         Pad to 64 bytes
     accessPolicyWindow : CUaccessPolicyWindow
-
+        Attribute CUaccessPolicyWindow.
     cooperative : int
-
+        Nonzero indicates a cooperative kernel (see
+        cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
-
-    clusterDim : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s
-
+        ::CUsynchronizationPolicy for work queued up in this stream
+    clusterDim : anon_struct0
+        Cluster dimensions for the kernel node.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-
+        Cluster scheduling policy preference for the kernel node.
     programmaticStreamSerializationAllowed : int
 
-    programmaticEvent : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s
+    programmaticEvent : anon_struct1
 
     priority : int
+        Execution priority of the kernel.
+    memSyncDomainMap : CUlaunchMemSyncDomainMap
+
+    memSyncDomain : CUlaunchMemSyncDomain
 
 
     Methods
@@ -3207,28 +3526,32 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue_union):
 {{endif}}
 {{if 'CUkernelNodeAttrValue' in found_types}}
 
-cdef class CUkernelNodeAttrValue(CUlaunchAttributeValue_union):
+cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
     """
-
     Attributes
     ----------
     pad : bytes
         Pad to 64 bytes
     accessPolicyWindow : CUaccessPolicyWindow
-
+        Attribute CUaccessPolicyWindow.
     cooperative : int
-
+        Nonzero indicates a cooperative kernel (see
+        cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
-
-    clusterDim : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s
-
+        ::CUsynchronizationPolicy for work queued up in this stream
+    clusterDim : anon_struct0
+        Cluster dimensions for the kernel node.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-
+        Cluster scheduling policy preference for the kernel node.
     programmaticStreamSerializationAllowed : int
 
-    programmaticEvent : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s
+    programmaticEvent : anon_struct1
 
     priority : int
+        Execution priority of the kernel.
+    memSyncDomainMap : CUlaunchMemSyncDomainMap
+
+    memSyncDomain : CUlaunchMemSyncDomain
 
 
     Methods
@@ -3241,28 +3564,32 @@ cdef class CUkernelNodeAttrValue(CUlaunchAttributeValue_union):
 {{endif}}
 {{if 'CUstreamAttrValue_v1' in found_types}}
 
-cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue_union):
+cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
     """
-
     Attributes
     ----------
     pad : bytes
         Pad to 64 bytes
     accessPolicyWindow : CUaccessPolicyWindow
-
+        Attribute CUaccessPolicyWindow.
     cooperative : int
-
+        Nonzero indicates a cooperative kernel (see
+        cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
-
-    clusterDim : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s
-
+        ::CUsynchronizationPolicy for work queued up in this stream
+    clusterDim : anon_struct0
+        Cluster dimensions for the kernel node.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-
+        Cluster scheduling policy preference for the kernel node.
     programmaticStreamSerializationAllowed : int
 
-    programmaticEvent : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s
+    programmaticEvent : anon_struct1
 
     priority : int
+        Execution priority of the kernel.
+    memSyncDomainMap : CUlaunchMemSyncDomainMap
+
+    memSyncDomain : CUlaunchMemSyncDomain
 
 
     Methods
@@ -3275,28 +3602,32 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue_union):
 {{endif}}
 {{if 'CUstreamAttrValue' in found_types}}
 
-cdef class CUstreamAttrValue(CUlaunchAttributeValue_union):
+cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
     """
-
     Attributes
     ----------
     pad : bytes
         Pad to 64 bytes
     accessPolicyWindow : CUaccessPolicyWindow
-
+        Attribute CUaccessPolicyWindow.
     cooperative : int
-
+        Nonzero indicates a cooperative kernel (see
+        cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
-
-    clusterDim : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s
-
+        ::CUsynchronizationPolicy for work queued up in this stream
+    clusterDim : anon_struct0
+        Cluster dimensions for the kernel node.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-
+        Cluster scheduling policy preference for the kernel node.
     programmaticStreamSerializationAllowed : int
 
-    programmaticEvent : _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s
+    programmaticEvent : anon_struct1
 
     priority : int
+        Execution priority of the kernel.
+    memSyncDomainMap : CUlaunchMemSyncDomainMap
+
+    memSyncDomain : CUlaunchMemSyncDomain
 
 
     Methods
@@ -3328,7 +3659,7 @@ cdef class CUexecAffinitySmCount_v1(CUexecAffinitySmCount_st):
 {{endif}}
 {{if 'CUexecAffinitySmCount' in found_types}}
 
-cdef class CUexecAffinitySmCount(CUexecAffinitySmCount_st):
+cdef class CUexecAffinitySmCount(CUexecAffinitySmCount_v1):
     """
     Value for CU_EXEC_AFFINITY_TYPE_SM_COUNT
 
@@ -3355,7 +3686,7 @@ cdef class CUexecAffinityParam_v1(CUexecAffinityParam_st):
     ----------
     type : CUexecAffinityType
 
-    param : _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st_param_u
+    param : anon_union2
 
 
     Methods
@@ -3368,7 +3699,7 @@ cdef class CUexecAffinityParam_v1(CUexecAffinityParam_st):
 {{endif}}
 {{if 'CUexecAffinityParam' in found_types}}
 
-cdef class CUexecAffinityParam(CUexecAffinityParam_st):
+cdef class CUexecAffinityParam(CUexecAffinityParam_v1):
     """
     Execution Affinity Parameters
 
@@ -3376,7 +3707,30 @@ cdef class CUexecAffinityParam(CUexecAffinityParam_st):
     ----------
     type : CUexecAffinityType
 
-    param : _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st_param_u
+    param : anon_union2
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUlibraryHostUniversalFunctionAndDataTable' in found_types}}
+
+cdef class CUlibraryHostUniversalFunctionAndDataTable(CUlibraryHostUniversalFunctionAndDataTable_st):
+    """
+    Attributes
+    ----------
+    functionTable : Any
+
+    functionWindowSize : size_t
+
+    dataTable : Any
+
+    dataWindowSize : size_t
 
 
     Methods
@@ -3438,7 +3792,7 @@ cdef class CUDA_MEMCPY2D_v2(CUDA_MEMCPY2D_st):
 {{endif}}
 {{if 'CUDA_MEMCPY2D' in found_types}}
 
-cdef class CUDA_MEMCPY2D(CUDA_MEMCPY2D_st):
+cdef class CUDA_MEMCPY2D(CUDA_MEMCPY2D_v2):
     """
     2D memory copy parameters
 
@@ -3555,7 +3909,7 @@ cdef class CUDA_MEMCPY3D_v2(CUDA_MEMCPY3D_st):
 {{endif}}
 {{if 'CUDA_MEMCPY3D' in found_types}}
 
-cdef class CUDA_MEMCPY3D(CUDA_MEMCPY3D_st):
+cdef class CUDA_MEMCPY3D(CUDA_MEMCPY3D_v2):
     """
     3D memory copy parameters
 
@@ -3692,7 +4046,7 @@ cdef class CUDA_MEMCPY3D_PEER_v1(CUDA_MEMCPY3D_PEER_st):
 {{endif}}
 {{if 'CUDA_MEMCPY3D_PEER' in found_types}}
 
-cdef class CUDA_MEMCPY3D_PEER(CUDA_MEMCPY3D_PEER_st):
+cdef class CUDA_MEMCPY3D_PEER(CUDA_MEMCPY3D_PEER_v1):
     """
     3D memory cross-context copy parameters
 
@@ -3786,7 +4140,7 @@ cdef class CUDA_ARRAY_DESCRIPTOR_v2(CUDA_ARRAY_DESCRIPTOR_st):
 {{endif}}
 {{if 'CUDA_ARRAY_DESCRIPTOR' in found_types}}
 
-cdef class CUDA_ARRAY_DESCRIPTOR(CUDA_ARRAY_DESCRIPTOR_st):
+cdef class CUDA_ARRAY_DESCRIPTOR(CUDA_ARRAY_DESCRIPTOR_v2):
     """
     Array descriptor
 
@@ -3840,7 +4194,7 @@ cdef class CUDA_ARRAY3D_DESCRIPTOR_v2(CUDA_ARRAY3D_DESCRIPTOR_st):
 {{endif}}
 {{if 'CUDA_ARRAY3D_DESCRIPTOR' in found_types}}
 
-cdef class CUDA_ARRAY3D_DESCRIPTOR(CUDA_ARRAY3D_DESCRIPTOR_st):
+cdef class CUDA_ARRAY3D_DESCRIPTOR(CUDA_ARRAY3D_DESCRIPTOR_v2):
     """
     3D array descriptor
 
@@ -3875,7 +4229,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_v1(CUDA_ARRAY_SPARSE_PROPERTIES_st):
 
     Attributes
     ----------
-    tileExtent : _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s
+    tileExtent : anon_struct2
 
     miptailFirstLevel : unsigned int
         First mip level at which the mip tail begins.
@@ -3897,13 +4251,13 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_v1(CUDA_ARRAY_SPARSE_PROPERTIES_st):
 {{endif}}
 {{if 'CUDA_ARRAY_SPARSE_PROPERTIES' in found_types}}
 
-cdef class CUDA_ARRAY_SPARSE_PROPERTIES(CUDA_ARRAY_SPARSE_PROPERTIES_st):
+cdef class CUDA_ARRAY_SPARSE_PROPERTIES(CUDA_ARRAY_SPARSE_PROPERTIES_v1):
     """
     CUDA array sparse properties
 
     Attributes
     ----------
-    tileExtent : _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s
+    tileExtent : anon_struct2
 
     miptailFirstLevel : unsigned int
         First mip level at which the mip tail begins.
@@ -3948,7 +4302,7 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_v1(CUDA_ARRAY_MEMORY_REQUIREMENTS_st):
 {{endif}}
 {{if 'CUDA_ARRAY_MEMORY_REQUIREMENTS' in found_types}}
 
-cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS(CUDA_ARRAY_MEMORY_REQUIREMENTS_st):
+cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS(CUDA_ARRAY_MEMORY_REQUIREMENTS_v1):
     """
     CUDA array memory requirements
 
@@ -3979,7 +4333,7 @@ cdef class CUDA_RESOURCE_DESC_v1(CUDA_RESOURCE_DESC_st):
     ----------
     resType : CUresourcetype
         Resource type
-    res : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_u
+    res : anon_union3
 
     flags : unsigned int
         Flags (must be zero)
@@ -3994,7 +4348,7 @@ cdef class CUDA_RESOURCE_DESC_v1(CUDA_RESOURCE_DESC_st):
 {{endif}}
 {{if 'CUDA_RESOURCE_DESC' in found_types}}
 
-cdef class CUDA_RESOURCE_DESC(CUDA_RESOURCE_DESC_st):
+cdef class CUDA_RESOURCE_DESC(CUDA_RESOURCE_DESC_v1):
     """
     CUDA Resource descriptor
 
@@ -4002,7 +4356,7 @@ cdef class CUDA_RESOURCE_DESC(CUDA_RESOURCE_DESC_st):
     ----------
     resType : CUresourcetype
         Resource type
-    res : _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_u
+    res : anon_union3
 
     flags : unsigned int
         Flags (must be zero)
@@ -4054,7 +4408,7 @@ cdef class CUDA_TEXTURE_DESC_v1(CUDA_TEXTURE_DESC_st):
 {{endif}}
 {{if 'CUDA_TEXTURE_DESC' in found_types}}
 
-cdef class CUDA_TEXTURE_DESC(CUDA_TEXTURE_DESC_st):
+cdef class CUDA_TEXTURE_DESC(CUDA_TEXTURE_DESC_v1):
     """
     Texture descriptor
 
@@ -4126,7 +4480,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC_v1(CUDA_RESOURCE_VIEW_DESC_st):
 {{endif}}
 {{if 'CUDA_RESOURCE_VIEW_DESC' in found_types}}
 
-cdef class CUDA_RESOURCE_VIEW_DESC(CUDA_RESOURCE_VIEW_DESC_st):
+cdef class CUDA_RESOURCE_VIEW_DESC(CUDA_RESOURCE_VIEW_DESC_v1):
     """
     Resource view descriptor
 
@@ -4149,6 +4503,26 @@ cdef class CUDA_RESOURCE_VIEW_DESC(CUDA_RESOURCE_VIEW_DESC_st):
     lastLayer : unsigned int
         Last layer index
     reserved : List[unsigned int]
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUtensorMap' in found_types}}
+
+cdef class CUtensorMap(CUtensorMap_st):
+    """
+    Tensor map descriptor. Requires compiler support for aligning to 64
+    bytes.
+
+    Attributes
+    ----------
+    opaque : List[cuuint64_t]
 
 
     Methods
@@ -4182,7 +4556,7 @@ cdef class CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1(CUDA_POINTER_ATTRIBUTE_P2P_TOKEN
 {{endif}}
 {{if 'CUDA_POINTER_ATTRIBUTE_P2P_TOKENS' in found_types}}
 
-cdef class CUDA_POINTER_ATTRIBUTE_P2P_TOKENS(CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st):
+cdef class CUDA_POINTER_ATTRIBUTE_P2P_TOKENS(CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1):
     """
     GPU Direct v3 tokens
 
@@ -4240,7 +4614,7 @@ cdef class CUDA_LAUNCH_PARAMS_v1(CUDA_LAUNCH_PARAMS_st):
 {{endif}}
 {{if 'CUDA_LAUNCH_PARAMS' in found_types}}
 
-cdef class CUDA_LAUNCH_PARAMS(CUDA_LAUNCH_PARAMS_st):
+cdef class CUDA_LAUNCH_PARAMS(CUDA_LAUNCH_PARAMS_v1):
     """
     Kernel launch parameters
 
@@ -4285,7 +4659,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_
     ----------
     type : CUexternalMemoryHandleType
         Type of the handle
-    handle : _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_u
+    handle : anon_union4
 
     size : unsigned long long
         Size of the memory allocation
@@ -4304,7 +4678,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_
 {{endif}}
 {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC' in found_types}}
 
-cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st):
+cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1):
     """
     External memory handle descriptor
 
@@ -4312,7 +4686,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st)
     ----------
     type : CUexternalMemoryHandleType
         Type of the handle
-    handle : _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_u
+    handle : anon_union4
 
     size : unsigned long long
         Size of the memory allocation
@@ -4356,7 +4730,7 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_
 {{endif}}
 {{if 'CUDA_EXTERNAL_MEMORY_BUFFER_DESC' in found_types}}
 
-cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st):
+cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1):
     """
     External memory buffer descriptor
 
@@ -4407,7 +4781,7 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1(CUDA_EXTERNAL_MEMORY_MIP
 {{endif}}
 {{if 'CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC' in found_types}}
 
-cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC(CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st):
+cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC(CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1):
     """
     External memory mipmap descriptor
 
@@ -4441,7 +4815,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1(CUDA_EXTERNAL_SEMAPHORE_HANDLE
     ----------
     type : CUexternalSemaphoreHandleType
         Type of the handle
-    handle : _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_u
+    handle : anon_union5
 
     flags : unsigned int
         Flags reserved for the future. Must be zero.
@@ -4458,7 +4832,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1(CUDA_EXTERNAL_SEMAPHORE_HANDLE
 {{endif}}
 {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC' in found_types}}
 
-cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC(CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st):
+cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC(CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1):
     """
     External semaphore handle descriptor
 
@@ -4466,7 +4840,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC(CUDA_EXTERNAL_SEMAPHORE_HANDLE_DE
     ----------
     type : CUexternalSemaphoreHandleType
         Type of the handle
-    handle : _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_u
+    handle : anon_union5
 
     flags : unsigned int
         Flags reserved for the future. Must be zero.
@@ -4489,7 +4863,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_SIGN
 
     Attributes
     ----------
-    params : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_s
+    params : anon_struct12
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal
@@ -4513,13 +4887,13 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_SIGN
 {{endif}}
 {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS' in found_types}}
 
-cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st):
+cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1):
     """
     External semaphore signal parameters
 
     Attributes
     ----------
-    params : _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_s
+    params : anon_struct12
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal
@@ -4549,7 +4923,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_WAIT_P
 
     Attributes
     ----------
-    params : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_s
+    params : anon_struct15
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on
@@ -4573,13 +4947,13 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_WAIT_P
 {{endif}}
 {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS' in found_types}}
 
-cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st):
+cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1):
     """
     External semaphore wait parameters
 
     Attributes
     ----------
-    params : _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_s
+    params : anon_struct15
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on
@@ -4627,7 +5001,7 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st
 {{endif}}
 {{if 'CUDA_EXT_SEM_SIGNAL_NODE_PARAMS' in found_types}}
 
-cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st):
+cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1):
     """
     Semaphore signal node parameters
 
@@ -4675,7 +5049,7 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1(CUDA_EXT_SEM_WAIT_NODE_PARAMS_st):
 {{endif}}
 {{if 'CUDA_EXT_SEM_WAIT_NODE_PARAMS' in found_types}}
 
-cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS(CUDA_EXT_SEM_WAIT_NODE_PARAMS_st):
+cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS(CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1):
     """
     Semaphore wait node parameters
 
@@ -4697,6 +5071,20 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS(CUDA_EXT_SEM_WAIT_NODE_PARAMS_st):
     """
     pass
 {{endif}}
+{{if 'CUmemGenericAllocationHandle' in found_types}}
+
+cdef class CUmemGenericAllocationHandle:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUmemGenericAllocationHandle __val
+    cdef ccuda.CUmemGenericAllocationHandle* _ptr
+{{endif}}
 {{if 'CUarrayMapInfo_v1' in found_types}}
 
 cdef class CUarrayMapInfo_v1(CUarrayMapInfo_st):
@@ -4708,17 +5096,17 @@ cdef class CUarrayMapInfo_v1(CUarrayMapInfo_st):
     ----------
     resourceType : CUresourcetype
         Resource type
-    resource : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u
+    resource : anon_union8
 
     subresourceType : CUarraySparseSubresourceType
         Sparse subresource type
-    subresource : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u
+    subresource : anon_union9
 
     memOperationType : CUmemOperationType
         Memory operation type
     memHandleType : CUmemHandleType
         Memory handle type
-    memHandle : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u
+    memHandle : anon_union10
 
     offset : unsigned long long
         Offset within mip tail  Offset within the memory
@@ -4739,7 +5127,7 @@ cdef class CUarrayMapInfo_v1(CUarrayMapInfo_st):
 {{endif}}
 {{if 'CUarrayMapInfo' in found_types}}
 
-cdef class CUarrayMapInfo(CUarrayMapInfo_st):
+cdef class CUarrayMapInfo(CUarrayMapInfo_v1):
     """
     Specifies the CUDA array or CUDA mipmapped array memory mapping
     information
@@ -4748,17 +5136,17 @@ cdef class CUarrayMapInfo(CUarrayMapInfo_st):
     ----------
     resourceType : CUresourcetype
         Resource type
-    resource : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u
+    resource : anon_union8
 
     subresourceType : CUarraySparseSubresourceType
         Sparse subresource type
-    subresource : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u
+    subresource : anon_union9
 
     memOperationType : CUmemOperationType
         Memory operation type
     memHandleType : CUmemHandleType
         Memory handle type
-    memHandle : _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u
+    memHandle : anon_union10
 
     offset : unsigned long long
         Offset within mip tail  Offset within the memory
@@ -4800,7 +5188,7 @@ cdef class CUmemLocation_v1(CUmemLocation_st):
 {{endif}}
 {{if 'CUmemLocation' in found_types}}
 
-cdef class CUmemLocation(CUmemLocation_st):
+cdef class CUmemLocation(CUmemLocation_v1):
     """
     Specifies a memory location.
 
@@ -4839,7 +5227,7 @@ cdef class CUmemAllocationProp_v1(CUmemAllocationProp_st):
         structure includes security attributes that define the scope of
         which exported allocations may be tranferred to other processes. In
         all other cases, this field is required to be zero.
-    allocFlags : _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s
+    allocFlags : anon_struct18
 
 
     Methods
@@ -4852,7 +5240,7 @@ cdef class CUmemAllocationProp_v1(CUmemAllocationProp_st):
 {{endif}}
 {{if 'CUmemAllocationProp' in found_types}}
 
-cdef class CUmemAllocationProp(CUmemAllocationProp_st):
+cdef class CUmemAllocationProp(CUmemAllocationProp_v1):
     """
     Specifies the allocation properties for a allocation.
 
@@ -4870,7 +5258,7 @@ cdef class CUmemAllocationProp(CUmemAllocationProp_st):
         structure includes security attributes that define the scope of
         which exported allocations may be tranferred to other processes. In
         all other cases, this field is required to be zero.
-    allocFlags : _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s
+    allocFlags : anon_struct18
 
 
     Methods
@@ -4904,7 +5292,7 @@ cdef class CUmemAccessDesc_v1(CUmemAccessDesc_st):
 {{endif}}
 {{if 'CUmemAccessDesc' in found_types}}
 
-cdef class CUmemAccessDesc(CUmemAccessDesc_st):
+cdef class CUmemAccessDesc(CUmemAccessDesc_v1):
     """
     Memory access descriptor
 
@@ -4914,6 +5302,58 @@ cdef class CUmemAccessDesc(CUmemAccessDesc_st):
         Location on which the request is to change it's accessibility
     flags : CUmemAccess_flags
         ::CUmemProt accessibility flags to set on the request
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUgraphExecUpdateResultInfo_v1' in found_types}}
+
+cdef class CUgraphExecUpdateResultInfo_v1(CUgraphExecUpdateResultInfo_st):
+    """
+    Result information returned by cuGraphExecUpdate
+
+    Attributes
+    ----------
+    result : CUgraphExecUpdateResult
+        Gives more specific detail when a cuda graph update fails.
+    errorNode : CUgraphNode
+        The "to node" of the error edge when the topologies do not match.
+        The error node when the error is associated with a specific node.
+        NULL when the error is generic.
+    errorFromNode : CUgraphNode
+        The from node of error edge when the topologies do not match.
+        Otherwise NULL.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUgraphExecUpdateResultInfo' in found_types}}
+
+cdef class CUgraphExecUpdateResultInfo(CUgraphExecUpdateResultInfo_v1):
+    """
+    Result information returned by cuGraphExecUpdate
+
+    Attributes
+    ----------
+    result : CUgraphExecUpdateResult
+        Gives more specific detail when a cuda graph update fails.
+    errorNode : CUgraphNode
+        The "to node" of the error edge when the topologies do not match.
+        The error node when the error is associated with a specific node.
+        NULL when the error is generic.
+    errorFromNode : CUgraphNode
+        The from node of error edge when the topologies do not match.
+        Otherwise NULL.
 
     Methods
     -------
@@ -4957,7 +5397,7 @@ cdef class CUmemPoolProps_v1(CUmemPoolProps_st):
 {{endif}}
 {{if 'CUmemPoolProps' in found_types}}
 
-cdef class CUmemPoolProps(CUmemPoolProps_st):
+cdef class CUmemPoolProps(CUmemPoolProps_v1):
     """
     Specifies the properties of allocations made from the pool.
 
@@ -5008,7 +5448,7 @@ cdef class CUmemPoolPtrExportData_v1(CUmemPoolPtrExportData_st):
 {{endif}}
 {{if 'CUmemPoolPtrExportData' in found_types}}
 
-cdef class CUmemPoolPtrExportData(CUmemPoolPtrExportData_st):
+cdef class CUmemPoolPtrExportData(CUmemPoolPtrExportData_v1):
     """
     Opaque data for exporting a pool allocation
 
@@ -5056,7 +5496,7 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS(CUDA_MEM_ALLOC_NODE_PARAMS_st):
     """
     pass
 {{endif}}
-{{if True or 'CUeglFrame_v1' in found_types}}
+{{if True}}
 
 cdef class CUeglFrame_v1(CUeglFrame_st):
     """
@@ -5066,7 +5506,7 @@ cdef class CUeglFrame_v1(CUeglFrame_st):
 
     Attributes
     ----------
-    frame : _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u
+    frame : anon_union11
 
     width : unsigned int
         Width of first plane
@@ -5095,9 +5535,9 @@ cdef class CUeglFrame_v1(CUeglFrame_st):
     """
     pass
 {{endif}}
-{{if True or 'CUeglFrame' in found_types}}
+{{if True}}
 
-cdef class CUeglFrame(CUeglFrame_st):
+cdef class CUeglFrame(CUeglFrame_v1):
     """
     CUDA EGLFrame structure Descriptor - structure defining one frame
     of EGL.  Each frame may contain one or more planes depending on
@@ -5105,7 +5545,7 @@ cdef class CUeglFrame(CUeglFrame_st):
 
     Attributes
     ----------
-    frame : _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u
+    frame : anon_union11
 
     width : unsigned int
         Width of first plane
@@ -5181,23 +5621,6 @@ cdef class CUdeviceptr_v2:
     cdef ccuda.CUdeviceptr_v2* _ptr
 {{endif}}
 
-{{if 'CUdeviceptr' in found_types}}
-
-cdef class CUdeviceptr:
-    """
-
-    CUDA device pointer
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccuda.CUdeviceptr  __val
-    cdef ccuda.CUdeviceptr* _ptr
-{{endif}}
-
 {{if 'CUdevice_v1' in found_types}}
 
 cdef class CUdevice_v1:
@@ -5213,23 +5636,6 @@ cdef class CUdevice_v1:
     """
     cdef ccuda.CUdevice_v1  __val
     cdef ccuda.CUdevice_v1* _ptr
-{{endif}}
-
-{{if 'CUdevice' in found_types}}
-
-cdef class CUdevice:
-    """
-
-    CUDA device
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccuda.CUdevice  __val
-    cdef ccuda.CUdevice* _ptr
 {{endif}}
 
 {{if 'CUtexObject_v1' in found_types}}
@@ -5249,23 +5655,6 @@ cdef class CUtexObject_v1:
     cdef ccuda.CUtexObject_v1* _ptr
 {{endif}}
 
-{{if 'CUtexObject' in found_types}}
-
-cdef class CUtexObject:
-    """
-
-    An opaque value that represents a CUDA texture object
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccuda.CUtexObject  __val
-    cdef ccuda.CUtexObject* _ptr
-{{endif}}
-
 {{if 'CUsurfObject_v1' in found_types}}
 
 cdef class CUsurfObject_v1:
@@ -5283,23 +5672,6 @@ cdef class CUsurfObject_v1:
     cdef ccuda.CUsurfObject_v1* _ptr
 {{endif}}
 
-{{if 'CUsurfObject' in found_types}}
-
-cdef class CUsurfObject:
-    """
-
-    An opaque value that represents a CUDA surface object
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccuda.CUsurfObject  __val
-    cdef ccuda.CUsurfObject* _ptr
-{{endif}}
-
 {{if 'CUmemGenericAllocationHandle_v1' in found_types}}
 
 cdef class CUmemGenericAllocationHandle_v1:
@@ -5315,22 +5687,7 @@ cdef class CUmemGenericAllocationHandle_v1:
     cdef ccuda.CUmemGenericAllocationHandle_v1* _ptr
 {{endif}}
 
-{{if 'CUmemGenericAllocationHandle' in found_types}}
-
-cdef class CUmemGenericAllocationHandle:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    cdef ccuda.CUmemGenericAllocationHandle  __val
-    cdef ccuda.CUmemGenericAllocationHandle* _ptr
-{{endif}}
-
-{{if True or 'GLenum' in found_types}}
+{{if True}}
 
 cdef class GLenum:
     """
@@ -5345,7 +5702,7 @@ cdef class GLenum:
     cdef ccuda.GLenum* _ptr
 {{endif}}
 
-{{if True or 'GLuint' in found_types}}
+{{if True}}
 
 cdef class GLuint:
     """
@@ -5360,7 +5717,7 @@ cdef class GLuint:
     cdef ccuda.GLuint* _ptr
 {{endif}}
 
-{{if True or 'EGLint' in found_types}}
+{{if True}}
 
 cdef class EGLint:
     """
@@ -5375,7 +5732,7 @@ cdef class EGLint:
     cdef ccuda.EGLint* _ptr
 {{endif}}
 
-{{if True or 'VdpDevice' in found_types}}
+{{if True}}
 
 cdef class VdpDevice:
     """
@@ -5390,7 +5747,7 @@ cdef class VdpDevice:
     cdef ccuda.VdpDevice* _ptr
 {{endif}}
 
-{{if True or 'VdpGetProcAddress' in found_types}}
+{{if True}}
 
 cdef class VdpGetProcAddress:
     """
@@ -5405,7 +5762,7 @@ cdef class VdpGetProcAddress:
     cdef ccuda.VdpGetProcAddress* _ptr
 {{endif}}
 
-{{if True or 'VdpVideoSurface' in found_types}}
+{{if True}}
 
 cdef class VdpVideoSurface:
     """
@@ -5420,7 +5777,7 @@ cdef class VdpVideoSurface:
     cdef ccuda.VdpVideoSurface* _ptr
 {{endif}}
 
-{{if True or 'VdpOutputSurface' in found_types}}
+{{if True}}
 
 cdef class VdpOutputSurface:
     """

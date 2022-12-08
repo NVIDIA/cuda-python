@@ -1,16 +1,16 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Motivation" href="motivation.html" /><link rel="prev" title="Installation" href="install.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Motivation" href="motivation.html" /><link rel="prev" title="Installation" href="install.html" />
         <link rel="canonical" href="docs/overview.html" />
 
-    <meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Overview - CUDA Python 11.8.1 documentation</title>
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>Overview - CUDA Python 12.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
-    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">CUDA Python 11.8.1 documentation</div></a>
+      <a href="index.html"><div class="brand">CUDA Python 12.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 11.8.1 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/12.0.0-notes.html">    12.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.1-notes.html">    11.8.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.0-notes.html">    11.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.7.1-notes.html">    11.7.1</a></li>
@@ -202,7 +203,9 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -216,9 +219,10 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="overview">
-<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">#</a></h1>
-<p style="font-size: 14px; color: grey; text-align: right;">by <a href="https://developer.nvidia.com/blog/author/mnicely/">Matthew Nicely</a></p>
+          <section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h1>
+<p style="font-size: 14px; color: grey; text-align: right;">by <a
+href="https://developer.nvidia.com/blog/author/mnicely/">Matthew Nicely</a></p>
 <p>Python plays a key role within the science, engineering, data analytics, and
 deep learning application ecosystem. NVIDIA has long been committed to helping
 the Python ecosystem leverage the accelerated massively parallel performance of
@@ -230,8 +234,8 @@ of low-level interfaces, providing full coverage of and access to the CUDA host
 APIs from Python. We want to provide an ecosystem foundation to allow
 interoperability among different accelerated libraries. Most importantly, it
 should be easy for Python developers to use NVIDIA GPUs.</p>
-<div class="section" id="cuda-python-workflow">
-<h2>CUDA Python workflow<a class="headerlink" href="#cuda-python-workflow" title="Permalink to this headline">#</a></h2>
+<section id="cuda-python-workflow">
+<h2>CUDA Python workflow<a class="headerlink" href="#cuda-python-workflow" title="Permalink to this heading">#</a></h2>
 <p>Because Python is an interpreted language, you need a way to compile the device
 code into
 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX</a> and
@@ -268,12 +272,12 @@ object model.</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ASSERT_DRV</span><span class="p">(</span><span class="n">err</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">cuda</span><span class="o">.</span><span class="n">CUresult</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">CUresult</span><span class="o">.</span><span class="n">CUDA_SUCCESS</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Cuda Error: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cuda Error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcResult</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcResult</span><span class="o">.</span><span class="n">NVRTC_SUCCESS</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Nvrtc Error: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Nvrtc Error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Unknown error type: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown error type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -286,8 +290,8 @@ Python that requires some understanding of CUDA C++. For more information, see
 CUDA</a>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">saxpy</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>
-<span class="s2">extern "C" __global__</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">saxpy</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">extern &quot;C&quot; __global__</span>
 <span class="s2">void saxpy(float a, float *x, float *y, float *out, size_t n)</span>
 <span class="s2">{</span>
 <span class="s2"> size_t tid = blockIdx.x * blockDim.x + threadIdx.x;</span>
@@ -295,7 +299,7 @@ CUDA</a>.</p>
 <span class="s2">   out[tid] = a * x[tid] + y[tid];</span>
 <span class="s2"> }</span>
 <span class="s2">}</span>
-<span class="s2">"""</span>
+<span class="s2">&quot;&quot;&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -312,15 +316,15 @@ or Turing architecture, with FMAD enabled. If compilation fails, use
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create program</span>
-<span class="n">err</span><span class="p">,</span> <span class="n">prog</span> <span class="o">=</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCreateProgram</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">saxpy</span><span class="p">),</span> <span class="sa">b</span><span class="s2">"saxpy.cu"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+<span class="n">err</span><span class="p">,</span> <span class="n">prog</span> <span class="o">=</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCreateProgram</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">saxpy</span><span class="p">),</span> <span class="sa">b</span><span class="s2">&quot;saxpy.cu&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
 
 <span class="c1"># Compile program</span>
-<span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">b</span><span class="s2">"--fmad=false"</span><span class="p">,</span> <span class="sa">b</span><span class="s2">"--gpu-architecture=compute_75"</span><span class="p">]</span>
+<span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;--fmad=false&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;--gpu-architecture=compute_75&quot;</span><span class="p">]</span>
 <span class="n">err</span><span class="p">,</span> <span class="o">=</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCompileProgram</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
 
 <span class="c1"># Get PTX from compilation</span>
 <span class="n">err</span><span class="p">,</span> <span class="n">ptxSize</span> <span class="o">=</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetPTXSize</span><span class="p">(</span><span class="n">prog</span><span class="p">)</span>
-<span class="n">ptx</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">" "</span> <span class="o">*</span> <span class="n">ptxSize</span>
+<span class="n">ptx</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">ptxSize</span>
 <span class="n">err</span><span class="p">,</span> <span class="o">=</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetPTX</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="n">ptx</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -357,7 +361,7 @@ After loading into the module, extract a specific kernel with
 <span class="c1"># Note: Incompatible --gpu-architecture would be detected here</span>
 <span class="n">err</span><span class="p">,</span> <span class="n">module</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">cuModuleLoadData</span><span class="p">(</span><span class="n">ptx</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 <span class="n">ASSERT_DRV</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
-<span class="n">err</span><span class="p">,</span> <span class="n">kernel</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">cuModuleGetFunction</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="sa">b</span><span class="s2">"saxpy"</span><span class="p">)</span>
+<span class="n">err</span><span class="p">,</span> <span class="n">kernel</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">cuModuleGetFunction</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;saxpy&quot;</span><span class="p">)</span>
 <span class="n">ASSERT_DRV</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -365,17 +369,17 @@ After loading into the module, extract a specific kernel with
 <div class="cell_output docutils container">
 <div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
 <span class="ne">RuntimeError</span><span class="g g-Whitespace">                              </span>Traceback (most recent call last)
-<span class="nn">Input In [6],</span> in <span class="ni">&lt;cell line: 5&gt;</span><span class="nt">()</span>
+<span class="n">Cell</span> <span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">line</span> <span class="mi">5</span>
 <span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="c1"># Note: Incompatible --gpu-architecture would be detected here</span>
 <span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="n">err</span><span class="p">,</span> <span class="n">module</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">cuModuleLoadData</span><span class="p">(</span><span class="n">ptx</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 <span class="ne">----&gt; </span><span class="mi">5</span> <span class="n">ASSERT_DRV</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">err</span><span class="p">,</span> <span class="n">kernel</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">cuModuleGetFunction</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="sa">b</span><span class="s2">"saxpy"</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">err</span><span class="p">,</span> <span class="n">kernel</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">cuModuleGetFunction</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;saxpy&quot;</span><span class="p">)</span>
 <span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="n">ASSERT_DRV</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
 
-<span class="nn">Input In [2],</span> in <span class="ni">ASSERT_DRV</span><span class="nt">(err)</span>
+<span class="nn">Cell In [2], line 4,</span> in <span class="ni">ASSERT_DRV</span><span class="nt">(err)</span>
 <span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">cuda</span><span class="o">.</span><span class="n">CUresult</span><span class="p">):</span>
 <span class="g g-Whitespace">      </span><span class="mi">3</span>     <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">CUresult</span><span class="o">.</span><span class="n">CUDA_SUCCESS</span><span class="p">:</span>
-<span class="ne">----&gt; </span><span class="mi">4</span>         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Cuda Error: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+<span class="ne">----&gt; </span><span class="mi">4</span>         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cuda Error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
 <span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcResult</span><span class="p">):</span>
 <span class="g g-Whitespace">      </span><span class="mi">6</span>     <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcResult</span><span class="o">.</span><span class="n">NVRTC_SUCCESS</span><span class="p">:</span>
 
@@ -489,7 +493,7 @@ in the designated stream are finished.</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assert values are same after running kernel</span>
 <span class="n">hZ</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">hX</span> <span class="o">+</span> <span class="n">hY</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">hOut</span><span class="p">,</span> <span class="n">hZ</span><span class="p">):</span>
-   <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Error outside tolerance for host-device vectors"</span><span class="p">)</span>
+   <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error outside tolerance for host-device vectors&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -508,9 +512,9 @@ memory clean up.</p>
 </div>
 </div>
 </div>
-</div>
-<div class="section" id="performance">
-<h2>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">#</a></h2>
+</section>
+<section id="performance">
+<h2>Performance<a class="headerlink" href="#performance" title="Permalink to this heading">#</a></h2>
 <p>Performance is a primary driver in targeting GPUs in your application. So, how
 does the above code compare to its C++ version? Table 1 shows that the results
 are nearly identical. <a class="reference external" href="https://developer.nvidia.com/nsight-systems">NVIDIA NSight
@@ -522,13 +526,9 @@ was used for application performance.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>nsys profile -s none -t cuda --stats<span class="o">=</span><span class="nb">true</span> &lt;executable&gt;
 </pre></div>
 </div>
-<div class="table-wrapper"><table class="docutils align-default" id="id1">
+<div class="table-wrapper docutils container" id="id1">
+<table class="docutils align-default" id="id1">
 <caption><span class="caption-number">Table 1 </span><span class="caption-text">Kernel and application performance comparison.</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
-<colgroup>
-<col style="width: 33%"/>
-<col style="width: 33%"/>
-<col style="width: 33%"/>
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"></th>
 <th class="head"><p>C++</p></th>
@@ -545,25 +545,28 @@ was used for application performance.</p>
 <td><p>1080ms</p></td>
 </tr>
 </tbody>
-</table></div>
+</table>
+</div>
 <p>CUDA Python is also compatible with <a class="reference external" href="https://developer.nvidia.com/nsight-compute">NVIDIA Nsight
 Compute</a>, which is an
 interactive kernel profiler for CUDA applications. It allows you to have
 detailed insights into kernel performance. This is useful when you’re trying to
 maximize performance (<a class="reference internal" href="#figure-1"><span class="std std-numref">Fig. 1</span></a>).</p>
-<div class="figure align-default" id="figure-1">
-<img alt="_images/Nsigth-Compute-CLI-625x473.png" src="_images/Nsigth-Compute-CLI-625x473.png"/>
-<p class="caption"><span class="caption-number">Fig. 1 </span><span class="caption-text">Screenshot of Nsight Compute CLI output of CUDA Python example.</span><a class="headerlink" href="#figure-1" title="Permalink to this image">#</a></p>
-</div>
-</div>
-<div class="section" id="future-of-cuda-python">
-<h2>Future of CUDA Python<a class="headerlink" href="#future-of-cuda-python" title="Permalink to this headline">#</a></h2>
+<figure class="align-default" id="figure-1">
+<img alt="_images/Nsigth-Compute-CLI-625x473.png" src="_images/Nsigth-Compute-CLI-625x473.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Screenshot of Nsight Compute CLI output of CUDA Python example.</span><a class="headerlink" href="#figure-1" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="future-of-cuda-python">
+<h2>Future of CUDA Python<a class="headerlink" href="#future-of-cuda-python" title="Permalink to this heading">#</a></h2>
 <p>The current bindings are built to match the C APIs as closely as possible.</p>
 <p>The next goal is to build a higher-level “object oriented” API on top of
 current CUDA Python bindings and provide an overall more Pythonic experience.
 One such example would be to raise exceptions on errors.</p>
-</div>
-</div>
+</section>
+</section>
 
         </article>
       </div>
@@ -577,10 +580,10 @@ One such example would be to raise exceptions on errors.</p>
                 </div>
                 <div class="title">Motivation</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="install.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -616,7 +619,7 @@ One such example would be to raise exceptions on errors.</p>
       <div class="toc-sticky toc-scroll">
         <div class="toc-title-container">
           <span class="toc-title">
-            Contents
+            On this page
           </span>
         </div>
         <div class="toc-tree-container">
@@ -640,12 +643,9 @@ One such example would be to raise exceptions on errors.</p>
 </div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>
-    <script>let toggleHintShow = 'Click to show';</script>
-    <script>let toggleHintHide = 'Click to hide';</script>
-    <script>let toggleOpenOnPrint = 'true';</script>
-    <script src="_static/togglebutton.js"></script>
-    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
     </body>
 </html>

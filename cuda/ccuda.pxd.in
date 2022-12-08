@@ -34,6 +34,14 @@ cdef extern from "cuda.h":
         pass
     ctypedef CUfunc_st* CUfunction
 
+    cdef struct CUlib_st:
+        pass
+    ctypedef CUlib_st* CUlibrary
+
+    cdef struct CUkern_st:
+        pass
+    ctypedef CUkern_st* CUkernel
+
     cdef struct CUarray_st:
         pass
     ctypedef CUarray_st* CUarray
@@ -210,10 +218,10 @@ cdef extern from "cuda.h":
     cdef enum CUstreamBatchMemOpType_enum:
         CU_STREAM_MEM_OP_WAIT_VALUE_32 = 1
         CU_STREAM_MEM_OP_WRITE_VALUE_32 = 2
+        CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES = 3
         CU_STREAM_MEM_OP_WAIT_VALUE_64 = 4
         CU_STREAM_MEM_OP_WRITE_VALUE_64 = 5
         CU_STREAM_MEM_OP_BARRIER = 6
-        CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES = 3
 
     ctypedef CUstreamBatchMemOpType_enum CUstreamBatchMemOpType
 
@@ -286,19 +294,6 @@ cdef extern from "cuda.h":
         CU_AD_FORMAT_SIGNED_INT32 = 10
         CU_AD_FORMAT_HALF = 16
         CU_AD_FORMAT_FLOAT = 32
-        CU_AD_FORMAT_NV12 = 176
-        CU_AD_FORMAT_UNORM_INT8X1 = 192
-        CU_AD_FORMAT_UNORM_INT8X2 = 193
-        CU_AD_FORMAT_UNORM_INT8X4 = 194
-        CU_AD_FORMAT_UNORM_INT16X1 = 195
-        CU_AD_FORMAT_UNORM_INT16X2 = 196
-        CU_AD_FORMAT_UNORM_INT16X4 = 197
-        CU_AD_FORMAT_SNORM_INT8X1 = 198
-        CU_AD_FORMAT_SNORM_INT8X2 = 199
-        CU_AD_FORMAT_SNORM_INT8X4 = 200
-        CU_AD_FORMAT_SNORM_INT16X1 = 201
-        CU_AD_FORMAT_SNORM_INT16X2 = 202
-        CU_AD_FORMAT_SNORM_INT16X4 = 203
         CU_AD_FORMAT_BC1_UNORM = 145
         CU_AD_FORMAT_BC1_UNORM_SRGB = 146
         CU_AD_FORMAT_BC2_UNORM = 147
@@ -313,6 +308,19 @@ cdef extern from "cuda.h":
         CU_AD_FORMAT_BC6H_SF16 = 156
         CU_AD_FORMAT_BC7_UNORM = 157
         CU_AD_FORMAT_BC7_UNORM_SRGB = 158
+        CU_AD_FORMAT_NV12 = 176
+        CU_AD_FORMAT_UNORM_INT8X1 = 192
+        CU_AD_FORMAT_UNORM_INT8X2 = 193
+        CU_AD_FORMAT_UNORM_INT8X4 = 194
+        CU_AD_FORMAT_UNORM_INT16X1 = 195
+        CU_AD_FORMAT_UNORM_INT16X2 = 196
+        CU_AD_FORMAT_UNORM_INT16X4 = 197
+        CU_AD_FORMAT_SNORM_INT8X1 = 198
+        CU_AD_FORMAT_SNORM_INT8X2 = 199
+        CU_AD_FORMAT_SNORM_INT8X4 = 200
+        CU_AD_FORMAT_SNORM_INT16X1 = 201
+        CU_AD_FORMAT_SNORM_INT16X2 = 202
+        CU_AD_FORMAT_SNORM_INT16X4 = 203
 
     ctypedef CUarray_format_enum CUarray_format
 
@@ -360,10 +368,10 @@ cdef extern from "cuda.h":
         CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT = 25
         CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH = 26
         CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH = 27
-        CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT = 28
-        CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS = 29
         CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH = 27
+        CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT = 28
         CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT = 28
+        CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS = 29
         CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES = 29
         CU_DEVICE_ATTRIBUTE_SURFACE_ALIGNMENT = 30
         CU_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS = 31
@@ -427,9 +435,9 @@ cdef extern from "cuda.h":
         CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS = 89
         CU_DEVICE_ATTRIBUTE_COMPUTE_PREEMPTION_SUPPORTED = 90
         CU_DEVICE_ATTRIBUTE_CAN_USE_HOST_POINTER_FOR_REGISTERED_MEM = 91
-        CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS = 92
-        CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS = 93
-        CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR = 94
+        CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_MEM_OPS_V1 = 92
+        CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS_V1 = 93
+        CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR_V1 = 94
         CU_DEVICE_ATTRIBUTE_COOPERATIVE_LAUNCH = 95
         CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH = 96
         CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN = 97
@@ -458,10 +466,14 @@ cdef extern from "cuda.h":
         CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES = 119
         CU_DEVICE_ATTRIBUTE_CLUSTER_LAUNCH = 120
         CU_DEVICE_ATTRIBUTE_DEFERRED_MAPPING_CUDA_ARRAY_SUPPORTED = 121
-        CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS_V2 = 122
-        CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR_V2 = 123
+        CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS = 122
+        CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR = 123
         CU_DEVICE_ATTRIBUTE_DMA_BUF_SUPPORTED = 124
-        CU_DEVICE_ATTRIBUTE_MAX = 125
+        CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED = 125
+        CU_DEVICE_ATTRIBUTE_MEM_SYNC_DOMAIN_COUNT = 126
+        CU_DEVICE_ATTRIBUTE_TENSOR_MAP_ACCESS_SUPPORTED = 127
+        CU_DEVICE_ATTRIBUTE_UNIFIED_FUNCTION_POINTERS = 129
+        CU_DEVICE_ATTRIBUTE_MAX = 130
 
     ctypedef CUdevice_attribute_enum CUdevice_attribute
 
@@ -543,8 +555,8 @@ cdef extern from "cuda.h":
 
     cdef enum CUshared_carveout_enum:
         CU_SHAREDMEM_CARVEOUT_DEFAULT = -1
-        CU_SHAREDMEM_CARVEOUT_MAX_SHARED = 100
         CU_SHAREDMEM_CARVEOUT_MAX_L1 = 0
+        CU_SHAREDMEM_CARVEOUT_MAX_SHARED = 100
 
     ctypedef CUshared_carveout_enum CUshared_carveout
 
@@ -612,13 +624,12 @@ cdef extern from "cuda.h":
         CU_JIT_REFERENCED_VARIABLE_NAMES = 27
         CU_JIT_REFERENCED_VARIABLE_COUNT = 28
         CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES = 29
-        CU_JIT_NUM_OPTIONS = 30
+        CU_JIT_POSITION_INDEPENDENT_CODE = 30
+        CU_JIT_NUM_OPTIONS = 31
 
     ctypedef CUjit_option_enum CUjit_option
 
     cdef enum CUjit_target_enum:
-        CU_TARGET_COMPUTE_20 = 20
-        CU_TARGET_COMPUTE_21 = 21
         CU_TARGET_COMPUTE_30 = 30
         CU_TARGET_COMPUTE_32 = 32
         CU_TARGET_COMPUTE_35 = 35
@@ -637,6 +648,7 @@ cdef extern from "cuda.h":
         CU_TARGET_COMPUTE_87 = 87
         CU_TARGET_COMPUTE_89 = 89
         CU_TARGET_COMPUTE_90 = 90
+        CU_TARGET_COMPUTE_90A = 65626
 
     ctypedef CUjit_target_enum CUjit_target
 
@@ -748,7 +760,23 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_KERNEL_NODE_PARAMS_st CUDA_KERNEL_NODE_PARAMS_v1
 
-    ctypedef CUDA_KERNEL_NODE_PARAMS_v1 CUDA_KERNEL_NODE_PARAMS
+    cdef struct CUDA_KERNEL_NODE_PARAMS_v2_st:
+        CUfunction func
+        unsigned int gridDimX
+        unsigned int gridDimY
+        unsigned int gridDimZ
+        unsigned int blockDimX
+        unsigned int blockDimY
+        unsigned int blockDimZ
+        unsigned int sharedMemBytes
+        void** kernelParams
+        void** extra
+        CUkernel kern
+        CUcontext ctx
+
+    ctypedef CUDA_KERNEL_NODE_PARAMS_v2_st CUDA_KERNEL_NODE_PARAMS_v2
+
+    ctypedef CUDA_KERNEL_NODE_PARAMS_v2 CUDA_KERNEL_NODE_PARAMS
 
     cdef struct CUDA_MEMSET_NODE_PARAMS_st:
         CUdeviceptr dst
@@ -787,6 +815,23 @@ cdef extern from "cuda.h":
 
     ctypedef CUgraphNodeType_enum CUgraphNodeType
 
+    cdef enum CUgraphInstantiateResult_enum:
+        CUDA_GRAPH_INSTANTIATE_SUCCESS = 0
+        CUDA_GRAPH_INSTANTIATE_ERROR = 1
+        CUDA_GRAPH_INSTANTIATE_INVALID_STRUCTURE = 2
+        CUDA_GRAPH_INSTANTIATE_NODE_OPERATION_NOT_SUPPORTED = 3
+        CUDA_GRAPH_INSTANTIATE_MULTIPLE_CTXS_NOT_SUPPORTED = 4
+
+    ctypedef CUgraphInstantiateResult_enum CUgraphInstantiateResult
+
+    cdef struct CUDA_GRAPH_INSTANTIATE_PARAMS_st:
+        cuuint64_t flags
+        CUstream hUploadStream
+        CUgraphNode hErrNode_out
+        CUgraphInstantiateResult result_out
+
+    ctypedef CUDA_GRAPH_INSTANTIATE_PARAMS_st CUDA_GRAPH_INSTANTIATE_PARAMS
+
     cdef enum CUsynchronizationPolicy_enum:
         CU_SYNC_POLICY_AUTO = 1
         CU_SYNC_POLICY_SPIN = 2
@@ -802,6 +847,18 @@ cdef extern from "cuda.h":
 
     ctypedef CUclusterSchedulingPolicy_enum CUclusterSchedulingPolicy
 
+    cdef enum CUlaunchMemSyncDomain_enum:
+        CU_LAUNCH_MEM_SYNC_DOMAIN_DEFAULT = 0
+        CU_LAUNCH_MEM_SYNC_DOMAIN_REMOTE = 1
+
+    ctypedef CUlaunchMemSyncDomain_enum CUlaunchMemSyncDomain
+
+    cdef struct CUlaunchMemSyncDomainMap_st:
+        unsigned char default_
+        unsigned char remote
+
+    ctypedef CUlaunchMemSyncDomainMap_st CUlaunchMemSyncDomainMap
+
     cdef enum CUlaunchAttributeID_enum:
         CU_LAUNCH_ATTRIBUTE_IGNORE = 0
         CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW = 1
@@ -812,15 +869,17 @@ cdef extern from "cuda.h":
         CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION = 6
         CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT = 7
         CU_LAUNCH_ATTRIBUTE_PRIORITY = 8
+        CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP = 9
+        CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN = 10
 
     ctypedef CUlaunchAttributeID_enum CUlaunchAttributeID
 
-    cdef struct _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s:
+    cdef struct anon_struct0:
         unsigned int x
         unsigned int y
         unsigned int z
 
-    cdef struct _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s:
+    cdef struct anon_struct1:
         CUevent event
         int flags
         int triggerAtBlockStart
@@ -830,11 +889,13 @@ cdef extern from "cuda.h":
         CUaccessPolicyWindow accessPolicyWindow
         int cooperative
         CUsynchronizationPolicy syncPolicy
-        _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_clusterDim_s clusterDim
+        anon_struct0 clusterDim
         CUclusterSchedulingPolicy clusterSchedulingPolicyPreference
         int programmaticStreamSerializationAllowed
-        _CUlaunchAttributeValue_CUlaunchAttributeValue_CUlaunchAttributeValue_union_programmaticEvent_s programmaticEvent
+        anon_struct1 programmaticEvent
         int priority
+        CUlaunchMemSyncDomainMap memSyncDomainMap
+        CUlaunchMemSyncDomain memSyncDomain
 
     ctypedef CUlaunchAttributeValue_union CUlaunchAttributeValue
 
@@ -891,6 +952,13 @@ cdef extern from "cuda.h":
 
     ctypedef CUdriverProcAddress_flags_enum CUdriverProcAddress_flags
 
+    cdef enum CUdriverProcAddressQueryResult_enum:
+        CU_GET_PROC_ADDRESS_SUCCESS = 0
+        CU_GET_PROC_ADDRESS_SYMBOL_NOT_FOUND = 1
+        CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT = 2
+
+    ctypedef CUdriverProcAddressQueryResult_enum CUdriverProcAddressQueryResult
+
     cdef enum CUexecAffinityType_enum:
         CU_EXEC_AFFINITY_TYPE_SM_COUNT = 0
         CU_EXEC_AFFINITY_TYPE_MAX = 1
@@ -904,16 +972,31 @@ cdef extern from "cuda.h":
 
     ctypedef CUexecAffinitySmCount_v1 CUexecAffinitySmCount
 
-    cdef union _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st_param_u:
+    cdef union anon_union2:
         CUexecAffinitySmCount smCount
 
     cdef struct CUexecAffinityParam_st:
         CUexecAffinityType type
-        _CUexecAffinityParam_v1_CUexecAffinityParam_v1_CUexecAffinityParam_st_param_u param
+        anon_union2 param
 
     ctypedef CUexecAffinityParam_st CUexecAffinityParam_v1
 
     ctypedef CUexecAffinityParam_v1 CUexecAffinityParam
+
+    cdef enum CUlibraryOption_enum:
+        CU_LIBRARY_HOST_UNIVERSAL_FUNCTION_AND_DATA_TABLE = 0
+        CU_LIBRARY_BINARY_IS_PRESERVED = 1
+        CU_LIBRARY_NUM_OPTIONS = 2
+
+    ctypedef CUlibraryOption_enum CUlibraryOption
+
+    cdef struct CUlibraryHostUniversalFunctionAndDataTable_st:
+        void* functionTable
+        size_t functionWindowSize
+        void* dataTable
+        size_t dataWindowSize
+
+    ctypedef CUlibraryHostUniversalFunctionAndDataTable_st CUlibraryHostUniversalFunctionAndDataTable
 
     cdef enum cudaError_enum:
         CUDA_SUCCESS = 0
@@ -992,6 +1075,8 @@ cdef extern from "cuda.h":
         CUDA_ERROR_MPS_MAX_CLIENTS_REACHED = 808
         CUDA_ERROR_MPS_MAX_CONNECTIONS_REACHED = 809
         CUDA_ERROR_MPS_CLIENT_TERMINATED = 810
+        CUDA_ERROR_CDP_NOT_SUPPORTED = 811
+        CUDA_ERROR_CDP_VERSION_MISMATCH = 812
         CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED = 900
         CUDA_ERROR_STREAM_CAPTURE_INVALIDATED = 901
         CUDA_ERROR_STREAM_CAPTURE_MERGE = 902
@@ -1128,13 +1213,13 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_ARRAY3D_DESCRIPTOR_v2 CUDA_ARRAY3D_DESCRIPTOR
 
-    cdef struct _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s:
+    cdef struct anon_struct2:
         unsigned int width
         unsigned int height
         unsigned int depth
 
     cdef struct CUDA_ARRAY_SPARSE_PROPERTIES_st:
-        _CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_v1_CUDA_ARRAY_SPARSE_PROPERTIES_st_tileExtent_s tileExtent
+        anon_struct2 tileExtent
         unsigned int miptailFirstLevel
         unsigned long long miptailSize
         unsigned int flags
@@ -1153,19 +1238,19 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_ARRAY_MEMORY_REQUIREMENTS_v1 CUDA_ARRAY_MEMORY_REQUIREMENTS
 
-    cdef struct _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_array_s:
+    cdef struct anon_struct3:
         CUarray hArray
 
-    cdef struct _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_mipmap_s:
+    cdef struct anon_struct4:
         CUmipmappedArray hMipmappedArray
 
-    cdef struct _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_linear_s:
+    cdef struct anon_struct5:
         CUdeviceptr devPtr
         CUarray_format format
         unsigned int numChannels
         size_t sizeInBytes
 
-    cdef struct _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_pitch2D_s:
+    cdef struct anon_struct6:
         CUdeviceptr devPtr
         CUarray_format format
         unsigned int numChannels
@@ -1173,19 +1258,19 @@ cdef extern from "cuda.h":
         size_t height
         size_t pitchInBytes
 
-    cdef struct _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_reserved_s:
+    cdef struct anon_struct7:
         int reserved[32]
 
-    cdef union _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_u:
-        _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_array_s array
-        _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_mipmap_s mipmap
-        _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_linear_s linear
-        _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_pitch2D_s pitch2D
-        _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_res_reserved_s reserved
+    cdef union anon_union3:
+        anon_struct3 array
+        anon_struct4 mipmap
+        anon_struct5 linear
+        anon_struct6 pitch2D
+        anon_struct7 reserved
 
     cdef struct CUDA_RESOURCE_DESC_st:
         CUresourcetype resType
-        _CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_v1_CUDA_RESOURCE_DESC_st_res_u res
+        anon_union3 res
         unsigned int flags
 
     ctypedef CUDA_RESOURCE_DESC_st CUDA_RESOURCE_DESC_v1
@@ -1262,6 +1347,57 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_RESOURCE_VIEW_DESC_v1 CUDA_RESOURCE_VIEW_DESC
 
+    cdef struct CUtensorMap_st:
+        cuuint64_t opaque[16]
+
+    ctypedef CUtensorMap_st CUtensorMap
+
+    cdef enum CUtensorMapDataType_enum:
+        CU_TENSOR_MAP_DATA_TYPE_UINT8 = 0
+        CU_TENSOR_MAP_DATA_TYPE_UINT16 = 1
+        CU_TENSOR_MAP_DATA_TYPE_UINT32 = 2
+        CU_TENSOR_MAP_DATA_TYPE_INT32 = 3
+        CU_TENSOR_MAP_DATA_TYPE_UINT64 = 4
+        CU_TENSOR_MAP_DATA_TYPE_INT64 = 5
+        CU_TENSOR_MAP_DATA_TYPE_FLOAT16 = 6
+        CU_TENSOR_MAP_DATA_TYPE_FLOAT32 = 7
+        CU_TENSOR_MAP_DATA_TYPE_FLOAT64 = 8
+        CU_TENSOR_MAP_DATA_TYPE_BFLOAT16 = 9
+        CU_TENSOR_MAP_DATA_TYPE_FLOAT32_FTZ = 10
+        CU_TENSOR_MAP_DATA_TYPE_TFLOAT32 = 11
+        CU_TENSOR_MAP_DATA_TYPE_TFLOAT32_FTZ = 12
+
+    ctypedef CUtensorMapDataType_enum CUtensorMapDataType
+
+    cdef enum CUtensorMapInterleave_enum:
+        CU_TENSOR_MAP_INTERLEAVE_NONE = 0
+        CU_TENSOR_MAP_INTERLEAVE_16B = 1
+        CU_TENSOR_MAP_INTERLEAVE_32B = 2
+
+    ctypedef CUtensorMapInterleave_enum CUtensorMapInterleave
+
+    cdef enum CUtensorMapSwizzle_enum:
+        CU_TENSOR_MAP_SWIZZLE_NONE = 0
+        CU_TENSOR_MAP_SWIZZLE_32B = 1
+        CU_TENSOR_MAP_SWIZZLE_64B = 2
+        CU_TENSOR_MAP_SWIZZLE_128B = 3
+
+    ctypedef CUtensorMapSwizzle_enum CUtensorMapSwizzle
+
+    cdef enum CUtensorMapL2promotion_enum:
+        CU_TENSOR_MAP_L2_PROMOTION_NONE = 0
+        CU_TENSOR_MAP_L2_PROMOTION_L2_64B = 1
+        CU_TENSOR_MAP_L2_PROMOTION_L2_128B = 2
+        CU_TENSOR_MAP_L2_PROMOTION_L2_256B = 3
+
+    ctypedef CUtensorMapL2promotion_enum CUtensorMapL2promotion
+
+    cdef enum CUtensorMapFloatOOBfill_enum:
+        CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE = 0
+        CU_TENSOR_MAP_FLOAT_OOB_FILL_NAN_REQUEST_ZERO_FMA = 1
+
+    ctypedef CUtensorMapFloatOOBfill_enum CUtensorMapFloatOOBfill
+
     cdef struct CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st:
         unsigned long long p2pToken
         unsigned int vaSpaceToken
@@ -1305,18 +1441,18 @@ cdef extern from "cuda.h":
 
     ctypedef CUexternalMemoryHandleType_enum CUexternalMemoryHandleType
 
-    cdef struct _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_handle_win32_s:
+    cdef struct anon_struct8:
         void* handle
         const void* name
 
-    cdef union _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_u:
+    cdef union anon_union4:
         int fd
-        _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_handle_win32_s win32
+        anon_struct8 win32
         const void* nvSciBufObject
 
     cdef struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         CUexternalMemoryHandleType type
-        _CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1_CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st_handle_u handle
+        anon_union4 handle
         unsigned long long size
         unsigned int flags
         unsigned int reserved[16]
@@ -1359,18 +1495,18 @@ cdef extern from "cuda.h":
 
     ctypedef CUexternalSemaphoreHandleType_enum CUexternalSemaphoreHandleType
 
-    cdef struct _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_handle_win32_s:
+    cdef struct anon_struct9:
         void* handle
         const void* name
 
-    cdef union _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_u:
+    cdef union anon_union5:
         int fd
-        _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_handle_win32_s win32
+        anon_struct9 win32
         const void* nvSciSyncObj
 
     cdef struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
         CUexternalSemaphoreHandleType type
-        _CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1_CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st_handle_u handle
+        anon_union5 handle
         unsigned int flags
         unsigned int reserved[16]
 
@@ -1378,24 +1514,24 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1 CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC
 
-    cdef struct _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_fence_s:
+    cdef struct anon_struct10:
         unsigned long long value
 
-    cdef union _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_nvSciSync_u:
+    cdef union anon_union6:
         void* fence
         unsigned long long reserved
 
-    cdef struct _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_keyedMutex_s:
+    cdef struct anon_struct11:
         unsigned long long key
 
-    cdef struct _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_s:
-        _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_fence_s fence
-        _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_nvSciSync_u nvSciSync
-        _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_params_keyedMutex_s keyedMutex
+    cdef struct anon_struct12:
+        anon_struct10 fence
+        anon_union6 nvSciSync
+        anon_struct11 keyedMutex
         unsigned int reserved[12]
 
     cdef struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
-        _CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st_params_s params
+        anon_struct12 params
         unsigned int flags
         unsigned int reserved[16]
 
@@ -1403,25 +1539,25 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1 CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS
 
-    cdef struct _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_fence_s:
+    cdef struct anon_struct13:
         unsigned long long value
 
-    cdef union _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_nvSciSync_u:
+    cdef union anon_union7:
         void* fence
         unsigned long long reserved
 
-    cdef struct _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_keyedMutex_s:
+    cdef struct anon_struct14:
         unsigned long long key
         unsigned int timeoutMs
 
-    cdef struct _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_s:
-        _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_fence_s fence
-        _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_nvSciSync_u nvSciSync
-        _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_params_keyedMutex_s keyedMutex
+    cdef struct anon_struct15:
+        anon_struct13 fence
+        anon_union7 nvSciSync
+        anon_struct14 keyedMutex
         unsigned int reserved[10]
 
     cdef struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
-        _CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1_CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st_params_s params
+        anon_struct15 params
         unsigned int flags
         unsigned int reserved[16]
 
@@ -1511,11 +1647,11 @@ cdef extern from "cuda.h":
 
     ctypedef CUmemHandleType_enum CUmemHandleType
 
-    cdef union _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u:
+    cdef union anon_union8:
         CUmipmappedArray mipmap
         CUarray array
 
-    cdef struct _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_sparseLevel_s:
+    cdef struct anon_struct16:
         unsigned int level
         unsigned int layer
         unsigned int offsetX
@@ -1525,26 +1661,26 @@ cdef extern from "cuda.h":
         unsigned int extentHeight
         unsigned int extentDepth
 
-    cdef struct _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_miptail_s:
+    cdef struct anon_struct17:
         unsigned int layer
         unsigned long long offset
         unsigned long long size
 
-    cdef union _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u:
-        _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_sparseLevel_s sparseLevel
-        _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_subresource_miptail_s miptail
+    cdef union anon_union9:
+        anon_struct16 sparseLevel
+        anon_struct17 miptail
 
-    cdef union _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u:
+    cdef union anon_union10:
         CUmemGenericAllocationHandle memHandle
 
     cdef struct CUarrayMapInfo_st:
         CUresourcetype resourceType
-        _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_resource_u resource
+        anon_union8 resource
         CUarraySparseSubresourceType subresourceType
-        _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_subresource_u subresource
+        anon_union9 subresource
         CUmemOperationType memOperationType
         CUmemHandleType memHandleType
-        _CUarrayMapInfo_v1_CUarrayMapInfo_v1_CUarrayMapInfo_st_memHandle_u memHandle
+        anon_union10 memHandle
         unsigned long long offset
         unsigned int deviceBitMask
         unsigned int flags
@@ -1568,7 +1704,7 @@ cdef extern from "cuda.h":
 
     ctypedef CUmemAllocationCompType_enum CUmemAllocationCompType
 
-    cdef struct _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s:
+    cdef struct anon_struct18:
         unsigned char compressionType
         unsigned char gpuDirectRDMACapable
         unsigned short usage
@@ -1579,7 +1715,7 @@ cdef extern from "cuda.h":
         CUmemAllocationHandleType requestedHandleTypes
         CUmemLocation location
         void* win32HandleMetaData
-        _CUmemAllocationProp_v1_CUmemAllocationProp_v1_CUmemAllocationProp_st_allocFlags_s allocFlags
+        anon_struct18 allocFlags
 
     ctypedef CUmemAllocationProp_st CUmemAllocationProp_v1
 
@@ -1605,6 +1741,15 @@ cdef extern from "cuda.h":
         CU_GRAPH_EXEC_UPDATE_ERROR_ATTRIBUTES_CHANGED = 8
 
     ctypedef CUgraphExecUpdateResult_enum CUgraphExecUpdateResult
+
+    cdef struct CUgraphExecUpdateResultInfo_st:
+        CUgraphExecUpdateResult result
+        CUgraphNode errorNode
+        CUgraphNode errorFromNode
+
+    ctypedef CUgraphExecUpdateResultInfo_st CUgraphExecUpdateResultInfo_v1
+
+    ctypedef CUgraphExecUpdateResultInfo_v1 CUgraphExecUpdateResultInfo
 
     cdef enum CUmemPool_attribute_enum:
         CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES = 1
@@ -1692,6 +1837,7 @@ cdef extern from "cuda.h":
         CU_GRAPH_DEBUG_DOT_FLAGS_MEM_ALLOC_NODE_PARAMS = 2048
         CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS = 4096
         CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS = 8192
+        CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO = 16384
 
     ctypedef CUgraphDebugDot_flags_enum CUgraphDebugDot_flags
 
@@ -1707,6 +1853,8 @@ cdef extern from "cuda.h":
 
     cdef enum CUgraphInstantiate_flags_enum:
         CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH = 1
+        CUDA_GRAPH_INSTANTIATE_FLAG_UPLOAD = 2
+        CUDA_GRAPH_INSTANTIATE_FLAG_DEVICE_LAUNCH = 4
         CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY = 8
 
     ctypedef CUgraphInstantiate_flags_enum CUgraphInstantiate_flags
@@ -1716,6 +1864,213 @@ cdef extern from "cuda.h":
         CU_MODULE_LAZY_LOADING = 2
 
     ctypedef CUmoduleLoadingMode_enum CUmoduleLoadingMode
+
+cdef extern from "cudaProfiler.h":
+
+    cdef enum CUoutput_mode_enum:
+        CU_OUT_KEY_VALUE_PAIR = 0
+        CU_OUT_CSV = 1
+
+    ctypedef CUoutput_mode_enum CUoutput_mode
+
+cdef enum CUeglFrameType_enum:
+    CU_EGL_FRAME_TYPE_ARRAY = 0
+    CU_EGL_FRAME_TYPE_PITCH = 1
+
+ctypedef CUeglFrameType_enum CUeglFrameType
+
+cdef enum CUeglResourceLocationFlags_enum:
+    CU_EGL_RESOURCE_LOCATION_SYSMEM = 0
+    CU_EGL_RESOURCE_LOCATION_VIDMEM = 1
+
+ctypedef CUeglResourceLocationFlags_enum CUeglResourceLocationFlags
+
+cdef enum CUeglColorFormat_enum:
+    CU_EGL_COLOR_FORMAT_YUV420_PLANAR = 0
+    CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR = 1
+    CU_EGL_COLOR_FORMAT_YUV422_PLANAR = 2
+    CU_EGL_COLOR_FORMAT_YUV422_SEMIPLANAR = 3
+    CU_EGL_COLOR_FORMAT_RGB = 4
+    CU_EGL_COLOR_FORMAT_BGR = 5
+    CU_EGL_COLOR_FORMAT_ARGB = 6
+    CU_EGL_COLOR_FORMAT_RGBA = 7
+    CU_EGL_COLOR_FORMAT_L = 8
+    CU_EGL_COLOR_FORMAT_R = 9
+    CU_EGL_COLOR_FORMAT_YUV444_PLANAR = 10
+    CU_EGL_COLOR_FORMAT_YUV444_SEMIPLANAR = 11
+    CU_EGL_COLOR_FORMAT_YUYV_422 = 12
+    CU_EGL_COLOR_FORMAT_UYVY_422 = 13
+    CU_EGL_COLOR_FORMAT_ABGR = 14
+    CU_EGL_COLOR_FORMAT_BGRA = 15
+    CU_EGL_COLOR_FORMAT_A = 16
+    CU_EGL_COLOR_FORMAT_RG = 17
+    CU_EGL_COLOR_FORMAT_AYUV = 18
+    CU_EGL_COLOR_FORMAT_YVU444_SEMIPLANAR = 19
+    CU_EGL_COLOR_FORMAT_YVU422_SEMIPLANAR = 20
+    CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR = 21
+    CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR = 22
+    CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR = 23
+    CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR = 24
+    CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR = 25
+    CU_EGL_COLOR_FORMAT_VYUY_ER = 26
+    CU_EGL_COLOR_FORMAT_UYVY_ER = 27
+    CU_EGL_COLOR_FORMAT_YUYV_ER = 28
+    CU_EGL_COLOR_FORMAT_YVYU_ER = 29
+    CU_EGL_COLOR_FORMAT_YUV_ER = 30
+    CU_EGL_COLOR_FORMAT_YUVA_ER = 31
+    CU_EGL_COLOR_FORMAT_AYUV_ER = 32
+    CU_EGL_COLOR_FORMAT_YUV444_PLANAR_ER = 33
+    CU_EGL_COLOR_FORMAT_YUV422_PLANAR_ER = 34
+    CU_EGL_COLOR_FORMAT_YUV420_PLANAR_ER = 35
+    CU_EGL_COLOR_FORMAT_YUV444_SEMIPLANAR_ER = 36
+    CU_EGL_COLOR_FORMAT_YUV422_SEMIPLANAR_ER = 37
+    CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_ER = 38
+    CU_EGL_COLOR_FORMAT_YVU444_PLANAR_ER = 39
+    CU_EGL_COLOR_FORMAT_YVU422_PLANAR_ER = 40
+    CU_EGL_COLOR_FORMAT_YVU420_PLANAR_ER = 41
+    CU_EGL_COLOR_FORMAT_YVU444_SEMIPLANAR_ER = 42
+    CU_EGL_COLOR_FORMAT_YVU422_SEMIPLANAR_ER = 43
+    CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_ER = 44
+    CU_EGL_COLOR_FORMAT_BAYER_RGGB = 45
+    CU_EGL_COLOR_FORMAT_BAYER_BGGR = 46
+    CU_EGL_COLOR_FORMAT_BAYER_GRBG = 47
+    CU_EGL_COLOR_FORMAT_BAYER_GBRG = 48
+    CU_EGL_COLOR_FORMAT_BAYER10_RGGB = 49
+    CU_EGL_COLOR_FORMAT_BAYER10_BGGR = 50
+    CU_EGL_COLOR_FORMAT_BAYER10_GRBG = 51
+    CU_EGL_COLOR_FORMAT_BAYER10_GBRG = 52
+    CU_EGL_COLOR_FORMAT_BAYER12_RGGB = 53
+    CU_EGL_COLOR_FORMAT_BAYER12_BGGR = 54
+    CU_EGL_COLOR_FORMAT_BAYER12_GRBG = 55
+    CU_EGL_COLOR_FORMAT_BAYER12_GBRG = 56
+    CU_EGL_COLOR_FORMAT_BAYER14_RGGB = 57
+    CU_EGL_COLOR_FORMAT_BAYER14_BGGR = 58
+    CU_EGL_COLOR_FORMAT_BAYER14_GRBG = 59
+    CU_EGL_COLOR_FORMAT_BAYER14_GBRG = 60
+    CU_EGL_COLOR_FORMAT_BAYER20_RGGB = 61
+    CU_EGL_COLOR_FORMAT_BAYER20_BGGR = 62
+    CU_EGL_COLOR_FORMAT_BAYER20_GRBG = 63
+    CU_EGL_COLOR_FORMAT_BAYER20_GBRG = 64
+    CU_EGL_COLOR_FORMAT_YVU444_PLANAR = 65
+    CU_EGL_COLOR_FORMAT_YVU422_PLANAR = 66
+    CU_EGL_COLOR_FORMAT_YVU420_PLANAR = 67
+    CU_EGL_COLOR_FORMAT_BAYER_ISP_RGGB = 68
+    CU_EGL_COLOR_FORMAT_BAYER_ISP_BGGR = 69
+    CU_EGL_COLOR_FORMAT_BAYER_ISP_GRBG = 70
+    CU_EGL_COLOR_FORMAT_BAYER_ISP_GBRG = 71
+    CU_EGL_COLOR_FORMAT_BAYER_BCCR = 72
+    CU_EGL_COLOR_FORMAT_BAYER_RCCB = 73
+    CU_EGL_COLOR_FORMAT_BAYER_CRBC = 74
+    CU_EGL_COLOR_FORMAT_BAYER_CBRC = 75
+    CU_EGL_COLOR_FORMAT_BAYER10_CCCC = 76
+    CU_EGL_COLOR_FORMAT_BAYER12_BCCR = 77
+    CU_EGL_COLOR_FORMAT_BAYER12_RCCB = 78
+    CU_EGL_COLOR_FORMAT_BAYER12_CRBC = 79
+    CU_EGL_COLOR_FORMAT_BAYER12_CBRC = 80
+    CU_EGL_COLOR_FORMAT_BAYER12_CCCC = 81
+    CU_EGL_COLOR_FORMAT_Y = 82
+    CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_2020 = 83
+    CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_2020 = 84
+    CU_EGL_COLOR_FORMAT_YUV420_PLANAR_2020 = 85
+    CU_EGL_COLOR_FORMAT_YVU420_PLANAR_2020 = 86
+    CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_709 = 87
+    CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_709 = 88
+    CU_EGL_COLOR_FORMAT_YUV420_PLANAR_709 = 89
+    CU_EGL_COLOR_FORMAT_YVU420_PLANAR_709 = 90
+    CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_709 = 91
+    CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_2020 = 92
+    CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR_2020 = 93
+    CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR = 94
+    CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR_709 = 95
+    CU_EGL_COLOR_FORMAT_Y_ER = 96
+    CU_EGL_COLOR_FORMAT_Y_709_ER = 97
+    CU_EGL_COLOR_FORMAT_Y10_ER = 98
+    CU_EGL_COLOR_FORMAT_Y10_709_ER = 99
+    CU_EGL_COLOR_FORMAT_Y12_ER = 100
+    CU_EGL_COLOR_FORMAT_Y12_709_ER = 101
+    CU_EGL_COLOR_FORMAT_YUVA = 102
+    CU_EGL_COLOR_FORMAT_YUV = 103
+    CU_EGL_COLOR_FORMAT_YVYU = 104
+    CU_EGL_COLOR_FORMAT_VYUY = 105
+    CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_ER = 106
+    CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_709_ER = 107
+    CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR_ER = 108
+    CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR_709_ER = 109
+    CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR_ER = 110
+    CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR_709_ER = 111
+    CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR_ER = 112
+    CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR_709_ER = 113
+    CU_EGL_COLOR_FORMAT_MAX = 114
+
+ctypedef CUeglColorFormat_enum CUeglColorFormat
+
+cdef union anon_union11:
+    CUarray pArray[3]
+    void* pPitch[3]
+
+cdef struct CUeglFrame_st:
+    anon_union11 frame
+    unsigned int width
+    unsigned int height
+    unsigned int depth
+    unsigned int pitch
+    unsigned int planeCount
+    unsigned int numChannels
+    CUeglFrameType frameType
+    CUeglColorFormat eglColorFormat
+    CUarray_format cuFormat
+
+ctypedef CUeglFrame_st CUeglFrame_v1
+
+ctypedef CUeglFrame_v1 CUeglFrame
+
+cdef extern from "":
+    cdef struct CUeglStreamConnection_st:
+        pass
+ctypedef CUeglStreamConnection_st* CUeglStreamConnection
+
+cdef enum CUGLDeviceList_enum:
+    CU_GL_DEVICE_LIST_ALL = 1
+    CU_GL_DEVICE_LIST_CURRENT_FRAME = 2
+    CU_GL_DEVICE_LIST_NEXT_FRAME = 3
+
+ctypedef CUGLDeviceList_enum CUGLDeviceList
+
+cdef enum CUGLmap_flags_enum:
+    CU_GL_MAP_RESOURCE_FLAGS_NONE = 0
+    CU_GL_MAP_RESOURCE_FLAGS_READ_ONLY = 1
+    CU_GL_MAP_RESOURCE_FLAGS_WRITE_DISCARD = 2
+
+ctypedef CUGLmap_flags_enum CUGLmap_flags
+
+ctypedef unsigned int GLenum
+
+ctypedef unsigned int GLuint
+
+cdef extern from "":
+    cdef struct void:
+        pass
+ctypedef void* EGLImageKHR
+
+cdef extern from "":
+    cdef struct void:
+        pass
+ctypedef void* EGLStreamKHR
+
+ctypedef unsigned int EGLint
+
+cdef extern from "":
+    cdef struct void:
+        pass
+ctypedef void* EGLSyncKHR
+
+ctypedef uint32_t VdpDevice
+
+ctypedef unsigned long long VdpGetProcAddress
+
+ctypedef uint32_t VdpVideoSurface
+
+ctypedef uint32_t VdpOutputSurface
 
 {{if 'cuGetErrorString' in found_functions}}
 
@@ -1802,6 +2157,11 @@ cdef CUresult cuDeviceGetMemPool(CUmemoryPool* pool, CUdevice dev) nogil except 
 cdef CUresult cuDeviceGetDefaultMemPool(CUmemoryPool* pool_out, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
+{{if 'cuDeviceGetExecAffinitySupport' in found_functions}}
+
+cdef CUresult cuDeviceGetExecAffinitySupport(int* pi, CUexecAffinityType typename, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
 {{if 'cuFlushGPUDirectRDMAWrites' in found_functions}}
 
 cdef CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) nogil except ?CUDA_ERROR_NOT_FOUND
@@ -1840,11 +2200,6 @@ cdef CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, int*
 {{if 'cuDevicePrimaryCtxReset_v2' in found_functions}}
 
 cdef CUresult cuDevicePrimaryCtxReset(CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-{{if 'cuDeviceGetExecAffinitySupport' in found_functions}}
-
-cdef CUresult cuDeviceGetExecAffinitySupport(int* pi, CUexecAffinityType typename, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
 {{if 'cuCtxCreate_v2' in found_functions}}
@@ -1890,6 +2245,11 @@ cdef CUresult cuCtxGetDevice(CUdevice* device) nogil except ?CUDA_ERROR_NOT_FOUN
 {{if 'cuCtxGetFlags' in found_functions}}
 
 cdef CUresult cuCtxGetFlags(unsigned int* flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxGetId' in found_functions}}
+
+cdef CUresult cuCtxGetId(CUcontext ctx, unsigned long long* ctxId) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
 {{if 'cuCtxSynchronize' in found_functions}}
@@ -1997,16 +2357,6 @@ cdef CUresult cuModuleGetFunction(CUfunction* hfunc, CUmodule hmod, const char* 
 cdef CUresult cuModuleGetGlobal(CUdeviceptr* dptr, size_t* numbytes, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuModuleGetTexRef' in found_functions}}
-
-cdef CUresult cuModuleGetTexRef(CUtexref* pTexRef, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-{{if 'cuModuleGetSurfRef' in found_functions}}
-
-cdef CUresult cuModuleGetSurfRef(CUsurfref* pSurfRef, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
 {{if 'cuLinkCreate_v2' in found_functions}}
 
 cdef CUresult cuLinkCreate(unsigned int numOptions, CUjit_option* options, void** optionValues, CUlinkState* stateOut) nogil except ?CUDA_ERROR_NOT_FOUND
@@ -2030,6 +2380,76 @@ cdef CUresult cuLinkComplete(CUlinkState state, void** cubinOut, size_t* sizeOut
 {{if 'cuLinkDestroy' in found_functions}}
 
 cdef CUresult cuLinkDestroy(CUlinkState state) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleGetTexRef' in found_functions}}
+
+cdef CUresult cuModuleGetTexRef(CUtexref* pTexRef, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuModuleGetSurfRef' in found_functions}}
+
+cdef CUresult cuModuleGetSurfRef(CUsurfref* pSurfRef, CUmodule hmod, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLibraryLoadData' in found_functions}}
+
+cdef CUresult cuLibraryLoadData(CUlibrary* library, const void* code, CUjit_option* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, CUlibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLibraryLoadFromFile' in found_functions}}
+
+cdef CUresult cuLibraryLoadFromFile(CUlibrary* library, const char* fileName, CUjit_option* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, CUlibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLibraryUnload' in found_functions}}
+
+cdef CUresult cuLibraryUnload(CUlibrary library) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLibraryGetKernel' in found_functions}}
+
+cdef CUresult cuLibraryGetKernel(CUkernel* pKernel, CUlibrary library, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLibraryGetModule' in found_functions}}
+
+cdef CUresult cuLibraryGetModule(CUmodule* pMod, CUlibrary library) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuKernelGetFunction' in found_functions}}
+
+cdef CUresult cuKernelGetFunction(CUfunction* pFunc, CUkernel kernel) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLibraryGetGlobal' in found_functions}}
+
+cdef CUresult cuLibraryGetGlobal(CUdeviceptr* dptr, size_t* numbytes, CUlibrary library, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLibraryGetManaged' in found_functions}}
+
+cdef CUresult cuLibraryGetManaged(CUdeviceptr* dptr, size_t* numbytes, CUlibrary library, const char* name) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuLibraryGetUnifiedFunction' in found_functions}}
+
+cdef CUresult cuLibraryGetUnifiedFunction(void** fptr, CUlibrary library, const char* symbol) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuKernelGetAttribute' in found_functions}}
+
+cdef CUresult cuKernelGetAttribute(int* pi, CUfunction_attribute attrib, CUkernel kernel, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuKernelSetAttribute' in found_functions}}
+
+cdef CUresult cuKernelSetAttribute(CUfunction_attribute attrib, int val, CUkernel kernel, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuKernelSetCacheConfig' in found_functions}}
+
+cdef CUresult cuKernelSetCacheConfig(CUkernel kernel, CUfunc_cache config, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
 {{if 'cuMemGetInfo_v2' in found_functions}}
@@ -2577,6 +2997,11 @@ cdef CUresult cuStreamGetPriority(CUstream hStream, int* priority) nogil except 
 cdef CUresult cuStreamGetFlags(CUstream hStream, unsigned int* flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
+{{if 'cuStreamGetId' in found_functions}}
+
+cdef CUresult cuStreamGetId(CUstream hStream, unsigned long long* streamId) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
 {{if 'cuStreamGetCtx' in found_functions}}
 
 cdef CUresult cuStreamGetCtx(CUstream hStream, CUcontext* pctx) nogil except ?CUDA_ERROR_NOT_FOUND
@@ -2612,14 +3037,9 @@ cdef CUresult cuStreamEndCapture(CUstream hStream, CUgraph* phGraph) nogil excep
 cdef CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* captureStatus) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuStreamGetCaptureInfo' in found_functions}}
-
-cdef CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
 {{if 'cuStreamGetCaptureInfo_v2' in found_functions}}
 
-cdef CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) nogil except ?CUDA_ERROR_NOT_FOUND
+cdef CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
 {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
@@ -2737,54 +3157,29 @@ cdef CUresult cuWaitExternalSemaphoresAsync(const CUexternalSemaphore* extSemArr
 cdef CUresult cuDestroyExternalSemaphore(CUexternalSemaphore extSem) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuStreamWaitValue32' in found_functions}}
+{{if 'cuStreamWaitValue32_v2' in found_functions}}
 
 cdef CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuStreamWaitValue64' in found_functions}}
+{{if 'cuStreamWaitValue64_v2' in found_functions}}
 
 cdef CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuStreamWriteValue32' in found_functions}}
+{{if 'cuStreamWriteValue32_v2' in found_functions}}
 
 cdef CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuStreamWriteValue64' in found_functions}}
+{{if 'cuStreamWriteValue64_v2' in found_functions}}
 
 cdef CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuStreamBatchMemOp' in found_functions}}
-
-cdef CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-{{if 'cuStreamWaitValue32_v2' in found_functions}}
-
-cdef CUresult cuStreamWaitValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-{{if 'cuStreamWaitValue64_v2' in found_functions}}
-
-cdef CUresult cuStreamWaitValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-{{if 'cuStreamWriteValue32_v2' in found_functions}}
-
-cdef CUresult cuStreamWriteValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-{{if 'cuStreamWriteValue64_v2' in found_functions}}
-
-cdef CUresult cuStreamWriteValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
 {{if 'cuStreamBatchMemOp_v2' in found_functions}}
 
-cdef CUresult cuStreamBatchMemOp_v2(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+cdef CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUstreamBatchMemOpParams* paramArray, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
 {{if 'cuFuncGetAttribute' in found_functions}}
@@ -2892,17 +3287,17 @@ cdef CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef) 
 cdef CUresult cuGraphCreate(CUgraph* phGraph, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuGraphAddKernelNode' in found_functions}}
+{{if 'cuGraphAddKernelNode_v2' in found_functions}}
 
 cdef CUresult cuGraphAddKernelNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, const CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuGraphKernelNodeGetParams' in found_functions}}
+{{if 'cuGraphKernelNodeGetParams_v2' in found_functions}}
 
 cdef CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuGraphKernelNodeSetParams' in found_functions}}
+{{if 'cuGraphKernelNodeSetParams_v2' in found_functions}}
 
 cdef CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
@@ -3137,17 +3532,22 @@ cdef CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode* from_
 cdef CUresult cuGraphDestroyNode(CUgraphNode hNode) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuGraphInstantiate_v2' in found_functions}}
-
-cdef CUresult cuGraphInstantiate(CUgraphExec* phGraphExec, CUgraph hGraph, CUgraphNode* phErrorNode, char* logBuffer, size_t bufferSize) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
 {{if 'cuGraphInstantiateWithFlags' in found_functions}}
 
-cdef CUresult cuGraphInstantiateWithFlags(CUgraphExec* phGraphExec, CUgraph hGraph, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+cdef CUresult cuGraphInstantiate(CUgraphExec* phGraphExec, CUgraph hGraph, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuGraphExecKernelNodeSetParams' in found_functions}}
+{{if 'cuGraphInstantiateWithParams' in found_functions}}
+
+cdef CUresult cuGraphInstantiateWithParams(CUgraphExec* phGraphExec, CUgraph hGraph, CUDA_GRAPH_INSTANTIATE_PARAMS* instantiateParams) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecGetFlags' in found_functions}}
+
+cdef CUresult cuGraphExecGetFlags(CUgraphExec hGraphExec, cuuint64_t* flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuGraphExecKernelNodeSetParams_v2' in found_functions}}
 
 cdef CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS* nodeParams) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
@@ -3222,9 +3622,9 @@ cdef CUresult cuGraphExecDestroy(CUgraphExec hGraphExec) nogil except ?CUDA_ERRO
 cdef CUresult cuGraphDestroy(CUgraph hGraph) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuGraphExecUpdate' in found_functions}}
+{{if 'cuGraphExecUpdate_v2' in found_functions}}
 
-cdef CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CUgraphNode* hErrorNode_out, CUgraphExecUpdateResult* updateResult_out) nogil except ?CUDA_ERROR_NOT_FOUND
+cdef CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CUgraphExecUpdateResultInfo* resultInfo) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
 {{if 'cuGraphKernelNodeCopyAttributes' in found_functions}}
@@ -3492,6 +3892,21 @@ cdef CUresult cuSurfObjectDestroy(CUsurfObject surfObject) nogil except ?CUDA_ER
 cdef CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC* pResDesc, CUsurfObject surfObject) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
+{{if 'cuTensorMapEncodeTiled' in found_functions}}
+
+cdef CUresult cuTensorMapEncodeTiled(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, const cuuint32_t* boxDim, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTensorMapEncodeIm2col' in found_functions}}
+
+cdef CUresult cuTensorMapEncodeIm2col(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, const int* pixelBoxLowerCorner, const int* pixelBoxUpperCorner, cuuint32_t channelsPerPixel, cuuint32_t pixelsPerColumn, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuTensorMapReplaceAddress' in found_functions}}
+
+cdef CUresult cuTensorMapReplaceAddress(CUtensorMap* tensorMap, void* globalAddress) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
 {{if 'cuDeviceCanAccessPeer' in found_functions}}
 
 cdef CUresult cuDeviceCanAccessPeer(int* canAccessPeer, CUdevice dev, CUdevice peerDev) nogil except ?CUDA_ERROR_NOT_FOUND
@@ -3547,27 +3962,14 @@ cdef CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResource* res
 cdef CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource* resources, CUstream hStream) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if 'cuGetProcAddress' in found_functions}}
+{{if 'cuGetProcAddress_v2' in found_functions}}
 
-cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags) nogil except ?CUDA_ERROR_NOT_FOUND
+cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags, CUdriverProcAddressQueryResult* symbolStatus) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
 {{if 'cuGetExportTable' in found_functions}}
 
 cdef CUresult cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-cdef extern from "cudaProfiler.h":
-
-    cdef enum CUoutput_mode_enum:
-        CU_OUT_KEY_VALUE_PAIR = 0
-        CU_OUT_CSV = 1
-
-    ctypedef CUoutput_mode_enum CUoutput_mode
-
-{{if 'cuProfilerInitialize' in found_functions}}
-
-cdef CUresult cuProfilerInitialize(const char* configFile, const char* outputFile, CUoutput_mode outputMode) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
 {{if 'cuProfilerStart' in found_functions}}
@@ -3580,312 +3982,110 @@ cdef CUresult cuProfilerStart() nogil except ?CUDA_ERROR_NOT_FOUND
 cdef CUresult cuProfilerStop() nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-from libc.stdint cimport uint32_t
-
-
-ctypedef unsigned int GLenum
-
-ctypedef unsigned int GLuint
-
-cdef extern from "":
-    cdef struct void:
-        pass
-ctypedef void* EGLImageKHR
-
-cdef extern from "":
-    cdef struct void:
-        pass
-ctypedef void* EGLStreamKHR
-
-ctypedef unsigned int EGLint
-
-cdef extern from "":
-    cdef struct void:
-        pass
-ctypedef void* EGLSyncKHR
-
-ctypedef uint32_t VdpDevice
-
-ctypedef unsigned long long VdpGetProcAddress
-
-ctypedef uint32_t VdpVideoSurface
-
-ctypedef uint32_t VdpOutputSurface
-
-{{if True or 'cuVDPAUGetDevice' in found_functions}}
-
-cdef CUresult cuVDPAUGetDevice(CUdevice* pDevice, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-{{if True or 'cuVDPAUCtxCreate_v2' in found_functions}}
-
-cdef CUresult cuVDPAUCtxCreate(CUcontext* pCtx, unsigned int flags, CUdevice device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-{{if True or 'cuGraphicsVDPAURegisterVideoSurface' in found_functions}}
-
-cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResource, VdpVideoSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-{{if True or 'cuGraphicsVDPAURegisterOutputSurface' in found_functions}}
-
-cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
-{{endif}}
-
-
-cdef enum CUeglFrameType_enum:
-    CU_EGL_FRAME_TYPE_ARRAY = 0
-    CU_EGL_FRAME_TYPE_PITCH = 1
-
-ctypedef CUeglFrameType_enum CUeglFrameType
-
-cdef enum CUeglResourceLocationFlags_enum:
-    CU_EGL_RESOURCE_LOCATION_SYSMEM = 0
-    CU_EGL_RESOURCE_LOCATION_VIDMEM = 1
-
-ctypedef CUeglResourceLocationFlags_enum CUeglResourceLocationFlags
-
-cdef enum CUeglColorFormat_enum:
-    CU_EGL_COLOR_FORMAT_YUV420_PLANAR = 0
-    CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR = 1
-    CU_EGL_COLOR_FORMAT_YUV422_PLANAR = 2
-    CU_EGL_COLOR_FORMAT_YUV422_SEMIPLANAR = 3
-    CU_EGL_COLOR_FORMAT_RGB = 4
-    CU_EGL_COLOR_FORMAT_BGR = 5
-    CU_EGL_COLOR_FORMAT_ARGB = 6
-    CU_EGL_COLOR_FORMAT_RGBA = 7
-    CU_EGL_COLOR_FORMAT_L = 8
-    CU_EGL_COLOR_FORMAT_R = 9
-    CU_EGL_COLOR_FORMAT_YUV444_PLANAR = 10
-    CU_EGL_COLOR_FORMAT_YUV444_SEMIPLANAR = 11
-    CU_EGL_COLOR_FORMAT_YUYV_422 = 12
-    CU_EGL_COLOR_FORMAT_UYVY_422 = 13
-    CU_EGL_COLOR_FORMAT_ABGR = 14
-    CU_EGL_COLOR_FORMAT_BGRA = 15
-    CU_EGL_COLOR_FORMAT_A = 16
-    CU_EGL_COLOR_FORMAT_RG = 17
-    CU_EGL_COLOR_FORMAT_AYUV = 18
-    CU_EGL_COLOR_FORMAT_YVU444_SEMIPLANAR = 19
-    CU_EGL_COLOR_FORMAT_YVU422_SEMIPLANAR = 20
-    CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR = 21
-    CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR = 22
-    CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR = 23
-    CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR = 24
-    CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR = 25
-    CU_EGL_COLOR_FORMAT_VYUY_ER = 26
-    CU_EGL_COLOR_FORMAT_UYVY_ER = 27
-    CU_EGL_COLOR_FORMAT_YUYV_ER = 28
-    CU_EGL_COLOR_FORMAT_YVYU_ER = 29
-    CU_EGL_COLOR_FORMAT_YUV_ER = 30
-    CU_EGL_COLOR_FORMAT_YUVA_ER = 31
-    CU_EGL_COLOR_FORMAT_AYUV_ER = 32
-    CU_EGL_COLOR_FORMAT_YUV444_PLANAR_ER = 33
-    CU_EGL_COLOR_FORMAT_YUV422_PLANAR_ER = 34
-    CU_EGL_COLOR_FORMAT_YUV420_PLANAR_ER = 35
-    CU_EGL_COLOR_FORMAT_YUV444_SEMIPLANAR_ER = 36
-    CU_EGL_COLOR_FORMAT_YUV422_SEMIPLANAR_ER = 37
-    CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_ER = 38
-    CU_EGL_COLOR_FORMAT_YVU444_PLANAR_ER = 39
-    CU_EGL_COLOR_FORMAT_YVU422_PLANAR_ER = 40
-    CU_EGL_COLOR_FORMAT_YVU420_PLANAR_ER = 41
-    CU_EGL_COLOR_FORMAT_YVU444_SEMIPLANAR_ER = 42
-    CU_EGL_COLOR_FORMAT_YVU422_SEMIPLANAR_ER = 43
-    CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_ER = 44
-    CU_EGL_COLOR_FORMAT_BAYER_RGGB = 45
-    CU_EGL_COLOR_FORMAT_BAYER_BGGR = 46
-    CU_EGL_COLOR_FORMAT_BAYER_GRBG = 47
-    CU_EGL_COLOR_FORMAT_BAYER_GBRG = 48
-    CU_EGL_COLOR_FORMAT_BAYER10_RGGB = 49
-    CU_EGL_COLOR_FORMAT_BAYER10_BGGR = 50
-    CU_EGL_COLOR_FORMAT_BAYER10_GRBG = 51
-    CU_EGL_COLOR_FORMAT_BAYER10_GBRG = 52
-    CU_EGL_COLOR_FORMAT_BAYER12_RGGB = 53
-    CU_EGL_COLOR_FORMAT_BAYER12_BGGR = 54
-    CU_EGL_COLOR_FORMAT_BAYER12_GRBG = 55
-    CU_EGL_COLOR_FORMAT_BAYER12_GBRG = 56
-    CU_EGL_COLOR_FORMAT_BAYER14_RGGB = 57
-    CU_EGL_COLOR_FORMAT_BAYER14_BGGR = 58
-    CU_EGL_COLOR_FORMAT_BAYER14_GRBG = 59
-    CU_EGL_COLOR_FORMAT_BAYER14_GBRG = 60
-    CU_EGL_COLOR_FORMAT_BAYER20_RGGB = 61
-    CU_EGL_COLOR_FORMAT_BAYER20_BGGR = 62
-    CU_EGL_COLOR_FORMAT_BAYER20_GRBG = 63
-    CU_EGL_COLOR_FORMAT_BAYER20_GBRG = 64
-    CU_EGL_COLOR_FORMAT_YVU444_PLANAR = 65
-    CU_EGL_COLOR_FORMAT_YVU422_PLANAR = 66
-    CU_EGL_COLOR_FORMAT_YVU420_PLANAR = 67
-    CU_EGL_COLOR_FORMAT_BAYER_ISP_RGGB = 68
-    CU_EGL_COLOR_FORMAT_BAYER_ISP_BGGR = 69
-    CU_EGL_COLOR_FORMAT_BAYER_ISP_GRBG = 70
-    CU_EGL_COLOR_FORMAT_BAYER_ISP_GBRG = 71
-    CU_EGL_COLOR_FORMAT_BAYER_BCCR = 72
-    CU_EGL_COLOR_FORMAT_BAYER_RCCB = 73
-    CU_EGL_COLOR_FORMAT_BAYER_CRBC = 74
-    CU_EGL_COLOR_FORMAT_BAYER_CBRC = 75
-    CU_EGL_COLOR_FORMAT_BAYER10_CCCC = 76
-    CU_EGL_COLOR_FORMAT_BAYER12_BCCR = 77
-    CU_EGL_COLOR_FORMAT_BAYER12_RCCB = 78
-    CU_EGL_COLOR_FORMAT_BAYER12_CRBC = 79
-    CU_EGL_COLOR_FORMAT_BAYER12_CBRC = 80
-    CU_EGL_COLOR_FORMAT_BAYER12_CCCC = 81
-    CU_EGL_COLOR_FORMAT_Y = 82
-    CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_2020 = 83
-    CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_2020 = 84
-    CU_EGL_COLOR_FORMAT_YUV420_PLANAR_2020 = 85
-    CU_EGL_COLOR_FORMAT_YVU420_PLANAR_2020 = 86
-    CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_709 = 87
-    CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_709 = 88
-    CU_EGL_COLOR_FORMAT_YUV420_PLANAR_709 = 89
-    CU_EGL_COLOR_FORMAT_YVU420_PLANAR_709 = 90
-    CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_709 = 91
-    CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_2020 = 92
-    CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR_2020 = 93
-    CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR = 94
-    CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR_709 = 95
-    CU_EGL_COLOR_FORMAT_Y_ER = 96
-    CU_EGL_COLOR_FORMAT_Y_709_ER = 97
-    CU_EGL_COLOR_FORMAT_Y10_ER = 98
-    CU_EGL_COLOR_FORMAT_Y10_709_ER = 99
-    CU_EGL_COLOR_FORMAT_Y12_ER = 100
-    CU_EGL_COLOR_FORMAT_Y12_709_ER = 101
-    CU_EGL_COLOR_FORMAT_YUVA = 102
-    CU_EGL_COLOR_FORMAT_YUV = 103
-    CU_EGL_COLOR_FORMAT_YVYU = 104
-    CU_EGL_COLOR_FORMAT_VYUY = 105
-    CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_ER = 106
-    CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_709_ER = 107
-    CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR_ER = 108
-    CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR_709_ER = 109
-    CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR_ER = 110
-    CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR_709_ER = 111
-    CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR_ER = 112
-    CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR_709_ER = 113
-    CU_EGL_COLOR_FORMAT_MAX = 114
-
-ctypedef CUeglColorFormat_enum CUeglColorFormat
-
-cdef union _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u:
-    CUarray pArray[3]
-    void* pPitch[3]
-
-cdef struct CUeglFrame_st:
-    _CUeglFrame_v1_CUeglFrame_v1_CUeglFrame_st_frame_u frame
-    unsigned int width
-    unsigned int height
-    unsigned int depth
-    unsigned int pitch
-    unsigned int planeCount
-    unsigned int numChannels
-    CUeglFrameType frameType
-    CUeglColorFormat eglColorFormat
-    CUarray_format cuFormat
-
-ctypedef CUeglFrame_st CUeglFrame_v1
-
-ctypedef CUeglFrame_v1 CUeglFrame
-
-cdef extern from "":
-    cdef struct CUeglStreamConnection_st:
-        pass
-ctypedef CUeglStreamConnection_st* CUeglStreamConnection
-
-{{if True or 'cuGraphicsEGLRegisterImage' in found_functions}}
+{{if True}}
 
 cdef CUresult cuGraphicsEGLRegisterImage(CUgraphicsResource* pCudaResource, EGLImageKHR image, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuEGLStreamConsumerConnect' in found_functions}}
+{{if True}}
 
 cdef CUresult cuEGLStreamConsumerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuEGLStreamConsumerConnectWithFlags' in found_functions}}
+{{if True}}
 
 cdef CUresult cuEGLStreamConsumerConnectWithFlags(CUeglStreamConnection* conn, EGLStreamKHR stream, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuEGLStreamConsumerDisconnect' in found_functions}}
+{{if True}}
 
 cdef CUresult cuEGLStreamConsumerDisconnect(CUeglStreamConnection* conn) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuEGLStreamConsumerAcquireFrame' in found_functions}}
+{{if True}}
 
 cdef CUresult cuEGLStreamConsumerAcquireFrame(CUeglStreamConnection* conn, CUgraphicsResource* pCudaResource, CUstream* pStream, unsigned int timeout) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuEGLStreamConsumerReleaseFrame' in found_functions}}
+{{if True}}
 
 cdef CUresult cuEGLStreamConsumerReleaseFrame(CUeglStreamConnection* conn, CUgraphicsResource pCudaResource, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuEGLStreamProducerConnect' in found_functions}}
+{{if True}}
 
 cdef CUresult cuEGLStreamProducerConnect(CUeglStreamConnection* conn, EGLStreamKHR stream, EGLint width, EGLint height) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuEGLStreamProducerDisconnect' in found_functions}}
+{{if True}}
 
 cdef CUresult cuEGLStreamProducerDisconnect(CUeglStreamConnection* conn) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuEGLStreamProducerPresentFrame' in found_functions}}
+{{if True}}
 
 cdef CUresult cuEGLStreamProducerPresentFrame(CUeglStreamConnection* conn, CUeglFrame eglframe, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuEGLStreamProducerReturnFrame' in found_functions}}
+{{if True}}
 
 cdef CUresult cuEGLStreamProducerReturnFrame(CUeglStreamConnection* conn, CUeglFrame* eglframe, CUstream* pStream) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuGraphicsResourceGetMappedEglFrame' in found_functions}}
+{{if True}}
 
 cdef CUresult cuGraphicsResourceGetMappedEglFrame(CUeglFrame* eglFrame, CUgraphicsResource resource, unsigned int index, unsigned int mipLevel) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuEventCreateFromEGLSync' in found_functions}}
+{{if True}}
 
 cdef CUresult cuEventCreateFromEGLSync(CUevent* phEvent, EGLSyncKHR eglSync, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-
-cdef enum CUGLDeviceList_enum:
-    CU_GL_DEVICE_LIST_ALL = 1
-    CU_GL_DEVICE_LIST_CURRENT_FRAME = 2
-    CU_GL_DEVICE_LIST_NEXT_FRAME = 3
-
-ctypedef CUGLDeviceList_enum CUGLDeviceList
-
-cdef enum CUGLmap_flags_enum:
-    CU_GL_MAP_RESOURCE_FLAGS_NONE = 0
-    CU_GL_MAP_RESOURCE_FLAGS_READ_ONLY = 1
-    CU_GL_MAP_RESOURCE_FLAGS_WRITE_DISCARD = 2
-
-ctypedef CUGLmap_flags_enum CUGLmap_flags
-
-{{if True or 'cuGraphicsGLRegisterBuffer' in found_functions}}
+{{if True}}
 
 cdef CUresult cuGraphicsGLRegisterBuffer(CUgraphicsResource* pCudaResource, GLuint buffer, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuGraphicsGLRegisterImage' in found_functions}}
+{{if True}}
 
 cdef CUresult cuGraphicsGLRegisterImage(CUgraphicsResource* pCudaResource, GLuint image, GLenum target, unsigned int Flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-{{if True or 'cuGLGetDevices_v2' in found_functions}}
+{{if True}}
 
 cdef CUresult cuGLGetDevices(unsigned int* pCudaDeviceCount, CUdevice* pCudaDevices, unsigned int cudaDeviceCount, CUGLDeviceList deviceList) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-cdef enum: CUDA_VERSION = 11080
+{{if True}}
+
+cdef CUresult cuVDPAUGetDevice(CUdevice* pDevice, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True}}
+
+cdef CUresult cuVDPAUCtxCreate(CUcontext* pCtx, unsigned int flags, CUdevice device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True}}
+
+cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResource, VdpVideoSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if True}}
+
+cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+cdef enum: CUDA_VERSION = 12000
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 
 cdef enum: CU_STREAM_LEGACY = 1
 
 cdef enum: CU_STREAM_PER_THREAD = 2
+
+cdef enum: CU_COMPUTE_ACCELERATED_TARGET_BASE = 65536
 
 cdef enum: CU_KERNEL_NODE_ATTRIBUTE_ACCESS_POLICY_WINDOW = 1
 
@@ -3897,9 +4097,19 @@ cdef enum: CU_KERNEL_NODE_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE = 5
 
 cdef enum: CU_KERNEL_NODE_ATTRIBUTE_PRIORITY = 8
 
+cdef enum: CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP = 9
+
+cdef enum: CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN = 10
+
 cdef enum: CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW = 1
 
 cdef enum: CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY = 3
+
+cdef enum: CU_STREAM_ATTRIBUTE_PRIORITY = 8
+
+cdef enum: CU_STREAM_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP = 9
+
+cdef enum: CU_STREAM_ATTRIBUTE_MEM_SYNC_DOMAIN = 10
 
 cdef enum: CU_MEMHOSTALLOC_PORTABLE = 1
 
@@ -3916,6 +4126,8 @@ cdef enum: CU_MEMHOSTREGISTER_IOMEMORY = 4
 cdef enum: CU_MEMHOSTREGISTER_READ_ONLY = 8
 
 cdef enum: CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL = 1
+
+cdef enum: CU_TENSOR_MAP_NUM_QWORDS = 16
 
 cdef enum: CUDA_EXTERNAL_MEMORY_DEDICATED = 1
 

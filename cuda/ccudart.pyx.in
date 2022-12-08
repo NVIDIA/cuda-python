@@ -14,97 +14,6 @@ from libcpp cimport bool
 
 cdef cudaPythonGlobal m_global = globalGetInstance()
 
-{{if True or 'cudaVDPAUGetDevice' in found_functions}}
-
-cdef cudaError_t cudaVDPAUGetDevice(int* device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuVDPAUGetDevice(<ccuda.CUdevice*>device, vdpDevice, vdpGetProcAddress)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if True or 'cudaVDPAUSetVDPAUDevice' in found_functions}}
-
-cdef cudaError_t cudaVDPAUSetVDPAUDevice(int device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaVDPAUSetVDPAUDevice(device, vdpDevice, vdpGetProcAddress)
-
-{{endif}}
-
-{{if True or 'cudaGraphicsVDPAURegisterVideoSurface' in found_functions}}
-
-cdef cudaError_t cudaGraphicsVDPAURegisterVideoSurface(cudaGraphicsResource** resource, VdpVideoSurface vdpSurface, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsVDPAURegisterVideoSurface(<ccuda.CUgraphicsResource*>resource, vdpSurface, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if True or 'cudaGraphicsVDPAURegisterOutputSurface' in found_functions}}
-
-cdef cudaError_t cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** resource, VdpOutputSurface vdpSurface, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsVDPAURegisterOutputSurface(<ccuda.CUgraphicsResource*>resource, vdpSurface, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if True or 'cudaGLGetDevices' in found_functions}}
-
-cdef cudaError_t cudaGLGetDevices(unsigned int* pCudaDeviceCount, int* pCudaDevices, unsigned int cudaDeviceCount, cudaGLDeviceList deviceList) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGLGetDevices_v2(pCudaDeviceCount, <ccuda.CUdevice*>pCudaDevices, cudaDeviceCount, <ccuda.CUGLDeviceList>deviceList)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if True or 'cudaGraphicsGLRegisterImage' in found_functions}}
-
-cdef cudaError_t cudaGraphicsGLRegisterImage(cudaGraphicsResource** resource, GLuint image, GLenum target, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsGLRegisterImage(<ccuda.CUgraphicsResource*>resource, image, target, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if True or 'cudaGraphicsGLRegisterBuffer' in found_functions}}
-
-cdef cudaError_t cudaGraphicsGLRegisterBuffer(cudaGraphicsResource** resource, GLuint buffer, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsGLRegisterBuffer(<ccuda.CUgraphicsResource*>resource, buffer, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
 {{if 'cudaDeviceReset' in found_functions}}
 
 cdef cudaError_t cudaDeviceReset() nogil except ?cudaErrorCallRequiresNewerDriver:
@@ -115,42 +24,21 @@ cdef cudaError_t cudaDeviceReset() nogil except ?cudaErrorCallRequiresNewerDrive
 {{if 'cudaDeviceSynchronize' in found_functions}}
 
 cdef cudaError_t cudaDeviceSynchronize() nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxSynchronize()
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceSynchronize()
 
 {{endif}}
 
 {{if 'cudaDeviceSetLimit' in found_functions}}
 
 cdef cudaError_t cudaDeviceSetLimit(cudaLimit limit, size_t value) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxSetLimit(<ccuda.CUlimit>limit, value)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceSetLimit(limit, value)
 
 {{endif}}
 
 {{if 'cudaDeviceGetLimit' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetLimit(size_t* pValue, cudaLimit limit) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxGetLimit(pValue, <ccuda.CUlimit>limit)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceGetLimit(pValue, limit)
 
 {{endif}}
 
@@ -164,70 +52,35 @@ cdef cudaError_t cudaDeviceGetTexture1DLinearMaxWidth(size_t* maxWidthInElements
 {{if 'cudaDeviceGetCacheConfig' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetCacheConfig(cudaFuncCache* pCacheConfig) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxGetCacheConfig(<ccuda.CUfunc_cache*>pCacheConfig)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceGetCacheConfig(pCacheConfig)
 
 {{endif}}
 
 {{if 'cudaDeviceGetStreamPriorityRange' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetStreamPriorityRange(int* leastPriority, int* greatestPriority) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxGetStreamPriorityRange(leastPriority, greatestPriority)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceGetStreamPriorityRange(leastPriority, greatestPriority)
 
 {{endif}}
 
 {{if 'cudaDeviceSetCacheConfig' in found_functions}}
 
 cdef cudaError_t cudaDeviceSetCacheConfig(cudaFuncCache cacheConfig) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxSetCacheConfig(<ccuda.CUfunc_cache>cacheConfig)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceSetCacheConfig(cacheConfig)
 
 {{endif}}
 
 {{if 'cudaDeviceGetSharedMemConfig' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetSharedMemConfig(cudaSharedMemConfig* pConfig) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxGetSharedMemConfig(<ccuda.CUsharedconfig*>pConfig)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceGetSharedMemConfig(pConfig)
 
 {{endif}}
 
 {{if 'cudaDeviceSetSharedMemConfig' in found_functions}}
 
 cdef cudaError_t cudaDeviceSetSharedMemConfig(cudaSharedMemConfig config) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxSetSharedMemConfig(<ccuda.CUsharedconfig>config)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceSetSharedMemConfig(config)
 
 {{endif}}
 
@@ -248,137 +101,42 @@ cdef cudaError_t cudaDeviceGetPCIBusId(char* pciBusId, int length, int device) n
 {{if 'cudaIpcGetEventHandle' in found_functions}}
 
 cdef cudaError_t cudaIpcGetEventHandle(cudaIpcEventHandle_t* handle, cudaEvent_t event) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuIpcGetEventHandle(<ccuda.CUipcEventHandle*>handle, <ccuda.CUevent>event)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaIpcGetEventHandle(handle, event)
 
 {{endif}}
 
 {{if 'cudaIpcOpenEventHandle' in found_functions}}
 
 cdef cudaError_t cudaIpcOpenEventHandle(cudaEvent_t* event, cudaIpcEventHandle_t handle) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    cdef ccuda.CUipcEventHandle _driver_handle
-    memcpy(&_driver_handle, &handle, sizeof(_driver_handle))
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuIpcOpenEventHandle(<ccuda.CUevent*>event, _driver_handle)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaIpcOpenEventHandle(event, handle)
 
 {{endif}}
 
 {{if 'cudaIpcGetMemHandle' in found_functions}}
 
 cdef cudaError_t cudaIpcGetMemHandle(cudaIpcMemHandle_t* handle, void* devPtr) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuIpcGetMemHandle(<ccuda.CUipcMemHandle*>handle, <ccuda.CUdeviceptr>devPtr)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaIpcGetMemHandle(handle, devPtr)
 
 {{endif}}
 
 {{if 'cudaIpcOpenMemHandle' in found_functions}}
 
 cdef cudaError_t cudaIpcOpenMemHandle(void** devPtr, cudaIpcMemHandle_t handle, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    cdef ccuda.CUipcMemHandle _driver_handle
-    memcpy(&_driver_handle, &handle, sizeof(_driver_handle))
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuIpcOpenMemHandle_v2(<ccuda.CUdeviceptr*>devPtr, _driver_handle, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaIpcOpenMemHandle(devPtr, handle, flags)
 
 {{endif}}
 
 {{if 'cudaIpcCloseMemHandle' in found_functions}}
 
 cdef cudaError_t cudaIpcCloseMemHandle(void* devPtr) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuIpcCloseMemHandle(<ccuda.CUdeviceptr>devPtr)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaIpcCloseMemHandle(devPtr)
 
 {{endif}}
 
 {{if 'cudaDeviceFlushGPUDirectRDMAWrites' in found_functions}}
 
 cdef cudaError_t cudaDeviceFlushGPUDirectRDMAWrites(cudaFlushGPUDirectRDMAWritesTarget target, cudaFlushGPUDirectRDMAWritesScope scope) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuFlushGPUDirectRDMAWrites(<ccuda.CUflushGPUDirectRDMAWritesTarget>target, <ccuda.CUflushGPUDirectRDMAWritesScope>scope)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if 'cudaThreadExit' in found_functions}}
-
-cdef cudaError_t cudaThreadExit() nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaThreadExit()
-
-{{endif}}
-
-{{if 'cudaThreadSynchronize' in found_functions}}
-
-cdef cudaError_t cudaThreadSynchronize() nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxSynchronize()
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if 'cudaThreadSetLimit' in found_functions}}
-
-cdef cudaError_t cudaThreadSetLimit(cudaLimit limit, size_t value) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxSetLimit(<ccuda.CUlimit>limit, value)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if 'cudaThreadGetLimit' in found_functions}}
-
-cdef cudaError_t cudaThreadGetLimit(size_t* pValue, cudaLimit limit) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxGetLimit(pValue, <ccuda.CUlimit>limit)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceFlushGPUDirectRDMAWrites(target, scope)
 
 {{endif}}
 
@@ -730,6 +488,12 @@ cdef const char* cudaGetErrorName(cudaError_t error) nogil except ?NULL:
     {{if 'cudaErrorMpsClientTerminated' in found_values}}
     if error == cudaErrorMpsClientTerminated:
         return "cudaErrorMpsClientTerminated"{{endif}}
+    {{if 'cudaErrorCdpNotSupported' in found_values}}
+    if error == cudaErrorCdpNotSupported:
+        return "cudaErrorCdpNotSupported"{{endif}}
+    {{if 'cudaErrorCdpVersionMismatch' in found_values}}
+    if error == cudaErrorCdpVersionMismatch:
+        return "cudaErrorCdpVersionMismatch"{{endif}}
     {{if 'cudaErrorStreamCaptureUnsupported' in found_values}}
     if error == cudaErrorStreamCaptureUnsupported:
         return "cudaErrorStreamCaptureUnsupported"{{endif}}
@@ -793,10 +557,10 @@ cdef cudaError_t cudaGetDeviceCount(int* count) nogil except ?cudaErrorCallRequi
 
 {{endif}}
 
-{{if 'cudaGetDeviceProperties' in found_functions}}
+{{if 'cudaGetDeviceProperties_v2' in found_functions}}
 
 cdef cudaError_t cudaGetDeviceProperties(cudaDeviceProp* prop, int device) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaGetDeviceProperties(prop, device)
+    return _cudaGetDeviceProperties_v2(prop, device)
 
 {{endif}}
 
@@ -810,56 +574,28 @@ cdef cudaError_t cudaDeviceGetAttribute(int* value, cudaDeviceAttr attr, int dev
 {{if 'cudaDeviceGetDefaultMemPool' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetDefaultMemPool(cudaMemPool_t* memPool, int device) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuDeviceGetDefaultMemPool(<ccuda.CUmemoryPool*>memPool, <ccuda.CUdevice>device)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceGetDefaultMemPool(memPool, device)
 
 {{endif}}
 
 {{if 'cudaDeviceSetMemPool' in found_functions}}
 
 cdef cudaError_t cudaDeviceSetMemPool(int device, cudaMemPool_t memPool) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuDeviceSetMemPool(<ccuda.CUdevice>device, <ccuda.CUmemoryPool>memPool)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceSetMemPool(device, memPool)
 
 {{endif}}
 
 {{if 'cudaDeviceGetMemPool' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetMemPool(cudaMemPool_t* memPool, int device) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuDeviceGetMemPool(<ccuda.CUmemoryPool*>memPool, <ccuda.CUdevice>device)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceGetMemPool(memPool, device)
 
 {{endif}}
 
 {{if 'cudaDeviceGetNvSciSyncAttributes' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetNvSciSyncAttributes(void* nvSciSyncAttrList, int device, int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, <ccuda.CUdevice>device, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, device, flags)
 
 {{endif}}
 
@@ -874,6 +610,13 @@ cdef cudaError_t cudaDeviceGetP2PAttribute(int* value, cudaDeviceP2PAttr attr, i
 
 cdef cudaError_t cudaChooseDevice(int* device, const cudaDeviceProp* prop) nogil except ?cudaErrorCallRequiresNewerDriver:
     return _cudaChooseDevice(device, prop)
+
+{{endif}}
+
+{{if 'cudaInitDevice' in found_functions}}
+
+cdef cudaError_t cudaInitDevice(int device, unsigned int deviceFlags, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaInitDevice(device, deviceFlags, flags)
 
 {{endif}}
 
@@ -915,84 +658,49 @@ cdef cudaError_t cudaStreamCreate(cudaStream_t* pStream) nogil except ?cudaError
 {{if 'cudaStreamCreateWithFlags' in found_functions}}
 
 cdef cudaError_t cudaStreamCreateWithFlags(cudaStream_t* pStream, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamCreate(<ccuda.CUstream*>pStream, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamCreateWithFlags(pStream, flags)
 
 {{endif}}
 
 {{if 'cudaStreamCreateWithPriority' in found_functions}}
 
 cdef cudaError_t cudaStreamCreateWithPriority(cudaStream_t* pStream, unsigned int flags, int priority) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamCreateWithPriority(<ccuda.CUstream*>pStream, flags, priority)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamCreateWithPriority(pStream, flags, priority)
 
 {{endif}}
 
 {{if 'cudaStreamGetPriority' in found_functions}}
 
 cdef cudaError_t cudaStreamGetPriority(cudaStream_t hStream, int* priority) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamGetPriority(<ccuda.CUstream>hStream, priority)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamGetPriority(hStream, priority)
 
 {{endif}}
 
 {{if 'cudaStreamGetFlags' in found_functions}}
 
 cdef cudaError_t cudaStreamGetFlags(cudaStream_t hStream, unsigned int* flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamGetFlags(<ccuda.CUstream>hStream, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamGetFlags(hStream, flags)
+
+{{endif}}
+
+{{if 'cudaStreamGetId' in found_functions}}
+
+cdef cudaError_t cudaStreamGetId(cudaStream_t hStream, unsigned long long* streamId) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaStreamGetId(hStream, streamId)
 
 {{endif}}
 
 {{if 'cudaCtxResetPersistingL2Cache' in found_functions}}
 
 cdef cudaError_t cudaCtxResetPersistingL2Cache() nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuCtxResetPersistingL2Cache()
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaCtxResetPersistingL2Cache()
 
 {{endif}}
 
 {{if 'cudaStreamCopyAttributes' in found_functions}}
 
 cdef cudaError_t cudaStreamCopyAttributes(cudaStream_t dst, cudaStream_t src) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamCopyAttributes(<ccuda.CUstream>dst, <ccuda.CUstream>src)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamCopyAttributes(dst, src)
 
 {{endif}}
 
@@ -1013,28 +721,14 @@ cdef cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, cudaStreamAttrID a
 {{if 'cudaStreamDestroy' in found_functions}}
 
 cdef cudaError_t cudaStreamDestroy(cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamDestroy_v2(<ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamDestroy(stream)
 
 {{endif}}
 
 {{if 'cudaStreamWaitEvent' in found_functions}}
 
 cdef cudaError_t cudaStreamWaitEvent(cudaStream_t stream, cudaEvent_t event, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamWaitEvent(<ccuda.CUstream>stream, <ccuda.CUevent>event, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamWaitEvent(stream, event, flags)
 
 {{endif}}
 
@@ -1048,111 +742,55 @@ cdef cudaError_t cudaStreamAddCallback(cudaStream_t stream, cudaStreamCallback_t
 {{if 'cudaStreamSynchronize' in found_functions}}
 
 cdef cudaError_t cudaStreamSynchronize(cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamSynchronize(<ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamSynchronize(stream)
 
 {{endif}}
 
 {{if 'cudaStreamQuery' in found_functions}}
 
 cdef cudaError_t cudaStreamQuery(cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamQuery(<ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamQuery(stream)
 
 {{endif}}
 
 {{if 'cudaStreamAttachMemAsync' in found_functions}}
 
 cdef cudaError_t cudaStreamAttachMemAsync(cudaStream_t stream, void* devPtr, size_t length, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamAttachMemAsync(<ccuda.CUstream>stream, <ccuda.CUdeviceptr>devPtr, length, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamAttachMemAsync(stream, devPtr, length, flags)
 
 {{endif}}
 
 {{if 'cudaStreamBeginCapture' in found_functions}}
 
 cdef cudaError_t cudaStreamBeginCapture(cudaStream_t stream, cudaStreamCaptureMode mode) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamBeginCapture_v2(<ccuda.CUstream>stream, <ccuda.CUstreamCaptureMode>mode)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamBeginCapture(stream, mode)
 
 {{endif}}
 
 {{if 'cudaThreadExchangeStreamCaptureMode' in found_functions}}
 
 cdef cudaError_t cudaThreadExchangeStreamCaptureMode(cudaStreamCaptureMode* mode) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuThreadExchangeStreamCaptureMode(<ccuda.CUstreamCaptureMode*>mode)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaThreadExchangeStreamCaptureMode(mode)
 
 {{endif}}
 
 {{if 'cudaStreamEndCapture' in found_functions}}
 
 cdef cudaError_t cudaStreamEndCapture(cudaStream_t stream, cudaGraph_t* pGraph) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamEndCapture(<ccuda.CUstream>stream, <ccuda.CUgraph*>pGraph)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamEndCapture(stream, pGraph)
 
 {{endif}}
 
 {{if 'cudaStreamIsCapturing' in found_functions}}
 
 cdef cudaError_t cudaStreamIsCapturing(cudaStream_t stream, cudaStreamCaptureStatus* pCaptureStatus) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamIsCapturing(<ccuda.CUstream>stream, <ccuda.CUstreamCaptureStatus*>pCaptureStatus)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if 'cudaStreamGetCaptureInfo' in found_functions}}
-
-cdef cudaError_t cudaStreamGetCaptureInfo(cudaStream_t stream, cudaStreamCaptureStatus* pCaptureStatus, unsigned long long* pId) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaStreamGetCaptureInfo(stream, pCaptureStatus, pId)
+    return _cudaStreamIsCapturing(stream, pCaptureStatus)
 
 {{endif}}
 
 {{if 'cudaStreamGetCaptureInfo_v2' in found_functions}}
 
-cdef cudaError_t cudaStreamGetCaptureInfo_v2(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, size_t* numDependencies_out) nogil except ?cudaErrorCallRequiresNewerDriver:
+cdef cudaError_t cudaStreamGetCaptureInfo(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, size_t* numDependencies_out) nogil except ?cudaErrorCallRequiresNewerDriver:
     return _cudaStreamGetCaptureInfo_v2(stream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out)
 
 {{endif}}
@@ -1160,14 +798,7 @@ cdef cudaError_t cudaStreamGetCaptureInfo_v2(cudaStream_t stream, cudaStreamCapt
 {{if 'cudaStreamUpdateCaptureDependencies' in found_functions}}
 
 cdef cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, cudaGraphNode_t* dependencies, size_t numDependencies, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuStreamUpdateCaptureDependencies(<ccuda.CUstream>stream, <ccuda.CUgraphNode*>dependencies, numDependencies, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaStreamUpdateCaptureDependencies(stream, dependencies, numDependencies, flags)
 
 {{endif}}
 
@@ -1181,42 +812,21 @@ cdef cudaError_t cudaEventCreate(cudaEvent_t* event) nogil except ?cudaErrorCall
 {{if 'cudaEventCreateWithFlags' in found_functions}}
 
 cdef cudaError_t cudaEventCreateWithFlags(cudaEvent_t* event, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEventCreate(<ccuda.CUevent*>event, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEventCreateWithFlags(event, flags)
 
 {{endif}}
 
 {{if 'cudaEventRecord' in found_functions}}
 
 cdef cudaError_t cudaEventRecord(cudaEvent_t event, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEventRecord(<ccuda.CUevent>event, <ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEventRecord(event, stream)
 
 {{endif}}
 
 {{if 'cudaEventRecordWithFlags' in found_functions}}
 
 cdef cudaError_t cudaEventRecordWithFlags(cudaEvent_t event, cudaStream_t stream, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEventRecordWithFlags(<ccuda.CUevent>event, <ccuda.CUstream>stream, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEventRecordWithFlags(event, stream, flags)
 
 {{endif}}
 
@@ -1230,42 +840,21 @@ cdef cudaError_t cudaEventQuery(cudaEvent_t event) nogil except ?cudaErrorCallRe
 {{if 'cudaEventSynchronize' in found_functions}}
 
 cdef cudaError_t cudaEventSynchronize(cudaEvent_t event) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEventSynchronize(<ccuda.CUevent>event)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEventSynchronize(event)
 
 {{endif}}
 
 {{if 'cudaEventDestroy' in found_functions}}
 
 cdef cudaError_t cudaEventDestroy(cudaEvent_t event) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEventDestroy_v2(<ccuda.CUevent>event)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEventDestroy(event)
 
 {{endif}}
 
 {{if 'cudaEventElapsedTime' in found_functions}}
 
 cdef cudaError_t cudaEventElapsedTime(float* ms, cudaEvent_t start, cudaEvent_t end) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEventElapsedTime(ms, <ccuda.CUevent>start, <ccuda.CUevent>end)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEventElapsedTime(ms, start, end)
 
 {{endif}}
 
@@ -1293,14 +882,7 @@ cdef cudaError_t cudaExternalMemoryGetMappedMipmappedArray(cudaMipmappedArray_t*
 {{if 'cudaDestroyExternalMemory' in found_functions}}
 
 cdef cudaError_t cudaDestroyExternalMemory(cudaExternalMemory_t extMem) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuDestroyExternalMemory(<ccuda.CUexternalMemory>extMem)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDestroyExternalMemory(extMem)
 
 {{endif}}
 
@@ -1314,56 +896,35 @@ cdef cudaError_t cudaImportExternalSemaphore(cudaExternalSemaphore_t* extSem_out
 {{if 'cudaSignalExternalSemaphoresAsync_v2' in found_functions}}
 
 cdef cudaError_t cudaSignalExternalSemaphoresAsync(const cudaExternalSemaphore_t* extSemArray, const cudaExternalSemaphoreSignalParams* paramsArray, unsigned int numExtSems, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaSignalExternalSemaphoresAsync(extSemArray, paramsArray, numExtSems, stream)
+    return _cudaSignalExternalSemaphoresAsync_v2(extSemArray, paramsArray, numExtSems, stream)
 
 {{endif}}
 
 {{if 'cudaWaitExternalSemaphoresAsync_v2' in found_functions}}
 
 cdef cudaError_t cudaWaitExternalSemaphoresAsync(const cudaExternalSemaphore_t* extSemArray, const cudaExternalSemaphoreWaitParams* paramsArray, unsigned int numExtSems, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaWaitExternalSemaphoresAsync(extSemArray, paramsArray, numExtSems, stream)
+    return _cudaWaitExternalSemaphoresAsync_v2(extSemArray, paramsArray, numExtSems, stream)
 
 {{endif}}
 
 {{if 'cudaDestroyExternalSemaphore' in found_functions}}
 
 cdef cudaError_t cudaDestroyExternalSemaphore(cudaExternalSemaphore_t extSem) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuDestroyExternalSemaphore(<ccuda.CUexternalSemaphore>extSem)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDestroyExternalSemaphore(extSem)
 
 {{endif}}
 
 {{if 'cudaFuncSetCacheConfig' in found_functions}}
 
 cdef cudaError_t cudaFuncSetCacheConfig(const void* func, cudaFuncCache cacheConfig) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuFuncSetCacheConfig(<ccuda.CUfunction>func, <ccuda.CUfunc_cache>cacheConfig)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaFuncSetCacheConfig(func, cacheConfig)
 
 {{endif}}
 
 {{if 'cudaFuncSetSharedMemConfig' in found_functions}}
 
 cdef cudaError_t cudaFuncSetSharedMemConfig(const void* func, cudaSharedMemConfig config) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuFuncSetSharedMemConfig(<ccuda.CUfunction>func, <ccuda.CUsharedconfig>config)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaFuncSetSharedMemConfig(func, config)
 
 {{endif}}
 
@@ -1377,112 +938,49 @@ cdef cudaError_t cudaFuncGetAttributes(cudaFuncAttributes* attr, const void* fun
 {{if 'cudaFuncSetAttribute' in found_functions}}
 
 cdef cudaError_t cudaFuncSetAttribute(const void* func, cudaFuncAttribute attr, int value) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuFuncSetAttribute(<ccuda.CUfunction>func, <ccuda.CUfunction_attribute>attr, value)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if 'cudaSetDoubleForDevice' in found_functions}}
-
-cdef cudaError_t cudaSetDoubleForDevice(double* d) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaSetDoubleForDevice(d)
-
-{{endif}}
-
-{{if 'cudaSetDoubleForHost' in found_functions}}
-
-cdef cudaError_t cudaSetDoubleForHost(double* d) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaSetDoubleForHost(d)
+    return _cudaFuncSetAttribute(func, attr, value)
 
 {{endif}}
 
 {{if 'cudaLaunchHostFunc' in found_functions}}
 
 cdef cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void* userData) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuLaunchHostFunc(<ccuda.CUstream>stream, <ccuda.CUhostFn>fn, userData)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaLaunchHostFunc(stream, fn, userData)
 
 {{endif}}
 
 {{if 'cudaOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
 
 cdef cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(int* numBlocks, const void* func, int blockSize, size_t dynamicSMemSize) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuOccupancyMaxActiveBlocksPerMultiprocessor(numBlocks, <ccuda.CUfunction>func, blockSize, dynamicSMemSize)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaOccupancyMaxActiveBlocksPerMultiprocessor(numBlocks, func, blockSize, dynamicSMemSize)
 
 {{endif}}
 
 {{if 'cudaOccupancyAvailableDynamicSMemPerBlock' in found_functions}}
 
 cdef cudaError_t cudaOccupancyAvailableDynamicSMemPerBlock(size_t* dynamicSmemSize, const void* func, int numBlocks, int blockSize) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuOccupancyAvailableDynamicSMemPerBlock(dynamicSmemSize, <ccuda.CUfunction>func, numBlocks, blockSize)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaOccupancyAvailableDynamicSMemPerBlock(dynamicSmemSize, func, numBlocks, blockSize)
 
 {{endif}}
 
 {{if 'cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags' in found_functions}}
 
 cdef cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int* numBlocks, const void* func, int blockSize, size_t dynamicSMemSize, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(numBlocks, <ccuda.CUfunction>func, blockSize, dynamicSMemSize, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(numBlocks, func, blockSize, dynamicSMemSize, flags)
 
 {{endif}}
 
 {{if 'cudaMallocManaged' in found_functions}}
 
 cdef cudaError_t cudaMallocManaged(void** devPtr, size_t size, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemAllocManaged(<ccuda.CUdeviceptr*>devPtr, size, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMallocManaged(devPtr, size, flags)
 
 {{endif}}
 
 {{if 'cudaMalloc' in found_functions}}
 
 cdef cudaError_t cudaMalloc(void** devPtr, size_t size) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemAlloc_v2(<ccuda.CUdeviceptr*>devPtr, size)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMalloc(devPtr, size)
 
 {{endif}}
 
@@ -1510,126 +1008,63 @@ cdef cudaError_t cudaMallocArray(cudaArray_t* array, const cudaChannelFormatDesc
 {{if 'cudaFree' in found_functions}}
 
 cdef cudaError_t cudaFree(void* devPtr) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemFree_v2(<ccuda.CUdeviceptr>devPtr)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaFree(devPtr)
 
 {{endif}}
 
 {{if 'cudaFreeHost' in found_functions}}
 
 cdef cudaError_t cudaFreeHost(void* ptr) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemFreeHost(ptr)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaFreeHost(ptr)
 
 {{endif}}
 
 {{if 'cudaFreeArray' in found_functions}}
 
 cdef cudaError_t cudaFreeArray(cudaArray_t array) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuArrayDestroy(<ccuda.CUarray>array)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaFreeArray(array)
 
 {{endif}}
 
 {{if 'cudaFreeMipmappedArray' in found_functions}}
 
 cdef cudaError_t cudaFreeMipmappedArray(cudaMipmappedArray_t mipmappedArray) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMipmappedArrayDestroy(<ccuda.CUmipmappedArray>mipmappedArray)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaFreeMipmappedArray(mipmappedArray)
 
 {{endif}}
 
 {{if 'cudaHostAlloc' in found_functions}}
 
 cdef cudaError_t cudaHostAlloc(void** pHost, size_t size, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemHostAlloc(pHost, size, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaHostAlloc(pHost, size, flags)
 
 {{endif}}
 
 {{if 'cudaHostRegister' in found_functions}}
 
 cdef cudaError_t cudaHostRegister(void* ptr, size_t size, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemHostRegister_v2(ptr, size, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaHostRegister(ptr, size, flags)
 
 {{endif}}
 
 {{if 'cudaHostUnregister' in found_functions}}
 
 cdef cudaError_t cudaHostUnregister(void* ptr) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemHostUnregister(ptr)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaHostUnregister(ptr)
 
 {{endif}}
 
 {{if 'cudaHostGetDevicePointer' in found_functions}}
 
 cdef cudaError_t cudaHostGetDevicePointer(void** pDevice, void* pHost, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemHostGetDevicePointer_v2(<ccuda.CUdeviceptr*>pDevice, pHost, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaHostGetDevicePointer(pDevice, pHost, flags)
 
 {{endif}}
 
 {{if 'cudaHostGetFlags' in found_functions}}
 
 cdef cudaError_t cudaHostGetFlags(unsigned int* pFlags, void* pHost) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemHostGetFlags(pFlags, pHost)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaHostGetFlags(pFlags, pHost)
 
 {{endif}}
 
@@ -1657,14 +1092,7 @@ cdef cudaError_t cudaMallocMipmappedArray(cudaMipmappedArray_t* mipmappedArray, 
 {{if 'cudaGetMipmappedArrayLevel' in found_functions}}
 
 cdef cudaError_t cudaGetMipmappedArrayLevel(cudaArray_t* levelArray, cudaMipmappedArray_const_t mipmappedArray, unsigned int level) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMipmappedArrayGetLevel(<ccuda.CUarray*>levelArray, <ccuda.CUmipmappedArray>mipmappedArray, level)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGetMipmappedArrayLevel(levelArray, mipmappedArray, level)
 
 {{endif}}
 
@@ -1699,14 +1127,7 @@ cdef cudaError_t cudaMemcpy3DPeerAsync(const cudaMemcpy3DPeerParms* p, cudaStrea
 {{if 'cudaMemGetInfo' in found_functions}}
 
 cdef cudaError_t cudaMemGetInfo(size_t* free, size_t* total) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemGetInfo_v2(free, total)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemGetInfo(free, total)
 
 {{endif}}
 
@@ -1720,14 +1141,7 @@ cdef cudaError_t cudaArrayGetInfo(cudaChannelFormatDesc* desc, cudaExtent* exten
 {{if 'cudaArrayGetPlane' in found_functions}}
 
 cdef cudaError_t cudaArrayGetPlane(cudaArray_t* pPlaneArray, cudaArray_t hArray, unsigned int planeIdx) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuArrayGetPlane(<ccuda.CUarray*>pPlaneArray, <ccuda.CUarray>hArray, planeIdx)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaArrayGetPlane(pPlaneArray, hArray, planeIdx)
 
 {{endif}}
 
@@ -1839,28 +1253,14 @@ cdef cudaError_t cudaMemcpy2DFromArrayAsync(void* dst, size_t dpitch, cudaArray_
 {{if 'cudaMemset' in found_functions}}
 
 cdef cudaError_t cudaMemset(void* devPtr, int value, size_t count) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemsetD8_v2(<ccuda.CUdeviceptr>devPtr, <unsigned char>value, count)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemset(devPtr, value, count)
 
 {{endif}}
 
 {{if 'cudaMemset2D' in found_functions}}
 
 cdef cudaError_t cudaMemset2D(void* devPtr, size_t pitch, int value, size_t width, size_t height) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemsetD2D8_v2(<ccuda.CUdeviceptr>devPtr, pitch, <unsigned char>value, width, height)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemset2D(devPtr, pitch, value, width, height)
 
 {{endif}}
 
@@ -1874,28 +1274,14 @@ cdef cudaError_t cudaMemset3D(cudaPitchedPtr pitchedDevPtr, int value, cudaExten
 {{if 'cudaMemsetAsync' in found_functions}}
 
 cdef cudaError_t cudaMemsetAsync(void* devPtr, int value, size_t count, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemsetD8Async(<ccuda.CUdeviceptr>devPtr, <unsigned char>value, count, <ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemsetAsync(devPtr, value, count, stream)
 
 {{endif}}
 
 {{if 'cudaMemset2DAsync' in found_functions}}
 
 cdef cudaError_t cudaMemset2DAsync(void* devPtr, size_t pitch, int value, size_t width, size_t height, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemsetD2D8Async(<ccuda.CUdeviceptr>devPtr, pitch, <unsigned char>value, width, height, <ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemset2DAsync(devPtr, pitch, value, width, height, stream)
 
 {{endif}}
 
@@ -1909,14 +1295,7 @@ cdef cudaError_t cudaMemset3DAsync(cudaPitchedPtr pitchedDevPtr, int value, cuda
 {{if 'cudaMemPrefetchAsync' in found_functions}}
 
 cdef cudaError_t cudaMemPrefetchAsync(const void* devPtr, size_t count, int dstDevice, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPrefetchAsync(<ccuda.CUdeviceptr>devPtr, count, <ccuda.CUdevice>dstDevice, <ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPrefetchAsync(devPtr, count, dstDevice, stream)
 
 {{endif}}
 
@@ -1979,70 +1358,35 @@ cdef cudaError_t cudaMemcpyFromArrayAsync(void* dst, cudaArray_const_t src, size
 {{if 'cudaMallocAsync' in found_functions}}
 
 cdef cudaError_t cudaMallocAsync(void** devPtr, size_t size, cudaStream_t hStream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemAllocAsync(<ccuda.CUdeviceptr*>devPtr, size, <ccuda.CUstream>hStream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMallocAsync(devPtr, size, hStream)
 
 {{endif}}
 
 {{if 'cudaFreeAsync' in found_functions}}
 
 cdef cudaError_t cudaFreeAsync(void* devPtr, cudaStream_t hStream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemFreeAsync(<ccuda.CUdeviceptr>devPtr, <ccuda.CUstream>hStream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaFreeAsync(devPtr, hStream)
 
 {{endif}}
 
 {{if 'cudaMemPoolTrimTo' in found_functions}}
 
 cdef cudaError_t cudaMemPoolTrimTo(cudaMemPool_t memPool, size_t minBytesToKeep) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPoolTrimTo(<ccuda.CUmemoryPool>memPool, minBytesToKeep)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPoolTrimTo(memPool, minBytesToKeep)
 
 {{endif}}
 
 {{if 'cudaMemPoolSetAttribute' in found_functions}}
 
 cdef cudaError_t cudaMemPoolSetAttribute(cudaMemPool_t memPool, cudaMemPoolAttr attr, void* value) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPoolSetAttribute(<ccuda.CUmemoryPool>memPool, <ccuda.CUmemPool_attribute>attr, value)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPoolSetAttribute(memPool, attr, value)
 
 {{endif}}
 
 {{if 'cudaMemPoolGetAttribute' in found_functions}}
 
 cdef cudaError_t cudaMemPoolGetAttribute(cudaMemPool_t memPool, cudaMemPoolAttr attr, void* value) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPoolGetAttribute(<ccuda.CUmemoryPool>memPool, <ccuda.CUmemPool_attribute>attr, value)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPoolGetAttribute(memPool, attr, value)
 
 {{endif}}
 
@@ -2056,112 +1400,56 @@ cdef cudaError_t cudaMemPoolSetAccess(cudaMemPool_t memPool, const cudaMemAccess
 {{if 'cudaMemPoolGetAccess' in found_functions}}
 
 cdef cudaError_t cudaMemPoolGetAccess(cudaMemAccessFlags* flags, cudaMemPool_t memPool, cudaMemLocation* location) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPoolGetAccess(<ccuda.CUmemAccess_flags*>flags, <ccuda.CUmemoryPool>memPool, <ccuda.CUmemLocation*>location)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPoolGetAccess(flags, memPool, location)
 
 {{endif}}
 
 {{if 'cudaMemPoolCreate' in found_functions}}
 
 cdef cudaError_t cudaMemPoolCreate(cudaMemPool_t* memPool, const cudaMemPoolProps* poolProps) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPoolCreate(<ccuda.CUmemoryPool*>memPool, <ccuda.CUmemPoolProps*>poolProps)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPoolCreate(memPool, poolProps)
 
 {{endif}}
 
 {{if 'cudaMemPoolDestroy' in found_functions}}
 
 cdef cudaError_t cudaMemPoolDestroy(cudaMemPool_t memPool) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPoolDestroy(<ccuda.CUmemoryPool>memPool)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPoolDestroy(memPool)
 
 {{endif}}
 
 {{if 'cudaMallocFromPoolAsync' in found_functions}}
 
 cdef cudaError_t cudaMallocFromPoolAsync(void** ptr, size_t size, cudaMemPool_t memPool, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemAllocFromPoolAsync(<ccuda.CUdeviceptr*>ptr, size, <ccuda.CUmemoryPool>memPool, <ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMallocFromPoolAsync(ptr, size, memPool, stream)
 
 {{endif}}
 
 {{if 'cudaMemPoolExportToShareableHandle' in found_functions}}
 
 cdef cudaError_t cudaMemPoolExportToShareableHandle(void* shareableHandle, cudaMemPool_t memPool, cudaMemAllocationHandleType handleType, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPoolExportToShareableHandle(shareableHandle, <ccuda.CUmemoryPool>memPool, <ccuda.CUmemAllocationHandleType>handleType, <unsigned long long>flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPoolExportToShareableHandle(shareableHandle, memPool, handleType, flags)
 
 {{endif}}
 
 {{if 'cudaMemPoolImportFromShareableHandle' in found_functions}}
 
 cdef cudaError_t cudaMemPoolImportFromShareableHandle(cudaMemPool_t* memPool, void* shareableHandle, cudaMemAllocationHandleType handleType, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPoolImportFromShareableHandle(<ccuda.CUmemoryPool*>memPool, shareableHandle, <ccuda.CUmemAllocationHandleType>handleType, <unsigned long long>flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPoolImportFromShareableHandle(memPool, shareableHandle, handleType, flags)
 
 {{endif}}
 
 {{if 'cudaMemPoolExportPointer' in found_functions}}
 
 cdef cudaError_t cudaMemPoolExportPointer(cudaMemPoolPtrExportData* exportData, void* ptr) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPoolExportPointer(<ccuda.CUmemPoolPtrExportData*>exportData, <ccuda.CUdeviceptr>ptr)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPoolExportPointer(exportData, ptr)
 
 {{endif}}
 
 {{if 'cudaMemPoolImportPointer' in found_functions}}
 
 cdef cudaError_t cudaMemPoolImportPointer(void** ptr, cudaMemPool_t memPool, cudaMemPoolPtrExportData* exportData) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuMemPoolImportPointer(<ccuda.CUdeviceptr*>ptr, <ccuda.CUmemoryPool>memPool, <ccuda.CUmemPoolPtrExportData*>exportData)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaMemPoolImportPointer(ptr, memPool, exportData)
 
 {{endif}}
 
@@ -2196,98 +1484,49 @@ cdef cudaError_t cudaDeviceDisablePeerAccess(int peerDevice) nogil except ?cudaE
 {{if 'cudaGraphicsUnregisterResource' in found_functions}}
 
 cdef cudaError_t cudaGraphicsUnregisterResource(cudaGraphicsResource_t resource) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsUnregisterResource(<ccuda.CUgraphicsResource>resource)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphicsUnregisterResource(resource)
 
 {{endif}}
 
 {{if 'cudaGraphicsResourceSetMapFlags' in found_functions}}
 
 cdef cudaError_t cudaGraphicsResourceSetMapFlags(cudaGraphicsResource_t resource, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsResourceSetMapFlags_v2(<ccuda.CUgraphicsResource>resource, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphicsResourceSetMapFlags(resource, flags)
 
 {{endif}}
 
 {{if 'cudaGraphicsMapResources' in found_functions}}
 
 cdef cudaError_t cudaGraphicsMapResources(int count, cudaGraphicsResource_t* resources, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsMapResources(<unsigned int>count, <ccuda.CUgraphicsResource*>resources, <ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphicsMapResources(count, resources, stream)
 
 {{endif}}
 
 {{if 'cudaGraphicsUnmapResources' in found_functions}}
 
 cdef cudaError_t cudaGraphicsUnmapResources(int count, cudaGraphicsResource_t* resources, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsUnmapResources(<unsigned int>count, <ccuda.CUgraphicsResource*>resources, <ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphicsUnmapResources(count, resources, stream)
 
 {{endif}}
 
 {{if 'cudaGraphicsResourceGetMappedPointer' in found_functions}}
 
 cdef cudaError_t cudaGraphicsResourceGetMappedPointer(void** devPtr, size_t* size, cudaGraphicsResource_t resource) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsResourceGetMappedPointer_v2(<ccuda.CUdeviceptr*>devPtr, size, <ccuda.CUgraphicsResource>resource)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphicsResourceGetMappedPointer(devPtr, size, resource)
 
 {{endif}}
 
 {{if 'cudaGraphicsSubResourceGetMappedArray' in found_functions}}
 
 cdef cudaError_t cudaGraphicsSubResourceGetMappedArray(cudaArray_t* array, cudaGraphicsResource_t resource, unsigned int arrayIndex, unsigned int mipLevel) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsSubResourceGetMappedArray(<ccuda.CUarray*>array, <ccuda.CUgraphicsResource>resource, arrayIndex, mipLevel)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphicsSubResourceGetMappedArray(array, resource, arrayIndex, mipLevel)
 
 {{endif}}
 
 {{if 'cudaGraphicsResourceGetMappedMipmappedArray' in found_functions}}
 
 cdef cudaError_t cudaGraphicsResourceGetMappedMipmappedArray(cudaMipmappedArray_t* mipmappedArray, cudaGraphicsResource_t resource) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsResourceGetMappedMipmappedArray(<ccuda.CUmipmappedArray*>mipmappedArray, <ccuda.CUgraphicsResource>resource)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphicsResourceGetMappedMipmappedArray(mipmappedArray, resource)
 
 {{endif}}
 
@@ -2312,24 +1551,10 @@ cdef cudaError_t cudaCreateTextureObject(cudaTextureObject_t* pTexObject, const 
 
 {{endif}}
 
-{{if 'cudaCreateTextureObject_v2' in found_functions}}
-
-cdef cudaError_t cudaCreateTextureObject_v2(cudaTextureObject_t* pTexObject, const cudaResourceDesc* pResDesc, const cudaTextureDesc_v2* pTexDesc, const cudaResourceViewDesc* pResViewDesc) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaCreateTextureObject_v2(pTexObject, pResDesc, pTexDesc, pResViewDesc)
-
-{{endif}}
-
 {{if 'cudaDestroyTextureObject' in found_functions}}
 
 cdef cudaError_t cudaDestroyTextureObject(cudaTextureObject_t texObject) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuTexObjectDestroy(<ccuda.CUtexObject>texObject)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDestroyTextureObject(texObject)
 
 {{endif}}
 
@@ -2344,13 +1569,6 @@ cdef cudaError_t cudaGetTextureObjectResourceDesc(cudaResourceDesc* pResDesc, cu
 
 cdef cudaError_t cudaGetTextureObjectTextureDesc(cudaTextureDesc* pTexDesc, cudaTextureObject_t texObject) nogil except ?cudaErrorCallRequiresNewerDriver:
     return _cudaGetTextureObjectTextureDesc(pTexDesc, texObject)
-
-{{endif}}
-
-{{if 'cudaGetTextureObjectTextureDesc_v2' in found_functions}}
-
-cdef cudaError_t cudaGetTextureObjectTextureDesc_v2(cudaTextureDesc_v2* pTexDesc, cudaTextureObject_t texObject) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaGetTextureObjectTextureDesc_v2(pTexDesc, texObject)
 
 {{endif}}
 
@@ -2371,14 +1589,7 @@ cdef cudaError_t cudaCreateSurfaceObject(cudaSurfaceObject_t* pSurfObject, const
 {{if 'cudaDestroySurfaceObject' in found_functions}}
 
 cdef cudaError_t cudaDestroySurfaceObject(cudaSurfaceObject_t surfObject) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuSurfObjectDestroy(<ccuda.CUsurfObject>surfObject)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDestroySurfaceObject(surfObject)
 
 {{endif}}
 
@@ -2406,40 +1617,14 @@ cdef cudaError_t cudaRuntimeGetVersion(int* runtimeVersion) nogil except ?cudaEr
 {{if 'cudaGraphCreate' in found_functions}}
 
 cdef cudaError_t cudaGraphCreate(cudaGraph_t* pGraph, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphCreate(<ccuda.CUgraph*>pGraph, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphCreate(pGraph, flags)
 
 {{endif}}
 
 {{if 'cudaGraphAddKernelNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddKernelNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaKernelNodeParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    cdef ccuda.CUDA_KERNEL_NODE_PARAMS _driver_pNodeParams
-    _driver_pNodeParams.func = <ccuda.CUfunction>pNodeParams[0].func
-    _driver_pNodeParams.gridDimX = pNodeParams[0].gridDim.x
-    _driver_pNodeParams.gridDimY = pNodeParams[0].gridDim.y
-    _driver_pNodeParams.gridDimZ = pNodeParams[0].gridDim.z
-    _driver_pNodeParams.blockDimX = pNodeParams[0].blockDim.x
-    _driver_pNodeParams.blockDimY = pNodeParams[0].blockDim.y
-    _driver_pNodeParams.blockDimZ = pNodeParams[0].blockDim.z
-    _driver_pNodeParams.sharedMemBytes = pNodeParams[0].sharedMemBytes
-    _driver_pNodeParams.kernelParams = pNodeParams[0].kernelParams
-    _driver_pNodeParams.extra = pNodeParams[0].extra
-
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphAddKernelNode(<ccuda.CUgraphNode*>pGraphNode, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pDependencies, numDependencies, &_driver_pNodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphAddKernelNode(pGraphNode, graph, pDependencies, numDependencies, pNodeParams)
 
 {{endif}}
 
@@ -2453,40 +1638,14 @@ cdef cudaError_t cudaGraphKernelNodeGetParams(cudaGraphNode_t node, cudaKernelNo
 {{if 'cudaGraphKernelNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphKernelNodeSetParams(cudaGraphNode_t node, const cudaKernelNodeParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    cdef ccuda.CUDA_KERNEL_NODE_PARAMS _driver_pNodeParams
-    _driver_pNodeParams.func = <ccuda.CUfunction>pNodeParams[0].func
-    _driver_pNodeParams.gridDimX = pNodeParams[0].gridDim.x
-    _driver_pNodeParams.gridDimY = pNodeParams[0].gridDim.y
-    _driver_pNodeParams.gridDimZ = pNodeParams[0].gridDim.z
-    _driver_pNodeParams.blockDimX = pNodeParams[0].blockDim.x
-    _driver_pNodeParams.blockDimY = pNodeParams[0].blockDim.y
-    _driver_pNodeParams.blockDimZ = pNodeParams[0].blockDim.z
-    _driver_pNodeParams.sharedMemBytes = pNodeParams[0].sharedMemBytes
-    _driver_pNodeParams.kernelParams = pNodeParams[0].kernelParams
-    _driver_pNodeParams.extra = pNodeParams[0].extra
-
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphKernelNodeSetParams(<ccuda.CUgraphNode>node, &_driver_pNodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphKernelNodeSetParams(node, pNodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphKernelNodeCopyAttributes' in found_functions}}
 
 cdef cudaError_t cudaGraphKernelNodeCopyAttributes(cudaGraphNode_t hSrc, cudaGraphNode_t hDst) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphKernelNodeCopyAttributes(<ccuda.CUgraphNode>hSrc, <ccuda.CUgraphNode>hDst)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphKernelNodeCopyAttributes(hSrc, hDst)
 
 {{endif}}
 
@@ -2549,280 +1708,140 @@ cdef cudaError_t cudaGraphAddMemsetNode(cudaGraphNode_t* pGraphNode, cudaGraph_t
 {{if 'cudaGraphMemsetNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphMemsetNodeGetParams(cudaGraphNode_t node, cudaMemsetParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphMemsetNodeGetParams(<ccuda.CUgraphNode>node, <ccuda.CUDA_MEMSET_NODE_PARAMS*>pNodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphMemsetNodeGetParams(node, pNodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphMemsetNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphMemsetNodeSetParams(cudaGraphNode_t node, const cudaMemsetParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphMemsetNodeSetParams(<ccuda.CUgraphNode>node, <ccuda.CUDA_MEMSET_NODE_PARAMS*>pNodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphMemsetNodeSetParams(node, pNodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphAddHostNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddHostNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaHostNodeParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphAddHostNode(<ccuda.CUgraphNode*>pGraphNode, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pDependencies, numDependencies, <ccuda.CUDA_HOST_NODE_PARAMS*>pNodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphAddHostNode(pGraphNode, graph, pDependencies, numDependencies, pNodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphHostNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphHostNodeGetParams(cudaGraphNode_t node, cudaHostNodeParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphHostNodeGetParams(<ccuda.CUgraphNode>node, <ccuda.CUDA_HOST_NODE_PARAMS*>pNodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphHostNodeGetParams(node, pNodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphHostNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphHostNodeSetParams(cudaGraphNode_t node, const cudaHostNodeParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphHostNodeSetParams(<ccuda.CUgraphNode>node, <ccuda.CUDA_HOST_NODE_PARAMS*>pNodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphHostNodeSetParams(node, pNodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphAddChildGraphNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddChildGraphNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaGraph_t childGraph) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphAddChildGraphNode(<ccuda.CUgraphNode*>pGraphNode, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pDependencies, numDependencies, <ccuda.CUgraph>childGraph)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphAddChildGraphNode(pGraphNode, graph, pDependencies, numDependencies, childGraph)
 
 {{endif}}
 
 {{if 'cudaGraphChildGraphNodeGetGraph' in found_functions}}
 
 cdef cudaError_t cudaGraphChildGraphNodeGetGraph(cudaGraphNode_t node, cudaGraph_t* pGraph) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphChildGraphNodeGetGraph(<ccuda.CUgraphNode>node, <ccuda.CUgraph*>pGraph)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphChildGraphNodeGetGraph(node, pGraph)
 
 {{endif}}
 
 {{if 'cudaGraphAddEmptyNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddEmptyNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphAddEmptyNode(<ccuda.CUgraphNode*>pGraphNode, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pDependencies, numDependencies)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphAddEmptyNode(pGraphNode, graph, pDependencies, numDependencies)
 
 {{endif}}
 
 {{if 'cudaGraphAddEventRecordNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddEventRecordNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaEvent_t event) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphAddEventRecordNode(<ccuda.CUgraphNode*>pGraphNode, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pDependencies, numDependencies, <ccuda.CUevent>event)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphAddEventRecordNode(pGraphNode, graph, pDependencies, numDependencies, event)
 
 {{endif}}
 
 {{if 'cudaGraphEventRecordNodeGetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphEventRecordNodeGetEvent(cudaGraphNode_t node, cudaEvent_t* event_out) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphEventRecordNodeGetEvent(<ccuda.CUgraphNode>node, <ccuda.CUevent*>event_out)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphEventRecordNodeGetEvent(node, event_out)
 
 {{endif}}
 
 {{if 'cudaGraphEventRecordNodeSetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphEventRecordNodeSetEvent(cudaGraphNode_t node, cudaEvent_t event) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphEventRecordNodeSetEvent(<ccuda.CUgraphNode>node, <ccuda.CUevent>event)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphEventRecordNodeSetEvent(node, event)
 
 {{endif}}
 
 {{if 'cudaGraphAddEventWaitNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddEventWaitNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaEvent_t event) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphAddEventWaitNode(<ccuda.CUgraphNode*>pGraphNode, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pDependencies, numDependencies, <ccuda.CUevent>event)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphAddEventWaitNode(pGraphNode, graph, pDependencies, numDependencies, event)
 
 {{endif}}
 
 {{if 'cudaGraphEventWaitNodeGetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphEventWaitNodeGetEvent(cudaGraphNode_t node, cudaEvent_t* event_out) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphEventWaitNodeGetEvent(<ccuda.CUgraphNode>node, <ccuda.CUevent*>event_out)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphEventWaitNodeGetEvent(node, event_out)
 
 {{endif}}
 
 {{if 'cudaGraphEventWaitNodeSetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphEventWaitNodeSetEvent(cudaGraphNode_t node, cudaEvent_t event) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphEventWaitNodeSetEvent(<ccuda.CUgraphNode>node, <ccuda.CUevent>event)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphEventWaitNodeSetEvent(node, event)
 
 {{endif}}
 
 {{if 'cudaGraphAddExternalSemaphoresSignalNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddExternalSemaphoresSignalNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaExternalSemaphoreSignalNodeParams* nodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphAddExternalSemaphoresSignalNode(<ccuda.CUgraphNode*>pGraphNode, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pDependencies, numDependencies, <ccuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS*>nodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphAddExternalSemaphoresSignalNode(pGraphNode, graph, pDependencies, numDependencies, nodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphExternalSemaphoresSignalNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExternalSemaphoresSignalNodeGetParams(cudaGraphNode_t hNode, cudaExternalSemaphoreSignalNodeParams* params_out) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExternalSemaphoresSignalNodeGetParams(<ccuda.CUgraphNode>hNode, <ccuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS*>params_out)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExternalSemaphoresSignalNodeGetParams(hNode, params_out)
 
 {{endif}}
 
 {{if 'cudaGraphExternalSemaphoresSignalNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExternalSemaphoresSignalNodeSetParams(cudaGraphNode_t hNode, const cudaExternalSemaphoreSignalNodeParams* nodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExternalSemaphoresSignalNodeSetParams(<ccuda.CUgraphNode>hNode, <ccuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS*>nodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphAddExternalSemaphoresWaitNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddExternalSemaphoresWaitNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaExternalSemaphoreWaitNodeParams* nodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphAddExternalSemaphoresWaitNode(<ccuda.CUgraphNode*>pGraphNode, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pDependencies, numDependencies, <ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS*>nodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphAddExternalSemaphoresWaitNode(pGraphNode, graph, pDependencies, numDependencies, nodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphExternalSemaphoresWaitNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExternalSemaphoresWaitNodeGetParams(cudaGraphNode_t hNode, cudaExternalSemaphoreWaitNodeParams* params_out) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExternalSemaphoresWaitNodeGetParams(<ccuda.CUgraphNode>hNode, <ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS*>params_out)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExternalSemaphoresWaitNodeGetParams(hNode, params_out)
 
 {{endif}}
 
 {{if 'cudaGraphExternalSemaphoresWaitNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExternalSemaphoresWaitNodeSetParams(cudaGraphNode_t hNode, const cudaExternalSemaphoreWaitNodeParams* nodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExternalSemaphoresWaitNodeSetParams(<ccuda.CUgraphNode>hNode, <ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS*>nodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams)
 
 {{endif}}
 
@@ -2843,14 +1862,7 @@ cdef cudaError_t cudaGraphMemAllocNodeGetParams(cudaGraphNode_t node, cudaMemAll
 {{if 'cudaGraphAddMemFreeNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddMemFreeNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, void* dptr) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphAddMemFreeNode(<ccuda.CUgraphNode*>pGraphNode, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pDependencies, numDependencies, <ccuda.CUdeviceptr>dptr)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphAddMemFreeNode(pGraphNode, graph, pDependencies, numDependencies, dptr)
 
 {{endif}}
 
@@ -2864,250 +1876,133 @@ cdef cudaError_t cudaGraphMemFreeNodeGetParams(cudaGraphNode_t node, void* dptr_
 {{if 'cudaDeviceGraphMemTrim' in found_functions}}
 
 cdef cudaError_t cudaDeviceGraphMemTrim(int device) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuDeviceGraphMemTrim(<ccuda.CUdevice>device)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceGraphMemTrim(device)
 
 {{endif}}
 
 {{if 'cudaDeviceGetGraphMemAttribute' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetGraphMemAttribute(int device, cudaGraphMemAttributeType attr, void* value) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuDeviceGetGraphMemAttribute(<ccuda.CUdevice>device, <ccuda.CUgraphMem_attribute>attr, value)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceGetGraphMemAttribute(device, attr, value)
 
 {{endif}}
 
 {{if 'cudaDeviceSetGraphMemAttribute' in found_functions}}
 
 cdef cudaError_t cudaDeviceSetGraphMemAttribute(int device, cudaGraphMemAttributeType attr, void* value) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuDeviceSetGraphMemAttribute(<ccuda.CUdevice>device, <ccuda.CUgraphMem_attribute>attr, value)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaDeviceSetGraphMemAttribute(device, attr, value)
 
 {{endif}}
 
 {{if 'cudaGraphClone' in found_functions}}
 
 cdef cudaError_t cudaGraphClone(cudaGraph_t* pGraphClone, cudaGraph_t originalGraph) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphClone(<ccuda.CUgraph*>pGraphClone, <ccuda.CUgraph>originalGraph)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphClone(pGraphClone, originalGraph)
 
 {{endif}}
 
 {{if 'cudaGraphNodeFindInClone' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeFindInClone(cudaGraphNode_t* pNode, cudaGraphNode_t originalNode, cudaGraph_t clonedGraph) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphNodeFindInClone(<ccuda.CUgraphNode*>pNode, <ccuda.CUgraphNode>originalNode, <ccuda.CUgraph>clonedGraph)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphNodeFindInClone(pNode, originalNode, clonedGraph)
 
 {{endif}}
 
 {{if 'cudaGraphNodeGetType' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetType(cudaGraphNode_t node, cudaGraphNodeType* pType) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphNodeGetType(<ccuda.CUgraphNode>node, <ccuda.CUgraphNodeType*>pType)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphNodeGetType(node, pType)
 
 {{endif}}
 
 {{if 'cudaGraphGetNodes' in found_functions}}
 
 cdef cudaError_t cudaGraphGetNodes(cudaGraph_t graph, cudaGraphNode_t* nodes, size_t* numNodes) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphGetNodes(<ccuda.CUgraph>graph, <ccuda.CUgraphNode*>nodes, numNodes)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphGetNodes(graph, nodes, numNodes)
 
 {{endif}}
 
 {{if 'cudaGraphGetRootNodes' in found_functions}}
 
 cdef cudaError_t cudaGraphGetRootNodes(cudaGraph_t graph, cudaGraphNode_t* pRootNodes, size_t* pNumRootNodes) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphGetRootNodes(<ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pRootNodes, pNumRootNodes)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphGetRootNodes(graph, pRootNodes, pNumRootNodes)
 
 {{endif}}
 
 {{if 'cudaGraphGetEdges' in found_functions}}
 
 cdef cudaError_t cudaGraphGetEdges(cudaGraph_t graph, cudaGraphNode_t* from_, cudaGraphNode_t* to, size_t* numEdges) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphGetEdges(<ccuda.CUgraph>graph, <ccuda.CUgraphNode*>from_, <ccuda.CUgraphNode*>to, numEdges)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphGetEdges(graph, from_, to, numEdges)
 
 {{endif}}
 
 {{if 'cudaGraphNodeGetDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, size_t* pNumDependencies) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphNodeGetDependencies(<ccuda.CUgraphNode>node, <ccuda.CUgraphNode*>pDependencies, pNumDependencies)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphNodeGetDependencies(node, pDependencies, pNumDependencies)
 
 {{endif}}
 
 {{if 'cudaGraphNodeGetDependentNodes' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cudaGraphNode_t* pDependentNodes, size_t* pNumDependentNodes) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphNodeGetDependentNodes(<ccuda.CUgraphNode>node, <ccuda.CUgraphNode*>pDependentNodes, pNumDependentNodes)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphNodeGetDependentNodes(node, pDependentNodes, pNumDependentNodes)
 
 {{endif}}
 
 {{if 'cudaGraphAddDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphAddDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, size_t numDependencies) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphAddDependencies(<ccuda.CUgraph>graph, <ccuda.CUgraphNode*>from_, <ccuda.CUgraphNode*>to, numDependencies)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphAddDependencies(graph, from_, to, numDependencies)
 
 {{endif}}
 
 {{if 'cudaGraphRemoveDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, size_t numDependencies) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphRemoveDependencies(<ccuda.CUgraph>graph, <ccuda.CUgraphNode*>from_, <ccuda.CUgraphNode*>to, numDependencies)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphRemoveDependencies(graph, from_, to, numDependencies)
 
 {{endif}}
 
 {{if 'cudaGraphDestroyNode' in found_functions}}
 
 cdef cudaError_t cudaGraphDestroyNode(cudaGraphNode_t node) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphDestroyNode(<ccuda.CUgraphNode>node)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphDestroyNode(node)
 
 {{endif}}
 
 {{if 'cudaGraphInstantiate' in found_functions}}
 
-cdef cudaError_t cudaGraphInstantiate(cudaGraphExec_t* pGraphExec, cudaGraph_t graph, cudaGraphNode_t* pErrorNode, char* pLogBuffer, size_t bufferSize) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphInstantiate_v2(<ccuda.CUgraphExec*>pGraphExec, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>pErrorNode, pLogBuffer, bufferSize)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+cdef cudaError_t cudaGraphInstantiate(cudaGraphExec_t* pGraphExec, cudaGraph_t graph, unsigned long long flags) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGraphInstantiate(pGraphExec, graph, flags)
 
 {{endif}}
 
 {{if 'cudaGraphInstantiateWithFlags' in found_functions}}
 
 cdef cudaError_t cudaGraphInstantiateWithFlags(cudaGraphExec_t* pGraphExec, cudaGraph_t graph, unsigned long long flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphInstantiateWithFlags(<ccuda.CUgraphExec*>pGraphExec, <ccuda.CUgraph>graph, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphInstantiateWithFlags(pGraphExec, graph, flags)
+
+{{endif}}
+
+{{if 'cudaGraphInstantiateWithParams' in found_functions}}
+
+cdef cudaError_t cudaGraphInstantiateWithParams(cudaGraphExec_t* pGraphExec, cudaGraph_t graph, cudaGraphInstantiateParams* instantiateParams) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGraphInstantiateWithParams(pGraphExec, graph, instantiateParams)
+
+{{endif}}
+
+{{if 'cudaGraphExecGetFlags' in found_functions}}
+
+cdef cudaError_t cudaGraphExecGetFlags(cudaGraphExec_t graphExec, unsigned long long* flags) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGraphExecGetFlags(graphExec, flags)
 
 {{endif}}
 
 {{if 'cudaGraphExecKernelNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecKernelNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t node, const cudaKernelNodeParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    cdef ccuda.CUDA_KERNEL_NODE_PARAMS _driver_pNodeParams
-    _driver_pNodeParams.func = <ccuda.CUfunction>pNodeParams[0].func
-    _driver_pNodeParams.gridDimX = pNodeParams[0].gridDim.x
-    _driver_pNodeParams.gridDimY = pNodeParams[0].gridDim.y
-    _driver_pNodeParams.gridDimZ = pNodeParams[0].gridDim.z
-    _driver_pNodeParams.blockDimX = pNodeParams[0].blockDim.x
-    _driver_pNodeParams.blockDimY = pNodeParams[0].blockDim.y
-    _driver_pNodeParams.blockDimZ = pNodeParams[0].blockDim.z
-    _driver_pNodeParams.sharedMemBytes = pNodeParams[0].sharedMemBytes
-    _driver_pNodeParams.kernelParams = pNodeParams[0].kernelParams
-    _driver_pNodeParams.extra = pNodeParams[0].extra
-
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExecKernelNodeSetParams(<ccuda.CUgraphExec>hGraphExec, <ccuda.CUgraphNode>node, &_driver_pNodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams)
 
 {{endif}}
 
@@ -3135,287 +2030,147 @@ cdef cudaError_t cudaGraphExecMemsetNodeSetParams(cudaGraphExec_t hGraphExec, cu
 {{if 'cudaGraphExecHostNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecHostNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t node, const cudaHostNodeParams* pNodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExecHostNodeSetParams(<ccuda.CUgraphExec>hGraphExec, <ccuda.CUgraphNode>node, <ccuda.CUDA_HOST_NODE_PARAMS*>pNodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphExecChildGraphNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecChildGraphNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t node, cudaGraph_t childGraph) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExecChildGraphNodeSetParams(<ccuda.CUgraphExec>hGraphExec, <ccuda.CUgraphNode>node, <ccuda.CUgraph>childGraph)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph)
 
 {{endif}}
 
 {{if 'cudaGraphExecEventRecordNodeSetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphExecEventRecordNodeSetEvent(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, cudaEvent_t event) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExecEventRecordNodeSetEvent(<ccuda.CUgraphExec>hGraphExec, <ccuda.CUgraphNode>hNode, <ccuda.CUevent>event)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event)
 
 {{endif}}
 
 {{if 'cudaGraphExecEventWaitNodeSetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphExecEventWaitNodeSetEvent(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, cudaEvent_t event) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExecEventWaitNodeSetEvent(<ccuda.CUgraphExec>hGraphExec, <ccuda.CUgraphNode>hNode, <ccuda.CUevent>event)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event)
 
 {{endif}}
 
 {{if 'cudaGraphExecExternalSemaphoresSignalNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecExternalSemaphoresSignalNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, const cudaExternalSemaphoreSignalNodeParams* nodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExecExternalSemaphoresSignalNodeSetParams(<ccuda.CUgraphExec>hGraphExec, <ccuda.CUgraphNode>hNode, <ccuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS*>nodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphExecExternalSemaphoresWaitNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecExternalSemaphoresWaitNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, const cudaExternalSemaphoreWaitNodeParams* nodeParams) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExecExternalSemaphoresWaitNodeSetParams(<ccuda.CUgraphExec>hGraphExec, <ccuda.CUgraphNode>hNode, <ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS*>nodeParams)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams)
 
 {{endif}}
 
 {{if 'cudaGraphNodeSetEnabled' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeSetEnabled(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, unsigned int isEnabled) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphNodeSetEnabled(<ccuda.CUgraphExec>hGraphExec, <ccuda.CUgraphNode>hNode, isEnabled)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphNodeSetEnabled(hGraphExec, hNode, isEnabled)
 
 {{endif}}
 
 {{if 'cudaGraphNodeGetEnabled' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetEnabled(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, unsigned int* isEnabled) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphNodeGetEnabled(<ccuda.CUgraphExec>hGraphExec, <ccuda.CUgraphNode>hNode, isEnabled)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphNodeGetEnabled(hGraphExec, hNode, isEnabled)
 
 {{endif}}
 
 {{if 'cudaGraphExecUpdate' in found_functions}}
 
-cdef cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph_t hGraph, cudaGraphNode_t* hErrorNode_out, cudaGraphExecUpdateResult* updateResult_out) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExecUpdate(<ccuda.CUgraphExec>hGraphExec, <ccuda.CUgraph>hGraph, <ccuda.CUgraphNode*>hErrorNode_out, <ccuda.CUgraphExecUpdateResult*>updateResult_out)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+cdef cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph_t hGraph, cudaGraphExecUpdateResultInfo* resultInfo) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGraphExecUpdate(hGraphExec, hGraph, resultInfo)
 
 {{endif}}
 
 {{if 'cudaGraphUpload' in found_functions}}
 
 cdef cudaError_t cudaGraphUpload(cudaGraphExec_t graphExec, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphUpload(<ccuda.CUgraphExec>graphExec, <ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphUpload(graphExec, stream)
 
 {{endif}}
 
 {{if 'cudaGraphLaunch' in found_functions}}
 
 cdef cudaError_t cudaGraphLaunch(cudaGraphExec_t graphExec, cudaStream_t stream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphLaunch(<ccuda.CUgraphExec>graphExec, <ccuda.CUstream>stream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphLaunch(graphExec, stream)
 
 {{endif}}
 
 {{if 'cudaGraphExecDestroy' in found_functions}}
 
 cdef cudaError_t cudaGraphExecDestroy(cudaGraphExec_t graphExec) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphExecDestroy(<ccuda.CUgraphExec>graphExec)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphExecDestroy(graphExec)
 
 {{endif}}
 
 {{if 'cudaGraphDestroy' in found_functions}}
 
 cdef cudaError_t cudaGraphDestroy(cudaGraph_t graph) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphDestroy(<ccuda.CUgraph>graph)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphDestroy(graph)
 
 {{endif}}
 
 {{if 'cudaGraphDebugDotPrint' in found_functions}}
 
 cdef cudaError_t cudaGraphDebugDotPrint(cudaGraph_t graph, const char* path, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphDebugDotPrint(<ccuda.CUgraph>graph, path, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphDebugDotPrint(graph, path, flags)
 
 {{endif}}
 
 {{if 'cudaUserObjectCreate' in found_functions}}
 
 cdef cudaError_t cudaUserObjectCreate(cudaUserObject_t* object_out, void* ptr, cudaHostFn_t destroy, unsigned int initialRefcount, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuUserObjectCreate(<ccuda.CUuserObject*>object_out, ptr, <ccuda.CUhostFn>destroy, initialRefcount, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaUserObjectCreate(object_out, ptr, destroy, initialRefcount, flags)
 
 {{endif}}
 
 {{if 'cudaUserObjectRetain' in found_functions}}
 
 cdef cudaError_t cudaUserObjectRetain(cudaUserObject_t object, unsigned int count) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuUserObjectRetain(<ccuda.CUuserObject>object, count)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaUserObjectRetain(object, count)
 
 {{endif}}
 
 {{if 'cudaUserObjectRelease' in found_functions}}
 
 cdef cudaError_t cudaUserObjectRelease(cudaUserObject_t object, unsigned int count) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuUserObjectRelease(<ccuda.CUuserObject>object, count)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaUserObjectRelease(object, count)
 
 {{endif}}
 
 {{if 'cudaGraphRetainUserObject' in found_functions}}
 
 cdef cudaError_t cudaGraphRetainUserObject(cudaGraph_t graph, cudaUserObject_t object, unsigned int count, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphRetainUserObject(<ccuda.CUgraph>graph, <ccuda.CUuserObject>object, count, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphRetainUserObject(graph, object, count, flags)
 
 {{endif}}
 
 {{if 'cudaGraphReleaseUserObject' in found_functions}}
 
 cdef cudaError_t cudaGraphReleaseUserObject(cudaGraph_t graph, cudaUserObject_t object, unsigned int count) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphReleaseUserObject(<ccuda.CUgraph>graph, <ccuda.CUuserObject>object, count)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGraphReleaseUserObject(graph, object, count)
 
 {{endif}}
 
 {{if 'cudaGetDriverEntryPoint' in found_functions}}
 
-cdef cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, unsigned long long flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaGetDriverEntryPoint(symbol, funcPtr, flags)
+cdef cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGetDriverEntryPoint(symbol, funcPtr, flags, driverStatus)
 
 {{endif}}
 
 {{if 'cudaGetExportTable' in found_functions}}
 
 cdef cudaError_t cudaGetExportTable(const void** ppExportTable, const cudaUUID_t* pExportTableId) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGetExportTable(ppExportTable, <ccuda.CUuuid*>pExportTableId)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaGetExportTable(ppExportTable, pExportTableId)
 
 {{endif}}
 
@@ -3440,184 +2195,149 @@ cdef cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) nogil:
 
 {{endif}}
 
-{{if True or 'cudaProfilerInitialize' in found_functions}}
+{{if True}}
 
-cdef cudaError_t cudaProfilerInitialize(const char* configFile, const char* outputFile, cudaOutputMode_t outputMode) nogil except ?cudaErrorCallRequiresNewerDriver:
-    return _cudaProfilerInitialize(configFile, outputFile, outputMode)
-
-{{endif}}
-
-{{if True or 'cudaProfilerStart' in found_functions}}
-
-cdef cudaError_t cudaProfilerStart() nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuProfilerStart()
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+cdef cudaError_t cudaGraphicsEGLRegisterImage(cudaGraphicsResource** pCudaResource, EGLImageKHR image, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGraphicsEGLRegisterImage(pCudaResource, image, flags)
 
 {{endif}}
 
-{{if True or 'cudaProfilerStop' in found_functions}}
-
-cdef cudaError_t cudaProfilerStop() nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuProfilerStop()
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if True or 'cudaGraphicsEGLRegisterImage' in found_functions}}
-
-cdef cudaError_t cudaGraphicsEGLRegisterImage(cudaGraphicsResource_t* pCudaResource, EGLImageKHR image, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuGraphicsEGLRegisterImage(<ccuda.CUgraphicsResource*>pCudaResource, image, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
-
-{{endif}}
-
-{{if True or 'cudaEGLStreamConsumerConnect' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerConnect(cudaEglStreamConnection* conn, EGLStreamKHR eglStream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEGLStreamConsumerConnect(<ccuda.CUeglStreamConnection*>conn, eglStream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEGLStreamConsumerConnect(conn, eglStream)
 
 {{endif}}
 
-{{if True or 'cudaEGLStreamConsumerConnectWithFlags' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerConnectWithFlags(cudaEglStreamConnection* conn, EGLStreamKHR eglStream, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEGLStreamConsumerConnectWithFlags(<ccuda.CUeglStreamConnection*>conn, eglStream, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEGLStreamConsumerConnectWithFlags(conn, eglStream, flags)
 
 {{endif}}
 
-{{if True or 'cudaEGLStreamConsumerDisconnect' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerDisconnect(cudaEglStreamConnection* conn) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEGLStreamConsumerDisconnect(<ccuda.CUeglStreamConnection*>conn)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEGLStreamConsumerDisconnect(conn)
 
 {{endif}}
 
-{{if True or 'cudaEGLStreamConsumerAcquireFrame' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerAcquireFrame(cudaEglStreamConnection* conn, cudaGraphicsResource_t* pCudaResource, cudaStream_t* pStream, unsigned int timeout) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEGLStreamConsumerAcquireFrame(<ccuda.CUeglStreamConnection*>conn, <ccuda.CUgraphicsResource*>pCudaResource, <ccuda.CUstream*>pStream, timeout)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEGLStreamConsumerAcquireFrame(conn, pCudaResource, pStream, timeout)
 
 {{endif}}
 
-{{if True or 'cudaEGLStreamConsumerReleaseFrame' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerReleaseFrame(cudaEglStreamConnection* conn, cudaGraphicsResource_t pCudaResource, cudaStream_t* pStream) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEGLStreamConsumerReleaseFrame(<ccuda.CUeglStreamConnection*>conn, <ccuda.CUgraphicsResource>pCudaResource, <ccuda.CUstream*>pStream)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream)
 
 {{endif}}
 
-{{if True or 'cudaEGLStreamProducerConnect' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerConnect(cudaEglStreamConnection* conn, EGLStreamKHR eglStream, EGLint width, EGLint height) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEGLStreamProducerConnect(<ccuda.CUeglStreamConnection*>conn, eglStream, width, height)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEGLStreamProducerConnect(conn, eglStream, width, height)
 
 {{endif}}
 
-{{if True or 'cudaEGLStreamProducerDisconnect' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerDisconnect(cudaEglStreamConnection* conn) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEGLStreamProducerDisconnect(<ccuda.CUeglStreamConnection*>conn)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEGLStreamProducerDisconnect(conn)
 
 {{endif}}
 
-{{if True or 'cudaEGLStreamProducerPresentFrame' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerPresentFrame(cudaEglStreamConnection* conn, cudaEglFrame eglframe, cudaStream_t* pStream) nogil except ?cudaErrorCallRequiresNewerDriver:
     return _cudaEGLStreamProducerPresentFrame(conn, eglframe, pStream)
 
 {{endif}}
 
-{{if True or 'cudaEGLStreamProducerReturnFrame' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerReturnFrame(cudaEglStreamConnection* conn, cudaEglFrame* eglframe, cudaStream_t* pStream) nogil except ?cudaErrorCallRequiresNewerDriver:
     return _cudaEGLStreamProducerReturnFrame(conn, eglframe, pStream)
 
 {{endif}}
 
-{{if True or 'cudaGraphicsResourceGetMappedEglFrame' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaGraphicsResourceGetMappedEglFrame(cudaEglFrame* eglFrame, cudaGraphicsResource_t resource, unsigned int index, unsigned int mipLevel) nogil except ?cudaErrorCallRequiresNewerDriver:
     return _cudaGraphicsResourceGetMappedEglFrame(eglFrame, resource, index, mipLevel)
 
 {{endif}}
 
-{{if True or 'cudaEventCreateFromEGLSync' in found_functions}}
+{{if True}}
 
 cdef cudaError_t cudaEventCreateFromEGLSync(cudaEvent_t* phEvent, EGLSyncKHR eglSync, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
-    err = m_global.lazyInitContextState()
-    if err != cudaSuccess:
-        return err
-    err = <cudaError_t>ccuda._cuEventCreateFromEGLSync(<ccuda.CUevent*>phEvent, eglSync, flags)
-    if err != cudaSuccess:
-        _setLastError(err)
-    return err
+    return _cudaEventCreateFromEGLSync(phEvent, eglSync, flags)
+
+{{endif}}
+
+{{if True}}
+
+cdef cudaError_t cudaProfilerStart() nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaProfilerStart()
+
+{{endif}}
+
+{{if True}}
+
+cdef cudaError_t cudaProfilerStop() nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaProfilerStop()
+
+{{endif}}
+
+{{if True}}
+
+cdef cudaError_t cudaGLGetDevices(unsigned int* pCudaDeviceCount, int* pCudaDevices, unsigned int cudaDeviceCount, cudaGLDeviceList deviceList) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGLGetDevices(pCudaDeviceCount, pCudaDevices, cudaDeviceCount, deviceList)
+
+{{endif}}
+
+{{if True}}
+
+cdef cudaError_t cudaGraphicsGLRegisterImage(cudaGraphicsResource** resource, GLuint image, GLenum target, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGraphicsGLRegisterImage(resource, image, target, flags)
+
+{{endif}}
+
+{{if True}}
+
+cdef cudaError_t cudaGraphicsGLRegisterBuffer(cudaGraphicsResource** resource, GLuint buffer, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGraphicsGLRegisterBuffer(resource, buffer, flags)
+
+{{endif}}
+
+{{if True}}
+
+cdef cudaError_t cudaVDPAUGetDevice(int* device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaVDPAUGetDevice(device, vdpDevice, vdpGetProcAddress)
+
+{{endif}}
+
+{{if True}}
+
+cdef cudaError_t cudaVDPAUSetVDPAUDevice(int device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaVDPAUSetVDPAUDevice(device, vdpDevice, vdpGetProcAddress)
+
+{{endif}}
+
+{{if True}}
+
+cdef cudaError_t cudaGraphicsVDPAURegisterVideoSurface(cudaGraphicsResource** resource, VdpVideoSurface vdpSurface, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGraphicsVDPAURegisterVideoSurface(resource, vdpSurface, flags)
+
+{{endif}}
+
+{{if True}}
+
+cdef cudaError_t cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** resource, VdpOutputSurface vdpSurface, unsigned int flags) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGraphicsVDPAURegisterOutputSurface(resource, vdpSurface, flags)
 
 {{endif}}
