@@ -4,6 +4,8 @@ Released on December 8, 2022
 
 ## Hightlights
 - Rebase to CUDA Toolkit 12.0
+- Fix example from [MR28](https://github.com/NVIDIA/cuda-python/pull/28)
+- Apply [MR35](https://github.com/NVIDIA/cuda-python/pull/35)
 
 ## Limitations
 
