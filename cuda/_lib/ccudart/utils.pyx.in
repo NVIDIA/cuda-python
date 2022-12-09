@@ -839,7 +839,7 @@ cdef cudaError_t streamAddCallbackCommon(
         return cudaErrorInvalidValue
 
     cdef cudaStreamCallbackData *cbData = NULL
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     cbData = <cudaStreamCallbackData *>malloc(sizeof(cbData[0]))
 
     if cbData == NULL:
@@ -866,14 +866,13 @@ cdef cudaError_t toRuntimeStreamCaptureStatus(ccuda.CUstreamCaptureStatus driver
 
 
 cdef cudaError_t streamGetCaptureInfoCommon(
-  cudaStream_t stream,
-  cudaStreamCaptureStatus* captureStatus_out,
-  unsigned long long *id_out,
-  cudaGraph_t *graph_out,
-  const cudaGraphNode_t **dependencies_out,
-  size_t *numDependencies_out,
-)  nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
+        cudaStream_t stream,
+        cudaStreamCaptureStatus* captureStatus_out,
+        unsigned long long *id_out,
+        cudaGraph_t *graph_out,
+        const cudaGraphNode_t **dependencies_out,
+        size_t *numDependencies_out)  nogil except ?cudaErrorCallRequiresNewerDriver:
+    cdef cudaError_t err = cudaSuccess
 
     if captureStatus_out == NULL:
         return cudaErrorInvalidValue
@@ -1150,9 +1149,10 @@ cdef cudaError_t getArrayBlockExtent(cudaExtent *blockExtent, ccuda.CUarray_form
 
 cdef cudaError_t getLocalState(cudaArrayLocalState *state, cudaArray_const_t thisArray) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaArrayLocalState arrayState
-    cdef cudaExtent compBlockExtent
-
+    memset(&arrayState, 0, sizeof(arrayState))
     arrayState.array = <ccuda.CUarray>thisArray
+
+    cdef cudaExtent compBlockExtent
     compBlockExtent.width = 1
     compBlockExtent.height = 1
     compBlockExtent.depth = 1
@@ -1177,7 +1177,7 @@ cdef cudaError_t getLocalState(cudaArrayLocalState *state, cudaArray_const_t thi
 
 
 cdef cudaError_t copyFromHost2D(cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *src, size_t spitch, size_t width, size_t height, ccuda.CUstream stream, bool async) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     cdef cudaArrayLocalState arrayState
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)
@@ -1203,7 +1203,7 @@ cdef cudaError_t copyFromHost2D(cudaArray_const_t thisArray, size_t hOffset, siz
 
 cdef cudaError_t copyFromDevice2D(ccuda.CUmemorytype type, cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *src, size_t srcOffset,
         size_t spitch, size_t width, size_t height, ccuda.CUstream stream, bool async) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     cdef cudaArrayLocalState arrayState
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)
@@ -1233,7 +1233,7 @@ cdef cudaError_t copyFromDevice2D(ccuda.CUmemorytype type, cudaArray_const_t thi
 cdef cudaError_t copyToHost2D(cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, char *dst, size_t dpitch, size_t width,
         size_t height, ccuda.CUstream stream, bool async) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaArrayLocalState arrayState
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)
     if err != cudaSuccess:
@@ -1263,7 +1263,7 @@ cdef cudaError_t copyToDevice2D(ccuda.CUmemorytype type, cudaArray_const_t thisA
         size_t width, size_t height, ccuda.CUstream stream, bool async) nogil except ?cudaErrorCallRequiresNewerDriver:
 
     cdef cudaArrayLocalState arrayState
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)
     if err != cudaSuccess:
@@ -1292,7 +1292,7 @@ cdef cudaError_t copyToDevice2D(ccuda.CUmemorytype type, cudaArray_const_t thisA
 cdef cudaError_t copyToArray2D(cudaArray_const_t thisArray, size_t hOffsetSrc, size_t wOffsetSrc, cudaArray_t dst,
         size_t hOffsetDst, size_t wOffsetDst, size_t width, size_t height) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaArrayLocalState arrayState
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)
     if err != cudaSuccess:
@@ -1320,7 +1320,7 @@ cdef cudaError_t copyToArray2D(cudaArray_const_t thisArray, size_t hOffsetSrc, s
 cdef cudaError_t copyToArray(cudaArray_const_t thisArray, size_t hOffsetSrc, size_t wOffsetSrc, cudaArray_t dst, size_t hOffsetDst,
         size_t wOffsetDst, size_t count) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef void *tmp
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     err = cudaMalloc(&tmp, count)
     if err != cudaSuccess:
         return err
@@ -1349,7 +1349,7 @@ cdef cudaError_t memcpyArrayToArray(cudaArray_t dst, size_t hOffsetDst, size_t w
 
 cdef cudaError_t getChannelDesc(cudaArray_const_t thisArray, cudaChannelFormatDesc *outDesc) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaArrayLocalState arrayState
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)  
     if err != cudaSuccess:
@@ -1360,7 +1360,7 @@ cdef cudaError_t getChannelDesc(cudaArray_const_t thisArray, cudaChannelFormatDe
 
 cdef cudaError_t getFormat(cudaArray_const_t thisArray, int &numberOfChannels, ccuda.CUarray_format *format) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaArrayLocalState arrayState
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)
     if err != cudaSuccess:
@@ -1375,7 +1375,7 @@ cdef cudaError_t getDriverResDescFromResDesc(ccuda.CUDA_RESOURCE_DESC *rdDst, co
     cdef int numChannels = 0
     cdef ccuda.CUarray_format format
     cdef ccuda.CUarray hArray = NULL
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     i = 0
 
     memset(rdDst, 0, sizeof(rdDst[0]))
@@ -1528,6 +1528,8 @@ cdef cudaError_t getResDescFromDriverResDesc(cudaResourceDesc *rdDst, const ccud
     cdef ccuda.CUarray hArray
 
     memset(rdDst, 0, sizeof(rdDst[0]))
+    memset(&ad, 0, sizeof(ad))
+    memset(&hArray, 0, sizeof(hArray))
 
     if rdSrc[0].resType == ccuda.CUresourcetype_enum.CU_RESOURCE_TYPE_ARRAY:
         rdDst[0].resType         = cudaResourceType.cudaResourceTypeArray
@@ -1683,7 +1685,7 @@ cdef cudaError_t memset2DPtr(char *mem, size_t pitch, int c, size_t width, size_
 
 cdef cudaError_t copyFromHost(cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *src, size_t count, ccuda.CUstream stream, bool async) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaArrayLocalState arrayState
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)
     if err != cudaSuccess:
@@ -1755,7 +1757,7 @@ cdef cudaError_t copyFromHost(cudaArray_const_t thisArray, size_t hOffset, size_
 
 cdef cudaError_t copyFromDevice(ccuda.CUmemorytype type, cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *src, size_t srcOffset, size_t count, ccuda.CUstream stream, bool async) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaArrayLocalState arrayState
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)
     if err != cudaSuccess:
@@ -1828,7 +1830,7 @@ cdef cudaError_t copyFromDevice(ccuda.CUmemorytype type, cudaArray_const_t thisA
 
 cdef cudaError_t copyToHost(cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, char *dst, size_t count, ccuda.CUstream stream, bool async) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaArrayLocalState arrayState
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)
     if err != cudaSuccess:
@@ -1918,6 +1920,8 @@ cdef cudaError_t memcpy3D(const cudaMemcpy3DParms *p, bool peer, int srcDevice, 
     cdef cudaPythonDevice *srcDev
     cdef cudaPythonDevice *dstDev
 
+    memset(&cdPeer, 0, sizeof(cdPeer))
+
     cdef cudaError_t err = toDriverMemCopy3DParams(p, &cd)
     if err != cudaSuccess:
         return err
@@ -1961,7 +1965,7 @@ cdef cudaError_t memcpy3D(const cudaMemcpy3DParms *p, bool peer, int srcDevice, 
 
 cdef cudaError_t copyToDevice(ccuda.CUmemorytype type, cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *dst, size_t dstOffset, size_t count, ccuda.CUstream stream, bool async) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef cudaArrayLocalState arrayState
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     memset(&arrayState, 0, sizeof(arrayState))
     err = getLocalState(&arrayState, thisArray)
     if err != cudaSuccess:
@@ -2052,7 +2056,7 @@ cdef void toDriverMemsetNodeParams(const cudaMemsetParams *pRuntimeParams, ccuda
 
 cdef cudaError_t getElementSize(size_t *elementSize, cudaArray_t array) nogil except ?cudaErrorCallRequiresNewerDriver:
     cdef ccuda.CUDA_ARRAY3D_DESCRIPTOR driverDesc
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     err = <cudaError_t>ccuda._cuArray3DGetDescriptor_v2(&driverDesc, <ccuda.CUarray>array)
     if err != cudaSuccess:
         return err
@@ -2083,7 +2087,7 @@ cdef cudaError_t toDriverMemCopy3DParams(const cudaMemcpy3DParms *p, ccuda.CUDA_
     cd[0].Depth = 1
     cdef size_t srcElementSize = 0
     cdef size_t dstElementSize = 0
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
 
     cdef cudaExtent srcBlockExtent
     cdef cudaExtent dstBlockExtent
@@ -2220,7 +2224,7 @@ cdef cudaError_t mallocArray(cudaArray_t *arrayPtr, const cudaChannelFormatDesc 
 
     cdef ccuda.CUarray array = NULL
     cdef ccuda.CUDA_ARRAY3D_DESCRIPTOR_v2 ad
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     arrayPtr[0] = NULL
     if (((width == 0)) or
         ((height == 0) and (depth != 0) and not (flags & cudaArrayLayered)) or
@@ -2253,7 +2257,7 @@ cdef cudaError_t memcpy2DToArray(cudaArray_t dst, size_t hOffset, size_t wOffset
     if height > 1 and width > spitch:
         return cudaErrorInvalidPitchValue
 
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     if kind == cudaMemcpyKind.cudaMemcpyHostToDevice:
        err = copyFromHost2D(dst, hOffset, wOffset, src, spitch, width, height, sid, async)
     elif kind == cudaMemcpyKind.cudaMemcpyDeviceToDevice:
@@ -2275,7 +2279,7 @@ cdef cudaError_t memcpy2DPtr(char *dst, size_t dpitch, const char *src, size_t s
     if height > 1 and width > spitch:
         return cudaErrorInvalidPitchValue
 
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     cdef ccuda.CUDA_MEMCPY2D_v2 cp
     memset(&cp, 0, sizeof(cp))
 
@@ -2321,7 +2325,7 @@ cdef cudaError_t memcpyDispatch(void *dst, const void *src, size_t size, cudaMem
     if size == 0:
         return cudaSuccess
 
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     if kind == cudaMemcpyKind.cudaMemcpyHostToHost:
         return memcpy2DPtr(<char*>dst, size, <const char*>src, size, size, 1, kind, NULL, 0)
     elif kind == cudaMemcpyKind.cudaMemcpyDeviceToHost:
@@ -2508,7 +2512,7 @@ cdef cudaError_t toCudartMemCopy3DParams(const ccuda.CUDA_MEMCPY3D_v2 *cd, cudaM
 
     cdef size_t srcElementSize = 0
     cdef size_t dstElementSize = 0
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
 
     if (cd[0].srcMemoryType == ccuda.CUmemorytype_enum.CU_MEMORYTYPE_ARRAY):
         err = getFormat(<cudaArray_t>cd[0].srcArray, numChannels, &srcFmt)
@@ -2563,7 +2567,7 @@ cdef cudaError_t toCudartMemCopy3DParams(const ccuda.CUDA_MEMCPY3D_v2 *cd, cudaM
 cdef cudaError_t memcpy2DFromArray(char *dst, size_t dpitch, cudaArray_const_t src, size_t hOffset,
         size_t wOffset, size_t width, size_t height, cudaMemcpyKind kind,
         cudaStream_t sid, bool async) nogil except ?cudaErrorCallRequiresNewerDriver:
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
     if width == 0 or height == 0:
         return cudaSuccess
     if height > 1 and width > dpitch:
@@ -2602,7 +2606,7 @@ cdef cudaError_t memset3DPtr(cudaPitchedPtr p, int val, cudaExtent e, cudaStream
 
     cdef char *ptr = <char*>p.ptr
     cdef size_t d
-    cdef cudaError_t err
+    cdef cudaError_t err = cudaSuccess
 
     if e.width >= p.xsize and e.height == p.ysize and e.width == p.pitch:
         return memsetPtr(ptr, val, e.width * e.height * e.depth, sid, async)
@@ -2947,6 +2951,7 @@ cdef cudaError_t getRuntimeEglFrame(cudaEglFrame *eglFrame, ccuda.CUeglFrame cue
     cdef ccuda.CUDA_ARRAY3D_DESCRIPTOR_v2 ad
     cdef cudaPitchedPtr pPtr
     memset(eglFrame, 0, sizeof(eglFrame[0]))
+    memset(&ad, 0, sizeof(ad))
     for i in range(cueglFrame.planeCount):
         ad.Depth = cueglFrame.depth
         ad.Flags = 0
