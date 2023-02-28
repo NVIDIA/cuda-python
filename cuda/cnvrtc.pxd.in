@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -23,6 +23,7 @@ cdef extern from "nvrtc.h":
         NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION = 9
         NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID = 10
         NVRTC_ERROR_INTERNAL_ERROR = 11
+        NVRTC_ERROR_TIME_FILE_WRITE_FAILED = 12
 
     cdef struct _nvrtcProgram:
         pass

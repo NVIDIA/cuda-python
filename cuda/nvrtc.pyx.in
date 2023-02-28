@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -72,6 +72,8 @@ class nvrtcResult(IntEnum):
     NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID = cnvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID{{endif}}
     {{if 'NVRTC_ERROR_INTERNAL_ERROR' in found_values}}
     NVRTC_ERROR_INTERNAL_ERROR = cnvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR{{endif}}
+    {{if 'NVRTC_ERROR_TIME_FILE_WRITE_FAILED' in found_values}}
+    NVRTC_ERROR_TIME_FILE_WRITE_FAILED = cnvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED{{endif}}
 {{endif}}
 {{if 'nvrtcProgram' in found_types}}
 
@@ -307,6 +309,7 @@ def nvrtcCompileProgram(prog, int numOptions, list options):
         - :py:obj:`~.NVRTC_ERROR_INVALID_OPTION`
         - :py:obj:`~.NVRTC_ERROR_COMPILATION`
         - :py:obj:`~.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE`
+        - :py:obj:`~.NVRTC_ERROR_TIME_FILE_WRITE_FAILED`
     """
     cdef cnvrtc.nvrtcProgram cprog
     if prog is None:

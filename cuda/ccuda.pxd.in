@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -146,7 +146,10 @@ cdef extern from "cuda.h":
         CU_CTX_SCHED_MASK = 7
         CU_CTX_MAP_HOST = 8
         CU_CTX_LMEM_RESIZE_TO_MAX = 16
-        CU_CTX_FLAGS_MASK = 31
+        CU_CTX_COREDUMP_ENABLE = 32
+        CU_CTX_USER_COREDUMP_ENABLE = 64
+        CU_CTX_SYNC_MEMOPS = 128
+        CU_CTX_FLAGS_MASK = 255
 
     ctypedef CUctx_flags_enum CUctx_flags
 
@@ -473,7 +476,8 @@ cdef extern from "cuda.h":
         CU_DEVICE_ATTRIBUTE_MEM_SYNC_DOMAIN_COUNT = 126
         CU_DEVICE_ATTRIBUTE_TENSOR_MAP_ACCESS_SUPPORTED = 127
         CU_DEVICE_ATTRIBUTE_UNIFIED_FUNCTION_POINTERS = 129
-        CU_DEVICE_ATTRIBUTE_MAX = 130
+        CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED = 132
+        CU_DEVICE_ATTRIBUTE_MAX = 133
 
     ctypedef CUdevice_attribute_enum CUdevice_attribute
 
@@ -1036,6 +1040,7 @@ cdef extern from "cuda.h":
         CUDA_ERROR_UNSUPPORTED_PTX_VERSION = 222
         CUDA_ERROR_JIT_COMPILATION_DISABLED = 223
         CUDA_ERROR_UNSUPPORTED_EXEC_AFFINITY = 224
+        CUDA_ERROR_UNSUPPORTED_DEVSIDE_SYNC = 225
         CUDA_ERROR_INVALID_SOURCE = 300
         CUDA_ERROR_FILE_NOT_FOUND = 301
         CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND = 302
@@ -1721,6 +1726,22 @@ cdef extern from "cuda.h":
 
     ctypedef CUmemAllocationProp_v1 CUmemAllocationProp
 
+    cdef enum CUmulticastGranularity_flags_enum:
+        CU_MULTICAST_GRANULARITY_MINIMUM = 0
+        CU_MULTICAST_GRANULARITY_RECOMMENDED = 1
+
+    ctypedef CUmulticastGranularity_flags_enum CUmulticastGranularity_flags
+
+    cdef struct CUmulticastObjectProp_st:
+        unsigned int numDevices
+        size_t size
+        unsigned long long handleTypes
+        unsigned long long flags
+
+    ctypedef CUmulticastObjectProp_st CUmulticastObjectProp_v1
+
+    ctypedef CUmulticastObjectProp_v1 CUmulticastObjectProp
+
     cdef struct CUmemAccessDesc_st:
         CUmemLocation location
         CUmemAccess_flags flags
@@ -1864,6 +1885,17 @@ cdef extern from "cuda.h":
         CU_MODULE_LAZY_LOADING = 2
 
     ctypedef CUmoduleLoadingMode_enum CUmoduleLoadingMode
+
+    cdef enum CUcoredumpSettings_enum:
+        CU_COREDUMP_ENABLE_ON_EXCEPTION = 1
+        CU_COREDUMP_TRIGGER_HOST = 2
+        CU_COREDUMP_LIGHTWEIGHT = 3
+        CU_COREDUMP_ENABLE_USER_TRIGGER = 4
+        CU_COREDUMP_FILE = 5
+        CU_COREDUMP_PIPE = 6
+        CU_COREDUMP_MAX = 7
+
+    ctypedef CUcoredumpSettings_enum CUcoredumpSettings
 
 cdef extern from "cudaProfiler.h":
 
@@ -2245,6 +2277,11 @@ cdef CUresult cuCtxGetDevice(CUdevice* device) nogil except ?CUDA_ERROR_NOT_FOUN
 {{if 'cuCtxGetFlags' in found_functions}}
 
 cdef CUresult cuCtxGetFlags(unsigned int* flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCtxSetFlags' in found_functions}}
+
+cdef CUresult cuCtxSetFlags(unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
 {{if 'cuCtxGetId' in found_functions}}
@@ -2940,6 +2977,36 @@ cdef CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData* shareData_out, CUde
 {{if 'cuMemPoolImportPointer' in found_functions}}
 
 cdef CUresult cuMemPoolImportPointer(CUdeviceptr* ptr_out, CUmemoryPool pool, CUmemPoolPtrExportData* shareData) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMulticastCreate' in found_functions}}
+
+cdef CUresult cuMulticastCreate(CUmemGenericAllocationHandle* mcHandle, const CUmulticastObjectProp* prop) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMulticastAddDevice' in found_functions}}
+
+cdef CUresult cuMulticastAddDevice(CUmemGenericAllocationHandle mcHandle, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMulticastBindMem' in found_functions}}
+
+cdef CUresult cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMulticastBindAddr' in found_functions}}
+
+cdef CUresult cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMulticastUnbind' in found_functions}}
+
+cdef CUresult cuMulticastUnbind(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, size_t size) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuMulticastGetGranularity' in found_functions}}
+
+cdef CUresult cuMulticastGetGranularity(size_t* granularity, const CUmulticastObjectProp* prop, CUmulticastGranularity_flags option) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
 {{if 'cuPointerGetAttribute' in found_functions}}
@@ -3967,6 +4034,26 @@ cdef CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource* r
 cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags, CUdriverProcAddressQueryResult* symbolStatus) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
+{{if 'cuCoredumpGetAttribute' in found_functions}}
+
+cdef CUresult cuCoredumpGetAttribute(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCoredumpGetAttributeGlobal' in found_functions}}
+
+cdef CUresult cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCoredumpSetAttribute' in found_functions}}
+
+cdef CUresult cuCoredumpSetAttribute(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
+{{if 'cuCoredumpSetAttributeGlobal' in found_functions}}
+
+cdef CUresult cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND
+{{endif}}
+
 {{if 'cuGetExportTable' in found_functions}}
 
 cdef CUresult cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) nogil except ?CUDA_ERROR_NOT_FOUND
@@ -4077,7 +4164,7 @@ cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResou
 cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND
 {{endif}}
 
-cdef enum: CUDA_VERSION = 12000
+cdef enum: CUDA_VERSION = 12010
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 

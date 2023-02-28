@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -111,3 +111,16 @@ cdef class HelperCUmemAllocationHandleType:
 
 cdef class InputVoidPtrPtrHelper:
     cdef void** _cptr
+
+{{if 'CUcoredumpSettings_enum' in found_types}}
+
+cdef class HelperCUcoredumpSettings:
+    cdef void* _cptr
+    cdef ccuda.CUcoredumpSettings_enum _attrib
+    cdef bint _is_getter
+    cdef size_t _size
+
+    # Return values
+    cdef bint _bool
+    cdef char* _charstar
+{{endif}}

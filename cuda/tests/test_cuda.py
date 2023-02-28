@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -28,6 +28,9 @@ def supportsMemoryPool():
 def supportsManagedMemory():
     err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrManagedMemory, 0)
     return err == cudart.cudaError_t.cudaSuccess and isSupported
+
+def supportsCudaAPI(name):
+    return name in dir(cuda)
 
 def callableBinary(name):
     return shutil.which(name) != None
@@ -526,6 +529,45 @@ def test_cuda_graphMem_attr():
     err, = cuda.cuCtxDestroy(ctx)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
 
+@pytest.mark.skipif(driverVersionLessThan(12010)
+                    or not supportsCudaAPI('cuCoredumpSetAttributeGlobal')
+                    or not supportsCudaAPI('cuCoredumpGetAttributeGlobal'), reason='Coredump API not present')
+def test_cuda_coredump_attr():
+    err, = cuda.cuInit(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, device = cuda.cuDeviceGet(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    attr_list = [None] * 6
+
+    err, = cuda.cuCoredumpSetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST, False)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuCoredumpSetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_FILE, b'corefile')
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuCoredumpSetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_PIPE, b'corepipe')
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuCoredumpSetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_LIGHTWEIGHT, True)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    for idx, attr in enumerate([cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST,
+                                cuda.CUcoredumpSettings.CU_COREDUMP_FILE,
+                                cuda.CUcoredumpSettings.CU_COREDUMP_PIPE,
+                                cuda.CUcoredumpSettings.CU_COREDUMP_LIGHTWEIGHT,
+                                ]):
+        err, attr_tmp = cuda.cuCoredumpGetAttributeGlobal(attr)
+        assert(err == cuda.CUresult.CUDA_SUCCESS)
+        attr_list[idx] = attr_tmp
+
+    assert(attr_list[0] == False)
+    assert(attr_list[1] == b'corefile')
+    assert(attr_list[2] == b'corepipe')
+    assert(attr_list[3] == True)
+
+    err, = cuda.cuCtxDestroy(ctx)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
 def test_get_error_name_and_string():
     err, = cuda.cuInit(0)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
@@ -642,3 +684,30 @@ def test_char_range():
     for x in range(0, 256):
         val.reserved = [x] * 64
         assert(val.reserved[0] == x)
+
+def test_anon_assign():
+    val1 = cuda.CUexecAffinityParam_st()
+    val2 = cuda.CUexecAffinityParam_st()
+
+    assert(val1.param.smCount.val == 0)
+    val1.param.smCount.val = 5
+    assert(val1.param.smCount.val == 5)
+    val2.param.smCount.val = 11
+    assert(val2.param.smCount.val == 11)
+
+    val1.param = val2.param
+    assert(val1.param.smCount.val == 11)
+
+def test_union_assign():
+    val = cuda.CUlaunchAttributeValue()
+    val.clusterDim.x, val.clusterDim.y, val.clusterDim.z = 9,9,9
+    attr = cuda.CUlaunchAttribute()
+    attr.value = val
+
+    assert(val.clusterDim.x == 9)
+    assert(val.clusterDim.y == 9)
+    assert(val.clusterDim.z == 9)
+
+def test_invalid_repr_attribute():
+    val = cuda.CUlaunchAttributeValue()
+    string = str(val)

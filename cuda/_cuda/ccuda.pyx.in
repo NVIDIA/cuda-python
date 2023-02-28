@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -51,6 +51,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuCtxGetCurrent' in found_functions}}cdef void *__cuCtxGetCurrent = NULL{{endif}}
 {{if 'cuCtxGetDevice' in found_functions}}cdef void *__cuCtxGetDevice = NULL{{endif}}
 {{if 'cuCtxGetFlags' in found_functions}}cdef void *__cuCtxGetFlags = NULL{{endif}}
+{{if 'cuCtxSetFlags' in found_functions}}cdef void *__cuCtxSetFlags = NULL{{endif}}
 {{if 'cuCtxGetId' in found_functions}}cdef void *__cuCtxGetId = NULL{{endif}}
 {{if 'cuCtxSynchronize' in found_functions}}cdef void *__cuCtxSynchronize = NULL{{endif}}
 {{if 'cuCtxSetLimit' in found_functions}}cdef void *__cuCtxSetLimit = NULL{{endif}}
@@ -190,6 +191,12 @@ cdef bint __cuPythonInit = False
 {{if 'cuMemPoolImportFromShareableHandle' in found_functions}}cdef void *__cuMemPoolImportFromShareableHandle = NULL{{endif}}
 {{if 'cuMemPoolExportPointer' in found_functions}}cdef void *__cuMemPoolExportPointer = NULL{{endif}}
 {{if 'cuMemPoolImportPointer' in found_functions}}cdef void *__cuMemPoolImportPointer = NULL{{endif}}
+{{if 'cuMulticastCreate' in found_functions}}cdef void *__cuMulticastCreate = NULL{{endif}}
+{{if 'cuMulticastAddDevice' in found_functions}}cdef void *__cuMulticastAddDevice = NULL{{endif}}
+{{if 'cuMulticastBindMem' in found_functions}}cdef void *__cuMulticastBindMem = NULL{{endif}}
+{{if 'cuMulticastBindAddr' in found_functions}}cdef void *__cuMulticastBindAddr = NULL{{endif}}
+{{if 'cuMulticastUnbind' in found_functions}}cdef void *__cuMulticastUnbind = NULL{{endif}}
+{{if 'cuMulticastGetGranularity' in found_functions}}cdef void *__cuMulticastGetGranularity = NULL{{endif}}
 {{if 'cuPointerGetAttribute' in found_functions}}cdef void *__cuPointerGetAttribute = NULL{{endif}}
 {{if 'cuMemPrefetchAsync' in found_functions}}cdef void *__cuMemPrefetchAsync = NULL{{endif}}
 {{if 'cuMemAdvise' in found_functions}}cdef void *__cuMemAdvise = NULL{{endif}}
@@ -395,6 +402,10 @@ cdef bint __cuPythonInit = False
 {{if 'cuGraphicsMapResources' in found_functions}}cdef void *__cuGraphicsMapResources = NULL{{endif}}
 {{if 'cuGraphicsUnmapResources' in found_functions}}cdef void *__cuGraphicsUnmapResources = NULL{{endif}}
 {{if 'cuGetProcAddress_v2' in found_functions}}cdef void *__cuGetProcAddress_v2 = NULL{{endif}}
+{{if 'cuCoredumpGetAttribute' in found_functions}}cdef void *__cuCoredumpGetAttribute = NULL{{endif}}
+{{if 'cuCoredumpGetAttributeGlobal' in found_functions}}cdef void *__cuCoredumpGetAttributeGlobal = NULL{{endif}}
+{{if 'cuCoredumpSetAttribute' in found_functions}}cdef void *__cuCoredumpSetAttribute = NULL{{endif}}
+{{if 'cuCoredumpSetAttributeGlobal' in found_functions}}cdef void *__cuCoredumpSetAttributeGlobal = NULL{{endif}}
 {{if 'cuGetExportTable' in found_functions}}cdef void *__cuGetExportTable = NULL{{endif}}
 {{if 'cuProfilerStart' in found_functions}}cdef void *__cuProfilerStart = NULL{{endif}}
 {{if 'cuProfilerStop' in found_functions}}cdef void *__cuProfilerStop = NULL{{endif}}
@@ -458,12 +469,12 @@ cdef int cuPythonInit() nogil except -1:
     with gil:
         try:
             global __cuGetProcAddress_v2
-            __cuGetProcAddress_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetProcAddress')
+            __cuGetProcAddress_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetProcAddress_v2')
         except:
             pass
     {{else}}
     global __cuGetProcAddress_v2
-    __cuGetProcAddress_v2 = dlfcn.dlsym(handle, 'cuGetProcAddress')
+    __cuGetProcAddress_v2 = dlfcn.dlsym(handle, 'cuGetProcAddress_v2')
     {{endif}}
 
     # Load using cuGetProcAddress if available
@@ -1223,6 +1234,10 @@ cdef int cuPythonInit() nogil except -1:
         global __cuCtxGetFlags
         cuGetProcAddress('cuCtxGetFlags', &__cuCtxGetFlags, 7000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuCtxSetFlags' in found_functions}}
+        global __cuCtxSetFlags
+        cuGetProcAddress('cuCtxSetFlags', &__cuCtxSetFlags, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuCtxGetId' in found_functions}}
         global __cuCtxGetId
         cuGetProcAddress('cuCtxGetId', &__cuCtxGetId, 12000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -1618,6 +1633,30 @@ cdef int cuPythonInit() nogil except -1:
         {{if 'cuMemPoolImportPointer' in found_functions}}
         global __cuMemPoolImportPointer
         cuGetProcAddress('cuMemPoolImportPointer', &__cuMemPoolImportPointer, 11020, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuMulticastCreate' in found_functions}}
+        global __cuMulticastCreate
+        cuGetProcAddress('cuMulticastCreate', &__cuMulticastCreate, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuMulticastAddDevice' in found_functions}}
+        global __cuMulticastAddDevice
+        cuGetProcAddress('cuMulticastAddDevice', &__cuMulticastAddDevice, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuMulticastBindMem' in found_functions}}
+        global __cuMulticastBindMem
+        cuGetProcAddress('cuMulticastBindMem', &__cuMulticastBindMem, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuMulticastBindAddr' in found_functions}}
+        global __cuMulticastBindAddr
+        cuGetProcAddress('cuMulticastBindAddr', &__cuMulticastBindAddr, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuMulticastUnbind' in found_functions}}
+        global __cuMulticastUnbind
+        cuGetProcAddress('cuMulticastUnbind', &__cuMulticastUnbind, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuMulticastGetGranularity' in found_functions}}
+        global __cuMulticastGetGranularity
+        cuGetProcAddress('cuMulticastGetGranularity', &__cuMulticastGetGranularity, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
         {{if 'cuPointerGetAttribute' in found_functions}}
         global __cuPointerGetAttribute
@@ -2294,6 +2333,22 @@ cdef int cuPythonInit() nogil except -1:
         {{if 'cuGetProcAddress_v2' in found_functions}}
         global __cuGetProcAddress_v2
         cuGetProcAddress('cuGetProcAddress', &__cuGetProcAddress_v2, 12000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCoredumpGetAttribute' in found_functions}}
+        global __cuCoredumpGetAttribute
+        cuGetProcAddress('cuCoredumpGetAttribute', &__cuCoredumpGetAttribute, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCoredumpGetAttributeGlobal' in found_functions}}
+        global __cuCoredumpGetAttributeGlobal
+        cuGetProcAddress('cuCoredumpGetAttributeGlobal', &__cuCoredumpGetAttributeGlobal, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCoredumpSetAttribute' in found_functions}}
+        global __cuCoredumpSetAttribute
+        cuGetProcAddress('cuCoredumpSetAttribute', &__cuCoredumpSetAttribute, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCoredumpSetAttributeGlobal' in found_functions}}
+        global __cuCoredumpSetAttributeGlobal
+        cuGetProcAddress('cuCoredumpSetAttributeGlobal', &__cuCoredumpSetAttributeGlobal, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
         {{if 'cuGetExportTable' in found_functions}}
         global __cuGetExportTable
@@ -3704,6 +3759,13 @@ cdef int cuPythonInit() nogil except -1:
         except:
             pass
         {{endif}}
+        {{if 'cuCtxSetFlags' in found_functions}}
+        try:
+            global __cuCtxSetFlags
+            __cuCtxSetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxSetFlags')
+        except:
+            pass
+        {{endif}}
         {{if 'cuCtxGetId' in found_functions}}
         try:
             global __cuCtxGetId
@@ -4394,6 +4456,48 @@ cdef int cuPythonInit() nogil except -1:
         try:
             global __cuMemPoolImportPointer
             __cuMemPoolImportPointer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolImportPointer')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuMulticastCreate' in found_functions}}
+        try:
+            global __cuMulticastCreate
+            __cuMulticastCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastCreate')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuMulticastAddDevice' in found_functions}}
+        try:
+            global __cuMulticastAddDevice
+            __cuMulticastAddDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastAddDevice')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuMulticastBindMem' in found_functions}}
+        try:
+            global __cuMulticastBindMem
+            __cuMulticastBindMem = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastBindMem')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuMulticastBindAddr' in found_functions}}
+        try:
+            global __cuMulticastBindAddr
+            __cuMulticastBindAddr = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastBindAddr')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuMulticastUnbind' in found_functions}}
+        try:
+            global __cuMulticastUnbind
+            __cuMulticastUnbind = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastUnbind')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuMulticastGetGranularity' in found_functions}}
+        try:
+            global __cuMulticastGetGranularity
+            __cuMulticastGetGranularity = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastGetGranularity')
         except:
             pass
         {{endif}}
@@ -5580,6 +5684,34 @@ cdef int cuPythonInit() nogil except -1:
         except:
             pass
         {{endif}}
+        {{if 'cuCoredumpGetAttribute' in found_functions}}
+        try:
+            global __cuCoredumpGetAttribute
+            __cuCoredumpGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCoredumpGetAttribute')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCoredumpGetAttributeGlobal' in found_functions}}
+        try:
+            global __cuCoredumpGetAttributeGlobal
+            __cuCoredumpGetAttributeGlobal = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCoredumpGetAttributeGlobal')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCoredumpSetAttribute' in found_functions}}
+        try:
+            global __cuCoredumpSetAttribute
+            __cuCoredumpSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCoredumpSetAttribute')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCoredumpSetAttributeGlobal' in found_functions}}
+        try:
+            global __cuCoredumpSetAttributeGlobal
+            __cuCoredumpSetAttributeGlobal = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCoredumpSetAttributeGlobal')
+        except:
+            pass
+        {{endif}}
         {{if 'cuGetExportTable' in found_functions}}
         try:
             global __cuGetExportTable
@@ -6491,6 +6623,10 @@ cdef int cuPythonInit() nogil except -1:
     global __cuCtxGetFlags
     __cuCtxGetFlags = dlfcn.dlsym(handle, 'cuCtxGetFlags')
     {{endif}}
+    {{if 'cuCtxSetFlags' in found_functions}}
+    global __cuCtxSetFlags
+    __cuCtxSetFlags = dlfcn.dlsym(handle, 'cuCtxSetFlags')
+    {{endif}}
     {{if 'cuCtxGetId' in found_functions}}
     global __cuCtxGetId
     __cuCtxGetId = dlfcn.dlsym(handle, 'cuCtxGetId')
@@ -6886,6 +7022,30 @@ cdef int cuPythonInit() nogil except -1:
     {{if 'cuMemPoolImportPointer' in found_functions}}
     global __cuMemPoolImportPointer
     __cuMemPoolImportPointer = dlfcn.dlsym(handle, 'cuMemPoolImportPointer')
+    {{endif}}
+    {{if 'cuMulticastCreate' in found_functions}}
+    global __cuMulticastCreate
+    __cuMulticastCreate = dlfcn.dlsym(handle, 'cuMulticastCreate')
+    {{endif}}
+    {{if 'cuMulticastAddDevice' in found_functions}}
+    global __cuMulticastAddDevice
+    __cuMulticastAddDevice = dlfcn.dlsym(handle, 'cuMulticastAddDevice')
+    {{endif}}
+    {{if 'cuMulticastBindMem' in found_functions}}
+    global __cuMulticastBindMem
+    __cuMulticastBindMem = dlfcn.dlsym(handle, 'cuMulticastBindMem')
+    {{endif}}
+    {{if 'cuMulticastBindAddr' in found_functions}}
+    global __cuMulticastBindAddr
+    __cuMulticastBindAddr = dlfcn.dlsym(handle, 'cuMulticastBindAddr')
+    {{endif}}
+    {{if 'cuMulticastUnbind' in found_functions}}
+    global __cuMulticastUnbind
+    __cuMulticastUnbind = dlfcn.dlsym(handle, 'cuMulticastUnbind')
+    {{endif}}
+    {{if 'cuMulticastGetGranularity' in found_functions}}
+    global __cuMulticastGetGranularity
+    __cuMulticastGetGranularity = dlfcn.dlsym(handle, 'cuMulticastGetGranularity')
     {{endif}}
     {{if 'cuPointerGetAttribute' in found_functions}}
     global __cuPointerGetAttribute
@@ -7563,6 +7723,22 @@ cdef int cuPythonInit() nogil except -1:
     global __cuGetProcAddress_v2
     __cuGetProcAddress_v2 = dlfcn.dlsym(handle, 'cuGetProcAddress_v2')
     {{endif}}
+    {{if 'cuCoredumpGetAttribute' in found_functions}}
+    global __cuCoredumpGetAttribute
+    __cuCoredumpGetAttribute = dlfcn.dlsym(handle, 'cuCoredumpGetAttribute')
+    {{endif}}
+    {{if 'cuCoredumpGetAttributeGlobal' in found_functions}}
+    global __cuCoredumpGetAttributeGlobal
+    __cuCoredumpGetAttributeGlobal = dlfcn.dlsym(handle, 'cuCoredumpGetAttributeGlobal')
+    {{endif}}
+    {{if 'cuCoredumpSetAttribute' in found_functions}}
+    global __cuCoredumpSetAttribute
+    __cuCoredumpSetAttribute = dlfcn.dlsym(handle, 'cuCoredumpSetAttribute')
+    {{endif}}
+    {{if 'cuCoredumpSetAttributeGlobal' in found_functions}}
+    global __cuCoredumpSetAttributeGlobal
+    __cuCoredumpSetAttributeGlobal = dlfcn.dlsym(handle, 'cuCoredumpSetAttributeGlobal')
+    {{endif}}
     {{if 'cuGetExportTable' in found_functions}}
     global __cuGetExportTable
     __cuGetExportTable = dlfcn.dlsym(handle, 'cuGetExportTable')
@@ -8070,6 +8246,18 @@ cdef CUresult _cuCtxGetFlags(unsigned int* flags) nogil except ?CUDA_ERROR_NOT_F
         with gil:
             raise RuntimeError('Function "cuCtxGetFlags" not found')
     err = (<CUresult (*)(unsigned int*) nogil> __cuCtxGetFlags)(flags)
+    return err
+{{endif}}
+
+{{if 'cuCtxSetFlags' in found_functions}}
+
+cdef CUresult _cuCtxSetFlags(unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuCtxSetFlags
+    cuPythonInit()
+    if __cuCtxSetFlags == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCtxSetFlags" not found')
+    err = (<CUresult (*)(unsigned int) nogil> __cuCtxSetFlags)(flags)
     return err
 {{endif}}
 
@@ -9738,6 +9926,78 @@ cdef CUresult _cuMemPoolImportPointer(CUdeviceptr* ptr_out, CUmemoryPool pool, C
         with gil:
             raise RuntimeError('Function "cuMemPoolImportPointer" not found')
     err = (<CUresult (*)(CUdeviceptr*, CUmemoryPool, CUmemPoolPtrExportData*) nogil> __cuMemPoolImportPointer)(ptr_out, pool, shareData)
+    return err
+{{endif}}
+
+{{if 'cuMulticastCreate' in found_functions}}
+
+cdef CUresult _cuMulticastCreate(CUmemGenericAllocationHandle* mcHandle, const CUmulticastObjectProp* prop) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuMulticastCreate
+    cuPythonInit()
+    if __cuMulticastCreate == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMulticastCreate" not found')
+    err = (<CUresult (*)(CUmemGenericAllocationHandle*, const CUmulticastObjectProp*) nogil> __cuMulticastCreate)(mcHandle, prop)
+    return err
+{{endif}}
+
+{{if 'cuMulticastAddDevice' in found_functions}}
+
+cdef CUresult _cuMulticastAddDevice(CUmemGenericAllocationHandle mcHandle, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuMulticastAddDevice
+    cuPythonInit()
+    if __cuMulticastAddDevice == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMulticastAddDevice" not found')
+    err = (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice) nogil> __cuMulticastAddDevice)(mcHandle, dev)
+    return err
+{{endif}}
+
+{{if 'cuMulticastBindMem' in found_functions}}
+
+cdef CUresult _cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuMulticastBindMem
+    cuPythonInit()
+    if __cuMulticastBindMem == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMulticastBindMem" not found')
+    err = (<CUresult (*)(CUmemGenericAllocationHandle, size_t, CUmemGenericAllocationHandle, size_t, size_t, unsigned long long) nogil> __cuMulticastBindMem)(mcHandle, mcOffset, memHandle, memOffset, size, flags)
+    return err
+{{endif}}
+
+{{if 'cuMulticastBindAddr' in found_functions}}
+
+cdef CUresult _cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuMulticastBindAddr
+    cuPythonInit()
+    if __cuMulticastBindAddr == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMulticastBindAddr" not found')
+    err = (<CUresult (*)(CUmemGenericAllocationHandle, size_t, CUdeviceptr, size_t, unsigned long long) nogil> __cuMulticastBindAddr)(mcHandle, mcOffset, memptr, size, flags)
+    return err
+{{endif}}
+
+{{if 'cuMulticastUnbind' in found_functions}}
+
+cdef CUresult _cuMulticastUnbind(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, size_t size) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuMulticastUnbind
+    cuPythonInit()
+    if __cuMulticastUnbind == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMulticastUnbind" not found')
+    err = (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, size_t) nogil> __cuMulticastUnbind)(mcHandle, dev, mcOffset, size)
+    return err
+{{endif}}
+
+{{if 'cuMulticastGetGranularity' in found_functions}}
+
+cdef CUresult _cuMulticastGetGranularity(size_t* granularity, const CUmulticastObjectProp* prop, CUmulticastGranularity_flags option) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuMulticastGetGranularity
+    cuPythonInit()
+    if __cuMulticastGetGranularity == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMulticastGetGranularity" not found')
+    err = (<CUresult (*)(size_t*, const CUmulticastObjectProp*, CUmulticastGranularity_flags) nogil> __cuMulticastGetGranularity)(granularity, prop, option)
     return err
 {{endif}}
 
@@ -12198,6 +12458,54 @@ cdef CUresult _cuGetProcAddress_v2(const char* symbol, void** pfn, int cudaVersi
         with gil:
             raise RuntimeError('Function "cuGetProcAddress_v2" not found')
     err = (<CUresult (*)(const char*, void**, int, cuuint64_t, CUdriverProcAddressQueryResult*) nogil> __cuGetProcAddress_v2)(symbol, pfn, cudaVersion, flags, symbolStatus)
+    return err
+{{endif}}
+
+{{if 'cuCoredumpGetAttribute' in found_functions}}
+
+cdef CUresult _cuCoredumpGetAttribute(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuCoredumpGetAttribute
+    cuPythonInit()
+    if __cuCoredumpGetAttribute == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCoredumpGetAttribute" not found')
+    err = (<CUresult (*)(CUcoredumpSettings, void*, size_t*) nogil> __cuCoredumpGetAttribute)(attrib, value, size)
+    return err
+{{endif}}
+
+{{if 'cuCoredumpGetAttributeGlobal' in found_functions}}
+
+cdef CUresult _cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuCoredumpGetAttributeGlobal
+    cuPythonInit()
+    if __cuCoredumpGetAttributeGlobal == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCoredumpGetAttributeGlobal" not found')
+    err = (<CUresult (*)(CUcoredumpSettings, void*, size_t*) nogil> __cuCoredumpGetAttributeGlobal)(attrib, value, size)
+    return err
+{{endif}}
+
+{{if 'cuCoredumpSetAttribute' in found_functions}}
+
+cdef CUresult _cuCoredumpSetAttribute(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuCoredumpSetAttribute
+    cuPythonInit()
+    if __cuCoredumpSetAttribute == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCoredumpSetAttribute" not found')
+    err = (<CUresult (*)(CUcoredumpSettings, void*, size_t*) nogil> __cuCoredumpSetAttribute)(attrib, value, size)
+    return err
+{{endif}}
+
+{{if 'cuCoredumpSetAttributeGlobal' in found_functions}}
+
+cdef CUresult _cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND:
+    global __cuCoredumpSetAttributeGlobal
+    cuPythonInit()
+    if __cuCoredumpSetAttributeGlobal == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCoredumpSetAttributeGlobal" not found')
+    err = (<CUresult (*)(CUcoredumpSettings, void*, size_t*) nogil> __cuCoredumpSetAttributeGlobal)(attrib, value, size)
     return err
 {{endif}}
 

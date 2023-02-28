@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -89,6 +89,7 @@ cdef extern from "driver_types.h":
         cudaErrorUnsupportedPtxVersion = 222
         cudaErrorJitCompilationDisabled = 223
         cudaErrorUnsupportedExecAffinity = 224
+        cudaErrorUnsupportedDevSideSync = 225
         cudaErrorInvalidSource = 300
         cudaErrorFileNotFound = 301
         cudaErrorSharedObjectSymbolNotFound = 302
@@ -435,7 +436,8 @@ cdef extern from "driver_types.h":
         int ipcEventSupported
         int clusterLaunch
         int unifiedFunctionPointers
-        int reserved[63]
+        int reserved2[2]
+        int reserved[61]
 
     cdef struct cudaIpcEventHandle_st:
         char reserved[64]
@@ -566,6 +568,10 @@ cdef extern from "driver_types.h":
     cdef struct CUfunc_st:
         pass
     ctypedef CUfunc_st* cudaFunction_t
+
+    cdef struct CUkern_st:
+        pass
+    ctypedef CUkern_st* cudaKernel_t
 
     cdef struct CUmemPoolHandle_st:
         pass
@@ -1005,7 +1011,11 @@ cdef extern from "driver_types.h":
         cudaDevAttrReserved124 = 124
         cudaDevAttrIpcEventSupport = 125
         cudaDevAttrMemSyncDomainCount = 126
-        cudaDevAttrMax = 127
+        cudaDevAttrReserved127 = 127
+        cudaDevAttrReserved128 = 128
+        cudaDevAttrReserved129 = 129
+        cudaDevAttrReserved132 = 132
+        cudaDevAttrMax = 133
 
     cdef enum cudaMemPoolAttr:
         cudaMemPoolReuseFollowEventDependencies = 1
@@ -2703,6 +2713,11 @@ cdef cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, uns
 cdef cudaError_t cudaGetExportTable(const void** ppExportTable, const cudaUUID_t* pExportTableId) nogil except ?cudaErrorCallRequiresNewerDriver
 {{endif}}
 
+{{if 'cudaGetKernel' in found_functions}}
+
+cdef cudaError_t cudaGetKernel(cudaKernel_t* kernelPtr, const void* entryFuncAddr) nogil except ?cudaErrorCallRequiresNewerDriver
+{{endif}}
+
 {{if 'make_cudaPitchedPtr' in found_functions}}
 
 cdef cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) nogil
@@ -2883,7 +2898,9 @@ cdef enum: cudaDeviceMapHost = 8
 
 cdef enum: cudaDeviceLmemResizeToMax = 16
 
-cdef enum: cudaDeviceMask = 31
+cdef enum: cudaDeviceSyncMemops = 128
+
+cdef enum: cudaDeviceMask = 255
 
 cdef enum: cudaArrayDefault = 0
 
@@ -2989,8 +3006,8 @@ cdef enum: cudaTextureType2DLayered = 242
 
 cdef enum: cudaTextureTypeCubemapLayered = 252
 
-cdef enum: CUDART_VERSION = 12000
+cdef enum: CUDART_VERSION = 12010
 
-cdef enum: __CUDART_API_VERSION = 12000
+cdef enum: __CUDART_API_VERSION = 12010
 
 cdef enum: CUDA_EGL_MAX_PLANES = 3

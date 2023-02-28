@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -215,6 +215,12 @@ cdef CUresult cuCtxGetDevice(CUdevice* device) nogil except ?CUDA_ERROR_NOT_FOUN
 
 cdef CUresult cuCtxGetFlags(unsigned int* flags) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuCtxGetFlags(flags)
+{{endif}}
+
+{{if 'cuCtxSetFlags' in found_functions}}
+
+cdef CUresult cuCtxSetFlags(unsigned int flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuCtxSetFlags(flags)
 {{endif}}
 
 {{if 'cuCtxGetId' in found_functions}}
@@ -1049,6 +1055,42 @@ cdef CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData* shareData_out, CUde
 
 cdef CUresult cuMemPoolImportPointer(CUdeviceptr* ptr_out, CUmemoryPool pool, CUmemPoolPtrExportData* shareData) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuMemPoolImportPointer(ptr_out, pool, shareData)
+{{endif}}
+
+{{if 'cuMulticastCreate' in found_functions}}
+
+cdef CUresult cuMulticastCreate(CUmemGenericAllocationHandle* mcHandle, const CUmulticastObjectProp* prop) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuMulticastCreate(mcHandle, prop)
+{{endif}}
+
+{{if 'cuMulticastAddDevice' in found_functions}}
+
+cdef CUresult cuMulticastAddDevice(CUmemGenericAllocationHandle mcHandle, CUdevice dev) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuMulticastAddDevice(mcHandle, dev)
+{{endif}}
+
+{{if 'cuMulticastBindMem' in found_functions}}
+
+cdef CUresult cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuMulticastBindMem(mcHandle, mcOffset, memHandle, memOffset, size, flags)
+{{endif}}
+
+{{if 'cuMulticastBindAddr' in found_functions}}
+
+cdef CUresult cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuMulticastBindAddr(mcHandle, mcOffset, memptr, size, flags)
+{{endif}}
+
+{{if 'cuMulticastUnbind' in found_functions}}
+
+cdef CUresult cuMulticastUnbind(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, size_t size) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuMulticastUnbind(mcHandle, dev, mcOffset, size)
+{{endif}}
+
+{{if 'cuMulticastGetGranularity' in found_functions}}
+
+cdef CUresult cuMulticastGetGranularity(size_t* granularity, const CUmulticastObjectProp* prop, CUmulticastGranularity_flags option) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuMulticastGetGranularity(granularity, prop, option)
 {{endif}}
 
 {{if 'cuPointerGetAttribute' in found_functions}}
@@ -2279,6 +2321,30 @@ cdef CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource* r
 
 cdef CUresult cuGetProcAddress(const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags, CUdriverProcAddressQueryResult* symbolStatus) nogil except ?CUDA_ERROR_NOT_FOUND:
     return ccuda._cuGetProcAddress_v2(symbol, pfn, cudaVersion, flags, symbolStatus)
+{{endif}}
+
+{{if 'cuCoredumpGetAttribute' in found_functions}}
+
+cdef CUresult cuCoredumpGetAttribute(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuCoredumpGetAttribute(attrib, value, size)
+{{endif}}
+
+{{if 'cuCoredumpGetAttributeGlobal' in found_functions}}
+
+cdef CUresult cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuCoredumpGetAttributeGlobal(attrib, value, size)
+{{endif}}
+
+{{if 'cuCoredumpSetAttribute' in found_functions}}
+
+cdef CUresult cuCoredumpSetAttribute(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuCoredumpSetAttribute(attrib, value, size)
+{{endif}}
+
+{{if 'cuCoredumpSetAttributeGlobal' in found_functions}}
+
+cdef CUresult cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, void* value, size_t* size) nogil except ?CUDA_ERROR_NOT_FOUND:
+    return ccuda._cuCoredumpSetAttributeGlobal(attrib, value, size)
 {{endif}}
 
 {{if 'cuGetExportTable' in found_functions}}

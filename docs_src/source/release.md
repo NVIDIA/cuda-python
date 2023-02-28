@@ -5,6 +5,7 @@
 maxdepth: 3
 ---
 
+    12.1.0 <release/12.1.0-notes>
     12.0.0 <release/12.0.0-notes>
     11.8.1 <release/11.8.1-notes>
     11.8.0 <release/11.8.0-notes>

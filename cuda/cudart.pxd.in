@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -126,6 +126,23 @@ cdef class cudaExternalSemaphore_t:
     """
     cdef ccudart.cudaExternalSemaphore_t  __val
     cdef ccudart.cudaExternalSemaphore_t* _ptr
+{{endif}}
+
+{{if 'cudaKernel_t' in found_types}}
+
+cdef class cudaKernel_t:
+    """
+
+    CUDA kernel
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaKernel_t  __val
+    cdef ccudart.cudaKernel_t* _ptr
 {{endif}}
 
 {{if True}}
@@ -1242,6 +1259,8 @@ cdef class cudaDeviceProp:
         Indicates device supports cluster launch
     unifiedFunctionPointers : int
         Indicates device supports unified pointers
+    reserved2 : List[int]
+
     reserved : List[int]
         Reserved for future use
 

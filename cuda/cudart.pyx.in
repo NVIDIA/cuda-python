@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -143,6 +143,9 @@ cudaDeviceMapHost = ccudart.cudaDeviceMapHost
 
 #: Device flag - Keep local memory allocation after launch
 cudaDeviceLmemResizeToMax = ccudart.cudaDeviceLmemResizeToMax
+
+#: Device flag - Use synchronous behavior for cudaMemcpy/cudaMemset
+cudaDeviceSyncMemops = ccudart.cudaDeviceSyncMemops
 
 #: Device flags mask
 cudaDeviceMask = ccudart.cudaDeviceMask
@@ -577,7 +580,9 @@ class cudaError_t(IntEnum):
     #: :py:obj:`~.cudaDeviceSetLimit` api before the host-side launch of a
     #: kernel using the device runtime. Keep in mind that additional levels
     #: of sync depth require the runtime to reserve large amounts of device
-    #: memory that cannot be used for user allocations.
+    #: memory that cannot be used for user allocations. Note that
+    #: :py:obj:`~.cudaDeviceSynchronize` made from device runtime is only
+    #: supported on devices of compute capability < 9.0.
     cudaErrorSyncDepthExceeded = ccudart.cudaError.cudaErrorSyncDepthExceeded{{endif}}
     {{if 'cudaErrorLaunchPendingCountExceeded' in found_values}}
 
@@ -739,6 +744,11 @@ class cudaError_t(IntEnum):
     #: This indicates that the provided execution affinity is not supported
     #: by the device.
     cudaErrorUnsupportedExecAffinity = ccudart.cudaError.cudaErrorUnsupportedExecAffinity{{endif}}
+    {{if 'cudaErrorUnsupportedDevSideSync' in found_values}}
+
+    #: This indicates that the code to be compiled by the PTX JIT contains
+    #: unsupported call to cudaDeviceSynchronize.
+    cudaErrorUnsupportedDevSideSync = ccudart.cudaError.cudaErrorUnsupportedDevSideSync{{endif}}
     {{if 'cudaErrorInvalidSource' in found_values}}
 
     #: This indicates that the device kernel source is invalid.
@@ -3217,6 +3227,14 @@ class cudaDeviceAttr(IntEnum):
 
     #: Number of memory synchronization domains the device supports.
     cudaDevAttrMemSyncDomainCount = ccudart.cudaDeviceAttr.cudaDevAttrMemSyncDomainCount{{endif}}
+    {{if 'cudaDevAttrReserved127' in found_values}}
+    cudaDevAttrReserved127 = ccudart.cudaDeviceAttr.cudaDevAttrReserved127{{endif}}
+    {{if 'cudaDevAttrReserved128' in found_values}}
+    cudaDevAttrReserved128 = ccudart.cudaDeviceAttr.cudaDevAttrReserved128{{endif}}
+    {{if 'cudaDevAttrReserved129' in found_values}}
+    cudaDevAttrReserved129 = ccudart.cudaDeviceAttr.cudaDevAttrReserved129{{endif}}
+    {{if 'cudaDevAttrReserved132' in found_values}}
+    cudaDevAttrReserved132 = ccudart.cudaDeviceAttr.cudaDevAttrReserved132{{endif}}
     {{if 'cudaDevAttrMax' in found_values}}
     cudaDevAttrMax = ccudart.cudaDeviceAttr.cudaDevAttrMax{{endif}}
 {{endif}}
@@ -4223,6 +4241,37 @@ cdef class cudaExternalSemaphore_t:
         return <void_ptr>self._ptr
 {{endif}}
 
+{{if 'cudaKernel_t' in found_types}}
+
+cdef class cudaKernel_t:
+    """
+
+    CUDA kernel
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+            self._ptr[0] = <ccudart.cudaKernel_t>init_value
+        else:
+            self._ptr = <ccudart.cudaKernel_t *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __repr__(self):
+        return '<cudaKernel_t ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __int__(self):
+        return <void_ptr>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+{{endif}}
+
 {{if True}}
 
 cdef class EGLImageKHR:
@@ -4401,9 +4450,18 @@ cdef class dim3:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['x : ' + str(self.x)]
-            str_list += ['y : ' + str(self.y)]
-            str_list += ['z : ' + str(self.z)]
+            try:
+                str_list += ['x : ' + str(self.x)]
+            except ValueError:
+                str_list += ['x : <ValueError>']
+            try:
+                str_list += ['y : ' + str(self.y)]
+            except ValueError:
+                str_list += ['y : <ValueError>']
+            try:
+                str_list += ['z : ' + str(self.z)]
+            except ValueError:
+                str_list += ['z : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -4465,11 +4523,26 @@ cdef class cudaChannelFormatDesc:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['x : ' + str(self.x)]
-            str_list += ['y : ' + str(self.y)]
-            str_list += ['z : ' + str(self.z)]
-            str_list += ['w : ' + str(self.w)]
-            str_list += ['f : ' + str(self.f)]
+            try:
+                str_list += ['x : ' + str(self.x)]
+            except ValueError:
+                str_list += ['x : <ValueError>']
+            try:
+                str_list += ['y : ' + str(self.y)]
+            except ValueError:
+                str_list += ['y : <ValueError>']
+            try:
+                str_list += ['z : ' + str(self.z)]
+            except ValueError:
+                str_list += ['z : <ValueError>']
+            try:
+                str_list += ['w : ' + str(self.w)]
+            except ValueError:
+                str_list += ['w : <ValueError>']
+            try:
+                str_list += ['f : ' + str(self.f)]
+            except ValueError:
+                str_list += ['f : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -4531,13 +4604,22 @@ cdef class anon_struct0:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].tileExtent
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['width : ' + str(self.width)]
-            str_list += ['height : ' + str(self.height)]
-            str_list += ['depth : ' + str(self.depth)]
+            try:
+                str_list += ['width : ' + str(self.width)]
+            except ValueError:
+                str_list += ['width : <ValueError>']
+            try:
+                str_list += ['height : ' + str(self.height)]
+            except ValueError:
+                str_list += ['height : <ValueError>']
+            try:
+                str_list += ['depth : ' + str(self.depth)]
+            except ValueError:
+                str_list += ['depth : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -4599,11 +4681,26 @@ cdef class cudaArraySparseProperties:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['tileExtent :\n' + '\n'.join(['    ' + line for line in str(self.tileExtent).splitlines()])]
-            str_list += ['miptailFirstLevel : ' + str(self.miptailFirstLevel)]
-            str_list += ['miptailSize : ' + str(self.miptailSize)]
-            str_list += ['flags : ' + str(self.flags)]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['tileExtent :\n' + '\n'.join(['    ' + line for line in str(self.tileExtent).splitlines()])]
+            except ValueError:
+                str_list += ['tileExtent : <ValueError>']
+            try:
+                str_list += ['miptailFirstLevel : ' + str(self.miptailFirstLevel)]
+            except ValueError:
+                str_list += ['miptailFirstLevel : <ValueError>']
+            try:
+                str_list += ['miptailSize : ' + str(self.miptailSize)]
+            except ValueError:
+                str_list += ['miptailSize : <ValueError>']
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -4612,11 +4709,7 @@ cdef class cudaArraySparseProperties:
         return self._tileExtent
     @tileExtent.setter
     def tileExtent(self, tileExtent not None : anon_struct0):
-        for _attr in dir(tileExtent):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._tileExtent, _attr, getattr(tileExtent, _attr))
+        memcpy(&self._ptr[0].tileExtent, <ccudart.anon_struct0*><void_ptr>tileExtent.getPtr(), sizeof(self._ptr[0].tileExtent))
     @property
     def miptailFirstLevel(self):
         return self._ptr[0].miptailFirstLevel
@@ -4677,9 +4770,18 @@ cdef class cudaArrayMemoryRequirements:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['size : ' + str(self.size)]
-            str_list += ['alignment : ' + str(self.alignment)]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['size : ' + str(self.size)]
+            except ValueError:
+                str_list += ['size : <ValueError>']
+            try:
+                str_list += ['alignment : ' + str(self.alignment)]
+            except ValueError:
+                str_list += ['alignment : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -4739,10 +4841,22 @@ cdef class cudaPitchedPtr:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['ptr : ' + hex(self.ptr)]
-            str_list += ['pitch : ' + str(self.pitch)]
-            str_list += ['xsize : ' + str(self.xsize)]
-            str_list += ['ysize : ' + str(self.ysize)]
+            try:
+                str_list += ['ptr : ' + hex(self.ptr)]
+            except ValueError:
+                str_list += ['ptr : <ValueError>']
+            try:
+                str_list += ['pitch : ' + str(self.pitch)]
+            except ValueError:
+                str_list += ['pitch : <ValueError>']
+            try:
+                str_list += ['xsize : ' + str(self.xsize)]
+            except ValueError:
+                str_list += ['xsize : <ValueError>']
+            try:
+                str_list += ['ysize : ' + str(self.ysize)]
+            except ValueError:
+                str_list += ['ysize : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -4808,9 +4922,18 @@ cdef class cudaExtent:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['width : ' + str(self.width)]
-            str_list += ['height : ' + str(self.height)]
-            str_list += ['depth : ' + str(self.depth)]
+            try:
+                str_list += ['width : ' + str(self.width)]
+            except ValueError:
+                str_list += ['width : <ValueError>']
+            try:
+                str_list += ['height : ' + str(self.height)]
+            except ValueError:
+                str_list += ['height : <ValueError>']
+            try:
+                str_list += ['depth : ' + str(self.depth)]
+            except ValueError:
+                str_list += ['depth : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -4868,9 +4991,18 @@ cdef class cudaPos:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['x : ' + str(self.x)]
-            str_list += ['y : ' + str(self.y)]
-            str_list += ['z : ' + str(self.z)]
+            try:
+                str_list += ['x : ' + str(self.x)]
+            except ValueError:
+                str_list += ['x : <ValueError>']
+            try:
+                str_list += ['y : ' + str(self.y)]
+            except ValueError:
+                str_list += ['y : <ValueError>']
+            try:
+                str_list += ['z : ' + str(self.z)]
+            except ValueError:
+                str_list += ['z : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -4944,14 +5076,38 @@ cdef class cudaMemcpy3DParms:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['srcArray : ' + str(self.srcArray)]
-            str_list += ['srcPos :\n' + '\n'.join(['    ' + line for line in str(self.srcPos).splitlines()])]
-            str_list += ['srcPtr :\n' + '\n'.join(['    ' + line for line in str(self.srcPtr).splitlines()])]
-            str_list += ['dstArray : ' + str(self.dstArray)]
-            str_list += ['dstPos :\n' + '\n'.join(['    ' + line for line in str(self.dstPos).splitlines()])]
-            str_list += ['dstPtr :\n' + '\n'.join(['    ' + line for line in str(self.dstPtr).splitlines()])]
-            str_list += ['extent :\n' + '\n'.join(['    ' + line for line in str(self.extent).splitlines()])]
-            str_list += ['kind : ' + str(self.kind)]
+            try:
+                str_list += ['srcArray : ' + str(self.srcArray)]
+            except ValueError:
+                str_list += ['srcArray : <ValueError>']
+            try:
+                str_list += ['srcPos :\n' + '\n'.join(['    ' + line for line in str(self.srcPos).splitlines()])]
+            except ValueError:
+                str_list += ['srcPos : <ValueError>']
+            try:
+                str_list += ['srcPtr :\n' + '\n'.join(['    ' + line for line in str(self.srcPtr).splitlines()])]
+            except ValueError:
+                str_list += ['srcPtr : <ValueError>']
+            try:
+                str_list += ['dstArray : ' + str(self.dstArray)]
+            except ValueError:
+                str_list += ['dstArray : <ValueError>']
+            try:
+                str_list += ['dstPos :\n' + '\n'.join(['    ' + line for line in str(self.dstPos).splitlines()])]
+            except ValueError:
+                str_list += ['dstPos : <ValueError>']
+            try:
+                str_list += ['dstPtr :\n' + '\n'.join(['    ' + line for line in str(self.dstPtr).splitlines()])]
+            except ValueError:
+                str_list += ['dstPtr : <ValueError>']
+            try:
+                str_list += ['extent :\n' + '\n'.join(['    ' + line for line in str(self.extent).splitlines()])]
+            except ValueError:
+                str_list += ['extent : <ValueError>']
+            try:
+                str_list += ['kind : ' + str(self.kind)]
+            except ValueError:
+                str_list += ['kind : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -4975,21 +5131,13 @@ cdef class cudaMemcpy3DParms:
         return self._srcPos
     @srcPos.setter
     def srcPos(self, srcPos not None : cudaPos):
-        for _attr in dir(srcPos):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._srcPos, _attr, getattr(srcPos, _attr))
+        memcpy(&self._ptr[0].srcPos, <ccudart.cudaPos*><void_ptr>srcPos.getPtr(), sizeof(self._ptr[0].srcPos))
     @property
     def srcPtr(self):
         return self._srcPtr
     @srcPtr.setter
     def srcPtr(self, srcPtr not None : cudaPitchedPtr):
-        for _attr in dir(srcPtr):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._srcPtr, _attr, getattr(srcPtr, _attr))
+        memcpy(&self._ptr[0].srcPtr, <ccudart.cudaPitchedPtr*><void_ptr>srcPtr.getPtr(), sizeof(self._ptr[0].srcPtr))
     @property
     def dstArray(self):
         return self._dstArray
@@ -5010,31 +5158,19 @@ cdef class cudaMemcpy3DParms:
         return self._dstPos
     @dstPos.setter
     def dstPos(self, dstPos not None : cudaPos):
-        for _attr in dir(dstPos):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._dstPos, _attr, getattr(dstPos, _attr))
+        memcpy(&self._ptr[0].dstPos, <ccudart.cudaPos*><void_ptr>dstPos.getPtr(), sizeof(self._ptr[0].dstPos))
     @property
     def dstPtr(self):
         return self._dstPtr
     @dstPtr.setter
     def dstPtr(self, dstPtr not None : cudaPitchedPtr):
-        for _attr in dir(dstPtr):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._dstPtr, _attr, getattr(dstPtr, _attr))
+        memcpy(&self._ptr[0].dstPtr, <ccudart.cudaPitchedPtr*><void_ptr>dstPtr.getPtr(), sizeof(self._ptr[0].dstPtr))
     @property
     def extent(self):
         return self._extent
     @extent.setter
     def extent(self, extent not None : cudaExtent):
-        for _attr in dir(extent):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._extent, _attr, getattr(extent, _attr))
+        memcpy(&self._ptr[0].extent, <ccudart.cudaExtent*><void_ptr>extent.getPtr(), sizeof(self._ptr[0].extent))
     @property
     def kind(self):
         return cudaMemcpyKind(self._ptr[0].kind)
@@ -5095,15 +5231,42 @@ cdef class cudaMemcpy3DPeerParms:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['srcArray : ' + str(self.srcArray)]
-            str_list += ['srcPos :\n' + '\n'.join(['    ' + line for line in str(self.srcPos).splitlines()])]
-            str_list += ['srcPtr :\n' + '\n'.join(['    ' + line for line in str(self.srcPtr).splitlines()])]
-            str_list += ['srcDevice : ' + str(self.srcDevice)]
-            str_list += ['dstArray : ' + str(self.dstArray)]
-            str_list += ['dstPos :\n' + '\n'.join(['    ' + line for line in str(self.dstPos).splitlines()])]
-            str_list += ['dstPtr :\n' + '\n'.join(['    ' + line for line in str(self.dstPtr).splitlines()])]
-            str_list += ['dstDevice : ' + str(self.dstDevice)]
-            str_list += ['extent :\n' + '\n'.join(['    ' + line for line in str(self.extent).splitlines()])]
+            try:
+                str_list += ['srcArray : ' + str(self.srcArray)]
+            except ValueError:
+                str_list += ['srcArray : <ValueError>']
+            try:
+                str_list += ['srcPos :\n' + '\n'.join(['    ' + line for line in str(self.srcPos).splitlines()])]
+            except ValueError:
+                str_list += ['srcPos : <ValueError>']
+            try:
+                str_list += ['srcPtr :\n' + '\n'.join(['    ' + line for line in str(self.srcPtr).splitlines()])]
+            except ValueError:
+                str_list += ['srcPtr : <ValueError>']
+            try:
+                str_list += ['srcDevice : ' + str(self.srcDevice)]
+            except ValueError:
+                str_list += ['srcDevice : <ValueError>']
+            try:
+                str_list += ['dstArray : ' + str(self.dstArray)]
+            except ValueError:
+                str_list += ['dstArray : <ValueError>']
+            try:
+                str_list += ['dstPos :\n' + '\n'.join(['    ' + line for line in str(self.dstPos).splitlines()])]
+            except ValueError:
+                str_list += ['dstPos : <ValueError>']
+            try:
+                str_list += ['dstPtr :\n' + '\n'.join(['    ' + line for line in str(self.dstPtr).splitlines()])]
+            except ValueError:
+                str_list += ['dstPtr : <ValueError>']
+            try:
+                str_list += ['dstDevice : ' + str(self.dstDevice)]
+            except ValueError:
+                str_list += ['dstDevice : <ValueError>']
+            try:
+                str_list += ['extent :\n' + '\n'.join(['    ' + line for line in str(self.extent).splitlines()])]
+            except ValueError:
+                str_list += ['extent : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5127,21 +5290,13 @@ cdef class cudaMemcpy3DPeerParms:
         return self._srcPos
     @srcPos.setter
     def srcPos(self, srcPos not None : cudaPos):
-        for _attr in dir(srcPos):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._srcPos, _attr, getattr(srcPos, _attr))
+        memcpy(&self._ptr[0].srcPos, <ccudart.cudaPos*><void_ptr>srcPos.getPtr(), sizeof(self._ptr[0].srcPos))
     @property
     def srcPtr(self):
         return self._srcPtr
     @srcPtr.setter
     def srcPtr(self, srcPtr not None : cudaPitchedPtr):
-        for _attr in dir(srcPtr):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._srcPtr, _attr, getattr(srcPtr, _attr))
+        memcpy(&self._ptr[0].srcPtr, <ccudart.cudaPitchedPtr*><void_ptr>srcPtr.getPtr(), sizeof(self._ptr[0].srcPtr))
     @property
     def srcDevice(self):
         return self._ptr[0].srcDevice
@@ -5168,21 +5323,13 @@ cdef class cudaMemcpy3DPeerParms:
         return self._dstPos
     @dstPos.setter
     def dstPos(self, dstPos not None : cudaPos):
-        for _attr in dir(dstPos):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._dstPos, _attr, getattr(dstPos, _attr))
+        memcpy(&self._ptr[0].dstPos, <ccudart.cudaPos*><void_ptr>dstPos.getPtr(), sizeof(self._ptr[0].dstPos))
     @property
     def dstPtr(self):
         return self._dstPtr
     @dstPtr.setter
     def dstPtr(self, dstPtr not None : cudaPitchedPtr):
-        for _attr in dir(dstPtr):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._dstPtr, _attr, getattr(dstPtr, _attr))
+        memcpy(&self._ptr[0].dstPtr, <ccudart.cudaPitchedPtr*><void_ptr>dstPtr.getPtr(), sizeof(self._ptr[0].dstPtr))
     @property
     def dstDevice(self):
         return self._ptr[0].dstDevice
@@ -5194,11 +5341,7 @@ cdef class cudaMemcpy3DPeerParms:
         return self._extent
     @extent.setter
     def extent(self, extent not None : cudaExtent):
-        for _attr in dir(extent):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._extent, _attr, getattr(extent, _attr))
+        memcpy(&self._ptr[0].extent, <ccudart.cudaExtent*><void_ptr>extent.getPtr(), sizeof(self._ptr[0].extent))
 {{endif}}
 {{if 'struct cudaMemsetParams' in found_types}}
 
@@ -5241,12 +5384,30 @@ cdef class cudaMemsetParams:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['dst : ' + hex(self.dst)]
-            str_list += ['pitch : ' + str(self.pitch)]
-            str_list += ['value : ' + str(self.value)]
-            str_list += ['elementSize : ' + str(self.elementSize)]
-            str_list += ['width : ' + str(self.width)]
-            str_list += ['height : ' + str(self.height)]
+            try:
+                str_list += ['dst : ' + hex(self.dst)]
+            except ValueError:
+                str_list += ['dst : <ValueError>']
+            try:
+                str_list += ['pitch : ' + str(self.pitch)]
+            except ValueError:
+                str_list += ['pitch : <ValueError>']
+            try:
+                str_list += ['value : ' + str(self.value)]
+            except ValueError:
+                str_list += ['value : <ValueError>']
+            try:
+                str_list += ['elementSize : ' + str(self.elementSize)]
+            except ValueError:
+                str_list += ['elementSize : <ValueError>']
+            try:
+                str_list += ['width : ' + str(self.width)]
+            except ValueError:
+                str_list += ['width : <ValueError>']
+            try:
+                str_list += ['height : ' + str(self.height)]
+            except ValueError:
+                str_list += ['height : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5338,11 +5499,26 @@ cdef class cudaAccessPolicyWindow:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['base_ptr : ' + hex(self.base_ptr)]
-            str_list += ['num_bytes : ' + str(self.num_bytes)]
-            str_list += ['hitRatio : ' + str(self.hitRatio)]
-            str_list += ['hitProp : ' + str(self.hitProp)]
-            str_list += ['missProp : ' + str(self.missProp)]
+            try:
+                str_list += ['base_ptr : ' + hex(self.base_ptr)]
+            except ValueError:
+                str_list += ['base_ptr : <ValueError>']
+            try:
+                str_list += ['num_bytes : ' + str(self.num_bytes)]
+            except ValueError:
+                str_list += ['num_bytes : <ValueError>']
+            try:
+                str_list += ['hitRatio : ' + str(self.hitRatio)]
+            except ValueError:
+                str_list += ['hitRatio : <ValueError>']
+            try:
+                str_list += ['hitProp : ' + str(self.hitProp)]
+            except ValueError:
+                str_list += ['hitProp : <ValueError>']
+            try:
+                str_list += ['missProp : ' + str(self.missProp)]
+            except ValueError:
+                str_list += ['missProp : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5411,8 +5587,14 @@ cdef class cudaHostNodeParams:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['fn : ' + str(self.fn)]
-            str_list += ['userData : ' + hex(self.userData)]
+            try:
+                str_list += ['fn : ' + str(self.fn)]
+            except ValueError:
+                str_list += ['fn : <ValueError>']
+            try:
+                str_list += ['userData : ' + hex(self.userData)]
+            except ValueError:
+                str_list += ['userData : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5462,11 +5644,14 @@ cdef class anon_struct1:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].res.array
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['array : ' + str(self.array)]
+            try:
+                str_list += ['array : ' + str(self.array)]
+            except ValueError:
+                str_list += ['array : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5509,11 +5694,14 @@ cdef class anon_struct2:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].res.mipmap
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['mipmap : ' + str(self.mipmap)]
+            try:
+                str_list += ['mipmap : ' + str(self.mipmap)]
+            except ValueError:
+                str_list += ['mipmap : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5560,13 +5748,22 @@ cdef class anon_struct3:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].res.linear
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['devPtr : ' + hex(self.devPtr)]
-            str_list += ['desc :\n' + '\n'.join(['    ' + line for line in str(self.desc).splitlines()])]
-            str_list += ['sizeInBytes : ' + str(self.sizeInBytes)]
+            try:
+                str_list += ['devPtr : ' + hex(self.devPtr)]
+            except ValueError:
+                str_list += ['devPtr : <ValueError>']
+            try:
+                str_list += ['desc :\n' + '\n'.join(['    ' + line for line in str(self.desc).splitlines()])]
+            except ValueError:
+                str_list += ['desc : <ValueError>']
+            try:
+                str_list += ['sizeInBytes : ' + str(self.sizeInBytes)]
+            except ValueError:
+                str_list += ['sizeInBytes : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5582,11 +5779,7 @@ cdef class anon_struct3:
         return self._desc
     @desc.setter
     def desc(self, desc not None : cudaChannelFormatDesc):
-        for _attr in dir(desc):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._desc, _attr, getattr(desc, _attr))
+        memcpy(&self._ptr[0].res.linear.desc, <ccudart.cudaChannelFormatDesc*><void_ptr>desc.getPtr(), sizeof(self._ptr[0].res.linear.desc))
     @property
     def sizeInBytes(self):
         return self._ptr[0].res.linear.sizeInBytes
@@ -5625,15 +5818,30 @@ cdef class anon_struct4:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].res.pitch2D
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['devPtr : ' + hex(self.devPtr)]
-            str_list += ['desc :\n' + '\n'.join(['    ' + line for line in str(self.desc).splitlines()])]
-            str_list += ['width : ' + str(self.width)]
-            str_list += ['height : ' + str(self.height)]
-            str_list += ['pitchInBytes : ' + str(self.pitchInBytes)]
+            try:
+                str_list += ['devPtr : ' + hex(self.devPtr)]
+            except ValueError:
+                str_list += ['devPtr : <ValueError>']
+            try:
+                str_list += ['desc :\n' + '\n'.join(['    ' + line for line in str(self.desc).splitlines()])]
+            except ValueError:
+                str_list += ['desc : <ValueError>']
+            try:
+                str_list += ['width : ' + str(self.width)]
+            except ValueError:
+                str_list += ['width : <ValueError>']
+            try:
+                str_list += ['height : ' + str(self.height)]
+            except ValueError:
+                str_list += ['height : <ValueError>']
+            try:
+                str_list += ['pitchInBytes : ' + str(self.pitchInBytes)]
+            except ValueError:
+                str_list += ['pitchInBytes : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5649,11 +5857,7 @@ cdef class anon_struct4:
         return self._desc
     @desc.setter
     def desc(self, desc not None : cudaChannelFormatDesc):
-        for _attr in dir(desc):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._desc, _attr, getattr(desc, _attr))
+        memcpy(&self._ptr[0].res.pitch2D.desc, <ccudart.cudaChannelFormatDesc*><void_ptr>desc.getPtr(), sizeof(self._ptr[0].res.pitch2D.desc))
     @property
     def width(self):
         return self._ptr[0].res.pitch2D.width
@@ -5705,14 +5909,26 @@ cdef class anon_union0:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].res
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['array :\n' + '\n'.join(['    ' + line for line in str(self.array).splitlines()])]
-            str_list += ['mipmap :\n' + '\n'.join(['    ' + line for line in str(self.mipmap).splitlines()])]
-            str_list += ['linear :\n' + '\n'.join(['    ' + line for line in str(self.linear).splitlines()])]
-            str_list += ['pitch2D :\n' + '\n'.join(['    ' + line for line in str(self.pitch2D).splitlines()])]
+            try:
+                str_list += ['array :\n' + '\n'.join(['    ' + line for line in str(self.array).splitlines()])]
+            except ValueError:
+                str_list += ['array : <ValueError>']
+            try:
+                str_list += ['mipmap :\n' + '\n'.join(['    ' + line for line in str(self.mipmap).splitlines()])]
+            except ValueError:
+                str_list += ['mipmap : <ValueError>']
+            try:
+                str_list += ['linear :\n' + '\n'.join(['    ' + line for line in str(self.linear).splitlines()])]
+            except ValueError:
+                str_list += ['linear : <ValueError>']
+            try:
+                str_list += ['pitch2D :\n' + '\n'.join(['    ' + line for line in str(self.pitch2D).splitlines()])]
+            except ValueError:
+                str_list += ['pitch2D : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5721,41 +5937,25 @@ cdef class anon_union0:
         return self._array
     @array.setter
     def array(self, array not None : anon_struct1):
-        for _attr in dir(array):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._array, _attr, getattr(array, _attr))
+        memcpy(&self._ptr[0].res.array, <ccudart.anon_struct1*><void_ptr>array.getPtr(), sizeof(self._ptr[0].res.array))
     @property
     def mipmap(self):
         return self._mipmap
     @mipmap.setter
     def mipmap(self, mipmap not None : anon_struct2):
-        for _attr in dir(mipmap):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._mipmap, _attr, getattr(mipmap, _attr))
+        memcpy(&self._ptr[0].res.mipmap, <ccudart.anon_struct2*><void_ptr>mipmap.getPtr(), sizeof(self._ptr[0].res.mipmap))
     @property
     def linear(self):
         return self._linear
     @linear.setter
     def linear(self, linear not None : anon_struct3):
-        for _attr in dir(linear):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._linear, _attr, getattr(linear, _attr))
+        memcpy(&self._ptr[0].res.linear, <ccudart.anon_struct3*><void_ptr>linear.getPtr(), sizeof(self._ptr[0].res.linear))
     @property
     def pitch2D(self):
         return self._pitch2D
     @pitch2D.setter
     def pitch2D(self, pitch2D not None : anon_struct4):
-        for _attr in dir(pitch2D):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._pitch2D, _attr, getattr(pitch2D, _attr))
+        memcpy(&self._ptr[0].res.pitch2D, <ccudart.anon_struct4*><void_ptr>pitch2D.getPtr(), sizeof(self._ptr[0].res.pitch2D))
 {{endif}}
 {{if 'struct cudaResourceDesc' in found_types}}
 
@@ -5790,8 +5990,14 @@ cdef class cudaResourceDesc:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['resType : ' + str(self.resType)]
-            str_list += ['res :\n' + '\n'.join(['    ' + line for line in str(self.res).splitlines()])]
+            try:
+                str_list += ['resType : ' + str(self.resType)]
+            except ValueError:
+                str_list += ['resType : <ValueError>']
+            try:
+                str_list += ['res :\n' + '\n'.join(['    ' + line for line in str(self.res).splitlines()])]
+            except ValueError:
+                str_list += ['res : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5806,11 +6012,7 @@ cdef class cudaResourceDesc:
         return self._res
     @res.setter
     def res(self, res not None : anon_union0):
-        for _attr in dir(res):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._res, _attr, getattr(res, _attr))
+        memcpy(&self._ptr[0].res, <ccudart.anon_union0*><void_ptr>res.getPtr(), sizeof(self._ptr[0].res))
 {{endif}}
 {{if 'struct cudaResourceViewDesc' in found_types}}
 
@@ -5857,14 +6059,38 @@ cdef class cudaResourceViewDesc:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['format : ' + str(self.format)]
-            str_list += ['width : ' + str(self.width)]
-            str_list += ['height : ' + str(self.height)]
-            str_list += ['depth : ' + str(self.depth)]
-            str_list += ['firstMipmapLevel : ' + str(self.firstMipmapLevel)]
-            str_list += ['lastMipmapLevel : ' + str(self.lastMipmapLevel)]
-            str_list += ['firstLayer : ' + str(self.firstLayer)]
-            str_list += ['lastLayer : ' + str(self.lastLayer)]
+            try:
+                str_list += ['format : ' + str(self.format)]
+            except ValueError:
+                str_list += ['format : <ValueError>']
+            try:
+                str_list += ['width : ' + str(self.width)]
+            except ValueError:
+                str_list += ['width : <ValueError>']
+            try:
+                str_list += ['height : ' + str(self.height)]
+            except ValueError:
+                str_list += ['height : <ValueError>']
+            try:
+                str_list += ['depth : ' + str(self.depth)]
+            except ValueError:
+                str_list += ['depth : <ValueError>']
+            try:
+                str_list += ['firstMipmapLevel : ' + str(self.firstMipmapLevel)]
+            except ValueError:
+                str_list += ['firstMipmapLevel : <ValueError>']
+            try:
+                str_list += ['lastMipmapLevel : ' + str(self.lastMipmapLevel)]
+            except ValueError:
+                str_list += ['lastMipmapLevel : <ValueError>']
+            try:
+                str_list += ['firstLayer : ' + str(self.firstLayer)]
+            except ValueError:
+                str_list += ['firstLayer : <ValueError>']
+            try:
+                str_list += ['lastLayer : ' + str(self.lastLayer)]
+            except ValueError:
+                str_list += ['lastLayer : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -5965,10 +6191,22 @@ cdef class cudaPointerAttributes:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['type : ' + str(self.type)]
-            str_list += ['device : ' + str(self.device)]
-            str_list += ['devicePointer : ' + hex(self.devicePointer)]
-            str_list += ['hostPointer : ' + hex(self.hostPointer)]
+            try:
+                str_list += ['type : ' + str(self.type)]
+            except ValueError:
+                str_list += ['type : <ValueError>']
+            try:
+                str_list += ['device : ' + str(self.device)]
+            except ValueError:
+                str_list += ['device : <ValueError>']
+            try:
+                str_list += ['devicePointer : ' + hex(self.devicePointer)]
+            except ValueError:
+                str_list += ['devicePointer : <ValueError>']
+            try:
+                str_list += ['hostPointer : ' + hex(self.hostPointer)]
+            except ValueError:
+                str_list += ['hostPointer : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -6099,23 +6337,74 @@ cdef class cudaFuncAttributes:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['sharedSizeBytes : ' + str(self.sharedSizeBytes)]
-            str_list += ['constSizeBytes : ' + str(self.constSizeBytes)]
-            str_list += ['localSizeBytes : ' + str(self.localSizeBytes)]
-            str_list += ['maxThreadsPerBlock : ' + str(self.maxThreadsPerBlock)]
-            str_list += ['numRegs : ' + str(self.numRegs)]
-            str_list += ['ptxVersion : ' + str(self.ptxVersion)]
-            str_list += ['binaryVersion : ' + str(self.binaryVersion)]
-            str_list += ['cacheModeCA : ' + str(self.cacheModeCA)]
-            str_list += ['maxDynamicSharedSizeBytes : ' + str(self.maxDynamicSharedSizeBytes)]
-            str_list += ['preferredShmemCarveout : ' + str(self.preferredShmemCarveout)]
-            str_list += ['clusterDimMustBeSet : ' + str(self.clusterDimMustBeSet)]
-            str_list += ['requiredClusterWidth : ' + str(self.requiredClusterWidth)]
-            str_list += ['requiredClusterHeight : ' + str(self.requiredClusterHeight)]
-            str_list += ['requiredClusterDepth : ' + str(self.requiredClusterDepth)]
-            str_list += ['clusterSchedulingPolicyPreference : ' + str(self.clusterSchedulingPolicyPreference)]
-            str_list += ['nonPortableClusterSizeAllowed : ' + str(self.nonPortableClusterSizeAllowed)]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['sharedSizeBytes : ' + str(self.sharedSizeBytes)]
+            except ValueError:
+                str_list += ['sharedSizeBytes : <ValueError>']
+            try:
+                str_list += ['constSizeBytes : ' + str(self.constSizeBytes)]
+            except ValueError:
+                str_list += ['constSizeBytes : <ValueError>']
+            try:
+                str_list += ['localSizeBytes : ' + str(self.localSizeBytes)]
+            except ValueError:
+                str_list += ['localSizeBytes : <ValueError>']
+            try:
+                str_list += ['maxThreadsPerBlock : ' + str(self.maxThreadsPerBlock)]
+            except ValueError:
+                str_list += ['maxThreadsPerBlock : <ValueError>']
+            try:
+                str_list += ['numRegs : ' + str(self.numRegs)]
+            except ValueError:
+                str_list += ['numRegs : <ValueError>']
+            try:
+                str_list += ['ptxVersion : ' + str(self.ptxVersion)]
+            except ValueError:
+                str_list += ['ptxVersion : <ValueError>']
+            try:
+                str_list += ['binaryVersion : ' + str(self.binaryVersion)]
+            except ValueError:
+                str_list += ['binaryVersion : <ValueError>']
+            try:
+                str_list += ['cacheModeCA : ' + str(self.cacheModeCA)]
+            except ValueError:
+                str_list += ['cacheModeCA : <ValueError>']
+            try:
+                str_list += ['maxDynamicSharedSizeBytes : ' + str(self.maxDynamicSharedSizeBytes)]
+            except ValueError:
+                str_list += ['maxDynamicSharedSizeBytes : <ValueError>']
+            try:
+                str_list += ['preferredShmemCarveout : ' + str(self.preferredShmemCarveout)]
+            except ValueError:
+                str_list += ['preferredShmemCarveout : <ValueError>']
+            try:
+                str_list += ['clusterDimMustBeSet : ' + str(self.clusterDimMustBeSet)]
+            except ValueError:
+                str_list += ['clusterDimMustBeSet : <ValueError>']
+            try:
+                str_list += ['requiredClusterWidth : ' + str(self.requiredClusterWidth)]
+            except ValueError:
+                str_list += ['requiredClusterWidth : <ValueError>']
+            try:
+                str_list += ['requiredClusterHeight : ' + str(self.requiredClusterHeight)]
+            except ValueError:
+                str_list += ['requiredClusterHeight : <ValueError>']
+            try:
+                str_list += ['requiredClusterDepth : ' + str(self.requiredClusterDepth)]
+            except ValueError:
+                str_list += ['requiredClusterDepth : <ValueError>']
+            try:
+                str_list += ['clusterSchedulingPolicyPreference : ' + str(self.clusterSchedulingPolicyPreference)]
+            except ValueError:
+                str_list += ['clusterSchedulingPolicyPreference : <ValueError>']
+            try:
+                str_list += ['nonPortableClusterSizeAllowed : ' + str(self.nonPortableClusterSizeAllowed)]
+            except ValueError:
+                str_list += ['nonPortableClusterSizeAllowed : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -6256,8 +6545,14 @@ cdef class cudaMemLocation:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['type : ' + str(self.type)]
-            str_list += ['id : ' + str(self.id)]
+            try:
+                str_list += ['type : ' + str(self.type)]
+            except ValueError:
+                str_list += ['type : <ValueError>']
+            try:
+                str_list += ['id : ' + str(self.id)]
+            except ValueError:
+                str_list += ['id : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -6307,8 +6602,14 @@ cdef class cudaMemAccessDesc:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['location :\n' + '\n'.join(['    ' + line for line in str(self.location).splitlines()])]
-            str_list += ['flags : ' + str(self.flags)]
+            try:
+                str_list += ['location :\n' + '\n'.join(['    ' + line for line in str(self.location).splitlines()])]
+            except ValueError:
+                str_list += ['location : <ValueError>']
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -6317,11 +6618,7 @@ cdef class cudaMemAccessDesc:
         return self._location
     @location.setter
     def location(self, location not None : cudaMemLocation):
-        for _attr in dir(location):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._location, _attr, getattr(location, _attr))
+        memcpy(&self._ptr[0].location, <ccudart.cudaMemLocation*><void_ptr>location.getPtr(), sizeof(self._ptr[0].location))
     @property
     def flags(self):
         return cudaMemAccessFlags(self._ptr[0].flags)
@@ -6373,11 +6670,26 @@ cdef class cudaMemPoolProps:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['allocType : ' + str(self.allocType)]
-            str_list += ['handleTypes : ' + str(self.handleTypes)]
-            str_list += ['location :\n' + '\n'.join(['    ' + line for line in str(self.location).splitlines()])]
-            str_list += ['win32SecurityAttributes : ' + hex(self.win32SecurityAttributes)]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['allocType : ' + str(self.allocType)]
+            except ValueError:
+                str_list += ['allocType : <ValueError>']
+            try:
+                str_list += ['handleTypes : ' + str(self.handleTypes)]
+            except ValueError:
+                str_list += ['handleTypes : <ValueError>']
+            try:
+                str_list += ['location :\n' + '\n'.join(['    ' + line for line in str(self.location).splitlines()])]
+            except ValueError:
+                str_list += ['location : <ValueError>']
+            try:
+                str_list += ['win32SecurityAttributes : ' + hex(self.win32SecurityAttributes)]
+            except ValueError:
+                str_list += ['win32SecurityAttributes : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -6398,11 +6710,7 @@ cdef class cudaMemPoolProps:
         return self._location
     @location.setter
     def location(self, location not None : cudaMemLocation):
-        for _attr in dir(location):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._location, _attr, getattr(location, _attr))
+        memcpy(&self._ptr[0].location, <ccudart.cudaMemLocation*><void_ptr>location.getPtr(), sizeof(self._ptr[0].location))
     @property
     def win32SecurityAttributes(self):
         return <void_ptr>self._ptr[0].win32SecurityAttributes
@@ -6451,7 +6759,10 @@ cdef class cudaMemPoolPtrExportData:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -6509,11 +6820,26 @@ cdef class cudaMemAllocNodeParams:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['poolProps :\n' + '\n'.join(['    ' + line for line in str(self.poolProps).splitlines()])]
-            str_list += ['accessDescs : ' + str(self.accessDescs)]
-            str_list += ['accessDescCount : ' + str(self.accessDescCount)]
-            str_list += ['bytesize : ' + str(self.bytesize)]
-            str_list += ['dptr : ' + hex(self.dptr)]
+            try:
+                str_list += ['poolProps :\n' + '\n'.join(['    ' + line for line in str(self.poolProps).splitlines()])]
+            except ValueError:
+                str_list += ['poolProps : <ValueError>']
+            try:
+                str_list += ['accessDescs : ' + str(self.accessDescs)]
+            except ValueError:
+                str_list += ['accessDescs : <ValueError>']
+            try:
+                str_list += ['accessDescCount : ' + str(self.accessDescCount)]
+            except ValueError:
+                str_list += ['accessDescCount : <ValueError>']
+            try:
+                str_list += ['bytesize : ' + str(self.bytesize)]
+            except ValueError:
+                str_list += ['bytesize : <ValueError>']
+            try:
+                str_list += ['dptr : ' + hex(self.dptr)]
+            except ValueError:
+                str_list += ['dptr : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -6522,11 +6848,7 @@ cdef class cudaMemAllocNodeParams:
         return self._poolProps
     @poolProps.setter
     def poolProps(self, poolProps not None : cudaMemPoolProps):
-        for _attr in dir(poolProps):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._poolProps, _attr, getattr(poolProps, _attr))
+        memcpy(&self._ptr[0].poolProps, <ccudart.cudaMemPoolProps*><void_ptr>poolProps.getPtr(), sizeof(self._ptr[0].poolProps))
     @property
     def accessDescs(self):
         arrs = [<void_ptr>self._ptr[0].accessDescs + x*sizeof(ccudart.cudaMemAccessDesc) for x in range(self._accessDescs_length)]
@@ -6597,7 +6919,10 @@ cdef class CUuuid_st:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['bytes : ' + str(self.bytes.hex())]
+            try:
+                str_list += ['bytes : ' + str(self.bytes.hex())]
+            except ValueError:
+                str_list += ['bytes : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -6822,6 +7147,8 @@ cdef class cudaDeviceProp:
         Indicates device supports cluster launch
     unifiedFunctionPointers : int
         Indicates device supports unified pointers
+    reserved2 : List[int]
+
     reserved : List[int]
         Reserved for future use
 
@@ -6845,100 +7172,386 @@ cdef class cudaDeviceProp:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['name : ' + self.name.decode('utf-8')]
-            str_list += ['uuid :\n' + '\n'.join(['    ' + line for line in str(self.uuid).splitlines()])]
-            str_list += ['luid : ' + self.luid.hex()]
-            str_list += ['luidDeviceNodeMask : ' + str(self.luidDeviceNodeMask)]
-            str_list += ['totalGlobalMem : ' + str(self.totalGlobalMem)]
-            str_list += ['sharedMemPerBlock : ' + str(self.sharedMemPerBlock)]
-            str_list += ['regsPerBlock : ' + str(self.regsPerBlock)]
-            str_list += ['warpSize : ' + str(self.warpSize)]
-            str_list += ['memPitch : ' + str(self.memPitch)]
-            str_list += ['maxThreadsPerBlock : ' + str(self.maxThreadsPerBlock)]
-            str_list += ['maxThreadsDim : ' + str(self.maxThreadsDim)]
-            str_list += ['maxGridSize : ' + str(self.maxGridSize)]
-            str_list += ['clockRate : ' + str(self.clockRate)]
-            str_list += ['totalConstMem : ' + str(self.totalConstMem)]
-            str_list += ['major : ' + str(self.major)]
-            str_list += ['minor : ' + str(self.minor)]
-            str_list += ['textureAlignment : ' + str(self.textureAlignment)]
-            str_list += ['texturePitchAlignment : ' + str(self.texturePitchAlignment)]
-            str_list += ['deviceOverlap : ' + str(self.deviceOverlap)]
-            str_list += ['multiProcessorCount : ' + str(self.multiProcessorCount)]
-            str_list += ['kernelExecTimeoutEnabled : ' + str(self.kernelExecTimeoutEnabled)]
-            str_list += ['integrated : ' + str(self.integrated)]
-            str_list += ['canMapHostMemory : ' + str(self.canMapHostMemory)]
-            str_list += ['computeMode : ' + str(self.computeMode)]
-            str_list += ['maxTexture1D : ' + str(self.maxTexture1D)]
-            str_list += ['maxTexture1DMipmap : ' + str(self.maxTexture1DMipmap)]
-            str_list += ['maxTexture1DLinear : ' + str(self.maxTexture1DLinear)]
-            str_list += ['maxTexture2D : ' + str(self.maxTexture2D)]
-            str_list += ['maxTexture2DMipmap : ' + str(self.maxTexture2DMipmap)]
-            str_list += ['maxTexture2DLinear : ' + str(self.maxTexture2DLinear)]
-            str_list += ['maxTexture2DGather : ' + str(self.maxTexture2DGather)]
-            str_list += ['maxTexture3D : ' + str(self.maxTexture3D)]
-            str_list += ['maxTexture3DAlt : ' + str(self.maxTexture3DAlt)]
-            str_list += ['maxTextureCubemap : ' + str(self.maxTextureCubemap)]
-            str_list += ['maxTexture1DLayered : ' + str(self.maxTexture1DLayered)]
-            str_list += ['maxTexture2DLayered : ' + str(self.maxTexture2DLayered)]
-            str_list += ['maxTextureCubemapLayered : ' + str(self.maxTextureCubemapLayered)]
-            str_list += ['maxSurface1D : ' + str(self.maxSurface1D)]
-            str_list += ['maxSurface2D : ' + str(self.maxSurface2D)]
-            str_list += ['maxSurface3D : ' + str(self.maxSurface3D)]
-            str_list += ['maxSurface1DLayered : ' + str(self.maxSurface1DLayered)]
-            str_list += ['maxSurface2DLayered : ' + str(self.maxSurface2DLayered)]
-            str_list += ['maxSurfaceCubemap : ' + str(self.maxSurfaceCubemap)]
-            str_list += ['maxSurfaceCubemapLayered : ' + str(self.maxSurfaceCubemapLayered)]
-            str_list += ['surfaceAlignment : ' + str(self.surfaceAlignment)]
-            str_list += ['concurrentKernels : ' + str(self.concurrentKernels)]
-            str_list += ['ECCEnabled : ' + str(self.ECCEnabled)]
-            str_list += ['pciBusID : ' + str(self.pciBusID)]
-            str_list += ['pciDeviceID : ' + str(self.pciDeviceID)]
-            str_list += ['pciDomainID : ' + str(self.pciDomainID)]
-            str_list += ['tccDriver : ' + str(self.tccDriver)]
-            str_list += ['asyncEngineCount : ' + str(self.asyncEngineCount)]
-            str_list += ['unifiedAddressing : ' + str(self.unifiedAddressing)]
-            str_list += ['memoryClockRate : ' + str(self.memoryClockRate)]
-            str_list += ['memoryBusWidth : ' + str(self.memoryBusWidth)]
-            str_list += ['l2CacheSize : ' + str(self.l2CacheSize)]
-            str_list += ['persistingL2CacheMaxSize : ' + str(self.persistingL2CacheMaxSize)]
-            str_list += ['maxThreadsPerMultiProcessor : ' + str(self.maxThreadsPerMultiProcessor)]
-            str_list += ['streamPrioritiesSupported : ' + str(self.streamPrioritiesSupported)]
-            str_list += ['globalL1CacheSupported : ' + str(self.globalL1CacheSupported)]
-            str_list += ['localL1CacheSupported : ' + str(self.localL1CacheSupported)]
-            str_list += ['sharedMemPerMultiprocessor : ' + str(self.sharedMemPerMultiprocessor)]
-            str_list += ['regsPerMultiprocessor : ' + str(self.regsPerMultiprocessor)]
-            str_list += ['managedMemory : ' + str(self.managedMemory)]
-            str_list += ['isMultiGpuBoard : ' + str(self.isMultiGpuBoard)]
-            str_list += ['multiGpuBoardGroupID : ' + str(self.multiGpuBoardGroupID)]
-            str_list += ['hostNativeAtomicSupported : ' + str(self.hostNativeAtomicSupported)]
-            str_list += ['singleToDoublePrecisionPerfRatio : ' + str(self.singleToDoublePrecisionPerfRatio)]
-            str_list += ['pageableMemoryAccess : ' + str(self.pageableMemoryAccess)]
-            str_list += ['concurrentManagedAccess : ' + str(self.concurrentManagedAccess)]
-            str_list += ['computePreemptionSupported : ' + str(self.computePreemptionSupported)]
-            str_list += ['canUseHostPointerForRegisteredMem : ' + str(self.canUseHostPointerForRegisteredMem)]
-            str_list += ['cooperativeLaunch : ' + str(self.cooperativeLaunch)]
-            str_list += ['cooperativeMultiDeviceLaunch : ' + str(self.cooperativeMultiDeviceLaunch)]
-            str_list += ['sharedMemPerBlockOptin : ' + str(self.sharedMemPerBlockOptin)]
-            str_list += ['pageableMemoryAccessUsesHostPageTables : ' + str(self.pageableMemoryAccessUsesHostPageTables)]
-            str_list += ['directManagedMemAccessFromHost : ' + str(self.directManagedMemAccessFromHost)]
-            str_list += ['maxBlocksPerMultiProcessor : ' + str(self.maxBlocksPerMultiProcessor)]
-            str_list += ['accessPolicyMaxWindowSize : ' + str(self.accessPolicyMaxWindowSize)]
-            str_list += ['reservedSharedMemPerBlock : ' + str(self.reservedSharedMemPerBlock)]
-            str_list += ['hostRegisterSupported : ' + str(self.hostRegisterSupported)]
-            str_list += ['sparseCudaArraySupported : ' + str(self.sparseCudaArraySupported)]
-            str_list += ['hostRegisterReadOnlySupported : ' + str(self.hostRegisterReadOnlySupported)]
-            str_list += ['timelineSemaphoreInteropSupported : ' + str(self.timelineSemaphoreInteropSupported)]
-            str_list += ['memoryPoolsSupported : ' + str(self.memoryPoolsSupported)]
-            str_list += ['gpuDirectRDMASupported : ' + str(self.gpuDirectRDMASupported)]
-            str_list += ['gpuDirectRDMAFlushWritesOptions : ' + str(self.gpuDirectRDMAFlushWritesOptions)]
-            str_list += ['gpuDirectRDMAWritesOrdering : ' + str(self.gpuDirectRDMAWritesOrdering)]
-            str_list += ['memoryPoolSupportedHandleTypes : ' + str(self.memoryPoolSupportedHandleTypes)]
-            str_list += ['deferredMappingCudaArraySupported : ' + str(self.deferredMappingCudaArraySupported)]
-            str_list += ['ipcEventSupported : ' + str(self.ipcEventSupported)]
-            str_list += ['clusterLaunch : ' + str(self.clusterLaunch)]
-            str_list += ['unifiedFunctionPointers : ' + str(self.unifiedFunctionPointers)]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['name : ' + self.name.decode('utf-8')]
+            except ValueError:
+                str_list += ['name : <ValueError>']
+            try:
+                str_list += ['uuid :\n' + '\n'.join(['    ' + line for line in str(self.uuid).splitlines()])]
+            except ValueError:
+                str_list += ['uuid : <ValueError>']
+            try:
+                str_list += ['luid : ' + self.luid.hex()]
+            except ValueError:
+                str_list += ['luid : <ValueError>']
+            try:
+                str_list += ['luidDeviceNodeMask : ' + str(self.luidDeviceNodeMask)]
+            except ValueError:
+                str_list += ['luidDeviceNodeMask : <ValueError>']
+            try:
+                str_list += ['totalGlobalMem : ' + str(self.totalGlobalMem)]
+            except ValueError:
+                str_list += ['totalGlobalMem : <ValueError>']
+            try:
+                str_list += ['sharedMemPerBlock : ' + str(self.sharedMemPerBlock)]
+            except ValueError:
+                str_list += ['sharedMemPerBlock : <ValueError>']
+            try:
+                str_list += ['regsPerBlock : ' + str(self.regsPerBlock)]
+            except ValueError:
+                str_list += ['regsPerBlock : <ValueError>']
+            try:
+                str_list += ['warpSize : ' + str(self.warpSize)]
+            except ValueError:
+                str_list += ['warpSize : <ValueError>']
+            try:
+                str_list += ['memPitch : ' + str(self.memPitch)]
+            except ValueError:
+                str_list += ['memPitch : <ValueError>']
+            try:
+                str_list += ['maxThreadsPerBlock : ' + str(self.maxThreadsPerBlock)]
+            except ValueError:
+                str_list += ['maxThreadsPerBlock : <ValueError>']
+            try:
+                str_list += ['maxThreadsDim : ' + str(self.maxThreadsDim)]
+            except ValueError:
+                str_list += ['maxThreadsDim : <ValueError>']
+            try:
+                str_list += ['maxGridSize : ' + str(self.maxGridSize)]
+            except ValueError:
+                str_list += ['maxGridSize : <ValueError>']
+            try:
+                str_list += ['clockRate : ' + str(self.clockRate)]
+            except ValueError:
+                str_list += ['clockRate : <ValueError>']
+            try:
+                str_list += ['totalConstMem : ' + str(self.totalConstMem)]
+            except ValueError:
+                str_list += ['totalConstMem : <ValueError>']
+            try:
+                str_list += ['major : ' + str(self.major)]
+            except ValueError:
+                str_list += ['major : <ValueError>']
+            try:
+                str_list += ['minor : ' + str(self.minor)]
+            except ValueError:
+                str_list += ['minor : <ValueError>']
+            try:
+                str_list += ['textureAlignment : ' + str(self.textureAlignment)]
+            except ValueError:
+                str_list += ['textureAlignment : <ValueError>']
+            try:
+                str_list += ['texturePitchAlignment : ' + str(self.texturePitchAlignment)]
+            except ValueError:
+                str_list += ['texturePitchAlignment : <ValueError>']
+            try:
+                str_list += ['deviceOverlap : ' + str(self.deviceOverlap)]
+            except ValueError:
+                str_list += ['deviceOverlap : <ValueError>']
+            try:
+                str_list += ['multiProcessorCount : ' + str(self.multiProcessorCount)]
+            except ValueError:
+                str_list += ['multiProcessorCount : <ValueError>']
+            try:
+                str_list += ['kernelExecTimeoutEnabled : ' + str(self.kernelExecTimeoutEnabled)]
+            except ValueError:
+                str_list += ['kernelExecTimeoutEnabled : <ValueError>']
+            try:
+                str_list += ['integrated : ' + str(self.integrated)]
+            except ValueError:
+                str_list += ['integrated : <ValueError>']
+            try:
+                str_list += ['canMapHostMemory : ' + str(self.canMapHostMemory)]
+            except ValueError:
+                str_list += ['canMapHostMemory : <ValueError>']
+            try:
+                str_list += ['computeMode : ' + str(self.computeMode)]
+            except ValueError:
+                str_list += ['computeMode : <ValueError>']
+            try:
+                str_list += ['maxTexture1D : ' + str(self.maxTexture1D)]
+            except ValueError:
+                str_list += ['maxTexture1D : <ValueError>']
+            try:
+                str_list += ['maxTexture1DMipmap : ' + str(self.maxTexture1DMipmap)]
+            except ValueError:
+                str_list += ['maxTexture1DMipmap : <ValueError>']
+            try:
+                str_list += ['maxTexture1DLinear : ' + str(self.maxTexture1DLinear)]
+            except ValueError:
+                str_list += ['maxTexture1DLinear : <ValueError>']
+            try:
+                str_list += ['maxTexture2D : ' + str(self.maxTexture2D)]
+            except ValueError:
+                str_list += ['maxTexture2D : <ValueError>']
+            try:
+                str_list += ['maxTexture2DMipmap : ' + str(self.maxTexture2DMipmap)]
+            except ValueError:
+                str_list += ['maxTexture2DMipmap : <ValueError>']
+            try:
+                str_list += ['maxTexture2DLinear : ' + str(self.maxTexture2DLinear)]
+            except ValueError:
+                str_list += ['maxTexture2DLinear : <ValueError>']
+            try:
+                str_list += ['maxTexture2DGather : ' + str(self.maxTexture2DGather)]
+            except ValueError:
+                str_list += ['maxTexture2DGather : <ValueError>']
+            try:
+                str_list += ['maxTexture3D : ' + str(self.maxTexture3D)]
+            except ValueError:
+                str_list += ['maxTexture3D : <ValueError>']
+            try:
+                str_list += ['maxTexture3DAlt : ' + str(self.maxTexture3DAlt)]
+            except ValueError:
+                str_list += ['maxTexture3DAlt : <ValueError>']
+            try:
+                str_list += ['maxTextureCubemap : ' + str(self.maxTextureCubemap)]
+            except ValueError:
+                str_list += ['maxTextureCubemap : <ValueError>']
+            try:
+                str_list += ['maxTexture1DLayered : ' + str(self.maxTexture1DLayered)]
+            except ValueError:
+                str_list += ['maxTexture1DLayered : <ValueError>']
+            try:
+                str_list += ['maxTexture2DLayered : ' + str(self.maxTexture2DLayered)]
+            except ValueError:
+                str_list += ['maxTexture2DLayered : <ValueError>']
+            try:
+                str_list += ['maxTextureCubemapLayered : ' + str(self.maxTextureCubemapLayered)]
+            except ValueError:
+                str_list += ['maxTextureCubemapLayered : <ValueError>']
+            try:
+                str_list += ['maxSurface1D : ' + str(self.maxSurface1D)]
+            except ValueError:
+                str_list += ['maxSurface1D : <ValueError>']
+            try:
+                str_list += ['maxSurface2D : ' + str(self.maxSurface2D)]
+            except ValueError:
+                str_list += ['maxSurface2D : <ValueError>']
+            try:
+                str_list += ['maxSurface3D : ' + str(self.maxSurface3D)]
+            except ValueError:
+                str_list += ['maxSurface3D : <ValueError>']
+            try:
+                str_list += ['maxSurface1DLayered : ' + str(self.maxSurface1DLayered)]
+            except ValueError:
+                str_list += ['maxSurface1DLayered : <ValueError>']
+            try:
+                str_list += ['maxSurface2DLayered : ' + str(self.maxSurface2DLayered)]
+            except ValueError:
+                str_list += ['maxSurface2DLayered : <ValueError>']
+            try:
+                str_list += ['maxSurfaceCubemap : ' + str(self.maxSurfaceCubemap)]
+            except ValueError:
+                str_list += ['maxSurfaceCubemap : <ValueError>']
+            try:
+                str_list += ['maxSurfaceCubemapLayered : ' + str(self.maxSurfaceCubemapLayered)]
+            except ValueError:
+                str_list += ['maxSurfaceCubemapLayered : <ValueError>']
+            try:
+                str_list += ['surfaceAlignment : ' + str(self.surfaceAlignment)]
+            except ValueError:
+                str_list += ['surfaceAlignment : <ValueError>']
+            try:
+                str_list += ['concurrentKernels : ' + str(self.concurrentKernels)]
+            except ValueError:
+                str_list += ['concurrentKernels : <ValueError>']
+            try:
+                str_list += ['ECCEnabled : ' + str(self.ECCEnabled)]
+            except ValueError:
+                str_list += ['ECCEnabled : <ValueError>']
+            try:
+                str_list += ['pciBusID : ' + str(self.pciBusID)]
+            except ValueError:
+                str_list += ['pciBusID : <ValueError>']
+            try:
+                str_list += ['pciDeviceID : ' + str(self.pciDeviceID)]
+            except ValueError:
+                str_list += ['pciDeviceID : <ValueError>']
+            try:
+                str_list += ['pciDomainID : ' + str(self.pciDomainID)]
+            except ValueError:
+                str_list += ['pciDomainID : <ValueError>']
+            try:
+                str_list += ['tccDriver : ' + str(self.tccDriver)]
+            except ValueError:
+                str_list += ['tccDriver : <ValueError>']
+            try:
+                str_list += ['asyncEngineCount : ' + str(self.asyncEngineCount)]
+            except ValueError:
+                str_list += ['asyncEngineCount : <ValueError>']
+            try:
+                str_list += ['unifiedAddressing : ' + str(self.unifiedAddressing)]
+            except ValueError:
+                str_list += ['unifiedAddressing : <ValueError>']
+            try:
+                str_list += ['memoryClockRate : ' + str(self.memoryClockRate)]
+            except ValueError:
+                str_list += ['memoryClockRate : <ValueError>']
+            try:
+                str_list += ['memoryBusWidth : ' + str(self.memoryBusWidth)]
+            except ValueError:
+                str_list += ['memoryBusWidth : <ValueError>']
+            try:
+                str_list += ['l2CacheSize : ' + str(self.l2CacheSize)]
+            except ValueError:
+                str_list += ['l2CacheSize : <ValueError>']
+            try:
+                str_list += ['persistingL2CacheMaxSize : ' + str(self.persistingL2CacheMaxSize)]
+            except ValueError:
+                str_list += ['persistingL2CacheMaxSize : <ValueError>']
+            try:
+                str_list += ['maxThreadsPerMultiProcessor : ' + str(self.maxThreadsPerMultiProcessor)]
+            except ValueError:
+                str_list += ['maxThreadsPerMultiProcessor : <ValueError>']
+            try:
+                str_list += ['streamPrioritiesSupported : ' + str(self.streamPrioritiesSupported)]
+            except ValueError:
+                str_list += ['streamPrioritiesSupported : <ValueError>']
+            try:
+                str_list += ['globalL1CacheSupported : ' + str(self.globalL1CacheSupported)]
+            except ValueError:
+                str_list += ['globalL1CacheSupported : <ValueError>']
+            try:
+                str_list += ['localL1CacheSupported : ' + str(self.localL1CacheSupported)]
+            except ValueError:
+                str_list += ['localL1CacheSupported : <ValueError>']
+            try:
+                str_list += ['sharedMemPerMultiprocessor : ' + str(self.sharedMemPerMultiprocessor)]
+            except ValueError:
+                str_list += ['sharedMemPerMultiprocessor : <ValueError>']
+            try:
+                str_list += ['regsPerMultiprocessor : ' + str(self.regsPerMultiprocessor)]
+            except ValueError:
+                str_list += ['regsPerMultiprocessor : <ValueError>']
+            try:
+                str_list += ['managedMemory : ' + str(self.managedMemory)]
+            except ValueError:
+                str_list += ['managedMemory : <ValueError>']
+            try:
+                str_list += ['isMultiGpuBoard : ' + str(self.isMultiGpuBoard)]
+            except ValueError:
+                str_list += ['isMultiGpuBoard : <ValueError>']
+            try:
+                str_list += ['multiGpuBoardGroupID : ' + str(self.multiGpuBoardGroupID)]
+            except ValueError:
+                str_list += ['multiGpuBoardGroupID : <ValueError>']
+            try:
+                str_list += ['hostNativeAtomicSupported : ' + str(self.hostNativeAtomicSupported)]
+            except ValueError:
+                str_list += ['hostNativeAtomicSupported : <ValueError>']
+            try:
+                str_list += ['singleToDoublePrecisionPerfRatio : ' + str(self.singleToDoublePrecisionPerfRatio)]
+            except ValueError:
+                str_list += ['singleToDoublePrecisionPerfRatio : <ValueError>']
+            try:
+                str_list += ['pageableMemoryAccess : ' + str(self.pageableMemoryAccess)]
+            except ValueError:
+                str_list += ['pageableMemoryAccess : <ValueError>']
+            try:
+                str_list += ['concurrentManagedAccess : ' + str(self.concurrentManagedAccess)]
+            except ValueError:
+                str_list += ['concurrentManagedAccess : <ValueError>']
+            try:
+                str_list += ['computePreemptionSupported : ' + str(self.computePreemptionSupported)]
+            except ValueError:
+                str_list += ['computePreemptionSupported : <ValueError>']
+            try:
+                str_list += ['canUseHostPointerForRegisteredMem : ' + str(self.canUseHostPointerForRegisteredMem)]
+            except ValueError:
+                str_list += ['canUseHostPointerForRegisteredMem : <ValueError>']
+            try:
+                str_list += ['cooperativeLaunch : ' + str(self.cooperativeLaunch)]
+            except ValueError:
+                str_list += ['cooperativeLaunch : <ValueError>']
+            try:
+                str_list += ['cooperativeMultiDeviceLaunch : ' + str(self.cooperativeMultiDeviceLaunch)]
+            except ValueError:
+                str_list += ['cooperativeMultiDeviceLaunch : <ValueError>']
+            try:
+                str_list += ['sharedMemPerBlockOptin : ' + str(self.sharedMemPerBlockOptin)]
+            except ValueError:
+                str_list += ['sharedMemPerBlockOptin : <ValueError>']
+            try:
+                str_list += ['pageableMemoryAccessUsesHostPageTables : ' + str(self.pageableMemoryAccessUsesHostPageTables)]
+            except ValueError:
+                str_list += ['pageableMemoryAccessUsesHostPageTables : <ValueError>']
+            try:
+                str_list += ['directManagedMemAccessFromHost : ' + str(self.directManagedMemAccessFromHost)]
+            except ValueError:
+                str_list += ['directManagedMemAccessFromHost : <ValueError>']
+            try:
+                str_list += ['maxBlocksPerMultiProcessor : ' + str(self.maxBlocksPerMultiProcessor)]
+            except ValueError:
+                str_list += ['maxBlocksPerMultiProcessor : <ValueError>']
+            try:
+                str_list += ['accessPolicyMaxWindowSize : ' + str(self.accessPolicyMaxWindowSize)]
+            except ValueError:
+                str_list += ['accessPolicyMaxWindowSize : <ValueError>']
+            try:
+                str_list += ['reservedSharedMemPerBlock : ' + str(self.reservedSharedMemPerBlock)]
+            except ValueError:
+                str_list += ['reservedSharedMemPerBlock : <ValueError>']
+            try:
+                str_list += ['hostRegisterSupported : ' + str(self.hostRegisterSupported)]
+            except ValueError:
+                str_list += ['hostRegisterSupported : <ValueError>']
+            try:
+                str_list += ['sparseCudaArraySupported : ' + str(self.sparseCudaArraySupported)]
+            except ValueError:
+                str_list += ['sparseCudaArraySupported : <ValueError>']
+            try:
+                str_list += ['hostRegisterReadOnlySupported : ' + str(self.hostRegisterReadOnlySupported)]
+            except ValueError:
+                str_list += ['hostRegisterReadOnlySupported : <ValueError>']
+            try:
+                str_list += ['timelineSemaphoreInteropSupported : ' + str(self.timelineSemaphoreInteropSupported)]
+            except ValueError:
+                str_list += ['timelineSemaphoreInteropSupported : <ValueError>']
+            try:
+                str_list += ['memoryPoolsSupported : ' + str(self.memoryPoolsSupported)]
+            except ValueError:
+                str_list += ['memoryPoolsSupported : <ValueError>']
+            try:
+                str_list += ['gpuDirectRDMASupported : ' + str(self.gpuDirectRDMASupported)]
+            except ValueError:
+                str_list += ['gpuDirectRDMASupported : <ValueError>']
+            try:
+                str_list += ['gpuDirectRDMAFlushWritesOptions : ' + str(self.gpuDirectRDMAFlushWritesOptions)]
+            except ValueError:
+                str_list += ['gpuDirectRDMAFlushWritesOptions : <ValueError>']
+            try:
+                str_list += ['gpuDirectRDMAWritesOrdering : ' + str(self.gpuDirectRDMAWritesOrdering)]
+            except ValueError:
+                str_list += ['gpuDirectRDMAWritesOrdering : <ValueError>']
+            try:
+                str_list += ['memoryPoolSupportedHandleTypes : ' + str(self.memoryPoolSupportedHandleTypes)]
+            except ValueError:
+                str_list += ['memoryPoolSupportedHandleTypes : <ValueError>']
+            try:
+                str_list += ['deferredMappingCudaArraySupported : ' + str(self.deferredMappingCudaArraySupported)]
+            except ValueError:
+                str_list += ['deferredMappingCudaArraySupported : <ValueError>']
+            try:
+                str_list += ['ipcEventSupported : ' + str(self.ipcEventSupported)]
+            except ValueError:
+                str_list += ['ipcEventSupported : <ValueError>']
+            try:
+                str_list += ['clusterLaunch : ' + str(self.clusterLaunch)]
+            except ValueError:
+                str_list += ['clusterLaunch : <ValueError>']
+            try:
+                str_list += ['unifiedFunctionPointers : ' + str(self.unifiedFunctionPointers)]
+            except ValueError:
+                str_list += ['unifiedFunctionPointers : <ValueError>']
+            try:
+                str_list += ['reserved2 : ' + str(self.reserved2)]
+            except ValueError:
+                str_list += ['reserved2 : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -6954,11 +7567,7 @@ cdef class cudaDeviceProp:
         return self._uuid
     @uuid.setter
     def uuid(self, uuid not None : cudaUUID_t):
-        for _attr in dir(uuid):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._uuid, _attr, getattr(uuid, _attr))
+        memcpy(&self._ptr[0].uuid, <ccudart.cudaUUID_t*><void_ptr>uuid.getPtr(), sizeof(self._ptr[0].uuid))
     @property
     def luid(self):
         return PyBytes_FromStringAndSize(self._ptr[0].luid, 8)
@@ -7517,6 +8126,12 @@ cdef class cudaDeviceProp:
     def unifiedFunctionPointers(self, int unifiedFunctionPointers):
         self._ptr[0].unifiedFunctionPointers = unifiedFunctionPointers
     @property
+    def reserved2(self):
+        return self._ptr[0].reserved2
+    @reserved2.setter
+    def reserved2(self, reserved2):
+        self._ptr[0].reserved2 = reserved2
+    @property
     def reserved(self):
         return self._ptr[0].reserved
     @reserved.setter
@@ -7554,7 +8169,10 @@ cdef class cudaIpcEventHandle_st:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -7607,7 +8225,10 @@ cdef class cudaIpcMemHandle_st:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -7654,12 +8275,18 @@ cdef class anon_struct5:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].handle.win32
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['handle : ' + hex(self.handle)]
-            str_list += ['name : ' + hex(self.name)]
+            try:
+                str_list += ['handle : ' + hex(self.handle)]
+            except ValueError:
+                str_list += ['handle : <ValueError>']
+            try:
+                str_list += ['name : ' + hex(self.name)]
+            except ValueError:
+                str_list += ['name : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -7705,13 +8332,22 @@ cdef class anon_union1:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].handle
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['fd : ' + str(self.fd)]
-            str_list += ['win32 :\n' + '\n'.join(['    ' + line for line in str(self.win32).splitlines()])]
-            str_list += ['nvSciBufObject : ' + hex(self.nvSciBufObject)]
+            try:
+                str_list += ['fd : ' + str(self.fd)]
+            except ValueError:
+                str_list += ['fd : <ValueError>']
+            try:
+                str_list += ['win32 :\n' + '\n'.join(['    ' + line for line in str(self.win32).splitlines()])]
+            except ValueError:
+                str_list += ['win32 : <ValueError>']
+            try:
+                str_list += ['nvSciBufObject : ' + hex(self.nvSciBufObject)]
+            except ValueError:
+                str_list += ['nvSciBufObject : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -7726,11 +8362,7 @@ cdef class anon_union1:
         return self._win32
     @win32.setter
     def win32(self, win32 not None : anon_struct5):
-        for _attr in dir(win32):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._win32, _attr, getattr(win32, _attr))
+        memcpy(&self._ptr[0].handle.win32, <ccudart.anon_struct5*><void_ptr>win32.getPtr(), sizeof(self._ptr[0].handle.win32))
     @property
     def nvSciBufObject(self):
         return <void_ptr>self._ptr[0].handle.nvSciBufObject
@@ -7776,10 +8408,22 @@ cdef class cudaExternalMemoryHandleDesc:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['type : ' + str(self.type)]
-            str_list += ['handle :\n' + '\n'.join(['    ' + line for line in str(self.handle).splitlines()])]
-            str_list += ['size : ' + str(self.size)]
-            str_list += ['flags : ' + str(self.flags)]
+            try:
+                str_list += ['type : ' + str(self.type)]
+            except ValueError:
+                str_list += ['type : <ValueError>']
+            try:
+                str_list += ['handle :\n' + '\n'.join(['    ' + line for line in str(self.handle).splitlines()])]
+            except ValueError:
+                str_list += ['handle : <ValueError>']
+            try:
+                str_list += ['size : ' + str(self.size)]
+            except ValueError:
+                str_list += ['size : <ValueError>']
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -7794,11 +8438,7 @@ cdef class cudaExternalMemoryHandleDesc:
         return self._handle
     @handle.setter
     def handle(self, handle not None : anon_union1):
-        for _attr in dir(handle):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._handle, _attr, getattr(handle, _attr))
+        memcpy(&self._ptr[0].handle, <ccudart.anon_union1*><void_ptr>handle.getPtr(), sizeof(self._ptr[0].handle))
     @property
     def size(self):
         return self._ptr[0].size
@@ -7847,9 +8487,18 @@ cdef class cudaExternalMemoryBufferDesc:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['offset : ' + str(self.offset)]
-            str_list += ['size : ' + str(self.size)]
-            str_list += ['flags : ' + str(self.flags)]
+            try:
+                str_list += ['offset : ' + str(self.offset)]
+            except ValueError:
+                str_list += ['offset : <ValueError>']
+            try:
+                str_list += ['size : ' + str(self.size)]
+            except ValueError:
+                str_list += ['size : <ValueError>']
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -7914,11 +8563,26 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['offset : ' + str(self.offset)]
-            str_list += ['formatDesc :\n' + '\n'.join(['    ' + line for line in str(self.formatDesc).splitlines()])]
-            str_list += ['extent :\n' + '\n'.join(['    ' + line for line in str(self.extent).splitlines()])]
-            str_list += ['flags : ' + str(self.flags)]
-            str_list += ['numLevels : ' + str(self.numLevels)]
+            try:
+                str_list += ['offset : ' + str(self.offset)]
+            except ValueError:
+                str_list += ['offset : <ValueError>']
+            try:
+                str_list += ['formatDesc :\n' + '\n'.join(['    ' + line for line in str(self.formatDesc).splitlines()])]
+            except ValueError:
+                str_list += ['formatDesc : <ValueError>']
+            try:
+                str_list += ['extent :\n' + '\n'.join(['    ' + line for line in str(self.extent).splitlines()])]
+            except ValueError:
+                str_list += ['extent : <ValueError>']
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            try:
+                str_list += ['numLevels : ' + str(self.numLevels)]
+            except ValueError:
+                str_list += ['numLevels : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -7933,21 +8597,13 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
         return self._formatDesc
     @formatDesc.setter
     def formatDesc(self, formatDesc not None : cudaChannelFormatDesc):
-        for _attr in dir(formatDesc):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._formatDesc, _attr, getattr(formatDesc, _attr))
+        memcpy(&self._ptr[0].formatDesc, <ccudart.cudaChannelFormatDesc*><void_ptr>formatDesc.getPtr(), sizeof(self._ptr[0].formatDesc))
     @property
     def extent(self):
         return self._extent
     @extent.setter
     def extent(self, extent not None : cudaExtent):
-        for _attr in dir(extent):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._extent, _attr, getattr(extent, _attr))
+        memcpy(&self._ptr[0].extent, <ccudart.cudaExtent*><void_ptr>extent.getPtr(), sizeof(self._ptr[0].extent))
     @property
     def flags(self):
         return self._ptr[0].flags
@@ -7986,12 +8642,18 @@ cdef class anon_struct6:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].handle.win32
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['handle : ' + hex(self.handle)]
-            str_list += ['name : ' + hex(self.name)]
+            try:
+                str_list += ['handle : ' + hex(self.handle)]
+            except ValueError:
+                str_list += ['handle : <ValueError>']
+            try:
+                str_list += ['name : ' + hex(self.name)]
+            except ValueError:
+                str_list += ['name : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8037,13 +8699,22 @@ cdef class anon_union2:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].handle
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['fd : ' + str(self.fd)]
-            str_list += ['win32 :\n' + '\n'.join(['    ' + line for line in str(self.win32).splitlines()])]
-            str_list += ['nvSciSyncObj : ' + hex(self.nvSciSyncObj)]
+            try:
+                str_list += ['fd : ' + str(self.fd)]
+            except ValueError:
+                str_list += ['fd : <ValueError>']
+            try:
+                str_list += ['win32 :\n' + '\n'.join(['    ' + line for line in str(self.win32).splitlines()])]
+            except ValueError:
+                str_list += ['win32 : <ValueError>']
+            try:
+                str_list += ['nvSciSyncObj : ' + hex(self.nvSciSyncObj)]
+            except ValueError:
+                str_list += ['nvSciSyncObj : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8058,11 +8729,7 @@ cdef class anon_union2:
         return self._win32
     @win32.setter
     def win32(self, win32 not None : anon_struct6):
-        for _attr in dir(win32):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._win32, _attr, getattr(win32, _attr))
+        memcpy(&self._ptr[0].handle.win32, <ccudart.anon_struct6*><void_ptr>win32.getPtr(), sizeof(self._ptr[0].handle.win32))
     @property
     def nvSciSyncObj(self):
         return <void_ptr>self._ptr[0].handle.nvSciSyncObj
@@ -8106,9 +8773,18 @@ cdef class cudaExternalSemaphoreHandleDesc:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['type : ' + str(self.type)]
-            str_list += ['handle :\n' + '\n'.join(['    ' + line for line in str(self.handle).splitlines()])]
-            str_list += ['flags : ' + str(self.flags)]
+            try:
+                str_list += ['type : ' + str(self.type)]
+            except ValueError:
+                str_list += ['type : <ValueError>']
+            try:
+                str_list += ['handle :\n' + '\n'.join(['    ' + line for line in str(self.handle).splitlines()])]
+            except ValueError:
+                str_list += ['handle : <ValueError>']
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8123,11 +8799,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
         return self._handle
     @handle.setter
     def handle(self, handle not None : anon_union2):
-        for _attr in dir(handle):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._handle, _attr, getattr(handle, _attr))
+        memcpy(&self._ptr[0].handle, <ccudart.anon_union2*><void_ptr>handle.getPtr(), sizeof(self._ptr[0].handle))
     @property
     def flags(self):
         return self._ptr[0].flags
@@ -8158,11 +8830,14 @@ cdef class anon_struct13:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].params.fence
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['value : ' + str(self.value)]
+            try:
+                str_list += ['value : ' + str(self.value)]
+            except ValueError:
+                str_list += ['value : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8198,12 +8873,18 @@ cdef class anon_union5:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].params.nvSciSync
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['fence : ' + hex(self.fence)]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['fence : ' + hex(self.fence)]
+            except ValueError:
+                str_list += ['fence : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8244,11 +8925,14 @@ cdef class anon_struct14:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].params.keyedMutex
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['key : ' + str(self.key)]
+            try:
+                str_list += ['key : ' + str(self.key)]
+            except ValueError:
+                str_list += ['key : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8290,14 +8974,26 @@ cdef class anon_struct15:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].params
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['fence :\n' + '\n'.join(['    ' + line for line in str(self.fence).splitlines()])]
-            str_list += ['nvSciSync :\n' + '\n'.join(['    ' + line for line in str(self.nvSciSync).splitlines()])]
-            str_list += ['keyedMutex :\n' + '\n'.join(['    ' + line for line in str(self.keyedMutex).splitlines()])]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['fence :\n' + '\n'.join(['    ' + line for line in str(self.fence).splitlines()])]
+            except ValueError:
+                str_list += ['fence : <ValueError>']
+            try:
+                str_list += ['nvSciSync :\n' + '\n'.join(['    ' + line for line in str(self.nvSciSync).splitlines()])]
+            except ValueError:
+                str_list += ['nvSciSync : <ValueError>']
+            try:
+                str_list += ['keyedMutex :\n' + '\n'.join(['    ' + line for line in str(self.keyedMutex).splitlines()])]
+            except ValueError:
+                str_list += ['keyedMutex : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8306,31 +9002,19 @@ cdef class anon_struct15:
         return self._fence
     @fence.setter
     def fence(self, fence not None : anon_struct13):
-        for _attr in dir(fence):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._fence, _attr, getattr(fence, _attr))
+        memcpy(&self._ptr[0].params.fence, <ccudart.anon_struct13*><void_ptr>fence.getPtr(), sizeof(self._ptr[0].params.fence))
     @property
     def nvSciSync(self):
         return self._nvSciSync
     @nvSciSync.setter
     def nvSciSync(self, nvSciSync not None : anon_union5):
-        for _attr in dir(nvSciSync):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._nvSciSync, _attr, getattr(nvSciSync, _attr))
+        memcpy(&self._ptr[0].params.nvSciSync, <ccudart.anon_union5*><void_ptr>nvSciSync.getPtr(), sizeof(self._ptr[0].params.nvSciSync))
     @property
     def keyedMutex(self):
         return self._keyedMutex
     @keyedMutex.setter
     def keyedMutex(self, keyedMutex not None : anon_struct14):
-        for _attr in dir(keyedMutex):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._keyedMutex, _attr, getattr(keyedMutex, _attr))
+        memcpy(&self._ptr[0].params.keyedMutex, <ccudart.anon_struct14*><void_ptr>keyedMutex.getPtr(), sizeof(self._ptr[0].params.keyedMutex))
     @property
     def reserved(self):
         return self._ptr[0].params.reserved
@@ -8380,9 +9064,18 @@ cdef class cudaExternalSemaphoreSignalParams:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['params :\n' + '\n'.join(['    ' + line for line in str(self.params).splitlines()])]
-            str_list += ['flags : ' + str(self.flags)]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['params :\n' + '\n'.join(['    ' + line for line in str(self.params).splitlines()])]
+            except ValueError:
+                str_list += ['params : <ValueError>']
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8391,11 +9084,7 @@ cdef class cudaExternalSemaphoreSignalParams:
         return self._params
     @params.setter
     def params(self, params not None : anon_struct15):
-        for _attr in dir(params):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._params, _attr, getattr(params, _attr))
+        memcpy(&self._ptr[0].params, <ccudart.anon_struct15*><void_ptr>params.getPtr(), sizeof(self._ptr[0].params))
     @property
     def flags(self):
         return self._ptr[0].flags
@@ -8432,11 +9121,14 @@ cdef class anon_struct16:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].params.fence
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['value : ' + str(self.value)]
+            try:
+                str_list += ['value : ' + str(self.value)]
+            except ValueError:
+                str_list += ['value : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8472,12 +9164,18 @@ cdef class anon_union6:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].params.nvSciSync
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['fence : ' + hex(self.fence)]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['fence : ' + hex(self.fence)]
+            except ValueError:
+                str_list += ['fence : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8520,12 +9218,18 @@ cdef class anon_struct17:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].params.keyedMutex
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['key : ' + str(self.key)]
-            str_list += ['timeoutMs : ' + str(self.timeoutMs)]
+            try:
+                str_list += ['key : ' + str(self.key)]
+            except ValueError:
+                str_list += ['key : <ValueError>']
+            try:
+                str_list += ['timeoutMs : ' + str(self.timeoutMs)]
+            except ValueError:
+                str_list += ['timeoutMs : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8573,14 +9277,26 @@ cdef class anon_struct18:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].params
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['fence :\n' + '\n'.join(['    ' + line for line in str(self.fence).splitlines()])]
-            str_list += ['nvSciSync :\n' + '\n'.join(['    ' + line for line in str(self.nvSciSync).splitlines()])]
-            str_list += ['keyedMutex :\n' + '\n'.join(['    ' + line for line in str(self.keyedMutex).splitlines()])]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['fence :\n' + '\n'.join(['    ' + line for line in str(self.fence).splitlines()])]
+            except ValueError:
+                str_list += ['fence : <ValueError>']
+            try:
+                str_list += ['nvSciSync :\n' + '\n'.join(['    ' + line for line in str(self.nvSciSync).splitlines()])]
+            except ValueError:
+                str_list += ['nvSciSync : <ValueError>']
+            try:
+                str_list += ['keyedMutex :\n' + '\n'.join(['    ' + line for line in str(self.keyedMutex).splitlines()])]
+            except ValueError:
+                str_list += ['keyedMutex : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8589,31 +9305,19 @@ cdef class anon_struct18:
         return self._fence
     @fence.setter
     def fence(self, fence not None : anon_struct16):
-        for _attr in dir(fence):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._fence, _attr, getattr(fence, _attr))
+        memcpy(&self._ptr[0].params.fence, <ccudart.anon_struct16*><void_ptr>fence.getPtr(), sizeof(self._ptr[0].params.fence))
     @property
     def nvSciSync(self):
         return self._nvSciSync
     @nvSciSync.setter
     def nvSciSync(self, nvSciSync not None : anon_union6):
-        for _attr in dir(nvSciSync):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._nvSciSync, _attr, getattr(nvSciSync, _attr))
+        memcpy(&self._ptr[0].params.nvSciSync, <ccudart.anon_union6*><void_ptr>nvSciSync.getPtr(), sizeof(self._ptr[0].params.nvSciSync))
     @property
     def keyedMutex(self):
         return self._keyedMutex
     @keyedMutex.setter
     def keyedMutex(self, keyedMutex not None : anon_struct17):
-        for _attr in dir(keyedMutex):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._keyedMutex, _attr, getattr(keyedMutex, _attr))
+        memcpy(&self._ptr[0].params.keyedMutex, <ccudart.anon_struct17*><void_ptr>keyedMutex.getPtr(), sizeof(self._ptr[0].params.keyedMutex))
     @property
     def reserved(self):
         return self._ptr[0].params.reserved
@@ -8663,9 +9367,18 @@ cdef class cudaExternalSemaphoreWaitParams:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['params :\n' + '\n'.join(['    ' + line for line in str(self.params).splitlines()])]
-            str_list += ['flags : ' + str(self.flags)]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['params :\n' + '\n'.join(['    ' + line for line in str(self.params).splitlines()])]
+            except ValueError:
+                str_list += ['params : <ValueError>']
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8674,11 +9387,7 @@ cdef class cudaExternalSemaphoreWaitParams:
         return self._params
     @params.setter
     def params(self, params not None : anon_struct18):
-        for _attr in dir(params):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._params, _attr, getattr(params, _attr))
+        memcpy(&self._ptr[0].params, <ccudart.anon_struct18*><void_ptr>params.getPtr(), sizeof(self._ptr[0].params))
     @property
     def flags(self):
         return self._ptr[0].flags
@@ -8734,12 +9443,30 @@ cdef class cudaKernelNodeParams:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['func : ' + hex(self.func)]
-            str_list += ['gridDim :\n' + '\n'.join(['    ' + line for line in str(self.gridDim).splitlines()])]
-            str_list += ['blockDim :\n' + '\n'.join(['    ' + line for line in str(self.blockDim).splitlines()])]
-            str_list += ['sharedMemBytes : ' + str(self.sharedMemBytes)]
-            str_list += ['kernelParams : ' + str(self.kernelParams)]
-            str_list += ['extra : ' + str(self.extra)]
+            try:
+                str_list += ['func : ' + hex(self.func)]
+            except ValueError:
+                str_list += ['func : <ValueError>']
+            try:
+                str_list += ['gridDim :\n' + '\n'.join(['    ' + line for line in str(self.gridDim).splitlines()])]
+            except ValueError:
+                str_list += ['gridDim : <ValueError>']
+            try:
+                str_list += ['blockDim :\n' + '\n'.join(['    ' + line for line in str(self.blockDim).splitlines()])]
+            except ValueError:
+                str_list += ['blockDim : <ValueError>']
+            try:
+                str_list += ['sharedMemBytes : ' + str(self.sharedMemBytes)]
+            except ValueError:
+                str_list += ['sharedMemBytes : <ValueError>']
+            try:
+                str_list += ['kernelParams : ' + str(self.kernelParams)]
+            except ValueError:
+                str_list += ['kernelParams : <ValueError>']
+            try:
+                str_list += ['extra : ' + str(self.extra)]
+            except ValueError:
+                str_list += ['extra : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8755,21 +9482,13 @@ cdef class cudaKernelNodeParams:
         return self._gridDim
     @gridDim.setter
     def gridDim(self, gridDim not None : dim3):
-        for _attr in dir(gridDim):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._gridDim, _attr, getattr(gridDim, _attr))
+        memcpy(&self._ptr[0].gridDim, <ccudart.dim3*><void_ptr>gridDim.getPtr(), sizeof(self._ptr[0].gridDim))
     @property
     def blockDim(self):
         return self._blockDim
     @blockDim.setter
     def blockDim(self, blockDim not None : dim3):
-        for _attr in dir(blockDim):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._blockDim, _attr, getattr(blockDim, _attr))
+        memcpy(&self._ptr[0].blockDim, <ccudart.dim3*><void_ptr>blockDim.getPtr(), sizeof(self._ptr[0].blockDim))
     @property
     def sharedMemBytes(self):
         return self._ptr[0].sharedMemBytes
@@ -8829,9 +9548,18 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['extSemArray : ' + str(self.extSemArray)]
-            str_list += ['paramsArray : ' + str(self.paramsArray)]
-            str_list += ['numExtSems : ' + str(self.numExtSems)]
+            try:
+                str_list += ['extSemArray : ' + str(self.extSemArray)]
+            except ValueError:
+                str_list += ['extSemArray : <ValueError>']
+            try:
+                str_list += ['paramsArray : ' + str(self.paramsArray)]
+            except ValueError:
+                str_list += ['paramsArray : <ValueError>']
+            try:
+                str_list += ['numExtSems : ' + str(self.numExtSems)]
+            except ValueError:
+                str_list += ['numExtSems : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -8923,9 +9651,18 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['extSemArray : ' + str(self.extSemArray)]
-            str_list += ['paramsArray : ' + str(self.paramsArray)]
-            str_list += ['numExtSems : ' + str(self.numExtSems)]
+            try:
+                str_list += ['extSemArray : ' + str(self.extSemArray)]
+            except ValueError:
+                str_list += ['extSemArray : <ValueError>']
+            try:
+                str_list += ['paramsArray : ' + str(self.paramsArray)]
+            except ValueError:
+                str_list += ['paramsArray : <ValueError>']
+            try:
+                str_list += ['numExtSems : ' + str(self.numExtSems)]
+            except ValueError:
+                str_list += ['numExtSems : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9016,10 +9753,22 @@ cdef class cudaGraphInstantiateParams_st:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['flags : ' + str(self.flags)]
-            str_list += ['uploadStream : ' + str(self.uploadStream)]
-            str_list += ['errNode_out : ' + str(self.errNode_out)]
-            str_list += ['result_out : ' + str(self.result_out)]
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            try:
+                str_list += ['uploadStream : ' + str(self.uploadStream)]
+            except ValueError:
+                str_list += ['uploadStream : <ValueError>']
+            try:
+                str_list += ['errNode_out : ' + str(self.errNode_out)]
+            except ValueError:
+                str_list += ['errNode_out : <ValueError>']
+            try:
+                str_list += ['result_out : ' + str(self.result_out)]
+            except ValueError:
+                str_list += ['result_out : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9105,9 +9854,18 @@ cdef class cudaGraphExecUpdateResultInfo_st:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['result : ' + str(self.result)]
-            str_list += ['errorNode : ' + str(self.errorNode)]
-            str_list += ['errorFromNode : ' + str(self.errorFromNode)]
+            try:
+                str_list += ['result : ' + str(self.result)]
+            except ValueError:
+                str_list += ['result : <ValueError>']
+            try:
+                str_list += ['errorNode : ' + str(self.errorNode)]
+            except ValueError:
+                str_list += ['errorNode : <ValueError>']
+            try:
+                str_list += ['errorFromNode : ' + str(self.errorFromNode)]
+            except ValueError:
+                str_list += ['errorFromNode : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9179,8 +9937,14 @@ cdef class cudaLaunchMemSyncDomainMap_st:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['default_ : ' + str(self.default_)]
-            str_list += ['remote : ' + str(self.remote)]
+            try:
+                str_list += ['default_ : ' + str(self.default_)]
+            except ValueError:
+                str_list += ['default_ : <ValueError>']
+            try:
+                str_list += ['remote : ' + str(self.remote)]
+            except ValueError:
+                str_list += ['remote : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9224,13 +9988,22 @@ cdef class anon_struct19:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].clusterDim
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['x : ' + str(self.x)]
-            str_list += ['y : ' + str(self.y)]
-            str_list += ['z : ' + str(self.z)]
+            try:
+                str_list += ['x : ' + str(self.x)]
+            except ValueError:
+                str_list += ['x : <ValueError>']
+            try:
+                str_list += ['y : ' + str(self.y)]
+            except ValueError:
+                str_list += ['y : <ValueError>']
+            try:
+                str_list += ['z : ' + str(self.z)]
+            except ValueError:
+                str_list += ['z : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9280,13 +10053,22 @@ cdef class anon_struct20:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].programmaticEvent
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['event : ' + str(self.event)]
-            str_list += ['flags : ' + str(self.flags)]
-            str_list += ['triggerAtBlockStart : ' + str(self.triggerAtBlockStart)]
+            try:
+                str_list += ['event : ' + str(self.event)]
+            except ValueError:
+                str_list += ['event : <ValueError>']
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            try:
+                str_list += ['triggerAtBlockStart : ' + str(self.triggerAtBlockStart)]
+            except ValueError:
+                str_list += ['triggerAtBlockStart : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9374,17 +10156,50 @@ cdef class cudaLaunchAttributeValue:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['pad : ' + str(self.pad)]
-            str_list += ['accessPolicyWindow :\n' + '\n'.join(['    ' + line for line in str(self.accessPolicyWindow).splitlines()])]
-            str_list += ['cooperative : ' + str(self.cooperative)]
-            str_list += ['syncPolicy : ' + str(self.syncPolicy)]
-            str_list += ['clusterDim :\n' + '\n'.join(['    ' + line for line in str(self.clusterDim).splitlines()])]
-            str_list += ['clusterSchedulingPolicyPreference : ' + str(self.clusterSchedulingPolicyPreference)]
-            str_list += ['programmaticStreamSerializationAllowed : ' + str(self.programmaticStreamSerializationAllowed)]
-            str_list += ['programmaticEvent :\n' + '\n'.join(['    ' + line for line in str(self.programmaticEvent).splitlines()])]
-            str_list += ['priority : ' + str(self.priority)]
-            str_list += ['memSyncDomainMap :\n' + '\n'.join(['    ' + line for line in str(self.memSyncDomainMap).splitlines()])]
-            str_list += ['memSyncDomain : ' + str(self.memSyncDomain)]
+            try:
+                str_list += ['pad : ' + str(self.pad)]
+            except ValueError:
+                str_list += ['pad : <ValueError>']
+            try:
+                str_list += ['accessPolicyWindow :\n' + '\n'.join(['    ' + line for line in str(self.accessPolicyWindow).splitlines()])]
+            except ValueError:
+                str_list += ['accessPolicyWindow : <ValueError>']
+            try:
+                str_list += ['cooperative : ' + str(self.cooperative)]
+            except ValueError:
+                str_list += ['cooperative : <ValueError>']
+            try:
+                str_list += ['syncPolicy : ' + str(self.syncPolicy)]
+            except ValueError:
+                str_list += ['syncPolicy : <ValueError>']
+            try:
+                str_list += ['clusterDim :\n' + '\n'.join(['    ' + line for line in str(self.clusterDim).splitlines()])]
+            except ValueError:
+                str_list += ['clusterDim : <ValueError>']
+            try:
+                str_list += ['clusterSchedulingPolicyPreference : ' + str(self.clusterSchedulingPolicyPreference)]
+            except ValueError:
+                str_list += ['clusterSchedulingPolicyPreference : <ValueError>']
+            try:
+                str_list += ['programmaticStreamSerializationAllowed : ' + str(self.programmaticStreamSerializationAllowed)]
+            except ValueError:
+                str_list += ['programmaticStreamSerializationAllowed : <ValueError>']
+            try:
+                str_list += ['programmaticEvent :\n' + '\n'.join(['    ' + line for line in str(self.programmaticEvent).splitlines()])]
+            except ValueError:
+                str_list += ['programmaticEvent : <ValueError>']
+            try:
+                str_list += ['priority : ' + str(self.priority)]
+            except ValueError:
+                str_list += ['priority : <ValueError>']
+            try:
+                str_list += ['memSyncDomainMap :\n' + '\n'.join(['    ' + line for line in str(self.memSyncDomainMap).splitlines()])]
+            except ValueError:
+                str_list += ['memSyncDomainMap : <ValueError>']
+            try:
+                str_list += ['memSyncDomain : ' + str(self.memSyncDomain)]
+            except ValueError:
+                str_list += ['memSyncDomain : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9410,11 +10225,7 @@ cdef class cudaLaunchAttributeValue:
         return self._accessPolicyWindow
     @accessPolicyWindow.setter
     def accessPolicyWindow(self, accessPolicyWindow not None : cudaAccessPolicyWindow):
-        for _attr in dir(accessPolicyWindow):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._accessPolicyWindow, _attr, getattr(accessPolicyWindow, _attr))
+        memcpy(&self._ptr[0].accessPolicyWindow, <ccudart.cudaAccessPolicyWindow*><void_ptr>accessPolicyWindow.getPtr(), sizeof(self._ptr[0].accessPolicyWindow))
     @property
     def cooperative(self):
         return self._ptr[0].cooperative
@@ -9432,11 +10243,7 @@ cdef class cudaLaunchAttributeValue:
         return self._clusterDim
     @clusterDim.setter
     def clusterDim(self, clusterDim not None : anon_struct19):
-        for _attr in dir(clusterDim):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._clusterDim, _attr, getattr(clusterDim, _attr))
+        memcpy(&self._ptr[0].clusterDim, <ccudart.anon_struct19*><void_ptr>clusterDim.getPtr(), sizeof(self._ptr[0].clusterDim))
     @property
     def clusterSchedulingPolicyPreference(self):
         return cudaClusterSchedulingPolicy(self._ptr[0].clusterSchedulingPolicyPreference)
@@ -9454,11 +10261,7 @@ cdef class cudaLaunchAttributeValue:
         return self._programmaticEvent
     @programmaticEvent.setter
     def programmaticEvent(self, programmaticEvent not None : anon_struct20):
-        for _attr in dir(programmaticEvent):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._programmaticEvent, _attr, getattr(programmaticEvent, _attr))
+        memcpy(&self._ptr[0].programmaticEvent, <ccudart.anon_struct20*><void_ptr>programmaticEvent.getPtr(), sizeof(self._ptr[0].programmaticEvent))
     @property
     def priority(self):
         return self._ptr[0].priority
@@ -9470,11 +10273,7 @@ cdef class cudaLaunchAttributeValue:
         return self._memSyncDomainMap
     @memSyncDomainMap.setter
     def memSyncDomainMap(self, memSyncDomainMap not None : cudaLaunchMemSyncDomainMap):
-        for _attr in dir(memSyncDomainMap):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._memSyncDomainMap, _attr, getattr(memSyncDomainMap, _attr))
+        memcpy(&self._ptr[0].memSyncDomainMap, <ccudart.cudaLaunchMemSyncDomainMap*><void_ptr>memSyncDomainMap.getPtr(), sizeof(self._ptr[0].memSyncDomainMap))
     @property
     def memSyncDomain(self):
         return cudaLaunchMemSyncDomain(self._ptr[0].memSyncDomain)
@@ -9515,8 +10314,14 @@ cdef class cudaLaunchAttribute_st:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['id : ' + str(self.id)]
-            str_list += ['val :\n' + '\n'.join(['    ' + line for line in str(self.val).splitlines()])]
+            try:
+                str_list += ['id : ' + str(self.id)]
+            except ValueError:
+                str_list += ['id : <ValueError>']
+            try:
+                str_list += ['val :\n' + '\n'.join(['    ' + line for line in str(self.val).splitlines()])]
+            except ValueError:
+                str_list += ['val : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9531,11 +10336,7 @@ cdef class cudaLaunchAttribute_st:
         return self._val
     @val.setter
     def val(self, val not None : cudaLaunchAttributeValue):
-        for _attr in dir(val):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._val, _attr, getattr(val, _attr))
+        memcpy(&self._ptr[0].val, <ccudart.cudaLaunchAttributeValue*><void_ptr>val.getPtr(), sizeof(self._ptr[0].val))
 {{endif}}
 {{if 'struct cudaTextureDesc' in found_types}}
 
@@ -9592,19 +10393,58 @@ cdef class cudaTextureDesc:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['addressMode : ' + str(self.addressMode)]
-            str_list += ['filterMode : ' + str(self.filterMode)]
-            str_list += ['readMode : ' + str(self.readMode)]
-            str_list += ['sRGB : ' + str(self.sRGB)]
-            str_list += ['borderColor : ' + str(self.borderColor)]
-            str_list += ['normalizedCoords : ' + str(self.normalizedCoords)]
-            str_list += ['maxAnisotropy : ' + str(self.maxAnisotropy)]
-            str_list += ['mipmapFilterMode : ' + str(self.mipmapFilterMode)]
-            str_list += ['mipmapLevelBias : ' + str(self.mipmapLevelBias)]
-            str_list += ['minMipmapLevelClamp : ' + str(self.minMipmapLevelClamp)]
-            str_list += ['maxMipmapLevelClamp : ' + str(self.maxMipmapLevelClamp)]
-            str_list += ['disableTrilinearOptimization : ' + str(self.disableTrilinearOptimization)]
-            str_list += ['seamlessCubemap : ' + str(self.seamlessCubemap)]
+            try:
+                str_list += ['addressMode : ' + str(self.addressMode)]
+            except ValueError:
+                str_list += ['addressMode : <ValueError>']
+            try:
+                str_list += ['filterMode : ' + str(self.filterMode)]
+            except ValueError:
+                str_list += ['filterMode : <ValueError>']
+            try:
+                str_list += ['readMode : ' + str(self.readMode)]
+            except ValueError:
+                str_list += ['readMode : <ValueError>']
+            try:
+                str_list += ['sRGB : ' + str(self.sRGB)]
+            except ValueError:
+                str_list += ['sRGB : <ValueError>']
+            try:
+                str_list += ['borderColor : ' + str(self.borderColor)]
+            except ValueError:
+                str_list += ['borderColor : <ValueError>']
+            try:
+                str_list += ['normalizedCoords : ' + str(self.normalizedCoords)]
+            except ValueError:
+                str_list += ['normalizedCoords : <ValueError>']
+            try:
+                str_list += ['maxAnisotropy : ' + str(self.maxAnisotropy)]
+            except ValueError:
+                str_list += ['maxAnisotropy : <ValueError>']
+            try:
+                str_list += ['mipmapFilterMode : ' + str(self.mipmapFilterMode)]
+            except ValueError:
+                str_list += ['mipmapFilterMode : <ValueError>']
+            try:
+                str_list += ['mipmapLevelBias : ' + str(self.mipmapLevelBias)]
+            except ValueError:
+                str_list += ['mipmapLevelBias : <ValueError>']
+            try:
+                str_list += ['minMipmapLevelClamp : ' + str(self.minMipmapLevelClamp)]
+            except ValueError:
+                str_list += ['minMipmapLevelClamp : <ValueError>']
+            try:
+                str_list += ['maxMipmapLevelClamp : ' + str(self.maxMipmapLevelClamp)]
+            except ValueError:
+                str_list += ['maxMipmapLevelClamp : <ValueError>']
+            try:
+                str_list += ['disableTrilinearOptimization : ' + str(self.disableTrilinearOptimization)]
+            except ValueError:
+                str_list += ['disableTrilinearOptimization : <ValueError>']
+            try:
+                str_list += ['seamlessCubemap : ' + str(self.seamlessCubemap)]
+            except ValueError:
+                str_list += ['seamlessCubemap : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9731,13 +10571,34 @@ cdef class cudaEglPlaneDesc_st:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['width : ' + str(self.width)]
-            str_list += ['height : ' + str(self.height)]
-            str_list += ['depth : ' + str(self.depth)]
-            str_list += ['pitch : ' + str(self.pitch)]
-            str_list += ['numChannels : ' + str(self.numChannels)]
-            str_list += ['channelDesc :\n' + '\n'.join(['    ' + line for line in str(self.channelDesc).splitlines()])]
-            str_list += ['reserved : ' + str(self.reserved)]
+            try:
+                str_list += ['width : ' + str(self.width)]
+            except ValueError:
+                str_list += ['width : <ValueError>']
+            try:
+                str_list += ['height : ' + str(self.height)]
+            except ValueError:
+                str_list += ['height : <ValueError>']
+            try:
+                str_list += ['depth : ' + str(self.depth)]
+            except ValueError:
+                str_list += ['depth : <ValueError>']
+            try:
+                str_list += ['pitch : ' + str(self.pitch)]
+            except ValueError:
+                str_list += ['pitch : <ValueError>']
+            try:
+                str_list += ['numChannels : ' + str(self.numChannels)]
+            except ValueError:
+                str_list += ['numChannels : <ValueError>']
+            try:
+                str_list += ['channelDesc :\n' + '\n'.join(['    ' + line for line in str(self.channelDesc).splitlines()])]
+            except ValueError:
+                str_list += ['channelDesc : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9776,11 +10637,7 @@ cdef class cudaEglPlaneDesc_st:
         return self._channelDesc
     @channelDesc.setter
     def channelDesc(self, channelDesc not None : cudaChannelFormatDesc):
-        for _attr in dir(channelDesc):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._channelDesc, _attr, getattr(channelDesc, _attr))
+        memcpy(&self._ptr[0].channelDesc, <ccudart.cudaChannelFormatDesc*><void_ptr>channelDesc.getPtr(), sizeof(self._ptr[0].channelDesc))
     @property
     def reserved(self):
         return self._ptr[0].reserved
@@ -9813,12 +10670,18 @@ cdef class anon_union7:
     def __dealloc__(self):
         pass
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>&self._ptr[0].frame
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['pArray : ' + str(self.pArray)]
-            str_list += ['pPitch :\n' + '\n'.join(['    ' + line for line in str(self.pPitch).splitlines()])]
+            try:
+                str_list += ['pArray : ' + str(self.pArray)]
+            except ValueError:
+                str_list += ['pArray : <ValueError>']
+            try:
+                str_list += ['pPitch :\n' + '\n'.join(['    ' + line for line in str(self.pPitch).splitlines()])]
+            except ValueError:
+                str_list += ['pPitch : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9893,11 +10756,26 @@ cdef class cudaEglFrame_st:
     def __repr__(self):
         if self._ptr is not NULL:
             str_list = []
-            str_list += ['frame :\n' + '\n'.join(['    ' + line for line in str(self.frame).splitlines()])]
-            str_list += ['planeDesc :\n' + '\n'.join(['    ' + line for line in str(self.planeDesc).splitlines()])]
-            str_list += ['planeCount : ' + str(self.planeCount)]
-            str_list += ['frameType : ' + str(self.frameType)]
-            str_list += ['eglColorFormat : ' + str(self.eglColorFormat)]
+            try:
+                str_list += ['frame :\n' + '\n'.join(['    ' + line for line in str(self.frame).splitlines()])]
+            except ValueError:
+                str_list += ['frame : <ValueError>']
+            try:
+                str_list += ['planeDesc :\n' + '\n'.join(['    ' + line for line in str(self.planeDesc).splitlines()])]
+            except ValueError:
+                str_list += ['planeDesc : <ValueError>']
+            try:
+                str_list += ['planeCount : ' + str(self.planeCount)]
+            except ValueError:
+                str_list += ['planeCount : <ValueError>']
+            try:
+                str_list += ['frameType : ' + str(self.frameType)]
+            except ValueError:
+                str_list += ['frameType : <ValueError>']
+            try:
+                str_list += ['eglColorFormat : ' + str(self.eglColorFormat)]
+            except ValueError:
+                str_list += ['eglColorFormat : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9906,11 +10784,7 @@ cdef class cudaEglFrame_st:
         return self._frame
     @frame.setter
     def frame(self, frame not None : anon_union7):
-        for _attr in dir(frame):
-            if _attr == 'getPtr':
-                continue
-            if not _attr.startswith('_'):
-                setattr(self._frame, _attr, getattr(frame, _attr))
+        memcpy(&self._ptr[0].frame, <ccudart.anon_union7*><void_ptr>frame.getPtr(), sizeof(self._ptr[0].frame))
     @property
     def planeDesc(self):
         out_planeDesc = [cudaEglPlaneDesc() for _planeDesc in self._ptr[0].planeDesc]
@@ -10313,8 +11187,8 @@ def cudaDeviceSetLimit(limit not None : cudaLimit, size_t value):
       :py:obj:`~.cudaDeviceSetLimit` will return
       :py:obj:`~.cudaErrorMemoryAllocation`, and the limit can be reset to
       a lower value. This limit is only applicable to devices of compute
-      capability 3.5 and higher. Attempting to set this limit on devices of
-      compute capability less than 3.5 will result in the error
+      capability < 9.0. Attempting to set this limit on devices of other
+      compute capability will results in error
       :py:obj:`~.cudaErrorUnsupportedLimit` being returned.
 
     - :py:obj:`~.cudaLimitDevRuntimePendingLaunchCount` controls the
@@ -10370,13 +11244,13 @@ def cudaDeviceSetLimit(limit not None : cudaLimit, size_t value):
 
 @cython.embedsignature(True)
 def cudaDeviceGetLimit(limit not None : cudaLimit):
-    """ Returns resource limits.
+    """ Return resource limits.
 
-    - Returns in `*pValue` the current size of `limit`. The following
-      :py:obj:`~.cudaLimit` values are supported.
+    Returns in `*pValue` the current size of `limit`. The following
+    :py:obj:`~.cudaLimit` values are supported.
 
-    :py:obj:`~.cudaLimitStackSize` is the stack size in bytes of each GPU
-    thread.
+    - :py:obj:`~.cudaLimitStackSize` is the stack size in bytes of each GPU
+      thread.
 
     - :py:obj:`~.cudaLimitPrintfFifoSize` is the size in bytes of the
       shared FIFO used by the :py:obj:`~.printf()` device system call.
@@ -10388,7 +11262,9 @@ def cudaDeviceGetLimit(limit not None : cudaLimit):
     - :py:obj:`~.cudaLimitDevRuntimeSyncDepth` is the maximum grid depth at
       which a thread can isssue the device runtime call
       :py:obj:`~.cudaDeviceSynchronize()` to wait on child grid launches to
-      complete.
+      complete. This functionality is removed for devices of compute
+      capability >= 9.0, and hence will return error
+      :py:obj:`~.cudaErrorUnsupportedLimit` on such devices.
 
     - :py:obj:`~.cudaLimitDevRuntimePendingLaunchCount` is the maximum
       number of outstanding device runtime launches.
@@ -12049,6 +12925,31 @@ def cudaDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, int device, int flags):
     another: a developer may set both these flags that allows to set both
     wait and signal specific attributes in the same `nvSciSyncAttrList`.
 
+    Note that this API updates the input `nvSciSyncAttrList` with values
+    equivalent to the following public attribute key-values:
+    NvSciSyncAttrKey_RequiredPerm is set to
+
+    - NvSciSyncAccessPerm_SignalOnly if :py:obj:`~.cudaNvSciSyncAttrSignal`
+      is set in `flags`.
+
+    - NvSciSyncAccessPerm_WaitOnly if :py:obj:`~.cudaNvSciSyncAttrWait` is
+      set in `flags`.
+
+    - NvSciSyncAccessPerm_WaitSignal if both
+      :py:obj:`~.cudaNvSciSyncAttrWait` and
+      :py:obj:`~.cudaNvSciSyncAttrSignal` are set in `flags`.
+      NvSciSyncAttrKey_PrimitiveInfo is set to
+
+    - NvSciSyncAttrValPrimitiveType_SysmemSemaphore on any valid `device`.
+
+    - NvSciSyncAttrValPrimitiveType_Syncpoint if `device` is a Tegra
+      device.
+
+    - NvSciSyncAttrValPrimitiveType_SysmemSemaphorePayload64b if `device`
+      is GA10X+. NvSciSyncAttrKey_GpuId is set to the same UUID that is
+      returned in `None` from :py:obj:`~.cudaDeviceGetProperties` for this
+      `device`.
+
     :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorDeviceUninitialized`,
     :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidHandle`,
     :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorNotSupported`,
@@ -12619,8 +13520,10 @@ def cudaStreamGetFlags(hStream):
 def cudaStreamGetId(hStream):
     """ Query the Id of a stream.
 
-    Query the Id of a stream. The Id is returned in `streamId`. The stream
-    handle `hStream` can refer to any of the following:
+    Query the Id of a stream. The Id is returned in `streamId`. The Id is
+    unique for the life of the program.
+
+    The stream handle `hStream` can refer to any of the following:
 
     - a stream created via any of the CUDA runtime APIs such as
       :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamCreateWithFlags`
@@ -15805,6 +16708,10 @@ def cudaHostRegister(ptr, size_t size, unsigned int flags):
     amount of memory available to the system for paging. As a result, this
     function is best used sparingly to register staging areas for data
     exchange between host and device.
+
+    On systems where :py:obj:`~.pageableMemoryAccessUsesHostPageTables` is
+    true, :py:obj:`~.cudaHostRegister` will not page-lock the memory range
+    specified by `ptr` but only populate unpopulated pages.
 
     :py:obj:`~.cudaHostRegister` is supported only on I/O coherent devices
     that have a non-zero value for the device attribute
@@ -25434,6 +26341,38 @@ def cudaGetExportTable(pExportTableId : cudaUUID_t):
     return (cudaError_t(err), ppExportTable)
 {{endif}}
 
+{{if 'cudaGetKernel' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGetKernel(entryFuncAddr):
+    """ Get pointer to device kernel that matches entry function `entryFuncAddr`.
+
+    Returns in `kernelPtr` the device kernel corresponding to the entry
+    function `entryFuncAddr`.
+
+    Parameters
+    ----------
+    entryFuncAddr : Any
+        Address of device entry function to search kernel for
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`
+    kernelPtr : :py:obj:`~.cudaKernel_t`
+        Returns the device kernel
+
+    See Also
+    --------
+    cudaGetKernel (C++ API)
+    """
+    cdef cudaKernel_t kernelPtr = cudaKernel_t()
+    centryFuncAddr = utils.HelperInputVoidPtr(entryFuncAddr)
+    cdef void* centryFuncAddr_ptr = <void*><void_ptr>centryFuncAddr.cptr
+    err = ccudart.cudaGetKernel(<ccudart.cudaKernel_t*>kernelPtr._ptr, centryFuncAddr_ptr)
+    return (cudaError_t(err), kernelPtr)
+{{endif}}
+
 {{if 'make_cudaPitchedPtr' in found_functions}}
 
 @cython.embedsignature(True)
@@ -26837,6 +27776,9 @@ def sizeof(objType):
     {{if 'cudaFunction_t' in found_types}}
     if objType == cudaFunction_t:
         return sizeof(ccudart.cudaFunction_t){{endif}}
+    {{if 'cudaKernel_t' in found_types}}
+    if objType == cudaKernel_t:
+        return sizeof(ccudart.cudaKernel_t){{endif}}
     {{if 'cudaMemPool_t' in found_types}}
     if objType == cudaMemPool_t:
         return sizeof(ccudart.cudaMemPool_t){{endif}}

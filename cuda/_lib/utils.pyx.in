@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -527,3 +527,55 @@ cdef class InputVoidPtrPtrHelper:
     @property
     def cptr(self):
         return <void_ptr>self._cptr
+
+{{if 'CUcoredumpSettings_enum' in found_types}}
+
+cdef class HelperCUcoredumpSettings:
+    def __cinit__(self, attr, init_value, is_getter=False):
+        self._is_getter = is_getter
+        self._attrib = attr.value
+        if self._attrib in ({{if 'CU_COREDUMP_FILE' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_FILE,{{endif}}
+                          {{if 'CU_COREDUMP_PIPE' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_PIPE,{{endif}}):
+            if self._is_getter:
+                self._charstar = <char*>callocWrapper(1024, 1)
+                self._cptr = <void*><void_ptr>self._charstar
+                self._size = 1024
+            else:
+                self._charstar = init_value
+                self._cptr = <void*><void_ptr>self._charstar
+                self._size = len(init_value)
+        elif self._attrib in ({{if 'CU_COREDUMP_ENABLE_ON_EXCEPTION' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_ON_EXCEPTION,{{endif}}
+                            {{if 'CU_COREDUMP_TRIGGER_HOST' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_TRIGGER_HOST,{{endif}}
+                            {{if 'CU_COREDUMP_LIGHTWEIGHT' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_LIGHTWEIGHT,{{endif}}
+                            {{if 'CU_COREDUMP_ENABLE_USER_TRIGGER' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_USER_TRIGGER,{{endif}}):
+            if self._is_getter == False:
+                self._bool = init_value
+            
+            self._cptr = <void*>&self._bool
+            self._size = 1
+        else:
+            raise TypeError('Unsupported attribute: {}'.format(attr.name))
+
+    def __dealloc__(self):
+        pass
+
+    @property
+    def cptr(self):
+        return <void_ptr>self._cptr
+
+    def size(self):
+        return self._size
+
+    def pyObj(self):
+        assert(self._is_getter == True)
+        if self._attrib in ({{if 'CU_COREDUMP_FILE' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_FILE,{{endif}}
+                          {{if 'CU_COREDUMP_PIPE' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_PIPE,{{endif}}):
+            return self._charstar
+        elif self._attrib in ({{if 'CU_COREDUMP_ENABLE_ON_EXCEPTION' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_ON_EXCEPTION,{{endif}}
+                            {{if 'CU_COREDUMP_TRIGGER_HOST' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_TRIGGER_HOST,{{endif}}
+                            {{if 'CU_COREDUMP_LIGHTWEIGHT' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_LIGHTWEIGHT,{{endif}}
+                            {{if 'CU_COREDUMP_ENABLE_USER_TRIGGER' in found_values}}ccuda.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_USER_TRIGGER,{{endif}}):
+            return self._bool
+        else:
+            raise TypeError('Unsupported attribute value: {}'.format(self._attrib))
+{{endif}}

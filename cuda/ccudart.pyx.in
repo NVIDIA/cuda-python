@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -371,6 +371,9 @@ cdef const char* cudaGetErrorName(cudaError_t error) nogil except ?NULL:
     {{if 'cudaErrorUnsupportedExecAffinity' in found_values}}
     if error == cudaErrorUnsupportedExecAffinity:
         return "cudaErrorUnsupportedExecAffinity"{{endif}}
+    {{if 'cudaErrorUnsupportedDevSideSync' in found_values}}
+    if error == cudaErrorUnsupportedDevSideSync:
+        return "cudaErrorUnsupportedDevSideSync"{{endif}}
     {{if 'cudaErrorInvalidSource' in found_values}}
     if error == cudaErrorInvalidSource:
         return "cudaErrorInvalidSource"{{endif}}
@@ -2171,6 +2174,13 @@ cdef cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, uns
 
 cdef cudaError_t cudaGetExportTable(const void** ppExportTable, const cudaUUID_t* pExportTableId) nogil except ?cudaErrorCallRequiresNewerDriver:
     return _cudaGetExportTable(ppExportTable, pExportTableId)
+
+{{endif}}
+
+{{if 'cudaGetKernel' in found_functions}}
+
+cdef cudaError_t cudaGetKernel(cudaKernel_t* kernelPtr, const void* entryFuncAddr) nogil except ?cudaErrorCallRequiresNewerDriver:
+    return _cudaGetKernel(kernelPtr, entryFuncAddr)
 
 {{endif}}
 

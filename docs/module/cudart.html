@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/module/cudart.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>cudart - CUDA Python 12.0.0 documentation</title>
+        <title>cudart - CUDA Python 12.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">CUDA Python 12.0.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">CUDA Python 12.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 12.0.0 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.1.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.1.0-notes.html">    12.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.0.0-notes.html">    12.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.8.1-notes.html">    11.8.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.8.0-notes.html">    11.8.0</a></li>
@@ -377,8 +378,8 @@ allocations. If these reservations of device memory fail,
 <a class="reference internal" href="#cuda.cudart.cudaDeviceSetLimit" title="cuda.cudart.cudaDeviceSetLimit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSetLimit</span></code></a> will return
 <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorMemoryAllocation" title="cuda.cudart.cudaError_t.cudaErrorMemoryAllocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorMemoryAllocation</span></code></a>, and the limit can be reset to
 a lower value. This limit is only applicable to devices of compute
-capability 3.5 and higher. Attempting to set this limit on devices of
-compute capability less than 3.5 will result in the error
+capability &lt; 9.0. Attempting to set this limit on devices of other
+compute capability will results in error
 <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorUnsupportedLimit" title="cuda.cudart.cudaError_t.cudaErrorUnsupportedLimit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorUnsupportedLimit</span></code></a> being returned.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitDevRuntimePendingLaunchCount" title="cuda.cudart.cudaLimit.cudaLimitDevRuntimePendingLaunchCount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitDevRuntimePendingLaunchCount</span></code></a> controls the
 maximum number of outstanding device runtime launches that can be
@@ -429,14 +430,12 @@ and it can be ignored or clamped depending on the platform.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceGetLimit">
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetLimit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.cudart.cudaLimit" title="cuda.cudart.cudaLimit"><span class="pre">cudaLimit</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaDeviceGetLimit" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns resource limits.</p>
+<dd><p>Return resource limits.</p>
+<p>Returns in <cite>*pValue</cite> the current size of <cite>limit</cite>. The following
+<a class="reference internal" href="#cuda.cudart.cudaLimit" title="cuda.cudart.cudaLimit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimit</span></code></a> values are supported.</p>
 <ul class="simple">
-<li><p>Returns in <cite>*pValue</cite> the current size of <cite>limit</cite>. The following
-<a class="reference internal" href="#cuda.cudart.cudaLimit" title="cuda.cudart.cudaLimit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimit</span></code></a> values are supported.</p></li>
-</ul>
-<p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitStackSize" title="cuda.cudart.cudaLimit.cudaLimitStackSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitStackSize</span></code></a> is the stack size in bytes of each GPU
-thread.</p>
-<ul class="simple">
+<li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitStackSize" title="cuda.cudart.cudaLimit.cudaLimitStackSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitStackSize</span></code></a> is the stack size in bytes of each GPU
+thread.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitPrintfFifoSize" title="cuda.cudart.cudaLimit.cudaLimitPrintfFifoSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitPrintfFifoSize</span></code></a> is the size in bytes of the
 shared FIFO used by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">printf()</span></code> device system call.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitMallocHeapSize" title="cuda.cudart.cudaLimit.cudaLimitMallocHeapSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitMallocHeapSize</span></code></a> is the size in bytes of the heap
@@ -445,7 +444,9 @@ calls.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitDevRuntimeSyncDepth" title="cuda.cudart.cudaLimit.cudaLimitDevRuntimeSyncDepth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitDevRuntimeSyncDepth</span></code></a> is the maximum grid depth at
 which a thread can isssue the device runtime call
 <a class="reference internal" href="#cuda.cudart.cudaDeviceSynchronize" title="cuda.cudart.cudaDeviceSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code></a> to wait on child grid launches to
-complete.</p></li>
+complete. This functionality is removed for devices of compute
+capability &gt;= 9.0, and hence will return error
+<a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorUnsupportedLimit" title="cuda.cudart.cudaError_t.cudaErrorUnsupportedLimit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorUnsupportedLimit</span></code></a> on such devices.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitDevRuntimePendingLaunchCount" title="cuda.cudart.cudaLimit.cudaLimitDevRuntimePendingLaunchCount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitDevRuntimePendingLaunchCount</span></code></a> is the maximum
 number of outstanding device runtime launches.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaLimit.cudaLimitMaxL2FetchGranularity" title="cuda.cudart.cudaLimit.cudaLimitMaxL2FetchGranularity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitMaxL2FetchGranularity</span></code></a> is the L2 cache fetch
@@ -1615,6 +1616,26 @@ intends to wait on an NvSciSync on this CUDA device.</p></li>
 <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>. Both the flags are orthogonal to one
 another: a developer may set both these flags that allows to set both
 wait and signal specific attributes in the same <cite>nvSciSyncAttrList</cite>.</p>
+<p>Note that this API updates the input <cite>nvSciSyncAttrList</cite> with values
+equivalent to the following public attribute key-values:
+NvSciSyncAttrKey_RequiredPerm is set to</p>
+<ul class="simple">
+<li><p>NvSciSyncAccessPerm_SignalOnly if <a class="reference internal" href="#cuda.cudart.cudaNvSciSyncAttrSignal" title="cuda.cudart.cudaNvSciSyncAttrSignal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaNvSciSyncAttrSignal</span></code></a>
+is set in <cite>flags</cite>.</p></li>
+<li><p>NvSciSyncAccessPerm_WaitOnly if <a class="reference internal" href="#cuda.cudart.cudaNvSciSyncAttrWait" title="cuda.cudart.cudaNvSciSyncAttrWait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaNvSciSyncAttrWait</span></code></a> is
+set in <cite>flags</cite>.</p></li>
+<li><p>NvSciSyncAccessPerm_WaitSignal if both
+<a class="reference internal" href="#cuda.cudart.cudaNvSciSyncAttrWait" title="cuda.cudart.cudaNvSciSyncAttrWait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaNvSciSyncAttrWait</span></code></a> and
+<a class="reference internal" href="#cuda.cudart.cudaNvSciSyncAttrSignal" title="cuda.cudart.cudaNvSciSyncAttrSignal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaNvSciSyncAttrSignal</span></code></a> are set in <cite>flags</cite>.
+NvSciSyncAttrKey_PrimitiveInfo is set to</p></li>
+<li><p>NvSciSyncAttrValPrimitiveType_SysmemSemaphore on any valid <cite>device</cite>.</p></li>
+<li><p>NvSciSyncAttrValPrimitiveType_Syncpoint if <cite>device</cite> is a Tegra
+device.</p></li>
+<li><p>NvSciSyncAttrValPrimitiveType_SysmemSemaphorePayload64b if <cite>device</cite>
+is GA10X+. NvSciSyncAttrKey_GpuId is set to the same UUID that is
+returned in <cite>None</cite> from <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetProperties</span></code> for this
+<cite>device</cite>.</p></li>
+</ul>
 <p><a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorDeviceUninitialized" title="cuda.cudart.cudaError_t.cudaErrorDeviceUninitialized"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorDeviceUninitialized</span></code></a>,
 <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidHandle</span></code>,
 <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidDevice" title="cuda.cudart.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorNotSupported" title="cuda.cudart.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a>,
@@ -2192,8 +2213,9 @@ returned</p></li>
 <dt class="sig sig-object py" id="cuda.cudart.cudaStreamGetId">
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamGetId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hStream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamGetId" title="Permalink to this definition">#</a></dt>
 <dd><p>Query the Id of a stream.</p>
-<p>Query the Id of a stream. The Id is returned in <cite>streamId</cite>. The stream
-handle <cite>hStream</cite> can refer to any of the following:</p>
+<p>Query the Id of a stream. The Id is returned in <cite>streamId</cite>. The Id is
+unique for the life of the program.</p>
+<p>The stream handle <cite>hStream</cite> can refer to any of the following:</p>
 <ul class="simple">
 <li><p>a stream created via any of the CUDA runtime APIs such as
 <a class="reference internal" href="#cuda.cudart.cudaStreamCreate" title="cuda.cudart.cudaStreamCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreate</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamCreateWithFlags" title="cuda.cudart.cudaStreamCreateWithFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags</span></code></a>
@@ -4538,6 +4560,9 @@ amounts of memory may degrade system performance, since it reduces the
 amount of memory available to the system for paging. As a result, this
 function is best used sparingly to register staging areas for data
 exchange between host and device.</p>
+<p>On systems where <a class="reference internal" href="#cuda.cudart.cudaDeviceProp.pageableMemoryAccessUsesHostPageTables" title="cuda.cudart.cudaDeviceProp.pageableMemoryAccessUsesHostPageTables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pageableMemoryAccessUsesHostPageTables</span></code></a> is
+true, <a class="reference internal" href="#cuda.cudart.cudaHostRegister" title="cuda.cudart.cudaHostRegister"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaHostRegister</span></code></a> will not page-lock the memory range
+specified by <cite>ptr</cite> but only populate unpopulated pages.</p>
 <p><a class="reference internal" href="#cuda.cudart.cudaHostRegister" title="cuda.cudart.cudaHostRegister"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaHostRegister</span></code></a> is supported only on I/O coherent devices
 that have a non-zero value for the device attribute
 <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrHostRegisterSupported" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrHostRegisterSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrHostRegisterSupported</span></code></a>.</p>
@@ -14235,6 +14260,16 @@ mipmapped arrays</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaDeviceProp.reserved2">
+<span class="sig-name descname"><span class="pre">reserved2</span></span><a class="headerlink" href="#cuda.cudart.cudaDeviceProp.reserved2" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceProp.reserved">
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.cudart.cudaDeviceProp.reserved" title="Permalink to this definition">#</a></dt>
 <dd><p>Reserved for future use</p>
@@ -18562,7 +18597,7 @@ cudaFuncSetAttribute</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceAttr.cudaDevAttrMax">
-<span class="sig-name descname"><span class="pre">cudaDevAttrMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">127</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrMax" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cudaDevAttrMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">133</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrMax" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -20405,7 +20440,7 @@ cudaLaunchCooperativeKernel).</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceMask">
-<span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceMask</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">31</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceMask" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceMask</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">255</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceMask" title="Permalink to this definition">#</a></dt>
 <dd><p>Device flags mask</p>
 </dd></dl>
 
@@ -20751,7 +20786,7 @@ cudaLaunchCooperativeKernel).</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2022, NVIDIA
+                Copyright &#169; 2021-2023, NVIDIA
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -21429,6 +21464,7 @@ cudaLaunchCooperativeKernel).</p>
 <li><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.ipcEventSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceProp.ipcEventSupported</span></code></a></li>
 <li><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.clusterLaunch"><code class="docutils literal notranslate"><span class="pre">cudaDeviceProp.clusterLaunch</span></code></a></li>
 <li><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.unifiedFunctionPointers"><code class="docutils literal notranslate"><span class="pre">cudaDeviceProp.unifiedFunctionPointers</span></code></a></li>
+<li><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.reserved2"><code class="docutils literal notranslate"><span class="pre">cudaDeviceProp.reserved2</span></code></a></li>
 <li><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.reserved"><code class="docutils literal notranslate"><span class="pre">cudaDeviceProp.reserved</span></code></a></li>
 <li><a class="reference internal" href="#cuda.cudart.cudaDeviceProp.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaDeviceProp.getPtr()</span></code></a></li>
 </ul>

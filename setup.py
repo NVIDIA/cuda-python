@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -16,6 +16,7 @@ import sys
 import sysconfig
 from setuptools import find_packages, setup
 from setuptools.extension import Extension
+from setuptools.command.build_ext import build_ext
 import versioneer
 
 # ----------------------------------------------------------------------
@@ -179,6 +180,7 @@ if sys.platform == 'win32':
 setup_requires = ["cython"]
 install_requires = ["cython"]
 extensions = []
+cmdclass = {}
 
 # ----------------------------------------------------------------------
 # Cythonize
@@ -217,6 +219,25 @@ sources_list = [
 for sources in sources_list:
     extensions += do_cythonize(sources)
 
+# ---------------------------------------------------------------------
+# Custom build_ext command
+# Files are build in two steps:
+# 1) Cythonized (in the do_cythonize() command)
+# 2) Compiled to .o files as part of build_ext
+# This class is solely for passing the value of nthreads to build_ext
+
+class ParallelBuildExtensions(build_ext):
+    def initialize_options(self):
+        build_ext.initialize_options(self)
+        if nthreads > 0:
+            self.parallel = nthreads
+
+    def finalize_options(self):
+        build_ext.finalize_options(self)
+
+cmdclass = {"build_ext": ParallelBuildExtensions}
+cmdclass = versioneer.get_cmdclass(cmdclass)
+
 # ----------------------------------------------------------------------
 # Setup
 
@@ -249,7 +270,7 @@ setup(
         find_packages(include=["cuda", "cuda.*"]),
         ["*.pxd", "*.pyx", "*.h", "*.cpp"],
     ),
-    cmdclass=versioneer.get_cmdclass(),
+    cmdclass=cmdclass,
     install_requires=install_requires,
     zip_safe=False,
 )

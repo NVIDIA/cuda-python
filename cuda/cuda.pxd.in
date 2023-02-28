@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -2516,10 +2516,10 @@ cdef class CUmemAllocationProp_st:
         Location of allocation
     win32HandleMetaData : Any
         Windows-specific POBJECT_ATTRIBUTES required when
-        CU_MEM_HANDLE_TYPE_WIN32 is specified. This object atributes
+        CU_MEM_HANDLE_TYPE_WIN32 is specified. This object attributes
         structure includes security attributes that define the scope of
-        which exported allocations may be tranferred to other processes. In
-        all other cases, this field is required to be zero.
+        which exported allocations may be transferred to other processes.
+        In all other cases, this field is required to be zero.
     allocFlags : anon_struct18
 
 
@@ -2533,6 +2533,35 @@ cdef class CUmemAllocationProp_st:
     cdef ccuda.CUmemAllocationProp_st* _ptr
     cdef CUmemLocation _location
     cdef anon_struct18 _allocFlags
+{{endif}}
+{{if 'struct CUmulticastObjectProp_st' in found_types}}
+
+cdef class CUmulticastObjectProp_st:
+    """
+    Specifies the properties for a multicast object.
+
+    Attributes
+    ----------
+    numDevices : unsigned int
+        The number of devices in the multicast team that will bind memory
+        to this object
+    size : size_t
+        The maximum amount of memory that can be bound to this multicast
+        object per device
+    handleTypes : unsigned long long
+        Bitmask of exportable handle types (see CUmemAllocationHandleType)
+        for this object
+    flags : unsigned long long
+        Flags for future use, must be zero now
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUmulticastObjectProp_st __val
+    cdef ccuda.CUmulticastObjectProp_st* _ptr
 {{endif}}
 {{if 'struct CUmemAccessDesc_st' in found_types}}
 
@@ -2604,7 +2633,7 @@ cdef class CUmemPoolProps_st:
     win32SecurityAttributes : Any
         Windows-specific LPSECURITYATTRIBUTES required when
         CU_MEM_HANDLE_TYPE_WIN32 is specified. This security attribute
-        defines the scope of which exported allocations may be tranferred
+        defines the scope of which exported allocations may be transferred
         to other processes. In all other cases, this field is required to
         be zero.
     reserved : bytes
@@ -5223,10 +5252,10 @@ cdef class CUmemAllocationProp_v1(CUmemAllocationProp_st):
         Location of allocation
     win32HandleMetaData : Any
         Windows-specific POBJECT_ATTRIBUTES required when
-        CU_MEM_HANDLE_TYPE_WIN32 is specified. This object atributes
+        CU_MEM_HANDLE_TYPE_WIN32 is specified. This object attributes
         structure includes security attributes that define the scope of
-        which exported allocations may be tranferred to other processes. In
-        all other cases, this field is required to be zero.
+        which exported allocations may be transferred to other processes.
+        In all other cases, this field is required to be zero.
     allocFlags : anon_struct18
 
 
@@ -5254,12 +5283,68 @@ cdef class CUmemAllocationProp(CUmemAllocationProp_v1):
         Location of allocation
     win32HandleMetaData : Any
         Windows-specific POBJECT_ATTRIBUTES required when
-        CU_MEM_HANDLE_TYPE_WIN32 is specified. This object atributes
+        CU_MEM_HANDLE_TYPE_WIN32 is specified. This object attributes
         structure includes security attributes that define the scope of
-        which exported allocations may be tranferred to other processes. In
-        all other cases, this field is required to be zero.
+        which exported allocations may be transferred to other processes.
+        In all other cases, this field is required to be zero.
     allocFlags : anon_struct18
 
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUmulticastObjectProp_v1' in found_types}}
+
+cdef class CUmulticastObjectProp_v1(CUmulticastObjectProp_st):
+    """
+    Specifies the properties for a multicast object.
+
+    Attributes
+    ----------
+    numDevices : unsigned int
+        The number of devices in the multicast team that will bind memory
+        to this object
+    size : size_t
+        The maximum amount of memory that can be bound to this multicast
+        object per device
+    handleTypes : unsigned long long
+        Bitmask of exportable handle types (see CUmemAllocationHandleType)
+        for this object
+    flags : unsigned long long
+        Flags for future use, must be zero now
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUmulticastObjectProp' in found_types}}
+
+cdef class CUmulticastObjectProp(CUmulticastObjectProp_v1):
+    """
+    Specifies the properties for a multicast object.
+
+    Attributes
+    ----------
+    numDevices : unsigned int
+        The number of devices in the multicast team that will bind memory
+        to this object
+    size : size_t
+        The maximum amount of memory that can be bound to this multicast
+        object per device
+    handleTypes : unsigned long long
+        Bitmask of exportable handle types (see CUmemAllocationHandleType)
+        for this object
+    flags : unsigned long long
+        Flags for future use, must be zero now
 
     Methods
     -------
@@ -5381,7 +5466,7 @@ cdef class CUmemPoolProps_v1(CUmemPoolProps_st):
     win32SecurityAttributes : Any
         Windows-specific LPSECURITYATTRIBUTES required when
         CU_MEM_HANDLE_TYPE_WIN32 is specified. This security attribute
-        defines the scope of which exported allocations may be tranferred
+        defines the scope of which exported allocations may be transferred
         to other processes. In all other cases, this field is required to
         be zero.
     reserved : bytes
@@ -5413,7 +5498,7 @@ cdef class CUmemPoolProps(CUmemPoolProps_v1):
     win32SecurityAttributes : Any
         Windows-specific LPSECURITYATTRIBUTES required when
         CU_MEM_HANDLE_TYPE_WIN32 is specified. This security attribute
-        defines the scope of which exported allocations may be tranferred
+        defines the scope of which exported allocations may be transferred
         to other processes. In all other cases, this field is required to
         be zero.
     reserved : bytes
