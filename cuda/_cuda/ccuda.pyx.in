@@ -427,7 +427,7 @@ cdef int cuPythonInit() nogil except -1:
             {{if 'Windows' == platform.system()}}
             path = 'nvcuda.dll'
             {{else}}
-            path = 'libcuda.so'
+            path = 'libcuda.so.1'
             {{endif}}
 
         {{if 'Windows' == platform.system()}}
@@ -439,7 +439,7 @@ cdef int cuPythonInit() nogil except -1:
         {{else}}
         handle = dlfcn.dlopen(bytes(path, encoding='utf-8'), dlfcn.RTLD_NOW)
         if (handle == NULL):
-            raise RuntimeError('Failed to dlopen libcuda.so')
+            raise RuntimeError('Failed to dlopen ' + path)
         {{endif}}
 
     # Get latest __cuGetProcAddress
