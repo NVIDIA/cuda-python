@@ -522,6 +522,8 @@ cdef class CUstreamMemOpWaitValueParams_st:
 
     address : CUdeviceptr
 
+    value : cuuint32_t
+
     value64 : cuuint64_t
 
     flags : unsigned int
@@ -537,6 +539,7 @@ cdef class CUstreamMemOpWaitValueParams_st:
     """
     cdef ccuda.CUstreamBatchMemOpParams_union* _ptr
     cdef CUdeviceptr _address
+    cdef cuuint32_t _value
     cdef cuuint64_t _value64
     cdef CUdeviceptr _alias
 {{endif}}
@@ -550,6 +553,8 @@ cdef class CUstreamMemOpWriteValueParams_st:
 
     address : CUdeviceptr
 
+    value : cuuint32_t
+
     value64 : cuuint64_t
 
     flags : unsigned int
@@ -565,6 +570,7 @@ cdef class CUstreamMemOpWriteValueParams_st:
     """
     cdef ccuda.CUstreamBatchMemOpParams_union* _ptr
     cdef CUdeviceptr _address
+    cdef cuuint32_t _value
     cdef cuuint64_t _value64
     cdef CUdeviceptr _alias
 {{endif}}
@@ -640,9 +646,9 @@ cdef class CUstreamBatchMemOpParams_union:
     cdef CUstreamMemOpFlushRemoteWritesParams_st _flushRemoteWrites
     cdef CUstreamMemOpMemoryBarrierParams_st _memoryBarrier
 {{endif}}
-{{if 'struct CUDA_BATCH_MEM_OP_NODE_PARAMS_st' in found_types}}
+{{if 'struct CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st' in found_types}}
 
-cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_st:
+cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
     """
     Attributes
     ----------
@@ -661,8 +667,36 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_st __val
-    cdef ccuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_st* _ptr
+    cdef ccuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st __val
+    cdef ccuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st* _ptr
+    cdef CUcontext _ctx
+    cdef size_t _paramArray_length
+    cdef ccuda.CUstreamBatchMemOpParams* _paramArray
+
+{{endif}}
+{{if 'struct CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st' in found_types}}
+
+cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
+    """
+    Attributes
+    ----------
+    ctx : CUcontext
+
+    count : unsigned int
+
+    paramArray : CUstreamBatchMemOpParams
+
+    flags : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st __val
+    cdef ccuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st* _ptr
     cdef CUcontext _ctx
     cdef size_t _paramArray_length
     cdef ccuda.CUstreamBatchMemOpParams* _paramArray
@@ -834,6 +868,54 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v2_st:
     cdef CUkernel _kern
     cdef CUcontext _ctx
 {{endif}}
+{{if 'struct CUDA_KERNEL_NODE_PARAMS_v3_st' in found_types}}
+
+cdef class CUDA_KERNEL_NODE_PARAMS_v3_st:
+    """
+    GPU kernel node parameters
+
+    Attributes
+    ----------
+    func : CUfunction
+        Kernel to launch
+    gridDimX : unsigned int
+        Width of grid in blocks
+    gridDimY : unsigned int
+        Height of grid in blocks
+    gridDimZ : unsigned int
+        Depth of grid in blocks
+    blockDimX : unsigned int
+        X dimension of each thread block
+    blockDimY : unsigned int
+        Y dimension of each thread block
+    blockDimZ : unsigned int
+        Z dimension of each thread block
+    sharedMemBytes : unsigned int
+        Dynamic shared-memory size per thread block in bytes
+    kernelParams : Any
+        Array of pointers to kernel parameters
+    extra : Any
+        Extra options
+    kern : CUkernel
+        Kernel to launch, will only be referenced if func is NULL
+    ctx : CUcontext
+        Context for the kernel task to run in. The value NULL will indicate
+        the current context should be used by the api. This field is
+        ignored if func is set.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_KERNEL_NODE_PARAMS_v3_st __val
+    cdef ccuda.CUDA_KERNEL_NODE_PARAMS_v3_st* _ptr
+    cdef CUfunction _func
+    cdef utils.HelperKernelParams _ckernelParams
+    cdef CUkernel _kern
+    cdef CUcontext _ctx
+{{endif}}
 {{if 'struct CUDA_MEMSET_NODE_PARAMS_st' in found_types}}
 
 cdef class CUDA_MEMSET_NODE_PARAMS_st:
@@ -865,6 +947,40 @@ cdef class CUDA_MEMSET_NODE_PARAMS_st:
     cdef ccuda.CUDA_MEMSET_NODE_PARAMS_st* _ptr
     cdef CUdeviceptr _dst
 {{endif}}
+{{if 'struct CUDA_MEMSET_NODE_PARAMS_v2_st' in found_types}}
+
+cdef class CUDA_MEMSET_NODE_PARAMS_v2_st:
+    """
+    Memset node parameters
+
+    Attributes
+    ----------
+    dst : CUdeviceptr
+        Destination device pointer
+    pitch : size_t
+        Pitch of destination device pointer. Unused if height is 1
+    value : unsigned int
+        Value to be set
+    elementSize : unsigned int
+        Size of each element in bytes. Must be 1, 2, or 4.
+    width : size_t
+        Width of the row in elements
+    height : size_t
+        Number of rows
+    ctx : CUcontext
+        Context on which to run the node
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_MEMSET_NODE_PARAMS_v2_st __val
+    cdef ccuda.CUDA_MEMSET_NODE_PARAMS_v2_st* _ptr
+    cdef CUdeviceptr _dst
+    cdef CUcontext _ctx
+{{endif}}
 {{if 'struct CUDA_HOST_NODE_PARAMS_st' in found_types}}
 
 cdef class CUDA_HOST_NODE_PARAMS_st:
@@ -886,6 +1002,29 @@ cdef class CUDA_HOST_NODE_PARAMS_st:
     """
     cdef ccuda.CUDA_HOST_NODE_PARAMS_st __val
     cdef ccuda.CUDA_HOST_NODE_PARAMS_st* _ptr
+    cdef CUhostFn _fn
+{{endif}}
+{{if 'struct CUDA_HOST_NODE_PARAMS_v2_st' in found_types}}
+
+cdef class CUDA_HOST_NODE_PARAMS_v2_st:
+    """
+    Host node parameters
+
+    Attributes
+    ----------
+    fn : CUhostFn
+        The function to call when the node executes
+    userData : Any
+        Argument to pass to the function
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_HOST_NODE_PARAMS_v2_st __val
+    cdef ccuda.CUDA_HOST_NODE_PARAMS_v2_st* _ptr
     cdef CUhostFn _fn
 {{endif}}
 {{if 'struct CUDA_GRAPH_INSTANTIATE_PARAMS_st' in found_types}}
@@ -1371,6 +1510,34 @@ cdef class CUDA_MEMCPY3D_PEER_st:
     cdef CUdeviceptr _dstDevice
     cdef CUarray _dstArray
     cdef CUcontext _dstContext
+{{endif}}
+{{if 'struct CUDA_MEMCPY_NODE_PARAMS_st' in found_types}}
+
+cdef class CUDA_MEMCPY_NODE_PARAMS_st:
+    """
+    Memcpy node parameters
+
+    Attributes
+    ----------
+    flags : int
+        Must be zero
+    reserved : int
+        Must be zero
+    copyCtx : CUcontext
+        Context on which to run the node
+    copyParams : CUDA_MEMCPY3D
+        Parameters for the memory copy
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_MEMCPY_NODE_PARAMS_st __val
+    cdef ccuda.CUDA_MEMCPY_NODE_PARAMS_st* _ptr
+    cdef CUcontext _copyCtx
+    cdef CUDA_MEMCPY3D _copyParams
 {{endif}}
 {{if 'struct CUDA_ARRAY_DESCRIPTOR_st' in found_types}}
 
@@ -2268,6 +2435,37 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* _paramsArray
 
 {{endif}}
+{{if 'struct CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st' in found_types}}
+
+cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
+    """
+    Semaphore signal node parameters
+
+    Attributes
+    ----------
+    extSemArray : CUexternalSemaphore
+        Array of external semaphore handles.
+    paramsArray : CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS
+        Array of external semaphore signal parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st __val
+    cdef ccuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st* _ptr
+    cdef size_t _extSemArray_length
+    cdef ccuda.CUexternalSemaphore* _extSemArray
+
+    cdef size_t _paramsArray_length
+    cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* _paramsArray
+
+{{endif}}
 {{if 'struct CUDA_EXT_SEM_WAIT_NODE_PARAMS_st' in found_types}}
 
 cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
@@ -2292,6 +2490,37 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
     """
     cdef ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_st __val
     cdef ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_st* _ptr
+    cdef size_t _extSemArray_length
+    cdef ccuda.CUexternalSemaphore* _extSemArray
+
+    cdef size_t _paramsArray_length
+    cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* _paramsArray
+
+{{endif}}
+{{if 'struct CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st' in found_types}}
+
+cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
+    """
+    Semaphore wait node parameters
+
+    Attributes
+    ----------
+    extSemArray : CUexternalSemaphore
+        Array of external semaphore handles.
+    paramsArray : CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS
+        Array of external semaphore wait parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st __val
+    cdef ccuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st* _ptr
     cdef size_t _extSemArray_length
     cdef ccuda.CUexternalSemaphore* _extSemArray
 
@@ -2636,6 +2865,9 @@ cdef class CUmemPoolProps_st:
         defines the scope of which exported allocations may be transferred
         to other processes. In all other cases, this field is required to
         be zero.
+    maxSize : size_t
+        Maximum pool size. When set to 0, defaults to a system dependent
+        value.
     reserved : bytes
         reserved for future use, must be 0
 
@@ -2669,9 +2901,9 @@ cdef class CUmemPoolPtrExportData_st:
     cdef ccuda.CUmemPoolPtrExportData_st __val
     cdef ccuda.CUmemPoolPtrExportData_st* _ptr
 {{endif}}
-{{if 'struct CUDA_MEM_ALLOC_NODE_PARAMS_st' in found_types}}
+{{if 'struct CUDA_MEM_ALLOC_NODE_PARAMS_v1_st' in found_types}}
 
-cdef class CUDA_MEM_ALLOC_NODE_PARAMS_st:
+cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
     """
     Memory allocation node parameters
 
@@ -2698,17 +2930,199 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_st:
         Get memory address of class instance
 
     """
-    cdef ccuda.CUDA_MEM_ALLOC_NODE_PARAMS_st __val
-    cdef ccuda.CUDA_MEM_ALLOC_NODE_PARAMS_st* _ptr
+    cdef ccuda.CUDA_MEM_ALLOC_NODE_PARAMS_v1_st __val
+    cdef ccuda.CUDA_MEM_ALLOC_NODE_PARAMS_v1_st* _ptr
     cdef CUmemPoolProps _poolProps
     cdef size_t _accessDescs_length
     cdef ccuda.CUmemAccessDesc* _accessDescs
 
     cdef CUdeviceptr _dptr
 {{endif}}
+{{if 'struct CUDA_MEM_ALLOC_NODE_PARAMS_v2_st' in found_types}}
+
+cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
+    """
+    Memory allocation node parameters
+
+    Attributes
+    ----------
+    poolProps : CUmemPoolProps
+        in: location where the allocation should reside (specified in
+        ::location). ::handleTypes must be CU_MEM_HANDLE_TYPE_NONE. IPC is
+        not supported.
+    accessDescs : CUmemAccessDesc
+        in: array of memory access descriptors. Used to describe peer GPU
+        access
+    accessDescCount : size_t
+        in: number of memory access descriptors. Must not exceed the number
+        of GPUs.
+    bytesize : size_t
+        in: size in bytes of the requested allocation
+    dptr : CUdeviceptr
+        out: address of the allocation returned by CUDA
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_MEM_ALLOC_NODE_PARAMS_v2_st __val
+    cdef ccuda.CUDA_MEM_ALLOC_NODE_PARAMS_v2_st* _ptr
+    cdef CUmemPoolProps _poolProps
+    cdef size_t _accessDescs_length
+    cdef ccuda.CUmemAccessDesc* _accessDescs
+
+    cdef CUdeviceptr _dptr
+{{endif}}
+{{if 'struct CUDA_MEM_FREE_NODE_PARAMS_st' in found_types}}
+
+cdef class CUDA_MEM_FREE_NODE_PARAMS_st:
+    """
+    Memory free node parameters
+
+    Attributes
+    ----------
+    dptr : CUdeviceptr
+        in: the pointer to free
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_MEM_FREE_NODE_PARAMS_st __val
+    cdef ccuda.CUDA_MEM_FREE_NODE_PARAMS_st* _ptr
+    cdef CUdeviceptr _dptr
+{{endif}}
+{{if 'struct CUDA_CHILD_GRAPH_NODE_PARAMS_st' in found_types}}
+
+cdef class CUDA_CHILD_GRAPH_NODE_PARAMS_st:
+    """
+    Child graph node parameters
+
+    Attributes
+    ----------
+    graph : CUgraph
+        The child graph to clone into the node for node creation, or a
+        handle to the graph owned by the node for node query
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_CHILD_GRAPH_NODE_PARAMS_st __val
+    cdef ccuda.CUDA_CHILD_GRAPH_NODE_PARAMS_st* _ptr
+    cdef CUgraph _graph
+{{endif}}
+{{if 'struct CUDA_EVENT_RECORD_NODE_PARAMS_st' in found_types}}
+
+cdef class CUDA_EVENT_RECORD_NODE_PARAMS_st:
+    """
+    Event record node parameters
+
+    Attributes
+    ----------
+    event : CUevent
+        The event to record when the node executes
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_EVENT_RECORD_NODE_PARAMS_st __val
+    cdef ccuda.CUDA_EVENT_RECORD_NODE_PARAMS_st* _ptr
+    cdef CUevent _event
+{{endif}}
+{{if 'struct CUDA_EVENT_WAIT_NODE_PARAMS_st' in found_types}}
+
+cdef class CUDA_EVENT_WAIT_NODE_PARAMS_st:
+    """
+    Event wait node parameters
+
+    Attributes
+    ----------
+    event : CUevent
+        The event to wait on from the node
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_EVENT_WAIT_NODE_PARAMS_st __val
+    cdef ccuda.CUDA_EVENT_WAIT_NODE_PARAMS_st* _ptr
+    cdef CUevent _event
+{{endif}}
+{{if 'struct CUgraphNodeParams_st' in found_types}}
+
+cdef class CUgraphNodeParams_st:
+    """
+    Attributes
+    ----------
+    type : CUgraphNodeType
+
+    reserved0 : List[int]
+
+    reserved1 : List[long long]
+
+    kernel : CUDA_KERNEL_NODE_PARAMS_v3
+
+    memcpy : CUDA_MEMCPY_NODE_PARAMS
+
+    memset : CUDA_MEMSET_NODE_PARAMS_v2
+
+    host : CUDA_HOST_NODE_PARAMS_v2
+
+    graph : CUDA_CHILD_GRAPH_NODE_PARAMS
+
+    eventWait : CUDA_EVENT_WAIT_NODE_PARAMS
+
+    eventRecord : CUDA_EVENT_RECORD_NODE_PARAMS
+
+    extSemSignal : CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2
+
+    extSemWait : CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2
+
+    alloc : CUDA_MEM_ALLOC_NODE_PARAMS_v2
+
+    free : CUDA_MEM_FREE_NODE_PARAMS
+
+    memOp : CUDA_BATCH_MEM_OP_NODE_PARAMS_v2
+
+    reserved2 : long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUgraphNodeParams_st __val
+    cdef ccuda.CUgraphNodeParams_st* _ptr
+    cdef CUDA_KERNEL_NODE_PARAMS_v3 _kernel
+    cdef CUDA_MEMCPY_NODE_PARAMS _memcpy
+    cdef CUDA_MEMSET_NODE_PARAMS_v2 _memset
+    cdef CUDA_HOST_NODE_PARAMS_v2 _host
+    cdef CUDA_CHILD_GRAPH_NODE_PARAMS _graph
+    cdef CUDA_EVENT_WAIT_NODE_PARAMS _eventWait
+    cdef CUDA_EVENT_RECORD_NODE_PARAMS _eventRecord
+    cdef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2 _extSemSignal
+    cdef CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2 _extSemWait
+    cdef CUDA_MEM_ALLOC_NODE_PARAMS_v2 _alloc
+    cdef CUDA_MEM_FREE_NODE_PARAMS _free
+    cdef CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 _memOp
+{{endif}}
 {{if True}}
 
-cdef class anon_union11:
+cdef class anon_union12:
     """
     Attributes
     ----------
@@ -2735,7 +3149,7 @@ cdef class CUeglFrame_st:
 
     Attributes
     ----------
-    frame : anon_union11
+    frame : anon_union12
 
     width : unsigned int
         Width of first plane
@@ -2764,7 +3178,7 @@ cdef class CUeglFrame_st:
     """
     cdef ccuda.CUeglFrame_st __val
     cdef ccuda.CUeglFrame_st* _ptr
-    cdef anon_union11 _frame
+    cdef anon_union12 _frame
 {{endif}}
 {{if 'CUdeviceptr' in found_types}}
 
@@ -2981,9 +3395,55 @@ cdef class CUstreamBatchMemOpParams(CUstreamBatchMemOpParams_v1):
     """
     pass
 {{endif}}
+{{if 'CUDA_BATCH_MEM_OP_NODE_PARAMS_v1' in found_types}}
+
+cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1(CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st):
+    """
+    Attributes
+    ----------
+    ctx : CUcontext
+
+    count : unsigned int
+
+    paramArray : CUstreamBatchMemOpParams
+
+    flags : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
 {{if 'CUDA_BATCH_MEM_OP_NODE_PARAMS' in found_types}}
 
-cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS(CUDA_BATCH_MEM_OP_NODE_PARAMS_st):
+cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS(CUDA_BATCH_MEM_OP_NODE_PARAMS_v1):
+    """
+    Attributes
+    ----------
+    ctx : CUcontext
+
+    count : unsigned int
+
+    paramArray : CUstreamBatchMemOpParams
+
+    flags : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUDA_BATCH_MEM_OP_NODE_PARAMS_v2' in found_types}}
+
+cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2(CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st):
     """
     Attributes
     ----------
@@ -3279,6 +3739,49 @@ cdef class CUDA_KERNEL_NODE_PARAMS(CUDA_KERNEL_NODE_PARAMS_v2):
     """
     pass
 {{endif}}
+{{if 'CUDA_KERNEL_NODE_PARAMS_v3' in found_types}}
+
+cdef class CUDA_KERNEL_NODE_PARAMS_v3(CUDA_KERNEL_NODE_PARAMS_v3_st):
+    """
+    GPU kernel node parameters
+
+    Attributes
+    ----------
+    func : CUfunction
+        Kernel to launch
+    gridDimX : unsigned int
+        Width of grid in blocks
+    gridDimY : unsigned int
+        Height of grid in blocks
+    gridDimZ : unsigned int
+        Depth of grid in blocks
+    blockDimX : unsigned int
+        X dimension of each thread block
+    blockDimY : unsigned int
+        Y dimension of each thread block
+    blockDimZ : unsigned int
+        Z dimension of each thread block
+    sharedMemBytes : unsigned int
+        Dynamic shared-memory size per thread block in bytes
+    kernelParams : Any
+        Array of pointers to kernel parameters
+    extra : Any
+        Extra options
+    kern : CUkernel
+        Kernel to launch, will only be referenced if func is NULL
+    ctx : CUcontext
+        Context for the kernel task to run in. The value NULL will indicate
+        the current context should be used by the api. This field is
+        ignored if func is set.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
 {{if 'CUDA_MEMSET_NODE_PARAMS_v1' in found_types}}
 
 cdef class CUDA_MEMSET_NODE_PARAMS_v1(CUDA_MEMSET_NODE_PARAMS_st):
@@ -3337,6 +3840,37 @@ cdef class CUDA_MEMSET_NODE_PARAMS(CUDA_MEMSET_NODE_PARAMS_v1):
     """
     pass
 {{endif}}
+{{if 'CUDA_MEMSET_NODE_PARAMS_v2' in found_types}}
+
+cdef class CUDA_MEMSET_NODE_PARAMS_v2(CUDA_MEMSET_NODE_PARAMS_v2_st):
+    """
+    Memset node parameters
+
+    Attributes
+    ----------
+    dst : CUdeviceptr
+        Destination device pointer
+    pitch : size_t
+        Pitch of destination device pointer. Unused if height is 1
+    value : unsigned int
+        Value to be set
+    elementSize : unsigned int
+        Size of each element in bytes. Must be 1, 2, or 4.
+    width : size_t
+        Width of the row in elements
+    height : size_t
+        Number of rows
+    ctx : CUcontext
+        Context on which to run the node
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
 {{if 'CUDA_HOST_NODE_PARAMS_v1' in found_types}}
 
 cdef class CUDA_HOST_NODE_PARAMS_v1(CUDA_HOST_NODE_PARAMS_st):
@@ -3361,6 +3895,27 @@ cdef class CUDA_HOST_NODE_PARAMS_v1(CUDA_HOST_NODE_PARAMS_st):
 {{if 'CUDA_HOST_NODE_PARAMS' in found_types}}
 
 cdef class CUDA_HOST_NODE_PARAMS(CUDA_HOST_NODE_PARAMS_v1):
+    """
+    Host node parameters
+
+    Attributes
+    ----------
+    fn : CUhostFn
+        The function to call when the node executes
+    userData : Any
+        Argument to pass to the function
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUDA_HOST_NODE_PARAMS_v2' in found_types}}
+
+cdef class CUDA_HOST_NODE_PARAMS_v2(CUDA_HOST_NODE_PARAMS_v2_st):
     """
     Host node parameters
 
@@ -4133,6 +4688,31 @@ cdef class CUDA_MEMCPY3D_PEER(CUDA_MEMCPY3D_PEER_v1):
         Height of 3D memory copy
     Depth : size_t
         Depth of 3D memory copy
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUDA_MEMCPY_NODE_PARAMS' in found_types}}
+
+cdef class CUDA_MEMCPY_NODE_PARAMS(CUDA_MEMCPY_NODE_PARAMS_st):
+    """
+    Memcpy node parameters
+
+    Attributes
+    ----------
+    flags : int
+        Must be zero
+    reserved : int
+        Must be zero
+    copyCtx : CUcontext
+        Context on which to run the node
+    copyParams : CUDA_MEMCPY3D
+        Parameters for the memory copy
 
     Methods
     -------
@@ -5052,6 +5632,30 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1):
     """
     pass
 {{endif}}
+{{if 'CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2' in found_types}}
+
+cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st):
+    """
+    Semaphore signal node parameters
+
+    Attributes
+    ----------
+    extSemArray : CUexternalSemaphore
+        Array of external semaphore handles.
+    paramsArray : CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS
+        Array of external semaphore signal parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
 {{if 'CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1' in found_types}}
 
 cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1(CUDA_EXT_SEM_WAIT_NODE_PARAMS_st):
@@ -5079,6 +5683,30 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1(CUDA_EXT_SEM_WAIT_NODE_PARAMS_st):
 {{if 'CUDA_EXT_SEM_WAIT_NODE_PARAMS' in found_types}}
 
 cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS(CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1):
+    """
+    Semaphore wait node parameters
+
+    Attributes
+    ----------
+    extSemArray : CUexternalSemaphore
+        Array of external semaphore handles.
+    paramsArray : CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS
+        Array of external semaphore wait parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2' in found_types}}
+
+cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2(CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st):
     """
     Semaphore wait node parameters
 
@@ -5469,6 +6097,9 @@ cdef class CUmemPoolProps_v1(CUmemPoolProps_st):
         defines the scope of which exported allocations may be transferred
         to other processes. In all other cases, this field is required to
         be zero.
+    maxSize : size_t
+        Maximum pool size. When set to 0, defaults to a system dependent
+        value.
     reserved : bytes
         reserved for future use, must be 0
 
@@ -5501,6 +6132,9 @@ cdef class CUmemPoolProps(CUmemPoolProps_v1):
         defines the scope of which exported allocations may be transferred
         to other processes. In all other cases, this field is required to
         be zero.
+    maxSize : size_t
+        Maximum pool size. When set to 0, defaults to a system dependent
+        value.
     reserved : bytes
         reserved for future use, must be 0
 
@@ -5550,9 +6184,9 @@ cdef class CUmemPoolPtrExportData(CUmemPoolPtrExportData_v1):
     """
     pass
 {{endif}}
-{{if 'CUDA_MEM_ALLOC_NODE_PARAMS' in found_types}}
+{{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v1' in found_types}}
 
-cdef class CUDA_MEM_ALLOC_NODE_PARAMS(CUDA_MEM_ALLOC_NODE_PARAMS_st):
+cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1(CUDA_MEM_ALLOC_NODE_PARAMS_v1_st):
     """
     Memory allocation node parameters
 
@@ -5581,6 +6215,192 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS(CUDA_MEM_ALLOC_NODE_PARAMS_st):
     """
     pass
 {{endif}}
+{{if 'CUDA_MEM_ALLOC_NODE_PARAMS' in found_types}}
+
+cdef class CUDA_MEM_ALLOC_NODE_PARAMS(CUDA_MEM_ALLOC_NODE_PARAMS_v1):
+    """
+    Memory allocation node parameters
+
+    Attributes
+    ----------
+    poolProps : CUmemPoolProps
+        in: location where the allocation should reside (specified in
+        ::location). ::handleTypes must be CU_MEM_HANDLE_TYPE_NONE. IPC is
+        not supported.
+    accessDescs : CUmemAccessDesc
+        in: array of memory access descriptors. Used to describe peer GPU
+        access
+    accessDescCount : size_t
+        in: number of memory access descriptors. Must not exceed the number
+        of GPUs.
+    bytesize : size_t
+        in: size in bytes of the requested allocation
+    dptr : CUdeviceptr
+        out: address of the allocation returned by CUDA
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v2' in found_types}}
+
+cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2(CUDA_MEM_ALLOC_NODE_PARAMS_v2_st):
+    """
+    Memory allocation node parameters
+
+    Attributes
+    ----------
+    poolProps : CUmemPoolProps
+        in: location where the allocation should reside (specified in
+        ::location). ::handleTypes must be CU_MEM_HANDLE_TYPE_NONE. IPC is
+        not supported.
+    accessDescs : CUmemAccessDesc
+        in: array of memory access descriptors. Used to describe peer GPU
+        access
+    accessDescCount : size_t
+        in: number of memory access descriptors. Must not exceed the number
+        of GPUs.
+    bytesize : size_t
+        in: size in bytes of the requested allocation
+    dptr : CUdeviceptr
+        out: address of the allocation returned by CUDA
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUDA_MEM_FREE_NODE_PARAMS' in found_types}}
+
+cdef class CUDA_MEM_FREE_NODE_PARAMS(CUDA_MEM_FREE_NODE_PARAMS_st):
+    """
+    Memory free node parameters
+
+    Attributes
+    ----------
+    dptr : CUdeviceptr
+        in: the pointer to free
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUDA_CHILD_GRAPH_NODE_PARAMS' in found_types}}
+
+cdef class CUDA_CHILD_GRAPH_NODE_PARAMS(CUDA_CHILD_GRAPH_NODE_PARAMS_st):
+    """
+    Child graph node parameters
+
+    Attributes
+    ----------
+    graph : CUgraph
+        The child graph to clone into the node for node creation, or a
+        handle to the graph owned by the node for node query
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUDA_EVENT_RECORD_NODE_PARAMS' in found_types}}
+
+cdef class CUDA_EVENT_RECORD_NODE_PARAMS(CUDA_EVENT_RECORD_NODE_PARAMS_st):
+    """
+    Event record node parameters
+
+    Attributes
+    ----------
+    event : CUevent
+        The event to record when the node executes
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUDA_EVENT_WAIT_NODE_PARAMS' in found_types}}
+
+cdef class CUDA_EVENT_WAIT_NODE_PARAMS(CUDA_EVENT_WAIT_NODE_PARAMS_st):
+    """
+    Event wait node parameters
+
+    Attributes
+    ----------
+    event : CUevent
+        The event to wait on from the node
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUgraphNodeParams' in found_types}}
+
+cdef class CUgraphNodeParams(CUgraphNodeParams_st):
+    """
+    Attributes
+    ----------
+    type : CUgraphNodeType
+
+    reserved0 : List[int]
+
+    reserved1 : List[long long]
+
+    kernel : CUDA_KERNEL_NODE_PARAMS_v3
+
+    memcpy : CUDA_MEMCPY_NODE_PARAMS
+
+    memset : CUDA_MEMSET_NODE_PARAMS_v2
+
+    host : CUDA_HOST_NODE_PARAMS_v2
+
+    graph : CUDA_CHILD_GRAPH_NODE_PARAMS
+
+    eventWait : CUDA_EVENT_WAIT_NODE_PARAMS
+
+    eventRecord : CUDA_EVENT_RECORD_NODE_PARAMS
+
+    extSemSignal : CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2
+
+    extSemWait : CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2
+
+    alloc : CUDA_MEM_ALLOC_NODE_PARAMS_v2
+
+    free : CUDA_MEM_FREE_NODE_PARAMS
+
+    memOp : CUDA_BATCH_MEM_OP_NODE_PARAMS_v2
+
+    reserved2 : long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
 {{if True}}
 
 cdef class CUeglFrame_v1(CUeglFrame_st):
@@ -5591,7 +6411,7 @@ cdef class CUeglFrame_v1(CUeglFrame_st):
 
     Attributes
     ----------
-    frame : anon_union11
+    frame : anon_union12
 
     width : unsigned int
         Width of first plane
@@ -5630,7 +6450,7 @@ cdef class CUeglFrame(CUeglFrame_v1):
 
     Attributes
     ----------
-    frame : anon_union11
+    frame : anon_union12
 
     width : unsigned int
         Width of first plane

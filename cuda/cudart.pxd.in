@@ -460,6 +460,31 @@ cdef class cudaMemcpy3DParms:
     cdef cudaPitchedPtr _dstPtr
     cdef cudaExtent _extent
 {{endif}}
+{{if 'struct cudaMemcpyNodeParams' in found_types}}
+
+cdef class cudaMemcpyNodeParams:
+    """
+    Memcpy node parameters
+
+    Attributes
+    ----------
+    flags : int
+        Must be zero
+    reserved : List[int]
+        Must be zero
+    copyParams : cudaMemcpy3DParms
+        Parameters for the memory copy
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaMemcpyNodeParams __val
+    cdef ccudart.cudaMemcpyNodeParams* _ptr
+    cdef cudaMemcpy3DParms _copyParams
+{{endif}}
 {{if 'struct cudaMemcpy3DPeerParms' in found_types}}
 
 cdef class cudaMemcpy3DPeerParms:
@@ -533,6 +558,36 @@ cdef class cudaMemsetParams:
     cdef ccudart.cudaMemsetParams __val
     cdef ccudart.cudaMemsetParams* _ptr
 {{endif}}
+{{if 'struct cudaMemsetParamsV2' in found_types}}
+
+cdef class cudaMemsetParamsV2:
+    """
+    CUDA Memset node parameters
+
+    Attributes
+    ----------
+    dst : Any
+        Destination device pointer
+    pitch : size_t
+        Pitch of destination device pointer. Unused if height is 1
+    value : unsigned int
+        Value to be set
+    elementSize : unsigned int
+        Size of each element in bytes. Must be 1, 2, or 4.
+    width : size_t
+        Width of the row in elements
+    height : size_t
+        Number of rows
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaMemsetParamsV2 __val
+    cdef ccudart.cudaMemsetParamsV2* _ptr
+{{endif}}
 {{if 'struct cudaAccessPolicyWindow' in found_types}}
 
 cdef class cudaAccessPolicyWindow:
@@ -593,6 +648,29 @@ cdef class cudaHostNodeParams:
     """
     cdef ccudart.cudaHostNodeParams __val
     cdef ccudart.cudaHostNodeParams* _ptr
+    cdef cudaHostFn_t _fn
+{{endif}}
+{{if 'struct cudaHostNodeParamsV2' in found_types}}
+
+cdef class cudaHostNodeParamsV2:
+    """
+    CUDA host node parameters
+
+    Attributes
+    ----------
+    fn : cudaHostFn_t
+        The function to call when the node executes
+    userData : Any
+        Argument to pass to the function
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaHostNodeParamsV2 __val
+    cdef ccudart.cudaHostNodeParamsV2* _ptr
     cdef cudaHostFn_t _fn
 {{endif}}
 {{if 'struct cudaResourceDesc' in found_types}}
@@ -894,7 +972,9 @@ cdef class cudaFuncAttributes:
 cdef class cudaMemLocation:
     """
     Specifies a memory location.  To specify a gpu, set type =
-    cudaMemLocationTypeDevice and set id = the gpu's device ordinal.
+    cudaMemLocationTypeDevice and set id = the gpu's device ordinal. To
+    specify a cpu NUMA node, set type = cudaMemLocationTypeHostNuma and
+    set id = host NUMA node id.
 
     Attributes
     ----------
@@ -956,6 +1036,9 @@ cdef class cudaMemPoolProps:
         defines the scope of which exported allocations may be tranferred
         to other processes. In all other cases, this field is required to
         be zero.
+    maxSize : size_t
+        Maximum pool size. When set to 0, defaults to a system dependent
+        value.
     reserved : bytes
         reserved for future use, must be 0
 
@@ -1024,6 +1107,62 @@ cdef class cudaMemAllocNodeParams:
     cdef size_t _accessDescs_length
     cdef ccudart.cudaMemAccessDesc* _accessDescs
 
+{{endif}}
+{{if 'struct cudaMemAllocNodeParamsV2' in found_types}}
+
+cdef class cudaMemAllocNodeParamsV2:
+    """
+    Memory allocation node parameters
+
+    Attributes
+    ----------
+    poolProps : cudaMemPoolProps
+        in: location where the allocation should reside (specified in
+        ::location). ::handleTypes must be cudaMemHandleTypeNone. IPC is
+        not supported. in: array of memory access descriptors. Used to
+        describe peer GPU access
+    accessDescs : cudaMemAccessDesc
+        in: number of memory access descriptors. Must not exceed the number
+        of GPUs.
+    accessDescCount : size_t
+        in: Number of `accessDescs`s
+    bytesize : size_t
+        in: size in bytes of the requested allocation
+    dptr : Any
+        out: address of the allocation returned by CUDA
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaMemAllocNodeParamsV2 __val
+    cdef ccudart.cudaMemAllocNodeParamsV2* _ptr
+    cdef cudaMemPoolProps _poolProps
+    cdef size_t _accessDescs_length
+    cdef ccudart.cudaMemAccessDesc* _accessDescs
+
+{{endif}}
+{{if 'struct cudaMemFreeNodeParams' in found_types}}
+
+cdef class cudaMemFreeNodeParams:
+    """
+    Memory free node parameters
+
+    Attributes
+    ----------
+    dptr : Any
+        in: the pointer to free
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaMemFreeNodeParams __val
+    cdef ccudart.cudaMemFreeNodeParams* _ptr
 {{endif}}
 {{if 'struct CUuuid_st' in found_types}}
 
@@ -1761,6 +1900,39 @@ cdef class cudaKernelNodeParams:
     cdef dim3 _blockDim
     cdef utils.HelperKernelParams _ckernelParams
 {{endif}}
+{{if 'struct cudaKernelNodeParamsV2' in found_types}}
+
+cdef class cudaKernelNodeParamsV2:
+    """
+    CUDA GPU kernel node parameters
+
+    Attributes
+    ----------
+    func : Any
+        Kernel to launch
+    gridDim : dim3
+        Grid dimensions
+    blockDim : dim3
+        Block dimensions
+    sharedMemBytes : unsigned int
+        Dynamic shared-memory size per thread block in bytes
+    kernelParams : Any
+        Array of pointers to individual kernel arguments
+    extra : Any
+        Pointer to kernel arguments in the "extra" format
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaKernelNodeParamsV2 __val
+    cdef ccudart.cudaKernelNodeParamsV2* _ptr
+    cdef dim3 _gridDim
+    cdef dim3 _blockDim
+    cdef utils.HelperKernelParams _ckernelParams
+{{endif}}
 {{if 'struct cudaExternalSemaphoreSignalNodeParams' in found_types}}
 
 cdef class cudaExternalSemaphoreSignalNodeParams:
@@ -1785,6 +1957,37 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
     """
     cdef ccudart.cudaExternalSemaphoreSignalNodeParams __val
     cdef ccudart.cudaExternalSemaphoreSignalNodeParams* _ptr
+    cdef size_t _extSemArray_length
+    cdef ccudart.cudaExternalSemaphore_t* _extSemArray
+
+    cdef size_t _paramsArray_length
+    cdef ccudart.cudaExternalSemaphoreSignalParams* _paramsArray
+
+{{endif}}
+{{if 'struct cudaExternalSemaphoreSignalNodeParamsV2' in found_types}}
+
+cdef class cudaExternalSemaphoreSignalNodeParamsV2:
+    """
+    External semaphore signal node parameters
+
+    Attributes
+    ----------
+    extSemArray : cudaExternalSemaphore_t
+        Array of external semaphore handles.
+    paramsArray : cudaExternalSemaphoreSignalParams
+        Array of external semaphore signal parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaExternalSemaphoreSignalNodeParamsV2 __val
+    cdef ccudart.cudaExternalSemaphoreSignalNodeParamsV2* _ptr
     cdef size_t _extSemArray_length
     cdef ccudart.cudaExternalSemaphore_t* _extSemArray
 
@@ -1822,6 +2025,158 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     cdef size_t _paramsArray_length
     cdef ccudart.cudaExternalSemaphoreWaitParams* _paramsArray
 
+{{endif}}
+{{if 'struct cudaExternalSemaphoreWaitNodeParamsV2' in found_types}}
+
+cdef class cudaExternalSemaphoreWaitNodeParamsV2:
+    """
+    External semaphore wait node parameters
+
+    Attributes
+    ----------
+    extSemArray : cudaExternalSemaphore_t
+        Array of external semaphore handles.
+    paramsArray : cudaExternalSemaphoreWaitParams
+        Array of external semaphore wait parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaExternalSemaphoreWaitNodeParamsV2 __val
+    cdef ccudart.cudaExternalSemaphoreWaitNodeParamsV2* _ptr
+    cdef size_t _extSemArray_length
+    cdef ccudart.cudaExternalSemaphore_t* _extSemArray
+
+    cdef size_t _paramsArray_length
+    cdef ccudart.cudaExternalSemaphoreWaitParams* _paramsArray
+
+{{endif}}
+{{if 'struct cudaChildGraphNodeParams' in found_types}}
+
+cdef class cudaChildGraphNodeParams:
+    """
+    Child graph node parameters
+
+    Attributes
+    ----------
+    graph : cudaGraph_t
+        The child graph to clone into the node for node creation, or a
+        handle to the graph owned by the node for node query
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaChildGraphNodeParams __val
+    cdef ccudart.cudaChildGraphNodeParams* _ptr
+    cdef cudaGraph_t _graph
+{{endif}}
+{{if 'struct cudaEventRecordNodeParams' in found_types}}
+
+cdef class cudaEventRecordNodeParams:
+    """
+    Event record node parameters
+
+    Attributes
+    ----------
+    event : cudaEvent_t
+        The event to record when the node executes
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaEventRecordNodeParams __val
+    cdef ccudart.cudaEventRecordNodeParams* _ptr
+    cdef cudaEvent_t _event
+{{endif}}
+{{if 'struct cudaEventWaitNodeParams' in found_types}}
+
+cdef class cudaEventWaitNodeParams:
+    """
+    Event wait node parameters
+
+    Attributes
+    ----------
+    event : cudaEvent_t
+        The event to wait on from the node
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaEventWaitNodeParams __val
+    cdef ccudart.cudaEventWaitNodeParams* _ptr
+    cdef cudaEvent_t _event
+{{endif}}
+{{if 'struct cudaGraphNodeParams' in found_types}}
+
+cdef class cudaGraphNodeParams:
+    """
+    Attributes
+    ----------
+    type : cudaGraphNodeType
+
+    reserved0 : List[int]
+
+    reserved1 : List[long long]
+
+    kernel : cudaKernelNodeParamsV2
+
+    memcpy : cudaMemcpyNodeParams
+
+    memset : cudaMemsetParamsV2
+
+    host : cudaHostNodeParamsV2
+
+    graph : cudaChildGraphNodeParams
+
+    eventWait : cudaEventWaitNodeParams
+
+    eventRecord : cudaEventRecordNodeParams
+
+    extSemSignal : cudaExternalSemaphoreSignalNodeParamsV2
+
+    extSemWait : cudaExternalSemaphoreWaitNodeParamsV2
+
+    alloc : cudaMemAllocNodeParamsV2
+
+    free : cudaMemFreeNodeParams
+
+    reserved2 : long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaGraphNodeParams __val
+    cdef ccudart.cudaGraphNodeParams* _ptr
+    cdef cudaKernelNodeParamsV2 _kernel
+    cdef cudaMemcpyNodeParams _memcpy
+    cdef cudaMemsetParamsV2 _memset
+    cdef cudaHostNodeParamsV2 _host
+    cdef cudaChildGraphNodeParams _graph
+    cdef cudaEventWaitNodeParams _eventWait
+    cdef cudaEventRecordNodeParams _eventRecord
+    cdef cudaExternalSemaphoreSignalNodeParamsV2 _extSemSignal
+    cdef cudaExternalSemaphoreWaitNodeParamsV2 _extSemWait
+    cdef cudaMemAllocNodeParamsV2 _alloc
+    cdef cudaMemFreeNodeParams _free
 {{endif}}
 {{if 'struct cudaGraphInstantiateParams_st' in found_types}}
 
@@ -2092,7 +2447,7 @@ cdef class cudaEglPlaneDesc_st:
 {{endif}}
 {{if True}}
 
-cdef class anon_union7:
+cdef class anon_union8:
     """
     Attributes
     ----------
@@ -2124,7 +2479,7 @@ cdef class cudaEglFrame_st:
 
     Attributes
     ----------
-    frame : anon_union7
+    frame : anon_union8
 
     planeDesc : List[cudaEglPlaneDesc]
         CUDA EGL Plane Descriptor cudaEglPlaneDesc
@@ -2143,7 +2498,7 @@ cdef class cudaEglFrame_st:
     """
     cdef ccudart.cudaEglFrame_st __val
     cdef ccudart.cudaEglFrame_st* _ptr
-    cdef anon_union7 _frame
+    cdef anon_union8 _frame
 {{endif}}
 {{if 'CUuuid' in found_types}}
 
@@ -2437,7 +2792,7 @@ cdef class cudaEglFrame(cudaEglFrame_st):
 
     Attributes
     ----------
-    frame : anon_union7
+    frame : anon_union8
 
     planeDesc : List[cudaEglPlaneDesc]
         CUDA EGL Plane Descriptor cudaEglPlaneDesc

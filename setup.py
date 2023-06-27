@@ -101,9 +101,7 @@ for library, header_list in header_dict.items():
     found_values += {key for key in parser.defs['values']}
 
 if len(found_functions) == 0:
-    if pyparsing.__version__ != '2.4.7':
-        raise RuntimeError('Parser found no functions. "pyclibrary" requires "pyparsing==2.4.7".')
-    raise RuntimeError('Parser found no functions. Is CUDA_HOME setup correctly?')
+    raise RuntimeError(f'Parser found no functions. Is CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
 
 # Unwrap struct and union members
 def unwrapMembers(found_dict):

@@ -13,7 +13,15 @@ This section describes the profiler control functions of the CUDA runtime applic
 Device Management
 -----------------
 
-impl_private This section describes the device management functions of the CUDA runtime application programming interface.
+impl_private
+
+
+
+
+
+
+
+This section describes the device management functions of the CUDA runtime application programming interface.
 
 .. autofunction:: cuda.cudart.cudaDeviceReset
 .. autofunction:: cuda.cudart.cudaDeviceSynchronize
@@ -203,7 +211,9 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.cudart.cudaMemset2DAsync
 .. autofunction:: cuda.cudart.cudaMemset3DAsync
 .. autofunction:: cuda.cudart.cudaMemPrefetchAsync
+.. autofunction:: cuda.cudart.cudaMemPrefetchAsync_v2
 .. autofunction:: cuda.cudart.cudaMemAdvise
+.. autofunction:: cuda.cudart.cudaMemAdvise_v2
 .. autofunction:: cuda.cudart.cudaMemRangeGetAttribute
 .. autofunction:: cuda.cudart.cudaMemRangeGetAttributes
 .. autofunction:: cuda.cudart.make_cudaPitchedPtr
@@ -544,6 +554,9 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.cudart.cudaUserObjectRelease
 .. autofunction:: cuda.cudart.cudaGraphRetainUserObject
 .. autofunction:: cuda.cudart.cudaGraphReleaseUserObject
+.. autofunction:: cuda.cudart.cudaGraphAddNode
+.. autofunction:: cuda.cudart.cudaGraphNodeSetParams
+.. autofunction:: cuda.cudart.cudaGraphExecNodeSetParams
 
 Driver Entry Point Access
 -------------------------
@@ -554,12 +567,16 @@ This section describes the driver entry point access functions of CUDA runtime a
 
 C++ API Routines
 ----------------
+C++-style interface built on top of CUDA runtime API.
+impl_private
 
-impl_private This section describes the C++ high level API functions of the CUDA runtime application programming interface. To use these functions, your application needs to be compiled with the ``nvcc``\  compiler.
 
 
 
-C++-style interface built on top of CUDA runtime API
+
+
+
+This section describes the C++ high level API functions of the CUDA runtime application programming interface. To use these functions, your application needs to be compiled with the ``nvcc``\  compiler.
 
 
 Interactions with the CUDA Driver API
@@ -707,6 +724,7 @@ The types ::CUfunction and cudaFunction_t represent the same data type and may b
 
 In order to use a cudaFunction_t in a CUDA Driver API function which takes a ::CUfunction, it is necessary to explicitly cast the cudaFunction_t to a ::CUfunction.
 
+.. autofunction:: cuda.cudart.cudaGetKernel
 
 Data types used by CUDA Runtime
 -------------------------------
@@ -722,10 +740,13 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaExtent
 .. autoclass:: cuda.cudart.cudaPos
 .. autoclass:: cuda.cudart.cudaMemcpy3DParms
+.. autoclass:: cuda.cudart.cudaMemcpyNodeParams
 .. autoclass:: cuda.cudart.cudaMemcpy3DPeerParms
 .. autoclass:: cuda.cudart.cudaMemsetParams
+.. autoclass:: cuda.cudart.cudaMemsetParamsV2
 .. autoclass:: cuda.cudart.cudaAccessPolicyWindow
 .. autoclass:: cuda.cudart.cudaHostNodeParams
+.. autoclass:: cuda.cudart.cudaHostNodeParamsV2
 .. autoclass:: cuda.cudart.cudaResourceDesc
 .. autoclass:: cuda.cudart.cudaResourceViewDesc
 .. autoclass:: cuda.cudart.cudaPointerAttributes
@@ -735,6 +756,8 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaMemPoolProps
 .. autoclass:: cuda.cudart.cudaMemPoolPtrExportData
 .. autoclass:: cuda.cudart.cudaMemAllocNodeParams
+.. autoclass:: cuda.cudart.cudaMemAllocNodeParamsV2
+.. autoclass:: cuda.cudart.cudaMemFreeNodeParams
 .. autoclass:: cuda.cudart.CUuuid_st
 .. autoclass:: cuda.cudart.cudaDeviceProp
 .. autoclass:: cuda.cudart.cudaIpcEventHandle_st
@@ -746,8 +769,15 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreSignalParams
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreWaitParams
 .. autoclass:: cuda.cudart.cudaKernelNodeParams
+.. autoclass:: cuda.cudart.cudaKernelNodeParamsV2
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreSignalNodeParams
+.. autoclass:: cuda.cudart.cudaExternalSemaphoreSignalNodeParamsV2
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreWaitNodeParams
+.. autoclass:: cuda.cudart.cudaExternalSemaphoreWaitNodeParamsV2
+.. autoclass:: cuda.cudart.cudaChildGraphNodeParams
+.. autoclass:: cuda.cudart.cudaEventRecordNodeParams
+.. autoclass:: cuda.cudart.cudaEventWaitNodeParams
+.. autoclass:: cuda.cudart.cudaGraphNodeParams
 .. autoclass:: cuda.cudart.cudaGraphInstantiateParams_st
 .. autoclass:: cuda.cudart.cudaGraphExecUpdateResultInfo_st
 .. autoclass:: cuda.cudart.cudaLaunchMemSyncDomainMap_st
@@ -1458,7 +1488,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorMemoryAllocation
 
 
-        The API call failed because it was unable to allocate enough memory to perform the requested operation.
+        The API call failed because it was unable to allocate enough memory or other resources to perform the requested operation.
 
 
     .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorInitializationError
@@ -1692,7 +1722,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorSyncDepthExceeded
 
 
-        This error indicates that a call to :py:obj:`~.cudaDeviceSynchronize` made from the device runtime failed because the call was made at grid depth greater than than either the default (2 levels of grids) or user specified device limit :py:obj:`~.cudaLimitDevRuntimeSyncDepth`. To be able to synchronize on launched grids at a greater depth successfully, the maximum nested depth at which :py:obj:`~.cudaDeviceSynchronize` will be called must be specified with the :py:obj:`~.cudaLimitDevRuntimeSyncDepth` limit to the :py:obj:`~.cudaDeviceSetLimit` api before the host-side launch of a kernel using the device runtime. Keep in mind that additional levels of sync depth require the runtime to reserve large amounts of device memory that cannot be used for user allocations.
+        This error indicates that a call to :py:obj:`~.cudaDeviceSynchronize` made from the device runtime failed because the call was made at grid depth greater than than either the default (2 levels of grids) or user specified device limit :py:obj:`~.cudaLimitDevRuntimeSyncDepth`. To be able to synchronize on launched grids at a greater depth successfully, the maximum nested depth at which :py:obj:`~.cudaDeviceSynchronize` will be called must be specified with the :py:obj:`~.cudaLimitDevRuntimeSyncDepth` limit to the :py:obj:`~.cudaDeviceSetLimit` api before the host-side launch of a kernel using the device runtime. Keep in mind that additional levels of sync depth require the runtime to reserve large amounts of device memory that cannot be used for user allocations. Note that :py:obj:`~.cudaDeviceSynchronize` made from device runtime is only supported on devices of compute capability < 9.0.
 
 
     .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorLaunchPendingCountExceeded
@@ -1867,6 +1897,12 @@ Data types used by CUDA Runtime
 
 
         This indicates that the provided execution affinity is not supported by the device.
+
+
+    .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorUnsupportedDevSideSync
+
+
+        This indicates that the code to be compiled by the PTX JIT contains unsupported call to cudaDeviceSynchronize.
 
 
     .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorInvalidSource
@@ -3113,6 +3149,30 @@ Data types used by CUDA Runtime
 
         The last location to which the range was prefetched
 
+
+    .. autoattribute:: cuda.cudart.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationType
+
+
+        The preferred location type of the range
+
+
+    .. autoattribute:: cuda.cudart.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationId
+
+
+        The preferred location id of the range
+
+
+    .. autoattribute:: cuda.cudart.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationType
+
+
+        The last location type to which the range was prefetched
+
+
+    .. autoattribute:: cuda.cudart.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationId
+
+
+        The last location id to which the range was prefetched
+
 .. autoclass:: cuda.cudart.cudaFlushGPUDirectRDMAWritesOptions
 
     .. autoattribute:: cuda.cudart.cudaFlushGPUDirectRDMAWritesOptions.cudaFlushGPUDirectRDMAWritesOptionHost
@@ -3869,6 +3929,36 @@ Data types used by CUDA Runtime
         Number of memory synchronization domains the device supports.
 
 
+    .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrReserved127
+
+
+    .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrReserved128
+
+
+    .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrReserved129
+
+
+    .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrNumaConfig
+
+
+        NUMA configuration of a device: value is of type cudaDeviceNumaConfig enum
+
+
+    .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrNumaId
+
+
+        NUMA node ID of the GPU memory
+
+
+    .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrReserved132
+
+
+    .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrHostNumaId
+
+
+        NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
+
+
     .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrMax
 
 .. autoclass:: cuda.cudart.cudaMemPoolAttr
@@ -3929,6 +4019,24 @@ Data types used by CUDA Runtime
 
 
         Location is a device location, thus id is a device ordinal
+
+
+    .. autoattribute:: cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHost
+
+
+        Location is host, id is ignored
+
+
+    .. autoattribute:: cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNuma
+
+
+        Location is a host NUMA node, thus id is a host NUMA node id
+
+
+    .. autoattribute:: cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent
+
+
+        Location is the host NUMA node closest to the current thread's CPU, id is ignored
 
 .. autoclass:: cuda.cudart.cudaMemAccessFlags
 
@@ -4520,6 +4628,19 @@ Data types used by CUDA Runtime
 
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomain
 
+.. autoclass:: cuda.cudart.cudaDeviceNumaConfig
+
+    .. autoattribute:: cuda.cudart.cudaDeviceNumaConfig.cudaDeviceNumaConfigNone
+
+
+        The GPU is not a NUMA node
+
+
+    .. autoattribute:: cuda.cudart.cudaDeviceNumaConfig.cudaDeviceNumaConfigNumaNode
+
+
+        The GPU is a NUMA node, cudaDevAttrNumaId contains its NUMA ID
+
 .. autoclass:: cuda.cudart.cudaSurfaceBoundaryMode
 
     .. autoattribute:: cuda.cudart.cudaSurfaceBoundaryMode.cudaBoundaryModeZero
@@ -4624,6 +4745,7 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaGraphNode_t
 .. autoclass:: cuda.cudart.cudaUserObject_t
 .. autoclass:: cuda.cudart.cudaFunction_t
+.. autoclass:: cuda.cudart.cudaKernel_t
 .. autoclass:: cuda.cudart.cudaMemPool_t
 .. autoclass:: cuda.cudart.cudaGraphExec_t
 .. autoclass:: cuda.cudart.cudaGraphInstantiateParams
@@ -4773,6 +4895,10 @@ Data types used by CUDA Runtime
 
     Device flag - Keep local memory allocation after launch
 
+.. autoattribute:: cuda.cudart.cudaDeviceSyncMemops
+
+    Device flag - Use synchronous behavior for cudaMemcpy/cudaMemset
+
 .. autoattribute:: cuda.cudart.cudaDeviceMask
 
     Device flags mask
@@ -4887,22 +5013,13 @@ Data types used by CUDA Runtime
     When /p flags of :py:obj:`~.cudaDeviceGetNvSciSyncAttributes` is set to this, it indicates that application need waiter specific NvSciSyncAttr to be filled by :py:obj:`~.cudaDeviceGetNvSciSyncAttributes`.
 
 .. autoattribute:: cuda.cudart.cudaStreamAttrID
-
-    Stream Attributes
-
 .. autoattribute:: cuda.cudart.cudaStreamAttributeAccessPolicyWindow
 .. autoattribute:: cuda.cudart.cudaStreamAttributeSynchronizationPolicy
 .. autoattribute:: cuda.cudart.cudaStreamAttributeMemSyncDomainMap
 .. autoattribute:: cuda.cudart.cudaStreamAttributeMemSyncDomain
 .. autoattribute:: cuda.cudart.cudaStreamAttributePriority
 .. autoattribute:: cuda.cudart.cudaStreamAttrValue
-
-    Stream attributes union used with :py:obj:`~.cudaStreamSetAttribute`/:py:obj:`~.cudaStreamGetAttribute`
-
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttrID
-
-    Graph kernel node Attributes
-
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeAccessPolicyWindow
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeCooperative
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributePriority
@@ -4911,9 +5028,6 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeMemSyncDomainMap
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeMemSyncDomain
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttrValue
-
-    Graph kernel node attributes union, used with :py:obj:`~.cudaGraphKernelNodeSetAttribute`/:py:obj:`~.cudaGraphKernelNodeGetAttribute`
-
 .. autoattribute:: cuda.cudart.cudaSurfaceType1D
 .. autoattribute:: cuda.cudart.cudaSurfaceType2D
 .. autoattribute:: cuda.cudart.cudaSurfaceType3D

@@ -36,7 +36,7 @@ cdef bint __cuPythonInit = False
 {{if 'nvrtcAddNameExpression' in found_functions}}cdef void *__nvrtcAddNameExpression = NULL{{endif}}
 {{if 'nvrtcGetLoweredName' in found_functions}}cdef void *__nvrtcGetLoweredName = NULL{{endif}}
 
-cdef int cuPythonInit() nogil except -1:
+cdef int cuPythonInit() except -1 nogil:
     global __cuPythonInit
     if __cuPythonInit:
         return 0
@@ -301,7 +301,7 @@ cdef int cuPythonInit() nogil except -1:
 
 {{if 'nvrtcGetErrorString' in found_functions}}
 
-cdef const char* _nvrtcGetErrorString(nvrtcResult result) nogil except ?NULL:
+cdef const char* _nvrtcGetErrorString(nvrtcResult result) except ?NULL nogil:
     global __nvrtcGetErrorString
     cuPythonInit()
     if __nvrtcGetErrorString == NULL:
@@ -313,7 +313,7 @@ cdef const char* _nvrtcGetErrorString(nvrtcResult result) nogil except ?NULL:
 
 {{if 'nvrtcVersion' in found_functions}}
 
-cdef nvrtcResult _nvrtcVersion(int* major, int* minor) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcVersion
     cuPythonInit()
     if __nvrtcVersion == NULL:
@@ -325,7 +325,7 @@ cdef nvrtcResult _nvrtcVersion(int* major, int* minor) nogil except ?NVRTC_ERROR
 
 {{if 'nvrtcGetNumSupportedArchs' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetNumSupportedArchs
     cuPythonInit()
     if __nvrtcGetNumSupportedArchs == NULL:
@@ -337,7 +337,7 @@ cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) nogil except ?NVRTC_E
 
 {{if 'nvrtcGetSupportedArchs' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetSupportedArchs
     cuPythonInit()
     if __nvrtcGetSupportedArchs == NULL:
@@ -349,7 +349,7 @@ cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) nogil except ?NVRT
 
 {{if 'nvrtcCreateProgram' in found_functions}}
 
-cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcCreateProgram
     cuPythonInit()
     if __nvrtcCreateProgram == NULL:
@@ -361,7 +361,7 @@ cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const 
 
 {{if 'nvrtcDestroyProgram' in found_functions}}
 
-cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcDestroyProgram
     cuPythonInit()
     if __nvrtcDestroyProgram == NULL:
@@ -373,7 +373,7 @@ cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) nogil except ?NVRTC_ER
 
 {{if 'nvrtcCompileProgram' in found_functions}}
 
-cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcCompileProgram
     cuPythonInit()
     if __nvrtcCompileProgram == NULL:
@@ -385,7 +385,7 @@ cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const c
 
 {{if 'nvrtcGetPTXSize' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPTXSize
     cuPythonInit()
     if __nvrtcGetPTXSize == NULL:
@@ -397,7 +397,7 @@ cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) nogil e
 
 {{if 'nvrtcGetPTX' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPTX
     cuPythonInit()
     if __nvrtcGetPTX == NULL:
@@ -409,7 +409,7 @@ cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) nogil except ?NVRTC_
 
 {{if 'nvrtcGetCUBINSize' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetCUBINSize
     cuPythonInit()
     if __nvrtcGetCUBINSize == NULL:
@@ -421,7 +421,7 @@ cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) nog
 
 {{if 'nvrtcGetCUBIN' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetCUBIN
     cuPythonInit()
     if __nvrtcGetCUBIN == NULL:
@@ -433,7 +433,7 @@ cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) nogil except ?NV
 
 {{if 'nvrtcGetNVVMSize' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetNVVMSize(nvrtcProgram prog, size_t* nvvmSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetNVVMSize(nvrtcProgram prog, size_t* nvvmSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetNVVMSize
     cuPythonInit()
     if __nvrtcGetNVVMSize == NULL:
@@ -445,7 +445,7 @@ cdef nvrtcResult _nvrtcGetNVVMSize(nvrtcProgram prog, size_t* nvvmSizeRet) nogil
 
 {{if 'nvrtcGetNVVM' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetNVVM
     cuPythonInit()
     if __nvrtcGetNVVM == NULL:
@@ -457,7 +457,7 @@ cdef nvrtcResult _nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) nogil except ?NVRT
 
 {{if 'nvrtcGetLTOIRSize' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetLTOIRSize
     cuPythonInit()
     if __nvrtcGetLTOIRSize == NULL:
@@ -469,7 +469,7 @@ cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) nog
 
 {{if 'nvrtcGetLTOIR' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetLTOIR
     cuPythonInit()
     if __nvrtcGetLTOIR == NULL:
@@ -481,7 +481,7 @@ cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) nogil except ?NV
 
 {{if 'nvrtcGetOptiXIRSize' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetOptiXIRSize
     cuPythonInit()
     if __nvrtcGetOptiXIRSize == NULL:
@@ -493,7 +493,7 @@ cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet)
 
 {{if 'nvrtcGetOptiXIR' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetOptiXIR
     cuPythonInit()
     if __nvrtcGetOptiXIR == NULL:
@@ -505,7 +505,7 @@ cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) nogil except
 
 {{if 'nvrtcGetProgramLogSize' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetProgramLogSize
     cuPythonInit()
     if __nvrtcGetProgramLogSize == NULL:
@@ -517,7 +517,7 @@ cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) 
 
 {{if 'nvrtcGetProgramLog' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetProgramLog
     cuPythonInit()
     if __nvrtcGetProgramLog == NULL:
@@ -529,7 +529,7 @@ cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) nogil except 
 
 {{if 'nvrtcAddNameExpression' in found_functions}}
 
-cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcAddNameExpression
     cuPythonInit()
     if __nvrtcAddNameExpression == NULL:
@@ -541,7 +541,7 @@ cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_exp
 
 {{if 'nvrtcGetLoweredName' in found_functions}}
 
-cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) nogil except ?NVRTC_ERROR_INVALID_INPUT:
+cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetLoweredName
     cuPythonInit()
     if __nvrtcGetLoweredName == NULL:

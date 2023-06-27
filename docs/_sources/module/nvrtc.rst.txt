@@ -4,8 +4,8 @@ nvrtc
 
 Error Handling
 --------------
-NVRTC defines the following enumeration type and function for API call error handling.
 
+NVRTC defines the following enumeration type and function for API call error handling.
 
 .. autoclass:: cuda.nvrtc.nvrtcResult
 
@@ -44,12 +44,15 @@ NVRTC defines the following enumeration type and function for API call error han
 
     .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR
 
+
+    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED
+
 .. autofunction:: cuda.nvrtc.nvrtcGetErrorString
 
 General Information Query
 -------------------------
-NVRTC defines the following function for general information query.
 
+NVRTC defines the following function for general information query.
 
 .. autofunction:: cuda.nvrtc.nvrtcVersion
 .. autofunction:: cuda.nvrtc.nvrtcGetNumSupportedArchs
@@ -57,8 +60,8 @@ NVRTC defines the following function for general information query.
 
 Compilation
 -----------
-NVRTC defines the following type and functions for actual compilation.
 
+NVRTC defines the following type and functions for actual compilation.
 
 .. autoclass:: cuda.nvrtc.nvrtcProgram
 .. autofunction:: cuda.nvrtc.nvrtcCreateProgram
@@ -81,7 +84,11 @@ NVRTC defines the following type and functions for actual compilation.
 
 Supported Compile Options
 -------------------------
-NVRTC supports the compile options below. Option names with two preceding dashs (`None`) are long option names and option names with one preceding dash (`-`) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (`=`) is used to separate the compile option argument from the compile option name, e.g., `"--gpu-architecture=compute_60"`. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, `"--gpu-architecture"` `"compute_60"`. Single-character short option names, such as `-D`, `-U`, and `-I`, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, `"-D=<def>"`, `"-D<def>"`, and `"-D <def>"` are all supported.
+
+NVRTC supports the compile options below. Option names with two preceding dashs (``--``\ ) are long option names and option names with one preceding dash (``-``\ ) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (``=``\ ) is used to separate the compile option argument from the compile option name, e.g., ``"--gpu-architecture=compute_60"``\ . Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, ``"--gpu-architecture"``\  ``"compute_60"``\ . Single-character short option names, such as ``-D``\ , ``-U``\ , and ``-I``\ , do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, ``"-D=<def>"``\ , ``"-D<def>"``\ , and ``"-D <def>"``\  are all supported.
+
+
+
 The valid compiler options are:
 
 
@@ -216,6 +223,14 @@ The valid compiler options are:
 
 
 
+      - ``compute_90a``\  
+
+
+
+
+
+
+
       - ``sm_50``\  
 
 
@@ -313,6 +328,14 @@ The valid compiler options are:
 
 
       - ``sm_90``\  
+
+
+
+
+
+
+
+      - ``sm_90a``\  
 
 
 
@@ -768,13 +791,21 @@ The valid compiler options are:
 
 
 
+    - Default: ``c++17``\  
+
+
+
+
+
+
+
 
 
   - ``--builtin-move-forward={true|false}``\  (``-builtin-move-forward``\ )
 
 
 
-    Provide builtin definitions of ``std::move``\  and ``std::forward``\ , when C++11 language dialect is selected.
+    Provide builtin definitions of ``std::move``\  and ``std::forward``\ , when C++11 or later language dialect is selected.
 
 
 
@@ -794,7 +825,7 @@ The valid compiler options are:
 
 
 
-    Provide builtin definitions of ``std::initializer_list``\  class and member functions when C++11 language dialect is selected.
+    Provide builtin definitions of ``std::initializer_list``\  class and member functions when C++11 or later language dialect is selected.
 
 
 
@@ -886,26 +917,6 @@ The valid compiler options are:
 
 
 
-  - ``--version-ident={true|false}``\  (``-dQ``\ )
-
-
-
-    Embed used compiler's version info into generated PTX/CUBIN
-
-
-
-
-
-    - Default: ``false``\  
-
-
-
-
-
-
-
-
-
   - ``--display-error-number``\  (``-err-no``\ )
 
 
@@ -959,4 +970,48 @@ The valid compiler options are:
 
 
     Emit warning for specified diagnostic message number(s). Message numbers can be separated by comma.
+
+
+
+
+
+
+
+  - ``--brief-diagnostics={true|false}``\  (``-brief-diag``\ )
+
+
+
+    This option disables or enables showing source line and column info in a diagnostic. The --brief-diagnostics=true will not show the source line and column info.
+
+
+
+
+
+    - Default: ``false``\  
+
+
+
+
+
+
+
+
+
+  - ``--time=<file-name>``\  (``-time``\ )
+
+
+
+    Generate a comma separated value table with the time taken by each compilation phase, and append it at the end of the file given as the option argument. If the file does not exist, the column headings are generated in the first row of the table. If the file name is '-', the timing data is written to the compilation log.
+
+
+
+
+
+
+
+  - ``--split-compile=``\  <number of threads> (``-split-compile=``\  <number of threads>)
+
+
+
+    [Experimental] Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting --split-compile=0. Setting --split-compile=1 will cause this option to be ignored.
 

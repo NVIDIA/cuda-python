@@ -10,7 +10,7 @@ from enum import IntEnum
 import cython
 import ctypes
 from libc.stdlib cimport calloc, free
-from libc.string cimport memcpy
+from libc cimport string
 from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
 from libc.stddef cimport wchar_t
 from libc.limits cimport CHAR_MIN
@@ -36,6 +36,7 @@ ctypedef unsigned long long int32_t_ptr
 ctypedef unsigned long long int64_t_ptr
 ctypedef unsigned long long unsigned_ptr
 ctypedef unsigned long long unsigned_long_long_ptr
+ctypedef unsigned long long long_long_ptr
 ctypedef unsigned long long size_t_ptr
 ctypedef unsigned long long float_ptr
 ctypedef unsigned long long double_ptr
@@ -341,7 +342,7 @@ class cudaError_t(IntEnum):
     {{if 'cudaErrorMemoryAllocation' in found_values}}
 
     #: The API call failed because it was unable to allocate enough memory
-    #: to perform the requested operation.
+    #: or other resources to perform the requested operation.
     cudaErrorMemoryAllocation = ccudart.cudaError.cudaErrorMemoryAllocation{{endif}}
     {{if 'cudaErrorInitializationError' in found_values}}
 
@@ -2662,6 +2663,22 @@ class cudaMemRangeAttribute(IntEnum):
 
     #: The last location to which the range was prefetched
     cudaMemRangeAttributeLastPrefetchLocation = ccudart.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocation{{endif}}
+    {{if 'cudaMemRangeAttributePreferredLocationType' in found_values}}
+
+    #: The preferred location type of the range
+    cudaMemRangeAttributePreferredLocationType = ccudart.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationType{{endif}}
+    {{if 'cudaMemRangeAttributePreferredLocationId' in found_values}}
+
+    #: The preferred location id of the range
+    cudaMemRangeAttributePreferredLocationId = ccudart.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationId{{endif}}
+    {{if 'cudaMemRangeAttributeLastPrefetchLocationType' in found_values}}
+
+    #: The last location type to which the range was prefetched
+    cudaMemRangeAttributeLastPrefetchLocationType = ccudart.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationType{{endif}}
+    {{if 'cudaMemRangeAttributeLastPrefetchLocationId' in found_values}}
+
+    #: The last location id to which the range was prefetched
+    cudaMemRangeAttributeLastPrefetchLocationId = ccudart.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationId{{endif}}
 {{endif}}
 {{if 'cudaFlushGPUDirectRDMAWritesOptions' in found_types}}
 
@@ -3233,8 +3250,22 @@ class cudaDeviceAttr(IntEnum):
     cudaDevAttrReserved128 = ccudart.cudaDeviceAttr.cudaDevAttrReserved128{{endif}}
     {{if 'cudaDevAttrReserved129' in found_values}}
     cudaDevAttrReserved129 = ccudart.cudaDeviceAttr.cudaDevAttrReserved129{{endif}}
+    {{if 'cudaDevAttrNumaConfig' in found_values}}
+
+    #: NUMA configuration of a device: value is of type
+    #: cudaDeviceNumaConfig enum
+    cudaDevAttrNumaConfig = ccudart.cudaDeviceAttr.cudaDevAttrNumaConfig{{endif}}
+    {{if 'cudaDevAttrNumaId' in found_values}}
+
+    #: NUMA node ID of the GPU memory
+    cudaDevAttrNumaId = ccudart.cudaDeviceAttr.cudaDevAttrNumaId{{endif}}
     {{if 'cudaDevAttrReserved132' in found_values}}
     cudaDevAttrReserved132 = ccudart.cudaDeviceAttr.cudaDevAttrReserved132{{endif}}
+    {{if 'cudaDevAttrHostNumaId' in found_values}}
+
+    #: NUMA ID of the host node closest to the device. Returns -1 when
+    #: system does not support NUMA.
+    cudaDevAttrHostNumaId = ccudart.cudaDeviceAttr.cudaDevAttrHostNumaId{{endif}}
     {{if 'cudaDevAttrMax' in found_values}}
     cudaDevAttrMax = ccudart.cudaDeviceAttr.cudaDevAttrMax{{endif}}
 {{endif}}
@@ -3306,6 +3337,19 @@ class cudaMemLocationType(IntEnum):
 
     #: Location is a device location, thus id is a device ordinal
     cudaMemLocationTypeDevice = ccudart.cudaMemLocationType.cudaMemLocationTypeDevice{{endif}}
+    {{if 'cudaMemLocationTypeHost' in found_values}}
+
+    #: Location is host, id is ignored
+    cudaMemLocationTypeHost = ccudart.cudaMemLocationType.cudaMemLocationTypeHost{{endif}}
+    {{if 'cudaMemLocationTypeHostNuma' in found_values}}
+
+    #: Location is a host NUMA node, thus id is a host NUMA node id
+    cudaMemLocationTypeHostNuma = ccudart.cudaMemLocationType.cudaMemLocationTypeHostNuma{{endif}}
+    {{if 'cudaMemLocationTypeHostNumaCurrent' in found_values}}
+
+    #: Location is the host NUMA node closest to the current thread's CPU,
+    #: id is ignored
+    cudaMemLocationTypeHostNumaCurrent = ccudart.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent{{endif}}
 {{endif}}
 {{if 'cudaMemAccessFlags' in found_types}}
 
@@ -3743,6 +3787,21 @@ class cudaGraphInstantiateFlags(IntEnum):
     #: Run the graph using the per-node priority attributes rather than the
     #: priority of the stream it is launched into.
     cudaGraphInstantiateFlagUseNodePriority = ccudart.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagUseNodePriority{{endif}}
+{{endif}}
+{{if 'cudaDeviceNumaConfig' in found_types}}
+
+class cudaDeviceNumaConfig(IntEnum):
+    """
+
+    """
+    {{if 'cudaDeviceNumaConfigNone' in found_values}}
+
+    #: The GPU is not a NUMA node
+    cudaDeviceNumaConfigNone = ccudart.cudaDeviceNumaConfig.cudaDeviceNumaConfigNone{{endif}}
+    {{if 'cudaDeviceNumaConfigNumaNode' in found_values}}
+
+    #: The GPU is a NUMA node, cudaDevAttrNumaId contains its NUMA ID
+    cudaDeviceNumaConfigNumaNode = ccudart.cudaDeviceNumaConfig.cudaDeviceNumaConfigNumaNode{{endif}}
 {{endif}}
 {{if 'cudaSurfaceBoundaryMode' in found_types}}
 
@@ -4709,7 +4768,7 @@ cdef class cudaArraySparseProperties:
         return self._tileExtent
     @tileExtent.setter
     def tileExtent(self, tileExtent not None : anon_struct0):
-        memcpy(&self._ptr[0].tileExtent, <ccudart.anon_struct0*><void_ptr>tileExtent.getPtr(), sizeof(self._ptr[0].tileExtent))
+        string.memcpy(&self._ptr[0].tileExtent, <ccudart.anon_struct0*><void_ptr>tileExtent.getPtr(), sizeof(self._ptr[0].tileExtent))
     @property
     def miptailFirstLevel(self):
         return self._ptr[0].miptailFirstLevel
@@ -5131,13 +5190,13 @@ cdef class cudaMemcpy3DParms:
         return self._srcPos
     @srcPos.setter
     def srcPos(self, srcPos not None : cudaPos):
-        memcpy(&self._ptr[0].srcPos, <ccudart.cudaPos*><void_ptr>srcPos.getPtr(), sizeof(self._ptr[0].srcPos))
+        string.memcpy(&self._ptr[0].srcPos, <ccudart.cudaPos*><void_ptr>srcPos.getPtr(), sizeof(self._ptr[0].srcPos))
     @property
     def srcPtr(self):
         return self._srcPtr
     @srcPtr.setter
     def srcPtr(self, srcPtr not None : cudaPitchedPtr):
-        memcpy(&self._ptr[0].srcPtr, <ccudart.cudaPitchedPtr*><void_ptr>srcPtr.getPtr(), sizeof(self._ptr[0].srcPtr))
+        string.memcpy(&self._ptr[0].srcPtr, <ccudart.cudaPitchedPtr*><void_ptr>srcPtr.getPtr(), sizeof(self._ptr[0].srcPtr))
     @property
     def dstArray(self):
         return self._dstArray
@@ -5158,25 +5217,94 @@ cdef class cudaMemcpy3DParms:
         return self._dstPos
     @dstPos.setter
     def dstPos(self, dstPos not None : cudaPos):
-        memcpy(&self._ptr[0].dstPos, <ccudart.cudaPos*><void_ptr>dstPos.getPtr(), sizeof(self._ptr[0].dstPos))
+        string.memcpy(&self._ptr[0].dstPos, <ccudart.cudaPos*><void_ptr>dstPos.getPtr(), sizeof(self._ptr[0].dstPos))
     @property
     def dstPtr(self):
         return self._dstPtr
     @dstPtr.setter
     def dstPtr(self, dstPtr not None : cudaPitchedPtr):
-        memcpy(&self._ptr[0].dstPtr, <ccudart.cudaPitchedPtr*><void_ptr>dstPtr.getPtr(), sizeof(self._ptr[0].dstPtr))
+        string.memcpy(&self._ptr[0].dstPtr, <ccudart.cudaPitchedPtr*><void_ptr>dstPtr.getPtr(), sizeof(self._ptr[0].dstPtr))
     @property
     def extent(self):
         return self._extent
     @extent.setter
     def extent(self, extent not None : cudaExtent):
-        memcpy(&self._ptr[0].extent, <ccudart.cudaExtent*><void_ptr>extent.getPtr(), sizeof(self._ptr[0].extent))
+        string.memcpy(&self._ptr[0].extent, <ccudart.cudaExtent*><void_ptr>extent.getPtr(), sizeof(self._ptr[0].extent))
     @property
     def kind(self):
         return cudaMemcpyKind(self._ptr[0].kind)
     @kind.setter
     def kind(self, kind not None : cudaMemcpyKind):
         self._ptr[0].kind = kind.value
+{{endif}}
+{{if 'struct cudaMemcpyNodeParams' in found_types}}
+
+cdef class cudaMemcpyNodeParams:
+    """
+    Memcpy node parameters
+
+    Attributes
+    ----------
+    flags : int
+        Must be zero
+    reserved : List[int]
+        Must be zero
+    copyParams : cudaMemcpy3DParms
+        Parameters for the memory copy
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaMemcpyNodeParams *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._copyParams = cudaMemcpy3DParms(_ptr=<void_ptr>&self._ptr[0].copyParams)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
+            try:
+                str_list += ['copyParams :\n' + '\n'.join(['    ' + line for line in str(self.copyParams).splitlines()])]
+            except ValueError:
+                str_list += ['copyParams : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def flags(self):
+        return self._ptr[0].flags
+    @flags.setter
+    def flags(self, int flags):
+        self._ptr[0].flags = flags
+    @property
+    def reserved(self):
+        return self._ptr[0].reserved
+    @reserved.setter
+    def reserved(self, reserved):
+        self._ptr[0].reserved = reserved
+    @property
+    def copyParams(self):
+        return self._copyParams
+    @copyParams.setter
+    def copyParams(self, copyParams not None : cudaMemcpy3DParms):
+        string.memcpy(&self._ptr[0].copyParams, <ccudart.cudaMemcpy3DParms*><void_ptr>copyParams.getPtr(), sizeof(self._ptr[0].copyParams))
 {{endif}}
 {{if 'struct cudaMemcpy3DPeerParms' in found_types}}
 
@@ -5290,13 +5418,13 @@ cdef class cudaMemcpy3DPeerParms:
         return self._srcPos
     @srcPos.setter
     def srcPos(self, srcPos not None : cudaPos):
-        memcpy(&self._ptr[0].srcPos, <ccudart.cudaPos*><void_ptr>srcPos.getPtr(), sizeof(self._ptr[0].srcPos))
+        string.memcpy(&self._ptr[0].srcPos, <ccudart.cudaPos*><void_ptr>srcPos.getPtr(), sizeof(self._ptr[0].srcPos))
     @property
     def srcPtr(self):
         return self._srcPtr
     @srcPtr.setter
     def srcPtr(self, srcPtr not None : cudaPitchedPtr):
-        memcpy(&self._ptr[0].srcPtr, <ccudart.cudaPitchedPtr*><void_ptr>srcPtr.getPtr(), sizeof(self._ptr[0].srcPtr))
+        string.memcpy(&self._ptr[0].srcPtr, <ccudart.cudaPitchedPtr*><void_ptr>srcPtr.getPtr(), sizeof(self._ptr[0].srcPtr))
     @property
     def srcDevice(self):
         return self._ptr[0].srcDevice
@@ -5323,13 +5451,13 @@ cdef class cudaMemcpy3DPeerParms:
         return self._dstPos
     @dstPos.setter
     def dstPos(self, dstPos not None : cudaPos):
-        memcpy(&self._ptr[0].dstPos, <ccudart.cudaPos*><void_ptr>dstPos.getPtr(), sizeof(self._ptr[0].dstPos))
+        string.memcpy(&self._ptr[0].dstPos, <ccudart.cudaPos*><void_ptr>dstPos.getPtr(), sizeof(self._ptr[0].dstPos))
     @property
     def dstPtr(self):
         return self._dstPtr
     @dstPtr.setter
     def dstPtr(self, dstPtr not None : cudaPitchedPtr):
-        memcpy(&self._ptr[0].dstPtr, <ccudart.cudaPitchedPtr*><void_ptr>dstPtr.getPtr(), sizeof(self._ptr[0].dstPtr))
+        string.memcpy(&self._ptr[0].dstPtr, <ccudart.cudaPitchedPtr*><void_ptr>dstPtr.getPtr(), sizeof(self._ptr[0].dstPtr))
     @property
     def dstDevice(self):
         return self._ptr[0].dstDevice
@@ -5341,7 +5469,7 @@ cdef class cudaMemcpy3DPeerParms:
         return self._extent
     @extent.setter
     def extent(self, extent not None : cudaExtent):
-        memcpy(&self._ptr[0].extent, <ccudart.cudaExtent*><void_ptr>extent.getPtr(), sizeof(self._ptr[0].extent))
+        string.memcpy(&self._ptr[0].extent, <ccudart.cudaExtent*><void_ptr>extent.getPtr(), sizeof(self._ptr[0].extent))
 {{endif}}
 {{if 'struct cudaMemsetParams' in found_types}}
 
@@ -5375,6 +5503,112 @@ cdef class cudaMemsetParams:
             self._ptr = &self.__val
         else:
             self._ptr = <ccudart.cudaMemsetParams *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['dst : ' + hex(self.dst)]
+            except ValueError:
+                str_list += ['dst : <ValueError>']
+            try:
+                str_list += ['pitch : ' + str(self.pitch)]
+            except ValueError:
+                str_list += ['pitch : <ValueError>']
+            try:
+                str_list += ['value : ' + str(self.value)]
+            except ValueError:
+                str_list += ['value : <ValueError>']
+            try:
+                str_list += ['elementSize : ' + str(self.elementSize)]
+            except ValueError:
+                str_list += ['elementSize : <ValueError>']
+            try:
+                str_list += ['width : ' + str(self.width)]
+            except ValueError:
+                str_list += ['width : <ValueError>']
+            try:
+                str_list += ['height : ' + str(self.height)]
+            except ValueError:
+                str_list += ['height : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def dst(self):
+        return <void_ptr>self._ptr[0].dst
+    @dst.setter
+    def dst(self, dst):
+        _cdst = utils.HelperInputVoidPtr(dst)
+        self._ptr[0].dst = <void*><void_ptr>_cdst.cptr
+    @property
+    def pitch(self):
+        return self._ptr[0].pitch
+    @pitch.setter
+    def pitch(self, size_t pitch):
+        self._ptr[0].pitch = pitch
+    @property
+    def value(self):
+        return self._ptr[0].value
+    @value.setter
+    def value(self, unsigned int value):
+        self._ptr[0].value = value
+    @property
+    def elementSize(self):
+        return self._ptr[0].elementSize
+    @elementSize.setter
+    def elementSize(self, unsigned int elementSize):
+        self._ptr[0].elementSize = elementSize
+    @property
+    def width(self):
+        return self._ptr[0].width
+    @width.setter
+    def width(self, size_t width):
+        self._ptr[0].width = width
+    @property
+    def height(self):
+        return self._ptr[0].height
+    @height.setter
+    def height(self, size_t height):
+        self._ptr[0].height = height
+{{endif}}
+{{if 'struct cudaMemsetParamsV2' in found_types}}
+
+cdef class cudaMemsetParamsV2:
+    """
+    CUDA Memset node parameters
+
+    Attributes
+    ----------
+    dst : Any
+        Destination device pointer
+    pitch : size_t
+        Pitch of destination device pointer. Unused if height is 1
+    value : unsigned int
+        Value to be set
+    elementSize : unsigned int
+        Size of each element in bytes. Must be 1, 2, or 4.
+    width : size_t
+        Width of the row in elements
+    height : size_t
+        Number of rows
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaMemsetParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
@@ -5621,6 +5855,73 @@ cdef class cudaHostNodeParams:
         _cuserData = utils.HelperInputVoidPtr(userData)
         self._ptr[0].userData = <void*><void_ptr>_cuserData.cptr
 {{endif}}
+{{if 'struct cudaHostNodeParamsV2' in found_types}}
+
+cdef class cudaHostNodeParamsV2:
+    """
+    CUDA host node parameters
+
+    Attributes
+    ----------
+    fn : cudaHostFn_t
+        The function to call when the node executes
+    userData : Any
+        Argument to pass to the function
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaHostNodeParamsV2 *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._fn = cudaHostFn_t(_ptr=<void_ptr>&self._ptr[0].fn)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['fn : ' + str(self.fn)]
+            except ValueError:
+                str_list += ['fn : <ValueError>']
+            try:
+                str_list += ['userData : ' + hex(self.userData)]
+            except ValueError:
+                str_list += ['userData : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def fn(self):
+        return self._fn
+    @fn.setter
+    def fn(self, fn):
+        cdef ccudart.cudaHostFn_t cfn
+        if fn is None:
+            cfn = <ccudart.cudaHostFn_t><void_ptr>0
+        elif isinstance(fn, (cudaHostFn_t)):
+            pfn = int(fn)
+            cfn = <ccudart.cudaHostFn_t><void_ptr>pfn
+        else:
+            pfn = int(cudaHostFn_t(fn))
+            cfn = <ccudart.cudaHostFn_t><void_ptr>pfn
+        self._fn._ptr[0] = cfn
+    @property
+    def userData(self):
+        return <void_ptr>self._ptr[0].userData
+    @userData.setter
+    def userData(self, userData):
+        _cuserData = utils.HelperInputVoidPtr(userData)
+        self._ptr[0].userData = <void*><void_ptr>_cuserData.cptr
+{{endif}}
 {{if 'struct cudaResourceDesc' in found_types}}
 
 cdef class anon_struct1:
@@ -5779,7 +6080,7 @@ cdef class anon_struct3:
         return self._desc
     @desc.setter
     def desc(self, desc not None : cudaChannelFormatDesc):
-        memcpy(&self._ptr[0].res.linear.desc, <ccudart.cudaChannelFormatDesc*><void_ptr>desc.getPtr(), sizeof(self._ptr[0].res.linear.desc))
+        string.memcpy(&self._ptr[0].res.linear.desc, <ccudart.cudaChannelFormatDesc*><void_ptr>desc.getPtr(), sizeof(self._ptr[0].res.linear.desc))
     @property
     def sizeInBytes(self):
         return self._ptr[0].res.linear.sizeInBytes
@@ -5857,7 +6158,7 @@ cdef class anon_struct4:
         return self._desc
     @desc.setter
     def desc(self, desc not None : cudaChannelFormatDesc):
-        memcpy(&self._ptr[0].res.pitch2D.desc, <ccudart.cudaChannelFormatDesc*><void_ptr>desc.getPtr(), sizeof(self._ptr[0].res.pitch2D.desc))
+        string.memcpy(&self._ptr[0].res.pitch2D.desc, <ccudart.cudaChannelFormatDesc*><void_ptr>desc.getPtr(), sizeof(self._ptr[0].res.pitch2D.desc))
     @property
     def width(self):
         return self._ptr[0].res.pitch2D.width
@@ -5937,25 +6238,25 @@ cdef class anon_union0:
         return self._array
     @array.setter
     def array(self, array not None : anon_struct1):
-        memcpy(&self._ptr[0].res.array, <ccudart.anon_struct1*><void_ptr>array.getPtr(), sizeof(self._ptr[0].res.array))
+        string.memcpy(&self._ptr[0].res.array, <ccudart.anon_struct1*><void_ptr>array.getPtr(), sizeof(self._ptr[0].res.array))
     @property
     def mipmap(self):
         return self._mipmap
     @mipmap.setter
     def mipmap(self, mipmap not None : anon_struct2):
-        memcpy(&self._ptr[0].res.mipmap, <ccudart.anon_struct2*><void_ptr>mipmap.getPtr(), sizeof(self._ptr[0].res.mipmap))
+        string.memcpy(&self._ptr[0].res.mipmap, <ccudart.anon_struct2*><void_ptr>mipmap.getPtr(), sizeof(self._ptr[0].res.mipmap))
     @property
     def linear(self):
         return self._linear
     @linear.setter
     def linear(self, linear not None : anon_struct3):
-        memcpy(&self._ptr[0].res.linear, <ccudart.anon_struct3*><void_ptr>linear.getPtr(), sizeof(self._ptr[0].res.linear))
+        string.memcpy(&self._ptr[0].res.linear, <ccudart.anon_struct3*><void_ptr>linear.getPtr(), sizeof(self._ptr[0].res.linear))
     @property
     def pitch2D(self):
         return self._pitch2D
     @pitch2D.setter
     def pitch2D(self, pitch2D not None : anon_struct4):
-        memcpy(&self._ptr[0].res.pitch2D, <ccudart.anon_struct4*><void_ptr>pitch2D.getPtr(), sizeof(self._ptr[0].res.pitch2D))
+        string.memcpy(&self._ptr[0].res.pitch2D, <ccudart.anon_struct4*><void_ptr>pitch2D.getPtr(), sizeof(self._ptr[0].res.pitch2D))
 {{endif}}
 {{if 'struct cudaResourceDesc' in found_types}}
 
@@ -6012,7 +6313,7 @@ cdef class cudaResourceDesc:
         return self._res
     @res.setter
     def res(self, res not None : anon_union0):
-        memcpy(&self._ptr[0].res, <ccudart.anon_union0*><void_ptr>res.getPtr(), sizeof(self._ptr[0].res))
+        string.memcpy(&self._ptr[0].res, <ccudart.anon_union0*><void_ptr>res.getPtr(), sizeof(self._ptr[0].res))
 {{endif}}
 {{if 'struct cudaResourceViewDesc' in found_types}}
 
@@ -6516,7 +6817,9 @@ cdef class cudaFuncAttributes:
 cdef class cudaMemLocation:
     """
     Specifies a memory location.  To specify a gpu, set type =
-    cudaMemLocationTypeDevice and set id = the gpu's device ordinal.
+    cudaMemLocationTypeDevice and set id = the gpu's device ordinal. To
+    specify a cpu NUMA node, set type = cudaMemLocationTypeHostNuma and
+    set id = host NUMA node id.
 
     Attributes
     ----------
@@ -6618,7 +6921,7 @@ cdef class cudaMemAccessDesc:
         return self._location
     @location.setter
     def location(self, location not None : cudaMemLocation):
-        memcpy(&self._ptr[0].location, <ccudart.cudaMemLocation*><void_ptr>location.getPtr(), sizeof(self._ptr[0].location))
+        string.memcpy(&self._ptr[0].location, <ccudart.cudaMemLocation*><void_ptr>location.getPtr(), sizeof(self._ptr[0].location))
     @property
     def flags(self):
         return cudaMemAccessFlags(self._ptr[0].flags)
@@ -6647,6 +6950,9 @@ cdef class cudaMemPoolProps:
         defines the scope of which exported allocations may be tranferred
         to other processes. In all other cases, this field is required to
         be zero.
+    maxSize : size_t
+        Maximum pool size. When set to 0, defaults to a system dependent
+        value.
     reserved : bytes
         reserved for future use, must be 0
 
@@ -6687,6 +6993,10 @@ cdef class cudaMemPoolProps:
             except ValueError:
                 str_list += ['win32SecurityAttributes : <ValueError>']
             try:
+                str_list += ['maxSize : ' + str(self.maxSize)]
+            except ValueError:
+                str_list += ['maxSize : <ValueError>']
+            try:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
@@ -6710,7 +7020,7 @@ cdef class cudaMemPoolProps:
         return self._location
     @location.setter
     def location(self, location not None : cudaMemLocation):
-        memcpy(&self._ptr[0].location, <ccudart.cudaMemLocation*><void_ptr>location.getPtr(), sizeof(self._ptr[0].location))
+        string.memcpy(&self._ptr[0].location, <ccudart.cudaMemLocation*><void_ptr>location.getPtr(), sizeof(self._ptr[0].location))
     @property
     def win32SecurityAttributes(self):
         return <void_ptr>self._ptr[0].win32SecurityAttributes
@@ -6719,12 +7029,18 @@ cdef class cudaMemPoolProps:
         _cwin32SecurityAttributes = utils.HelperInputVoidPtr(win32SecurityAttributes)
         self._ptr[0].win32SecurityAttributes = <void*><void_ptr>_cwin32SecurityAttributes.cptr
     @property
+    def maxSize(self):
+        return self._ptr[0].maxSize
+    @maxSize.setter
+    def maxSize(self, size_t maxSize):
+        self._ptr[0].maxSize = maxSize
+    @property
     def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._ptr[0].reserved, 64)
+        return PyBytes_FromStringAndSize(<char*>self._ptr[0].reserved, 56)
     @reserved.setter
     def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
+        if len(reserved) != 56:
+            raise ValueError("reserved length must be 56, is " + str(len(reserved)))
         for i, b in enumerate(reserved):
             self._ptr[0].reserved[i] = b
 {{endif}}
@@ -6848,7 +7164,7 @@ cdef class cudaMemAllocNodeParams:
         return self._poolProps
     @poolProps.setter
     def poolProps(self, poolProps not None : cudaMemPoolProps):
-        memcpy(&self._ptr[0].poolProps, <ccudart.cudaMemPoolProps*><void_ptr>poolProps.getPtr(), sizeof(self._ptr[0].poolProps))
+        string.memcpy(&self._ptr[0].poolProps, <ccudart.cudaMemPoolProps*><void_ptr>poolProps.getPtr(), sizeof(self._ptr[0].poolProps))
     @property
     def accessDescs(self):
         arrs = [<void_ptr>self._ptr[0].accessDescs + x*sizeof(ccudart.cudaMemAccessDesc) for x in range(self._accessDescs_length)]
@@ -6868,7 +7184,7 @@ cdef class cudaMemAllocNodeParams:
                 self._accessDescs_length = <size_t>len(val)
                 self._ptr[0].accessDescs = self._accessDescs
             for idx in range(len(val)):
-                memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._ptr, sizeof(ccudart.cudaMemAccessDesc))
+                string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._ptr, sizeof(ccudart.cudaMemAccessDesc))
 
     @property
     def accessDescCount(self):
@@ -6882,6 +7198,166 @@ cdef class cudaMemAllocNodeParams:
     @bytesize.setter
     def bytesize(self, size_t bytesize):
         self._ptr[0].bytesize = bytesize
+    @property
+    def dptr(self):
+        return <void_ptr>self._ptr[0].dptr
+    @dptr.setter
+    def dptr(self, dptr):
+        _cdptr = utils.HelperInputVoidPtr(dptr)
+        self._ptr[0].dptr = <void*><void_ptr>_cdptr.cptr
+{{endif}}
+{{if 'struct cudaMemAllocNodeParamsV2' in found_types}}
+
+cdef class cudaMemAllocNodeParamsV2:
+    """
+    Memory allocation node parameters
+
+    Attributes
+    ----------
+    poolProps : cudaMemPoolProps
+        in: location where the allocation should reside (specified in
+        ::location). ::handleTypes must be cudaMemHandleTypeNone. IPC is
+        not supported. in: array of memory access descriptors. Used to
+        describe peer GPU access
+    accessDescs : cudaMemAccessDesc
+        in: number of memory access descriptors. Must not exceed the number
+        of GPUs.
+    accessDescCount : size_t
+        in: Number of `accessDescs`s
+    bytesize : size_t
+        in: size in bytes of the requested allocation
+    dptr : Any
+        out: address of the allocation returned by CUDA
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaMemAllocNodeParamsV2 *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._poolProps = cudaMemPoolProps(_ptr=<void_ptr>&self._ptr[0].poolProps)
+    def __dealloc__(self):
+        if self._accessDescs is not NULL:
+            free(self._accessDescs)
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['poolProps :\n' + '\n'.join(['    ' + line for line in str(self.poolProps).splitlines()])]
+            except ValueError:
+                str_list += ['poolProps : <ValueError>']
+            try:
+                str_list += ['accessDescs : ' + str(self.accessDescs)]
+            except ValueError:
+                str_list += ['accessDescs : <ValueError>']
+            try:
+                str_list += ['accessDescCount : ' + str(self.accessDescCount)]
+            except ValueError:
+                str_list += ['accessDescCount : <ValueError>']
+            try:
+                str_list += ['bytesize : ' + str(self.bytesize)]
+            except ValueError:
+                str_list += ['bytesize : <ValueError>']
+            try:
+                str_list += ['dptr : ' + hex(self.dptr)]
+            except ValueError:
+                str_list += ['dptr : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def poolProps(self):
+        return self._poolProps
+    @poolProps.setter
+    def poolProps(self, poolProps not None : cudaMemPoolProps):
+        string.memcpy(&self._ptr[0].poolProps, <ccudart.cudaMemPoolProps*><void_ptr>poolProps.getPtr(), sizeof(self._ptr[0].poolProps))
+    @property
+    def accessDescs(self):
+        arrs = [<void_ptr>self._ptr[0].accessDescs + x*sizeof(ccudart.cudaMemAccessDesc) for x in range(self._accessDescs_length)]
+        return [cudaMemAccessDesc(_ptr=arr) for arr in arrs]
+    @accessDescs.setter
+    def accessDescs(self, val):
+        if len(val) == 0:
+            free(self._accessDescs)
+            self._accessDescs_length = 0
+            self._ptr[0].accessDescs = NULL
+        else:
+            if self._accessDescs_length != <size_t>len(val):
+                free(self._accessDescs)
+                self._accessDescs = <ccudart.cudaMemAccessDesc*> calloc(len(val), sizeof(ccudart.cudaMemAccessDesc))
+                if self._accessDescs is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(ccudart.cudaMemAccessDesc)))
+                self._accessDescs_length = <size_t>len(val)
+                self._ptr[0].accessDescs = self._accessDescs
+            for idx in range(len(val)):
+                string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._ptr, sizeof(ccudart.cudaMemAccessDesc))
+
+    @property
+    def accessDescCount(self):
+        return self._ptr[0].accessDescCount
+    @accessDescCount.setter
+    def accessDescCount(self, size_t accessDescCount):
+        self._ptr[0].accessDescCount = accessDescCount
+    @property
+    def bytesize(self):
+        return self._ptr[0].bytesize
+    @bytesize.setter
+    def bytesize(self, size_t bytesize):
+        self._ptr[0].bytesize = bytesize
+    @property
+    def dptr(self):
+        return <void_ptr>self._ptr[0].dptr
+    @dptr.setter
+    def dptr(self, dptr):
+        _cdptr = utils.HelperInputVoidPtr(dptr)
+        self._ptr[0].dptr = <void*><void_ptr>_cdptr.cptr
+{{endif}}
+{{if 'struct cudaMemFreeNodeParams' in found_types}}
+
+cdef class cudaMemFreeNodeParams:
+    """
+    Memory free node parameters
+
+    Attributes
+    ----------
+    dptr : Any
+        in: the pointer to free
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaMemFreeNodeParams *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['dptr : ' + hex(self.dptr)]
+            except ValueError:
+                str_list += ['dptr : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
     @property
     def dptr(self):
         return <void_ptr>self._ptr[0].dptr
@@ -7567,7 +8043,7 @@ cdef class cudaDeviceProp:
         return self._uuid
     @uuid.setter
     def uuid(self, uuid not None : cudaUUID_t):
-        memcpy(&self._ptr[0].uuid, <ccudart.cudaUUID_t*><void_ptr>uuid.getPtr(), sizeof(self._ptr[0].uuid))
+        string.memcpy(&self._ptr[0].uuid, <ccudart.cudaUUID_t*><void_ptr>uuid.getPtr(), sizeof(self._ptr[0].uuid))
     @property
     def luid(self):
         return PyBytes_FromStringAndSize(self._ptr[0].luid, 8)
@@ -8362,7 +8838,7 @@ cdef class anon_union1:
         return self._win32
     @win32.setter
     def win32(self, win32 not None : anon_struct5):
-        memcpy(&self._ptr[0].handle.win32, <ccudart.anon_struct5*><void_ptr>win32.getPtr(), sizeof(self._ptr[0].handle.win32))
+        string.memcpy(&self._ptr[0].handle.win32, <ccudart.anon_struct5*><void_ptr>win32.getPtr(), sizeof(self._ptr[0].handle.win32))
     @property
     def nvSciBufObject(self):
         return <void_ptr>self._ptr[0].handle.nvSciBufObject
@@ -8438,7 +8914,7 @@ cdef class cudaExternalMemoryHandleDesc:
         return self._handle
     @handle.setter
     def handle(self, handle not None : anon_union1):
-        memcpy(&self._ptr[0].handle, <ccudart.anon_union1*><void_ptr>handle.getPtr(), sizeof(self._ptr[0].handle))
+        string.memcpy(&self._ptr[0].handle, <ccudart.anon_union1*><void_ptr>handle.getPtr(), sizeof(self._ptr[0].handle))
     @property
     def size(self):
         return self._ptr[0].size
@@ -8597,13 +9073,13 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
         return self._formatDesc
     @formatDesc.setter
     def formatDesc(self, formatDesc not None : cudaChannelFormatDesc):
-        memcpy(&self._ptr[0].formatDesc, <ccudart.cudaChannelFormatDesc*><void_ptr>formatDesc.getPtr(), sizeof(self._ptr[0].formatDesc))
+        string.memcpy(&self._ptr[0].formatDesc, <ccudart.cudaChannelFormatDesc*><void_ptr>formatDesc.getPtr(), sizeof(self._ptr[0].formatDesc))
     @property
     def extent(self):
         return self._extent
     @extent.setter
     def extent(self, extent not None : cudaExtent):
-        memcpy(&self._ptr[0].extent, <ccudart.cudaExtent*><void_ptr>extent.getPtr(), sizeof(self._ptr[0].extent))
+        string.memcpy(&self._ptr[0].extent, <ccudart.cudaExtent*><void_ptr>extent.getPtr(), sizeof(self._ptr[0].extent))
     @property
     def flags(self):
         return self._ptr[0].flags
@@ -8729,7 +9205,7 @@ cdef class anon_union2:
         return self._win32
     @win32.setter
     def win32(self, win32 not None : anon_struct6):
-        memcpy(&self._ptr[0].handle.win32, <ccudart.anon_struct6*><void_ptr>win32.getPtr(), sizeof(self._ptr[0].handle.win32))
+        string.memcpy(&self._ptr[0].handle.win32, <ccudart.anon_struct6*><void_ptr>win32.getPtr(), sizeof(self._ptr[0].handle.win32))
     @property
     def nvSciSyncObj(self):
         return <void_ptr>self._ptr[0].handle.nvSciSyncObj
@@ -8799,7 +9275,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
         return self._handle
     @handle.setter
     def handle(self, handle not None : anon_union2):
-        memcpy(&self._ptr[0].handle, <ccudart.anon_union2*><void_ptr>handle.getPtr(), sizeof(self._ptr[0].handle))
+        string.memcpy(&self._ptr[0].handle, <ccudart.anon_union2*><void_ptr>handle.getPtr(), sizeof(self._ptr[0].handle))
     @property
     def flags(self):
         return self._ptr[0].flags
@@ -9002,19 +9478,19 @@ cdef class anon_struct15:
         return self._fence
     @fence.setter
     def fence(self, fence not None : anon_struct13):
-        memcpy(&self._ptr[0].params.fence, <ccudart.anon_struct13*><void_ptr>fence.getPtr(), sizeof(self._ptr[0].params.fence))
+        string.memcpy(&self._ptr[0].params.fence, <ccudart.anon_struct13*><void_ptr>fence.getPtr(), sizeof(self._ptr[0].params.fence))
     @property
     def nvSciSync(self):
         return self._nvSciSync
     @nvSciSync.setter
     def nvSciSync(self, nvSciSync not None : anon_union5):
-        memcpy(&self._ptr[0].params.nvSciSync, <ccudart.anon_union5*><void_ptr>nvSciSync.getPtr(), sizeof(self._ptr[0].params.nvSciSync))
+        string.memcpy(&self._ptr[0].params.nvSciSync, <ccudart.anon_union5*><void_ptr>nvSciSync.getPtr(), sizeof(self._ptr[0].params.nvSciSync))
     @property
     def keyedMutex(self):
         return self._keyedMutex
     @keyedMutex.setter
     def keyedMutex(self, keyedMutex not None : anon_struct14):
-        memcpy(&self._ptr[0].params.keyedMutex, <ccudart.anon_struct14*><void_ptr>keyedMutex.getPtr(), sizeof(self._ptr[0].params.keyedMutex))
+        string.memcpy(&self._ptr[0].params.keyedMutex, <ccudart.anon_struct14*><void_ptr>keyedMutex.getPtr(), sizeof(self._ptr[0].params.keyedMutex))
     @property
     def reserved(self):
         return self._ptr[0].params.reserved
@@ -9084,7 +9560,7 @@ cdef class cudaExternalSemaphoreSignalParams:
         return self._params
     @params.setter
     def params(self, params not None : anon_struct15):
-        memcpy(&self._ptr[0].params, <ccudart.anon_struct15*><void_ptr>params.getPtr(), sizeof(self._ptr[0].params))
+        string.memcpy(&self._ptr[0].params, <ccudart.anon_struct15*><void_ptr>params.getPtr(), sizeof(self._ptr[0].params))
     @property
     def flags(self):
         return self._ptr[0].flags
@@ -9305,19 +9781,19 @@ cdef class anon_struct18:
         return self._fence
     @fence.setter
     def fence(self, fence not None : anon_struct16):
-        memcpy(&self._ptr[0].params.fence, <ccudart.anon_struct16*><void_ptr>fence.getPtr(), sizeof(self._ptr[0].params.fence))
+        string.memcpy(&self._ptr[0].params.fence, <ccudart.anon_struct16*><void_ptr>fence.getPtr(), sizeof(self._ptr[0].params.fence))
     @property
     def nvSciSync(self):
         return self._nvSciSync
     @nvSciSync.setter
     def nvSciSync(self, nvSciSync not None : anon_union6):
-        memcpy(&self._ptr[0].params.nvSciSync, <ccudart.anon_union6*><void_ptr>nvSciSync.getPtr(), sizeof(self._ptr[0].params.nvSciSync))
+        string.memcpy(&self._ptr[0].params.nvSciSync, <ccudart.anon_union6*><void_ptr>nvSciSync.getPtr(), sizeof(self._ptr[0].params.nvSciSync))
     @property
     def keyedMutex(self):
         return self._keyedMutex
     @keyedMutex.setter
     def keyedMutex(self, keyedMutex not None : anon_struct17):
-        memcpy(&self._ptr[0].params.keyedMutex, <ccudart.anon_struct17*><void_ptr>keyedMutex.getPtr(), sizeof(self._ptr[0].params.keyedMutex))
+        string.memcpy(&self._ptr[0].params.keyedMutex, <ccudart.anon_struct17*><void_ptr>keyedMutex.getPtr(), sizeof(self._ptr[0].params.keyedMutex))
     @property
     def reserved(self):
         return self._ptr[0].params.reserved
@@ -9387,7 +9863,7 @@ cdef class cudaExternalSemaphoreWaitParams:
         return self._params
     @params.setter
     def params(self, params not None : anon_struct18):
-        memcpy(&self._ptr[0].params, <ccudart.anon_struct18*><void_ptr>params.getPtr(), sizeof(self._ptr[0].params))
+        string.memcpy(&self._ptr[0].params, <ccudart.anon_struct18*><void_ptr>params.getPtr(), sizeof(self._ptr[0].params))
     @property
     def flags(self):
         return self._ptr[0].flags
@@ -9482,13 +9958,121 @@ cdef class cudaKernelNodeParams:
         return self._gridDim
     @gridDim.setter
     def gridDim(self, gridDim not None : dim3):
-        memcpy(&self._ptr[0].gridDim, <ccudart.dim3*><void_ptr>gridDim.getPtr(), sizeof(self._ptr[0].gridDim))
+        string.memcpy(&self._ptr[0].gridDim, <ccudart.dim3*><void_ptr>gridDim.getPtr(), sizeof(self._ptr[0].gridDim))
     @property
     def blockDim(self):
         return self._blockDim
     @blockDim.setter
     def blockDim(self, blockDim not None : dim3):
-        memcpy(&self._ptr[0].blockDim, <ccudart.dim3*><void_ptr>blockDim.getPtr(), sizeof(self._ptr[0].blockDim))
+        string.memcpy(&self._ptr[0].blockDim, <ccudart.dim3*><void_ptr>blockDim.getPtr(), sizeof(self._ptr[0].blockDim))
+    @property
+    def sharedMemBytes(self):
+        return self._ptr[0].sharedMemBytes
+    @sharedMemBytes.setter
+    def sharedMemBytes(self, unsigned int sharedMemBytes):
+        self._ptr[0].sharedMemBytes = sharedMemBytes
+    @property
+    def kernelParams(self):
+        return <void_ptr>self._ptr[0].kernelParams
+    @kernelParams.setter
+    def kernelParams(self, kernelParams):
+        self._ckernelParams = utils.HelperKernelParams(kernelParams)
+        self._ptr[0].kernelParams = <void**><void_ptr>self._ckernelParams.ckernelParams
+    @property
+    def extra(self):
+        return <void_ptr>self._ptr[0].extra
+    @extra.setter
+    def extra(self, void_ptr extra):
+        self._ptr[0].extra = <void**>extra
+{{endif}}
+{{if 'struct cudaKernelNodeParamsV2' in found_types}}
+
+cdef class cudaKernelNodeParamsV2:
+    """
+    CUDA GPU kernel node parameters
+
+    Attributes
+    ----------
+    func : Any
+        Kernel to launch
+    gridDim : dim3
+        Grid dimensions
+    blockDim : dim3
+        Block dimensions
+    sharedMemBytes : unsigned int
+        Dynamic shared-memory size per thread block in bytes
+    kernelParams : Any
+        Array of pointers to individual kernel arguments
+    extra : Any
+        Pointer to kernel arguments in the "extra" format
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaKernelNodeParamsV2 *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._gridDim = dim3(_ptr=<void_ptr>&self._ptr[0].gridDim)
+        self._blockDim = dim3(_ptr=<void_ptr>&self._ptr[0].blockDim)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['func : ' + hex(self.func)]
+            except ValueError:
+                str_list += ['func : <ValueError>']
+            try:
+                str_list += ['gridDim :\n' + '\n'.join(['    ' + line for line in str(self.gridDim).splitlines()])]
+            except ValueError:
+                str_list += ['gridDim : <ValueError>']
+            try:
+                str_list += ['blockDim :\n' + '\n'.join(['    ' + line for line in str(self.blockDim).splitlines()])]
+            except ValueError:
+                str_list += ['blockDim : <ValueError>']
+            try:
+                str_list += ['sharedMemBytes : ' + str(self.sharedMemBytes)]
+            except ValueError:
+                str_list += ['sharedMemBytes : <ValueError>']
+            try:
+                str_list += ['kernelParams : ' + str(self.kernelParams)]
+            except ValueError:
+                str_list += ['kernelParams : <ValueError>']
+            try:
+                str_list += ['extra : ' + str(self.extra)]
+            except ValueError:
+                str_list += ['extra : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def func(self):
+        return <void_ptr>self._ptr[0].func
+    @func.setter
+    def func(self, func):
+        _cfunc = utils.HelperInputVoidPtr(func)
+        self._ptr[0].func = <void*><void_ptr>_cfunc.cptr
+    @property
+    def gridDim(self):
+        return self._gridDim
+    @gridDim.setter
+    def gridDim(self, gridDim not None : dim3):
+        string.memcpy(&self._ptr[0].gridDim, <ccudart.dim3*><void_ptr>gridDim.getPtr(), sizeof(self._ptr[0].gridDim))
+    @property
+    def blockDim(self):
+        return self._blockDim
+    @blockDim.setter
+    def blockDim(self, blockDim not None : dim3):
+        string.memcpy(&self._ptr[0].blockDim, <ccudart.dim3*><void_ptr>blockDim.getPtr(), sizeof(self._ptr[0].blockDim))
     @property
     def sharedMemBytes(self):
         return self._ptr[0].sharedMemBytes
@@ -9603,7 +10187,110 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
                 self._paramsArray_length = <size_t>len(val)
                 self._ptr[0].paramsArray = self._paramsArray
             for idx in range(len(val)):
-                memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._ptr, sizeof(ccudart.cudaExternalSemaphoreSignalParams))
+                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._ptr, sizeof(ccudart.cudaExternalSemaphoreSignalParams))
+
+    @property
+    def numExtSems(self):
+        return self._ptr[0].numExtSems
+    @numExtSems.setter
+    def numExtSems(self, unsigned int numExtSems):
+        self._ptr[0].numExtSems = numExtSems
+{{endif}}
+{{if 'struct cudaExternalSemaphoreSignalNodeParamsV2' in found_types}}
+
+cdef class cudaExternalSemaphoreSignalNodeParamsV2:
+    """
+    External semaphore signal node parameters
+
+    Attributes
+    ----------
+    extSemArray : cudaExternalSemaphore_t
+        Array of external semaphore handles.
+    paramsArray : cudaExternalSemaphoreSignalParams
+        Array of external semaphore signal parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaExternalSemaphoreSignalNodeParamsV2 *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        if self._extSemArray is not NULL:
+            free(self._extSemArray)
+        if self._paramsArray is not NULL:
+            free(self._paramsArray)
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['extSemArray : ' + str(self.extSemArray)]
+            except ValueError:
+                str_list += ['extSemArray : <ValueError>']
+            try:
+                str_list += ['paramsArray : ' + str(self.paramsArray)]
+            except ValueError:
+                str_list += ['paramsArray : <ValueError>']
+            try:
+                str_list += ['numExtSems : ' + str(self.numExtSems)]
+            except ValueError:
+                str_list += ['numExtSems : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def extSemArray(self):
+        arrs = [<void_ptr>self._ptr[0].extSemArray + x*sizeof(ccudart.cudaExternalSemaphore_t) for x in range(self._extSemArray_length)]
+        return [cudaExternalSemaphore_t(_ptr=arr) for arr in arrs]
+    @extSemArray.setter
+    def extSemArray(self, val):
+        if len(val) == 0:
+            free(self._extSemArray)
+            self._extSemArray_length = 0
+            self._ptr[0].extSemArray = NULL
+        else:
+            if self._extSemArray_length != <size_t>len(val):
+                free(self._extSemArray)
+                self._extSemArray = <ccudart.cudaExternalSemaphore_t*> calloc(len(val), sizeof(ccudart.cudaExternalSemaphore_t))
+                if self._extSemArray is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(ccudart.cudaExternalSemaphore_t)))
+                self._extSemArray_length = <size_t>len(val)
+                self._ptr[0].extSemArray = self._extSemArray
+            for idx in range(len(val)):
+                self._extSemArray[idx] = (<cudaExternalSemaphore_t>val[idx])._ptr[0]
+
+    @property
+    def paramsArray(self):
+        arrs = [<void_ptr>self._ptr[0].paramsArray + x*sizeof(ccudart.cudaExternalSemaphoreSignalParams) for x in range(self._paramsArray_length)]
+        return [cudaExternalSemaphoreSignalParams(_ptr=arr) for arr in arrs]
+    @paramsArray.setter
+    def paramsArray(self, val):
+        if len(val) == 0:
+            free(self._paramsArray)
+            self._paramsArray_length = 0
+            self._ptr[0].paramsArray = NULL
+        else:
+            if self._paramsArray_length != <size_t>len(val):
+                free(self._paramsArray)
+                self._paramsArray = <ccudart.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(ccudart.cudaExternalSemaphoreSignalParams))
+                if self._paramsArray is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(ccudart.cudaExternalSemaphoreSignalParams)))
+                self._paramsArray_length = <size_t>len(val)
+                self._ptr[0].paramsArray = self._paramsArray
+            for idx in range(len(val)):
+                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._ptr, sizeof(ccudart.cudaExternalSemaphoreSignalParams))
 
     @property
     def numExtSems(self):
@@ -9706,7 +10393,7 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
                 self._paramsArray_length = <size_t>len(val)
                 self._ptr[0].paramsArray = self._paramsArray
             for idx in range(len(val)):
-                memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._ptr, sizeof(ccudart.cudaExternalSemaphoreWaitParams))
+                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._ptr, sizeof(ccudart.cudaExternalSemaphoreWaitParams))
 
     @property
     def numExtSems(self):
@@ -9714,6 +10401,493 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
     @numExtSems.setter
     def numExtSems(self, unsigned int numExtSems):
         self._ptr[0].numExtSems = numExtSems
+{{endif}}
+{{if 'struct cudaExternalSemaphoreWaitNodeParamsV2' in found_types}}
+
+cdef class cudaExternalSemaphoreWaitNodeParamsV2:
+    """
+    External semaphore wait node parameters
+
+    Attributes
+    ----------
+    extSemArray : cudaExternalSemaphore_t
+        Array of external semaphore handles.
+    paramsArray : cudaExternalSemaphoreWaitParams
+        Array of external semaphore wait parameters.
+    numExtSems : unsigned int
+        Number of handles and parameters supplied in extSemArray and
+        paramsArray.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaExternalSemaphoreWaitNodeParamsV2 *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        if self._extSemArray is not NULL:
+            free(self._extSemArray)
+        if self._paramsArray is not NULL:
+            free(self._paramsArray)
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['extSemArray : ' + str(self.extSemArray)]
+            except ValueError:
+                str_list += ['extSemArray : <ValueError>']
+            try:
+                str_list += ['paramsArray : ' + str(self.paramsArray)]
+            except ValueError:
+                str_list += ['paramsArray : <ValueError>']
+            try:
+                str_list += ['numExtSems : ' + str(self.numExtSems)]
+            except ValueError:
+                str_list += ['numExtSems : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def extSemArray(self):
+        arrs = [<void_ptr>self._ptr[0].extSemArray + x*sizeof(ccudart.cudaExternalSemaphore_t) for x in range(self._extSemArray_length)]
+        return [cudaExternalSemaphore_t(_ptr=arr) for arr in arrs]
+    @extSemArray.setter
+    def extSemArray(self, val):
+        if len(val) == 0:
+            free(self._extSemArray)
+            self._extSemArray_length = 0
+            self._ptr[0].extSemArray = NULL
+        else:
+            if self._extSemArray_length != <size_t>len(val):
+                free(self._extSemArray)
+                self._extSemArray = <ccudart.cudaExternalSemaphore_t*> calloc(len(val), sizeof(ccudart.cudaExternalSemaphore_t))
+                if self._extSemArray is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(ccudart.cudaExternalSemaphore_t)))
+                self._extSemArray_length = <size_t>len(val)
+                self._ptr[0].extSemArray = self._extSemArray
+            for idx in range(len(val)):
+                self._extSemArray[idx] = (<cudaExternalSemaphore_t>val[idx])._ptr[0]
+
+    @property
+    def paramsArray(self):
+        arrs = [<void_ptr>self._ptr[0].paramsArray + x*sizeof(ccudart.cudaExternalSemaphoreWaitParams) for x in range(self._paramsArray_length)]
+        return [cudaExternalSemaphoreWaitParams(_ptr=arr) for arr in arrs]
+    @paramsArray.setter
+    def paramsArray(self, val):
+        if len(val) == 0:
+            free(self._paramsArray)
+            self._paramsArray_length = 0
+            self._ptr[0].paramsArray = NULL
+        else:
+            if self._paramsArray_length != <size_t>len(val):
+                free(self._paramsArray)
+                self._paramsArray = <ccudart.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(ccudart.cudaExternalSemaphoreWaitParams))
+                if self._paramsArray is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(ccudart.cudaExternalSemaphoreWaitParams)))
+                self._paramsArray_length = <size_t>len(val)
+                self._ptr[0].paramsArray = self._paramsArray
+            for idx in range(len(val)):
+                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._ptr, sizeof(ccudart.cudaExternalSemaphoreWaitParams))
+
+    @property
+    def numExtSems(self):
+        return self._ptr[0].numExtSems
+    @numExtSems.setter
+    def numExtSems(self, unsigned int numExtSems):
+        self._ptr[0].numExtSems = numExtSems
+{{endif}}
+{{if 'struct cudaChildGraphNodeParams' in found_types}}
+
+cdef class cudaChildGraphNodeParams:
+    """
+    Child graph node parameters
+
+    Attributes
+    ----------
+    graph : cudaGraph_t
+        The child graph to clone into the node for node creation, or a
+        handle to the graph owned by the node for node query
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaChildGraphNodeParams *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._graph = cudaGraph_t(_ptr=<void_ptr>&self._ptr[0].graph)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['graph : ' + str(self.graph)]
+            except ValueError:
+                str_list += ['graph : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def graph(self):
+        return self._graph
+    @graph.setter
+    def graph(self, graph):
+        cdef ccudart.cudaGraph_t cgraph
+        if graph is None:
+            cgraph = <ccudart.cudaGraph_t><void_ptr>0
+        elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+            pgraph = int(graph)
+            cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+        else:
+            pgraph = int(cudaGraph_t(graph))
+            cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+        self._graph._ptr[0] = cgraph
+{{endif}}
+{{if 'struct cudaEventRecordNodeParams' in found_types}}
+
+cdef class cudaEventRecordNodeParams:
+    """
+    Event record node parameters
+
+    Attributes
+    ----------
+    event : cudaEvent_t
+        The event to record when the node executes
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaEventRecordNodeParams *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._event = cudaEvent_t(_ptr=<void_ptr>&self._ptr[0].event)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['event : ' + str(self.event)]
+            except ValueError:
+                str_list += ['event : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def event(self):
+        return self._event
+    @event.setter
+    def event(self, event):
+        cdef ccudart.cudaEvent_t cevent
+        if event is None:
+            cevent = <ccudart.cudaEvent_t><void_ptr>0
+        elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+            pevent = int(event)
+            cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+        else:
+            pevent = int(cudaEvent_t(event))
+            cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+        self._event._ptr[0] = cevent
+{{endif}}
+{{if 'struct cudaEventWaitNodeParams' in found_types}}
+
+cdef class cudaEventWaitNodeParams:
+    """
+    Event wait node parameters
+
+    Attributes
+    ----------
+    event : cudaEvent_t
+        The event to wait on from the node
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaEventWaitNodeParams *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._event = cudaEvent_t(_ptr=<void_ptr>&self._ptr[0].event)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['event : ' + str(self.event)]
+            except ValueError:
+                str_list += ['event : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def event(self):
+        return self._event
+    @event.setter
+    def event(self, event):
+        cdef ccudart.cudaEvent_t cevent
+        if event is None:
+            cevent = <ccudart.cudaEvent_t><void_ptr>0
+        elif isinstance(event, (cudaEvent_t,cuda.CUevent)):
+            pevent = int(event)
+            cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+        else:
+            pevent = int(cudaEvent_t(event))
+            cevent = <ccudart.cudaEvent_t><void_ptr>pevent
+        self._event._ptr[0] = cevent
+{{endif}}
+{{if 'struct cudaGraphNodeParams' in found_types}}
+
+cdef class cudaGraphNodeParams:
+    """
+    Attributes
+    ----------
+    type : cudaGraphNodeType
+
+    reserved0 : List[int]
+
+    reserved1 : List[long long]
+
+    kernel : cudaKernelNodeParamsV2
+
+    memcpy : cudaMemcpyNodeParams
+
+    memset : cudaMemsetParamsV2
+
+    host : cudaHostNodeParamsV2
+
+    graph : cudaChildGraphNodeParams
+
+    eventWait : cudaEventWaitNodeParams
+
+    eventRecord : cudaEventRecordNodeParams
+
+    extSemSignal : cudaExternalSemaphoreSignalNodeParamsV2
+
+    extSemWait : cudaExternalSemaphoreWaitNodeParamsV2
+
+    alloc : cudaMemAllocNodeParamsV2
+
+    free : cudaMemFreeNodeParams
+
+    reserved2 : long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccudart.cudaGraphNodeParams *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._kernel = cudaKernelNodeParamsV2(_ptr=<void_ptr>&self._ptr[0].kernel)
+        self._memcpy = cudaMemcpyNodeParams(_ptr=<void_ptr>&self._ptr[0].memcpy)
+        self._memset = cudaMemsetParamsV2(_ptr=<void_ptr>&self._ptr[0].memset)
+        self._host = cudaHostNodeParamsV2(_ptr=<void_ptr>&self._ptr[0].host)
+        self._graph = cudaChildGraphNodeParams(_ptr=<void_ptr>&self._ptr[0].graph)
+        self._eventWait = cudaEventWaitNodeParams(_ptr=<void_ptr>&self._ptr[0].eventWait)
+        self._eventRecord = cudaEventRecordNodeParams(_ptr=<void_ptr>&self._ptr[0].eventRecord)
+        self._extSemSignal = cudaExternalSemaphoreSignalNodeParamsV2(_ptr=<void_ptr>&self._ptr[0].extSemSignal)
+        self._extSemWait = cudaExternalSemaphoreWaitNodeParamsV2(_ptr=<void_ptr>&self._ptr[0].extSemWait)
+        self._alloc = cudaMemAllocNodeParamsV2(_ptr=<void_ptr>&self._ptr[0].alloc)
+        self._free = cudaMemFreeNodeParams(_ptr=<void_ptr>&self._ptr[0].free)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['type : ' + str(self.type)]
+            except ValueError:
+                str_list += ['type : <ValueError>']
+            try:
+                str_list += ['reserved0 : ' + str(self.reserved0)]
+            except ValueError:
+                str_list += ['reserved0 : <ValueError>']
+            try:
+                str_list += ['reserved1 : ' + str(self.reserved1)]
+            except ValueError:
+                str_list += ['reserved1 : <ValueError>']
+            try:
+                str_list += ['kernel :\n' + '\n'.join(['    ' + line for line in str(self.kernel).splitlines()])]
+            except ValueError:
+                str_list += ['kernel : <ValueError>']
+            try:
+                str_list += ['memcpy :\n' + '\n'.join(['    ' + line for line in str(self.memcpy).splitlines()])]
+            except ValueError:
+                str_list += ['memcpy : <ValueError>']
+            try:
+                str_list += ['memset :\n' + '\n'.join(['    ' + line for line in str(self.memset).splitlines()])]
+            except ValueError:
+                str_list += ['memset : <ValueError>']
+            try:
+                str_list += ['host :\n' + '\n'.join(['    ' + line for line in str(self.host).splitlines()])]
+            except ValueError:
+                str_list += ['host : <ValueError>']
+            try:
+                str_list += ['graph :\n' + '\n'.join(['    ' + line for line in str(self.graph).splitlines()])]
+            except ValueError:
+                str_list += ['graph : <ValueError>']
+            try:
+                str_list += ['eventWait :\n' + '\n'.join(['    ' + line for line in str(self.eventWait).splitlines()])]
+            except ValueError:
+                str_list += ['eventWait : <ValueError>']
+            try:
+                str_list += ['eventRecord :\n' + '\n'.join(['    ' + line for line in str(self.eventRecord).splitlines()])]
+            except ValueError:
+                str_list += ['eventRecord : <ValueError>']
+            try:
+                str_list += ['extSemSignal :\n' + '\n'.join(['    ' + line for line in str(self.extSemSignal).splitlines()])]
+            except ValueError:
+                str_list += ['extSemSignal : <ValueError>']
+            try:
+                str_list += ['extSemWait :\n' + '\n'.join(['    ' + line for line in str(self.extSemWait).splitlines()])]
+            except ValueError:
+                str_list += ['extSemWait : <ValueError>']
+            try:
+                str_list += ['alloc :\n' + '\n'.join(['    ' + line for line in str(self.alloc).splitlines()])]
+            except ValueError:
+                str_list += ['alloc : <ValueError>']
+            try:
+                str_list += ['free :\n' + '\n'.join(['    ' + line for line in str(self.free).splitlines()])]
+            except ValueError:
+                str_list += ['free : <ValueError>']
+            try:
+                str_list += ['reserved2 : ' + str(self.reserved2)]
+            except ValueError:
+                str_list += ['reserved2 : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def type(self):
+        return cudaGraphNodeType(self._ptr[0].type)
+    @type.setter
+    def type(self, type not None : cudaGraphNodeType):
+        self._ptr[0].type = type.value
+    @property
+    def reserved0(self):
+        return self._ptr[0].reserved0
+    @reserved0.setter
+    def reserved0(self, reserved0):
+        self._ptr[0].reserved0 = reserved0
+    @property
+    def reserved1(self):
+        return self._ptr[0].reserved1
+    @reserved1.setter
+    def reserved1(self, reserved1):
+        self._ptr[0].reserved1 = reserved1
+    @property
+    def kernel(self):
+        return self._kernel
+    @kernel.setter
+    def kernel(self, kernel not None : cudaKernelNodeParamsV2):
+        string.memcpy(&self._ptr[0].kernel, <ccudart.cudaKernelNodeParamsV2*><void_ptr>kernel.getPtr(), sizeof(self._ptr[0].kernel))
+    @property
+    def memcpy(self):
+        return self._memcpy
+    @memcpy.setter
+    def memcpy(self, memcpy not None : cudaMemcpyNodeParams):
+        string.memcpy(&self._ptr[0].memcpy, <ccudart.cudaMemcpyNodeParams*><void_ptr>memcpy.getPtr(), sizeof(self._ptr[0].memcpy))
+    @property
+    def memset(self):
+        return self._memset
+    @memset.setter
+    def memset(self, memset not None : cudaMemsetParamsV2):
+        string.memcpy(&self._ptr[0].memset, <ccudart.cudaMemsetParamsV2*><void_ptr>memset.getPtr(), sizeof(self._ptr[0].memset))
+    @property
+    def host(self):
+        return self._host
+    @host.setter
+    def host(self, host not None : cudaHostNodeParamsV2):
+        string.memcpy(&self._ptr[0].host, <ccudart.cudaHostNodeParamsV2*><void_ptr>host.getPtr(), sizeof(self._ptr[0].host))
+    @property
+    def graph(self):
+        return self._graph
+    @graph.setter
+    def graph(self, graph not None : cudaChildGraphNodeParams):
+        string.memcpy(&self._ptr[0].graph, <ccudart.cudaChildGraphNodeParams*><void_ptr>graph.getPtr(), sizeof(self._ptr[0].graph))
+    @property
+    def eventWait(self):
+        return self._eventWait
+    @eventWait.setter
+    def eventWait(self, eventWait not None : cudaEventWaitNodeParams):
+        string.memcpy(&self._ptr[0].eventWait, <ccudart.cudaEventWaitNodeParams*><void_ptr>eventWait.getPtr(), sizeof(self._ptr[0].eventWait))
+    @property
+    def eventRecord(self):
+        return self._eventRecord
+    @eventRecord.setter
+    def eventRecord(self, eventRecord not None : cudaEventRecordNodeParams):
+        string.memcpy(&self._ptr[0].eventRecord, <ccudart.cudaEventRecordNodeParams*><void_ptr>eventRecord.getPtr(), sizeof(self._ptr[0].eventRecord))
+    @property
+    def extSemSignal(self):
+        return self._extSemSignal
+    @extSemSignal.setter
+    def extSemSignal(self, extSemSignal not None : cudaExternalSemaphoreSignalNodeParamsV2):
+        string.memcpy(&self._ptr[0].extSemSignal, <ccudart.cudaExternalSemaphoreSignalNodeParamsV2*><void_ptr>extSemSignal.getPtr(), sizeof(self._ptr[0].extSemSignal))
+    @property
+    def extSemWait(self):
+        return self._extSemWait
+    @extSemWait.setter
+    def extSemWait(self, extSemWait not None : cudaExternalSemaphoreWaitNodeParamsV2):
+        string.memcpy(&self._ptr[0].extSemWait, <ccudart.cudaExternalSemaphoreWaitNodeParamsV2*><void_ptr>extSemWait.getPtr(), sizeof(self._ptr[0].extSemWait))
+    @property
+    def alloc(self):
+        return self._alloc
+    @alloc.setter
+    def alloc(self, alloc not None : cudaMemAllocNodeParamsV2):
+        string.memcpy(&self._ptr[0].alloc, <ccudart.cudaMemAllocNodeParamsV2*><void_ptr>alloc.getPtr(), sizeof(self._ptr[0].alloc))
+    @property
+    def free(self):
+        return self._free
+    @free.setter
+    def free(self, free not None : cudaMemFreeNodeParams):
+        string.memcpy(&self._ptr[0].free, <ccudart.cudaMemFreeNodeParams*><void_ptr>free.getPtr(), sizeof(self._ptr[0].free))
+    @property
+    def reserved2(self):
+        return self._ptr[0].reserved2
+    @reserved2.setter
+    def reserved2(self, long long reserved2):
+        self._ptr[0].reserved2 = reserved2
 {{endif}}
 {{if 'struct cudaGraphInstantiateParams_st' in found_types}}
 
@@ -10225,7 +11399,7 @@ cdef class cudaLaunchAttributeValue:
         return self._accessPolicyWindow
     @accessPolicyWindow.setter
     def accessPolicyWindow(self, accessPolicyWindow not None : cudaAccessPolicyWindow):
-        memcpy(&self._ptr[0].accessPolicyWindow, <ccudart.cudaAccessPolicyWindow*><void_ptr>accessPolicyWindow.getPtr(), sizeof(self._ptr[0].accessPolicyWindow))
+        string.memcpy(&self._ptr[0].accessPolicyWindow, <ccudart.cudaAccessPolicyWindow*><void_ptr>accessPolicyWindow.getPtr(), sizeof(self._ptr[0].accessPolicyWindow))
     @property
     def cooperative(self):
         return self._ptr[0].cooperative
@@ -10243,7 +11417,7 @@ cdef class cudaLaunchAttributeValue:
         return self._clusterDim
     @clusterDim.setter
     def clusterDim(self, clusterDim not None : anon_struct19):
-        memcpy(&self._ptr[0].clusterDim, <ccudart.anon_struct19*><void_ptr>clusterDim.getPtr(), sizeof(self._ptr[0].clusterDim))
+        string.memcpy(&self._ptr[0].clusterDim, <ccudart.anon_struct19*><void_ptr>clusterDim.getPtr(), sizeof(self._ptr[0].clusterDim))
     @property
     def clusterSchedulingPolicyPreference(self):
         return cudaClusterSchedulingPolicy(self._ptr[0].clusterSchedulingPolicyPreference)
@@ -10261,7 +11435,7 @@ cdef class cudaLaunchAttributeValue:
         return self._programmaticEvent
     @programmaticEvent.setter
     def programmaticEvent(self, programmaticEvent not None : anon_struct20):
-        memcpy(&self._ptr[0].programmaticEvent, <ccudart.anon_struct20*><void_ptr>programmaticEvent.getPtr(), sizeof(self._ptr[0].programmaticEvent))
+        string.memcpy(&self._ptr[0].programmaticEvent, <ccudart.anon_struct20*><void_ptr>programmaticEvent.getPtr(), sizeof(self._ptr[0].programmaticEvent))
     @property
     def priority(self):
         return self._ptr[0].priority
@@ -10273,7 +11447,7 @@ cdef class cudaLaunchAttributeValue:
         return self._memSyncDomainMap
     @memSyncDomainMap.setter
     def memSyncDomainMap(self, memSyncDomainMap not None : cudaLaunchMemSyncDomainMap):
-        memcpy(&self._ptr[0].memSyncDomainMap, <ccudart.cudaLaunchMemSyncDomainMap*><void_ptr>memSyncDomainMap.getPtr(), sizeof(self._ptr[0].memSyncDomainMap))
+        string.memcpy(&self._ptr[0].memSyncDomainMap, <ccudart.cudaLaunchMemSyncDomainMap*><void_ptr>memSyncDomainMap.getPtr(), sizeof(self._ptr[0].memSyncDomainMap))
     @property
     def memSyncDomain(self):
         return cudaLaunchMemSyncDomain(self._ptr[0].memSyncDomain)
@@ -10336,7 +11510,7 @@ cdef class cudaLaunchAttribute_st:
         return self._val
     @val.setter
     def val(self, val not None : cudaLaunchAttributeValue):
-        memcpy(&self._ptr[0].val, <ccudart.cudaLaunchAttributeValue*><void_ptr>val.getPtr(), sizeof(self._ptr[0].val))
+        string.memcpy(&self._ptr[0].val, <ccudart.cudaLaunchAttributeValue*><void_ptr>val.getPtr(), sizeof(self._ptr[0].val))
 {{endif}}
 {{if 'struct cudaTextureDesc' in found_types}}
 
@@ -10637,7 +11811,7 @@ cdef class cudaEglPlaneDesc_st:
         return self._channelDesc
     @channelDesc.setter
     def channelDesc(self, channelDesc not None : cudaChannelFormatDesc):
-        memcpy(&self._ptr[0].channelDesc, <ccudart.cudaChannelFormatDesc*><void_ptr>channelDesc.getPtr(), sizeof(self._ptr[0].channelDesc))
+        string.memcpy(&self._ptr[0].channelDesc, <ccudart.cudaChannelFormatDesc*><void_ptr>channelDesc.getPtr(), sizeof(self._ptr[0].channelDesc))
     @property
     def reserved(self):
         return self._ptr[0].reserved
@@ -10647,7 +11821,7 @@ cdef class cudaEglPlaneDesc_st:
 {{endif}}
 {{if True}}
 
-cdef class anon_union7:
+cdef class anon_union8:
     """
     Attributes
     ----------
@@ -10700,14 +11874,14 @@ cdef class anon_union7:
     def pPitch(self):
         out_pPitch = [cudaPitchedPtr() for _pPitch in self._ptr[0].frame.pPitch]
         for _idx in range(len(out_pPitch)):
-            memcpy(<ccudart.cudaPitchedPtr*><void_ptr>out_pPitch[_idx].getPtr(), &self._ptr[0].frame.pPitch[_idx], sizeof(ccudart.cudaPitchedPtr))
+            string.memcpy(<ccudart.cudaPitchedPtr*><void_ptr>out_pPitch[_idx].getPtr(), &self._ptr[0].frame.pPitch[_idx], sizeof(ccudart.cudaPitchedPtr))
         return out_pPitch
     @pPitch.setter
     def pPitch(self, pPitch : List[cudaPitchedPtr]):
         if len(pPitch) != 3:
             raise IndexError('not enough values found during array assignment, expected 3, got', len(pPitch))
         for _idx in range(len(pPitch)):
-            memcpy(&self._ptr[0].frame.pPitch[_idx], <ccudart.cudaPitchedPtr*><void_ptr>pPitch[_idx].getPtr(), sizeof(ccudart.cudaPitchedPtr))
+            string.memcpy(&self._ptr[0].frame.pPitch[_idx], <ccudart.cudaPitchedPtr*><void_ptr>pPitch[_idx].getPtr(), sizeof(ccudart.cudaPitchedPtr))
 
 {{endif}}
 {{if True}}
@@ -10725,7 +11899,7 @@ cdef class cudaEglFrame_st:
 
     Attributes
     ----------
-    frame : anon_union7
+    frame : anon_union8
 
     planeDesc : List[cudaEglPlaneDesc]
         CUDA EGL Plane Descriptor cudaEglPlaneDesc
@@ -10748,7 +11922,7 @@ cdef class cudaEglFrame_st:
         else:
             self._ptr = <ccudart.cudaEglFrame_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        self._frame = anon_union7(_ptr=<void_ptr>self._ptr)
+        self._frame = anon_union8(_ptr=<void_ptr>self._ptr)
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -10783,20 +11957,20 @@ cdef class cudaEglFrame_st:
     def frame(self):
         return self._frame
     @frame.setter
-    def frame(self, frame not None : anon_union7):
-        memcpy(&self._ptr[0].frame, <ccudart.anon_union7*><void_ptr>frame.getPtr(), sizeof(self._ptr[0].frame))
+    def frame(self, frame not None : anon_union8):
+        string.memcpy(&self._ptr[0].frame, <ccudart.anon_union8*><void_ptr>frame.getPtr(), sizeof(self._ptr[0].frame))
     @property
     def planeDesc(self):
         out_planeDesc = [cudaEglPlaneDesc() for _planeDesc in self._ptr[0].planeDesc]
         for _idx in range(len(out_planeDesc)):
-            memcpy(<ccudart.cudaEglPlaneDesc*><void_ptr>out_planeDesc[_idx].getPtr(), &self._ptr[0].planeDesc[_idx], sizeof(ccudart.cudaEglPlaneDesc))
+            string.memcpy(<ccudart.cudaEglPlaneDesc*><void_ptr>out_planeDesc[_idx].getPtr(), &self._ptr[0].planeDesc[_idx], sizeof(ccudart.cudaEglPlaneDesc))
         return out_planeDesc
     @planeDesc.setter
     def planeDesc(self, planeDesc : List[cudaEglPlaneDesc]):
         if len(planeDesc) != 3:
             raise IndexError('not enough values found during array assignment, expected 3, got', len(planeDesc))
         for _idx in range(len(planeDesc)):
-            memcpy(&self._ptr[0].planeDesc[_idx], <ccudart.cudaEglPlaneDesc*><void_ptr>planeDesc[_idx].getPtr(), sizeof(ccudart.cudaEglPlaneDesc))
+            string.memcpy(&self._ptr[0].planeDesc[_idx], <ccudart.cudaEglPlaneDesc*><void_ptr>planeDesc[_idx].getPtr(), sizeof(ccudart.cudaEglPlaneDesc))
 
     @property
     def planeCount(self):
@@ -15498,7 +16672,7 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : List[cudaExternalSemaphore_t
         if cparamsArray is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(len(paramsArray)) + 'x' + str(sizeof(ccudart.cudaExternalSemaphoreSignalParams)))
         for idx in range(len(paramsArray)):
-            memcpy(&cparamsArray[idx], (<cudaExternalSemaphoreSignalParams>paramsArray[idx])._ptr, sizeof(ccudart.cudaExternalSemaphoreSignalParams))
+            string.memcpy(&cparamsArray[idx], (<cudaExternalSemaphoreSignalParams>paramsArray[idx])._ptr, sizeof(ccudart.cudaExternalSemaphoreSignalParams))
     if numExtSems > len(extSemArray): raise RuntimeError("List is too small: " + str(len(extSemArray)) + " < " + str(numExtSems))
     if numExtSems > len(paramsArray): raise RuntimeError("List is too small: " + str(len(paramsArray)) + " < " + str(numExtSems))
     err = ccudart.cudaSignalExternalSemaphoresAsync(<ccudart.cudaExternalSemaphore_t*>(<cudaExternalSemaphore_t>extSemArray[0])._ptr if len(extSemArray) == 1 else cextSemArray, (<cudaExternalSemaphoreSignalParams>paramsArray[0])._ptr if len(paramsArray) == 1 else cparamsArray, numExtSems, cstream)
@@ -15623,7 +16797,7 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : List[cudaExternalSemaphore_t],
         if cparamsArray is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(len(paramsArray)) + 'x' + str(sizeof(ccudart.cudaExternalSemaphoreWaitParams)))
         for idx in range(len(paramsArray)):
-            memcpy(&cparamsArray[idx], (<cudaExternalSemaphoreWaitParams>paramsArray[idx])._ptr, sizeof(ccudart.cudaExternalSemaphoreWaitParams))
+            string.memcpy(&cparamsArray[idx], (<cudaExternalSemaphoreWaitParams>paramsArray[idx])._ptr, sizeof(ccudart.cudaExternalSemaphoreWaitParams))
     if numExtSems > len(extSemArray): raise RuntimeError("List is too small: " + str(len(extSemArray)) + " < " + str(numExtSems))
     if numExtSems > len(paramsArray): raise RuntimeError("List is too small: " + str(len(paramsArray)) + " < " + str(numExtSems))
     err = ccudart.cudaWaitExternalSemaphoresAsync(<ccudart.cudaExternalSemaphore_t*>(<cudaExternalSemaphore_t>extSemArray[0])._ptr if len(extSemArray) == 1 else cextSemArray, (<cudaExternalSemaphoreWaitParams>paramsArray[0])._ptr if len(paramsArray) == 1 else cparamsArray, numExtSems, cstream)
@@ -16293,7 +17467,13 @@ def cudaMallocHost(size_t size):
     functions such as :py:obj:`~.cudaMemcpy`*(). Since the memory can be
     accessed directly by the device, it can be read or written with much
     higher bandwidth than pageable memory obtained with functions such as
-    :py:obj:`~.malloc()`. Allocating excessive amounts of memory with
+    :py:obj:`~.malloc()`.
+
+    On systems where :py:obj:`~.pageableMemoryAccessUsesHostPageTables` is
+    true, :py:obj:`~.cudaMallocHost` may not page-lock the allocated
+    memory.
+
+    Page-locking excessive amounts of memory with
     :py:obj:`~.cudaMallocHost()` may degrade system performance, since it
     reduces the amount of memory available to the system for paging. As a
     result, this function is best used sparingly to allocate staging areas
@@ -19052,7 +20232,7 @@ def cudaMemPrefetchAsync(devPtr, size_t count, int dstDevice, stream):
 
     See Also
     --------
-    :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpyPeer`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy3DPeerAsync`, :py:obj:`~.cudaMemAdvise`, :py:obj:`~.cuMemPrefetchAsync`
+    :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpyPeer`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy3DPeerAsync`, :py:obj:`~.cudaMemAdvise`, :py:obj:`~.cudaMemAdvise_v2` :py:obj:`~.cuMemPrefetchAsync`
     """
     cdef ccudart.cudaStream_t cstream
     if stream is None:
@@ -19067,6 +20247,47 @@ def cudaMemPrefetchAsync(devPtr, size_t count, int dstDevice, stream):
     cdef void* cdevPtr_ptr = <void*><void_ptr>cdevPtr.cptr
     with nogil:
         err = ccudart.cudaMemPrefetchAsync(cdevPtr_ptr, count, dstDevice, cstream)
+
+    return (cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaMemPrefetchAsync_v2' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaMemPrefetchAsync_v2(devPtr, size_t count, location not None : cudaMemLocation, unsigned int flags, stream):
+    """ 
+
+    Parameters
+    ----------
+    devPtr : Any
+        None
+    count : size_t
+        None
+    location : :py:obj:`~.cudaMemLocation`
+        None
+    flags : unsigned int
+        None
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        None
+
+    Returns
+    -------
+    cudaError_t
+
+    """
+    cdef ccudart.cudaStream_t cstream
+    if stream is None:
+        cstream = <ccudart.cudaStream_t><void_ptr>0
+    elif isinstance(stream, (cudaStream_t,cuda.CUstream)):
+        pstream = int(stream)
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    else:
+        pstream = int(cudaStream_t(stream))
+        cstream = <ccudart.cudaStream_t><void_ptr>pstream
+    cdevPtr = utils.HelperInputVoidPtr(devPtr)
+    cdef void* cdevPtr_ptr = <void*><void_ptr>cdevPtr.cptr
+    with nogil:
+        err = ccudart.cudaMemPrefetchAsync_v2(cdevPtr_ptr, count, location._ptr[0], flags, cstream)
 
     return (cudaError_t(err),)
 {{endif}}
@@ -19155,11 +20376,7 @@ def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, int 
       :py:obj:`~.cudaMemAdviseSetReadMostly`. If the memory region refers
       to valid system-allocated pageable memory, then `device` must have a
       non-zero value for the device attribute
-      :py:obj:`~.cudaDevAttrPageableMemoryAccess`. Additionally, if
-      `device` has a non-zero value for the device attribute
-      :py:obj:`~.cudaDevAttrPageableMemoryAccessUsesHostPageTables`, then
-      this call has no effect. Note however that this behavior may change
-      in the future.
+      :py:obj:`~.cudaDevAttrPageableMemoryAccess`.
 
     - :py:obj:`~.cudaMemAdviseUnsetPreferredLocation`: Undoes the effect of
       :py:obj:`~.cudaMemAdviseSetPreferredLocation` and changes the
@@ -19242,6 +20459,204 @@ def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, int 
     return (cudaError_t(err),)
 {{endif}}
 
+{{if 'cudaMemAdvise_v2' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaMemAdvise_v2(devPtr, size_t count, advice not None : cudaMemoryAdvise, location not None : cudaMemLocation):
+    """ Advise about the usage of a given memory range.
+
+    Advise the Unified Memory subsystem about the usage pattern for the
+    memory range starting at `devPtr` with a size of `count` bytes. The
+    start address and end address of the memory range will be rounded down
+    and rounded up respectively to be aligned to CPU page size before the
+    advice is applied. The memory range must refer to managed memory
+    allocated via :py:obj:`~.cudaMemAllocManaged` or declared via managed
+    variables. The memory range could also refer to system-allocated
+    pageable memory provided it represents a valid, host-accessible region
+    of memory and all additional constraints imposed by `advice` as
+    outlined below are also satisfied. Specifying an invalid system-
+    allocated pageable memory range results in an error being returned.
+
+    The `advice` parameter can take the following values:
+
+    - :py:obj:`~.cudaMemAdviseSetReadMostly`: This implies that the data is
+      mostly going to be read from and only occasionally written to. Any
+      read accesses from any processor to this region will create a read-
+      only copy of at least the accessed pages in that processor's memory.
+      Additionally, if :py:obj:`~.cudaMemPrefetchAsync` or
+      :py:obj:`~.cudaMemPrefetchAsync_v2` is called on this region, it will
+      create a read-only copy of the data on the destination processor. If
+      the target location for :py:obj:`~.cudaMemPrefetchAsync_v2` is a host
+      NUMA node and a read-only copy already exists on another host NUMA
+      node, that copy will be migrated to the targeted host NUMA node. If
+      any processor writes to this region, all copies of the corresponding
+      page will be invalidated except for the one where the write occurred.
+      If the writing processor is the CPU and the preferred location of the
+      page is a host NUMA node, then the page will also be migrated to that
+      host NUMA node. The `location` argument is ignored for this advice.
+      Note that for a page to be read-duplicated, the accessing processor
+      must either be the CPU or a GPU that has a non-zero value for the
+      device attribute :py:obj:`~.cudaDevAttrConcurrentManagedAccess`.
+      Also, if a context is created on a device that does not have the
+      device attribute :py:obj:`~.cudaDevAttrConcurrentManagedAccess` set,
+      then read-duplication will not occur until all such contexts are
+      destroyed. If the memory region refers to valid system-allocated
+      pageable memory, then the accessing device must have a non-zero value
+      for the device attribute :py:obj:`~.cudaDevAttrPageableMemoryAccess`
+      for a read-only copy to be created on that device. Note however that
+      if the accessing device also has a non-zero value for the device
+      attribute
+      :py:obj:`~.cudaDevAttrPageableMemoryAccessUsesHostPageTables`, then
+      setting this advice will not create a read-only copy when that device
+      accesses this memory region.
+
+    - :py:obj:`~.cudaMemAdviceUnsetReadMostly`: Undoes the effect of
+      :py:obj:`~.cudaMemAdviseSetReadMostly` and also prevents the Unified
+      Memory driver from attempting heuristic read-duplication on the
+      memory range. Any read-duplicated copies of the data will be
+      collapsed into a single copy. The location for the collapsed copy
+      will be the preferred location if the page has a preferred location
+      and one of the read-duplicated copies was resident at that location.
+      Otherwise, the location chosen is arbitrary. Note: The `location`
+      argument is ignored for this advice.
+
+    - :py:obj:`~.cudaMemAdviseSetPreferredLocation`: This advice sets the
+      preferred location for the data to be the memory belonging to
+      `location`. When :py:obj:`~.cudaMemLocation.type` is
+      :py:obj:`~.cudaMemLocationTypeHost`, :py:obj:`~.cudaMemLocation.id`
+      is ignored and the preferred location is set to be host memory. To
+      set the preferred location to a specific host NUMA node, applications
+      must set :py:obj:`~.cudaMemLocation.type` to
+      :py:obj:`~.cudaMemLocationTypeHostNuma` and
+      :py:obj:`~.cudaMemLocation.id` must specify the NUMA ID of the host
+      NUMA node. If :py:obj:`~.cudaMemLocation.type` is set to
+      :py:obj:`~.cudaMemLocationTypeHostNumaCurrent`,
+      :py:obj:`~.cudaMemLocation.id` will be ignored and the host NUMA node
+      closest to the calling thread's CPU will be used as the preferred
+      location. If :py:obj:`~.cudaMemLocation.type` is a
+      :py:obj:`~.cudaMemLocationTypeDevice`, then
+      :py:obj:`~.cudaMemLocation.id` must be a valid device ordinal and the
+      device must have a non-zero value for the device attribute
+      :py:obj:`~.cudaDevAttrConcurrentManagedAccess`. Setting the preferred
+      location does not cause data to migrate to that location immediately.
+      Instead, it guides the migration policy when a fault occurs on that
+      memory region. If the data is already in its preferred location and
+      the faulting processor can establish a mapping without requiring the
+      data to be migrated, then data migration will be avoided. On the
+      other hand, if the data is not in its preferred location or if a
+      direct mapping cannot be established, then it will be migrated to the
+      processor accessing it. It is important to note that setting the
+      preferred location does not prevent data prefetching done using
+      :py:obj:`~.cudaMemPrefetchAsync`. Having a preferred location can
+      override the page thrash detection and resolution logic in the
+      Unified Memory driver. Normally, if a page is detected to be
+      constantly thrashing between for example host and device memory, the
+      page may eventually be pinned to host memory by the Unified Memory
+      driver. But if the preferred location is set as device memory, then
+      the page will continue to thrash indefinitely. If
+      :py:obj:`~.cudaMemAdviseSetReadMostly` is also set on this memory
+      region or any subset of it, then the policies associated with that
+      advice will override the policies of this advice, unless read
+      accesses from `location` will not result in a read-only copy being
+      created on that procesor as outlined in description for the advice
+      :py:obj:`~.cudaMemAdviseSetReadMostly`. If the memory region refers
+      to valid system-allocated pageable memory, and
+      :py:obj:`~.cudaMemLocation.type` is
+      :py:obj:`~.cudaMemLocationTypeDevice` then
+      :py:obj:`~.cudaMemLocation.id` must be a valid device that has a non-
+      zero alue for the device attribute
+      :py:obj:`~.cudaDevAttrPageableMemoryAccess`.
+
+    - :py:obj:`~.cudaMemAdviseUnsetPreferredLocation`: Undoes the effect of
+      :py:obj:`~.cudaMemAdviseSetPreferredLocation` and changes the
+      preferred location to none. The `location` argument is ignored for
+      this advice.
+
+    - :py:obj:`~.cudaMemAdviseSetAccessedBy`: This advice implies that the
+      data will be accessed by processor `location`. The
+      :py:obj:`~.cudaMemLocation.type` must be either
+      :py:obj:`~.cudaMemLocationTypeDevice` with
+      :py:obj:`~.cudaMemLocation.id` representing a valid device ordinal or
+      :py:obj:`~.cudaMemLocationTypeHost` and
+      :py:obj:`~.cudaMemLocation.id` will be ignored. All other location
+      types are invalid. If :py:obj:`~.cudaMemLocation.id` is a GPU, then
+      the device attribute :py:obj:`~.cudaDevAttrConcurrentManagedAccess`
+      must be non-zero. This advice does not cause data migration and has
+      no impact on the location of the data per se. Instead, it causes the
+      data to always be mapped in the specified processor's page tables, as
+      long as the location of the data permits a mapping to be established.
+      If the data gets migrated for any reason, the mappings are updated
+      accordingly. This advice is recommended in scenarios where data
+      locality is not important, but avoiding faults is. Consider for
+      example a system containing multiple GPUs with peer-to-peer access
+      enabled, where the data located on one GPU is occasionally accessed
+      by peer GPUs. In such scenarios, migrating data over to the other
+      GPUs is not as important because the accesses are infrequent and the
+      overhead of migration may be too high. But preventing faults can
+      still help improve performance, and so having a mapping set up in
+      advance is useful. Note that on CPU access of this data, the data may
+      be migrated to host memory because the CPU typically cannot access
+      device memory directly. Any GPU that had the
+      :py:obj:`~.cudaMemAdviseSetAccessedBy` flag set for this data will
+      now have its mapping updated to point to the page in host memory. If
+      :py:obj:`~.cudaMemAdviseSetReadMostly` is also set on this memory
+      region or any subset of it, then the policies associated with that
+      advice will override the policies of this advice. Additionally, if
+      the preferred location of this memory region or any subset of it is
+      also `location`, then the policies associated with
+      :py:obj:`~.CU_MEM_ADVISE_SET_PREFERRED_LOCATION` will override the
+      policies of this advice. If the memory region refers to valid system-
+      allocated pageable memory, and :py:obj:`~.cudaMemLocation.type` is
+      :py:obj:`~.cudaMemLocationTypeDevice` then device in
+      :py:obj:`~.cudaMemLocation.id` must have a non-zero value for the
+      device attribute :py:obj:`~.cudaDevAttrPageableMemoryAccess`.
+      Additionally, if :py:obj:`~.cudaMemLocation.id` has a non-zero value
+      for the device attribute
+      :py:obj:`~.cudaDevAttrPageableMemoryAccessUsesHostPageTables`, then
+      this call has no effect.
+
+    - :py:obj:`~.CU_MEM_ADVISE_UNSET_ACCESSED_BY`: Undoes the effect of
+      :py:obj:`~.cudaMemAdviseSetAccessedBy`. Any mappings to the data from
+      `location` may be removed at any time causing accesses to result in
+      non-fatal page faults. If the memory region refers to valid system-
+      allocated pageable memory, and :py:obj:`~.cudaMemLocation.type` is
+      :py:obj:`~.cudaMemLocationTypeDevice` then device in
+      :py:obj:`~.cudaMemLocation.id` must have a non-zero value for the
+      device attribute :py:obj:`~.cudaDevAttrPageableMemoryAccess`.
+      Additionally, if :py:obj:`~.cudaMemLocation.id` has a non-zero value
+      for the device attribute
+      :py:obj:`~.cudaDevAttrPageableMemoryAccessUsesHostPageTables`, then
+      this call has no effect.
+
+    Parameters
+    ----------
+    devPtr : Any
+        Pointer to memory to set the advice for
+    count : size_t
+        Size in bytes of the memory range
+    advice : :py:obj:`~.cudaMemoryAdvise`
+        Advice to be applied for the specified memory range
+    location : :py:obj:`~.cudaMemLocation`
+        location to apply the advice for
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDevice`
+
+    See Also
+    --------
+    :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpyPeer`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy3DPeerAsync`, :py:obj:`~.cudaMemPrefetchAsync`, :py:obj:`~.cuMemAdvise`, :py:obj:`~.cuMemAdvise_v2`
+    """
+    cdevPtr = utils.HelperInputVoidPtr(devPtr)
+    cdef void* cdevPtr_ptr = <void*><void_ptr>cdevPtr.cptr
+    cdef ccudart.cudaMemoryAdvise cadvice = advice.value
+    with nogil:
+        err = ccudart.cudaMemAdvise_v2(cdevPtr_ptr, count, cadvice, location._ptr[0])
+
+    return (cudaError_t(err),)
+{{endif}}
+
 {{if 'cudaMemRangeGetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
@@ -19302,6 +20717,62 @@ def cudaMemRangeGetAttribute(size_t dataSize, attribute not None : cudaMemRangeA
       indication as to whether the prefetch operation to that location has
       completed or even begun.
 
+      - :py:obj:`~.cudaMemRangeAttributePreferredLocationType`: If this
+        attribute is specified, `data` will be interpreted as a
+        :py:obj:`~.cudaMemLocationType`, and `dataSize` must be
+        sizeof(cudaMemLocationType). The :py:obj:`~.cudaMemLocationType`
+        returned will be :py:obj:`~.cudaMemLocationTypeDevice` if all pages
+        in the memory range have the same GPU as their preferred location,
+        or :py:obj:`~.cudaMemLocationType` will be
+        :py:obj:`~.cudaMemLocationTypeHost` if all pages in the memory
+        range have the CPU as their preferred location, or or it will be
+        :py:obj:`~.cudaMemLocationTypeHostNuma` if all the pages in the
+        memory range have the same host NUMA node ID as their preferred
+        location or it will be :py:obj:`~.cudaMemLocationTypeInvalid` if
+        either all the pages don't have the same preferred location or some
+        of the pages don't have a preferred location at all. Note that the
+        actual location type of the pages in the memory range at the time
+        of the query may be different from the preferred location type.
+
+    - :py:obj:`~.cudaMemRangeAttributePreferredLocationId`: If this
+    attribute is specified, `data` will be interpreted as a 32-bit integer,
+    and `dataSize` must be 4. If the
+    :py:obj:`~.cudaMemRangeAttributePreferredLocationType` query for the
+    same address range returns :py:obj:`~.cudaMemLocationTypeDevice`, it
+    will be a valid device ordinal or if it returns
+    :py:obj:`~.cudaMemLocationTypeHostNuma`, it will be a valid host NUMA
+    node ID or if it returns any other location type, the id should be
+    ignored.
+
+      - :py:obj:`~.cudaMemRangeAttributeLastPrefetchLocationType`: If this
+        attribute is specified, `data` will be interpreted as a
+        :py:obj:`~.cudaMemLocationType`, and `dataSize` must be
+        sizeof(cudaMemLocationType). The result returned will be the last
+        location type to which all pages in the memory range were
+        prefetched explicitly via :py:obj:`~.cuMemPrefetchAsync`. The
+        :py:obj:`~.cudaMemLocationType` returned will be
+        :py:obj:`~.cudaMemLocationTypeDevice` if the last prefetch location
+        was the GPU or :py:obj:`~.cudaMemLocationTypeHost` if it was the
+        CPU or :py:obj:`~.cudaMemLocationTypeHostNuma` if the last prefetch
+        location was a specific host NUMA node. If any page in the memory
+        range was never explicitly prefetched or if all pages were not
+        prefetched to the same location, :py:obj:`~.CUmemLocationType` will
+        be :py:obj:`~.cudaMemLocationTypeInvalid`. Note that this simply
+        returns the last location type that the application requested to
+        prefetch the memory range to. It gives no indication as to whether
+        the prefetch operation to that location has completed or even
+        begun.
+
+    - :py:obj:`~.cudaMemRangeAttributeLastPrefetchLocationId`: If this
+    attribute is specified, `data` will be interpreted as a 32-bit integer,
+    and `dataSize` must be 4. If the
+    :py:obj:`~.cudaMemRangeAttributeLastPrefetchLocationType` query for the
+    same address range returns :py:obj:`~.cudaMemLocationTypeDevice`, it
+    will be a valid device ordinal or if it returns
+    :py:obj:`~.cudaMemLocationTypeHostNuma`, it will be a valid host NUMA
+    node ID or if it returns any other location type, the id should be
+    ignored.
+
     Parameters
     ----------
     dataSize : size_t
@@ -19359,6 +20830,14 @@ def cudaMemRangeGetAttributes(dataSizes : List[int], attributes : List[cudaMemRa
     - :py:obj:`~.cudaMemRangeAttributeAccessedBy`
 
     - :py:obj:`~.cudaMemRangeAttributeLastPrefetchLocation`
+
+    - :: cudaMemRangeAttributePreferredLocationType
+
+    - :: cudaMemRangeAttributePreferredLocationId
+
+    - :: cudaMemRangeAttributeLastPrefetchLocationType
+
+    - :: cudaMemRangeAttributeLastPrefetchLocationId
 
     Parameters
     ----------
@@ -20107,7 +21586,7 @@ def cudaMemPoolSetAccess(memPool, descList : List[cudaMemAccessDesc], size_t cou
         if cdescList is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(len(descList)) + 'x' + str(sizeof(ccudart.cudaMemAccessDesc)))
         for idx in range(len(descList)):
-            memcpy(&cdescList[idx], (<cudaMemAccessDesc>descList[idx])._ptr, sizeof(ccudart.cudaMemAccessDesc))
+            string.memcpy(&cdescList[idx], (<cudaMemAccessDesc>descList[idx])._ptr, sizeof(ccudart.cudaMemAccessDesc))
     if count > <size_t>len(descList): raise RuntimeError("List is too small: " + str(len(descList)) + " < " + str(count))
     err = ccudart.cudaMemPoolSetAccess(cmemPool, (<cudaMemAccessDesc>descList[0])._ptr if len(descList) == 1 else cdescList, count)
     if cdescList is not NULL:
@@ -20167,8 +21646,18 @@ def cudaMemPoolCreate(poolProps : cudaMemPoolProps):
     `poolProps` determines the properties of the pool such as the backing
     device and IPC capabilities.
 
-    By default, the pool's memory will be accessible from the device it is
-    allocated on.
+    To create a memory pool targeting a specific host NUMA node,
+    applications must set
+    :py:obj:`~.cudaMemPoolProps`::cudaMemLocation::type to
+    :py:obj:`~.cudaMemLocationTypeHostNuma` and
+    :py:obj:`~.cudaMemPoolProps`::cudaMemLocation::id must specify the NUMA
+    ID of the host memory node. By default, the pool's memory will be
+    accessible from the device it is allocated on. In the case of pools
+    created with :py:obj:`~.cudaMemLocationTypeHostNuma`, their default
+    accessibility will be from the host CPU. Applications can control the
+    maximum size of the pool by specifying a non-zero value for
+    :py:obj:`~.cudaMemPoolProps.maxSize`. If set to 0, the maximum size of
+    the pool will default to a system dependent value.
 
     Parameters
     ----------
@@ -21803,7 +23292,7 @@ def cudaGraphAddKernelNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
 
     See Also
     --------
-    :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphKernelNodeGetParams`, :py:obj:`~.cudaGraphKernelNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphKernelNodeGetParams`, :py:obj:`~.cudaGraphKernelNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
 
     Notes
     -----
@@ -21907,7 +23396,7 @@ def cudaGraphKernelNodeSetParams(node, pNodeParams : cudaKernelNodeParams):
 
     See Also
     --------
-    :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphKernelNodeGetParams`
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphKernelNodeGetParams`
     """
     cdef ccudart.cudaGraphNode_t cnode
     if node is None:
@@ -22096,7 +23585,7 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
 
     See Also
     --------
-    :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaGraphAddMemcpyNodeToSymbol`, :py:obj:`~.cudaGraphAddMemcpyNodeFromSymbol`, :py:obj:`~.cudaGraphAddMemcpyNode1D`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaGraphAddMemcpyNodeToSymbol`, :py:obj:`~.cudaGraphAddMemcpyNodeFromSymbol`, :py:obj:`~.cudaGraphAddMemcpyNode1D`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemsetNode`
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,cuda.CUgraphNode)) for _x in pDependencies):
@@ -22278,7 +23767,7 @@ def cudaGraphMemcpyNodeSetParams(node, pNodeParams : cudaMemcpy3DParms):
 
     See Also
     --------
-    :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaMemcpy3D`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeGetParams`
     """
     cdef ccudart.cudaGraphNode_t cnode
     if node is None:
@@ -22391,7 +23880,7 @@ def cudaGraphAddMemsetNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
 
     See Also
     --------
-    :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaGraphMemsetNodeGetParams`, :py:obj:`~.cudaGraphMemsetNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaGraphMemsetNodeGetParams`, :py:obj:`~.cudaGraphMemsetNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,cuda.CUgraphNode)) for _x in pDependencies):
@@ -22482,7 +23971,7 @@ def cudaGraphMemsetNodeSetParams(node, pNodeParams : cudaMemsetParams):
 
     See Also
     --------
-    :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphMemsetNodeGetParams`
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaMemset2D`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphMemsetNodeGetParams`
     """
     cdef ccudart.cudaGraphNode_t cnode
     if node is None:
@@ -22534,7 +24023,7 @@ def cudaGraphAddHostNode(graph, pDependencies : List[cudaGraphNode_t], size_t nu
 
     See Also
     --------
-    :py:obj:`~.cudaLaunchHostFunc`, :py:obj:`~.cudaGraphHostNodeGetParams`, :py:obj:`~.cudaGraphHostNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaLaunchHostFunc`, :py:obj:`~.cudaGraphHostNodeGetParams`, :py:obj:`~.cudaGraphHostNodeSetParams`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,cuda.CUgraphNode)) for _x in pDependencies):
@@ -22625,7 +24114,7 @@ def cudaGraphHostNodeSetParams(node, pNodeParams : cudaHostNodeParams):
 
     See Also
     --------
-    :py:obj:`~.cudaLaunchHostFunc`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphHostNodeGetParams`
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaLaunchHostFunc`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphHostNodeGetParams`
     """
     cdef ccudart.cudaGraphNode_t cnode
     if node is None:
@@ -22680,7 +24169,7 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : List[cudaGraphNode_t], siz
 
     See Also
     --------
-    :py:obj:`~.cudaGraphChildGraphNodeGetGraph`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphClone`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphChildGraphNodeGetGraph`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphClone`
     """
     cdef ccudart.cudaGraph_t cchildGraph
     if childGraph is None:
@@ -22799,7 +24288,7 @@ def cudaGraphAddEmptyNode(graph, pDependencies : List[cudaGraphNode_t], size_t n
 
     See Also
     --------
-    :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,cuda.CUgraphNode)) for _x in pDependencies):
@@ -22867,7 +24356,7 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : List[cudaGraphNode_t], si
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
     """
     cdef ccudart.cudaEvent_t cevent
     if event is None:
@@ -22966,7 +24455,7 @@ def cudaGraphEventRecordNodeSetEvent(node, event):
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
     """
     cdef ccudart.cudaEvent_t cevent
     if event is None:
@@ -23031,7 +24520,7 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : List[cudaGraphNode_t], size
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
     """
     cdef ccudart.cudaEvent_t cevent
     if event is None:
@@ -23130,7 +24619,7 @@ def cudaGraphEventWaitNodeSetEvent(node, event):
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`
     """
     cdef ccudart.cudaEvent_t cevent
     if event is None:
@@ -23191,7 +24680,7 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : List[cudaGra
 
     See Also
     --------
-    :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,cuda.CUgraphNode)) for _x in pDependencies):
@@ -23289,7 +24778,7 @@ def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : cudaExter
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
     """
     cdef ccudart.cudaGraphNode_t chNode
     if hNode is None:
@@ -23342,7 +24831,7 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : List[cudaGraph
 
     See Also
     --------
-    :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeGetParams`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,cuda.CUgraphNode)) for _x in pDependencies):
@@ -23440,7 +24929,7 @@ def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : cudaExterna
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
+    :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
     """
     cdef ccudart.cudaGraphNode_t chNode
     if hNode is None:
@@ -23531,7 +25020,7 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : List[cudaGraphNode_t], size_
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemAllocNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddMemFreeNode`, :py:obj:`~.cudaGraphMemAllocNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,cuda.CUgraphNode)) for _x in pDependencies):
@@ -23656,7 +25145,7 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : List[cudaGraphNode_t], size_t
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphAddMemAllocNode`, :py:obj:`~.cudaGraphMemFreeNodeGetParams`, :py:obj:`~.cudaDeviceGraphMemTrim`, :py:obj:`~.cudaDeviceGetGraphMemAttribute`, :py:obj:`~.cudaDeviceSetGraphMemAttribute`, :py:obj:`~.cudaMallocAsync`, :py:obj:`~.cudaFreeAsync`, :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphDestroyNode`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphAddEmptyNode`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphAddMemsetNode`
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,cuda.CUgraphNode)) for _x in pDependencies):
@@ -24883,7 +26372,7 @@ def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : cudaKernelN
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddKernelNode`, :py:obj:`~.cudaGraphKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
     """
     cdef ccudart.cudaGraphNode_t cnode
     if node is None:
@@ -24949,7 +26438,7 @@ def cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams : cudaMemcpy3
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddMemcpyNode`, :py:obj:`~.cudaGraphMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParamsToSymbol`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParamsFromSymbol`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams1D`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
     """
     cdef ccudart.cudaGraphNode_t cnode
     if node is None:
@@ -25087,7 +26576,7 @@ def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : cudaMemsetP
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddMemsetNode`, :py:obj:`~.cudaGraphMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
     """
     cdef ccudart.cudaGraphNode_t cnode
     if node is None:
@@ -25143,7 +26632,7 @@ def cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams : cudaHostNodeP
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphHostNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddHostNode`, :py:obj:`~.cudaGraphHostNodeSetParams`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
     """
     cdef ccudart.cudaGraphNode_t cnode
     if node is None:
@@ -25207,7 +26696,7 @@ def cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph):
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphChildGraphNodeGetGraph`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddChildGraphNode`, :py:obj:`~.cudaGraphChildGraphNodeGetGraph`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
     """
     cdef ccudart.cudaGraph_t cchildGraph
     if childGraph is None:
@@ -25272,7 +26761,7 @@ def cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event):
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddEventRecordNode`, :py:obj:`~.cudaGraphEventRecordNodeGetEvent`, :py:obj:`~.cudaGraphEventWaitNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
     """
     cdef ccudart.cudaEvent_t cevent
     if event is None:
@@ -25337,7 +26826,7 @@ def cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddEventWaitNode`, :py:obj:`~.cudaGraphEventWaitNodeGetEvent`, :py:obj:`~.cudaGraphEventRecordNodeSetEvent`, :py:obj:`~.cudaEventRecordWithFlags`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
     """
     cdef ccudart.cudaEvent_t cevent
     if event is None:
@@ -25406,7 +26895,7 @@ def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePa
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
     """
     cdef ccudart.cudaGraphNode_t chNode
     if hNode is None:
@@ -25467,7 +26956,7 @@ def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodePara
 
     See Also
     --------
-    :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    :py:obj:`~.cudaGraphExecNodeSetParams`, :py:obj:`~.cudaGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cudaImportExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`, :py:obj:`~.cudaGraphExecKernelNodeSetParams`, :py:obj:`~.cudaGraphExecMemcpyNodeSetParams`, :py:obj:`~.cudaGraphExecMemsetNodeSetParams`, :py:obj:`~.cudaGraphExecHostNodeSetParams`, :py:obj:`~.cudaGraphExecChildGraphNodeSetParams`, :py:obj:`~.cudaGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cudaGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cudaGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
     """
     cdef ccudart.cudaGraphNode_t chNode
     if hNode is None:
@@ -26236,6 +27725,187 @@ def cudaGraphReleaseUserObject(graph, object, unsigned int count):
         pgraph = int(cudaGraph_t(graph))
         cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
     err = ccudart.cudaGraphReleaseUserObject(cgraph, cobject, count)
+    return (cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaGraphAddNode' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphAddNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, nodeParams : cudaGraphNodeParams):
+    """ Adds a node of arbitrary type to a graph.
+
+    Creates a new node in `graph` described by `nodeParams` with
+    `numDependencies` dependencies specified via `pDependencies`.
+    `numDependencies` may be 0. `pDependencies` may be null if
+    `numDependencies` is 0. `pDependencies` may not have any duplicate
+    entries.
+
+    `nodeParams` is a tagged union. The node type should be specified in
+    the `typename` field, and type-specific parameters in the corresponding
+    union member. All unused bytes - that is, `reserved0` and all bytes
+    past the utilized union member - must be set to zero. It is recommended
+    to use brace initialization or memset to ensure all bytes are
+    initialized.
+
+    Note that for some node types, `nodeParams` may contain "out
+    parameters" which are modified during the call, such as
+    `nodeParams->alloc.dptr`.
+
+    A handle to the new node will be returned in `phGraphNode`.
+
+    Parameters
+    ----------
+    graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to which to add the node
+    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+        Dependencies of the node
+    numDependencies : size_t
+        Number of dependencies
+    nodeParams : :py:obj:`~.cudaGraphNodeParams`
+        Specification of the node
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDeviceFunction`, :py:obj:`~.cudaErrorNotSupported`
+    pGraphNode : :py:obj:`~.cudaGraphNode_t`
+        Returns newly created node
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphNodeSetParams`, :py:obj:`~.cudaGraphExecNodeSetParams`
+    """
+    pDependencies = [] if pDependencies is None else pDependencies
+    if not all(isinstance(_x, (cudaGraphNode_t,cuda.CUgraphNode)) for _x in pDependencies):
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected List[ccudart.cudaGraphNode_t,cuda.CUgraphNode]")
+    cdef ccudart.cudaGraph_t cgraph
+    if graph is None:
+        cgraph = <ccudart.cudaGraph_t><void_ptr>0
+    elif isinstance(graph, (cudaGraph_t,cuda.CUgraph)):
+        pgraph = int(graph)
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    else:
+        pgraph = int(cudaGraph_t(graph))
+        cgraph = <ccudart.cudaGraph_t><void_ptr>pgraph
+    cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
+    cdef ccudart.cudaGraphNode_t* cpDependencies = NULL
+    if len(pDependencies) > 0:
+        cpDependencies = <ccudart.cudaGraphNode_t*> calloc(len(pDependencies), sizeof(ccudart.cudaGraphNode_t))
+        if cpDependencies is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(pDependencies)) + 'x' + str(sizeof(ccudart.cudaGraphNode_t)))
+        else:
+            for idx in range(len(pDependencies)):
+                cpDependencies[idx] = <ccudart.cudaGraphNode_t>(<cudaGraphNode_t>pDependencies[idx])._ptr[0]
+    if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
+    cdef ccudart.cudaGraphNodeParams* cnodeParams_ptr = nodeParams._ptr if nodeParams != None else NULL
+    err = ccudart.cudaGraphAddNode(<ccudart.cudaGraphNode_t*>pGraphNode._ptr, cgraph, <ccudart.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._ptr if len(pDependencies) == 1 else cpDependencies, numDependencies, cnodeParams_ptr)
+    if cpDependencies is not NULL:
+        free(cpDependencies)
+    return (cudaError_t(err), pGraphNode)
+{{endif}}
+
+{{if 'cudaGraphNodeSetParams' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphNodeSetParams(node, nodeParams : cudaGraphNodeParams):
+    """ Update's a graph node's parameters.
+
+    Sets the parameters of graph node `node` to `nodeParams`. The node type
+    specified by `nodeParams->type` must match the type of `node`.
+    `nodeParams` must be fully initialized and all unused bytes (reserved,
+    padding) zeroed.
+
+    Modifying parameters is not supported for node types
+    cudaGraphNodeTypeMemAlloc and cudaGraphNodeTypeMemFree.
+
+    Parameters
+    ----------
+    node : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to set the parameters for
+    nodeParams : :py:obj:`~.cudaGraphNodeParams`
+        Parameters to copy
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDeviceFunction`, :py:obj:`~.cudaErrorNotSupported`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphExecNodeSetParams`
+    """
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    cdef ccudart.cudaGraphNodeParams* cnodeParams_ptr = nodeParams._ptr if nodeParams != None else NULL
+    err = ccudart.cudaGraphNodeSetParams(cnode, cnodeParams_ptr)
+    return (cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaGraphExecNodeSetParams' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphExecNodeSetParams(graphExec, node, nodeParams : cudaGraphNodeParams):
+    """ Update's a graph node's parameters in an instantiated graph.
+
+    Sets the parameters of a node in an executable graph `graphExec`. The
+    node is identified by the corresponding node `node` in the non-
+    executable graph from which the executable graph was instantiated.
+    `node` must not have been removed from the original graph.
+
+    The modifications only affect future launches of `graphExec`. Already
+    enqueued or running launches of `graphExec` are not affected by this
+    call. `node` is also not modified by this call.
+
+    Allowed changes to parameters on executable graphs are as follows:
+
+    **View CUDA Toolkit Documentation for a table example**
+
+    Parameters
+    ----------
+    graphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        The executable graph in which to update the specified node
+    node : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Corresponding node from the graph from which graphExec was
+        instantiated
+    nodeParams : :py:obj:`~.cudaGraphNodeParams`
+        Updated Parameters to set
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDeviceFunction`, :py:obj:`~.cudaErrorNotSupported`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphAddNode`, :py:obj:`~.cudaGraphNodeSetParams` :py:obj:`~.cudaGraphExecUpdate`, :py:obj:`~.cudaGraphInstantiate`
+    """
+    cdef ccudart.cudaGraphNode_t cnode
+    if node is None:
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>0
+    elif isinstance(node, (cudaGraphNode_t,cuda.CUgraphNode)):
+        pnode = int(node)
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    else:
+        pnode = int(cudaGraphNode_t(node))
+        cnode = <ccudart.cudaGraphNode_t><void_ptr>pnode
+    cdef ccudart.cudaGraphExec_t cgraphExec
+    if graphExec is None:
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>0
+    elif isinstance(graphExec, (cudaGraphExec_t,cuda.CUgraphExec)):
+        pgraphExec = int(graphExec)
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>pgraphExec
+    else:
+        pgraphExec = int(cudaGraphExec_t(graphExec))
+        cgraphExec = <ccudart.cudaGraphExec_t><void_ptr>pgraphExec
+    cdef ccudart.cudaGraphNodeParams* cnodeParams_ptr = nodeParams._ptr if nodeParams != None else NULL
+    err = ccudart.cudaGraphExecNodeSetParams(cgraphExec, cnode, cnodeParams_ptr)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -27665,12 +29335,18 @@ def sizeof(objType):
     {{if 'struct cudaMemcpy3DParms' in found_types}}
     if objType == cudaMemcpy3DParms:
         return sizeof(ccudart.cudaMemcpy3DParms){{endif}}
+    {{if 'struct cudaMemcpyNodeParams' in found_types}}
+    if objType == cudaMemcpyNodeParams:
+        return sizeof(ccudart.cudaMemcpyNodeParams){{endif}}
     {{if 'struct cudaMemcpy3DPeerParms' in found_types}}
     if objType == cudaMemcpy3DPeerParms:
         return sizeof(ccudart.cudaMemcpy3DPeerParms){{endif}}
     {{if 'struct cudaMemsetParams' in found_types}}
     if objType == cudaMemsetParams:
         return sizeof(ccudart.cudaMemsetParams){{endif}}
+    {{if 'struct cudaMemsetParamsV2' in found_types}}
+    if objType == cudaMemsetParamsV2:
+        return sizeof(ccudart.cudaMemsetParamsV2){{endif}}
     {{if 'struct cudaAccessPolicyWindow' in found_types}}
     if objType == cudaAccessPolicyWindow:
         return sizeof(ccudart.cudaAccessPolicyWindow){{endif}}
@@ -27680,6 +29356,9 @@ def sizeof(objType):
     {{if 'struct cudaHostNodeParams' in found_types}}
     if objType == cudaHostNodeParams:
         return sizeof(ccudart.cudaHostNodeParams){{endif}}
+    {{if 'struct cudaHostNodeParamsV2' in found_types}}
+    if objType == cudaHostNodeParamsV2:
+        return sizeof(ccudart.cudaHostNodeParamsV2){{endif}}
     {{if 'struct cudaResourceDesc' in found_types}}
     if objType == cudaResourceDesc:
         return sizeof(ccudart.cudaResourceDesc){{endif}}
@@ -27707,6 +29386,12 @@ def sizeof(objType):
     {{if 'struct cudaMemAllocNodeParams' in found_types}}
     if objType == cudaMemAllocNodeParams:
         return sizeof(ccudart.cudaMemAllocNodeParams){{endif}}
+    {{if 'struct cudaMemAllocNodeParamsV2' in found_types}}
+    if objType == cudaMemAllocNodeParamsV2:
+        return sizeof(ccudart.cudaMemAllocNodeParamsV2){{endif}}
+    {{if 'struct cudaMemFreeNodeParams' in found_types}}
+    if objType == cudaMemFreeNodeParams:
+        return sizeof(ccudart.cudaMemFreeNodeParams){{endif}}
     {{if 'struct CUuuid_st' in found_types}}
     if objType == CUuuid_st:
         return sizeof(ccudart.CUuuid_st){{endif}}
@@ -27785,12 +29470,33 @@ def sizeof(objType):
     {{if 'struct cudaKernelNodeParams' in found_types}}
     if objType == cudaKernelNodeParams:
         return sizeof(ccudart.cudaKernelNodeParams){{endif}}
+    {{if 'struct cudaKernelNodeParamsV2' in found_types}}
+    if objType == cudaKernelNodeParamsV2:
+        return sizeof(ccudart.cudaKernelNodeParamsV2){{endif}}
     {{if 'struct cudaExternalSemaphoreSignalNodeParams' in found_types}}
     if objType == cudaExternalSemaphoreSignalNodeParams:
         return sizeof(ccudart.cudaExternalSemaphoreSignalNodeParams){{endif}}
+    {{if 'struct cudaExternalSemaphoreSignalNodeParamsV2' in found_types}}
+    if objType == cudaExternalSemaphoreSignalNodeParamsV2:
+        return sizeof(ccudart.cudaExternalSemaphoreSignalNodeParamsV2){{endif}}
     {{if 'struct cudaExternalSemaphoreWaitNodeParams' in found_types}}
     if objType == cudaExternalSemaphoreWaitNodeParams:
         return sizeof(ccudart.cudaExternalSemaphoreWaitNodeParams){{endif}}
+    {{if 'struct cudaExternalSemaphoreWaitNodeParamsV2' in found_types}}
+    if objType == cudaExternalSemaphoreWaitNodeParamsV2:
+        return sizeof(ccudart.cudaExternalSemaphoreWaitNodeParamsV2){{endif}}
+    {{if 'struct cudaChildGraphNodeParams' in found_types}}
+    if objType == cudaChildGraphNodeParams:
+        return sizeof(ccudart.cudaChildGraphNodeParams){{endif}}
+    {{if 'struct cudaEventRecordNodeParams' in found_types}}
+    if objType == cudaEventRecordNodeParams:
+        return sizeof(ccudart.cudaEventRecordNodeParams){{endif}}
+    {{if 'struct cudaEventWaitNodeParams' in found_types}}
+    if objType == cudaEventWaitNodeParams:
+        return sizeof(ccudart.cudaEventWaitNodeParams){{endif}}
+    {{if 'struct cudaGraphNodeParams' in found_types}}
+    if objType == cudaGraphNodeParams:
+        return sizeof(ccudart.cudaGraphNodeParams){{endif}}
     {{if 'cudaGraphExec_t' in found_types}}
     if objType == cudaGraphExec_t:
         return sizeof(ccudart.cudaGraphExec_t){{endif}}

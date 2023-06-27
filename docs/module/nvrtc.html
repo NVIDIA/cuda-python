@@ -6,8 +6,8 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="cudart" href="cudart.html" />
         <link rel="canonical" href="docs/module/nvrtc.html" />
 
-    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
-        <title>nvrtc - CUDA Python 12.1.0 documentation</title>
+    <!-- Generated with Sphinx 5.0.2 and Furo 2023.03.27 -->
+        <title>nvrtc - CUDA Python 12.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">CUDA Python 12.1.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">CUDA Python 12.2.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 12.1.0 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.2.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.2.0-notes.html">    12.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.1.0-notes.html">    12.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.0.0-notes.html">    12.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.8.2-notes.html">    11.8.2</a></li>
@@ -289,6 +290,11 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR">
 <span class="sig-name descname"><span class="pre">NVRTC_ERROR_INTERNAL_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -486,7 +492,7 @@ here.</p></li>
 <li><p><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION" title="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_OPTION</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION" title="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_COMPILATION</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE" title="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></code></a></p></li>
-<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></code></p></li>
+<li><p><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED" title="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></code></a></p></li>
 </ul>
 </p>
 </dd>
@@ -835,6 +841,8 @@ device/__constant__ variable.</p></li>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION" title="cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION</span></code></a></p></li>
 </ul>
 </p>
@@ -882,8 +890,8 @@ expression.</p></li>
 </section>
 <section id="supported-compile-options">
 <h2>Supported Compile Options<a class="headerlink" href="#supported-compile-options" title="Permalink to this heading">#</a></h2>
-<p>NVRTC supports the compile options below. Option names with two preceding dashs (<cite>None</cite>) are long option names and option names with one preceding dash (<cite>-</cite>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<cite>=</cite>) is used to separate the compile option argument from the compile option name, e.g., <cite>“–gpu-architecture=compute_60”</cite>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <cite>“–gpu-architecture”</cite> <cite>“compute_60”</cite>. Single-character short option names, such as <cite>-D</cite>, <cite>-U</cite>, and <cite>-I</cite>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <cite>“-D=&lt;def&gt;”</cite>, <cite>“-D&lt;def&gt;”</cite>, and <cite>“-D &lt;def&gt;”</cite> are all supported.
-The valid compiler options are:</p>
+<p>NVRTC supports the compile options below. Option names with two preceding dashs (<code class="docutils literal notranslate"><span class="pre">--</span></code>) are long option names and option names with one preceding dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<code class="docutils literal notranslate"><span class="pre">=</span></code>) is used to separate the compile option argument from the compile option name, e.g., <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture=compute_60&quot;</span></code>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture&quot;</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;compute_60&quot;</span></code>. Single-character short option names, such as <code class="docutils literal notranslate"><span class="pre">-D</span></code>, <code class="docutils literal notranslate"><span class="pre">-U</span></code>, and <code class="docutils literal notranslate"><span class="pre">-I</span></code>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <code class="docutils literal notranslate"><span class="pre">&quot;-D=&lt;def&gt;&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;-D&lt;def&gt;&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;-D</span> <span class="pre">&lt;def&gt;&quot;</span></code> are all supported.</p>
+<p>The valid compiler options are:</p>
 <ul>
 <li><p>Compilation targets</p>
 <ul>
@@ -905,6 +913,7 @@ The valid compiler options are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">compute_87</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">compute_89</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">compute_90</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_90a</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_50</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_52</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_53</span></code></p></li>
@@ -918,6 +927,7 @@ The valid compiler options are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_87</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_89</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sm_90</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm_90a</span></code></p></li>
 </ul>
 </li>
 <li><p>Default: <code class="docutils literal notranslate"><span class="pre">compute_52</span></code></p></li>
@@ -1049,15 +1059,18 @@ The valid compiler options are:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20}</span></code> (<code class="docutils literal notranslate"><span class="pre">-std={c++11|c++14|c++17|c++20}</span></code>)</p>
 <p>Set language dialect to C++03, C++11, C++14, C++17 or C++20</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">c++17</span></code></p></li>
+</ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--builtin-move-forward={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-move-forward</span></code>)</p>
-<p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::move</span></code> and <code class="docutils literal notranslate"><span class="pre">std::forward</span></code>, when C++11 language dialect is selected.</p>
+<p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::move</span></code> and <code class="docutils literal notranslate"><span class="pre">std::forward</span></code>, when C++11 or later language dialect is selected.</p>
 <ul class="simple">
 <li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--builtin-initializer-list={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-initializer-list</span></code>)</p>
-<p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::initializer_list</span></code> class and member functions when C++11 language dialect is selected.</p>
+<p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::initializer_list</span></code> class and member functions when C++11 or later language dialect is selected.</p>
 <ul class="simple">
 <li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
@@ -1084,12 +1097,6 @@ The valid compiler options are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">inline</span></code> : emit a remark when a function is inlined.</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--version-ident={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-dQ</span></code>)</p>
-<p>Embed used compiler’s version info into generated PTX/CUBIN</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
-</ul>
-</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-err-no</span></code>)</p>
 <p>Display diagnostic number for warning messages. (Default)</p>
 </li>
@@ -1104,6 +1111,18 @@ The valid compiler options are:</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--diag-warn=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-warn</span></code>)</p>
 <p>Emit warning for specified diagnostic message number(s). Message numbers can be separated by comma.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--brief-diagnostics={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-brief-diag</span></code>)</p>
+<p>This option disables or enables showing source line and column info in a diagnostic. The –brief-diagnostics=true will not show the source line and column info.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--time=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-time</span></code>)</p>
+<p>Generate a comma separated value table with the time taken by each compilation phase, and append it at the end of the file given as the option argument. If the file does not exist, the column headings are generated in the first row of the table. If the file name is ‘-’, the timing data is written to the compilation log.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--split-compile=</span></code> &lt;number of threads&gt; (<code class="docutils literal notranslate"><span class="pre">-split-compile=</span></code> &lt;number of threads&gt;)</p>
+<p>[Experimental] Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting –split-compile=0. Setting –split-compile=1 will cause this option to be ignored.</p>
 </li>
 </ul>
 </li>
@@ -1159,55 +1178,9 @@ The valid compiler options are:</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">nvrtc</a><ul>
-<li><a class="reference internal" href="#error-handling">Error Handling</a><ul>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult"><code class="docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_SUCCESS</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INVALID_INPUT</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INVALID_OPTION</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_COMPILATION</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetErrorString"><code class="docutils literal notranslate"><span class="pre">nvrtcGetErrorString()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#general-information-query">General Information Query</a><ul>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcVersion"><code class="docutils literal notranslate"><span class="pre">nvrtcVersion()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetNumSupportedArchs"><code class="docutils literal notranslate"><span class="pre">nvrtcGetNumSupportedArchs()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetSupportedArchs"><code class="docutils literal notranslate"><span class="pre">nvrtcGetSupportedArchs()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#compilation">Compilation</a><ul>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcProgram.getPtr"><code class="docutils literal notranslate"><span class="pre">nvrtcProgram.getPtr()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcCreateProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcCreateProgram()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcDestroyProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcDestroyProgram()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcCompileProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetPTXSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPTXSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetPTX"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPTX()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetCUBINSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetCUBINSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetCUBIN"><code class="docutils literal notranslate"><span class="pre">nvrtcGetCUBIN()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetNVVMSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetNVVMSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetNVVM"><code class="docutils literal notranslate"><span class="pre">nvrtcGetNVVM()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetLTOIRSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIRSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetLTOIR"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIR()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetOptiXIRSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetOptiXIRSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetOptiXIR"><code class="docutils literal notranslate"><span class="pre">nvrtcGetOptiXIR()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetProgramLogSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetProgramLogSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetProgramLog"><code class="docutils literal notranslate"><span class="pre">nvrtcGetProgramLog()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcAddNameExpression"><code class="docutils literal notranslate"><span class="pre">nvrtcAddNameExpression()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetLoweredName"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLoweredName()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li><a class="reference internal" href="#general-information-query">General Information Query</a></li>
+<li><a class="reference internal" href="#compilation">Compilation</a></li>
 <li><a class="reference internal" href="#supported-compile-options">Supported Compile Options</a></li>
 </ul>
 </li>
@@ -1225,7 +1198,6 @@ The valid compiler options are:</p>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/scripts/furo.js"></script>
     </body>
 </html>

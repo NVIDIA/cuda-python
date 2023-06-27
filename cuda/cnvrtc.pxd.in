@@ -31,106 +31,106 @@ cdef extern from "nvrtc.h":
 
 {{if 'nvrtcGetErrorString' in found_functions}}
 
-cdef const char* nvrtcGetErrorString(nvrtcResult result) nogil except ?NULL
+cdef const char* nvrtcGetErrorString(nvrtcResult result) except ?NULL nogil
 {{endif}}
 
 {{if 'nvrtcVersion' in found_functions}}
 
-cdef nvrtcResult nvrtcVersion(int* major, int* minor) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetNumSupportedArchs' in found_functions}}
 
-cdef nvrtcResult nvrtcGetNumSupportedArchs(int* numArchs) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetSupportedArchs' in found_functions}}
 
-cdef nvrtcResult nvrtcGetSupportedArchs(int* supportedArchs) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcCreateProgram' in found_functions}}
 
-cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcDestroyProgram' in found_functions}}
 
-cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcCompileProgram' in found_functions}}
 
-cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetPTXSize' in found_functions}}
 
-cdef nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetPTX' in found_functions}}
 
-cdef nvrtcResult nvrtcGetPTX(nvrtcProgram prog, char* ptx) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetCUBINSize' in found_functions}}
 
-cdef nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetCUBIN' in found_functions}}
 
-cdef nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetNVVMSize' in found_functions}}
 
-cdef nvrtcResult nvrtcGetNVVMSize(nvrtcProgram prog, size_t* nvvmSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetNVVMSize(nvrtcProgram prog, size_t* nvvmSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetNVVM' in found_functions}}
 
-cdef nvrtcResult nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetLTOIRSize' in found_functions}}
 
-cdef nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetLTOIR' in found_functions}}
 
-cdef nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetOptiXIRSize' in found_functions}}
 
-cdef nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetOptiXIR' in found_functions}}
 
-cdef nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetProgramLogSize' in found_functions}}
 
-cdef nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetProgramLog' in found_functions}}
 
-cdef nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char* log) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcAddNameExpression' in found_functions}}
 
-cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
 {{if 'nvrtcGetLoweredName' in found_functions}}
 
-cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) nogil except ?NVRTC_ERROR_INVALID_INPUT
+cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 

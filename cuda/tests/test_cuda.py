@@ -609,7 +609,7 @@ def test_device_get_name():
     delimiter = b'\r\n' if platform.system() == "Windows" else b'\n'
     expect = p.stdout.split(delimiter)
     size = 64
-    _, got = cuda.cuDeviceGetName(size, cuda.CUdevice(0))
+    _, got = cuda.cuDeviceGetName(size, device)
     # Returned value is bytes, and we expect it to be of requested size
     # assert len(got) == size
     got = got.split(b'\x00')[0]
@@ -711,3 +711,119 @@ def test_union_assign():
 def test_invalid_repr_attribute():
     val = cuda.CUlaunchAttributeValue()
     string = str(val)
+
+@pytest.mark.skipif(driverVersionLessThan(12020)
+                    or not supportsCudaAPI('cuGraphAddNode')
+                    or not supportsCudaAPI('cuGraphNodeSetParams')
+                    or not supportsCudaAPI('cuGraphExecNodeSetParams'), reason='Polymorphic graph APIs required')
+def test_graph_poly():
+    err, = cuda.cuInit(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, device = cuda.cuDeviceGet(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, stream = cuda.cuStreamCreate(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    # cuGraphAddNode
+
+    # Create 2 buffers
+    size = int(1024 * np.uint8().itemsize)
+    buffers = []
+    for _ in range(2):
+        err, dptr = cuda.cuMemAlloc(size)
+        assert(err == cuda.CUresult.CUDA_SUCCESS)
+        buffers += [(np.full(size, 2).astype(np.uint8), dptr)]
+
+    # Update dev buffers
+    for host, device in buffers:
+        err, = cuda.cuMemcpyHtoD(device, host, size)
+        assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    # Create graph
+    nodes = []
+    err, graph = cuda.cuGraphCreate(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    # Memset
+    host, device = buffers[0]
+    memsetParams = cuda.CUgraphNodeParams()
+    memsetParams.type = cuda.CUgraphNodeType.CU_GRAPH_NODE_TYPE_MEMSET
+    memsetParams.memset.elementSize = np.uint8().itemsize
+    memsetParams.memset.width = size
+    memsetParams.memset.height = 1
+    memsetParams.memset.dst = device
+    memsetParams.memset.value = 1
+    err, node = cuda.cuGraphAddNode(graph, None, 0, memsetParams)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    nodes += [node]
+
+    # Memcpy
+    host, device = buffers[1]
+    memcpyParams = cuda.CUgraphNodeParams()
+    memcpyParams.type = cuda.CUgraphNodeType.CU_GRAPH_NODE_TYPE_MEMCPY
+    memcpyParams.memcpy.copyParams.srcMemoryType = cuda.CUmemorytype.CU_MEMORYTYPE_DEVICE
+    memcpyParams.memcpy.copyParams.srcDevice = device
+    memcpyParams.memcpy.copyParams.dstMemoryType = cuda.CUmemorytype.CU_MEMORYTYPE_HOST
+    memcpyParams.memcpy.copyParams.dstHost = host
+    memcpyParams.memcpy.copyParams.WidthInBytes = size
+    memcpyParams.memcpy.copyParams.Height = 1
+    memcpyParams.memcpy.copyParams.Depth = 1
+    err, node = cuda.cuGraphAddNode(graph, None, 0, memcpyParams)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    nodes += [node]
+
+    # Instantiate, execute, validate
+    err, graphExec = cuda.cuGraphInstantiate(graph, 0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuGraphLaunch(graphExec, stream)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuStreamSynchronize(stream)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    # Validate
+    for host, device in buffers:
+        err, = cuda.cuMemcpyDtoH(host, device, size)
+        assert(err == cuda.CUresult.CUDA_SUCCESS)
+    assert(np.array_equal(buffers[0][0], np.full(size, 1).astype(np.uint8)))
+    assert(np.array_equal(buffers[1][0], np.full(size, 2).astype(np.uint8)))
+
+    # cuGraphNodeSetParams
+    host, device = buffers[1]
+    err, memcpyParamsCopy = cuda.cuGraphMemcpyNodeGetParams(nodes[1])
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    assert(int(memcpyParamsCopy.srcDevice) == int(device))
+    host, device = buffers[0]
+    memcpyParams.memcpy.copyParams.srcDevice = device
+    err, = cuda.cuGraphNodeSetParams(nodes[1], memcpyParams)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, memcpyParamsCopy = cuda.cuGraphMemcpyNodeGetParams(nodes[1])
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    assert(int(memcpyParamsCopy.srcDevice) == int(device))
+
+    # cuGraphExecNodeSetParams
+    memsetParams.memset.value = 11
+    err, = cuda.cuGraphExecNodeSetParams(graphExec, nodes[0], memsetParams)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuGraphLaunch(graphExec, stream)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuStreamSynchronize(stream)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuMemcpyDtoH(buffers[0][0], buffers[0][1], size)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    assert(np.array_equal(buffers[0][0], np.full(size, 11).astype(np.uint8)))
+
+    # Cleanup
+    err, = cuda.cuMemFree(buffers[0][1])
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuMemFree(buffers[1][1])
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuGraphExecDestroy(graphExec)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuGraphDestroy(graph)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuStreamDestroy(stream)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuCtxDestroy(ctx)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)

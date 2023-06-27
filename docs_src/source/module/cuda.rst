@@ -11,13 +11,17 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUipcEventHandle_st
 .. autoclass:: cuda.cuda.CUipcMemHandle_st
 .. autoclass:: cuda.cuda.CUstreamBatchMemOpParams_union
-.. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st
+.. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st
 .. autoclass:: cuda.cuda.CUdevprop_st
 .. autoclass:: cuda.cuda.CUaccessPolicyWindow_st
 .. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_st
 .. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_v2_st
+.. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_v3_st
 .. autoclass:: cuda.cuda.CUDA_MEMSET_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_MEMSET_NODE_PARAMS_v2_st
 .. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS_v2_st
 .. autoclass:: cuda.cuda.CUDA_GRAPH_INSTANTIATE_PARAMS_st
 .. autoclass:: cuda.cuda.CUlaunchMemSyncDomainMap_st
 .. autoclass:: cuda.cuda.CUlaunchAttributeValue_union
@@ -29,6 +33,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUDA_MEMCPY2D_st
 .. autoclass:: cuda.cuda.CUDA_MEMCPY3D_st
 .. autoclass:: cuda.cuda.CUDA_MEMCPY3D_PEER_st
+.. autoclass:: cuda.cuda.CUDA_MEMCPY_NODE_PARAMS_st
 .. autoclass:: cuda.cuda.CUDA_ARRAY_DESCRIPTOR_st
 .. autoclass:: cuda.cuda.CUDA_ARRAY3D_DESCRIPTOR_st
 .. autoclass:: cuda.cuda.CUDA_ARRAY_SPARSE_PROPERTIES_st
@@ -46,15 +51,24 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st
 .. autoclass:: cuda.cuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st
 .. autoclass:: cuda.cuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st
 .. autoclass:: cuda.cuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st
 .. autoclass:: cuda.cuda.CUarrayMapInfo_st
 .. autoclass:: cuda.cuda.CUmemLocation_st
 .. autoclass:: cuda.cuda.CUmemAllocationProp_st
+.. autoclass:: cuda.cuda.CUmulticastObjectProp_st
 .. autoclass:: cuda.cuda.CUmemAccessDesc_st
 .. autoclass:: cuda.cuda.CUgraphExecUpdateResultInfo_st
 .. autoclass:: cuda.cuda.CUmemPoolProps_st
 .. autoclass:: cuda.cuda.CUmemPoolPtrExportData_st
-.. autoclass:: cuda.cuda.CUDA_MEM_ALLOC_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_MEM_ALLOC_NODE_PARAMS_v1_st
+.. autoclass:: cuda.cuda.CUDA_MEM_ALLOC_NODE_PARAMS_v2_st
+.. autoclass:: cuda.cuda.CUDA_MEM_FREE_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_CHILD_GRAPH_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_EVENT_RECORD_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUDA_EVENT_WAIT_NODE_PARAMS_st
+.. autoclass:: cuda.cuda.CUgraphNodeParams_st
 .. autoclass:: cuda.cuda.CUeglFrame_st
 .. autoclass:: cuda.cuda.CUipcMem_flags
 
@@ -127,6 +141,24 @@ Data types used by CUDA driver
 
 
         Keep local memory allocation after launch
+
+
+    .. autoattribute:: cuda.cuda.CUctx_flags.CU_CTX_COREDUMP_ENABLE
+
+
+        Trigger coredumps from exceptions in this context
+
+
+    .. autoattribute:: cuda.cuda.CUctx_flags.CU_CTX_USER_COREDUMP_ENABLE
+
+
+        Enable user pipe to trigger coredumps in this context
+
+
+    .. autoattribute:: cuda.cuda.CUctx_flags.CU_CTX_SYNC_MEMOPS
+
+
+        Force synchronous blocking on cudaMemcpy/cudaMemset
 
 
     .. autoattribute:: cuda.cuda.CUctx_flags.CU_CTX_FLAGS_MASK
@@ -1445,6 +1477,24 @@ Data types used by CUDA driver
         Device supports unified function pointers.
 
 
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_NUMA_CONFIG
+
+
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_NUMA_ID
+
+
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED
+
+
+        Device supports switch multicast and reduction operations.
+
+
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID
+
+
+        NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
+
+
     .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX
 
 .. autoclass:: cuda.cuda.CUpointer_attribute
@@ -1808,7 +1858,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUmem_advise.CU_MEM_ADVISE_SET_READ_MOSTLY
 
 
-        Data will mostly be read and only occassionally be written to
+        Data will mostly be read and only occasionally be written to
 
 
     .. autoattribute:: cuda.cuda.CUmem_advise.CU_MEM_ADVISE_UNSET_READ_MOSTLY
@@ -1845,7 +1895,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY
 
 
-        Whether the range will mostly be read and only occassionally be written to
+        Whether the range will mostly be read and only occasionally be written to
 
 
     .. autoattribute:: cuda.cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION
@@ -1865,6 +1915,30 @@ Data types used by CUDA driver
 
         The last location to which the range was prefetched
 
+
+    .. autoattribute:: cuda.cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE
+
+
+        The preferred location type of the range
+
+
+    .. autoattribute:: cuda.cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID
+
+
+        The preferred location id of the range
+
+
+    .. autoattribute:: cuda.cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE
+
+
+        The last location type to which the range was prefetched
+
+
+    .. autoattribute:: cuda.cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID
+
+
+        The last location id to which the range was prefetched
+
 .. autoclass:: cuda.cuda.CUjit_option
 
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_MAX_REGISTERS
@@ -1882,7 +1956,7 @@ Data types used by CUDA driver
 
         IN: Specifies minimum number of threads per block to target compilation for
 
-        OUT: Returns the number of threads the compiler actually targeted. This restricts the resource utilization fo the compiler (e.g. max registers) such that a block with the given number of threads should be able to launch based on register limitations. Note, this option does not currently take into account any other resource limitations, such as shared memory utilization.
+        OUT: Returns the number of threads the compiler actually targeted. This restricts the resource utilization of the compiler (e.g. max registers) such that a block with the given number of threads should be able to launch based on register limitations. Note, this option does not currently take into account any other resource limitations, such as shared memory utilization.
 
         Cannot be combined with :py:obj:`~.CU_JIT_TARGET`.
 
@@ -2042,11 +2116,11 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_GLOBAL_SYMBOL_NAMES
 
 
-        Array of device symbol names that will be relocated to the corresponing host addresses stored in :py:obj:`~.CU_JIT_GLOBAL_SYMBOL_ADDRESSES`.
+        Array of device symbol names that will be relocated to the corresponding host addresses stored in :py:obj:`~.CU_JIT_GLOBAL_SYMBOL_ADDRESSES`.
 
         Must contain :py:obj:`~.CU_JIT_GLOBAL_SYMBOL_COUNT` entries.
 
-        When loding a device module, driver will relocate all encountered unresolved symbols to the host addresses.
+        When loading a device module, driver will relocate all encountered unresolved symbols to the host addresses.
 
         It is only allowed to register symbols that correspond to unresolved global variables.
 
@@ -2503,7 +2577,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUresourcetype.CU_RESOURCE_TYPE_ARRAY
 
 
-        Array resoure
+        Array resource
 
 
     .. autoattribute:: cuda.cuda.CUresourcetype.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
@@ -2859,7 +2933,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY
 
 
-        The API call failed because it was unable to allocate enough memory to perform the requested operation.
+        The API call failed because it was unable to allocate enough memory or other resources to perform the requested operation.
 
 
     .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_NOT_INITIALIZED
@@ -3064,6 +3138,12 @@ Data types used by CUDA driver
 
 
         This indicates that the :py:obj:`~.CUexecAffinityType` passed to the API call is not supported by the active device.
+
+
+    .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_UNSUPPORTED_DEVSIDE_SYNC
+
+
+        This indicates that the code to be compiled by the PTX JIT contains unsupported call to cudaDeviceSynchronize.
 
 
     .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_INVALID_SOURCE
@@ -3910,6 +3990,24 @@ Data types used by CUDA driver
         Location is a device location, thus id is a device ordinal
 
 
+    .. autoattribute:: cuda.cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+
+
+        Location is host, id is ignored
+
+
+    .. autoattribute:: cuda.cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
+
+
+        Location is a host NUMA node, thus id is a host NUMA node id
+
+
+    .. autoattribute:: cuda.cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT
+
+
+        Location is a host NUMA node of the current thread, id is ignored
+
+
     .. autoattribute:: cuda.cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_MAX
 
 .. autoclass:: cuda.cuda.CUmemAllocationType
@@ -3975,6 +4073,19 @@ Data types used by CUDA driver
 
 
         Allocating compressible memory
+
+.. autoclass:: cuda.cuda.CUmulticastGranularity_flags
+
+    .. autoattribute:: cuda.cuda.CUmulticastGranularity_flags.CU_MULTICAST_GRANULARITY_MINIMUM
+
+
+        Minimum required granularity
+
+
+    .. autoattribute:: cuda.cuda.CUmulticastGranularity_flags.CU_MULTICAST_GRANULARITY_RECOMMENDED
+
+
+        Recommended granularity for best performance
 
 .. autoclass:: cuda.cuda.CUgraphExecUpdateResult
 
@@ -4162,85 +4273,91 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_VERBOSE
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_RUNTIME_TYPES
-
-
         Output all debug data as if every debug flag is enabled
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_PARAMS
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_RUNTIME_TYPES
 
 
         Use CUDA Runtime structures for output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_PARAMS
 
 
         Adds CUDA_KERNEL_NODE_PARAMS values to output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMSET_NODE_PARAMS
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS
 
 
         Adds CUDA_MEMCPY3D values to output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMSET_NODE_PARAMS
 
 
         Adds CUDA_MEMSET_NODE_PARAMS values to output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EVENT_NODE_PARAMS
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS
 
 
         Adds CUDA_HOST_NODE_PARAMS values to output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_SIGNAL_NODE_PARAMS
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EVENT_NODE_PARAMS
 
 
         Adds CUevent handle from record and wait nodes to output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_WAIT_NODE_PARAMS
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_SIGNAL_NODE_PARAMS
 
 
         Adds CUDA_EXT_SEM_SIGNAL_NODE_PARAMS values to output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_ATTRIBUTES
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_WAIT_NODE_PARAMS
 
 
         Adds CUDA_EXT_SEM_WAIT_NODE_PARAMS values to output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HANDLES
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_ATTRIBUTES
 
 
         Adds CUkernelNodeAttrValue values to output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_ALLOC_NODE_PARAMS
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HANDLES
 
 
         Adds node handles and every kernel function handle to output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_ALLOC_NODE_PARAMS
 
 
         Adds memory alloc node parameters to output
 
 
-    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS
 
 
         Adds memory free node parameters to output
 
 
+    .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS
+
+
+        Adds batch mem op node parameters to output
+
+
     .. autoattribute:: cuda.cuda.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO
+
+
+        Adds edge numbering information
 
 .. autoclass:: cuda.cuda.CUuserObject_flags
 
@@ -4280,6 +4397,19 @@ Data types used by CUDA driver
 
 
         Run the graph using the per-node priority attributes rather than the priority of the stream it is launched into.
+
+.. autoclass:: cuda.cuda.CUdeviceNumaConfig
+
+    .. autoattribute:: cuda.cuda.CUdeviceNumaConfig.CU_DEVICE_NUMA_CONFIG_NONE
+
+
+        The GPU is not a NUMA node
+
+
+    .. autoattribute:: cuda.cuda.CUdeviceNumaConfig.CU_DEVICE_NUMA_CONFIG_NUMA_NODE
+
+
+        The GPU is a NUMA node, CU_DEVICE_ATTRIBUTE_NUMA_ID contains its NUMA ID
 
 .. autoclass:: cuda.cuda.CUeglFrameType
 
@@ -5029,7 +5159,9 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUipcMemHandle
 .. autoclass:: cuda.cuda.CUstreamBatchMemOpParams_v1
 .. autoclass:: cuda.cuda.CUstreamBatchMemOpParams
+.. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2
 .. autoclass:: cuda.cuda.CUdevprop_v1
 .. autoclass:: cuda.cuda.CUdevprop
 .. autoclass:: cuda.cuda.CUlinkState
@@ -5039,10 +5171,13 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_v2
 .. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_v3
 .. autoclass:: cuda.cuda.CUDA_MEMSET_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_MEMSET_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_MEMSET_NODE_PARAMS_v2
 .. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_HOST_NODE_PARAMS_v2
 .. autoclass:: cuda.cuda.CUDA_GRAPH_INSTANTIATE_PARAMS
 .. autoclass:: cuda.cuda.CUlaunchMemSyncDomainMap
 .. autoclass:: cuda.cuda.CUlaunchAttributeValue
@@ -5067,6 +5202,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUDA_MEMCPY3D
 .. autoclass:: cuda.cuda.CUDA_MEMCPY3D_PEER_v1
 .. autoclass:: cuda.cuda.CUDA_MEMCPY3D_PEER
+.. autoclass:: cuda.cuda.CUDA_MEMCPY_NODE_PARAMS
 .. autoclass:: cuda.cuda.CUDA_ARRAY_DESCRIPTOR_v2
 .. autoclass:: cuda.cuda.CUDA_ARRAY_DESCRIPTOR
 .. autoclass:: cuda.cuda.CUDA_ARRAY3D_DESCRIPTOR_v2
@@ -5100,8 +5236,10 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS
 .. autoclass:: cuda.cuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2
 .. autoclass:: cuda.cuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2
 .. autoclass:: cuda.cuda.CUmemGenericAllocationHandle_v1
 .. autoclass:: cuda.cuda.CUmemGenericAllocationHandle
 .. autoclass:: cuda.cuda.CUarrayMapInfo_v1
@@ -5110,6 +5248,8 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUmemLocation
 .. autoclass:: cuda.cuda.CUmemAllocationProp_v1
 .. autoclass:: cuda.cuda.CUmemAllocationProp
+.. autoclass:: cuda.cuda.CUmulticastObjectProp_v1
+.. autoclass:: cuda.cuda.CUmulticastObjectProp
 .. autoclass:: cuda.cuda.CUmemAccessDesc_v1
 .. autoclass:: cuda.cuda.CUmemAccessDesc
 .. autoclass:: cuda.cuda.CUgraphExecUpdateResultInfo_v1
@@ -5118,7 +5258,14 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUmemPoolProps
 .. autoclass:: cuda.cuda.CUmemPoolPtrExportData_v1
 .. autoclass:: cuda.cuda.CUmemPoolPtrExportData
+.. autoclass:: cuda.cuda.CUDA_MEM_ALLOC_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_MEM_ALLOC_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_MEM_ALLOC_NODE_PARAMS_v2
+.. autoclass:: cuda.cuda.CUDA_MEM_FREE_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_CHILD_GRAPH_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_EVENT_RECORD_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUDA_EVENT_WAIT_NODE_PARAMS
+.. autoclass:: cuda.cuda.CUgraphNodeParams
 .. autoclass:: cuda.cuda.CUeglFrame_v1
 .. autoclass:: cuda.cuda.CUeglFrame
 .. autoclass:: cuda.cuda.CUeglStreamConnection
@@ -5421,6 +5568,7 @@ Please note that some functions are described in Primary Context Management sect
 .. autofunction:: cuda.cuda.cuCtxGetCurrent
 .. autofunction:: cuda.cuda.cuCtxGetDevice
 .. autofunction:: cuda.cuda.cuCtxGetFlags
+.. autofunction:: cuda.cuda.cuCtxSetFlags
 .. autofunction:: cuda.cuda.cuCtxGetId
 .. autofunction:: cuda.cuda.cuCtxSynchronize
 .. autofunction:: cuda.cuda.cuCtxSetLimit
@@ -5622,6 +5770,38 @@ Whether or not a device supports the integrated stream ordered memory allocator 
 .. autofunction:: cuda.cuda.cuMemPoolExportPointer
 .. autofunction:: cuda.cuda.cuMemPoolImportPointer
 
+Multicast Object Management
+---------------------------
+
+This section describes the CUDA multicast object operations exposed by the low-level CUDA driver application programming interface.
+
+
+
+
+
+**overview**
+
+
+
+A multicast object created via cuMulticastCreate enables certain memory operations to be broadcasted to a team of devices. Devices can be added to a multicast object via cuMulticastAddDevice. Memory can be bound on each participating device via either cuMulticastBindMem or cuMulticastBindAddr. Multicast objects can be mapped into a device's virtual address space using the virtual memmory management APIs (see cuMemMap and cuMemSetAccess).
+
+
+
+
+
+**Supported Platforms**
+
+
+
+Support for multicast on a specific device can be queried using the device attribute CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED
+
+.. autofunction:: cuda.cuda.cuMulticastCreate
+.. autofunction:: cuda.cuda.cuMulticastAddDevice
+.. autofunction:: cuda.cuda.cuMulticastBindMem
+.. autofunction:: cuda.cuda.cuMulticastBindAddr
+.. autofunction:: cuda.cuda.cuMulticastUnbind
+.. autofunction:: cuda.cuda.cuMulticastGetGranularity
+
 Unified Addressing
 ------------------
 
@@ -5699,7 +5879,9 @@ This device address may be queried using cuMemHostGetDevicePointer() when a cont
 
 .. autofunction:: cuda.cuda.cuPointerGetAttribute
 .. autofunction:: cuda.cuda.cuMemPrefetchAsync
+.. autofunction:: cuda.cuda.cuMemPrefetchAsync_v2
 .. autofunction:: cuda.cuda.cuMemAdvise
+.. autofunction:: cuda.cuda.cuMemAdvise_v2
 .. autofunction:: cuda.cuda.cuMemRangeGetAttribute
 .. autofunction:: cuda.cuda.cuMemRangeGetAttributes
 .. autofunction:: cuda.cuda.cuPointerSetAttribute
@@ -5893,6 +6075,9 @@ This section describes the graph management functions of the low-level CUDA driv
 .. autofunction:: cuda.cuda.cuUserObjectRelease
 .. autofunction:: cuda.cuda.cuGraphRetainUserObject
 .. autofunction:: cuda.cuda.cuGraphReleaseUserObject
+.. autofunction:: cuda.cuda.cuGraphAddNode
+.. autofunction:: cuda.cuda.cuGraphNodeSetParams
+.. autofunction:: cuda.cuda.cuGraphExecNodeSetParams
 
 Occupancy
 ---------
@@ -5927,10 +6112,10 @@ This section describes the surface object management functions of the low-level 
 .. autofunction:: cuda.cuda.cuSurfObjectDestroy
 .. autofunction:: cuda.cuda.cuSurfObjectGetResourceDesc
 
-Tensor Core Managment
----------------------
+Tensor Map Object Managment
+---------------------------
 
-This section describes the tensor core management functions of the low-level CUDA driver application programming interface. The tensor core API is only supported on devices of compute capability 9.0 or higher.
+This section describes the tensor map object management functions of the low-level CUDA driver application programming interface. The tensor core API is only supported on devices of compute capability 9.0 or higher.
 
 .. autofunction:: cuda.cuda.cuTensorMapEncodeTiled
 .. autofunction:: cuda.cuda.cuTensorMapEncodeIm2col
@@ -5965,6 +6150,38 @@ Driver Entry Point Access
 This section describes the driver entry point access functions of the low-level CUDA driver application programming interface.
 
 .. autofunction:: cuda.cuda.cuGetProcAddress
+
+Coredump Attributes Control API
+-------------------------------
+
+This section describes the coredump attribute control functions of the low-level CUDA driver application programming interface.
+
+.. autoclass:: cuda.cuda.CUcoredumpSettings
+
+    .. autoattribute:: cuda.cuda.CUcoredumpSettings.CU_COREDUMP_ENABLE_ON_EXCEPTION
+
+
+    .. autoattribute:: cuda.cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST
+
+
+    .. autoattribute:: cuda.cuda.CUcoredumpSettings.CU_COREDUMP_LIGHTWEIGHT
+
+
+    .. autoattribute:: cuda.cuda.CUcoredumpSettings.CU_COREDUMP_ENABLE_USER_TRIGGER
+
+
+    .. autoattribute:: cuda.cuda.CUcoredumpSettings.CU_COREDUMP_FILE
+
+
+    .. autoattribute:: cuda.cuda.CUcoredumpSettings.CU_COREDUMP_PIPE
+
+
+    .. autoattribute:: cuda.cuda.CUcoredumpSettings.CU_COREDUMP_MAX
+
+.. autofunction:: cuda.cuda.cuCoredumpGetAttribute
+.. autofunction:: cuda.cuda.cuCoredumpGetAttributeGlobal
+.. autofunction:: cuda.cuda.cuCoredumpSetAttribute
+.. autofunction:: cuda.cuda.cuCoredumpSetAttributeGlobal
 
 EGL Interoperability
 --------------------

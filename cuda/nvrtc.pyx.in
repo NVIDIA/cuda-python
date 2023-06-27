@@ -10,7 +10,7 @@ from enum import IntEnum
 import cython
 import ctypes
 from libc.stdlib cimport calloc, free
-from libc.string cimport memcpy
+from libc cimport string
 from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
 from libc.stddef cimport wchar_t
 from libc.limits cimport CHAR_MIN
@@ -35,6 +35,7 @@ ctypedef unsigned long long int32_t_ptr
 ctypedef unsigned long long int64_t_ptr
 ctypedef unsigned long long unsigned_ptr
 ctypedef unsigned long long unsigned_long_long_ptr
+ctypedef unsigned long long long_long_ptr
 ctypedef unsigned long long size_t_ptr
 ctypedef unsigned long long float_ptr
 ctypedef unsigned long long double_ptr
@@ -788,6 +789,8 @@ def nvrtcAddNameExpression(prog, char* name_expression):
     -------
     nvrtcResult
         - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
         - :py:obj:`~.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION`
 
     See Also
