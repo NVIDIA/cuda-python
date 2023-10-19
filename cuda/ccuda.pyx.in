@@ -469,6 +469,12 @@ cdef CUresult cuKernelSetCacheConfig(CUkernel kernel, CUfunc_cache config, CUdev
     return ccuda._cuKernelSetCacheConfig(kernel, config, dev)
 {{endif}}
 
+{{if 'cuKernelGetName' in found_functions}}
+
+cdef CUresult cuKernelGetName(const char** name, CUkernel hfunc) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuKernelGetName(name, hfunc)
+{{endif}}
+
 {{if 'cuMemGetInfo_v2' in found_functions}}
 
 cdef CUresult cuMemGetInfo(size_t* free, size_t* total) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -1201,6 +1207,12 @@ cdef CUresult cuStreamBeginCapture(CUstream hStream, CUstreamCaptureMode mode) e
     return ccuda._cuStreamBeginCapture_v2(hStream, mode)
 {{endif}}
 
+{{if 'cuStreamBeginCaptureToGraph' in found_functions}}
+
+cdef CUresult cuStreamBeginCaptureToGraph(CUstream hStream, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUstreamCaptureMode mode) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuStreamBeginCaptureToGraph(hStream, hGraph, dependencies, dependencyData, numDependencies, mode)
+{{endif}}
+
 {{if 'cuThreadExchangeStreamCaptureMode' in found_functions}}
 
 cdef CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode* mode) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -1225,10 +1237,22 @@ cdef CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus* ca
     return ccuda._cuStreamGetCaptureInfo_v2(hStream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out)
 {{endif}}
 
+{{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
+
+cdef CUresult cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuStreamGetCaptureInfo_v3(hStream, captureStatus_out, id_out, graph_out, dependencies_out, edgeData_out, numDependencies_out)
+{{endif}}
+
 {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
 
 cdef CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode* dependencies, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     return ccuda._cuStreamUpdateCaptureDependencies(hStream, dependencies, numDependencies, flags)
+{{endif}}
+
+{{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
+
+cdef CUresult cuStreamUpdateCaptureDependencies_v2(CUstream hStream, CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuStreamUpdateCaptureDependencies_v2(hStream, dependencies, dependencyData, numDependencies, flags)
 {{endif}}
 
 {{if 'cuStreamAttachMemAsync' in found_functions}}
@@ -1421,6 +1445,12 @@ cdef CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config) 
 
 cdef CUresult cuFuncGetModule(CUmodule* hmod, CUfunction hfunc) except ?CUDA_ERROR_NOT_FOUND nogil:
     return ccuda._cuFuncGetModule(hmod, hfunc)
+{{endif}}
+
+{{if 'cuFuncGetName' in found_functions}}
+
+cdef CUresult cuFuncGetName(const char** name, CUfunction hfunc) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuFuncGetName(name, hfunc)
 {{endif}}
 
 {{if 'cuLaunchKernel' in found_functions}}
@@ -1783,10 +1813,22 @@ cdef CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* t
     return ccuda._cuGraphGetEdges(hGraph, from_, to, numEdges)
 {{endif}}
 
+{{if 'cuGraphGetEdges_v2' in found_functions}}
+
+cdef CUresult cuGraphGetEdges_v2(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, CUgraphEdgeData* edgeData, size_t* numEdges) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuGraphGetEdges_v2(hGraph, from_, to, edgeData, numEdges)
+{{endif}}
+
 {{if 'cuGraphNodeGetDependencies' in found_functions}}
 
 cdef CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode* dependencies, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     return ccuda._cuGraphNodeGetDependencies(hNode, dependencies, numDependencies)
+{{endif}}
+
+{{if 'cuGraphNodeGetDependencies_v2' in found_functions}}
+
+cdef CUresult cuGraphNodeGetDependencies_v2(CUgraphNode hNode, CUgraphNode* dependencies, CUgraphEdgeData* edgeData, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuGraphNodeGetDependencies_v2(hNode, dependencies, edgeData, numDependencies)
 {{endif}}
 
 {{if 'cuGraphNodeGetDependentNodes' in found_functions}}
@@ -1795,16 +1837,34 @@ cdef CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode* depen
     return ccuda._cuGraphNodeGetDependentNodes(hNode, dependentNodes, numDependentNodes)
 {{endif}}
 
+{{if 'cuGraphNodeGetDependentNodes_v2' in found_functions}}
+
+cdef CUresult cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, CUgraphNode* dependentNodes, CUgraphEdgeData* edgeData, size_t* numDependentNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuGraphNodeGetDependentNodes_v2(hNode, dependentNodes, edgeData, numDependentNodes)
+{{endif}}
+
 {{if 'cuGraphAddDependencies' in found_functions}}
 
 cdef CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     return ccuda._cuGraphAddDependencies(hGraph, from_, to, numDependencies)
 {{endif}}
 
+{{if 'cuGraphAddDependencies_v2' in found_functions}}
+
+cdef CUresult cuGraphAddDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuGraphAddDependencies_v2(hGraph, from_, to, edgeData, numDependencies)
+{{endif}}
+
 {{if 'cuGraphRemoveDependencies' in found_functions}}
 
 cdef CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     return ccuda._cuGraphRemoveDependencies(hGraph, from_, to, numDependencies)
+{{endif}}
+
+{{if 'cuGraphRemoveDependencies_v2' in found_functions}}
+
+cdef CUresult cuGraphRemoveDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuGraphRemoveDependencies_v2(hGraph, from_, to, edgeData, numDependencies)
 {{endif}}
 
 {{if 'cuGraphDestroyNode' in found_functions}}
@@ -1987,6 +2047,12 @@ cdef CUresult cuGraphAddNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUg
     return ccuda._cuGraphAddNode(phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
 {{endif}}
 
+{{if 'cuGraphAddNode_v2' in found_functions}}
+
+cdef CUresult cuGraphAddNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuGraphAddNode_v2(phGraphNode, hGraph, dependencies, dependencyData, numDependencies, nodeParams)
+{{endif}}
+
 {{if 'cuGraphNodeSetParams' in found_functions}}
 
 cdef CUresult cuGraphNodeSetParams(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -1997,6 +2063,12 @@ cdef CUresult cuGraphNodeSetParams(CUgraphNode hNode, CUgraphNodeParams* nodePar
 
 cdef CUresult cuGraphExecNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     return ccuda._cuGraphExecNodeSetParams(hGraphExec, hNode, nodeParams)
+{{endif}}
+
+{{if 'cuGraphConditionalHandleCreate' in found_functions}}
+
+cdef CUresult cuGraphConditionalHandleCreate(CUgraphConditionalHandle* pHandle_out, CUgraph hGraph, CUcontext ctx, unsigned int defaultLaunchValue, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return ccuda._cuGraphConditionalHandleCreate(pHandle_out, hGraph, ctx, defaultLaunchValue, flags)
 {{endif}}
 
 {{if 'cuOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}

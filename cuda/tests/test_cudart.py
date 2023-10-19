@@ -6,11 +6,12 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 from _pytest.mark.structures import store_mark
-import pytest
-import cuda.cudart as cudart
+import ctypes
 import cuda.cuda as cuda
-import numpy as np
+import cuda.cudart as cudart
 import math
+import numpy as np
+import pytest
 
 def isSuccess(err):
     return err == cudart.cudaError_t.cudaSuccess
@@ -1220,3 +1221,57 @@ def test_cudart_eglFrame():
     assert(int(frame.frame.pPitch[2].pitch) == 123)
     assert(int(frame.frame.pPitch[2].xsize) == 0)
     assert(int(frame.frame.pPitch[2].ysize) == 0)
+
+def cudart_func_stream_callback(use_host_api):
+    class testStruct(ctypes.Structure):
+        _fields_ = [('a', ctypes.c_int),
+                    ('b', ctypes.c_int),
+                    ('c', ctypes.c_int),]
+
+    def task_callback_host(userData):
+        data = testStruct.from_address(userData)
+        assert(data.a == 1)
+        assert(data.b == 2)
+        assert(data.c == 3)
+        return 0
+
+    def task_callback_stream(stream, status, userData):
+        data = testStruct.from_address(userData)
+        assert(data.a == 1)
+        assert(data.b == 2)
+        assert(data.c == 3)
+        return 0
+
+    if use_host_api:
+        callback_type = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+        target_task = task_callback_host
+    else:
+        callback_type = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)
+        target_task = task_callback_stream
+
+    # Construct ctype data
+    c_callback = callback_type(target_task)
+    c_data = testStruct(1, 2, 3)
+
+    # ctypes is managing the pointer value for us
+    if use_host_api:
+        callback = cudart.cudaHostFn_t(_ptr=ctypes.addressof(c_callback))
+    else:
+        callback = cudart.cudaStreamCallback_t(_ptr=ctypes.addressof(c_callback))
+
+    # Run
+    err, stream = cudart.cudaStreamCreate()
+    assertSuccess(err)
+    if use_host_api:
+        err, = cudart.cudaLaunchHostFunc(stream, callback, ctypes.addressof(c_data))
+        assertSuccess(err)
+    else:
+        err, = cudart.cudaStreamAddCallback(stream, callback, ctypes.addressof(c_data), 0)
+        assertSuccess(err)
+    err, = cudart.cudaDeviceSynchronize()
+    assertSuccess(err)
+
+
+def test_cudart_func_callback():
+    cudart_func_stream_callback(use_host_api=False)
+    cudart_func_stream_callback(use_host_api=True)

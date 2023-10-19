@@ -97,6 +97,7 @@ cdef extern from "driver_types.h":
         cudaErrorOperatingSystem = 304
         cudaErrorInvalidResourceHandle = 400
         cudaErrorIllegalState = 401
+        cudaErrorLossyQuery = 402
         cudaErrorSymbolNotFound = 500
         cudaErrorNotReady = 600
         cudaErrorIllegalAddress = 700
@@ -465,7 +466,8 @@ cdef extern from "driver_types.h":
         int clusterLaunch
         int unifiedFunctionPointers
         int reserved2[2]
-        int reserved[61]
+        int reserved1[1]
+        int reserved[60]
 
     cdef struct cudaIpcEventHandle_st:
         char reserved[64]
@@ -476,6 +478,11 @@ cdef extern from "driver_types.h":
         char reserved[64]
 
     ctypedef cudaIpcMemHandle_st cudaIpcMemHandle_t
+
+    cdef struct cudaMemFabricHandle_st:
+        char reserved[64]
+
+    ctypedef cudaMemFabricHandle_st cudaMemFabricHandle_t
 
     cdef struct anon_struct5:
         void* handle
@@ -593,6 +600,8 @@ cdef extern from "driver_types.h":
         pass
     ctypedef CUuserObject_st* cudaUserObject_t
 
+    ctypedef unsigned long long cudaGraphConditionalHandle
+
     cdef struct CUfunc_st:
         pass
     ctypedef CUfunc_st* cudaFunction_t
@@ -641,6 +650,12 @@ cdef extern from "driver_types.h":
         const cudaExternalSemaphoreWaitParams* paramsArray
         unsigned int numExtSems
 
+    cdef struct cudaConditionalNodeParams:
+        cudaGraphConditionalHandle handle
+        cudaGraphConditionalNodeType type
+        unsigned int size
+        cudaGraph_t* phGraph_out
+
     cdef struct cudaChildGraphNodeParams:
         cudaGraph_t graph
 
@@ -665,7 +680,22 @@ cdef extern from "driver_types.h":
         cudaExternalSemaphoreWaitNodeParamsV2 extSemWait
         cudaMemAllocNodeParamsV2 alloc
         cudaMemFreeNodeParams free
+        cudaConditionalNodeParams conditional
         long long reserved2
+
+    cdef enum cudaGraphDependencyType_enum:
+        cudaGraphDependencyTypeDefault = 0
+        cudaGraphDependencyTypeProgrammatic = 1
+
+    ctypedef cudaGraphDependencyType_enum cudaGraphDependencyType
+
+    cdef struct cudaGraphEdgeData_st:
+        unsigned char from_port
+        unsigned char to_port
+        unsigned char type
+        unsigned char reserved[5]
+
+    ctypedef cudaGraphEdgeData_st cudaGraphEdgeData
 
     cdef struct CUgraphExec_st:
         pass
@@ -715,6 +745,7 @@ cdef extern from "driver_types.h":
         cudaLaunchAttributePriority = 8
         cudaLaunchAttributeMemSyncDomainMap = 9
         cudaLaunchAttributeMemSyncDomain = 10
+        cudaLaunchAttributeLaunchCompletionEvent = 12
 
     cdef struct anon_struct19:
         unsigned int x
@@ -725,6 +756,10 @@ cdef extern from "driver_types.h":
         cudaEvent_t event
         int flags
         int triggerAtBlockStart
+
+    cdef struct anon_struct21:
+        cudaEvent_t event
+        int flags
 
     cdef union cudaLaunchAttributeValue:
         char pad[64]
@@ -738,6 +773,7 @@ cdef extern from "driver_types.h":
         int priority
         cudaLaunchMemSyncDomainMap memSyncDomainMap
         cudaLaunchMemSyncDomain memSyncDomain
+        anon_struct21 launchCompletionEvent
 
     cdef struct cudaLaunchAttribute_st:
         cudaLaunchAttributeID id
@@ -1093,6 +1129,7 @@ cdef extern from "driver_types.h":
         cudaDevAttrNumaConfig = 130
         cudaDevAttrNumaId = 131
         cudaDevAttrReserved132 = 132
+        cudaDevAttrMpsEnabled = 133
         cudaDevAttrHostNumaId = 134
         cudaDevAttrMax = 135
 
@@ -1168,6 +1205,13 @@ cdef extern from "driver_types.h":
         cudaCGScopeGrid = 1
         cudaCGScopeMultiGrid = 2
 
+    cdef enum cudaGraphConditionalHandleFlags:
+        cudaGraphCondAssignDefault = 1
+
+    cdef enum cudaGraphConditionalNodeType:
+        cudaGraphCondTypeIf = 0
+        cudaGraphCondTypeWhile = 1
+
     cdef enum cudaGraphNodeType:
         cudaGraphNodeTypeKernel = 0
         cudaGraphNodeTypeMemcpy = 1
@@ -1181,7 +1225,8 @@ cdef extern from "driver_types.h":
         cudaGraphNodeTypeExtSemaphoreWait = 9
         cudaGraphNodeTypeMemAlloc = 10
         cudaGraphNodeTypeMemFree = 11
-        cudaGraphNodeTypeCount = 12
+        cudaGraphNodeTypeConditional = 13
+        cudaGraphNodeTypeCount = 14
 
     cdef enum cudaGraphExecUpdateResult:
         cudaGraphExecUpdateSuccess = 0
@@ -1215,6 +1260,7 @@ cdef extern from "driver_types.h":
         cudaGraphDebugDotFlagsExtSemasWaitNodeParams = 256
         cudaGraphDebugDotFlagsKernelNodeAttributes = 512
         cudaGraphDebugDotFlagsHandles = 1024
+        cudaGraphDebugDotFlagsConditionalNodeParams = 32768
 
     cdef enum cudaGraphInstantiateFlags:
         cudaGraphInstantiateFlagAutoFreeOnLaunch = 1
@@ -1794,6 +1840,11 @@ cdef cudaError_t cudaStreamAttachMemAsync(cudaStream_t stream, void* devPtr, siz
 cdef cudaError_t cudaStreamBeginCapture(cudaStream_t stream, cudaStreamCaptureMode mode) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaStreamBeginCaptureToGraph' in found_functions}}
+
+cdef cudaError_t cudaStreamBeginCaptureToGraph(cudaStream_t stream, cudaGraph_t graph, const cudaGraphNode_t* dependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaStreamCaptureMode mode) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaThreadExchangeStreamCaptureMode' in found_functions}}
 
 cdef cudaError_t cudaThreadExchangeStreamCaptureMode(cudaStreamCaptureMode* mode) except ?cudaErrorCallRequiresNewerDriver nogil
@@ -1814,9 +1865,19 @@ cdef cudaError_t cudaStreamIsCapturing(cudaStream_t stream, cudaStreamCaptureSta
 cdef cudaError_t cudaStreamGetCaptureInfo(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, size_t* numDependencies_out) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaStreamGetCaptureInfo_v3' in found_functions}}
+
+cdef cudaError_t cudaStreamGetCaptureInfo_v3(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, const cudaGraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaStreamUpdateCaptureDependencies' in found_functions}}
 
 cdef cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, cudaGraphNode_t* dependencies, size_t numDependencies, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaStreamUpdateCaptureDependencies_v2' in found_functions}}
+
+cdef cudaError_t cudaStreamUpdateCaptureDependencies_v2(cudaStream_t stream, cudaGraphNode_t* dependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaEventCreate' in found_functions}}
@@ -2639,9 +2700,19 @@ cdef cudaError_t cudaGraphGetRootNodes(cudaGraph_t graph, cudaGraphNode_t* pRoot
 cdef cudaError_t cudaGraphGetEdges(cudaGraph_t graph, cudaGraphNode_t* from_, cudaGraphNode_t* to, size_t* numEdges) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaGraphGetEdges_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphGetEdges_v2(cudaGraph_t graph, cudaGraphNode_t* from_, cudaGraphNode_t* to, cudaGraphEdgeData* edgeData, size_t* numEdges) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaGraphNodeGetDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, size_t* pNumDependencies) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaGraphNodeGetDependencies_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetDependencies_v2(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, cudaGraphEdgeData* edgeData, size_t* pNumDependencies) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaGraphNodeGetDependentNodes' in found_functions}}
@@ -2649,14 +2720,29 @@ cdef cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGraphNod
 cdef cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cudaGraphNode_t* pDependentNodes, size_t* pNumDependentNodes) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaGraphNodeGetDependentNodes_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetDependentNodes_v2(cudaGraphNode_t node, cudaGraphNode_t* pDependentNodes, cudaGraphEdgeData* edgeData, size_t* pNumDependentNodes) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaGraphAddDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphAddDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaGraphAddDependencies_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphAddDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaGraphRemoveDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaGraphRemoveDependencies_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphRemoveDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaGraphDestroyNode' in found_functions}}
@@ -2804,6 +2890,11 @@ cdef cudaError_t cudaGraphReleaseUserObject(cudaGraph_t graph, cudaUserObject_t 
 cdef cudaError_t cudaGraphAddNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaGraphAddNode_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphAddNode_v2(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaGraphNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
@@ -2812,6 +2903,11 @@ cdef cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, cudaGraphNodeParam
 {{if 'cudaGraphExecNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecNodeSetParams(cudaGraphExec_t graphExec, cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaGraphConditionalHandleCreate' in found_functions}}
+
+cdef cudaError_t cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, unsigned int defaultLaunchValue, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaGetDriverEntryPoint' in found_functions}}
@@ -2949,6 +3045,11 @@ cdef cudaError_t cudaGraphicsVDPAURegisterVideoSurface(cudaGraphicsResource** re
 cdef cudaError_t cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** resource, VdpOutputSurface vdpSurface, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if True}}
+
+cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 cdef enum: cudaHostAllocDefault = 0
 
 cdef enum: cudaHostAllocPortable = 1
@@ -3065,6 +3166,12 @@ cdef enum: cudaNvSciSyncAttrSignal = 1
 
 cdef enum: cudaNvSciSyncAttrWait = 2
 
+cdef enum: cudaGraphKernelNodePortDefault = 0
+
+cdef enum: cudaGraphKernelNodePortProgrammatic = 1
+
+cdef enum: cudaGraphKernelNodePortLaunchCompletion = 2
+
 cdef enum: cudaStreamAttributeAccessPolicyWindow = 1
 
 cdef enum: cudaStreamAttributeSynchronizationPolicy = 3
@@ -3117,8 +3224,8 @@ cdef enum: cudaTextureType2DLayered = 242
 
 cdef enum: cudaTextureTypeCubemapLayered = 252
 
-cdef enum: CUDART_VERSION = 12020
+cdef enum: CUDART_VERSION = 12030
 
-cdef enum: __CUDART_API_VERSION = 12020
+cdef enum: __CUDART_API_VERSION = 12030
 
 cdef enum: CUDA_EGL_MAX_PLANES = 3

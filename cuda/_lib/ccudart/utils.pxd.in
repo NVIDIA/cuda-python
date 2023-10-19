@@ -38,7 +38,9 @@ cdef cudaPythonGlobal globalGetInstance()
 cdef cudaError_t _setLastError(cudaError_t err) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChannels, ccuda.CUarray_format *format) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t streamAddCallbackCommon(cudaStream_t stream, cudaStreamCallback_t callback, void *userData, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t streamAddHostCallbackCommon(cudaStream_t stream, cudaHostFn_t callback, void *userData) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t streamGetCaptureInfoCommon(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long *id_out, cudaGraph_t *graph_out, const cudaGraphNode_t **dependencies_out, size_t *numDependencies_out) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t streamGetCaptureInfoCommon_v3(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long *id_out, cudaGraph_t *graph_out, const cudaGraphNode_t **dependencies_out, const cudaGraphEdgeData** edgeData_out, size_t *numDependencies_out) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t getChannelFormatDescFromDriverDesc(cudaChannelFormatDesc* pRuntimeDesc, size_t* pDepth, size_t* pHeight, size_t* pWidth, const ccuda.CUDA_ARRAY3D_DESCRIPTOR_v2* pDriverDesc) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t copyFromHost2D(cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *src, size_t spitch, size_t width, size_t height, ccuda.CUstream stream, bool async) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t copyFromDevice2D(ccuda.CUmemorytype type, cudaArray_const_t thisArray, size_t hOffset, size_t wOffset, const char *src, size_t srcOffset,

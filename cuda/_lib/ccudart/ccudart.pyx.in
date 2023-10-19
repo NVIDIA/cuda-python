@@ -2807,6 +2807,19 @@ cdef cudaError_t _cudaStreamBeginCapture(cudaStream_t stream, cudaStreamCaptureM
     return err
 
 {{endif}}
+{{if 'cudaStreamBeginCaptureToGraph' in found_functions}}
+
+cdef cudaError_t _cudaStreamBeginCaptureToGraph(cudaStream_t stream, cudaGraph_t graph, const cudaGraphNode_t* dependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaStreamCaptureMode mode) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>ccuda._cuStreamBeginCaptureToGraph(<ccuda.CUstream>stream, <ccuda.CUgraph>graph, <ccuda.CUgraphNode*>dependencies, <ccuda.CUgraphEdgeData*> dependencyData, numDependencies, <ccuda.CUstreamCaptureMode>mode)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
 {{if 'cudaThreadExchangeStreamCaptureMode' in found_functions}}
 
 cdef cudaError_t _cudaThreadExchangeStreamCaptureMode(cudaStreamCaptureMode* mode) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -3009,7 +3022,7 @@ cdef cudaError_t _cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void*
     err = m_global.lazyInitContextState()
     if err != cudaSuccess:
         return err
-    err = <cudaError_t>ccuda._cuLaunchHostFunc(<ccuda.CUstream>stream, <ccuda.CUhostFn>fn, userData)
+    err = streamAddHostCallbackCommon(stream, fn, userData)
     if err != cudaSuccess:
         _setLastError(err)
     return err
@@ -4711,4 +4724,171 @@ cdef cudaError_t _cudaGraphExecNodeSetParams(cudaGraphExec_t graphExec, cudaGrap
     toCudartGraphNodeOutParams(&driverNodeParams, nodeParams);
     return cudaSuccess
 
+{{endif}}
+{{if 'cudaGraphConditionalHandleCreate' in found_functions}}
+
+cdef cudaError_t _cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, unsigned int defaultLaunchValue, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    cdef ccuda.CUcontext context
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>ccuda._cuCtxGetCurrent(&context)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+    err = <cudaError_t>ccuda._cuGraphConditionalHandleCreate(<ccuda.CUgraphConditionalHandle *>pHandle_out, graph, context, defaultLaunchValue, flags)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaStreamGetCaptureInfo_v3' in found_functions}}
+
+cdef cudaError_t _cudaStreamGetCaptureInfo_v3(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, const cudaGraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = streamGetCaptureInfoCommon_v3(stream, captureStatus_out, id_out, graph_out, dependencies_out, edgeData_out, numDependencies_out)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaStreamUpdateCaptureDependencies_v2' in found_functions}}
+
+cdef cudaError_t _cudaStreamUpdateCaptureDependencies_v2(cudaStream_t stream, cudaGraphNode_t* dependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>ccuda._cuStreamUpdateCaptureDependencies_v2(<ccuda.CUstream>stream, <ccuda.CUgraphNode*>dependencies, <const ccuda.CUgraphEdgeData*>dependencyData, numDependencies, flags)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaGraphGetEdges_v2' in found_functions}}
+
+cdef cudaError_t _cudaGraphGetEdges_v2(cudaGraph_t graph, cudaGraphNode_t* from_, cudaGraphNode_t* to, cudaGraphEdgeData* edgeData, size_t* numEdges) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>ccuda._cuGraphGetEdges_v2(<ccuda.CUgraph>graph, <ccuda.CUgraphNode*>from_, <ccuda.CUgraphNode*>to, <ccuda.CUgraphEdgeData*>edgeData, numEdges)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaGraphNodeGetDependencies_v2' in found_functions}}
+
+cdef cudaError_t _cudaGraphNodeGetDependencies_v2(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, cudaGraphEdgeData* edgeData, size_t* pNumDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>ccuda._cuGraphNodeGetDependencies_v2(<ccuda.CUgraphNode>node, <ccuda.CUgraphNode*>pDependencies, <ccuda.CUgraphEdgeData*>edgeData, pNumDependencies)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaGraphNodeGetDependentNodes_v2' in found_functions}}
+
+cdef cudaError_t _cudaGraphNodeGetDependentNodes_v2(cudaGraphNode_t node, cudaGraphNode_t* pDependentNodes, cudaGraphEdgeData* edgeData, size_t* pNumDependentNodes) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>ccuda._cuGraphNodeGetDependentNodes_v2(<ccuda.CUgraphNode>node, <ccuda.CUgraphNode*>pDependentNodes, <ccuda.CUgraphEdgeData*>edgeData, pNumDependentNodes)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaGraphAddDependencies_v2' in found_functions}}
+
+cdef cudaError_t _cudaGraphAddDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>ccuda._cuGraphAddDependencies_v2(<ccuda.CUgraph>graph, <ccuda.CUgraphNode*>from_, <ccuda.CUgraphNode*>to, <const ccuda.CUgraphEdgeData*>edgeData, numDependencies)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaGraphRemoveDependencies_v2' in found_functions}}
+
+cdef cudaError_t _cudaGraphRemoveDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>ccuda._cuGraphRemoveDependencies_v2(<ccuda.CUgraph>graph, <ccuda.CUgraphNode*>from_, <ccuda.CUgraphNode*>to, <const ccuda.CUgraphEdgeData*>edgeData, numDependencies)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaGraphAddNode_v2' in found_functions}}
+
+cdef cudaError_t _cudaGraphAddNode_v2(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
+    if nodeParams == NULL:
+        _setLastError(cudaErrorInvalidValue)
+        return cudaErrorInvalidValue
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+    cdef ccuda.CUgraphNodeParams driverNodeParams
+    err = toDriverGraphNodeParams(nodeParams, &driverNodeParams)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+    err = <cudaError_t>ccuda._cuGraphAddNode_v2(pGraphNode, graph, pDependencies, <const ccuda.CUgraphEdgeData*>dependencyData, numDependencies, &driverNodeParams)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+    toCudartGraphNodeOutParams(&driverNodeParams, nodeParams)
+    return cudaSuccess
+
+{{endif}}
+{{if True}}
+
+{{if 'Windows' != platform.system()}}
+cimport cuda._lib.dlfcn as dlfcn
+{{endif}}
+
+cdef cudaError_t _getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil:
+    {{if 'Windows' == platform.system()}}
+    with gil:
+        raise NotImplementedError('"getLocalRuntimeVersion" is unsupported on Windows')
+    {{else}}
+    # Load
+    handle = dlfcn.dlopen('libcudart.so.12', dlfcn.RTLD_NOW)
+    if handle == NULL:
+        with gil:
+            raise RuntimeError(f'Failed to dlopen libcudart.so.12')
+
+    __cudaRuntimeGetVersion = dlfcn.dlsym(handle, 'cudaRuntimeGetVersion')
+
+    if __cudaRuntimeGetVersion == NULL:
+        with gil:
+            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in libcudart.so.12')
+
+    # Call
+    cdef cudaError_t err = cudaSuccess
+    err = (<cudaError_t (*)(int*) nogil> __cudaRuntimeGetVersion)(runtimeVersion)
+
+    # Unload
+    dlfcn.dlclose(handle)
+
+    # Return
+    return err
+    {{endif}}
 {{endif}}

@@ -106,10 +106,19 @@ cdef extern from "cuda.h":
         pass
     ctypedef CUuserObject_st* CUuserObject
 
+    ctypedef cuuint64_t CUgraphConditionalHandle
+
     cdef struct CUuuid_st:
         char bytes[16]
 
     ctypedef CUuuid_st CUuuid
+
+    cdef struct CUmemFabricHandle_st:
+        unsigned char data[64]
+
+    ctypedef CUmemFabricHandle_st CUmemFabricHandle_v1
+
+    ctypedef CUmemFabricHandle_v1 CUmemFabricHandle
 
     cdef struct CUipcEventHandle_st:
         char reserved[64]
@@ -487,10 +496,12 @@ cdef extern from "cuda.h":
         CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED = 125
         CU_DEVICE_ATTRIBUTE_MEM_SYNC_DOMAIN_COUNT = 126
         CU_DEVICE_ATTRIBUTE_TENSOR_MAP_ACCESS_SUPPORTED = 127
+        CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_FABRIC_SUPPORTED = 128
         CU_DEVICE_ATTRIBUTE_UNIFIED_FUNCTION_POINTERS = 129
         CU_DEVICE_ATTRIBUTE_NUMA_CONFIG = 130
         CU_DEVICE_ATTRIBUTE_NUMA_ID = 131
         CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED = 132
+        CU_DEVICE_ATTRIBUTE_MPS_ENABLED = 133
         CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID = 134
         CU_DEVICE_ATTRIBUTE_MAX = 135
 
@@ -648,7 +659,8 @@ cdef extern from "cuda.h":
         CU_JIT_REFERENCED_VARIABLE_COUNT = 28
         CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES = 29
         CU_JIT_POSITION_INDEPENDENT_CODE = 30
-        CU_JIT_NUM_OPTIONS = 31
+        CU_JIT_MIN_CTA_PER_SM = 31
+        CU_JIT_NUM_OPTIONS = 32
 
     ctypedef CUjit_option_enum CUjit_option
 
@@ -854,6 +866,19 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_HOST_NODE_PARAMS_v2_st CUDA_HOST_NODE_PARAMS_v2
 
+    cdef enum CUgraphConditionalNodeType_enum:
+        CU_GRAPH_COND_TYPE_IF = 0
+        CU_GRAPH_COND_TYPE_WHILE = 1
+
+    ctypedef CUgraphConditionalNodeType_enum CUgraphConditionalNodeType
+
+    cdef struct CUDA_CONDITIONAL_NODE_PARAMS:
+        CUgraphConditionalHandle handle
+        CUgraphConditionalNodeType type
+        unsigned int size
+        CUgraph* phGraph_out
+        CUcontext ctx
+
     cdef enum CUgraphNodeType_enum:
         CU_GRAPH_NODE_TYPE_KERNEL = 0
         CU_GRAPH_NODE_TYPE_MEMCPY = 1
@@ -868,8 +893,23 @@ cdef extern from "cuda.h":
         CU_GRAPH_NODE_TYPE_MEM_ALLOC = 10
         CU_GRAPH_NODE_TYPE_MEM_FREE = 11
         CU_GRAPH_NODE_TYPE_BATCH_MEM_OP = 12
+        CU_GRAPH_NODE_TYPE_CONDITIONAL = 13
 
     ctypedef CUgraphNodeType_enum CUgraphNodeType
+
+    cdef enum CUgraphDependencyType_enum:
+        CU_GRAPH_DEPENDENCY_TYPE_DEFAULT = 0
+        CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC = 1
+
+    ctypedef CUgraphDependencyType_enum CUgraphDependencyType
+
+    cdef struct CUgraphEdgeData_st:
+        unsigned char from_port
+        unsigned char to_port
+        unsigned char type
+        unsigned char reserved[5]
+
+    ctypedef CUgraphEdgeData_st CUgraphEdgeData
 
     cdef enum CUgraphInstantiateResult_enum:
         CUDA_GRAPH_INSTANTIATE_SUCCESS = 0
@@ -927,6 +967,7 @@ cdef extern from "cuda.h":
         CU_LAUNCH_ATTRIBUTE_PRIORITY = 8
         CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP = 9
         CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN = 10
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT = 12
 
     ctypedef CUlaunchAttributeID_enum CUlaunchAttributeID
 
@@ -940,6 +981,10 @@ cdef extern from "cuda.h":
         int flags
         int triggerAtBlockStart
 
+    cdef struct anon_struct2:
+        CUevent event
+        int flags
+
     cdef union CUlaunchAttributeValue_union:
         char pad[64]
         CUaccessPolicyWindow accessPolicyWindow
@@ -949,6 +994,7 @@ cdef extern from "cuda.h":
         CUclusterSchedulingPolicy clusterSchedulingPolicyPreference
         int programmaticStreamSerializationAllowed
         anon_struct1 programmaticEvent
+        anon_struct2 launchCompletionEvent
         int priority
         CUlaunchMemSyncDomainMap memSyncDomainMap
         CUlaunchMemSyncDomain memSyncDomain
@@ -1100,6 +1146,7 @@ cdef extern from "cuda.h":
         CUDA_ERROR_OPERATING_SYSTEM = 304
         CUDA_ERROR_INVALID_HANDLE = 400
         CUDA_ERROR_ILLEGAL_STATE = 401
+        CUDA_ERROR_LOSSY_QUERY = 402
         CUDA_ERROR_NOT_FOUND = 500
         CUDA_ERROR_NOT_READY = 600
         CUDA_ERROR_ILLEGAL_ADDRESS = 700
@@ -1278,13 +1325,13 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_ARRAY3D_DESCRIPTOR_v2 CUDA_ARRAY3D_DESCRIPTOR
 
-    cdef struct anon_struct2:
+    cdef struct anon_struct3:
         unsigned int width
         unsigned int height
         unsigned int depth
 
     cdef struct CUDA_ARRAY_SPARSE_PROPERTIES_st:
-        anon_struct2 tileExtent
+        anon_struct3 tileExtent
         unsigned int miptailFirstLevel
         unsigned long long miptailSize
         unsigned int flags
@@ -1303,19 +1350,19 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_ARRAY_MEMORY_REQUIREMENTS_v1 CUDA_ARRAY_MEMORY_REQUIREMENTS
 
-    cdef struct anon_struct3:
+    cdef struct anon_struct4:
         CUarray hArray
 
-    cdef struct anon_struct4:
+    cdef struct anon_struct5:
         CUmipmappedArray hMipmappedArray
 
-    cdef struct anon_struct5:
+    cdef struct anon_struct6:
         CUdeviceptr devPtr
         CUarray_format format
         unsigned int numChannels
         size_t sizeInBytes
 
-    cdef struct anon_struct6:
+    cdef struct anon_struct7:
         CUdeviceptr devPtr
         CUarray_format format
         unsigned int numChannels
@@ -1323,15 +1370,15 @@ cdef extern from "cuda.h":
         size_t height
         size_t pitchInBytes
 
-    cdef struct anon_struct7:
+    cdef struct anon_struct8:
         int reserved[32]
 
     cdef union anon_union3:
-        anon_struct3 array
-        anon_struct4 mipmap
-        anon_struct5 linear
-        anon_struct6 pitch2D
-        anon_struct7 reserved
+        anon_struct4 array
+        anon_struct5 mipmap
+        anon_struct6 linear
+        anon_struct7 pitch2D
+        anon_struct8 reserved
 
     cdef struct CUDA_RESOURCE_DESC_st:
         CUresourcetype resType
@@ -1506,13 +1553,13 @@ cdef extern from "cuda.h":
 
     ctypedef CUexternalMemoryHandleType_enum CUexternalMemoryHandleType
 
-    cdef struct anon_struct8:
+    cdef struct anon_struct9:
         void* handle
         const void* name
 
     cdef union anon_union4:
         int fd
-        anon_struct8 win32
+        anon_struct9 win32
         const void* nvSciBufObject
 
     cdef struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
@@ -1560,13 +1607,13 @@ cdef extern from "cuda.h":
 
     ctypedef CUexternalSemaphoreHandleType_enum CUexternalSemaphoreHandleType
 
-    cdef struct anon_struct9:
+    cdef struct anon_struct10:
         void* handle
         const void* name
 
     cdef union anon_union5:
         int fd
-        anon_struct9 win32
+        anon_struct10 win32
         const void* nvSciSyncObj
 
     cdef struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
@@ -1579,24 +1626,24 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1 CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC
 
-    cdef struct anon_struct10:
+    cdef struct anon_struct11:
         unsigned long long value
 
     cdef union anon_union6:
         void* fence
         unsigned long long reserved
 
-    cdef struct anon_struct11:
+    cdef struct anon_struct12:
         unsigned long long key
 
-    cdef struct anon_struct12:
-        anon_struct10 fence
+    cdef struct anon_struct13:
+        anon_struct11 fence
         anon_union6 nvSciSync
-        anon_struct11 keyedMutex
+        anon_struct12 keyedMutex
         unsigned int reserved[12]
 
     cdef struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
-        anon_struct12 params
+        anon_struct13 params
         unsigned int flags
         unsigned int reserved[16]
 
@@ -1604,25 +1651,25 @@ cdef extern from "cuda.h":
 
     ctypedef CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1 CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS
 
-    cdef struct anon_struct13:
+    cdef struct anon_struct14:
         unsigned long long value
 
     cdef union anon_union7:
         void* fence
         unsigned long long reserved
 
-    cdef struct anon_struct14:
+    cdef struct anon_struct15:
         unsigned long long key
         unsigned int timeoutMs
 
-    cdef struct anon_struct15:
-        anon_struct13 fence
+    cdef struct anon_struct16:
+        anon_struct14 fence
         anon_union7 nvSciSync
-        anon_struct14 keyedMutex
+        anon_struct15 keyedMutex
         unsigned int reserved[10]
 
     cdef struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
-        anon_struct15 params
+        anon_struct16 params
         unsigned int flags
         unsigned int reserved[16]
 
@@ -1671,6 +1718,7 @@ cdef extern from "cuda.h":
         CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR = 1
         CU_MEM_HANDLE_TYPE_WIN32 = 2
         CU_MEM_HANDLE_TYPE_WIN32_KMT = 4
+        CU_MEM_HANDLE_TYPE_FABRIC = 8
         CU_MEM_HANDLE_TYPE_MAX = 2147483647
 
     ctypedef CUmemAllocationHandleType_enum CUmemAllocationHandleType
@@ -1733,7 +1781,7 @@ cdef extern from "cuda.h":
         CUmipmappedArray mipmap
         CUarray array
 
-    cdef struct anon_struct16:
+    cdef struct anon_struct17:
         unsigned int level
         unsigned int layer
         unsigned int offsetX
@@ -1743,14 +1791,14 @@ cdef extern from "cuda.h":
         unsigned int extentHeight
         unsigned int extentDepth
 
-    cdef struct anon_struct17:
+    cdef struct anon_struct18:
         unsigned int layer
         unsigned long long offset
         unsigned long long size
 
     cdef union anon_union9:
-        anon_struct16 sparseLevel
-        anon_struct17 miptail
+        anon_struct17 sparseLevel
+        anon_struct18 miptail
 
     cdef union anon_union10:
         CUmemGenericAllocationHandle memHandle
@@ -1786,7 +1834,7 @@ cdef extern from "cuda.h":
 
     ctypedef CUmemAllocationCompType_enum CUmemAllocationCompType
 
-    cdef struct anon_struct18:
+    cdef struct anon_struct19:
         unsigned char compressionType
         unsigned char gpuDirectRDMACapable
         unsigned short usage
@@ -1797,7 +1845,7 @@ cdef extern from "cuda.h":
         CUmemAllocationHandleType requestedHandleTypes
         CUmemLocation location
         void* win32HandleMetaData
-        anon_struct18 allocFlags
+        anon_struct19 allocFlags
 
     ctypedef CUmemAllocationProp_st CUmemAllocationProp_v1
 
@@ -1944,6 +1992,7 @@ cdef extern from "cuda.h":
         CUDA_MEM_ALLOC_NODE_PARAMS_v2 alloc
         CUDA_MEM_FREE_NODE_PARAMS free
         CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 memOp
+        CUDA_CONDITIONAL_NODE_PARAMS conditional
         long long reserved2
 
     ctypedef CUgraphNodeParams_st CUgraphNodeParams
@@ -1988,6 +2037,7 @@ cdef extern from "cuda.h":
         CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS = 4096
         CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS = 8192
         CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO = 16384
+        CU_GRAPH_DEBUG_DOT_FLAGS_CONDITIONAL_NODE_PARAMS = 32768
 
     ctypedef CUgraphDebugDot_flags_enum CUgraphDebugDot_flags
 
@@ -2624,6 +2674,11 @@ cdef CUresult cuKernelSetAttribute(CUfunction_attribute attrib, int val, CUkerne
 cdef CUresult cuKernelSetCacheConfig(CUkernel kernel, CUfunc_cache config, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuKernelGetName' in found_functions}}
+
+cdef CUresult cuKernelGetName(const char** name, CUkernel hfunc) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuMemGetInfo_v2' in found_functions}}
 
 cdef CUresult cuMemGetInfo(size_t* free, size_t* total) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -3234,6 +3289,11 @@ cdef CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, v
 cdef CUresult cuStreamBeginCapture(CUstream hStream, CUstreamCaptureMode mode) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuStreamBeginCaptureToGraph' in found_functions}}
+
+cdef CUresult cuStreamBeginCaptureToGraph(CUstream hStream, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUstreamCaptureMode mode) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuThreadExchangeStreamCaptureMode' in found_functions}}
 
 cdef CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode* mode) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -3254,9 +3314,19 @@ cdef CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* captu
 cdef CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
+
+cdef CUresult cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
 
 cdef CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode* dependencies, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
+
+cdef CUresult cuStreamUpdateCaptureDependencies_v2(CUstream hStream, CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuStreamAttachMemAsync' in found_functions}}
@@ -3417,6 +3487,11 @@ cdef CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config) 
 {{if 'cuFuncGetModule' in found_functions}}
 
 cdef CUresult cuFuncGetModule(CUmodule* hmod, CUfunction hfunc) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuFuncGetName' in found_functions}}
+
+cdef CUresult cuFuncGetName(const char** name, CUfunction hfunc) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuLaunchKernel' in found_functions}}
@@ -3719,9 +3794,19 @@ cdef CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode* rootNodes, size_t
 cdef CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, size_t* numEdges) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuGraphGetEdges_v2' in found_functions}}
+
+cdef CUresult cuGraphGetEdges_v2(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, CUgraphEdgeData* edgeData, size_t* numEdges) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuGraphNodeGetDependencies' in found_functions}}
 
 cdef CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode* dependencies, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGraphNodeGetDependencies_v2' in found_functions}}
+
+cdef CUresult cuGraphNodeGetDependencies_v2(CUgraphNode hNode, CUgraphNode* dependencies, CUgraphEdgeData* edgeData, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuGraphNodeGetDependentNodes' in found_functions}}
@@ -3729,14 +3814,29 @@ cdef CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode* depende
 cdef CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode* dependentNodes, size_t* numDependentNodes) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuGraphNodeGetDependentNodes_v2' in found_functions}}
+
+cdef CUresult cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, CUgraphNode* dependentNodes, CUgraphEdgeData* edgeData, size_t* numDependentNodes) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuGraphAddDependencies' in found_functions}}
 
 cdef CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuGraphAddDependencies_v2' in found_functions}}
+
+cdef CUresult cuGraphAddDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuGraphRemoveDependencies' in found_functions}}
 
 cdef CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGraphRemoveDependencies_v2' in found_functions}}
+
+cdef CUresult cuGraphRemoveDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuGraphDestroyNode' in found_functions}}
@@ -3889,6 +3989,11 @@ cdef CUresult cuGraphReleaseUserObject(CUgraph graph, CUuserObject object, unsig
 cdef CUresult cuGraphAddNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuGraphAddNode_v2' in found_functions}}
+
+cdef CUresult cuGraphAddNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuGraphNodeSetParams' in found_functions}}
 
 cdef CUresult cuGraphNodeSetParams(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -3897,6 +4002,11 @@ cdef CUresult cuGraphNodeSetParams(CUgraphNode hNode, CUgraphNodeParams* nodePar
 {{if 'cuGraphExecNodeSetParams' in found_functions}}
 
 cdef CUresult cuGraphExecNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGraphConditionalHandleCreate' in found_functions}}
+
+cdef CUresult cuGraphConditionalHandleCreate(CUgraphConditionalHandle* pHandle_out, CUgraph hGraph, CUcontext ctx, unsigned int defaultLaunchValue, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
@@ -4324,7 +4434,7 @@ cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResou
 cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
-cdef enum: CUDA_VERSION = 12020
+cdef enum: CUDA_VERSION = 12030
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 
@@ -4333,6 +4443,14 @@ cdef enum: CU_STREAM_LEGACY = 1
 cdef enum: CU_STREAM_PER_THREAD = 2
 
 cdef enum: CU_COMPUTE_ACCELERATED_TARGET_BASE = 65536
+
+cdef enum: CU_GRAPH_COND_ASSIGN_DEFAULT = 1
+
+cdef enum: CU_GRAPH_KERNEL_NODE_PORT_DEFAULT = 0
+
+cdef enum: CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC = 1
+
+cdef enum: CU_GRAPH_KERNEL_NODE_PORT_LAUNCH_ORDER = 2
 
 cdef enum: CU_KERNEL_NODE_ATTRIBUTE_ACCESS_POLICY_WINDOW = 1
 

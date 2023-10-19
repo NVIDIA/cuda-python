@@ -472,6 +472,28 @@ cdef class CUuuid_st:
     cdef ccuda.CUuuid_st __val
     cdef ccuda.CUuuid_st* _ptr
 {{endif}}
+{{if 'struct CUmemFabricHandle_st' in found_types}}
+
+cdef class CUmemFabricHandle_st:
+    """
+    Fabric handle - An opaque handle representing a memory allocation
+    that can be exported to processes in different nodes connected to
+    the exporting node via the NVSwitch fabric.
+
+    Attributes
+    ----------
+    data : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUmemFabricHandle_st __val
+    cdef ccuda.CUmemFabricHandle_st* _ptr
+{{endif}}
 {{if 'struct CUipcEventHandle_st' in found_types}}
 
 cdef class CUipcEventHandle_st:
@@ -678,16 +700,18 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
 
 cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
     """
+    Batch memory operation node parameters
+
     Attributes
     ----------
     ctx : CUcontext
-
+        Context to use for the operations.
     count : unsigned int
-
+        Number of operations in paramArray.
     paramArray : CUstreamBatchMemOpParams
-
+        Array of batch memory operations.
     flags : unsigned int
-
+        Flags to control the node.
 
     Methods
     -------
@@ -1027,6 +1051,95 @@ cdef class CUDA_HOST_NODE_PARAMS_v2_st:
     cdef ccuda.CUDA_HOST_NODE_PARAMS_v2_st* _ptr
     cdef CUhostFn _fn
 {{endif}}
+{{if 'struct CUDA_CONDITIONAL_NODE_PARAMS' in found_types}}
+
+cdef class CUDA_CONDITIONAL_NODE_PARAMS:
+    """
+    Conditional node parameters
+
+    Attributes
+    ----------
+    handle : CUgraphConditionalHandle
+        Conditional node handle. Handles must be created in advance of
+        creating the node using cuGraphConditionalHandleCreate.
+    type : CUgraphConditionalNodeType
+        Type of conditional node.
+    size : unsigned int
+        Size of graph output array. Must be 1.
+    phGraph_out : CUgraph
+        CUDA-owned array populated with conditional node child graphs
+        during creation of the node. Valid for the lifetime of the
+        conditional node. The contents of the graph(s) are subject to the
+        following constraints:   - Allowed node types are kernel nodes,
+        empty nodes, child graphs, memsets, memcopies, and conditionals.
+        This applies recursively to child graphs and conditional bodies.
+        - All kernels, including kernels in nested conditionals or child
+        graphs at any level, must belong to the same CUDA context.
+        These graphs may be populated using graph node creation APIs or
+        cuStreamBeginCaptureToGraph.
+    ctx : CUcontext
+        Context on which to run the node. Must match context used to create
+        the handle and all body nodes.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUDA_CONDITIONAL_NODE_PARAMS __val
+    cdef ccuda.CUDA_CONDITIONAL_NODE_PARAMS* _ptr
+    cdef CUgraphConditionalHandle _handle
+    cdef size_t _phGraph_out_length
+    cdef ccuda.CUgraph* _phGraph_out
+
+    cdef CUcontext _ctx
+{{endif}}
+{{if 'struct CUgraphEdgeData_st' in found_types}}
+
+cdef class CUgraphEdgeData_st:
+    """
+    Optional annotation for edges in a CUDA graph. Note, all edges
+    implicitly have annotations and default to a zero-initialized value
+    if not specified. A zero-initialized struct indicates a standard
+    full serialization of two nodes with memory visibility.
+
+    Attributes
+    ----------
+    from_port : bytes
+        This indicates when the dependency is triggered from the upstream
+        node on the edge. The meaning is specfic to the node type. A value
+        of 0 in all cases means full completion of the upstream node, with
+        memory visibility to the downstream node or portion thereof
+        (indicated by `to_port`).   Only kernel nodes define non-zero
+        ports. A kernel node can use the following output port types:
+        CU_GRAPH_KERNEL_NODE_PORT_DEFAULT,
+        CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC, or
+        CU_GRAPH_KERNEL_NODE_PORT_LAUNCH_ORDER.
+    to_port : bytes
+        This indicates what portion of the downstream node is dependent on
+        the upstream node or portion thereof (indicated by `from_port`).
+        The meaning is specific to the node type. A value of 0 in all cases
+        means the entirety of the downstream node is dependent on the
+        upstream work.   Currently no node types define non-zero ports.
+        Accordingly, this field must be set to zero.
+    type : bytes
+        This should be populated with a value from CUgraphDependencyType.
+        (It is typed as char due to compiler-specific layout of bitfields.)
+        See CUgraphDependencyType.
+    reserved : bytes
+        These bytes are unused and must be zeroed. This ensures
+        compatibility if additional fields are added in the future.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUgraphEdgeData_st __val
+    cdef ccuda.CUgraphEdgeData_st* _ptr
+{{endif}}
 {{if 'struct CUDA_GRAPH_INSTANTIATE_PARAMS_st' in found_types}}
 
 cdef class CUDA_GRAPH_INSTANTIATE_PARAMS_st:
@@ -1060,12 +1173,20 @@ cdef class CUDA_GRAPH_INSTANTIATE_PARAMS_st:
 
 cdef class CUlaunchMemSyncDomainMap_st:
     """
+    Memory Synchronization Domain map  See ::cudaLaunchMemSyncDomain.
+    By default, kernels are launched in domain 0. Kernel launched with
+    CU_LAUNCH_MEM_SYNC_DOMAIN_REMOTE will have a different domain ID.
+    User may also alter the domain ID with CUlaunchMemSyncDomainMap for
+    a specific stream / graph node / kernel launch. See
+    CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP.  Domain ID range is
+    available through CU_DEVICE_ATTRIBUTE_MEM_SYNC_DOMAIN_COUNT.
+
     Attributes
     ----------
     default_ : bytes
-
+        The default domain ID to use for designated kernels
     remote : bytes
-
+        The remote domain ID to use for designated kernels
 
     Methods
     -------
@@ -1121,33 +1242,72 @@ cdef class anon_struct1:
 {{endif}}
 {{if 'union CUlaunchAttributeValue_union' in found_types}}
 
-cdef class CUlaunchAttributeValue_union:
+cdef class anon_struct2:
     """
     Attributes
     ----------
+    event : CUevent
+
+    flags : int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUlaunchAttributeValue_union* _ptr
+    cdef CUevent _event
+{{endif}}
+{{if 'union CUlaunchAttributeValue_union' in found_types}}
+
+cdef class CUlaunchAttributeValue_union:
+    """
+    Launch attributes union; used as value field of CUlaunchAttribute
+
+    Attributes
+    ----------
     pad : bytes
-        Pad to 64 bytes
+
     accessPolicyWindow : CUaccessPolicyWindow
-        Attribute CUaccessPolicyWindow.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW.
     cooperative : int
-        Nonzero indicates a cooperative kernel (see
-        cuLaunchCooperativeKernel).
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_COOPERATIVE. Nonzero
+        indicates a cooperative kernel (see cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
         ::CUsynchronizationPolicy for work queued up in this stream
     clusterDim : anon_struct0
-        Cluster dimensions for the kernel node.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+        that represents the desired cluster dimensions for the kernel.
+        Opaque type with the following fields: - `x` - The X dimension of
+        the cluster, in blocks. Must be a divisor of the grid X dimension.
+        - `y` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - `z` - The Z dimension of the
+        cluster, in blocks. Must be a divisor of the grid Z dimension.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-        Cluster scheduling policy preference for the kernel node.
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE. Cluster
+        scheduling policy preference for the kernel.
     programmaticStreamSerializationAllowed : int
-
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct1
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+    launchCompletionEvent : anon_struct2
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
     priority : int
-        Execution priority of the kernel.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
+        priority of the kernel.
     memSyncDomainMap : CUlaunchMemSyncDomainMap
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP.
+        See CUlaunchMemSyncDomainMap.
     memSyncDomain : CUlaunchMemSyncDomain
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN.
+        See::CUlaunchMemSyncDomain
 
     Methods
     -------
@@ -1160,18 +1320,21 @@ cdef class CUlaunchAttributeValue_union:
     cdef CUaccessPolicyWindow _accessPolicyWindow
     cdef anon_struct0 _clusterDim
     cdef anon_struct1 _programmaticEvent
+    cdef anon_struct2 _launchCompletionEvent
     cdef CUlaunchMemSyncDomainMap _memSyncDomainMap
 {{endif}}
 {{if 'struct CUlaunchAttribute_st' in found_types}}
 
 cdef class CUlaunchAttribute_st:
     """
+    Launch attribute
+
     Attributes
     ----------
     id : CUlaunchAttributeID
-
+        Attribute to set
     value : CUlaunchAttributeValue
-
+        Value of the attribute
 
     Methods
     -------
@@ -1187,6 +1350,8 @@ cdef class CUlaunchAttribute_st:
 
 cdef class CUlaunchConfig_st:
     """
+    CUDA extensible launch configuration
+
     Attributes
     ----------
     gridDimX : unsigned int
@@ -1206,9 +1371,9 @@ cdef class CUlaunchConfig_st:
     hStream : CUstream
         Stream identifier
     attrs : CUlaunchAttribute
-        nullable if numAttrs == 0
+        List of attributes; nullable if CUlaunchConfig::numAttrs == 0
     numAttrs : unsigned int
-        number of attributes populated in attrs
+        Number of attributes populated in CUlaunchConfig::attrs
 
     Methods
     -------
@@ -1597,7 +1762,7 @@ cdef class CUDA_ARRAY3D_DESCRIPTOR_st:
 {{endif}}
 {{if 'struct CUDA_ARRAY_SPARSE_PROPERTIES_st' in found_types}}
 
-cdef class anon_struct2:
+cdef class anon_struct3:
     """
     Attributes
     ----------
@@ -1624,7 +1789,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
 
     Attributes
     ----------
-    tileExtent : anon_struct2
+    tileExtent : anon_struct3
 
     miptailFirstLevel : unsigned int
         First mip level at which the mip tail begins.
@@ -1644,7 +1809,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
     """
     cdef ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st __val
     cdef ccuda.CUDA_ARRAY_SPARSE_PROPERTIES_st* _ptr
-    cdef anon_struct2 _tileExtent
+    cdef anon_struct3 _tileExtent
 {{endif}}
 {{if 'struct CUDA_ARRAY_MEMORY_REQUIREMENTS_st' in found_types}}
 
@@ -1672,7 +1837,7 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
 {{endif}}
 {{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class anon_struct3:
+cdef class anon_struct4:
     """
     Attributes
     ----------
@@ -1690,7 +1855,7 @@ cdef class anon_struct3:
 {{endif}}
 {{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class anon_struct4:
+cdef class anon_struct5:
     """
     Attributes
     ----------
@@ -1708,7 +1873,7 @@ cdef class anon_struct4:
 {{endif}}
 {{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class anon_struct5:
+cdef class anon_struct6:
     """
     Attributes
     ----------
@@ -1732,7 +1897,7 @@ cdef class anon_struct5:
 {{endif}}
 {{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class anon_struct6:
+cdef class anon_struct7:
     """
     Attributes
     ----------
@@ -1760,7 +1925,7 @@ cdef class anon_struct6:
 {{endif}}
 {{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
-cdef class anon_struct7:
+cdef class anon_struct8:
     """
     Attributes
     ----------
@@ -1781,15 +1946,15 @@ cdef class anon_union3:
     """
     Attributes
     ----------
-    array : anon_struct3
+    array : anon_struct4
 
-    mipmap : anon_struct4
+    mipmap : anon_struct5
 
-    linear : anon_struct5
+    linear : anon_struct6
 
-    pitch2D : anon_struct6
+    pitch2D : anon_struct7
 
-    reserved : anon_struct7
+    reserved : anon_struct8
 
 
     Methods
@@ -1799,11 +1964,11 @@ cdef class anon_union3:
 
     """
     cdef ccuda.CUDA_RESOURCE_DESC_st* _ptr
-    cdef anon_struct3 _array
-    cdef anon_struct4 _mipmap
-    cdef anon_struct5 _linear
-    cdef anon_struct6 _pitch2D
-    cdef anon_struct7 _reserved
+    cdef anon_struct4 _array
+    cdef anon_struct5 _mipmap
+    cdef anon_struct6 _linear
+    cdef anon_struct7 _pitch2D
+    cdef anon_struct8 _reserved
 {{endif}}
 {{if 'struct CUDA_RESOURCE_DESC_st' in found_types}}
 
@@ -1990,7 +2155,7 @@ cdef class CUDA_LAUNCH_PARAMS_st:
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st' in found_types}}
 
-cdef class anon_struct8:
+cdef class anon_struct9:
     """
     Attributes
     ----------
@@ -2015,7 +2180,7 @@ cdef class anon_union4:
     ----------
     fd : int
 
-    win32 : anon_struct8
+    win32 : anon_struct9
 
     nvSciBufObject : Any
 
@@ -2027,7 +2192,7 @@ cdef class anon_union4:
 
     """
     cdef ccuda.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st* _ptr
-    cdef anon_struct8 _win32
+    cdef anon_struct9 _win32
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st' in found_types}}
 
@@ -2114,7 +2279,7 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st' in found_types}}
 
-cdef class anon_struct9:
+cdef class anon_struct10:
     """
     Attributes
     ----------
@@ -2139,7 +2304,7 @@ cdef class anon_union5:
     ----------
     fd : int
 
-    win32 : anon_struct9
+    win32 : anon_struct10
 
     nvSciSyncObj : Any
 
@@ -2151,7 +2316,7 @@ cdef class anon_union5:
 
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st* _ptr
-    cdef anon_struct9 _win32
+    cdef anon_struct10 _win32
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st' in found_types}}
 
@@ -2182,7 +2347,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
 
-cdef class anon_struct10:
+cdef class anon_struct11:
     """
     Attributes
     ----------
@@ -2218,7 +2383,7 @@ cdef class anon_union6:
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
 
-cdef class anon_struct11:
+cdef class anon_struct12:
     """
     Attributes
     ----------
@@ -2235,15 +2400,15 @@ cdef class anon_struct11:
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
 
-cdef class anon_struct12:
+cdef class anon_struct13:
     """
     Attributes
     ----------
-    fence : anon_struct10
+    fence : anon_struct11
 
     nvSciSync : anon_union6
 
-    keyedMutex : anon_struct11
+    keyedMutex : anon_struct12
 
     reserved : List[unsigned int]
 
@@ -2255,9 +2420,9 @@ cdef class anon_struct12:
 
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
-    cdef anon_struct10 _fence
+    cdef anon_struct11 _fence
     cdef anon_union6 _nvSciSync
-    cdef anon_struct11 _keyedMutex
+    cdef anon_struct12 _keyedMutex
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st' in found_types}}
 
@@ -2267,7 +2432,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
 
     Attributes
     ----------
-    params : anon_struct12
+    params : anon_struct13
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal
@@ -2289,11 +2454,11 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st __val
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _ptr
-    cdef anon_struct12 _params
+    cdef anon_struct13 _params
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
 
-cdef class anon_struct13:
+cdef class anon_struct14:
     """
     Attributes
     ----------
@@ -2329,7 +2494,7 @@ cdef class anon_union7:
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
 
-cdef class anon_struct14:
+cdef class anon_struct15:
     """
     Attributes
     ----------
@@ -2348,15 +2513,15 @@ cdef class anon_struct14:
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
 
-cdef class anon_struct15:
+cdef class anon_struct16:
     """
     Attributes
     ----------
-    fence : anon_struct13
+    fence : anon_struct14
 
     nvSciSync : anon_union7
 
-    keyedMutex : anon_struct14
+    keyedMutex : anon_struct15
 
     reserved : List[unsigned int]
 
@@ -2368,9 +2533,9 @@ cdef class anon_struct15:
 
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
-    cdef anon_struct13 _fence
+    cdef anon_struct14 _fence
     cdef anon_union7 _nvSciSync
-    cdef anon_struct14 _keyedMutex
+    cdef anon_struct15 _keyedMutex
 {{endif}}
 {{if 'struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st' in found_types}}
 
@@ -2380,7 +2545,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
 
     Attributes
     ----------
-    params : anon_struct15
+    params : anon_struct16
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on
@@ -2402,7 +2567,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
     """
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st __val
     cdef ccuda.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _ptr
-    cdef anon_struct15 _params
+    cdef anon_struct16 _params
 {{endif}}
 {{if 'struct CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st' in found_types}}
 
@@ -2551,7 +2716,7 @@ cdef class anon_union8:
 {{endif}}
 {{if 'struct CUarrayMapInfo_st' in found_types}}
 
-cdef class anon_struct16:
+cdef class anon_struct17:
     """
     Attributes
     ----------
@@ -2582,7 +2747,7 @@ cdef class anon_struct16:
 {{endif}}
 {{if 'struct CUarrayMapInfo_st' in found_types}}
 
-cdef class anon_struct17:
+cdef class anon_struct18:
     """
     Attributes
     ----------
@@ -2607,9 +2772,9 @@ cdef class anon_union9:
     """
     Attributes
     ----------
-    sparseLevel : anon_struct16
+    sparseLevel : anon_struct17
 
-    miptail : anon_struct17
+    miptail : anon_struct18
 
 
     Methods
@@ -2619,8 +2784,8 @@ cdef class anon_union9:
 
     """
     cdef ccuda.CUarrayMapInfo_st* _ptr
-    cdef anon_struct16 _sparseLevel
-    cdef anon_struct17 _miptail
+    cdef anon_struct17 _sparseLevel
+    cdef anon_struct18 _miptail
 {{endif}}
 {{if 'struct CUarrayMapInfo_st' in found_types}}
 
@@ -2708,7 +2873,7 @@ cdef class CUmemLocation_st:
 {{endif}}
 {{if 'struct CUmemAllocationProp_st' in found_types}}
 
-cdef class anon_struct18:
+cdef class anon_struct19:
     """
     Attributes
     ----------
@@ -2749,7 +2914,7 @@ cdef class CUmemAllocationProp_st:
         structure includes security attributes that define the scope of
         which exported allocations may be transferred to other processes.
         In all other cases, this field is required to be zero.
-    allocFlags : anon_struct18
+    allocFlags : anon_struct19
 
 
     Methods
@@ -2761,7 +2926,7 @@ cdef class CUmemAllocationProp_st:
     cdef ccuda.CUmemAllocationProp_st __val
     cdef ccuda.CUmemAllocationProp_st* _ptr
     cdef CUmemLocation _location
-    cdef anon_struct18 _allocFlags
+    cdef anon_struct19 _allocFlags
 {{endif}}
 {{if 'struct CUmulticastObjectProp_st' in found_types}}
 
@@ -3064,40 +3229,44 @@ cdef class CUDA_EVENT_WAIT_NODE_PARAMS_st:
 
 cdef class CUgraphNodeParams_st:
     """
+    Graph node parameters. See cuGraphAddNode.
+
     Attributes
     ----------
     type : CUgraphNodeType
-
+        Type of the node
     reserved0 : List[int]
-
+        Reserved. Must be zero.
     reserved1 : List[long long]
-
+        Padding. Unused bytes must be zero.
     kernel : CUDA_KERNEL_NODE_PARAMS_v3
-
+        Kernel node parameters.
     memcpy : CUDA_MEMCPY_NODE_PARAMS
-
+        Memcpy node parameters.
     memset : CUDA_MEMSET_NODE_PARAMS_v2
-
+        Memset node parameters.
     host : CUDA_HOST_NODE_PARAMS_v2
-
+        Host node parameters.
     graph : CUDA_CHILD_GRAPH_NODE_PARAMS
-
+        Child graph node parameters.
     eventWait : CUDA_EVENT_WAIT_NODE_PARAMS
-
+        Event wait node parameters.
     eventRecord : CUDA_EVENT_RECORD_NODE_PARAMS
-
+        Event record node parameters.
     extSemSignal : CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2
-
+        External semaphore signal node parameters.
     extSemWait : CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2
-
+        External semaphore wait node parameters.
     alloc : CUDA_MEM_ALLOC_NODE_PARAMS_v2
-
+        Memory allocation node parameters.
     free : CUDA_MEM_FREE_NODE_PARAMS
-
+        Memory free node parameters.
     memOp : CUDA_BATCH_MEM_OP_NODE_PARAMS_v2
-
+        MemOp node parameters.
+    conditional : CUDA_CONDITIONAL_NODE_PARAMS
+        Conditional node parameters.
     reserved2 : long long
-
+        Reserved bytes. Must be zero.
 
     Methods
     -------
@@ -3119,6 +3288,7 @@ cdef class CUgraphNodeParams_st:
     cdef CUDA_MEM_ALLOC_NODE_PARAMS_v2 _alloc
     cdef CUDA_MEM_FREE_NODE_PARAMS _free
     cdef CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 _memOp
+    cdef CUDA_CONDITIONAL_NODE_PARAMS _conditional
 {{endif}}
 {{if True}}
 
@@ -3244,6 +3414,20 @@ cdef class CUsurfObject:
     cdef ccuda.CUsurfObject __val
     cdef ccuda.CUsurfObject* _ptr
 {{endif}}
+{{if 'CUgraphConditionalHandle' in found_types}}
+
+cdef class CUgraphConditionalHandle:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccuda.CUgraphConditionalHandle __val
+    cdef ccuda.CUgraphConditionalHandle* _ptr
+{{endif}}
 {{if 'CUuuid' in found_types}}
 
 cdef class CUuuid(CUuuid_st):
@@ -3252,6 +3436,48 @@ cdef class CUuuid(CUuuid_st):
     ----------
     bytes : bytes
         < CUDA definition of UUID
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUmemFabricHandle_v1' in found_types}}
+
+cdef class CUmemFabricHandle_v1(CUmemFabricHandle_st):
+    """
+    Fabric handle - An opaque handle representing a memory allocation
+    that can be exported to processes in different nodes connected to
+    the exporting node via the NVSwitch fabric.
+
+    Attributes
+    ----------
+    data : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'CUmemFabricHandle' in found_types}}
+
+cdef class CUmemFabricHandle(CUmemFabricHandle_v1):
+    """
+    Fabric handle - An opaque handle representing a memory allocation
+    that can be exported to processes in different nodes connected to
+    the exporting node via the NVSwitch fabric.
+
+    Attributes
+    ----------
+    data : bytes
+
 
     Methods
     -------
@@ -3445,16 +3671,18 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS(CUDA_BATCH_MEM_OP_NODE_PARAMS_v1):
 
 cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2(CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st):
     """
+    Batch memory operation node parameters
+
     Attributes
     ----------
     ctx : CUcontext
-
+        Context to use for the operations.
     count : unsigned int
-
+        Number of operations in paramArray.
     paramArray : CUstreamBatchMemOpParams
-
+        Array of batch memory operations.
     flags : unsigned int
-
+        Flags to control the node.
 
     Methods
     -------
@@ -3934,6 +4162,50 @@ cdef class CUDA_HOST_NODE_PARAMS_v2(CUDA_HOST_NODE_PARAMS_v2_st):
     """
     pass
 {{endif}}
+{{if 'CUgraphEdgeData' in found_types}}
+
+cdef class CUgraphEdgeData(CUgraphEdgeData_st):
+    """
+    Optional annotation for edges in a CUDA graph. Note, all edges
+    implicitly have annotations and default to a zero-initialized value
+    if not specified. A zero-initialized struct indicates a standard
+    full serialization of two nodes with memory visibility.
+
+    Attributes
+    ----------
+    from_port : bytes
+        This indicates when the dependency is triggered from the upstream
+        node on the edge. The meaning is specfic to the node type. A value
+        of 0 in all cases means full completion of the upstream node, with
+        memory visibility to the downstream node or portion thereof
+        (indicated by `to_port`).   Only kernel nodes define non-zero
+        ports. A kernel node can use the following output port types:
+        CU_GRAPH_KERNEL_NODE_PORT_DEFAULT,
+        CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC, or
+        CU_GRAPH_KERNEL_NODE_PORT_LAUNCH_ORDER.
+    to_port : bytes
+        This indicates what portion of the downstream node is dependent on
+        the upstream node or portion thereof (indicated by `from_port`).
+        The meaning is specific to the node type. A value of 0 in all cases
+        means the entirety of the downstream node is dependent on the
+        upstream work.   Currently no node types define non-zero ports.
+        Accordingly, this field must be set to zero.
+    type : bytes
+        This should be populated with a value from CUgraphDependencyType.
+        (It is typed as char due to compiler-specific layout of bitfields.)
+        See CUgraphDependencyType.
+    reserved : bytes
+        These bytes are unused and must be zeroed. This ensures
+        compatibility if additional fields are added in the future.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
 {{if 'CUDA_GRAPH_INSTANTIATE_PARAMS' in found_types}}
 
 cdef class CUDA_GRAPH_INSTANTIATE_PARAMS(CUDA_GRAPH_INSTANTIATE_PARAMS_st):
@@ -3963,12 +4235,20 @@ cdef class CUDA_GRAPH_INSTANTIATE_PARAMS(CUDA_GRAPH_INSTANTIATE_PARAMS_st):
 
 cdef class CUlaunchMemSyncDomainMap(CUlaunchMemSyncDomainMap_st):
     """
+    Memory Synchronization Domain map  See ::cudaLaunchMemSyncDomain.
+    By default, kernels are launched in domain 0. Kernel launched with
+    CU_LAUNCH_MEM_SYNC_DOMAIN_REMOTE will have a different domain ID.
+    User may also alter the domain ID with CUlaunchMemSyncDomainMap for
+    a specific stream / graph node / kernel launch. See
+    CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP.  Domain ID range is
+    available through CU_DEVICE_ATTRIBUTE_MEM_SYNC_DOMAIN_COUNT.
+
     Attributes
     ----------
     default_ : bytes
-
+        The default domain ID to use for designated kernels
     remote : bytes
-
+        The remote domain ID to use for designated kernels
 
     Methods
     -------
@@ -3982,31 +4262,50 @@ cdef class CUlaunchMemSyncDomainMap(CUlaunchMemSyncDomainMap_st):
 
 cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
     """
+    Launch attributes union; used as value field of CUlaunchAttribute
+
     Attributes
     ----------
     pad : bytes
-        Pad to 64 bytes
+
     accessPolicyWindow : CUaccessPolicyWindow
-        Attribute CUaccessPolicyWindow.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW.
     cooperative : int
-        Nonzero indicates a cooperative kernel (see
-        cuLaunchCooperativeKernel).
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_COOPERATIVE. Nonzero
+        indicates a cooperative kernel (see cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
         ::CUsynchronizationPolicy for work queued up in this stream
     clusterDim : anon_struct0
-        Cluster dimensions for the kernel node.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+        that represents the desired cluster dimensions for the kernel.
+        Opaque type with the following fields: - `x` - The X dimension of
+        the cluster, in blocks. Must be a divisor of the grid X dimension.
+        - `y` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - `z` - The Z dimension of the
+        cluster, in blocks. Must be a divisor of the grid Z dimension.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-        Cluster scheduling policy preference for the kernel node.
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE. Cluster
+        scheduling policy preference for the kernel.
     programmaticStreamSerializationAllowed : int
-
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct1
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+    launchCompletionEvent : anon_struct2
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
     priority : int
-        Execution priority of the kernel.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
+        priority of the kernel.
     memSyncDomainMap : CUlaunchMemSyncDomainMap
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP.
+        See CUlaunchMemSyncDomainMap.
     memSyncDomain : CUlaunchMemSyncDomain
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN.
+        See::CUlaunchMemSyncDomain
 
     Methods
     -------
@@ -4020,12 +4319,14 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
 
 cdef class CUlaunchAttribute(CUlaunchAttribute_st):
     """
+    Launch attribute
+
     Attributes
     ----------
     id : CUlaunchAttributeID
-
+        Attribute to set
     value : CUlaunchAttributeValue
-
+        Value of the attribute
 
     Methods
     -------
@@ -4039,6 +4340,8 @@ cdef class CUlaunchAttribute(CUlaunchAttribute_st):
 
 cdef class CUlaunchConfig(CUlaunchConfig_st):
     """
+    CUDA extensible launch configuration
+
     Attributes
     ----------
     gridDimX : unsigned int
@@ -4058,9 +4361,9 @@ cdef class CUlaunchConfig(CUlaunchConfig_st):
     hStream : CUstream
         Stream identifier
     attrs : CUlaunchAttribute
-        nullable if numAttrs == 0
+        List of attributes; nullable if CUlaunchConfig::numAttrs == 0
     numAttrs : unsigned int
-        number of attributes populated in attrs
+        Number of attributes populated in CUlaunchConfig::attrs
 
     Methods
     -------
@@ -4074,31 +4377,50 @@ cdef class CUlaunchConfig(CUlaunchConfig_st):
 
 cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
     """
+    Launch attributes union; used as value field of CUlaunchAttribute
+
     Attributes
     ----------
     pad : bytes
-        Pad to 64 bytes
+
     accessPolicyWindow : CUaccessPolicyWindow
-        Attribute CUaccessPolicyWindow.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW.
     cooperative : int
-        Nonzero indicates a cooperative kernel (see
-        cuLaunchCooperativeKernel).
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_COOPERATIVE. Nonzero
+        indicates a cooperative kernel (see cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
         ::CUsynchronizationPolicy for work queued up in this stream
     clusterDim : anon_struct0
-        Cluster dimensions for the kernel node.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+        that represents the desired cluster dimensions for the kernel.
+        Opaque type with the following fields: - `x` - The X dimension of
+        the cluster, in blocks. Must be a divisor of the grid X dimension.
+        - `y` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - `z` - The Z dimension of the
+        cluster, in blocks. Must be a divisor of the grid Z dimension.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-        Cluster scheduling policy preference for the kernel node.
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE. Cluster
+        scheduling policy preference for the kernel.
     programmaticStreamSerializationAllowed : int
-
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct1
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+    launchCompletionEvent : anon_struct2
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
     priority : int
-        Execution priority of the kernel.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
+        priority of the kernel.
     memSyncDomainMap : CUlaunchMemSyncDomainMap
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP.
+        See CUlaunchMemSyncDomainMap.
     memSyncDomain : CUlaunchMemSyncDomain
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN.
+        See::CUlaunchMemSyncDomain
 
     Methods
     -------
@@ -4112,31 +4434,50 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
 
 cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
     """
+    Launch attributes union; used as value field of CUlaunchAttribute
+
     Attributes
     ----------
     pad : bytes
-        Pad to 64 bytes
+
     accessPolicyWindow : CUaccessPolicyWindow
-        Attribute CUaccessPolicyWindow.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW.
     cooperative : int
-        Nonzero indicates a cooperative kernel (see
-        cuLaunchCooperativeKernel).
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_COOPERATIVE. Nonzero
+        indicates a cooperative kernel (see cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
         ::CUsynchronizationPolicy for work queued up in this stream
     clusterDim : anon_struct0
-        Cluster dimensions for the kernel node.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+        that represents the desired cluster dimensions for the kernel.
+        Opaque type with the following fields: - `x` - The X dimension of
+        the cluster, in blocks. Must be a divisor of the grid X dimension.
+        - `y` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - `z` - The Z dimension of the
+        cluster, in blocks. Must be a divisor of the grid Z dimension.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-        Cluster scheduling policy preference for the kernel node.
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE. Cluster
+        scheduling policy preference for the kernel.
     programmaticStreamSerializationAllowed : int
-
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct1
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+    launchCompletionEvent : anon_struct2
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
     priority : int
-        Execution priority of the kernel.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
+        priority of the kernel.
     memSyncDomainMap : CUlaunchMemSyncDomainMap
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP.
+        See CUlaunchMemSyncDomainMap.
     memSyncDomain : CUlaunchMemSyncDomain
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN.
+        See::CUlaunchMemSyncDomain
 
     Methods
     -------
@@ -4150,31 +4491,50 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
 
 cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
     """
+    Launch attributes union; used as value field of CUlaunchAttribute
+
     Attributes
     ----------
     pad : bytes
-        Pad to 64 bytes
+
     accessPolicyWindow : CUaccessPolicyWindow
-        Attribute CUaccessPolicyWindow.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW.
     cooperative : int
-        Nonzero indicates a cooperative kernel (see
-        cuLaunchCooperativeKernel).
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_COOPERATIVE. Nonzero
+        indicates a cooperative kernel (see cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
         ::CUsynchronizationPolicy for work queued up in this stream
     clusterDim : anon_struct0
-        Cluster dimensions for the kernel node.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+        that represents the desired cluster dimensions for the kernel.
+        Opaque type with the following fields: - `x` - The X dimension of
+        the cluster, in blocks. Must be a divisor of the grid X dimension.
+        - `y` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - `z` - The Z dimension of the
+        cluster, in blocks. Must be a divisor of the grid Z dimension.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-        Cluster scheduling policy preference for the kernel node.
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE. Cluster
+        scheduling policy preference for the kernel.
     programmaticStreamSerializationAllowed : int
-
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct1
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+    launchCompletionEvent : anon_struct2
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
     priority : int
-        Execution priority of the kernel.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
+        priority of the kernel.
     memSyncDomainMap : CUlaunchMemSyncDomainMap
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP.
+        See CUlaunchMemSyncDomainMap.
     memSyncDomain : CUlaunchMemSyncDomain
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN.
+        See::CUlaunchMemSyncDomain
 
     Methods
     -------
@@ -4188,31 +4548,50 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
 
 cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
     """
+    Launch attributes union; used as value field of CUlaunchAttribute
+
     Attributes
     ----------
     pad : bytes
-        Pad to 64 bytes
+
     accessPolicyWindow : CUaccessPolicyWindow
-        Attribute CUaccessPolicyWindow.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW.
     cooperative : int
-        Nonzero indicates a cooperative kernel (see
-        cuLaunchCooperativeKernel).
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_COOPERATIVE. Nonzero
+        indicates a cooperative kernel (see cuLaunchCooperativeKernel).
     syncPolicy : CUsynchronizationPolicy
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY.
         ::CUsynchronizationPolicy for work queued up in this stream
     clusterDim : anon_struct0
-        Cluster dimensions for the kernel node.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+        that represents the desired cluster dimensions for the kernel.
+        Opaque type with the following fields: - `x` - The X dimension of
+        the cluster, in blocks. Must be a divisor of the grid X dimension.
+        - `y` - The Y dimension of the cluster, in blocks. Must be a
+        divisor of the grid Y dimension.    - `z` - The Z dimension of the
+        cluster, in blocks. Must be a divisor of the grid Z dimension.
     clusterSchedulingPolicyPreference : CUclusterSchedulingPolicy
-        Cluster scheduling policy preference for the kernel node.
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE. Cluster
+        scheduling policy preference for the kernel.
     programmaticStreamSerializationAllowed : int
-
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct1
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+    launchCompletionEvent : anon_struct2
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
     priority : int
-        Execution priority of the kernel.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
+        priority of the kernel.
     memSyncDomainMap : CUlaunchMemSyncDomainMap
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP.
+        See CUlaunchMemSyncDomainMap.
     memSyncDomain : CUlaunchMemSyncDomain
-
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN.
+        See::CUlaunchMemSyncDomain
 
     Methods
     -------
@@ -4838,7 +5217,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_v1(CUDA_ARRAY_SPARSE_PROPERTIES_st):
 
     Attributes
     ----------
-    tileExtent : anon_struct2
+    tileExtent : anon_struct3
 
     miptailFirstLevel : unsigned int
         First mip level at which the mip tail begins.
@@ -4866,7 +5245,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES(CUDA_ARRAY_SPARSE_PROPERTIES_v1):
 
     Attributes
     ----------
-    tileExtent : anon_struct2
+    tileExtent : anon_struct3
 
     miptailFirstLevel : unsigned int
         First mip level at which the mip tail begins.
@@ -5472,7 +5851,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_SIGN
 
     Attributes
     ----------
-    params : anon_struct12
+    params : anon_struct13
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal
@@ -5502,7 +5881,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_
 
     Attributes
     ----------
-    params : anon_struct12
+    params : anon_struct13
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS is used to signal
@@ -5532,7 +5911,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_WAIT_P
 
     Attributes
     ----------
-    params : anon_struct15
+    params : anon_struct16
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on
@@ -5562,7 +5941,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARA
 
     Attributes
     ----------
-    params : anon_struct15
+    params : anon_struct16
 
     flags : unsigned int
         Only when ::CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS is used to wait on
@@ -5884,7 +6263,7 @@ cdef class CUmemAllocationProp_v1(CUmemAllocationProp_st):
         structure includes security attributes that define the scope of
         which exported allocations may be transferred to other processes.
         In all other cases, this field is required to be zero.
-    allocFlags : anon_struct18
+    allocFlags : anon_struct19
 
 
     Methods
@@ -5915,7 +6294,7 @@ cdef class CUmemAllocationProp(CUmemAllocationProp_v1):
         structure includes security attributes that define the scope of
         which exported allocations may be transferred to other processes.
         In all other cases, this field is required to be zero.
-    allocFlags : anon_struct18
+    allocFlags : anon_struct19
 
 
     Methods
@@ -6358,40 +6737,44 @@ cdef class CUDA_EVENT_WAIT_NODE_PARAMS(CUDA_EVENT_WAIT_NODE_PARAMS_st):
 
 cdef class CUgraphNodeParams(CUgraphNodeParams_st):
     """
+    Graph node parameters. See cuGraphAddNode.
+
     Attributes
     ----------
     type : CUgraphNodeType
-
+        Type of the node
     reserved0 : List[int]
-
+        Reserved. Must be zero.
     reserved1 : List[long long]
-
+        Padding. Unused bytes must be zero.
     kernel : CUDA_KERNEL_NODE_PARAMS_v3
-
+        Kernel node parameters.
     memcpy : CUDA_MEMCPY_NODE_PARAMS
-
+        Memcpy node parameters.
     memset : CUDA_MEMSET_NODE_PARAMS_v2
-
+        Memset node parameters.
     host : CUDA_HOST_NODE_PARAMS_v2
-
+        Host node parameters.
     graph : CUDA_CHILD_GRAPH_NODE_PARAMS
-
+        Child graph node parameters.
     eventWait : CUDA_EVENT_WAIT_NODE_PARAMS
-
+        Event wait node parameters.
     eventRecord : CUDA_EVENT_RECORD_NODE_PARAMS
-
+        Event record node parameters.
     extSemSignal : CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2
-
+        External semaphore signal node parameters.
     extSemWait : CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2
-
+        External semaphore wait node parameters.
     alloc : CUDA_MEM_ALLOC_NODE_PARAMS_v2
-
+        Memory allocation node parameters.
     free : CUDA_MEM_FREE_NODE_PARAMS
-
+        Memory free node parameters.
     memOp : CUDA_BATCH_MEM_OP_NODE_PARAMS_v2
-
+        MemOp node parameters.
+    conditional : CUDA_CONDITIONAL_NODE_PARAMS
+        Conditional node parameters.
     reserved2 : long long
-
+        Reserved bytes. Must be zero.
 
     Methods
     -------

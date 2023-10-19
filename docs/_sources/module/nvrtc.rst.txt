@@ -685,6 +685,18 @@ The valid compiler options are:
 
 
 
+  - ``--jump-table-density=``\ [0-101] (``-jtd``\ )
+
+
+
+    Specify the case density percentage in switch statements, and use it as a minimal threshold to determine whether jump table(brx.idx instruction) will be used to implement a switch statement. Default value is 101. The percentage ranges from 0 to 101 inclusively.
+
+
+
+
+
+
+
 
 
 - Preprocessing
@@ -1013,5 +1025,5 @@ The valid compiler options are:
 
 
 
-    [Experimental] Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting --split-compile=0. Setting --split-compile=1 will cause this option to be ignored.
+    Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting --split-compile=0. Setting --split-compile=1 will cause this option to be ignored.
 

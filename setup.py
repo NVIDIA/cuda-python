@@ -17,7 +17,11 @@ import sysconfig
 from setuptools import find_packages, setup
 from setuptools.extension import Extension
 from setuptools.command.build_ext import build_ext
-import versioneer
+try:
+    import versioneer
+except ImportError:
+    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+    import versioneer
 
 # ----------------------------------------------------------------------
 # Fetch configuration options
@@ -175,8 +179,6 @@ if sys.platform == 'win32':
     from distutils import _msvccompiler
     _msvccompiler.PLAT_TO_VCVARS['win-amd64'] = 'amd64'
 
-setup_requires = ["cython"]
-install_requires = ["cython"]
 extensions = []
 cmdclass = {}
 
@@ -240,28 +242,7 @@ cmdclass = versioneer.get_cmdclass(cmdclass)
 # Setup
 
 setup(
-    name="cuda-python",
     version=versioneer.get_version(),
-    description="Python bindings for CUDA",
-    url="https://github.com/NVIDIA/cuda-python",
-    author="NVIDIA Corporation",
-    author_email="cuda-python-conduct@nvidia.com",
-    license="NVIDIA Proprietary License",
-    license_files = ('LICENSE',),
-    classifiers=[
-        "Intended Audience :: Developers",
-        "Topic :: Database",
-        "Topic :: Scientific/Engineering",
-        "License :: Other/Proprietary License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Environment :: GPU :: NVIDIA CUDA",
-    ],
-    # Include the separately-compiled shared library
-    setup_requires=setup_requires,
     ext_modules=extensions,
     packages=find_packages(include=["cuda", "cuda.*"]),
     package_data=dict.fromkeys(
@@ -269,6 +250,5 @@ setup(
         ["*.pxd", "*.pyx", "*.h", "*.cpp"],
     ),
     cmdclass=cmdclass,
-    install_requires=install_requires,
     zip_safe=False,
 )

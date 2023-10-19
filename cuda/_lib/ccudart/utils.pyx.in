@@ -26,6 +26,12 @@ ctypedef struct cudaStreamCallbackData_st:
 
 ctypedef cudaStreamCallbackData_st cudaStreamCallbackData
 
+ctypedef struct cudaStreamHostCallbackData_st:
+    cudaHostFn_t callback
+    void *userData
+
+ctypedef cudaStreamHostCallbackData_st cudaStreamHostCallbackData
+
 cdef class cudaPythonGlobal:
     def __cinit__(self):
         self._lazyInitDriver = False
@@ -820,8 +826,7 @@ cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChanne
     return cudaSuccess
 
 
-#TODO: Check return type of this method CUDA_CB
-cdef void cudaStreamRtCallbackWrapper(ccuda.CUstream stream, ccuda.CUresult status, void *data) nogil except+:
+cdef void cudaStreamRtCallbackWrapper(ccuda.CUstream stream, ccuda.CUresult status, void *data) nogil:
     cdef cudaStreamCallbackData *cbData = <cudaStreamCallbackData *>data
     cdef cudaError_t err = <cudaError_t>status
     with gil:
@@ -848,6 +853,36 @@ cdef cudaError_t streamAddCallbackCommon(
     cbData.callback = callback
     cbData.userData = userData
     err = <cudaError_t>ccuda._cuStreamAddCallback(stream, <ccuda.CUstreamCallback>cudaStreamRtCallbackWrapper, <void *>cbData, flags)
+    if err != cudaSuccess:
+        free(cbData)
+    return err
+
+
+cdef void cudaStreamRtHostCallbackWrapper(void *data) nogil:
+    cdef cudaStreamHostCallbackData *cbData = <cudaStreamHostCallbackData *>data
+    with gil:
+        cbData.callback(cbData.userData)
+    free(cbData)
+
+
+cdef cudaError_t streamAddHostCallbackCommon(
+  cudaStream_t stream,
+  cudaHostFn_t callback,
+  void *userData
+) except ?cudaErrorCallRequiresNewerDriver nogil:
+    if callback == NULL:
+        return cudaErrorInvalidValue
+
+    cdef cudaStreamHostCallbackData *cbData = NULL
+    cdef cudaError_t err = cudaSuccess
+    cbData = <cudaStreamHostCallbackData *>malloc(sizeof(cbData[0]))
+
+    if cbData == NULL:
+        return cudaErrorMemoryAllocation
+
+    cbData.callback = callback
+    cbData.userData = userData
+    err = <cudaError_t>ccuda._cuLaunchHostFunc(<ccuda.CUstream>stream, <ccuda.CUhostFn>cudaStreamRtHostCallbackWrapper, <void *>cbData)
     if err != cudaSuccess:
         free(cbData)
     return err
@@ -881,6 +916,29 @@ cdef cudaError_t streamGetCaptureInfoCommon(
 
     err = <cudaError_t>ccuda._cuStreamGetCaptureInfo_v2(stream, &driverCaptureStatus, <ccuda.cuuint64_t*>id_out,
             graph_out, dependencies_out, numDependencies_out)
+    if err != cudaSuccess:
+        return err
+
+    return toRuntimeStreamCaptureStatus(driverCaptureStatus, captureStatus_out)
+
+
+cdef cudaError_t streamGetCaptureInfoCommon_v3(
+        cudaStream_t stream,
+        cudaStreamCaptureStatus* captureStatus_out,
+        unsigned long long *id_out,
+        cudaGraph_t *graph_out,
+        const cudaGraphNode_t **dependencies_out,
+        const cudaGraphEdgeData** edgeData_out,
+        size_t *numDependencies_out)  except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+
+    if captureStatus_out == NULL:
+        return cudaErrorInvalidValue
+
+    cdef ccuda.CUstreamCaptureStatus driverCaptureStatus
+
+    err = <cudaError_t>ccuda._cuStreamGetCaptureInfo_v3(stream, &driverCaptureStatus, <ccuda.cuuint64_t*>id_out,
+            graph_out, dependencies_out, <const ccuda.CUgraphEdgeData**>edgeData_out, numDependencies_out)
     if err != cudaSuccess:
         return err
 

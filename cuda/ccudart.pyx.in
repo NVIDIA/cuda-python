@@ -395,6 +395,9 @@ cdef const char* cudaGetErrorName(cudaError_t error) except ?NULL nogil:
     {{if 'cudaErrorIllegalState' in found_values}}
     if error == cudaErrorIllegalState:
         return "cudaErrorIllegalState"{{endif}}
+    {{if 'cudaErrorLossyQuery' in found_values}}
+    if error == cudaErrorLossyQuery:
+        return "cudaErrorLossyQuery"{{endif}}
     {{if 'cudaErrorSymbolNotFound' in found_values}}
     if error == cudaErrorSymbolNotFound:
         return "cudaErrorSymbolNotFound"{{endif}}
@@ -770,6 +773,13 @@ cdef cudaError_t cudaStreamBeginCapture(cudaStream_t stream, cudaStreamCaptureMo
 
 {{endif}}
 
+{{if 'cudaStreamBeginCaptureToGraph' in found_functions}}
+
+cdef cudaError_t cudaStreamBeginCaptureToGraph(cudaStream_t stream, cudaGraph_t graph, const cudaGraphNode_t* dependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaStreamCaptureMode mode) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaStreamBeginCaptureToGraph(stream, graph, dependencies, dependencyData, numDependencies, mode)
+
+{{endif}}
+
 {{if 'cudaThreadExchangeStreamCaptureMode' in found_functions}}
 
 cdef cudaError_t cudaThreadExchangeStreamCaptureMode(cudaStreamCaptureMode* mode) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -798,10 +808,24 @@ cdef cudaError_t cudaStreamGetCaptureInfo(cudaStream_t stream, cudaStreamCapture
 
 {{endif}}
 
+{{if 'cudaStreamGetCaptureInfo_v3' in found_functions}}
+
+cdef cudaError_t cudaStreamGetCaptureInfo_v3(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, const cudaGraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaStreamGetCaptureInfo_v3(stream, captureStatus_out, id_out, graph_out, dependencies_out, edgeData_out, numDependencies_out)
+
+{{endif}}
+
 {{if 'cudaStreamUpdateCaptureDependencies' in found_functions}}
 
 cdef cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, cudaGraphNode_t* dependencies, size_t numDependencies, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _cudaStreamUpdateCaptureDependencies(stream, dependencies, numDependencies, flags)
+
+{{endif}}
+
+{{if 'cudaStreamUpdateCaptureDependencies_v2' in found_functions}}
+
+cdef cudaError_t cudaStreamUpdateCaptureDependencies_v2(cudaStream_t stream, cudaGraphNode_t* dependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaStreamUpdateCaptureDependencies_v2(stream, dependencies, dependencyData, numDependencies, flags)
 
 {{endif}}
 
@@ -1953,10 +1977,24 @@ cdef cudaError_t cudaGraphGetEdges(cudaGraph_t graph, cudaGraphNode_t* from_, cu
 
 {{endif}}
 
+{{if 'cudaGraphGetEdges_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphGetEdges_v2(cudaGraph_t graph, cudaGraphNode_t* from_, cudaGraphNode_t* to, cudaGraphEdgeData* edgeData, size_t* numEdges) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaGraphGetEdges_v2(graph, from_, to, edgeData, numEdges)
+
+{{endif}}
+
 {{if 'cudaGraphNodeGetDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, size_t* pNumDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _cudaGraphNodeGetDependencies(node, pDependencies, pNumDependencies)
+
+{{endif}}
+
+{{if 'cudaGraphNodeGetDependencies_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetDependencies_v2(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, cudaGraphEdgeData* edgeData, size_t* pNumDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaGraphNodeGetDependencies_v2(node, pDependencies, edgeData, pNumDependencies)
 
 {{endif}}
 
@@ -1967,6 +2005,13 @@ cdef cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cudaGraphN
 
 {{endif}}
 
+{{if 'cudaGraphNodeGetDependentNodes_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetDependentNodes_v2(cudaGraphNode_t node, cudaGraphNode_t* pDependentNodes, cudaGraphEdgeData* edgeData, size_t* pNumDependentNodes) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaGraphNodeGetDependentNodes_v2(node, pDependentNodes, edgeData, pNumDependentNodes)
+
+{{endif}}
+
 {{if 'cudaGraphAddDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphAddDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -1974,10 +2019,24 @@ cdef cudaError_t cudaGraphAddDependencies(cudaGraph_t graph, const cudaGraphNode
 
 {{endif}}
 
+{{if 'cudaGraphAddDependencies_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphAddDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaGraphAddDependencies_v2(graph, from_, to, edgeData, numDependencies)
+
+{{endif}}
+
 {{if 'cudaGraphRemoveDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _cudaGraphRemoveDependencies(graph, from_, to, numDependencies)
+
+{{endif}}
+
+{{if 'cudaGraphRemoveDependencies_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphRemoveDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaGraphRemoveDependencies_v2(graph, from_, to, edgeData, numDependencies)
 
 {{endif}}
 
@@ -2184,6 +2243,13 @@ cdef cudaError_t cudaGraphAddNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph
 
 {{endif}}
 
+{{if 'cudaGraphAddNode_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphAddNode_v2(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaGraphAddNode_v2(pGraphNode, graph, pDependencies, dependencyData, numDependencies, nodeParams)
+
+{{endif}}
+
 {{if 'cudaGraphNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -2195,6 +2261,13 @@ cdef cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, cudaGraphNodeParam
 
 cdef cudaError_t cudaGraphExecNodeSetParams(cudaGraphExec_t graphExec, cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _cudaGraphExecNodeSetParams(graphExec, node, nodeParams)
+
+{{endif}}
+
+{{if 'cudaGraphConditionalHandleCreate' in found_functions}}
+
+cdef cudaError_t cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, unsigned int defaultLaunchValue, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaGraphConditionalHandleCreate(pHandle_out, graph, defaultLaunchValue, flags)
 
 {{endif}}
 
@@ -2384,5 +2457,12 @@ cdef cudaError_t cudaGraphicsVDPAURegisterVideoSurface(cudaGraphicsResource** re
 
 cdef cudaError_t cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** resource, VdpOutputSurface vdpSurface, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _cudaGraphicsVDPAURegisterOutputSurface(resource, vdpSurface, flags)
+
+{{endif}}
+
+{{if True}}
+
+cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _getLocalRuntimeVersion(runtimeVersion)
 
 {{endif}}

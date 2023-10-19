@@ -93,6 +93,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuKernelGetAttribute' in found_functions}}cdef void *__cuKernelGetAttribute = NULL{{endif}}
 {{if 'cuKernelSetAttribute' in found_functions}}cdef void *__cuKernelSetAttribute = NULL{{endif}}
 {{if 'cuKernelSetCacheConfig' in found_functions}}cdef void *__cuKernelSetCacheConfig = NULL{{endif}}
+{{if 'cuKernelGetName' in found_functions}}cdef void *__cuKernelGetName = NULL{{endif}}
 {{if 'cuMemGetInfo_v2' in found_functions}}cdef void *__cuMemGetInfo_v2 = NULL{{endif}}
 {{if 'cuMemAlloc_v2' in found_functions}}cdef void *__cuMemAlloc_v2 = NULL{{endif}}
 {{if 'cuMemAllocPitch_v2' in found_functions}}cdef void *__cuMemAllocPitch_v2 = NULL{{endif}}
@@ -215,11 +216,14 @@ cdef bint __cuPythonInit = False
 {{if 'cuStreamWaitEvent' in found_functions}}cdef void *__cuStreamWaitEvent = NULL{{endif}}
 {{if 'cuStreamAddCallback' in found_functions}}cdef void *__cuStreamAddCallback = NULL{{endif}}
 {{if 'cuStreamBeginCapture_v2' in found_functions}}cdef void *__cuStreamBeginCapture_v2 = NULL{{endif}}
+{{if 'cuStreamBeginCaptureToGraph' in found_functions}}cdef void *__cuStreamBeginCaptureToGraph = NULL{{endif}}
 {{if 'cuThreadExchangeStreamCaptureMode' in found_functions}}cdef void *__cuThreadExchangeStreamCaptureMode = NULL{{endif}}
 {{if 'cuStreamEndCapture' in found_functions}}cdef void *__cuStreamEndCapture = NULL{{endif}}
 {{if 'cuStreamIsCapturing' in found_functions}}cdef void *__cuStreamIsCapturing = NULL{{endif}}
 {{if 'cuStreamGetCaptureInfo_v2' in found_functions}}cdef void *__cuStreamGetCaptureInfo_v2 = NULL{{endif}}
+{{if 'cuStreamGetCaptureInfo_v3' in found_functions}}cdef void *__cuStreamGetCaptureInfo_v3 = NULL{{endif}}
 {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}cdef void *__cuStreamUpdateCaptureDependencies = NULL{{endif}}
+{{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}cdef void *__cuStreamUpdateCaptureDependencies_v2 = NULL{{endif}}
 {{if 'cuStreamAttachMemAsync' in found_functions}}cdef void *__cuStreamAttachMemAsync = NULL{{endif}}
 {{if 'cuStreamQuery' in found_functions}}cdef void *__cuStreamQuery = NULL{{endif}}
 {{if 'cuStreamSynchronize' in found_functions}}cdef void *__cuStreamSynchronize = NULL{{endif}}
@@ -252,6 +256,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuFuncSetCacheConfig' in found_functions}}cdef void *__cuFuncSetCacheConfig = NULL{{endif}}
 {{if 'cuFuncSetSharedMemConfig' in found_functions}}cdef void *__cuFuncSetSharedMemConfig = NULL{{endif}}
 {{if 'cuFuncGetModule' in found_functions}}cdef void *__cuFuncGetModule = NULL{{endif}}
+{{if 'cuFuncGetName' in found_functions}}cdef void *__cuFuncGetName = NULL{{endif}}
 {{if 'cuLaunchKernel' in found_functions}}cdef void *__cuLaunchKernel = NULL{{endif}}
 {{if 'cuLaunchKernelEx' in found_functions}}cdef void *__cuLaunchKernelEx = NULL{{endif}}
 {{if 'cuLaunchCooperativeKernel' in found_functions}}cdef void *__cuLaunchCooperativeKernel = NULL{{endif}}
@@ -312,10 +317,15 @@ cdef bint __cuPythonInit = False
 {{if 'cuGraphGetNodes' in found_functions}}cdef void *__cuGraphGetNodes = NULL{{endif}}
 {{if 'cuGraphGetRootNodes' in found_functions}}cdef void *__cuGraphGetRootNodes = NULL{{endif}}
 {{if 'cuGraphGetEdges' in found_functions}}cdef void *__cuGraphGetEdges = NULL{{endif}}
+{{if 'cuGraphGetEdges_v2' in found_functions}}cdef void *__cuGraphGetEdges_v2 = NULL{{endif}}
 {{if 'cuGraphNodeGetDependencies' in found_functions}}cdef void *__cuGraphNodeGetDependencies = NULL{{endif}}
+{{if 'cuGraphNodeGetDependencies_v2' in found_functions}}cdef void *__cuGraphNodeGetDependencies_v2 = NULL{{endif}}
 {{if 'cuGraphNodeGetDependentNodes' in found_functions}}cdef void *__cuGraphNodeGetDependentNodes = NULL{{endif}}
+{{if 'cuGraphNodeGetDependentNodes_v2' in found_functions}}cdef void *__cuGraphNodeGetDependentNodes_v2 = NULL{{endif}}
 {{if 'cuGraphAddDependencies' in found_functions}}cdef void *__cuGraphAddDependencies = NULL{{endif}}
+{{if 'cuGraphAddDependencies_v2' in found_functions}}cdef void *__cuGraphAddDependencies_v2 = NULL{{endif}}
 {{if 'cuGraphRemoveDependencies' in found_functions}}cdef void *__cuGraphRemoveDependencies = NULL{{endif}}
+{{if 'cuGraphRemoveDependencies_v2' in found_functions}}cdef void *__cuGraphRemoveDependencies_v2 = NULL{{endif}}
 {{if 'cuGraphDestroyNode' in found_functions}}cdef void *__cuGraphDestroyNode = NULL{{endif}}
 {{if 'cuGraphInstantiateWithFlags' in found_functions}}cdef void *__cuGraphInstantiateWithFlags = NULL{{endif}}
 {{if 'cuGraphInstantiateWithParams' in found_functions}}cdef void *__cuGraphInstantiateWithParams = NULL{{endif}}
@@ -346,8 +356,10 @@ cdef bint __cuPythonInit = False
 {{if 'cuGraphRetainUserObject' in found_functions}}cdef void *__cuGraphRetainUserObject = NULL{{endif}}
 {{if 'cuGraphReleaseUserObject' in found_functions}}cdef void *__cuGraphReleaseUserObject = NULL{{endif}}
 {{if 'cuGraphAddNode' in found_functions}}cdef void *__cuGraphAddNode = NULL{{endif}}
+{{if 'cuGraphAddNode_v2' in found_functions}}cdef void *__cuGraphAddNode_v2 = NULL{{endif}}
 {{if 'cuGraphNodeSetParams' in found_functions}}cdef void *__cuGraphNodeSetParams = NULL{{endif}}
 {{if 'cuGraphExecNodeSetParams' in found_functions}}cdef void *__cuGraphExecNodeSetParams = NULL{{endif}}
+{{if 'cuGraphConditionalHandleCreate' in found_functions}}cdef void *__cuGraphConditionalHandleCreate = NULL{{endif}}
 {{if 'cuOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}cdef void *__cuOccupancyMaxActiveBlocksPerMultiprocessor = NULL{{endif}}
 {{if 'cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags' in found_functions}}cdef void *__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags = NULL{{endif}}
 {{if 'cuOccupancyMaxPotentialBlockSize' in found_functions}}cdef void *__cuOccupancyMaxPotentialBlockSize = NULL{{endif}}
@@ -683,6 +695,10 @@ cdef int cuPythonInit() except -1 nogil:
             global __cuStreamBeginCapture_v2
             cuGetProcAddress('cuStreamBeginCapture', &__cuStreamBeginCapture_v2, 10010, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
             {{endif}}
+            {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
+            global __cuStreamBeginCaptureToGraph
+            cuGetProcAddress('cuStreamBeginCaptureToGraph', &__cuStreamBeginCaptureToGraph, 12030, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
+            {{endif}}
             {{if 'cuStreamEndCapture' in found_functions}}
             global __cuStreamEndCapture
             cuGetProcAddress('cuStreamEndCapture', &__cuStreamEndCapture, 10000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
@@ -695,9 +711,17 @@ cdef int cuPythonInit() except -1 nogil:
             global __cuStreamGetCaptureInfo_v2
             cuGetProcAddress('cuStreamGetCaptureInfo', &__cuStreamGetCaptureInfo_v2, 11030, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
             {{endif}}
+            {{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
+            global __cuStreamGetCaptureInfo_v3
+            cuGetProcAddress('cuStreamGetCaptureInfo', &__cuStreamGetCaptureInfo_v3, 12030, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
+            {{endif}}
             {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
             global __cuStreamUpdateCaptureDependencies
             cuGetProcAddress('cuStreamUpdateCaptureDependencies', &__cuStreamUpdateCaptureDependencies, 11030, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
+            {{endif}}
+            {{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
+            global __cuStreamUpdateCaptureDependencies_v2
+            cuGetProcAddress('cuStreamUpdateCaptureDependencies', &__cuStreamUpdateCaptureDependencies_v2, 12030, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
             {{endif}}
             {{if 'cuStreamAttachMemAsync' in found_functions}}
             global __cuStreamAttachMemAsync
@@ -994,6 +1018,10 @@ cdef int cuPythonInit() except -1 nogil:
             global __cuStreamBeginCapture_v2
             cuGetProcAddress('cuStreamBeginCapture', &__cuStreamBeginCapture_v2, 10010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
+            {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
+            global __cuStreamBeginCaptureToGraph
+            cuGetProcAddress('cuStreamBeginCaptureToGraph', &__cuStreamBeginCaptureToGraph, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
             {{if 'cuStreamEndCapture' in found_functions}}
             global __cuStreamEndCapture
             cuGetProcAddress('cuStreamEndCapture', &__cuStreamEndCapture, 10000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -1006,9 +1034,17 @@ cdef int cuPythonInit() except -1 nogil:
             global __cuStreamGetCaptureInfo_v2
             cuGetProcAddress('cuStreamGetCaptureInfo', &__cuStreamGetCaptureInfo_v2, 11030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
+            {{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
+            global __cuStreamGetCaptureInfo_v3
+            cuGetProcAddress('cuStreamGetCaptureInfo', &__cuStreamGetCaptureInfo_v3, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
             {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
             global __cuStreamUpdateCaptureDependencies
             cuGetProcAddress('cuStreamUpdateCaptureDependencies', &__cuStreamUpdateCaptureDependencies, 11030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
+            global __cuStreamUpdateCaptureDependencies_v2
+            cuGetProcAddress('cuStreamUpdateCaptureDependencies', &__cuStreamUpdateCaptureDependencies_v2, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
             {{if 'cuStreamAttachMemAsync' in found_functions}}
             global __cuStreamAttachMemAsync
@@ -1415,6 +1451,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuKernelSetCacheConfig
         cuGetProcAddress('cuKernelSetCacheConfig', &__cuKernelSetCacheConfig, 12000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuKernelGetName' in found_functions}}
+        global __cuKernelGetName
+        cuGetProcAddress('cuKernelGetName', &__cuKernelGetName, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuMemGetInfo_v2' in found_functions}}
         global __cuMemGetInfo_v2
         cuGetProcAddress('cuMemGetInfo', &__cuMemGetInfo_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -1779,6 +1819,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuFuncGetModule
         cuGetProcAddress('cuFuncGetModule', &__cuFuncGetModule, 11000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuFuncGetName' in found_functions}}
+        global __cuFuncGetName
+        cuGetProcAddress('cuFuncGetName', &__cuFuncGetName, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
         global __cuLaunchCooperativeKernelMultiDevice
         cuGetProcAddress('cuLaunchCooperativeKernelMultiDevice', &__cuLaunchCooperativeKernelMultiDevice, 9000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -2003,21 +2047,41 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuGraphGetEdges
         cuGetProcAddress('cuGraphGetEdges', &__cuGraphGetEdges, 10000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuGraphGetEdges_v2' in found_functions}}
+        global __cuGraphGetEdges_v2
+        cuGetProcAddress('cuGraphGetEdges', &__cuGraphGetEdges_v2, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuGraphNodeGetDependencies' in found_functions}}
         global __cuGraphNodeGetDependencies
         cuGetProcAddress('cuGraphNodeGetDependencies', &__cuGraphNodeGetDependencies, 10000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuGraphNodeGetDependencies_v2' in found_functions}}
+        global __cuGraphNodeGetDependencies_v2
+        cuGetProcAddress('cuGraphNodeGetDependencies', &__cuGraphNodeGetDependencies_v2, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
         {{if 'cuGraphNodeGetDependentNodes' in found_functions}}
         global __cuGraphNodeGetDependentNodes
         cuGetProcAddress('cuGraphNodeGetDependentNodes', &__cuGraphNodeGetDependentNodes, 10000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuGraphNodeGetDependentNodes_v2' in found_functions}}
+        global __cuGraphNodeGetDependentNodes_v2
+        cuGetProcAddress('cuGraphNodeGetDependentNodes', &__cuGraphNodeGetDependentNodes_v2, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuGraphAddDependencies' in found_functions}}
         global __cuGraphAddDependencies
         cuGetProcAddress('cuGraphAddDependencies', &__cuGraphAddDependencies, 10000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuGraphAddDependencies_v2' in found_functions}}
+        global __cuGraphAddDependencies_v2
+        cuGetProcAddress('cuGraphAddDependencies', &__cuGraphAddDependencies_v2, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuGraphRemoveDependencies' in found_functions}}
         global __cuGraphRemoveDependencies
         cuGetProcAddress('cuGraphRemoveDependencies', &__cuGraphRemoveDependencies, 10000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuGraphRemoveDependencies_v2' in found_functions}}
+        global __cuGraphRemoveDependencies_v2
+        cuGetProcAddress('cuGraphRemoveDependencies', &__cuGraphRemoveDependencies_v2, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
         {{if 'cuGraphDestroyNode' in found_functions}}
         global __cuGraphDestroyNode
@@ -2127,6 +2191,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuGraphAddNode
         cuGetProcAddress('cuGraphAddNode', &__cuGraphAddNode, 12020, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuGraphAddNode_v2' in found_functions}}
+        global __cuGraphAddNode_v2
+        cuGetProcAddress('cuGraphAddNode', &__cuGraphAddNode_v2, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuGraphNodeSetParams' in found_functions}}
         global __cuGraphNodeSetParams
         cuGetProcAddress('cuGraphNodeSetParams', &__cuGraphNodeSetParams, 12020, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -2134,6 +2202,10 @@ cdef int cuPythonInit() except -1 nogil:
         {{if 'cuGraphExecNodeSetParams' in found_functions}}
         global __cuGraphExecNodeSetParams
         cuGetProcAddress('cuGraphExecNodeSetParams', &__cuGraphExecNodeSetParams, 12020, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuGraphConditionalHandleCreate' in found_functions}}
+        global __cuGraphConditionalHandleCreate
+        cuGetProcAddress('cuGraphConditionalHandleCreate', &__cuGraphConditionalHandleCreate, 12030, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
         {{if 'cuOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
         global __cuOccupancyMaxActiveBlocksPerMultiprocessor
@@ -2818,6 +2890,13 @@ cdef int cuPythonInit() except -1 nogil:
             except:
                 pass
             {{endif}}
+            {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
+            try:
+                global __cuStreamBeginCaptureToGraph
+                __cuStreamBeginCaptureToGraph = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBeginCaptureToGraph_ptsz')
+            except:
+                pass
+            {{endif}}
             {{if 'cuStreamEndCapture' in found_functions}}
             try:
                 global __cuStreamEndCapture
@@ -2839,10 +2918,24 @@ cdef int cuPythonInit() except -1 nogil:
             except:
                 pass
             {{endif}}
+            {{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
+            try:
+                global __cuStreamGetCaptureInfo_v3
+                __cuStreamGetCaptureInfo_v3 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCaptureInfo_v3_ptsz')
+            except:
+                pass
+            {{endif}}
             {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
             try:
                 global __cuStreamUpdateCaptureDependencies
                 __cuStreamUpdateCaptureDependencies = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamUpdateCaptureDependencies_ptsz')
+            except:
+                pass
+            {{endif}}
+            {{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
+            try:
+                global __cuStreamUpdateCaptureDependencies_v2
+                __cuStreamUpdateCaptureDependencies_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamUpdateCaptureDependencies_v2_ptsz')
             except:
                 pass
             {{endif}}
@@ -3360,6 +3453,13 @@ cdef int cuPythonInit() except -1 nogil:
             except:
                 pass
             {{endif}}
+            {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
+            try:
+                global __cuStreamBeginCaptureToGraph
+                __cuStreamBeginCaptureToGraph = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBeginCaptureToGraph')
+            except:
+                pass
+            {{endif}}
             {{if 'cuStreamEndCapture' in found_functions}}
             try:
                 global __cuStreamEndCapture
@@ -3381,10 +3481,24 @@ cdef int cuPythonInit() except -1 nogil:
             except:
                 pass
             {{endif}}
+            {{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
+            try:
+                global __cuStreamGetCaptureInfo_v3
+                __cuStreamGetCaptureInfo_v3 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCaptureInfo_v3')
+            except:
+                pass
+            {{endif}}
             {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
             try:
                 global __cuStreamUpdateCaptureDependencies
                 __cuStreamUpdateCaptureDependencies = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamUpdateCaptureDependencies')
+            except:
+                pass
+            {{endif}}
+            {{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
+            try:
+                global __cuStreamUpdateCaptureDependencies_v2
+                __cuStreamUpdateCaptureDependencies_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamUpdateCaptureDependencies_v2')
             except:
                 pass
             {{endif}}
@@ -4096,6 +4210,13 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuKernelGetName' in found_functions}}
+        try:
+            global __cuKernelGetName
+            __cuKernelGetName = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuKernelGetName')
+        except:
+            pass
+        {{endif}}
         {{if 'cuMemGetInfo_v2' in found_functions}}
         try:
             global __cuMemGetInfo_v2
@@ -4733,6 +4854,13 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuFuncGetName' in found_functions}}
+        try:
+            global __cuFuncGetName
+            __cuFuncGetName = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncGetName')
+        except:
+            pass
+        {{endif}}
         {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
         try:
             global __cuLaunchCooperativeKernelMultiDevice
@@ -5125,10 +5253,24 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuGraphGetEdges_v2' in found_functions}}
+        try:
+            global __cuGraphGetEdges_v2
+            __cuGraphGetEdges_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphGetEdges_v2')
+        except:
+            pass
+        {{endif}}
         {{if 'cuGraphNodeGetDependencies' in found_functions}}
         try:
             global __cuGraphNodeGetDependencies
             __cuGraphNodeGetDependencies = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeGetDependencies')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuGraphNodeGetDependencies_v2' in found_functions}}
+        try:
+            global __cuGraphNodeGetDependencies_v2
+            __cuGraphNodeGetDependencies_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeGetDependencies_v2')
         except:
             pass
         {{endif}}
@@ -5139,6 +5281,13 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuGraphNodeGetDependentNodes_v2' in found_functions}}
+        try:
+            global __cuGraphNodeGetDependentNodes_v2
+            __cuGraphNodeGetDependentNodes_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeGetDependentNodes_v2')
+        except:
+            pass
+        {{endif}}
         {{if 'cuGraphAddDependencies' in found_functions}}
         try:
             global __cuGraphAddDependencies
@@ -5146,10 +5295,24 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuGraphAddDependencies_v2' in found_functions}}
+        try:
+            global __cuGraphAddDependencies_v2
+            __cuGraphAddDependencies_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddDependencies_v2')
+        except:
+            pass
+        {{endif}}
         {{if 'cuGraphRemoveDependencies' in found_functions}}
         try:
             global __cuGraphRemoveDependencies
             __cuGraphRemoveDependencies = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphRemoveDependencies')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuGraphRemoveDependencies_v2' in found_functions}}
+        try:
+            global __cuGraphRemoveDependencies_v2
+            __cuGraphRemoveDependencies_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphRemoveDependencies_v2')
         except:
             pass
         {{endif}}
@@ -5342,6 +5505,13 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuGraphAddNode_v2' in found_functions}}
+        try:
+            global __cuGraphAddNode_v2
+            __cuGraphAddNode_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddNode_v2')
+        except:
+            pass
+        {{endif}}
         {{if 'cuGraphNodeSetParams' in found_functions}}
         try:
             global __cuGraphNodeSetParams
@@ -5353,6 +5523,13 @@ cdef int cuPythonInit() except -1 nogil:
         try:
             global __cuGraphExecNodeSetParams
             __cuGraphExecNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecNodeSetParams')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuGraphConditionalHandleCreate' in found_functions}}
+        try:
+            global __cuGraphConditionalHandleCreate
+            __cuGraphConditionalHandleCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphConditionalHandleCreate')
         except:
             pass
         {{endif}}
@@ -6138,6 +6315,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuStreamBeginCapture_v2
         __cuStreamBeginCapture_v2 = dlfcn.dlsym(handle, 'cuStreamBeginCapture_v2_ptsz')
         {{endif}}
+        {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
+        global __cuStreamBeginCaptureToGraph
+        __cuStreamBeginCaptureToGraph = dlfcn.dlsym(handle, 'cuStreamBeginCaptureToGraph_ptsz')
+        {{endif}}
         {{if 'cuStreamEndCapture' in found_functions}}
         global __cuStreamEndCapture
         __cuStreamEndCapture = dlfcn.dlsym(handle, 'cuStreamEndCapture_ptsz')
@@ -6150,9 +6331,17 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuStreamGetCaptureInfo_v2
         __cuStreamGetCaptureInfo_v2 = dlfcn.dlsym(handle, 'cuStreamGetCaptureInfo_v2_ptsz')
         {{endif}}
+        {{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
+        global __cuStreamGetCaptureInfo_v3
+        __cuStreamGetCaptureInfo_v3 = dlfcn.dlsym(handle, 'cuStreamGetCaptureInfo_v3_ptsz')
+        {{endif}}
         {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
         global __cuStreamUpdateCaptureDependencies
         __cuStreamUpdateCaptureDependencies = dlfcn.dlsym(handle, 'cuStreamUpdateCaptureDependencies_ptsz')
+        {{endif}}
+        {{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
+        global __cuStreamUpdateCaptureDependencies_v2
+        __cuStreamUpdateCaptureDependencies_v2 = dlfcn.dlsym(handle, 'cuStreamUpdateCaptureDependencies_v2_ptsz')
         {{endif}}
         {{if 'cuStreamAttachMemAsync' in found_functions}}
         global __cuStreamAttachMemAsync
@@ -6449,6 +6638,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuStreamBeginCapture_v2
         __cuStreamBeginCapture_v2 = dlfcn.dlsym(handle, 'cuStreamBeginCapture_v2')
         {{endif}}
+        {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
+        global __cuStreamBeginCaptureToGraph
+        __cuStreamBeginCaptureToGraph = dlfcn.dlsym(handle, 'cuStreamBeginCaptureToGraph')
+        {{endif}}
         {{if 'cuStreamEndCapture' in found_functions}}
         global __cuStreamEndCapture
         __cuStreamEndCapture = dlfcn.dlsym(handle, 'cuStreamEndCapture')
@@ -6461,9 +6654,17 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuStreamGetCaptureInfo_v2
         __cuStreamGetCaptureInfo_v2 = dlfcn.dlsym(handle, 'cuStreamGetCaptureInfo_v2')
         {{endif}}
+        {{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
+        global __cuStreamGetCaptureInfo_v3
+        __cuStreamGetCaptureInfo_v3 = dlfcn.dlsym(handle, 'cuStreamGetCaptureInfo_v3')
+        {{endif}}
         {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
         global __cuStreamUpdateCaptureDependencies
         __cuStreamUpdateCaptureDependencies = dlfcn.dlsym(handle, 'cuStreamUpdateCaptureDependencies')
+        {{endif}}
+        {{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
+        global __cuStreamUpdateCaptureDependencies_v2
+        __cuStreamUpdateCaptureDependencies_v2 = dlfcn.dlsym(handle, 'cuStreamUpdateCaptureDependencies_v2')
         {{endif}}
         {{if 'cuStreamAttachMemAsync' in found_functions}}
         global __cuStreamAttachMemAsync
@@ -6870,6 +7071,10 @@ cdef int cuPythonInit() except -1 nogil:
     global __cuKernelSetCacheConfig
     __cuKernelSetCacheConfig = dlfcn.dlsym(handle, 'cuKernelSetCacheConfig')
     {{endif}}
+    {{if 'cuKernelGetName' in found_functions}}
+    global __cuKernelGetName
+    __cuKernelGetName = dlfcn.dlsym(handle, 'cuKernelGetName')
+    {{endif}}
     {{if 'cuMemGetInfo_v2' in found_functions}}
     global __cuMemGetInfo_v2
     __cuMemGetInfo_v2 = dlfcn.dlsym(handle, 'cuMemGetInfo_v2')
@@ -7234,6 +7439,10 @@ cdef int cuPythonInit() except -1 nogil:
     global __cuFuncGetModule
     __cuFuncGetModule = dlfcn.dlsym(handle, 'cuFuncGetModule')
     {{endif}}
+    {{if 'cuFuncGetName' in found_functions}}
+    global __cuFuncGetName
+    __cuFuncGetName = dlfcn.dlsym(handle, 'cuFuncGetName')
+    {{endif}}
     {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
     global __cuLaunchCooperativeKernelMultiDevice
     __cuLaunchCooperativeKernelMultiDevice = dlfcn.dlsym(handle, 'cuLaunchCooperativeKernelMultiDevice')
@@ -7458,21 +7667,41 @@ cdef int cuPythonInit() except -1 nogil:
     global __cuGraphGetEdges
     __cuGraphGetEdges = dlfcn.dlsym(handle, 'cuGraphGetEdges')
     {{endif}}
+    {{if 'cuGraphGetEdges_v2' in found_functions}}
+    global __cuGraphGetEdges_v2
+    __cuGraphGetEdges_v2 = dlfcn.dlsym(handle, 'cuGraphGetEdges_v2')
+    {{endif}}
     {{if 'cuGraphNodeGetDependencies' in found_functions}}
     global __cuGraphNodeGetDependencies
     __cuGraphNodeGetDependencies = dlfcn.dlsym(handle, 'cuGraphNodeGetDependencies')
+    {{endif}}
+    {{if 'cuGraphNodeGetDependencies_v2' in found_functions}}
+    global __cuGraphNodeGetDependencies_v2
+    __cuGraphNodeGetDependencies_v2 = dlfcn.dlsym(handle, 'cuGraphNodeGetDependencies_v2')
     {{endif}}
     {{if 'cuGraphNodeGetDependentNodes' in found_functions}}
     global __cuGraphNodeGetDependentNodes
     __cuGraphNodeGetDependentNodes = dlfcn.dlsym(handle, 'cuGraphNodeGetDependentNodes')
     {{endif}}
+    {{if 'cuGraphNodeGetDependentNodes_v2' in found_functions}}
+    global __cuGraphNodeGetDependentNodes_v2
+    __cuGraphNodeGetDependentNodes_v2 = dlfcn.dlsym(handle, 'cuGraphNodeGetDependentNodes_v2')
+    {{endif}}
     {{if 'cuGraphAddDependencies' in found_functions}}
     global __cuGraphAddDependencies
     __cuGraphAddDependencies = dlfcn.dlsym(handle, 'cuGraphAddDependencies')
     {{endif}}
+    {{if 'cuGraphAddDependencies_v2' in found_functions}}
+    global __cuGraphAddDependencies_v2
+    __cuGraphAddDependencies_v2 = dlfcn.dlsym(handle, 'cuGraphAddDependencies_v2')
+    {{endif}}
     {{if 'cuGraphRemoveDependencies' in found_functions}}
     global __cuGraphRemoveDependencies
     __cuGraphRemoveDependencies = dlfcn.dlsym(handle, 'cuGraphRemoveDependencies')
+    {{endif}}
+    {{if 'cuGraphRemoveDependencies_v2' in found_functions}}
+    global __cuGraphRemoveDependencies_v2
+    __cuGraphRemoveDependencies_v2 = dlfcn.dlsym(handle, 'cuGraphRemoveDependencies_v2')
     {{endif}}
     {{if 'cuGraphDestroyNode' in found_functions}}
     global __cuGraphDestroyNode
@@ -7582,6 +7811,10 @@ cdef int cuPythonInit() except -1 nogil:
     global __cuGraphAddNode
     __cuGraphAddNode = dlfcn.dlsym(handle, 'cuGraphAddNode')
     {{endif}}
+    {{if 'cuGraphAddNode_v2' in found_functions}}
+    global __cuGraphAddNode_v2
+    __cuGraphAddNode_v2 = dlfcn.dlsym(handle, 'cuGraphAddNode_v2')
+    {{endif}}
     {{if 'cuGraphNodeSetParams' in found_functions}}
     global __cuGraphNodeSetParams
     __cuGraphNodeSetParams = dlfcn.dlsym(handle, 'cuGraphNodeSetParams')
@@ -7589,6 +7822,10 @@ cdef int cuPythonInit() except -1 nogil:
     {{if 'cuGraphExecNodeSetParams' in found_functions}}
     global __cuGraphExecNodeSetParams
     __cuGraphExecNodeSetParams = dlfcn.dlsym(handle, 'cuGraphExecNodeSetParams')
+    {{endif}}
+    {{if 'cuGraphConditionalHandleCreate' in found_functions}}
+    global __cuGraphConditionalHandleCreate
+    __cuGraphConditionalHandleCreate = dlfcn.dlsym(handle, 'cuGraphConditionalHandleCreate')
     {{endif}}
     {{if 'cuOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
     global __cuOccupancyMaxActiveBlocksPerMultiprocessor
@@ -8845,6 +9082,18 @@ cdef CUresult _cuKernelSetCacheConfig(CUkernel kernel, CUfunc_cache config, CUde
         with gil:
             raise RuntimeError('Function "cuKernelSetCacheConfig" not found')
     err = (<CUresult (*)(CUkernel, CUfunc_cache, CUdevice) nogil> __cuKernelSetCacheConfig)(kernel, config, dev)
+    return err
+{{endif}}
+
+{{if 'cuKernelGetName' in found_functions}}
+
+cdef CUresult _cuKernelGetName(const char** name, CUkernel hfunc) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuKernelGetName
+    cuPythonInit()
+    if __cuKernelGetName == NULL:
+        with gil:
+            raise RuntimeError('Function "cuKernelGetName" not found')
+    err = (<CUresult (*)(const char**, CUkernel) nogil> __cuKernelGetName)(name, hfunc)
     return err
 {{endif}}
 
@@ -10312,6 +10561,18 @@ cdef CUresult _cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMode mod
     return err
 {{endif}}
 
+{{if 'cuStreamBeginCaptureToGraph' in found_functions}}
+
+cdef CUresult _cuStreamBeginCaptureToGraph(CUstream hStream, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUstreamCaptureMode mode) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamBeginCaptureToGraph
+    cuPythonInit()
+    if __cuStreamBeginCaptureToGraph == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamBeginCaptureToGraph" not found')
+    err = (<CUresult (*)(CUstream, CUgraph, const CUgraphNode*, const CUgraphEdgeData*, size_t, CUstreamCaptureMode) nogil> __cuStreamBeginCaptureToGraph)(hStream, hGraph, dependencies, dependencyData, numDependencies, mode)
+    return err
+{{endif}}
+
 {{if 'cuThreadExchangeStreamCaptureMode' in found_functions}}
 
 cdef CUresult _cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode* mode) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -10360,6 +10621,18 @@ cdef CUresult _cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureStatus
     return err
 {{endif}}
 
+{{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
+
+cdef CUresult _cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamGetCaptureInfo_v3
+    cuPythonInit()
+    if __cuStreamGetCaptureInfo_v3 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamGetCaptureInfo_v3" not found')
+    err = (<CUresult (*)(CUstream, CUstreamCaptureStatus*, cuuint64_t*, CUgraph*, const CUgraphNode**, const CUgraphEdgeData**, size_t*) nogil> __cuStreamGetCaptureInfo_v3)(hStream, captureStatus_out, id_out, graph_out, dependencies_out, edgeData_out, numDependencies_out)
+    return err
+{{endif}}
+
 {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
 
 cdef CUresult _cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode* dependencies, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -10369,6 +10642,18 @@ cdef CUresult _cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode* 
         with gil:
             raise RuntimeError('Function "cuStreamUpdateCaptureDependencies" not found')
     err = (<CUresult (*)(CUstream, CUgraphNode*, size_t, unsigned int) nogil> __cuStreamUpdateCaptureDependencies)(hStream, dependencies, numDependencies, flags)
+    return err
+{{endif}}
+
+{{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
+
+cdef CUresult _cuStreamUpdateCaptureDependencies_v2(CUstream hStream, CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamUpdateCaptureDependencies_v2
+    cuPythonInit()
+    if __cuStreamUpdateCaptureDependencies_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamUpdateCaptureDependencies_v2" not found')
+    err = (<CUresult (*)(CUstream, CUgraphNode*, const CUgraphEdgeData*, size_t, unsigned int) nogil> __cuStreamUpdateCaptureDependencies_v2)(hStream, dependencies, dependencyData, numDependencies, flags)
     return err
 {{endif}}
 
@@ -10753,6 +11038,18 @@ cdef CUresult _cuFuncGetModule(CUmodule* hmod, CUfunction hfunc) except ?CUDA_ER
         with gil:
             raise RuntimeError('Function "cuFuncGetModule" not found')
     err = (<CUresult (*)(CUmodule*, CUfunction) nogil> __cuFuncGetModule)(hmod, hfunc)
+    return err
+{{endif}}
+
+{{if 'cuFuncGetName' in found_functions}}
+
+cdef CUresult _cuFuncGetName(const char** name, CUfunction hfunc) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuFuncGetName
+    cuPythonInit()
+    if __cuFuncGetName == NULL:
+        with gil:
+            raise RuntimeError('Function "cuFuncGetName" not found')
+    err = (<CUresult (*)(const char**, CUfunction) nogil> __cuFuncGetName)(name, hfunc)
     return err
 {{endif}}
 
@@ -11476,6 +11773,18 @@ cdef CUresult _cuGraphGetEdges(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* 
     return err
 {{endif}}
 
+{{if 'cuGraphGetEdges_v2' in found_functions}}
+
+cdef CUresult _cuGraphGetEdges_v2(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, CUgraphEdgeData* edgeData, size_t* numEdges) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphGetEdges_v2
+    cuPythonInit()
+    if __cuGraphGetEdges_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphGetEdges_v2" not found')
+    err = (<CUresult (*)(CUgraph, CUgraphNode*, CUgraphNode*, CUgraphEdgeData*, size_t*) nogil> __cuGraphGetEdges_v2)(hGraph, from_, to, edgeData, numEdges)
+    return err
+{{endif}}
+
 {{if 'cuGraphNodeGetDependencies' in found_functions}}
 
 cdef CUresult _cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode* dependencies, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -11485,6 +11794,18 @@ cdef CUresult _cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode* depend
         with gil:
             raise RuntimeError('Function "cuGraphNodeGetDependencies" not found')
     err = (<CUresult (*)(CUgraphNode, CUgraphNode*, size_t*) nogil> __cuGraphNodeGetDependencies)(hNode, dependencies, numDependencies)
+    return err
+{{endif}}
+
+{{if 'cuGraphNodeGetDependencies_v2' in found_functions}}
+
+cdef CUresult _cuGraphNodeGetDependencies_v2(CUgraphNode hNode, CUgraphNode* dependencies, CUgraphEdgeData* edgeData, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphNodeGetDependencies_v2
+    cuPythonInit()
+    if __cuGraphNodeGetDependencies_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphNodeGetDependencies_v2" not found')
+    err = (<CUresult (*)(CUgraphNode, CUgraphNode*, CUgraphEdgeData*, size_t*) nogil> __cuGraphNodeGetDependencies_v2)(hNode, dependencies, edgeData, numDependencies)
     return err
 {{endif}}
 
@@ -11500,6 +11821,18 @@ cdef CUresult _cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode* depe
     return err
 {{endif}}
 
+{{if 'cuGraphNodeGetDependentNodes_v2' in found_functions}}
+
+cdef CUresult _cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, CUgraphNode* dependentNodes, CUgraphEdgeData* edgeData, size_t* numDependentNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphNodeGetDependentNodes_v2
+    cuPythonInit()
+    if __cuGraphNodeGetDependentNodes_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphNodeGetDependentNodes_v2" not found')
+    err = (<CUresult (*)(CUgraphNode, CUgraphNode*, CUgraphEdgeData*, size_t*) nogil> __cuGraphNodeGetDependentNodes_v2)(hNode, dependentNodes, edgeData, numDependentNodes)
+    return err
+{{endif}}
+
 {{if 'cuGraphAddDependencies' in found_functions}}
 
 cdef CUresult _cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -11512,6 +11845,18 @@ cdef CUresult _cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode* from_, 
     return err
 {{endif}}
 
+{{if 'cuGraphAddDependencies_v2' in found_functions}}
+
+cdef CUresult _cuGraphAddDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphAddDependencies_v2
+    cuPythonInit()
+    if __cuGraphAddDependencies_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphAddDependencies_v2" not found')
+    err = (<CUresult (*)(CUgraph, const CUgraphNode*, const CUgraphNode*, const CUgraphEdgeData*, size_t) nogil> __cuGraphAddDependencies_v2)(hGraph, from_, to, edgeData, numDependencies)
+    return err
+{{endif}}
+
 {{if 'cuGraphRemoveDependencies' in found_functions}}
 
 cdef CUresult _cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -11521,6 +11866,18 @@ cdef CUresult _cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode* from
         with gil:
             raise RuntimeError('Function "cuGraphRemoveDependencies" not found')
     err = (<CUresult (*)(CUgraph, const CUgraphNode*, const CUgraphNode*, size_t) nogil> __cuGraphRemoveDependencies)(hGraph, from_, to, numDependencies)
+    return err
+{{endif}}
+
+{{if 'cuGraphRemoveDependencies_v2' in found_functions}}
+
+cdef CUresult _cuGraphRemoveDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphRemoveDependencies_v2
+    cuPythonInit()
+    if __cuGraphRemoveDependencies_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphRemoveDependencies_v2" not found')
+    err = (<CUresult (*)(CUgraph, const CUgraphNode*, const CUgraphNode*, const CUgraphEdgeData*, size_t) nogil> __cuGraphRemoveDependencies_v2)(hGraph, from_, to, edgeData, numDependencies)
     return err
 {{endif}}
 
@@ -11884,6 +12241,18 @@ cdef CUresult _cuGraphAddNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CU
     return err
 {{endif}}
 
+{{if 'cuGraphAddNode_v2' in found_functions}}
+
+cdef CUresult _cuGraphAddNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphAddNode_v2
+    cuPythonInit()
+    if __cuGraphAddNode_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphAddNode_v2" not found')
+    err = (<CUresult (*)(CUgraphNode*, CUgraph, const CUgraphNode*, const CUgraphEdgeData*, size_t, CUgraphNodeParams*) nogil> __cuGraphAddNode_v2)(phGraphNode, hGraph, dependencies, dependencyData, numDependencies, nodeParams)
+    return err
+{{endif}}
+
 {{if 'cuGraphNodeSetParams' in found_functions}}
 
 cdef CUresult _cuGraphNodeSetParams(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -11905,6 +12274,18 @@ cdef CUresult _cuGraphExecNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNod
         with gil:
             raise RuntimeError('Function "cuGraphExecNodeSetParams" not found')
     err = (<CUresult (*)(CUgraphExec, CUgraphNode, CUgraphNodeParams*) nogil> __cuGraphExecNodeSetParams)(hGraphExec, hNode, nodeParams)
+    return err
+{{endif}}
+
+{{if 'cuGraphConditionalHandleCreate' in found_functions}}
+
+cdef CUresult _cuGraphConditionalHandleCreate(CUgraphConditionalHandle* pHandle_out, CUgraph hGraph, CUcontext ctx, unsigned int defaultLaunchValue, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphConditionalHandleCreate
+    cuPythonInit()
+    if __cuGraphConditionalHandleCreate == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphConditionalHandleCreate" not found')
+    err = (<CUresult (*)(CUgraphConditionalHandle*, CUgraph, CUcontext, unsigned int, unsigned int) nogil> __cuGraphConditionalHandleCreate)(pHandle_out, hGraph, ctx, defaultLaunchValue, flags)
     return err
 {{endif}}
 

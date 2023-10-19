@@ -1400,6 +1400,8 @@ cdef class cudaDeviceProp:
         Indicates device supports unified pointers
     reserved2 : List[int]
 
+    reserved1 : List[int]
+        Reserved for future use
     reserved : List[int]
         Reserved for future use
 
@@ -1452,6 +1454,24 @@ cdef class cudaIpcMemHandle_st:
     """
     cdef ccudart.cudaIpcMemHandle_st __val
     cdef ccudart.cudaIpcMemHandle_st* _ptr
+{{endif}}
+{{if 'struct cudaMemFabricHandle_st' in found_types}}
+
+cdef class cudaMemFabricHandle_st:
+    """
+    Attributes
+    ----------
+    reserved : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaMemFabricHandle_st __val
+    cdef ccudart.cudaMemFabricHandle_st* _ptr
 {{endif}}
 {{if 'struct cudaExternalMemoryHandleDesc' in found_types}}
 
@@ -2057,6 +2077,47 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
     cdef ccudart.cudaExternalSemaphoreWaitParams* _paramsArray
 
 {{endif}}
+{{if 'struct cudaConditionalNodeParams' in found_types}}
+
+cdef class cudaConditionalNodeParams:
+    """
+    CUDA conditional node parameters
+
+    Attributes
+    ----------
+    handle : cudaGraphConditionalHandle
+        Conditional node handle. Handles must be created in advance of
+        creating the node using cudaGraphConditionalHandleCreate.
+    type : cudaGraphConditionalNodeType
+        Type of conditional node.
+    size : unsigned int
+        Size of graph output array. Must be 1 for WHILE nodes, 1 or 2 for
+        IF nodes, and >0 for SWITCH nodes.
+    phGraph_out : cudaGraph_t
+        CUDA-owned array populated with conditional node child graphs
+        during creation of the node. Valid for the lifetime of the
+        conditional node. The contents of the graph(s) are subject to the
+        following constraints:   - Allowed node types are kernel nodes,
+        empty nodes, child graphs, memsets, memcopies, and conditionals.
+        This applies recursively to child graphs and conditional bodies.
+        - All kernels, including kernels in nested conditionals or child
+        graphs at any level, must belong to the same CUDA context.
+        These graphs may be populated using graph node creation APIs or
+        cudaStreamBeginCaptureToGraph.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaConditionalNodeParams __val
+    cdef ccudart.cudaConditionalNodeParams* _ptr
+    cdef cudaGraphConditionalHandle _handle
+    cdef size_t _phGraph_out_length
+    cdef ccudart.cudaGraph_t* _phGraph_out
+
+{{endif}}
 {{if 'struct cudaChildGraphNodeParams' in found_types}}
 
 cdef class cudaChildGraphNodeParams:
@@ -2125,38 +2186,42 @@ cdef class cudaEventWaitNodeParams:
 
 cdef class cudaGraphNodeParams:
     """
+    Graph node parameters. See cudaGraphAddNode.
+
     Attributes
     ----------
     type : cudaGraphNodeType
-
+        Type of the node
     reserved0 : List[int]
-
+        Reserved. Must be zero.
     reserved1 : List[long long]
-
+        Padding. Unused bytes must be zero.
     kernel : cudaKernelNodeParamsV2
-
+        Kernel node parameters.
     memcpy : cudaMemcpyNodeParams
-
+        Memcpy node parameters.
     memset : cudaMemsetParamsV2
-
+        Memset node parameters.
     host : cudaHostNodeParamsV2
-
+        Host node parameters.
     graph : cudaChildGraphNodeParams
-
+        Child graph node parameters.
     eventWait : cudaEventWaitNodeParams
-
+        Event wait node parameters.
     eventRecord : cudaEventRecordNodeParams
-
+        Event record node parameters.
     extSemSignal : cudaExternalSemaphoreSignalNodeParamsV2
-
+        External semaphore signal node parameters.
     extSemWait : cudaExternalSemaphoreWaitNodeParamsV2
-
+        External semaphore wait node parameters.
     alloc : cudaMemAllocNodeParamsV2
-
+        Memory allocation node parameters.
     free : cudaMemFreeNodeParams
-
+        Memory free node parameters.
+    conditional : cudaConditionalNodeParams
+        Conditional node parameters.
     reserved2 : long long
-
+        Reserved bytes. Must be zero.
 
     Methods
     -------
@@ -2164,7 +2229,7 @@ cdef class cudaGraphNodeParams:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaGraphNodeParams __val
+    cdef ccudart.cudaGraphNodeParams* _val_ptr
     cdef ccudart.cudaGraphNodeParams* _ptr
     cdef cudaKernelNodeParamsV2 _kernel
     cdef cudaMemcpyNodeParams _memcpy
@@ -2177,6 +2242,52 @@ cdef class cudaGraphNodeParams:
     cdef cudaExternalSemaphoreWaitNodeParamsV2 _extSemWait
     cdef cudaMemAllocNodeParamsV2 _alloc
     cdef cudaMemFreeNodeParams _free
+    cdef cudaConditionalNodeParams _conditional
+{{endif}}
+{{if 'struct cudaGraphEdgeData_st' in found_types}}
+
+cdef class cudaGraphEdgeData_st:
+    """
+    Optional annotation for edges in a CUDA graph. Note, all edges
+    implicitly have annotations and default to a zero-initialized value
+    if not specified. A zero-initialized struct indicates a standard
+    full serialization of two nodes with memory visibility.
+
+    Attributes
+    ----------
+    from_port : bytes
+        This indicates when the dependency is triggered from the upstream
+        node on the edge. The meaning is specfic to the node type. A value
+        of 0 in all cases means full completion of the upstream node, with
+        memory visibility to the downstream node or portion thereof
+        (indicated by `to_port`).   Only kernel nodes define non-zero
+        ports. A kernel node can use the following output port types:
+        cudaGraphKernelNodePortDefault,
+        cudaGraphKernelNodePortProgrammatic, or
+        cudaGraphKernelNodePortLaunchCompletion.
+    to_port : bytes
+        This indicates what portion of the downstream node is dependent on
+        the upstream node or portion thereof (indicated by `from_port`).
+        The meaning is specific to the node type. A value of 0 in all cases
+        means the entirety of the downstream node is dependent on the
+        upstream work.   Currently no node types define non-zero ports.
+        Accordingly, this field must be set to zero.
+    type : bytes
+        This should be populated with a value from
+        ::cudaGraphDependencyType. (It is typed as char due to compiler-
+        specific layout of bitfields.) See ::cudaGraphDependencyType.
+    reserved : bytes
+        These bytes are unused and must be zeroed. This ensures
+        compatibility if additional fields are added in the future.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaGraphEdgeData_st __val
+    cdef ccudart.cudaGraphEdgeData_st* _ptr
 {{endif}}
 {{if 'struct cudaGraphInstantiateParams_st' in found_types}}
 
@@ -2239,12 +2350,20 @@ cdef class cudaGraphExecUpdateResultInfo_st:
 
 cdef class cudaLaunchMemSyncDomainMap_st:
     """
+    Memory Synchronization Domain map  See cudaLaunchMemSyncDomain.  By
+    default, kernels are launched in domain 0. Kernel launched with
+    cudaLaunchMemSyncDomainRemote will have a different domain ID. User
+    may also alter the domain ID with ::cudaLaunchMemSyncDomainMap for
+    a specific stream / graph node / kernel launch. See
+    cudaLaunchAttributeMemSyncDomainMap.  Domain ID range is available
+    through cudaDevAttrMemSyncDomainCount.
+
     Attributes
     ----------
     default_ : bytes
-
+        The default domain ID to use for designated kernels
     remote : bytes
-
+        The remote domain ID to use for designated kernels
 
     Methods
     -------
@@ -2300,6 +2419,26 @@ cdef class anon_struct20:
 {{endif}}
 {{if 'union cudaLaunchAttributeValue' in found_types}}
 
+cdef class anon_struct21:
+    """
+    Attributes
+    ----------
+    event : cudaEvent_t
+
+    flags : int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaLaunchAttributeValue* _ptr
+    cdef cudaEvent_t _event
+{{endif}}
+{{if 'union cudaLaunchAttributeValue' in found_types}}
+
 cdef class cudaLaunchAttributeValue:
     """
     Launch attributes union; used as value field of
@@ -2310,26 +2449,41 @@ cdef class cudaLaunchAttributeValue:
     pad : bytes
 
     accessPolicyWindow : cudaAccessPolicyWindow
-        Attribute cudaAccessPolicyWindow.
+        Value of launch attribute cudaLaunchAttributeAccessPolicyWindow.
     cooperative : int
-        Nonzero indicates a cooperative kernel (see
-        cudaLaunchCooperativeKernel).
+        Value of launch attribute cudaLaunchAttributeCooperative. Nonzero
+        indicates a cooperative kernel (see cudaLaunchCooperativeKernel).
     syncPolicy : cudaSynchronizationPolicy
-        ::cudaSynchronizationPolicy for work queued up in this stream
+        Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
+        ::cudaSynchronizationPolicy for work queued up in this stream.
     clusterDim : anon_struct19
-        Cluster dimensions for the kernel node.
+        Value of launch attribute cudaLaunchAttributeClusterDimension that
+        represents the desired cluster dimensions for the kernel. Opaque
+        type with the following fields: - `x` - The X dimension of the
+        cluster, in blocks. Must be a divisor of the grid X dimension.    -
+        `y` - The Y dimension of the cluster, in blocks. Must be a divisor
+        of the grid Y dimension.    - `z` - The Z dimension of the cluster,
+        in blocks. Must be a divisor of the grid Z dimension.
     clusterSchedulingPolicyPreference : cudaClusterSchedulingPolicy
-        Cluster scheduling policy preference for the kernel node.
+        Value of launch attribute
+        cudaLaunchAttributeClusterSchedulingPolicyPreference. Cluster
+        scheduling policy preference for the kernel.
     programmaticStreamSerializationAllowed : int
-
+        Value of launch attribute
+        cudaLaunchAttributeProgrammaticStreamSerialization.
     programmaticEvent : anon_struct20
-
+        Value of launch attribute cudaLaunchAttributeProgrammaticEvent.
     priority : int
-        Execution priority of the kernel.
+        Value of launch attribute cudaLaunchAttributePriority. Execution
+        priority of the kernel.
     memSyncDomainMap : cudaLaunchMemSyncDomainMap
-
+        Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
+        ::cudaLaunchMemSyncDomainMap.
     memSyncDomain : cudaLaunchMemSyncDomain
-
+        Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
+        cudaLaunchMemSyncDomain.
+    launchCompletionEvent : anon_struct21
+        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
 
     Methods
     -------
@@ -2343,6 +2497,7 @@ cdef class cudaLaunchAttributeValue:
     cdef anon_struct19 _clusterDim
     cdef anon_struct20 _programmaticEvent
     cdef cudaLaunchMemSyncDomainMap _memSyncDomainMap
+    cdef anon_struct21 _launchCompletionEvent
 {{endif}}
 {{if 'struct cudaLaunchAttribute_st' in found_types}}
 
@@ -2353,9 +2508,9 @@ cdef class cudaLaunchAttribute_st:
     Attributes
     ----------
     id : cudaLaunchAttributeID
-
+        Attribute to set
     val : cudaLaunchAttributeValue
-
+        Value of the attribute
 
     Methods
     -------
@@ -2572,6 +2727,67 @@ cdef class cudaIpcMemHandle_t(cudaIpcMemHandle_st):
     """
     pass
 {{endif}}
+{{if 'cudaMemFabricHandle_t' in found_types}}
+
+cdef class cudaMemFabricHandle_t(cudaMemFabricHandle_st):
+    """
+    Attributes
+    ----------
+    reserved : bytes
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
+{{if 'cudaGraphEdgeData' in found_types}}
+
+cdef class cudaGraphEdgeData(cudaGraphEdgeData_st):
+    """
+    Optional annotation for edges in a CUDA graph. Note, all edges
+    implicitly have annotations and default to a zero-initialized value
+    if not specified. A zero-initialized struct indicates a standard
+    full serialization of two nodes with memory visibility.
+
+    Attributes
+    ----------
+    from_port : bytes
+        This indicates when the dependency is triggered from the upstream
+        node on the edge. The meaning is specfic to the node type. A value
+        of 0 in all cases means full completion of the upstream node, with
+        memory visibility to the downstream node or portion thereof
+        (indicated by `to_port`).   Only kernel nodes define non-zero
+        ports. A kernel node can use the following output port types:
+        cudaGraphKernelNodePortDefault,
+        cudaGraphKernelNodePortProgrammatic, or
+        cudaGraphKernelNodePortLaunchCompletion.
+    to_port : bytes
+        This indicates what portion of the downstream node is dependent on
+        the upstream node or portion thereof (indicated by `from_port`).
+        The meaning is specific to the node type. A value of 0 in all cases
+        means the entirety of the downstream node is dependent on the
+        upstream work.   Currently no node types define non-zero ports.
+        Accordingly, this field must be set to zero.
+    type : bytes
+        This should be populated with a value from
+        ::cudaGraphDependencyType. (It is typed as char due to compiler-
+        specific layout of bitfields.) See ::cudaGraphDependencyType.
+    reserved : bytes
+        These bytes are unused and must be zeroed. This ensures
+        compatibility if additional fields are added in the future.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
 {{if 'cudaGraphInstantiateParams' in found_types}}
 
 cdef class cudaGraphInstantiateParams(cudaGraphInstantiateParams_st):
@@ -2627,12 +2843,20 @@ cdef class cudaGraphExecUpdateResultInfo(cudaGraphExecUpdateResultInfo_st):
 
 cdef class cudaLaunchMemSyncDomainMap(cudaLaunchMemSyncDomainMap_st):
     """
+    Memory Synchronization Domain map  See cudaLaunchMemSyncDomain.  By
+    default, kernels are launched in domain 0. Kernel launched with
+    cudaLaunchMemSyncDomainRemote will have a different domain ID. User
+    may also alter the domain ID with ::cudaLaunchMemSyncDomainMap for
+    a specific stream / graph node / kernel launch. See
+    cudaLaunchAttributeMemSyncDomainMap.  Domain ID range is available
+    through cudaDevAttrMemSyncDomainCount.
+
     Attributes
     ----------
     default_ : bytes
-
+        The default domain ID to use for designated kernels
     remote : bytes
-
+        The remote domain ID to use for designated kernels
 
     Methods
     -------
@@ -2651,9 +2875,9 @@ cdef class cudaLaunchAttribute(cudaLaunchAttribute_st):
     Attributes
     ----------
     id : cudaLaunchAttributeID
-
+        Attribute to set
     val : cudaLaunchAttributeValue
-
+        Value of the attribute
 
     Methods
     -------
@@ -2675,26 +2899,41 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     pad : bytes
 
     accessPolicyWindow : cudaAccessPolicyWindow
-        Attribute cudaAccessPolicyWindow.
+        Value of launch attribute cudaLaunchAttributeAccessPolicyWindow.
     cooperative : int
-        Nonzero indicates a cooperative kernel (see
-        cudaLaunchCooperativeKernel).
+        Value of launch attribute cudaLaunchAttributeCooperative. Nonzero
+        indicates a cooperative kernel (see cudaLaunchCooperativeKernel).
     syncPolicy : cudaSynchronizationPolicy
-        ::cudaSynchronizationPolicy for work queued up in this stream
+        Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
+        ::cudaSynchronizationPolicy for work queued up in this stream.
     clusterDim : anon_struct19
-        Cluster dimensions for the kernel node.
+        Value of launch attribute cudaLaunchAttributeClusterDimension that
+        represents the desired cluster dimensions for the kernel. Opaque
+        type with the following fields: - `x` - The X dimension of the
+        cluster, in blocks. Must be a divisor of the grid X dimension.    -
+        `y` - The Y dimension of the cluster, in blocks. Must be a divisor
+        of the grid Y dimension.    - `z` - The Z dimension of the cluster,
+        in blocks. Must be a divisor of the grid Z dimension.
     clusterSchedulingPolicyPreference : cudaClusterSchedulingPolicy
-        Cluster scheduling policy preference for the kernel node.
+        Value of launch attribute
+        cudaLaunchAttributeClusterSchedulingPolicyPreference. Cluster
+        scheduling policy preference for the kernel.
     programmaticStreamSerializationAllowed : int
-
+        Value of launch attribute
+        cudaLaunchAttributeProgrammaticStreamSerialization.
     programmaticEvent : anon_struct20
-
+        Value of launch attribute cudaLaunchAttributeProgrammaticEvent.
     priority : int
-        Execution priority of the kernel.
+        Value of launch attribute cudaLaunchAttributePriority. Execution
+        priority of the kernel.
     memSyncDomainMap : cudaLaunchMemSyncDomainMap
-
+        Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
+        ::cudaLaunchMemSyncDomainMap.
     memSyncDomain : cudaLaunchMemSyncDomain
-
+        Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
+        cudaLaunchMemSyncDomain.
+    launchCompletionEvent : anon_struct21
+        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
 
     Methods
     -------
@@ -2716,26 +2955,41 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     pad : bytes
 
     accessPolicyWindow : cudaAccessPolicyWindow
-        Attribute cudaAccessPolicyWindow.
+        Value of launch attribute cudaLaunchAttributeAccessPolicyWindow.
     cooperative : int
-        Nonzero indicates a cooperative kernel (see
-        cudaLaunchCooperativeKernel).
+        Value of launch attribute cudaLaunchAttributeCooperative. Nonzero
+        indicates a cooperative kernel (see cudaLaunchCooperativeKernel).
     syncPolicy : cudaSynchronizationPolicy
-        ::cudaSynchronizationPolicy for work queued up in this stream
+        Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
+        ::cudaSynchronizationPolicy for work queued up in this stream.
     clusterDim : anon_struct19
-        Cluster dimensions for the kernel node.
+        Value of launch attribute cudaLaunchAttributeClusterDimension that
+        represents the desired cluster dimensions for the kernel. Opaque
+        type with the following fields: - `x` - The X dimension of the
+        cluster, in blocks. Must be a divisor of the grid X dimension.    -
+        `y` - The Y dimension of the cluster, in blocks. Must be a divisor
+        of the grid Y dimension.    - `z` - The Z dimension of the cluster,
+        in blocks. Must be a divisor of the grid Z dimension.
     clusterSchedulingPolicyPreference : cudaClusterSchedulingPolicy
-        Cluster scheduling policy preference for the kernel node.
+        Value of launch attribute
+        cudaLaunchAttributeClusterSchedulingPolicyPreference. Cluster
+        scheduling policy preference for the kernel.
     programmaticStreamSerializationAllowed : int
-
+        Value of launch attribute
+        cudaLaunchAttributeProgrammaticStreamSerialization.
     programmaticEvent : anon_struct20
-
+        Value of launch attribute cudaLaunchAttributeProgrammaticEvent.
     priority : int
-        Execution priority of the kernel.
+        Value of launch attribute cudaLaunchAttributePriority. Execution
+        priority of the kernel.
     memSyncDomainMap : cudaLaunchMemSyncDomainMap
-
+        Value of launch attribute cudaLaunchAttributeMemSyncDomainMap. See
+        ::cudaLaunchMemSyncDomainMap.
     memSyncDomain : cudaLaunchMemSyncDomain
-
+        Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
+        cudaLaunchMemSyncDomain.
+    launchCompletionEvent : anon_struct21
+        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
 
     Methods
     -------
@@ -2953,6 +3207,23 @@ cdef class cudaEglStreamConnection(cuda.CUeglStreamConnection):
 
     """
     pass
+{{endif}}
+
+{{if 'cudaGraphConditionalHandle' in found_types}}
+
+cdef class cudaGraphConditionalHandle:
+    """
+
+    CUDA handle for conditional graph nodes
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaGraphConditionalHandle  __val
+    cdef ccudart.cudaGraphConditionalHandle* _ptr
 {{endif}}
 
 {{if 'cudaSurfaceObject_t' in found_types}}

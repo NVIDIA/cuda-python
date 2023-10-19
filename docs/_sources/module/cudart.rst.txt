@@ -89,11 +89,14 @@ This section describes the stream management functions of the CUDA runtime appli
 .. autofunction:: cuda.cudart.cudaStreamQuery
 .. autofunction:: cuda.cudart.cudaStreamAttachMemAsync
 .. autofunction:: cuda.cudart.cudaStreamBeginCapture
+.. autofunction:: cuda.cudart.cudaStreamBeginCaptureToGraph
 .. autofunction:: cuda.cudart.cudaThreadExchangeStreamCaptureMode
 .. autofunction:: cuda.cudart.cudaStreamEndCapture
 .. autofunction:: cuda.cudart.cudaStreamIsCapturing
 .. autofunction:: cuda.cudart.cudaStreamGetCaptureInfo
+.. autofunction:: cuda.cudart.cudaStreamGetCaptureInfo_v3
 .. autofunction:: cuda.cudart.cudaStreamUpdateCaptureDependencies
+.. autofunction:: cuda.cudart.cudaStreamUpdateCaptureDependencies_v2
 
 Event Management
 ----------------
@@ -522,10 +525,15 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.cudart.cudaGraphGetNodes
 .. autofunction:: cuda.cudart.cudaGraphGetRootNodes
 .. autofunction:: cuda.cudart.cudaGraphGetEdges
+.. autofunction:: cuda.cudart.cudaGraphGetEdges_v2
 .. autofunction:: cuda.cudart.cudaGraphNodeGetDependencies
+.. autofunction:: cuda.cudart.cudaGraphNodeGetDependencies_v2
 .. autofunction:: cuda.cudart.cudaGraphNodeGetDependentNodes
+.. autofunction:: cuda.cudart.cudaGraphNodeGetDependentNodes_v2
 .. autofunction:: cuda.cudart.cudaGraphAddDependencies
+.. autofunction:: cuda.cudart.cudaGraphAddDependencies_v2
 .. autofunction:: cuda.cudart.cudaGraphRemoveDependencies
+.. autofunction:: cuda.cudart.cudaGraphRemoveDependencies_v2
 .. autofunction:: cuda.cudart.cudaGraphDestroyNode
 .. autofunction:: cuda.cudart.cudaGraphInstantiate
 .. autofunction:: cuda.cudart.cudaGraphInstantiateWithFlags
@@ -555,8 +563,10 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.cudart.cudaGraphRetainUserObject
 .. autofunction:: cuda.cudart.cudaGraphReleaseUserObject
 .. autofunction:: cuda.cudart.cudaGraphAddNode
+.. autofunction:: cuda.cudart.cudaGraphAddNode_v2
 .. autofunction:: cuda.cudart.cudaGraphNodeSetParams
 .. autofunction:: cuda.cudart.cudaGraphExecNodeSetParams
+.. autofunction:: cuda.cudart.cudaGraphConditionalHandleCreate
 
 Driver Entry Point Access
 -------------------------
@@ -762,6 +772,7 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaDeviceProp
 .. autoclass:: cuda.cudart.cudaIpcEventHandle_st
 .. autoclass:: cuda.cudart.cudaIpcMemHandle_st
+.. autoclass:: cuda.cudart.cudaMemFabricHandle_st
 .. autoclass:: cuda.cudart.cudaExternalMemoryHandleDesc
 .. autoclass:: cuda.cudart.cudaExternalMemoryBufferDesc
 .. autoclass:: cuda.cudart.cudaExternalMemoryMipmappedArrayDesc
@@ -774,10 +785,12 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreSignalNodeParamsV2
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreWaitNodeParams
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreWaitNodeParamsV2
+.. autoclass:: cuda.cudart.cudaConditionalNodeParams
 .. autoclass:: cuda.cudart.cudaChildGraphNodeParams
 .. autoclass:: cuda.cudart.cudaEventRecordNodeParams
 .. autoclass:: cuda.cudart.cudaEventWaitNodeParams
 .. autoclass:: cuda.cudart.cudaGraphNodeParams
+.. autoclass:: cuda.cudart.cudaGraphEdgeData_st
 .. autoclass:: cuda.cudart.cudaGraphInstantiateParams_st
 .. autoclass:: cuda.cudart.cudaGraphExecUpdateResultInfo_st
 .. autoclass:: cuda.cudart.cudaLaunchMemSyncDomainMap_st
@@ -1947,6 +1960,12 @@ Data types used by CUDA Runtime
         This indicates that a resource required by the API call is not in a valid state to perform the requested operation.
 
 
+    .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorLossyQuery
+
+
+        This indicates an attempt was made to introspect an object in a way that would discard semantically important information. This is either due to the object using funtionality newer than the API version used to introspect it or omission of optional return arguments.
+
+
     .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorSymbolNotFound
 
 
@@ -2236,9 +2255,6 @@ Data types used by CUDA Runtime
 
 
     .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorApiFailureBase
-
-
-        Any unhandled CUDA driver error is added to this value and returned via the runtime. Production releases of CUDA should not return such errors. [Deprecated]
 
 .. autoclass:: cuda.cudart.cudaChannelFormatKind
 
@@ -3953,6 +3969,12 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrReserved132
 
 
+    .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrMpsEnabled
+
+
+        Contexts created on this device will be shared via MPS
+
+
     .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrHostNumaId
 
 
@@ -4274,6 +4296,26 @@ Data types used by CUDA Runtime
 
         Scope represented by a multi_grid_group
 
+.. autoclass:: cuda.cudart.cudaGraphConditionalHandleFlags
+
+    .. autoattribute:: cuda.cudart.cudaGraphConditionalHandleFlags.cudaGraphCondAssignDefault
+
+
+        Apply default handle value when graph is launched.
+
+.. autoclass:: cuda.cudart.cudaGraphConditionalNodeType
+
+    .. autoattribute:: cuda.cudart.cudaGraphConditionalNodeType.cudaGraphCondTypeIf
+
+
+        Conditional 'if' Node. Body executed once if condition value is non-zero.
+
+
+    .. autoattribute:: cuda.cudart.cudaGraphConditionalNodeType.cudaGraphCondTypeWhile
+
+
+        Conditional 'while' Node. Body executed repeatedly while condition value is non-zero.
+
 .. autoclass:: cuda.cudart.cudaGraphNodeType
 
     .. autoattribute:: cuda.cudart.cudaGraphNodeType.cudaGraphNodeTypeKernel
@@ -4348,7 +4390,60 @@ Data types used by CUDA Runtime
         Memory free node
 
 
+    .. autoattribute:: cuda.cudart.cudaGraphNodeType.cudaGraphNodeTypeConditional
+
+
+        Conditional node                                    May be used to implement a conditional execution path or loop
+
+                                           inside of a graph. The graph(s) contained within the body of the conditional node
+
+                                           can be selectively executed or iterated upon based on the value of a conditional
+
+                                           variable.
+
+
+
+                                           Handles must be created in advance of creating the node
+
+                                           using :py:obj:`~.cudaGraphConditionalHandleCreate`.
+
+
+
+                                           The following restrictions apply to graphs which contain conditional nodes:
+
+                                             The graph cannot be used in a child node.
+
+                                             Only one instantiation of the graph may exist at any point in time.
+
+                                             The graph cannot be cloned.
+
+
+
+                                           To set the control value:
+
+
+
+                                            In a kernel or kernels at appropriate locations in the graph, insert a call to
+
+                                             `void cudaGraphSetConditional(cudaGraphConditionalHandle handle, unsigned int value)`.
+
+                                            Supply a default value when creating the handle.
+
+
     .. autoattribute:: cuda.cudart.cudaGraphNodeType.cudaGraphNodeTypeCount
+
+.. autoclass:: cuda.cudart.cudaGraphDependencyType
+
+    .. autoattribute:: cuda.cudart.cudaGraphDependencyType.cudaGraphDependencyTypeDefault
+
+
+        This is an ordinary dependency.
+
+
+    .. autoattribute:: cuda.cudart.cudaGraphDependencyType.cudaGraphDependencyTypeProgrammatic
+
+
+        This dependency type allows the downstream node to use `cudaGridDependencySynchronize()`. It may only be used between kernel nodes, and must be used with either the :py:obj:`~.cudaGraphKernelNodePortProgrammatic` or :py:obj:`~.cudaGraphKernelNodePortLaunchCompletion` outgoing port.
 
 .. autoclass:: cuda.cudart.cudaGraphExecUpdateResult
 
@@ -4535,6 +4630,12 @@ Data types used by CUDA Runtime
 
         Adds node handles and every kernel function handle to output
 
+
+    .. autoattribute:: cuda.cudart.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsConditionalNodeParams
+
+
+        Adds :py:obj:`~.cudaConditionalNodeParams` to output
+
 .. autoclass:: cuda.cudart.cudaGraphInstantiateFlags
 
     .. autoattribute:: cuda.cudart.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagAutoFreeOnLaunch
@@ -4546,13 +4647,21 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.cudart.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagUpload
 
 
-        Automatically upload the graph after instantiaton.
+        Automatically upload the graph after instantiation. Only supported by 
+
+         :py:obj:`~.cudaGraphInstantiateWithParams`. The upload will be performed using the 
+
+         stream provided in `instantiateParams`.
 
 
     .. autoattribute:: cuda.cudart.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagDeviceLaunch
 
 
-        Instantiate the graph to be launchable from the device.
+        Instantiate the graph to be launchable from the device. This flag can only 
+
+         be used on platforms which support unified addressing. This flag cannot be 
+
+         used in conjunction with cudaGraphInstantiateFlagAutoFreeOnLaunch.
 
 
     .. autoattribute:: cuda.cudart.cudaGraphInstantiateFlags.cudaGraphInstantiateFlagUseNodePriority
@@ -4565,7 +4674,13 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.cudart.cudaLaunchMemSyncDomain.cudaLaunchMemSyncDomainDefault
 
 
+        Launch kernels in the default domain
+
+
     .. autoattribute:: cuda.cudart.cudaLaunchMemSyncDomain.cudaLaunchMemSyncDomainRemote
+
+
+        Launch kernels in the remote domain
 
 .. autoclass:: cuda.cudart.cudaLaunchAttributeID
 
@@ -4578,55 +4693,87 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeAccessPolicyWindow
 
 
-        Valid for streams, graph nodes, launches.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.accessPolicyWindow`.
 
 
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeCooperative
 
 
-        Valid for graph nodes, launches.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.cooperative`.
 
 
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeSynchronizationPolicy
 
 
-        Valid for streams.
+        Valid for streams. See :py:obj:`~.cudaLaunchAttributeValue.syncPolicy`.
 
 
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeClusterDimension
 
 
-        Valid for graph nodes, launches.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.clusterDim`.
 
 
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeClusterSchedulingPolicyPreference
 
 
-        Valid for graph nodes, launches.
+        Valid for graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference`.
 
 
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticStreamSerialization
 
 
-        Valid for launches. Setting programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
+        Valid for launches. Setting :py:obj:`~.cudaLaunchAttributeValue.programmaticStreamSerializationAllowed` to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).
 
 
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeProgrammaticEvent
 
 
-        Valid for launches. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event programmatically in a future CUDA release. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. created with :py:obj:`~.cudaEventDisableTiming` flag set).
+        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.programmaticEvent` to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event programmatically in a future CUDA release. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling :py:obj:`~.cudaEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cudaEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks. 
+
+         The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.cudaEventDisableTiming` flag set).
 
 
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributePriority
 
 
-        Valid for streams, graph nodes, launches.
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.priority`.
 
 
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomainMap
 
 
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomainMap`.
+
+
     .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeMemSyncDomain
+
+
+        Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomain`.
+
+
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent
+
+
+        Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.launchCompletionEvent` to record the event. 
+
+         Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example:
+
+
+
+        - If B can claim execution resources unavaiable to A, for example if they run on different GPUs.
+
+
+
+        - If B is a higher priority than A.
+
+
+
+        Exercise caution if such an ordering inversion could lead to deadlock. 
+
+         A launch completion event is nominally similar to a programmatic event with `triggerAtBlockStart` set except that it is not visible to `cudaGridDependencySynchronize()` and can be used with compute capability less than 9.0. 
+
+         The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.cudaEventDisableTiming` flag set).
 
 .. autoclass:: cuda.cudart.cudaDeviceNumaConfig
 
@@ -4736,6 +4883,7 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaUUID_t
 .. autoclass:: cuda.cudart.cudaIpcEventHandle_t
 .. autoclass:: cuda.cudart.cudaIpcMemHandle_t
+.. autoclass:: cuda.cudart.cudaMemFabricHandle_t
 .. autoclass:: cuda.cudart.cudaStream_t
 .. autoclass:: cuda.cudart.cudaEvent_t
 .. autoclass:: cuda.cudart.cudaGraphicsResource_t
@@ -4744,9 +4892,11 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaGraph_t
 .. autoclass:: cuda.cudart.cudaGraphNode_t
 .. autoclass:: cuda.cudart.cudaUserObject_t
+.. autoclass:: cuda.cudart.cudaGraphConditionalHandle
 .. autoclass:: cuda.cudart.cudaFunction_t
 .. autoclass:: cuda.cudart.cudaKernel_t
 .. autoclass:: cuda.cudart.cudaMemPool_t
+.. autoclass:: cuda.cudart.cudaGraphEdgeData
 .. autoclass:: cuda.cudart.cudaGraphExec_t
 .. autoclass:: cuda.cudart.cudaGraphInstantiateParams
 .. autoclass:: cuda.cudart.cudaGraphExecUpdateResultInfo
@@ -4897,7 +5047,7 @@ Data types used by CUDA Runtime
 
 .. autoattribute:: cuda.cudart.cudaDeviceSyncMemops
 
-    Device flag - Use synchronous behavior for cudaMemcpy/cudaMemset
+    Device flag - Ensure synchronous memory operations on this context will synchronize
 
 .. autoattribute:: cuda.cudart.cudaDeviceMask
 
@@ -5011,6 +5161,18 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.cudart.cudaNvSciSyncAttrWait
 
     When /p flags of :py:obj:`~.cudaDeviceGetNvSciSyncAttributes` is set to this, it indicates that application need waiter specific NvSciSyncAttr to be filled by :py:obj:`~.cudaDeviceGetNvSciSyncAttributes`.
+
+.. autoattribute:: cuda.cudart.cudaGraphKernelNodePortDefault
+
+    This port activates when the kernel has finished executing.
+
+.. autoattribute:: cuda.cudart.cudaGraphKernelNodePortProgrammatic
+
+    This port activates when all blocks of the kernel have performed cudaTriggerProgrammaticLaunchCompletion() or have terminated. It must be used with edge type :py:obj:`~.cudaGraphDependencyTypeProgrammatic`. See also :py:obj:`~.cudaLaunchAttributeProgrammaticEvent`.
+
+.. autoattribute:: cuda.cudart.cudaGraphKernelNodePortLaunchCompletion
+
+    This port activates when all blocks of the kernel have begun execution. See also :py:obj:`~.cudaLaunchAttributeLaunchCompletionEvent`.
 
 .. autoattribute:: cuda.cudart.cudaStreamAttrID
 .. autoattribute:: cuda.cudart.cudaStreamAttributeAccessPolicyWindow

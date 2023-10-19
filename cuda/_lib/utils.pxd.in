@@ -107,6 +107,7 @@ cdef class HelperCUmemAllocationHandleType:
     cdef int _int
     cdef void* _handle
     cdef unsigned int _d3dkmt_handle
+    cdef cuda.CUmemFabricHandle _mem_fabric_handle
 {{endif}}
 
 cdef class InputVoidPtrPtrHelper:

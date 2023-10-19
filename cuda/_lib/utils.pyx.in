@@ -382,7 +382,8 @@ cdef class HelperCUjit_option:
                           {{if 'CU_JIT_GLOBAL_SYMBOL_COUNT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_COUNT,{{endif}}
                           {{if 'CU_JIT_TARGET_FROM_CUCONTEXT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_TARGET_FROM_CUCONTEXT,{{endif}}
                           {{if 'CU_JIT_REFERENCED_KERNEL_COUNT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_REFERENCED_KERNEL_COUNT,{{endif}}
-                          {{if 'CU_JIT_REFERENCED_VARIABLE_COUNT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_COUNT,{{endif}}):
+                          {{if 'CU_JIT_REFERENCED_VARIABLE_COUNT' in found_values}}ccuda.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_COUNT,{{endif}}
+                          {{if 'CU_JIT_MIN_CTA_PER_SM' in found_values}}ccuda.CUjit_option_enum.CU_JIT_MIN_CTA_PER_SM,{{endif}}):
             self._uint = init_value
             self._cptr = <void*><void_ptr>self._uint
         elif self._attr in ({{if 'CU_JIT_WALL_TIME' in found_values}}ccuda.CUjit_option_enum.CU_JIT_WALL_TIME,{{endif}}):
@@ -482,6 +483,11 @@ cdef class HelperCUmemAllocationHandleType:
         elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32_KMT,):
             self._cptr = <void*>&self._d3dkmt_handle
         {{endif}}
+        {{if 'CU_MEM_HANDLE_TYPE_FABRIC' in found_values}}
+        elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_FABRIC,):
+            self._mem_fabric_handle = cuda.CUmemFabricHandle()
+            self._cptr = <void*><void_ptr>self._mem_fabric_handle.getPtr()
+        {{endif}}
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
@@ -510,6 +516,10 @@ cdef class HelperCUmemAllocationHandleType:
         {{if 'CU_MEM_HANDLE_TYPE_WIN32_KMT' in found_values}}
         elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32_KMT,):
             return self._d3dkmt_handle
+        {{endif}}
+        {{if 'CU_MEM_HANDLE_TYPE_FABRIC' in found_values}}
+        elif self._type in (ccuda.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_FABRIC,):
+            return self._mem_fabric_handle
         {{endif}}
         else:
             raise TypeError('Unsupported attribute: {}'.format(self._type))

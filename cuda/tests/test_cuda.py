@@ -610,10 +610,13 @@ def test_device_get_name():
     expect = p.stdout.split(delimiter)
     size = 64
     _, got = cuda.cuDeviceGetName(size, device)
-    # Returned value is bytes, and we expect it to be of requested size
-    # assert len(got) == size
     got = got.split(b'\x00')[0]
-    assert got in expect
+    if any(b'Unable to determine the device handle for' in result for result in expect):
+        # Undeterministic devices get waived
+        pass
+    else:
+        assert any(got in result for result in expect)
+
 
     err, = cuda.cuCtxDestroy(ctx)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
@@ -622,19 +625,6 @@ def test_device_get_name():
 @pytest.mark.skipif(driverVersionLessThan(11030), reason='Driver too old for cuStreamGetCaptureInfo_v2')
 def test_stream_capture():
     pass
-
-def test_c_func_callback():
-    err, = cuda.cuInit(0)
-    assert(err == cuda.CUresult.CUDA_SUCCESS)
-    err, device = cuda.cuDeviceGet(0)
-    assert(err == cuda.CUresult.CUDA_SUCCESS)
-    err, ctx = cuda.cuCtxCreate(0, device)
-    assert(err == cuda.CUresult.CUDA_SUCCESS)
-
-    # TODO
-
-    err, = cuda.cuCtxDestroy(ctx)
-    assert(err == cuda.CUresult.CUDA_SUCCESS)
 
 def test_profiler():
     err, = cuda.cuInit(0)
