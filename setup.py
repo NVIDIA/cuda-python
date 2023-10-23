@@ -1,4 +1,4 @@
-# Copyright 2021-2022 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -16,7 +16,12 @@ import sys
 import sysconfig
 from setuptools import find_packages, setup
 from setuptools.extension import Extension
-import versioneer
+from setuptools.command.build_ext import build_ext
+try:
+    import versioneer
+except ImportError:
+    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+    import versioneer
 
 # ----------------------------------------------------------------------
 # Fetch configuration options
@@ -39,8 +44,7 @@ header_dict = {
                 'cudaProfiler.h',
                 'cudaEGL.h',
                 'cudaGL.h',
-                'cudaVDPAU.h',
-                ],
+                'cudaVDPAU.h'],
     'runtime' : ['driver_types.h',
                  'vector_types.h',
                  'cuda_runtime.h',
@@ -53,8 +57,7 @@ header_dict = {
                  'cuda_profiler_api.h',
                  'cuda_egl_interop.h',
                  'cuda_gl_interop.h',
-                 'cuda_vdpau_interop.h',
-                 ],
+                 'cuda_vdpau_interop.h'],
     'nvrtc' : ['nvrtc.h']}
 
 replace = {' __device_builtin__ ':' ',
@@ -78,7 +81,6 @@ found_values = []
 include_path = os.path.join(CUDA_HOME, 'include')
 print(f'Parsing headers in "{include_path}" (Caching {PARSER_CACHING})')
 for library, header_list in header_dict.items():
-    print(f'Parsing {library} headers')
     header_paths = []
     for header in header_list:
         path = os.path.join(include_path, header)
@@ -87,6 +89,7 @@ for library, header_list in header_dict.items():
             continue
         header_paths += [path]
 
+    print(f'Parsing {library} headers')
     parser = CParser(header_paths,
                      cache='./cache_{}'.format(library.split('.')[0]) if PARSER_CACHING else None,
                      replace=replace)
@@ -115,10 +118,9 @@ for library, header_list in header_dict.items():
             elif name == 'programmaticEvent':
                 found_types += {'struct _cudaLaunchAttributeValue_cudaLaunchAttributeValue_cudaLaunchAttributeValue_programmaticEvent_s'}
 
+
 if len(found_functions) == 0:
-    if pyparsing.__version__ != '2.4.7':
-        raise RuntimeError('Parser found no functions. "pyclibrary" requires "pyparsing==2.4.7".')
-    raise RuntimeError('Parser found no functions. Is CUDA_HOME setup correctly?')
+    raise RuntimeError(f'Parser found no functions. Is CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
 
 # Unwrap struct and union members
 def unwrapMembers(found_dict):
@@ -192,9 +194,8 @@ if sys.platform == 'win32':
     from distutils import _msvccompiler
     _msvccompiler.PLAT_TO_VCVARS['win-amd64'] = 'amd64'
 
-setup_requires = ["cython"]
-install_requires = ["cython"]
 extensions = []
+cmdclass = {}
 
 # ----------------------------------------------------------------------
 # Cythonize
@@ -233,39 +234,36 @@ sources_list = [
 for sources in sources_list:
     extensions += do_cythonize(sources)
 
+# ---------------------------------------------------------------------
+# Custom build_ext command
+# Files are build in two steps:
+# 1) Cythonized (in the do_cythonize() command)
+# 2) Compiled to .o files as part of build_ext
+# This class is solely for passing the value of nthreads to build_ext
+
+class ParallelBuildExtensions(build_ext):
+    def initialize_options(self):
+        build_ext.initialize_options(self)
+        if nthreads > 0:
+            self.parallel = nthreads
+
+    def finalize_options(self):
+        build_ext.finalize_options(self)
+
+cmdclass = {"build_ext": ParallelBuildExtensions}
+cmdclass = versioneer.get_cmdclass(cmdclass)
+
 # ----------------------------------------------------------------------
 # Setup
 
 setup(
-    name="cuda-python",
     version=versioneer.get_version(),
-    description="Python bindings for CUDA",
-    url="https://github.com/NVIDIA/cuda-python",
-    author="NVIDIA Corporation",
-    author_email="cuda-python-conduct@nvidia.com",
-    license="NVIDIA Proprietary License",
-    license_files = ('LICENSE',),
-    classifiers=[
-        "Intended Audience :: Developers",
-        "Topic :: Database",
-        "Topic :: Scientific/Engineering",
-        "License :: Other/Proprietary License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Environment :: GPU :: NVIDIA CUDA",
-    ],
-    # Include the separately-compiled shared library
-    setup_requires=setup_requires,
     ext_modules=extensions,
     packages=find_packages(include=["cuda", "cuda.*"]),
     package_data=dict.fromkeys(
         find_packages(include=["cuda", "cuda.*"]),
         ["*.pxd", "*.pyx", "*.h", "*.cpp"],
     ),
-    cmdclass=versioneer.get_cmdclass(),
-    install_requires=install_requires,
+    cmdclass=cmdclass,
     zip_safe=False,
 )

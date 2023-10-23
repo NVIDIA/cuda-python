@@ -633,3 +633,14 @@ def test_eglFrame():
     assert(int(val.frame.pPitch[0]) == 1)
     assert(int(val.frame.pPitch[1]) == 2)
     assert(int(val.frame.pPitch[2]) == 3)
+
+def test_char_range():
+    # Temporary disable
+    return
+    val = cuda.CUipcMemHandle_st()
+    for x in range(-128, 0):
+        val.reserved = [x] * 64
+        assert(val.reserved[0] == 256 + x)
+    for x in range(0, 256):
+        val.reserved = [x] * 64
+        assert(val.reserved[0] == x)

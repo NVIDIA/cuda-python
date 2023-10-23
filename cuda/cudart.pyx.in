@@ -5,7 +5,7 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Optional
 from enum import IntEnum
 import cython
 import ctypes
@@ -10615,7 +10615,7 @@ def cudaDeviceGetLimit(limit not None : cudaLimit):
 {{if 'cudaDeviceGetTexture1DLinearMaxWidth' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaDeviceGetTexture1DLinearMaxWidth(fmtDesc : cudaChannelFormatDesc, int device):
+def cudaDeviceGetTexture1DLinearMaxWidth(fmtDesc : Optional[cudaChannelFormatDesc], int device):
     """ Returns the maximum number of elements allocatable in a 1D linear texture for a given element size.
 
     Returns in `maxWidthInElements` the maximum number of elements
@@ -12429,7 +12429,7 @@ def cudaDeviceGetP2PAttribute(attr not None : cudaDeviceP2PAttr, int srcDevice, 
 {{if 'cudaChooseDevice' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaChooseDevice(prop : cudaDeviceProp):
+def cudaChooseDevice(prop : Optional[cudaDeviceProp]):
     """ Select compute-device which best matches criteria.
 
     Returns in `*device` the device which has properties that best match
@@ -12978,7 +12978,7 @@ def cudaStreamGetAttribute(hStream, attr not None : cudaStreamAttrID):
 {{if 'cudaStreamSetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaStreamSetAttribute(hStream, attr not None : cudaStreamAttrID, value : cudaLaunchAttributeValue):
+def cudaStreamSetAttribute(hStream, attr not None : cudaStreamAttrID, value : Optional[cudaLaunchAttributeValue]):
     """ Sets stream attribute.
 
     Sets attribute `attr` on `hStream` from corresponding attribute of
@@ -13804,7 +13804,7 @@ def cudaStreamGetCaptureInfo_v2(stream):
 {{if 'cudaStreamUpdateCaptureDependencies' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaStreamUpdateCaptureDependencies(stream, dependencies : List[cudaGraphNode_t], size_t numDependencies, unsigned int flags):
+def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, unsigned int flags):
     """ Update the set of dependencies in a capturing stream (11.3+)
 
     Modifies the dependency set of a capturing stream. The dependency set
@@ -14291,7 +14291,7 @@ def cudaEventElapsedTime(start, end):
 {{if 'cudaImportExternalMemory' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaImportExternalMemory(memHandleDesc : cudaExternalMemoryHandleDesc):
+def cudaImportExternalMemory(memHandleDesc : Optional[cudaExternalMemoryHandleDesc]):
     """ Imports an external memory object.
 
     Imports an externally allocated memory object and returns a handle to
@@ -14442,7 +14442,7 @@ def cudaImportExternalMemory(memHandleDesc : cudaExternalMemoryHandleDesc):
 {{if 'cudaExternalMemoryGetMappedBuffer' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc : cudaExternalMemoryBufferDesc):
+def cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc : Optional[cudaExternalMemoryBufferDesc]):
     """ Maps a buffer onto an imported memory object.
 
     Maps a buffer onto an imported memory object and returns a device
@@ -14509,7 +14509,7 @@ def cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc : cudaExternalMemoryBuf
 {{if 'cudaExternalMemoryGetMappedMipmappedArray' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : cudaExternalMemoryMipmappedArrayDesc):
+def cudaExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : Optional[cudaExternalMemoryMipmappedArrayDesc]):
     """ Maps a CUDA mipmapped array onto an external memory object.
 
     Maps a CUDA mipmapped array onto an external object and returns a
@@ -14621,7 +14621,7 @@ def cudaDestroyExternalMemory(extMem):
 {{if 'cudaImportExternalSemaphore' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaImportExternalSemaphore(semHandleDesc : cudaExternalSemaphoreHandleDesc):
+def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHandleDesc]):
     """ Imports an external semaphore.
 
     Imports an externally allocated synchronization object and returns a
@@ -14767,7 +14767,7 @@ def cudaImportExternalSemaphore(semHandleDesc : cudaExternalSemaphoreHandleDesc)
 {{if 'cudaSignalExternalSemaphoresAsync_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaSignalExternalSemaphoresAsync(extSemArray : List[cudaExternalSemaphore_t], paramsArray : List[cudaExternalSemaphoreSignalParams], unsigned int numExtSems, stream):
+def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[List[cudaExternalSemaphore_t]], paramsArray : Optional[List[cudaExternalSemaphoreSignalParams]], unsigned int numExtSems, stream):
     """ Signals a set of external semaphore objects.
 
     Enqueues a signal operation on a set of externally allocated semaphore
@@ -14888,7 +14888,7 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : List[cudaExternalSemaphore_t
 {{if 'cudaWaitExternalSemaphoresAsync_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaWaitExternalSemaphoresAsync(extSemArray : List[cudaExternalSemaphore_t], paramsArray : List[cudaExternalSemaphoreWaitParams], unsigned int numExtSems, stream):
+def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[List[cudaExternalSemaphore_t]], paramsArray : Optional[List[cudaExternalSemaphoreWaitParams]], unsigned int numExtSems, stream):
     """ Waits on a set of external semaphore objects.
 
     Enqueues a wait operation on a set of externally allocated semaphore
@@ -15817,7 +15817,7 @@ def cudaMallocPitch(size_t width, size_t height):
 {{if 'cudaMallocArray' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMallocArray(desc : cudaChannelFormatDesc, size_t width, size_t height, unsigned int flags):
+def cudaMallocArray(desc : Optional[cudaChannelFormatDesc], size_t width, size_t height, unsigned int flags):
     """ Allocate an array on the device.
 
     Allocates a CUDA array according to the
@@ -16414,7 +16414,7 @@ def cudaMalloc3D(extent not None : cudaExtent):
 {{if 'cudaMalloc3DArray' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMalloc3DArray(desc : cudaChannelFormatDesc, extent not None : cudaExtent, unsigned int flags):
+def cudaMalloc3DArray(desc : Optional[cudaChannelFormatDesc], extent not None : cudaExtent, unsigned int flags):
     """ Allocate an array on the device.
 
     Allocates a CUDA array according to the
@@ -16535,7 +16535,7 @@ def cudaMalloc3DArray(desc : cudaChannelFormatDesc, extent not None : cudaExtent
 {{if 'cudaMallocMipmappedArray' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMallocMipmappedArray(desc : cudaChannelFormatDesc, extent not None : cudaExtent, unsigned int numLevels, unsigned int flags):
+def cudaMallocMipmappedArray(desc : Optional[cudaChannelFormatDesc], extent not None : cudaExtent, unsigned int numLevels, unsigned int flags):
     """ Allocate a mipmapped array on the device.
 
     Allocates a CUDA mipmapped array according to the
@@ -16706,7 +16706,7 @@ def cudaGetMipmappedArrayLevel(mipmappedArray, unsigned int level):
 {{if 'cudaMemcpy3D' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemcpy3D(p : cudaMemcpy3DParms):
+def cudaMemcpy3D(p : Optional[cudaMemcpy3DParms]):
     """ Copies data between 3D objects.
 
     **View CUDA Toolkit Documentation for a C++ code example**
@@ -16790,7 +16790,7 @@ def cudaMemcpy3D(p : cudaMemcpy3DParms):
 {{if 'cudaMemcpy3DPeer' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemcpy3DPeer(p : cudaMemcpy3DPeerParms):
+def cudaMemcpy3DPeer(p : Optional[cudaMemcpy3DPeerParms]):
     """ Copies memory between devices.
 
     Perform a 3D memory copy according to the parameters specified in `p`.
@@ -16826,7 +16826,7 @@ def cudaMemcpy3DPeer(p : cudaMemcpy3DPeerParms):
 {{if 'cudaMemcpy3DAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemcpy3DAsync(p : cudaMemcpy3DParms, stream):
+def cudaMemcpy3DAsync(p : Optional[cudaMemcpy3DParms], stream):
     """ Copies data between 3D objects.
 
     **View CUDA Toolkit Documentation for a C++ code example**
@@ -16933,7 +16933,7 @@ def cudaMemcpy3DAsync(p : cudaMemcpy3DParms, stream):
 {{if 'cudaMemcpy3DPeerAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemcpy3DPeerAsync(p : cudaMemcpy3DPeerParms, stream):
+def cudaMemcpy3DPeerAsync(p : Optional[cudaMemcpy3DPeerParms], stream):
     """ Copies memory between devices asynchronously.
 
     Perform a 3D memory copy according to the parameters specified in `p`.
@@ -18776,7 +18776,7 @@ def cudaMemRangeGetAttribute(size_t dataSize, attribute not None : cudaMemRangeA
 {{if 'cudaMemRangeGetAttributes' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemRangeGetAttributes(dataSizes : List[int], attributes : List[cudaMemRangeAttribute], size_t numAttributes, devPtr, size_t count):
+def cudaMemRangeGetAttributes(dataSizes : List[int], attributes : Optional[List[cudaMemRangeAttribute]], size_t numAttributes, devPtr, size_t count):
     """ Query attributes of a given memory range.
 
     Query attributes of the memory range starting at `devPtr` with a size
@@ -19516,7 +19516,7 @@ def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
 {{if 'cudaMemPoolSetAccess' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemPoolSetAccess(memPool, descList : List[cudaMemAccessDesc], size_t count):
+def cudaMemPoolSetAccess(memPool, descList : Optional[List[cudaMemAccessDesc]], size_t count):
     """ Controls visibility of pools between devices.
 
     Parameters
@@ -19570,7 +19570,7 @@ def cudaMemPoolSetAccess(memPool, descList : List[cudaMemAccessDesc], size_t cou
 {{if 'cudaMemPoolGetAccess' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemPoolGetAccess(memPool, location : cudaMemLocation):
+def cudaMemPoolGetAccess(memPool, location : Optional[cudaMemLocation]):
     """ Returns the accessibility of a pool from a device.
 
     Returns the accessibility of the pool's memory from the specified
@@ -19613,7 +19613,7 @@ def cudaMemPoolGetAccess(memPool, location : cudaMemLocation):
 {{if 'cudaMemPoolCreate' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemPoolCreate(poolProps : cudaMemPoolProps):
+def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
     """ Creates a memory pool.
 
     Creates a CUDA memory pool and returns the handle in `pool`. The
@@ -19890,7 +19890,7 @@ def cudaMemPoolExportPointer(ptr):
 {{if 'cudaMemPoolImportPointer' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemPoolImportPointer(memPool, exportData : cudaMemPoolPtrExportData):
+def cudaMemPoolImportPointer(memPool, exportData : Optional[cudaMemPoolPtrExportData]):
     """ Import a memory pool allocation from another process.
 
     Returns in `ptr_out` a pointer to the imported memory. The imported
@@ -20585,7 +20585,7 @@ def cudaCreateChannelDesc(int x, int y, int z, int w, f not None : cudaChannelFo
 {{if 'cudaCreateTextureObject' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaCreateTextureObject(pResDesc : cudaResourceDesc, pTexDesc : cudaTextureDesc, pResViewDesc : cudaResourceViewDesc):
+def cudaCreateTextureObject(pResDesc : Optional[cudaResourceDesc], pTexDesc : Optional[cudaTextureDesc], pResViewDesc : Optional[cudaResourceViewDesc]):
     """ Creates a texture object.
 
     Creates a texture object and returns it in `pTexObject`. `pResDesc`
@@ -21253,7 +21253,7 @@ def cudaGetTextureObjectResourceViewDesc(texObject):
 {{if 'cudaCreateSurfaceObject' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaCreateSurfaceObject(pResDesc : cudaResourceDesc):
+def cudaCreateSurfaceObject(pResDesc : Optional[cudaResourceDesc]):
     """ Creates a surface object.
 
     Creates a surface object and returns it in `pSurfObject`. `pResDesc`
@@ -21455,7 +21455,7 @@ def cudaGraphCreate(unsigned int flags):
 {{if 'cudaGraphAddKernelNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddKernelNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, pNodeParams : cudaKernelNodeParams):
+def cudaGraphAddKernelNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, pNodeParams : Optional[cudaKernelNodeParams]):
     """ Creates a kernel execution node and adds it to a graph.
 
     Creates a new kernel execution node and adds it to `graph` with
@@ -21624,7 +21624,7 @@ def cudaGraphKernelNodeGetParams(node):
 {{if 'cudaGraphKernelNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphKernelNodeSetParams(node, pNodeParams : cudaKernelNodeParams):
+def cudaGraphKernelNodeSetParams(node, pNodeParams : Optional[cudaKernelNodeParams]):
     """ Sets a kernel node's parameters.
 
     Sets the parameters of kernel node `node` to `pNodeParams`.
@@ -21756,7 +21756,7 @@ def cudaGraphKernelNodeGetAttribute(hNode, attr not None : cudaKernelNodeAttrID)
 {{if 'cudaGraphKernelNodeSetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID, value : cudaLaunchAttributeValue):
+def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID, value : Optional[cudaLaunchAttributeValue]):
     """ Sets node attribute.
 
     Sets attribute `attr` on node `hNode` from corresponding attribute of
@@ -21799,7 +21799,7 @@ def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID,
 {{if 'cudaGraphAddMemcpyNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddMemcpyNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, pCopyParams : cudaMemcpy3DParms):
+def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, pCopyParams : Optional[cudaMemcpy3DParms]):
     """ Creates a memcpy node and adds it to a graph.
 
     Creates a new memcpy node and adds it to `graph` with `numDependencies`
@@ -21874,7 +21874,7 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : List[cudaGraphNode_t], size_t 
 {{if 'cudaGraphAddMemcpyNode1D' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddMemcpyNode1D(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, dst, src, size_t count, kind not None : cudaMemcpyKind):
+def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, dst, src, size_t count, kind not None : cudaMemcpyKind):
     """ Creates a 1D memcpy node and adds it to a graph.
 
     Creates a new 1D memcpy node and adds it to `graph` with
@@ -22007,7 +22007,7 @@ def cudaGraphMemcpyNodeGetParams(node):
 {{if 'cudaGraphMemcpyNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphMemcpyNodeSetParams(node, pNodeParams : cudaMemcpy3DParms):
+def cudaGraphMemcpyNodeSetParams(node, pNodeParams : Optional[cudaMemcpy3DParms]):
     """ Sets a memcpy node's parameters.
 
     Sets the parameters of memcpy node `node` to `pNodeParams`.
@@ -22109,7 +22109,7 @@ def cudaGraphMemcpyNodeSetParams1D(node, dst, src, size_t count, kind not None :
 {{if 'cudaGraphAddMemsetNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddMemsetNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, pMemsetParams : cudaMemsetParams):
+def cudaGraphAddMemsetNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, pMemsetParams : Optional[cudaMemsetParams]):
     """ Creates a memset node and adds it to a graph.
 
     Creates a new memset node and adds it to `graph` with `numDependencies`
@@ -22217,7 +22217,7 @@ def cudaGraphMemsetNodeGetParams(node):
 {{if 'cudaGraphMemsetNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphMemsetNodeSetParams(node, pNodeParams : cudaMemsetParams):
+def cudaGraphMemsetNodeSetParams(node, pNodeParams : Optional[cudaMemsetParams]):
     """ Sets a memset node's parameters.
 
     Sets the parameters of memset node `node` to `pNodeParams`.
@@ -22256,7 +22256,7 @@ def cudaGraphMemsetNodeSetParams(node, pNodeParams : cudaMemsetParams):
 {{if 'cudaGraphAddHostNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddHostNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, pNodeParams : cudaHostNodeParams):
+def cudaGraphAddHostNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, pNodeParams : Optional[cudaHostNodeParams]):
     """ Creates a host execution node and adds it to a graph.
 
     Creates a new CPU execution node and adds it to `graph` with
@@ -22365,7 +22365,7 @@ def cudaGraphHostNodeGetParams(node):
 {{if 'cudaGraphHostNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphHostNodeSetParams(node, pNodeParams : cudaHostNodeParams):
+def cudaGraphHostNodeSetParams(node, pNodeParams : Optional[cudaHostNodeParams]):
     """ Sets a host node's parameters.
 
     Sets the parameters of host node `node` to `nodeParams`.
@@ -22404,7 +22404,7 @@ def cudaGraphHostNodeSetParams(node, pNodeParams : cudaHostNodeParams):
 {{if 'cudaGraphAddChildGraphNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddChildGraphNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, childGraph):
+def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, childGraph):
     """ Creates a child graph node and adds it to a graph.
 
     Creates a new node which executes an embedded graph, and adds it to
@@ -22530,7 +22530,7 @@ def cudaGraphChildGraphNodeGetGraph(node):
 {{if 'cudaGraphAddEmptyNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddEmptyNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies):
+def cudaGraphAddEmptyNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies):
     """ Creates an empty node and adds it to a graph.
 
     Creates a new node which performs no operation, and adds it to `graph`
@@ -22600,7 +22600,7 @@ def cudaGraphAddEmptyNode(graph, pDependencies : List[cudaGraphNode_t], size_t n
 {{if 'cudaGraphAddEventRecordNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddEventRecordNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, event):
+def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, event):
     """ Creates an event record node and adds it to a graph.
 
     Creates a new event record node and adds it to `hGraph` with
@@ -22768,7 +22768,7 @@ def cudaGraphEventRecordNodeSetEvent(node, event):
 {{if 'cudaGraphAddEventWaitNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddEventWaitNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, event):
+def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, event):
     """ Creates an event wait node and adds it to a graph.
 
     Creates a new event wait node and adds it to `hGraph` with
@@ -22939,7 +22939,7 @@ def cudaGraphEventWaitNodeSetEvent(node, event):
 {{if 'cudaGraphAddExternalSemaphoresSignalNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, nodeParams : cudaExternalSemaphoreSignalNodeParams):
+def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
     """ Creates an external semaphore signal node and adds it to a graph.
 
     Creates a new external semaphore signal node and adds it to `graph`
@@ -23055,7 +23055,7 @@ def cudaGraphExternalSemaphoresSignalNodeGetParams(hNode):
 {{if 'cudaGraphExternalSemaphoresSignalNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : cudaExternalSemaphoreSignalNodeParams):
+def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
     """ Sets an external semaphore signal node's parameters.
 
     Sets the parameters of an external semaphore signal node `hNode` to
@@ -23095,7 +23095,7 @@ def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : cudaExter
 {{if 'cudaGraphAddExternalSemaphoresWaitNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, nodeParams : cudaExternalSemaphoreWaitNodeParams):
+def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
     """ Creates an external semaphore wait node and adds it to a graph.
 
     Creates a new external semaphore wait node and adds it to `graph` with
@@ -23211,7 +23211,7 @@ def cudaGraphExternalSemaphoresWaitNodeGetParams(hNode):
 {{if 'cudaGraphExternalSemaphoresWaitNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : cudaExternalSemaphoreWaitNodeParams):
+def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
     """ Sets an external semaphore wait node's parameters.
 
     Sets the parameters of an external semaphore wait node `hNode` to
@@ -23251,7 +23251,7 @@ def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : cudaExterna
 {{if 'cudaGraphAddMemAllocNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddMemAllocNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, nodeParams : cudaMemAllocNodeParams):
+def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaMemAllocNodeParams]):
     """ Creates an allocation node and adds it to a graph.
 
     Creates a new allocation node and adds it to `graph` with
@@ -23402,7 +23402,7 @@ def cudaGraphMemAllocNodeGetParams(node):
 {{if 'cudaGraphAddMemFreeNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddMemFreeNode(graph, pDependencies : List[cudaGraphNode_t], size_t numDependencies, dptr):
+def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[List[cudaGraphNode_t]], size_t numDependencies, dptr):
     """ Creates a memory free node and adds it to a graph.
 
     Creates a new memory free node and adds it to `graph` with
@@ -24095,7 +24095,7 @@ def cudaGraphNodeGetDependentNodes(node, size_t pNumDependentNodes = 0):
 {{if 'cudaGraphAddDependencies' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddDependencies(graph, from_ : List[cudaGraphNode_t], to : List[cudaGraphNode_t], size_t numDependencies):
+def cudaGraphAddDependencies(graph, from_ : Optional[List[cudaGraphNode_t]], to : Optional[List[cudaGraphNode_t]], size_t numDependencies):
     """ Adds dependency edges to a graph.
 
     The number of dependencies to be added is defined by `numDependencies`
@@ -24174,7 +24174,7 @@ def cudaGraphAddDependencies(graph, from_ : List[cudaGraphNode_t], to : List[cud
 {{if 'cudaGraphRemoveDependencies' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphRemoveDependencies(graph, from_ : List[cudaGraphNode_t], to : List[cudaGraphNode_t], size_t numDependencies):
+def cudaGraphRemoveDependencies(graph, from_ : Optional[List[cudaGraphNode_t]], to : Optional[List[cudaGraphNode_t]], size_t numDependencies):
     """ Removes dependency edges from a graph.
 
     The number of `pDependencies` to be removed is defined by
@@ -24416,7 +24416,7 @@ def cudaGraphInstantiateWithFlags(graph, unsigned long long flags):
 {{if 'cudaGraphExecKernelNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : cudaKernelNodeParams):
+def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : Optional[cudaKernelNodeParams]):
     """ Sets the parameters for a kernel node in the given graphExec.
 
     Sets the parameters of a kernel node in an executable graph
@@ -24478,7 +24478,7 @@ def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : cudaKernelN
 {{if 'cudaGraphExecMemcpyNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams : cudaMemcpy3DParms):
+def cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams : Optional[cudaMemcpy3DParms]):
     """ Sets the parameters for a memcpy node in the given graphExec.
 
     Updates the work represented by `node` in `hGraphExec` as though `node`
@@ -24622,7 +24622,7 @@ def cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, size_t count,
 {{if 'cudaGraphExecMemsetNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : cudaMemsetParams):
+def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : Optional[cudaMemsetParams]):
     """ Sets the parameters for a memset node in the given graphExec.
 
     Updates the work represented by `node` in `hGraphExec` as though `node`
@@ -24688,7 +24688,7 @@ def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : cudaMemsetP
 {{if 'cudaGraphExecHostNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams : cudaHostNodeParams):
+def cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams : Optional[cudaHostNodeParams]):
     """ Sets the parameters for a host node in the given graphExec.
 
     Updates the work represented by `node` in `hGraphExec` as though `node`
@@ -24957,7 +24957,7 @@ def cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
 {{if 'cudaGraphExecExternalSemaphoresSignalNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodeParams : cudaExternalSemaphoreSignalNodeParams):
+def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
     """ Sets the parameters for an external semaphore signal node in the given graphExec.
 
     Sets the parameters of an external semaphore signal node in an
@@ -25020,7 +25020,7 @@ def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePa
 {{if 'cudaGraphExecExternalSemaphoresWaitNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams : cudaExternalSemaphoreWaitNodeParams):
+def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
     """ Sets the parameters for an external semaphore wait node in the given graphExec.
 
     Sets the parameters of an external semaphore wait node in an executable
@@ -25916,7 +25916,7 @@ def cudaGetDriverEntryPoint(char* symbol, unsigned long long flags):
 {{if 'cudaGetExportTable' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGetExportTable(pExportTableId : cudaUUID_t):
+def cudaGetExportTable(pExportTableId : Optional[cudaUUID_t]):
     """"""
     cdef void_ptr ppExportTable = 0
     cdef ccudart.cudaUUID_t* cpExportTableId_ptr = pExportTableId._ptr if pExportTableId != None else NULL
@@ -26643,7 +26643,7 @@ def cudaEGLStreamProducerPresentFrame(conn, eglframe not None : cudaEglFrame, pS
 {{if True or 'cudaEGLStreamProducerReturnFrame' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaEGLStreamProducerReturnFrame(conn, eglframe : cudaEglFrame, pStream):
+def cudaEGLStreamProducerReturnFrame(conn, eglframe : Optional[cudaEglFrame], pStream):
     """ Return the CUDA eglFrame to the EGLStream last released by the consumer.
 
     This API can potentially return cudaErrorLaunchTimeout if the consumer
@@ -26803,6 +26803,38 @@ def cudaEventCreateFromEGLSync(eglSync, unsigned int flags):
     err = ccudart.cudaEventCreateFromEGLSync(<ccudart.cudaEvent_t*>phEvent._ptr, ceglSync, flags)
     return (cudaError_t(err), phEvent)
 {{endif}}
+
+
+@cython.embedsignature(True)
+def getLocalRuntimeVersion():
+    """ Returns the CUDA Runtime version of local shared library.
+
+    Returns in `*runtimeVersion` the version number of the current CUDA
+    Runtime instance. The version is returned as (1000 * major + 10 *
+    minor). For example, CUDA 9.2 would be represented by 9020.
+
+    As of CUDA 12.0, this function no longer initializes CUDA. The purpose
+    of this API is solely to return a compile-time constant stating the
+    CUDA Toolkit version in the above format.
+
+    This function automatically returns :py:obj:`~.cudaErrorInvalidValue`
+    if the `runtimeVersion` argument is NULL.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    runtimeVersion : int
+        Returns the CUDA Runtime version.
+
+    See Also
+    --------
+    :py:obj:`~.cudaDriverGetVersion`, :py:obj:`~.cuDriverGetVersion`
+    """
+    cdef int runtimeVersion = 0
+    err = ccudart.getLocalRuntimeVersion(&runtimeVersion)
+    return (cudaError_t(err), runtimeVersion)
+
 
 @cython.embedsignature(True)
 def sizeof(objType):
