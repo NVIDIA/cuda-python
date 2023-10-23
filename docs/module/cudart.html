@@ -172,6 +172,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../release/12.2.0-notes.html">    12.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.1.0-notes.html">    12.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.0.0-notes.html">    12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.3-notes.html">    11.8.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.8.2-notes.html">    11.8.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.8.1-notes.html">    11.8.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/11.8.0-notes.html">    11.8.0</a></li>
@@ -9138,6 +9139,33 @@ if <cite>driverVersion</cite> is NULL.</p>
 <dt class="sig sig-object py" id="cuda.cudart.cudaRuntimeGetVersion">
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaRuntimeGetVersion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaRuntimeGetVersion" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns the CUDA Runtime version.</p>
+<p>Returns in <cite>*runtimeVersion</cite> the version number of the current CUDA
+Runtime instance. The version is returned as (1000 * major + 10 *
+minor). For example, CUDA 9.2 would be represented by 9020.</p>
+<p>As of CUDA 12.0, this function no longer initializes CUDA. The purpose
+of this API is solely to return a compile-time constant stating the
+CUDA Toolkit version in the above format.</p>
+<p>This function automatically returns <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>
+if the <cite>runtimeVersion</cite> argument is NULL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
+<li><p><strong>runtimeVersion</strong> (<em>int</em>) – Returns the CUDA Runtime version.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.cudart.cudaDriverGetVersion" title="cuda.cudart.cudaDriverGetVersion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDriverGetVersion</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuDriverGetVersion" title="cuda.cuda.cuDriverGetVersion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuDriverGetVersion</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.cudart.getLocalRuntimeVersion">
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">getLocalRuntimeVersion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.getLocalRuntimeVersion" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the CUDA Runtime version of local shared library.</p>
 <p>Returns in <cite>*runtimeVersion</cite> the version number of the current CUDA
 Runtime instance. The version is returned as (1000 * major + 10 *
 minor). For example, CUDA 9.2 would be represented by 9020.</p>
@@ -23268,6 +23296,7 @@ cudaLaunchMemSyncDomain.</p>
 <li><a class="reference internal" href="#version-management">Version Management</a><ul>
 <li><a class="reference internal" href="#cuda.cudart.cudaDriverGetVersion"><code class="docutils literal notranslate"><span class="pre">cudaDriverGetVersion()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.cudart.cudaRuntimeGetVersion"><code class="docutils literal notranslate"><span class="pre">cudaRuntimeGetVersion()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.cudart.getLocalRuntimeVersion"><code class="docutils literal notranslate"><span class="pre">getLocalRuntimeVersion()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#graph-management">Graph Management</a><ul>

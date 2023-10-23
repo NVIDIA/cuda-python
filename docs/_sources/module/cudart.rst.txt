@@ -473,6 +473,7 @@ Version Management
 
 .. autofunction:: cuda.cudart.cudaDriverGetVersion
 .. autofunction:: cuda.cudart.cudaRuntimeGetVersion
+.. autofunction:: cuda.cudart.getLocalRuntimeVersion
 
 Graph Management
 ----------------
