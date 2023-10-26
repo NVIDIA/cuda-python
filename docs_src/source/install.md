@@ -1,15 +1,14 @@
 # Installation
 
-## Requirements
+## Runtime Requirements
 
 CUDA Python is supported on all platforms that CUDA is supported. Specific
 dependencies are as follows:
 
 * Driver: Linux (450.80.02 or later) Windows (456.38 or later)
 * CUDA Toolkit 12.0 to 12.3
-* Python 3.9 to 3.11
 
-```{note} Only the NVRTC redistributable component is required from the CUDA Toolkit. [CUDA Toolkit Documentation](https://docs.nvidia.com/cuda/index.html) Installation Guides can be used for guidance. Note that the NVRTC component in the Toolkit can be obtained via PiPy, Conda or Local Installer.
+```{note} Only the NVRTC redistributable component is required from the CUDA Toolkit. [CUDA Toolkit Documentation](https://docs.nvidia.com/cuda/index.html) Installation Guides can be used for guidance. Note that the NVRTC component in the Toolkit can be obtained via PYPI, Conda or Local Installer.
 ```
 
 ## Installing from PyPI
@@ -24,18 +23,28 @@ pip install cuda-python
 conda install -c nvidia cuda-python
 ```
 
+Conda packages are assigned a dependency to CUDA Toolkit:
+
+* cuda-cudart (Provides CUDA headers to enable writting NVRTC kernels with CUDA types)
+* cuda-nvrtc (Provides NVRTC shared library)
+
 ## Installing from Source
 
-### Requirements
+### Build Requirements
 
-Installing from source requires the latest CUDA Toolkit (CTK), matching the major.minor of CUDA Python. The installed package will still be compatible with all minor CTK versions.
+* CUDA Toolkit headers
+* Cython
+* pyclibrary
 
-Environment variable CUDA_HOME must be set to CTK root directory:
+Remaining build and test dependencies are outlined in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/requirements.txt)
+
+The version of CUDA Toolkit headers must match the major.minor of CUDA Python. Note that minor version compatibility will still be maintained.
+
+During the build process, environment variable `CUDA_HOME` or `CUDA_PATH` are used to find the location of CUDA headers. In particular, if your headers are located in path `/usr/local/cuda/include`, then you should set `CUDA_HOME` as follows:
+
 ```
 export CUDA_HOME=/usr/local/cuda
 ```
-
-Remaining build and test dependencies are outlined in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/requirements.txt)
 
 ### In-place
 

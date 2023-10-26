@@ -1,16 +1,25 @@
 # CUDA-Python
 
-## Building
+CUDA Python is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview](https://nvidia.github.io/cuda-python/overview.html) for the workflow and performance results.
 
-### Requirements
+## Installing
+
+CUDA Python can be installed from:
+
+* PYPI
+* Conda (nvidia channel)
+* Source builds
+
+There're differences in each of these options that are described further in [Installation](https://nvidia.github.io/cuda-python/install.html) documentation. Each package will guarantee minor version compatibility.
+
+## Runtime Dependencies
 
 CUDA Python is supported on all platforms that CUDA is supported. Specific dependencies are as follows:
 
 * Driver: Linux (450.80.02 or later) Windows (456.38 or later)
 * CUDA Toolkit 12.0 to 12.3
-* Python 3.9 to 3.11
 
-Only the NVRTC redistributable component is required from the CUDA Toolkit. [CUDA Toolkit Documentation](https://docs.nvidia.com/cuda/index.html) Installation Guides can be used for guidance. Note that the NVRTC component in the Toolkit can be obtained via PiPy, Conda or Local Installer.
+Only the NVRTC redistributable component is required from the CUDA Toolkit. [CUDA Toolkit Documentation](https://docs.nvidia.com/cuda/index.html) Installation Guides can be used for guidance. Note that the NVRTC component in the Toolkit can be obtained via PYPI, Conda or Local Installer.
 
 ### Supported Python Versions
 
@@ -18,9 +27,9 @@ CUDA Python follows [NEP 29](https://numpy.org/neps/nep-0029-deprecation_policy.
 
 Before dropping support, an issue will be raised to look for feedback.
 
-### Installing
+Source builds work for multiple Python versions, however pre-build PyPI and Conda packages are only provided for a subset:
 
-Refer to documentation for installation options and requirements: [Installation](https://nvidia.github.io/cuda-python/install.html)
+* Python 3.9 to 3.11
 
 ## Testing
 
