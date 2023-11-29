@@ -817,3 +817,33 @@ def test_graph_poly():
     assert(err == cuda.CUresult.CUDA_SUCCESS)
     err, = cuda.cuCtxDestroy(ctx)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+@pytest.mark.skipif(driverVersionLessThan(12030)
+                    or not supportsCudaAPI('cuGraphConditionalHandleCreate'), reason='Conditional graph APIs required')
+def test_conditional():
+    err, = cuda.cuInit(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, device = cuda.cuDeviceGet(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    err, graph = cuda.cuGraphCreate(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, handle = cuda.cuGraphConditionalHandleCreate(graph, ctx, 0, 0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    params = cuda.CUgraphNodeParams()
+    params.type = cuda.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
+    params.conditional.handle = handle
+    params.conditional.type = cuda.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_IF
+    params.conditional.size = 1
+    params.conditional.ctx = ctx
+
+    assert(len(params.conditional.phGraph_out) == 1)
+    assert(int(params.conditional.phGraph_out[0]) == 0)
+    err, node = cuda.cuGraphAddNode(graph, None, 0, params)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    assert(len(params.conditional.phGraph_out) == 1)
+    assert(int(params.conditional.phGraph_out[0]) != 0)

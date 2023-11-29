@@ -32,6 +32,9 @@ def supportsSparseTexturesDeviceFilter():
     err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrSparseCudaArraySupported, 0)
     return isSuccess(err) and isSupported
 
+def supportsCudaAPI(name):
+    return name in dir(cuda) or dir(cudart)
+
 def test_cudart_memcpy():
     # Allocate dev memory
     size = 1024 * np.uint8().itemsize
@@ -1275,3 +1278,26 @@ def cudart_func_stream_callback(use_host_api):
 def test_cudart_func_callback():
     cudart_func_stream_callback(use_host_api=False)
     cudart_func_stream_callback(use_host_api=True)
+
+
+@pytest.mark.skipif(driverVersionLessThan(12030)
+                    or not supportsCudaAPI('cudaGraphConditionalHandleCreate'), reason='Conditional graph APIs required')
+def test_cudart_conditional():
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+    err, handle = cudart.cudaGraphConditionalHandleCreate(graph, 0, 0)
+    assertSuccess(err)
+
+    params = cudart.cudaGraphNodeParams()
+    params.type = cudart.cudaGraphNodeType.cudaGraphNodeTypeConditional
+    params.conditional.handle = handle
+    params.conditional.type = cudart.cudaGraphConditionalNodeType.cudaGraphCondTypeIf
+    params.conditional.size = 1
+
+    assert(len(params.conditional.phGraph_out) == 1)
+    assert(int(params.conditional.phGraph_out[0]) == 0)
+    err, node = cudart.cudaGraphAddNode(graph, None, 0, params)
+    assertSuccess(err)
+
+    assert(len(params.conditional.phGraph_out) == 1)
+    assert(int(params.conditional.phGraph_out[0]) != 0)

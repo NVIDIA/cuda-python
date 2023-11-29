@@ -8441,8 +8441,7 @@ cdef class CUDA_CONDITIONAL_NODE_PARAMS:
         self._handle = CUgraphConditionalHandle(_ptr=<void_ptr>&self._ptr[0].handle)
         self._ctx = CUcontext(_ptr=<void_ptr>&self._ptr[0].ctx)
     def __dealloc__(self):
-        if self._phGraph_out is not NULL:
-            free(self._phGraph_out)
+        pass
     def getPtr(self):
         return <void_ptr>self._ptr
     def __repr__(self):
@@ -8501,25 +8500,8 @@ cdef class CUDA_CONDITIONAL_NODE_PARAMS:
         self._ptr[0].size = size
     @property
     def phGraph_out(self):
-        arrs = [<void_ptr>self._ptr[0].phGraph_out + x*sizeof(ccuda.CUgraph) for x in range(self._phGraph_out_length)]
+        arrs = [<void_ptr>self._ptr[0].phGraph_out + x*sizeof(ccuda.CUgraph) for x in range(self.size)]
         return [CUgraph(_ptr=arr) for arr in arrs]
-    @phGraph_out.setter
-    def phGraph_out(self, val):
-        if len(val) == 0:
-            free(self._phGraph_out)
-            self._phGraph_out_length = 0
-            self._ptr[0].phGraph_out = NULL
-        else:
-            if self._phGraph_out_length != <size_t>len(val):
-                free(self._phGraph_out)
-                self._phGraph_out = <ccuda.CUgraph*> calloc(len(val), sizeof(ccuda.CUgraph))
-                if self._phGraph_out is NULL:
-                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(ccuda.CUgraph)))
-                self._phGraph_out_length = <size_t>len(val)
-                self._ptr[0].phGraph_out = self._phGraph_out
-            for idx in range(len(val)):
-                self._phGraph_out[idx] = (<CUgraph>val[idx])._ptr[0]
-
     @property
     def ctx(self):
         return self._ctx

@@ -3410,6 +3410,15 @@ cdef cudaError_t toDriverGraphNodeParams(const cudaGraphNodeParams *rtParams, cc
     elif rtParams[0].type == cudaGraphNodeType.cudaGraphNodeTypeMemFree:
         driverParams[0].type = ccuda.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_MEM_FREE
         driverParams[0].free.dptr = <ccuda.CUdeviceptr>rtParams[0].free.dptr
+    elif rtParams[0].type == cudaGraphNodeType.cudaGraphNodeTypeConditional:
+        driverParams[0].type = ccuda.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_CONDITIONAL
+        # RT params mirror the driver params except the RT struct lacks the ctx at the end.
+        memcpy(&driverParams[0].conditional, &rtParams[0].conditional, sizeof(rtParams[0].conditional))
+        err = <cudaError_t>ccuda._cuCtxGetCurrent(&context)
+        if err != cudaSuccess:
+            _setLastError(err)
+            return err
+        driverParams[0].conditional.ctx = context
     else:
         return cudaErrorInvalidValue
     return cudaSuccess
@@ -3418,6 +3427,8 @@ cdef cudaError_t toDriverGraphNodeParams(const cudaGraphNodeParams *rtParams, cc
 cdef void toCudartGraphNodeOutParams(const ccuda.CUgraphNodeParams *driverParams, cudaGraphNodeParams *rtParams) nogil:
     if driverParams[0].type == ccuda.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_MEM_ALLOC:
         rtParams[0].alloc.dptr = <void *>driverParams[0].alloc.dptr
+    elif driverParams[0].type == ccuda.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_CONDITIONAL:
+        rtParams[0].conditional.phGraph_out = <cudaGraph_t *>driverParams[0].conditional.phGraph_out
 
 
 cdef cudaError_t toDriverKernelNodeParams(const cudaKernelNodeParams nodeParams[0], ccuda.CUDA_KERNEL_NODE_PARAMS *driverNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
