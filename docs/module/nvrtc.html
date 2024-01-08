@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="cudart" href="cudart.html" />
         <link rel="canonical" href="docs/module/nvrtc.html" />
 
-    <!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
+    <!-- Generated with Sphinx 5.0.2 and Furo 2023.03.27 -->
         <title>nvrtc - CUDA Python 12.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
@@ -169,6 +169,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.3.0-notes.html">    12.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.2.1-notes.html">    12.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.2.0-notes.html">    12.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.1.0-notes.html">    12.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.0.0-notes.html">    12.0.0</a></li>
@@ -1187,56 +1188,9 @@ expression.</p></li>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">nvrtc</a><ul>
-<li><a class="reference internal" href="#error-handling">Error Handling</a><ul>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult"><code class="docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_SUCCESS</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INVALID_INPUT</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INVALID_OPTION</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_COMPILATION</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetErrorString"><code class="docutils literal notranslate"><span class="pre">nvrtcGetErrorString()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#general-information-query">General Information Query</a><ul>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcVersion"><code class="docutils literal notranslate"><span class="pre">nvrtcVersion()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetNumSupportedArchs"><code class="docutils literal notranslate"><span class="pre">nvrtcGetNumSupportedArchs()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetSupportedArchs"><code class="docutils literal notranslate"><span class="pre">nvrtcGetSupportedArchs()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#compilation">Compilation</a><ul>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcProgram.getPtr"><code class="docutils literal notranslate"><span class="pre">nvrtcProgram.getPtr()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcCreateProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcCreateProgram()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcDestroyProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcDestroyProgram()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcCompileProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetPTXSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPTXSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetPTX"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPTX()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetCUBINSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetCUBINSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetCUBIN"><code class="docutils literal notranslate"><span class="pre">nvrtcGetCUBIN()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetNVVMSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetNVVMSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetNVVM"><code class="docutils literal notranslate"><span class="pre">nvrtcGetNVVM()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetLTOIRSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIRSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetLTOIR"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIR()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetOptiXIRSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetOptiXIRSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetOptiXIR"><code class="docutils literal notranslate"><span class="pre">nvrtcGetOptiXIR()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetProgramLogSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetProgramLogSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetProgramLog"><code class="docutils literal notranslate"><span class="pre">nvrtcGetProgramLog()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcAddNameExpression"><code class="docutils literal notranslate"><span class="pre">nvrtcAddNameExpression()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.nvrtc.nvrtcGetLoweredName"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLoweredName()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li><a class="reference internal" href="#general-information-query">General Information Query</a></li>
+<li><a class="reference internal" href="#compilation">Compilation</a></li>
 <li><a class="reference internal" href="#supported-compile-options">Supported Compile Options</a></li>
 </ul>
 </li>
@@ -1254,7 +1208,6 @@ expression.</p></li>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/scripts/furo.js"></script>
     </body>
 </html>
