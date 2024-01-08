@@ -2164,7 +2164,7 @@ cdef class cudaGraphNodeParams:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaGraphNodeParams __val
+    cdef ccudart.cudaGraphNodeParams* _val_ptr
     cdef ccudart.cudaGraphNodeParams* _ptr
     cdef cudaKernelNodeParamsV2 _kernel
     cdef cudaMemcpyNodeParams _memcpy

@@ -610,10 +610,12 @@ def test_device_get_name():
     expect = p.stdout.split(delimiter)
     size = 64
     _, got = cuda.cuDeviceGetName(size, device)
-    # Returned value is bytes, and we expect it to be of requested size
-    # assert len(got) == size
     got = got.split(b'\x00')[0]
-    assert got in expect
+    if any(b'Unable to determine the device handle for' in result for result in expect):
+        # Undeterministic devices get waived
+        pass
+    else:
+        assert got in expect
 
     err, = cuda.cuCtxDestroy(ctx)
     assert(err == cuda.CUresult.CUDA_SUCCESS)

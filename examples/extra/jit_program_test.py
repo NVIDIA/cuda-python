@@ -96,7 +96,7 @@ def main():
     NUM_THREADS = 128
     NUM_BLOCKS = 32
 
-    a = np.array([2.0], dtype=np.float32)
+    a = np.float32(2.0)
     n = np.array(NUM_THREADS * NUM_BLOCKS, dtype=np.uint32)
     bufferSize = n * a.itemsize
 

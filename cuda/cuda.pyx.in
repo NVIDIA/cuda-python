@@ -5,7 +5,7 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Optional
 from enum import IntEnum
 import cython
 import ctypes
@@ -17406,7 +17406,7 @@ def cuCtxCreate(unsigned int flags, dev):
 {{if 'cuCtxCreate_v3' in found_functions}}
 
 @cython.embedsignature(True)
-def cuCtxCreate_v3(paramsArray : List[CUexecAffinityParam], int numParams, unsigned int flags, dev):
+def cuCtxCreate_v3(paramsArray : Optional[List[CUexecAffinityParam]], int numParams, unsigned int flags, dev):
     """ Create a CUDA context with execution affinity.
 
     Creates a new CUDA context with execution affinity and associates it
@@ -18558,7 +18558,7 @@ def cuModuleLoadData(image):
 {{if 'cuModuleLoadDataEx' in found_functions}}
 
 @cython.embedsignature(True)
-def cuModuleLoadDataEx(image, unsigned int numOptions, options : List[CUjit_option], optionValues : List[Any]):
+def cuModuleLoadDataEx(image, unsigned int numOptions, options : Optional[List[CUjit_option]], optionValues : Optional[List[Any]]):
     """ Load a module's data with options.
 
     Takes a pointer `image` and loads the corresponding module `module`
@@ -18594,6 +18594,7 @@ def cuModuleLoadDataEx(image, unsigned int numOptions, options : List[CUjit_opti
     --------
     :py:obj:`~.cuModuleGetFunction`, :py:obj:`~.cuModuleGetGlobal`, :py:obj:`~.cuModuleGetTexRef`, :py:obj:`~.cuModuleLoad`, :py:obj:`~.cuModuleLoadData`, :py:obj:`~.cuModuleLoadFatBinary`, :py:obj:`~.cuModuleUnload`
     """
+    optionValues = [] if optionValues is None else optionValues
     options = [] if options is None else options
     if not all(isinstance(_x, (CUjit_option)) for _x in options):
         raise TypeError("Argument 'options' is not instance of type (expected List[ccuda.CUjit_option]")
@@ -18802,7 +18803,7 @@ def cuModuleGetGlobal(hmod, char* name):
 {{if 'cuLinkCreate_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuLinkCreate(unsigned int numOptions, options : List[CUjit_option], optionValues : List[Any]):
+def cuLinkCreate(unsigned int numOptions, options : Optional[List[CUjit_option]], optionValues : Optional[List[Any]]):
     """ Creates a pending JIT linker invocation.
 
     If the call is successful, the caller owns the returned CUlinkState,
@@ -18846,6 +18847,7 @@ def cuLinkCreate(unsigned int numOptions, options : List[CUjit_option], optionVa
     -----
     For LTO-IR input, only LTO-IR compiled with toolkits prior to CUDA 12.0 will be accepted
     """
+    optionValues = [] if optionValues is None else optionValues
     options = [] if options is None else options
     if not all(isinstance(_x, (CUjit_option)) for _x in options):
         raise TypeError("Argument 'options' is not instance of type (expected List[ccuda.CUjit_option]")
@@ -18865,7 +18867,7 @@ def cuLinkCreate(unsigned int numOptions, options : List[CUjit_option], optionVa
 {{if 'cuLinkAddData_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, char* name, unsigned int numOptions, options : List[CUjit_option], optionValues : List[Any]):
+def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, char* name, unsigned int numOptions, options : Optional[List[CUjit_option]], optionValues : Optional[List[Any]]):
     """ Add an input to a pending linker invocation.
 
     Ownership of `data` is retained by the caller. No reference is retained
@@ -18910,6 +18912,7 @@ def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, 
     -----
     For LTO-IR input, only LTO-IR compiled with toolkits prior to CUDA 12.0 will be accepted
     """
+    optionValues = [] if optionValues is None else optionValues
     options = [] if options is None else options
     if not all(isinstance(_x, (CUjit_option)) for _x in options):
         raise TypeError("Argument 'options' is not instance of type (expected List[ccuda.CUjit_option]")
@@ -18937,7 +18940,7 @@ def cuLinkAddData(state, typename not None : CUjitInputType, data, size_t size, 
 {{if 'cuLinkAddFile_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuLinkAddFile(state, typename not None : CUjitInputType, char* path, unsigned int numOptions, options : List[CUjit_option], optionValues : List[Any]):
+def cuLinkAddFile(state, typename not None : CUjitInputType, char* path, unsigned int numOptions, options : Optional[List[CUjit_option]], optionValues : Optional[List[Any]]):
     """ Add a file input to a pending linker invocation.
 
     No reference is retained to any inputs after this call returns.
@@ -18980,6 +18983,7 @@ def cuLinkAddFile(state, typename not None : CUjitInputType, char* path, unsigne
     -----
     For LTO-IR input, only LTO-IR compiled with toolkits prior to CUDA 12.0 will be accepted
     """
+    optionValues = [] if optionValues is None else optionValues
     options = [] if options is None else options
     if not all(isinstance(_x, (CUjit_option)) for _x in options):
         raise TypeError("Argument 'options' is not instance of type (expected List[ccuda.CUjit_option]")
@@ -19175,7 +19179,7 @@ def cuModuleGetSurfRef(hmod, char* name):
 {{if 'cuLibraryLoadData' in found_functions}}
 
 @cython.embedsignature(True)
-def cuLibraryLoadData(code, jitOptions : List[CUjit_option], jitOptionsValues : List[Any], unsigned int numJitOptions, libraryOptions : List[CUlibraryOption], libraryOptionValues : List[Any], unsigned int numLibraryOptions):
+def cuLibraryLoadData(code, jitOptions : Optional[List[CUjit_option]], jitOptionsValues : Optional[List[Any]], unsigned int numJitOptions, libraryOptions : Optional[List[CUlibraryOption]], libraryOptionValues : Optional[List[Any]], unsigned int numLibraryOptions):
     """ Load a library with specified code and options.
 
     Takes a pointer `code` and loads the corresponding library `library`
@@ -19227,9 +19231,11 @@ def cuLibraryLoadData(code, jitOptions : List[CUjit_option], jitOptionsValues : 
     --------
     :py:obj:`~.cuLibraryLoadFromFile`, :py:obj:`~.cuLibraryUnload`, :py:obj:`~.cuModuleLoad`, :py:obj:`~.cuModuleLoadData`, :py:obj:`~.cuModuleLoadDataEx`
     """
+    libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
     libraryOptions = [] if libraryOptions is None else libraryOptions
     if not all(isinstance(_x, (CUlibraryOption)) for _x in libraryOptions):
         raise TypeError("Argument 'libraryOptions' is not instance of type (expected List[ccuda.CUlibraryOption]")
+    jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
     jitOptions = [] if jitOptions is None else jitOptions
     if not all(isinstance(_x, (CUjit_option)) for _x in jitOptions):
         raise TypeError("Argument 'jitOptions' is not instance of type (expected List[ccuda.CUjit_option]")
@@ -19253,7 +19259,7 @@ def cuLibraryLoadData(code, jitOptions : List[CUjit_option], jitOptionsValues : 
 {{if 'cuLibraryLoadFromFile' in found_functions}}
 
 @cython.embedsignature(True)
-def cuLibraryLoadFromFile(char* fileName, jitOptions : List[CUjit_option], jitOptionsValues : List[Any], unsigned int numJitOptions, libraryOptions : List[CUlibraryOption], libraryOptionValues : List[Any], unsigned int numLibraryOptions):
+def cuLibraryLoadFromFile(char* fileName, jitOptions : Optional[List[CUjit_option]], jitOptionsValues : Optional[List[Any]], unsigned int numJitOptions, libraryOptions : Optional[List[CUlibraryOption]], libraryOptionValues : Optional[List[Any]], unsigned int numLibraryOptions):
     """ Load a library with specified file and options.
 
     Takes a filename `fileName` and loads the corresponding library
@@ -19303,9 +19309,11 @@ def cuLibraryLoadFromFile(char* fileName, jitOptions : List[CUjit_option], jitOp
     --------
     :py:obj:`~.cuLibraryLoadData`, :py:obj:`~.cuLibraryUnload`, :py:obj:`~.cuModuleLoad`, :py:obj:`~.cuModuleLoadData`, :py:obj:`~.cuModuleLoadDataEx`
     """
+    libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
     libraryOptions = [] if libraryOptions is None else libraryOptions
     if not all(isinstance(_x, (CUlibraryOption)) for _x in libraryOptions):
         raise TypeError("Argument 'libraryOptions' is not instance of type (expected List[ccuda.CUlibraryOption]")
+    jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
     jitOptions = [] if jitOptions is None else jitOptions
     if not all(isinstance(_x, (CUjit_option)) for _x in jitOptions):
         raise TypeError("Argument 'jitOptions' is not instance of type (expected List[ccuda.CUjit_option]")
@@ -21599,7 +21607,7 @@ def cuMemcpyAtoA(dstArray, size_t dstOffset, srcArray, size_t srcOffset, size_t 
 {{if 'cuMemcpy2D_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemcpy2D(pCopy : CUDA_MEMCPY2D):
+def cuMemcpy2D(pCopy : Optional[CUDA_MEMCPY2D]):
     """ Copies memory for 2D arrays.
 
     Perform a 2D memory copy according to the parameters specified in
@@ -21725,7 +21733,7 @@ def cuMemcpy2D(pCopy : CUDA_MEMCPY2D):
 {{if 'cuMemcpy2DUnaligned_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemcpy2DUnaligned(pCopy : CUDA_MEMCPY2D):
+def cuMemcpy2DUnaligned(pCopy : Optional[CUDA_MEMCPY2D]):
     """ Copies memory for 2D arrays.
 
     Perform a 2D memory copy according to the parameters specified in
@@ -21851,7 +21859,7 @@ def cuMemcpy2DUnaligned(pCopy : CUDA_MEMCPY2D):
 {{if 'cuMemcpy3D_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemcpy3D(pCopy : CUDA_MEMCPY3D):
+def cuMemcpy3D(pCopy : Optional[CUDA_MEMCPY3D]):
     """ Copies memory for 3D arrays.
 
     Perform a 3D memory copy according to the parameters specified in
@@ -21980,7 +21988,7 @@ def cuMemcpy3D(pCopy : CUDA_MEMCPY3D):
 {{if 'cuMemcpy3DPeer' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemcpy3DPeer(pCopy : CUDA_MEMCPY3D_PEER):
+def cuMemcpy3DPeer(pCopy : Optional[CUDA_MEMCPY3D_PEER]):
     """ Copies memory between contexts.
 
     Perform a 3D memory copy according to the parameters specified in
@@ -22441,7 +22449,7 @@ def cuMemcpyAtoHAsync(dstHost, srcArray, size_t srcOffset, size_t ByteCount, hSt
 {{if 'cuMemcpy2DAsync_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemcpy2DAsync(pCopy : CUDA_MEMCPY2D, hStream):
+def cuMemcpy2DAsync(pCopy : Optional[CUDA_MEMCPY2D], hStream):
     """ Copies memory for 2D arrays.
 
     Perform a 2D memory copy according to the parameters specified in
@@ -22585,7 +22593,7 @@ def cuMemcpy2DAsync(pCopy : CUDA_MEMCPY2D, hStream):
 {{if 'cuMemcpy3DAsync_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemcpy3DAsync(pCopy : CUDA_MEMCPY3D, hStream):
+def cuMemcpy3DAsync(pCopy : Optional[CUDA_MEMCPY3D], hStream):
     """ Copies memory for 3D arrays.
 
     Perform a 3D memory copy according to the parameters specified in
@@ -22725,7 +22733,7 @@ def cuMemcpy3DAsync(pCopy : CUDA_MEMCPY3D, hStream):
 {{if 'cuMemcpy3DPeerAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemcpy3DPeerAsync(pCopy : CUDA_MEMCPY3D_PEER, hStream):
+def cuMemcpy3DPeerAsync(pCopy : Optional[CUDA_MEMCPY3D_PEER], hStream):
     """ Copies memory between contexts asynchronously.
 
     Perform a 3D memory copy according to the parameters specified in
@@ -23355,7 +23363,7 @@ def cuMemsetD2D32Async(dstDevice, size_t dstPitch, unsigned int ui, size_t Width
 {{if 'cuArrayCreate_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuArrayCreate(pAllocateArray : CUDA_ARRAY_DESCRIPTOR):
+def cuArrayCreate(pAllocateArray : Optional[CUDA_ARRAY_DESCRIPTOR]):
     """ Creates a 1D or 2D CUDA array.
 
     Creates a CUDA array according to the :py:obj:`~.CUDA_ARRAY_DESCRIPTOR`
@@ -23778,7 +23786,7 @@ def cuArrayDestroy(hArray):
 {{if 'cuArray3DCreate_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuArray3DCreate(pAllocateArray : CUDA_ARRAY3D_DESCRIPTOR):
+def cuArray3DCreate(pAllocateArray : Optional[CUDA_ARRAY3D_DESCRIPTOR]):
     """ Creates a 3D CUDA array.
 
     Creates a CUDA array according to the
@@ -23955,7 +23963,7 @@ def cuArray3DGetDescriptor(hArray):
 {{if 'cuMipmappedArrayCreate' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMipmappedArrayCreate(pMipmappedArrayDesc : CUDA_ARRAY3D_DESCRIPTOR, unsigned int numMipmapLevels):
+def cuMipmappedArrayCreate(pMipmappedArrayDesc : Optional[CUDA_ARRAY3D_DESCRIPTOR], unsigned int numMipmapLevels):
     """ Creates a CUDA mipmapped array.
 
     Creates a CUDA mipmapped array according to the
@@ -24306,7 +24314,7 @@ def cuMemAddressFree(ptr, size_t size):
 {{if 'cuMemCreate' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemCreate(size_t size, prop : CUmemAllocationProp, unsigned long long flags):
+def cuMemCreate(size_t size, prop : Optional[CUmemAllocationProp], unsigned long long flags):
     """ Create a CUDA memory handle representing a memory allocation of a given size described by the given properties.
 
     This creates a memory allocation on the target device specified through
@@ -24486,7 +24494,7 @@ def cuMemMap(ptr, size_t size, size_t offset, handle, unsigned long long flags):
 {{if 'cuMemMapArrayAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemMapArrayAsync(mapInfoList : List[CUarrayMapInfo], unsigned int count, hStream):
+def cuMemMapArrayAsync(mapInfoList : Optional[List[CUarrayMapInfo]], unsigned int count, hStream):
     """ Maps or unmaps subregions of sparse CUDA arrays and sparse CUDA mipmapped arrays.
 
     Performs map or unmap operations on subregions of sparse CUDA arrays
@@ -24706,7 +24714,7 @@ def cuMemUnmap(ptr, size_t size):
 {{if 'cuMemSetAccess' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemSetAccess(ptr, size_t size, desc : List[CUmemAccessDesc], size_t count):
+def cuMemSetAccess(ptr, size_t size, desc : Optional[List[CUmemAccessDesc]], size_t count):
     """ Set the access flags for each location specified in `desc` for the given virtual address range.
 
     Given the virtual address range via `ptr` and `size`, and the locations
@@ -24777,7 +24785,7 @@ def cuMemSetAccess(ptr, size_t size, desc : List[CUmemAccessDesc], size_t count)
 {{if 'cuMemGetAccess' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemGetAccess(location : CUmemLocation, ptr):
+def cuMemGetAccess(location : Optional[CUmemLocation], ptr):
     """ Get the access `flags` set for the given `location` and `ptr`.
 
     Parameters
@@ -24915,7 +24923,7 @@ def cuMemImportFromShareableHandle(osHandle, shHandleType not None : CUmemAlloca
 {{if 'cuMemGetAllocationGranularity' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemGetAllocationGranularity(prop : CUmemAllocationProp, option not None : CUmemAllocationGranularity_flags):
+def cuMemGetAllocationGranularity(prop : Optional[CUmemAllocationProp], option not None : CUmemAllocationGranularity_flags):
     """ Calculates either the minimal or recommended granularity.
 
     Calculates either the minimal or recommended granularity for a given
@@ -25334,7 +25342,7 @@ def cuMemPoolGetAttribute(pool, attr not None : CUmemPool_attribute):
 {{if 'cuMemPoolSetAccess' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemPoolSetAccess(pool, map : List[CUmemAccessDesc], size_t count):
+def cuMemPoolSetAccess(pool, map : Optional[List[CUmemAccessDesc]], size_t count):
     """ Controls visibility of pools between devices.
 
     Parameters
@@ -25385,7 +25393,7 @@ def cuMemPoolSetAccess(pool, map : List[CUmemAccessDesc], size_t count):
 {{if 'cuMemPoolGetAccess' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemPoolGetAccess(memPool, location : CUmemLocation):
+def cuMemPoolGetAccess(memPool, location : Optional[CUmemLocation]):
     """ Returns the accessibility of a pool from a device.
 
     Returns the accessibility of the pool's memory from the specified
@@ -25427,7 +25435,7 @@ def cuMemPoolGetAccess(memPool, location : CUmemLocation):
 {{if 'cuMemPoolCreate' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemPoolCreate(poolProps : CUmemPoolProps):
+def cuMemPoolCreate(poolProps : Optional[CUmemPoolProps]):
     """ Creates a memory pool.
 
     Creates a CUDA memory pool and returns the handle in `pool`. The
@@ -25716,7 +25724,7 @@ def cuMemPoolExportPointer(ptr):
 {{if 'cuMemPoolImportPointer' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemPoolImportPointer(pool, shareData : CUmemPoolPtrExportData):
+def cuMemPoolImportPointer(pool, shareData : Optional[CUmemPoolPtrExportData]):
     """ Import a memory pool allocation from another process.
 
     Returns in `ptr_out` a pointer to the imported memory. The imported
@@ -25767,7 +25775,7 @@ def cuMemPoolImportPointer(pool, shareData : CUmemPoolPtrExportData):
 {{if 'cuMulticastCreate' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMulticastCreate(prop : CUmulticastObjectProp):
+def cuMulticastCreate(prop : Optional[CUmulticastObjectProp]):
     """ Create a generic allocation handle representing a multicast object described by the given properties.
 
     This creates a multicast object as described by `prop`. The number of
@@ -26090,7 +26098,7 @@ def cuMulticastUnbind(mcHandle, dev, size_t mcOffset, size_t size):
 {{if 'cuMulticastGetGranularity' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMulticastGetGranularity(prop : CUmulticastObjectProp, option not None : CUmulticastGranularity_flags):
+def cuMulticastGetGranularity(prop : Optional[CUmulticastObjectProp], option not None : CUmulticastGranularity_flags):
     """ Calculates either the minimal or recommended granularity for multicast object.
 
     Calculates either the minimal or recommended granularity for a given
@@ -27119,7 +27127,7 @@ def cuMemRangeGetAttribute(size_t dataSize, attribute not None : CUmem_range_att
 {{if 'cuMemRangeGetAttributes' in found_functions}}
 
 @cython.embedsignature(True)
-def cuMemRangeGetAttributes(dataSizes : List[int], attributes : List[CUmem_range_attribute], size_t numAttributes, devPtr, size_t count):
+def cuMemRangeGetAttributes(dataSizes : List[int], attributes : Optional[List[CUmem_range_attribute]], size_t numAttributes, devPtr, size_t count):
     """ Query attributes of a given memory range.
 
     Query attributes of the memory range starting at `devPtr` with a size
@@ -27260,7 +27268,7 @@ def cuPointerSetAttribute(value, attribute not None : CUpointer_attribute, ptr):
 {{if 'cuPointerGetAttributes' in found_functions}}
 
 @cython.embedsignature(True)
-def cuPointerGetAttributes(unsigned int numAttributes, attributes : List[CUpointer_attribute], ptr):
+def cuPointerGetAttributes(unsigned int numAttributes, attributes : Optional[List[CUpointer_attribute]], ptr):
     """ Returns information about a pointer.
 
     The supported attributes are (refer to
@@ -28111,7 +28119,7 @@ def cuStreamGetCaptureInfo(hStream):
 {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
 
 @cython.embedsignature(True)
-def cuStreamUpdateCaptureDependencies(hStream, dependencies : List[CUgraphNode], size_t numDependencies, unsigned int flags):
+def cuStreamUpdateCaptureDependencies(hStream, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, unsigned int flags):
     """ Update the set of dependencies in a capturing stream (11.3+)
 
     Modifies the dependency set of a capturing stream. The dependency set
@@ -28510,7 +28518,7 @@ def cuStreamGetAttribute(hStream, attr not None : CUstreamAttrID):
 {{if 'cuStreamSetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
-def cuStreamSetAttribute(hStream, attr not None : CUstreamAttrID, value : CUstreamAttrValue):
+def cuStreamSetAttribute(hStream, attr not None : CUstreamAttrID, value : Optional[CUstreamAttrValue]):
     """ Sets stream attribute.
 
     Sets attribute `attr` on `hStream` from corresponding attribute of
@@ -28929,7 +28937,7 @@ def cuEventElapsedTime(hStart, hEnd):
 {{if 'cuImportExternalMemory' in found_functions}}
 
 @cython.embedsignature(True)
-def cuImportExternalMemory(memHandleDesc : CUDA_EXTERNAL_MEMORY_HANDLE_DESC):
+def cuImportExternalMemory(memHandleDesc : Optional[CUDA_EXTERNAL_MEMORY_HANDLE_DESC]):
     """ Imports an external memory object.
 
     Imports an externally allocated memory object and returns a handle to
@@ -29082,7 +29090,7 @@ def cuImportExternalMemory(memHandleDesc : CUDA_EXTERNAL_MEMORY_HANDLE_DESC):
 {{if 'cuExternalMemoryGetMappedBuffer' in found_functions}}
 
 @cython.embedsignature(True)
-def cuExternalMemoryGetMappedBuffer(extMem, bufferDesc : CUDA_EXTERNAL_MEMORY_BUFFER_DESC):
+def cuExternalMemoryGetMappedBuffer(extMem, bufferDesc : Optional[CUDA_EXTERNAL_MEMORY_BUFFER_DESC]):
     """ Maps a buffer onto an imported memory object.
 
     Maps a buffer onto an imported memory object and returns a device
@@ -29150,7 +29158,7 @@ def cuExternalMemoryGetMappedBuffer(extMem, bufferDesc : CUDA_EXTERNAL_MEMORY_BU
 {{if 'cuExternalMemoryGetMappedMipmappedArray' in found_functions}}
 
 @cython.embedsignature(True)
-def cuExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC):
+def cuExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : Optional[CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC]):
     """ Maps a CUDA mipmapped array onto an external memory object.
 
     Maps a CUDA mipmapped array onto an external object and returns a
@@ -29259,7 +29267,7 @@ def cuDestroyExternalMemory(extMem):
 {{if 'cuImportExternalSemaphore' in found_functions}}
 
 @cython.embedsignature(True)
-def cuImportExternalSemaphore(semHandleDesc : CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC):
+def cuImportExternalSemaphore(semHandleDesc : Optional[CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC]):
     """ Imports an external semaphore.
 
     Imports an externally allocated synchronization object and returns a
@@ -29407,7 +29415,7 @@ def cuImportExternalSemaphore(semHandleDesc : CUDA_EXTERNAL_SEMAPHORE_HANDLE_DES
 {{if 'cuSignalExternalSemaphoresAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cuSignalExternalSemaphoresAsync(extSemArray : List[CUexternalSemaphore], paramsArray : List[CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS], unsigned int numExtSems, stream):
+def cuSignalExternalSemaphoresAsync(extSemArray : Optional[List[CUexternalSemaphore]], paramsArray : Optional[List[CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS]], unsigned int numExtSems, stream):
     """ Signals a set of external semaphore objects.
 
     Enqueues a signal operation on a set of externally allocated semaphore
@@ -29542,7 +29550,7 @@ def cuSignalExternalSemaphoresAsync(extSemArray : List[CUexternalSemaphore], par
 {{if 'cuWaitExternalSemaphoresAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cuWaitExternalSemaphoresAsync(extSemArray : List[CUexternalSemaphore], paramsArray : List[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS], unsigned int numExtSems, stream):
+def cuWaitExternalSemaphoresAsync(extSemArray : Optional[List[CUexternalSemaphore]], paramsArray : Optional[List[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS]], unsigned int numExtSems, stream):
     """ Waits on a set of external semaphore objects.
 
     Enqueues a wait operation on a set of externally allocated semaphore
@@ -29985,7 +29993,7 @@ def cuStreamWriteValue64(stream, addr, value, unsigned int flags):
 {{if 'cuStreamBatchMemOp_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuStreamBatchMemOp(stream, unsigned int count, paramArray : List[CUstreamBatchMemOpParams], unsigned int flags):
+def cuStreamBatchMemOp(stream, unsigned int count, paramArray : Optional[List[CUstreamBatchMemOpParams]], unsigned int flags):
     """ Batch operations to synchronize the stream via memory operations.
 
     This is a batch version of :py:obj:`~.cuStreamWaitValue32()` and
@@ -30576,7 +30584,7 @@ def cuLaunchKernel(f, unsigned int gridDimX, unsigned int gridDimY, unsigned int
 {{if 'cuLaunchKernelEx' in found_functions}}
 
 @cython.embedsignature(True)
-def cuLaunchKernelEx(config : CUlaunchConfig, f, kernelParams, void_ptr extra):
+def cuLaunchKernelEx(config : Optional[CUlaunchConfig], f, kernelParams, void_ptr extra):
     """ Launches a CUDA function :py:obj:`~.CUfunction` or a CUDA kernel :py:obj:`~.CUkernel` with launch-time configuration.
 
     Invokes the function :py:obj:`~.CUfunction` or the kernel
@@ -30865,7 +30873,7 @@ def cuLaunchCooperativeKernel(f, unsigned int gridDimX, unsigned int gridDimY, u
 {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
 
 @cython.embedsignature(True)
-def cuLaunchCooperativeKernelMultiDevice(launchParamsList : List[CUDA_LAUNCH_PARAMS], unsigned int numDevices, unsigned int flags):
+def cuLaunchCooperativeKernelMultiDevice(launchParamsList : Optional[List[CUDA_LAUNCH_PARAMS]], unsigned int numDevices, unsigned int flags):
     """ Launches CUDA functions on multiple devices where thread blocks can cooperate and synchronize as they execute.
 
     [Deprecated]
@@ -31638,7 +31646,7 @@ def cuGraphCreate(unsigned int flags):
 {{if 'cuGraphAddKernelNode_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddKernelNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_KERNEL_NODE_PARAMS):
+def cuGraphAddKernelNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, nodeParams : Optional[CUDA_KERNEL_NODE_PARAMS]):
     """ Creates a kernel execution node and adds it to a graph.
 
     Creates a new kernel execution node and adds it to `hGraph` with
@@ -31805,7 +31813,7 @@ def cuGraphKernelNodeGetParams(hNode):
 {{if 'cuGraphKernelNodeSetParams_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphKernelNodeSetParams(hNode, nodeParams : CUDA_KERNEL_NODE_PARAMS):
+def cuGraphKernelNodeSetParams(hNode, nodeParams : Optional[CUDA_KERNEL_NODE_PARAMS]):
     """ Sets a kernel node's parameters.
 
     Sets the parameters of kernel node `hNode` to `nodeParams`.
@@ -31843,7 +31851,7 @@ def cuGraphKernelNodeSetParams(hNode, nodeParams : CUDA_KERNEL_NODE_PARAMS):
 {{if 'cuGraphAddMemcpyNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddMemcpyNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, copyParams : CUDA_MEMCPY3D, ctx):
+def cuGraphAddMemcpyNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, copyParams : Optional[CUDA_MEMCPY3D], ctx):
     """ Creates a memcpy node and adds it to a graph.
 
     Creates a new memcpy node and adds it to `hGraph` with
@@ -31969,7 +31977,7 @@ def cuGraphMemcpyNodeGetParams(hNode):
 {{if 'cuGraphMemcpyNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphMemcpyNodeSetParams(hNode, nodeParams : CUDA_MEMCPY3D):
+def cuGraphMemcpyNodeSetParams(hNode, nodeParams : Optional[CUDA_MEMCPY3D]):
     """ Sets a memcpy node's parameters.
 
     Sets the parameters of memcpy node `hNode` to `nodeParams`.
@@ -32007,7 +32015,7 @@ def cuGraphMemcpyNodeSetParams(hNode, nodeParams : CUDA_MEMCPY3D):
 {{if 'cuGraphAddMemsetNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddMemsetNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, memsetParams : CUDA_MEMSET_NODE_PARAMS, ctx):
+def cuGraphAddMemsetNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, memsetParams : Optional[CUDA_MEMSET_NODE_PARAMS], ctx):
     """ Creates a memset node and adds it to a graph.
 
     Creates a new memset node and adds it to `hGraph` with
@@ -32123,7 +32131,7 @@ def cuGraphMemsetNodeGetParams(hNode):
 {{if 'cuGraphMemsetNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphMemsetNodeSetParams(hNode, nodeParams : CUDA_MEMSET_NODE_PARAMS):
+def cuGraphMemsetNodeSetParams(hNode, nodeParams : Optional[CUDA_MEMSET_NODE_PARAMS]):
     """ Sets a memset node's parameters.
 
     Sets the parameters of memset node `hNode` to `nodeParams`.
@@ -32161,7 +32169,7 @@ def cuGraphMemsetNodeSetParams(hNode, nodeParams : CUDA_MEMSET_NODE_PARAMS):
 {{if 'cuGraphAddHostNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddHostNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_HOST_NODE_PARAMS):
+def cuGraphAddHostNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, nodeParams : Optional[CUDA_HOST_NODE_PARAMS]):
     """ Creates a host execution node and adds it to a graph.
 
     Creates a new CPU execution node and adds it to `hGraph` with
@@ -32266,7 +32274,7 @@ def cuGraphHostNodeGetParams(hNode):
 {{if 'cuGraphHostNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphHostNodeSetParams(hNode, nodeParams : CUDA_HOST_NODE_PARAMS):
+def cuGraphHostNodeSetParams(hNode, nodeParams : Optional[CUDA_HOST_NODE_PARAMS]):
     """ Sets a host node's parameters.
 
     Sets the parameters of host node `hNode` to `nodeParams`.
@@ -32304,7 +32312,7 @@ def cuGraphHostNodeSetParams(hNode, nodeParams : CUDA_HOST_NODE_PARAMS):
 {{if 'cuGraphAddChildGraphNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddChildGraphNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, childGraph):
+def cuGraphAddChildGraphNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, childGraph):
     """ Creates a child graph node and adds it to a graph.
 
     Creates a new node which executes an embedded graph, and adds it to
@@ -32425,7 +32433,7 @@ def cuGraphChildGraphNodeGetGraph(hNode):
 {{if 'cuGraphAddEmptyNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddEmptyNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies):
+def cuGraphAddEmptyNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies):
     """ Creates an empty node and adds it to a graph.
 
     Creates a new node which performs no operation, and adds it to `hGraph`
@@ -32492,7 +32500,7 @@ def cuGraphAddEmptyNode(hGraph, dependencies : List[CUgraphNode], size_t numDepe
 {{if 'cuGraphAddEventRecordNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddEventRecordNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, event):
+def cuGraphAddEventRecordNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, event):
     """ Creates an event record node and adds it to a graph.
 
     Creates a new event record node and adds it to `hGraph` with
@@ -32651,7 +32659,7 @@ def cuGraphEventRecordNodeSetEvent(hNode, event):
 {{if 'cuGraphAddEventWaitNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddEventWaitNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, event):
+def cuGraphAddEventWaitNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, event):
     """ Creates an event wait node and adds it to a graph.
 
     Creates a new event wait node and adds it to `hGraph` with
@@ -32812,7 +32820,7 @@ def cuGraphEventWaitNodeSetEvent(hNode, event):
 {{if 'cuGraphAddExternalSemaphoresSignalNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddExternalSemaphoresSignalNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_EXT_SEM_SIGNAL_NODE_PARAMS):
+def cuGraphAddExternalSemaphoresSignalNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, nodeParams : Optional[CUDA_EXT_SEM_SIGNAL_NODE_PARAMS]):
     """ Creates an external semaphore signal node and adds it to a graph.
 
     Creates a new external semaphore signal node and adds it to `hGraph`
@@ -32924,7 +32932,7 @@ def cuGraphExternalSemaphoresSignalNodeGetParams(hNode):
 {{if 'cuGraphExternalSemaphoresSignalNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : CUDA_EXT_SEM_SIGNAL_NODE_PARAMS):
+def cuGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[CUDA_EXT_SEM_SIGNAL_NODE_PARAMS]):
     """ Sets an external semaphore signal node's parameters.
 
     Sets the parameters of an external semaphore signal node `hNode` to
@@ -32963,7 +32971,7 @@ def cuGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : CUDA_EXT_SE
 {{if 'cuGraphAddExternalSemaphoresWaitNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddExternalSemaphoresWaitNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_EXT_SEM_WAIT_NODE_PARAMS):
+def cuGraphAddExternalSemaphoresWaitNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, nodeParams : Optional[CUDA_EXT_SEM_WAIT_NODE_PARAMS]):
     """ Creates an external semaphore wait node and adds it to a graph.
 
     Creates a new external semaphore wait node and adds it to `hGraph` with
@@ -33075,7 +33083,7 @@ def cuGraphExternalSemaphoresWaitNodeGetParams(hNode):
 {{if 'cuGraphExternalSemaphoresWaitNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : CUDA_EXT_SEM_WAIT_NODE_PARAMS):
+def cuGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[CUDA_EXT_SEM_WAIT_NODE_PARAMS]):
     """ Sets an external semaphore wait node's parameters.
 
     Sets the parameters of an external semaphore wait node `hNode` to
@@ -33114,7 +33122,7 @@ def cuGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : CUDA_EXT_SEM_
 {{if 'cuGraphAddBatchMemOpNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddBatchMemOpNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_BATCH_MEM_OP_NODE_PARAMS):
+def cuGraphAddBatchMemOpNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, nodeParams : Optional[CUDA_BATCH_MEM_OP_NODE_PARAMS]):
     """ Creates a batch memory operation node and adds it to a graph.
 
     Creates a new batch memory operation node and adds it to `hGraph` with
@@ -33228,7 +33236,7 @@ def cuGraphBatchMemOpNodeGetParams(hNode):
 {{if 'cuGraphBatchMemOpNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphBatchMemOpNodeSetParams(hNode, nodeParams : CUDA_BATCH_MEM_OP_NODE_PARAMS):
+def cuGraphBatchMemOpNodeSetParams(hNode, nodeParams : Optional[CUDA_BATCH_MEM_OP_NODE_PARAMS]):
     """ Sets a batch mem op node's parameters.
 
     Sets the parameters of batch mem op node `hNode` to `nodeParams`.
@@ -33269,7 +33277,7 @@ def cuGraphBatchMemOpNodeSetParams(hNode, nodeParams : CUDA_BATCH_MEM_OP_NODE_PA
 {{if 'cuGraphExecBatchMemOpNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphExecBatchMemOpNodeSetParams(hGraphExec, hNode, nodeParams : CUDA_BATCH_MEM_OP_NODE_PARAMS):
+def cuGraphExecBatchMemOpNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUDA_BATCH_MEM_OP_NODE_PARAMS]):
     """ Sets the parameters for a batch mem op node in the given graphExec.
 
     Sets the parameters of a batch mem op node in an executable graph
@@ -33341,7 +33349,7 @@ def cuGraphExecBatchMemOpNodeSetParams(hGraphExec, hNode, nodeParams : CUDA_BATC
 {{if 'cuGraphAddMemAllocNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddMemAllocNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUDA_MEM_ALLOC_NODE_PARAMS):
+def cuGraphAddMemAllocNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, nodeParams : Optional[CUDA_MEM_ALLOC_NODE_PARAMS]):
     """ Creates an allocation node and adds it to a graph.
 
     Creates a new allocation node and adds it to `hGraph` with
@@ -33489,7 +33497,7 @@ def cuGraphMemAllocNodeGetParams(hNode):
 {{if 'cuGraphAddMemFreeNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddMemFreeNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, dptr):
+def cuGraphAddMemFreeNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, dptr):
     """ Creates a memory free node and adds it to a graph.
 
     Creates a new memory free node and adds it to `hGraph` with
@@ -34202,7 +34210,7 @@ def cuGraphNodeGetDependentNodes(hNode, size_t numDependentNodes = 0):
 {{if 'cuGraphAddDependencies' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddDependencies(hGraph, from_ : List[CUgraphNode], to : List[CUgraphNode], size_t numDependencies):
+def cuGraphAddDependencies(hGraph, from_ : Optional[List[CUgraphNode]], to : Optional[List[CUgraphNode]], size_t numDependencies):
     """ Adds dependency edges to a graph.
 
     The number of dependencies to be added is defined by `numDependencies`
@@ -34274,7 +34282,7 @@ def cuGraphAddDependencies(hGraph, from_ : List[CUgraphNode], to : List[CUgraphN
 {{if 'cuGraphRemoveDependencies' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphRemoveDependencies(hGraph, from_ : List[CUgraphNode], to : List[CUgraphNode], size_t numDependencies):
+def cuGraphRemoveDependencies(hGraph, from_ : Optional[List[CUgraphNode]], to : Optional[List[CUgraphNode]], size_t numDependencies):
     """ Removes dependency edges from a graph.
 
     The number of `dependencies` to be removed is defined by
@@ -34488,7 +34496,7 @@ def cuGraphInstantiate(hGraph, unsigned long long flags):
 {{if 'cuGraphInstantiateWithParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphInstantiateWithParams(hGraph, instantiateParams : CUDA_GRAPH_INSTANTIATE_PARAMS):
+def cuGraphInstantiateWithParams(hGraph, instantiateParams : Optional[CUDA_GRAPH_INSTANTIATE_PARAMS]):
     """ Creates an executable graph from a graph.
 
     Instantiates `hGraph` as an executable graph according to the
@@ -34669,7 +34677,7 @@ def cuGraphExecGetFlags(hGraphExec):
 {{if 'cuGraphExecKernelNodeSetParams_v2' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphExecKernelNodeSetParams(hGraphExec, hNode, nodeParams : CUDA_KERNEL_NODE_PARAMS):
+def cuGraphExecKernelNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUDA_KERNEL_NODE_PARAMS]):
     """ Sets the parameters for a kernel node in the given graphExec.
 
     Sets the parameters of a kernel node in an executable graph
@@ -34741,7 +34749,7 @@ def cuGraphExecKernelNodeSetParams(hGraphExec, hNode, nodeParams : CUDA_KERNEL_N
 {{if 'cuGraphExecMemcpyNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphExecMemcpyNodeSetParams(hGraphExec, hNode, copyParams : CUDA_MEMCPY3D, ctx):
+def cuGraphExecMemcpyNodeSetParams(hGraphExec, hNode, copyParams : Optional[CUDA_MEMCPY3D], ctx):
     """ Sets the parameters for a memcpy node in the given graphExec.
 
     Updates the work represented by `hNode` in `hGraphExec` as though
@@ -34818,7 +34826,7 @@ def cuGraphExecMemcpyNodeSetParams(hGraphExec, hNode, copyParams : CUDA_MEMCPY3D
 {{if 'cuGraphExecMemsetNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphExecMemsetNodeSetParams(hGraphExec, hNode, memsetParams : CUDA_MEMSET_NODE_PARAMS, ctx):
+def cuGraphExecMemsetNodeSetParams(hGraphExec, hNode, memsetParams : Optional[CUDA_MEMSET_NODE_PARAMS], ctx):
     """ Sets the parameters for a memset node in the given graphExec.
 
     Updates the work represented by `hNode` in `hGraphExec` as though
@@ -34895,7 +34903,7 @@ def cuGraphExecMemsetNodeSetParams(hGraphExec, hNode, memsetParams : CUDA_MEMSET
 {{if 'cuGraphExecHostNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphExecHostNodeSetParams(hGraphExec, hNode, nodeParams : CUDA_HOST_NODE_PARAMS):
+def cuGraphExecHostNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUDA_HOST_NODE_PARAMS]):
     """ Sets the parameters for a host node in the given graphExec.
 
     Updates the work represented by `hNode` in `hGraphExec` as though
@@ -35153,7 +35161,7 @@ def cuGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
 {{if 'cuGraphExecExternalSemaphoresSignalNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodeParams : CUDA_EXT_SEM_SIGNAL_NODE_PARAMS):
+def cuGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUDA_EXT_SEM_SIGNAL_NODE_PARAMS]):
     """ Sets the parameters for an external semaphore signal node in the given graphExec.
 
     Sets the parameters of an external semaphore signal node in an
@@ -35214,7 +35222,7 @@ def cuGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePara
 {{if 'cuGraphExecExternalSemaphoresWaitNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams : CUDA_EXT_SEM_WAIT_NODE_PARAMS):
+def cuGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUDA_EXT_SEM_WAIT_NODE_PARAMS]):
     """ Sets the parameters for an external semaphore wait node in the given graphExec.
 
     Sets the parameters of an external semaphore wait node in an executable
@@ -35822,7 +35830,7 @@ def cuGraphKernelNodeGetAttribute(hNode, attr not None : CUkernelNodeAttrID):
 {{if 'cuGraphKernelNodeSetAttribute' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphKernelNodeSetAttribute(hNode, attr not None : CUkernelNodeAttrID, value : CUkernelNodeAttrValue):
+def cuGraphKernelNodeSetAttribute(hNode, attr not None : CUkernelNodeAttrID, value : Optional[CUkernelNodeAttrValue]):
     """ Sets node attribute.
 
     Sets attribute `attr` on node `hNode` from corresponding attribute of
@@ -36160,7 +36168,7 @@ def cuGraphReleaseUserObject(graph, object, unsigned int count):
 {{if 'cuGraphAddNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphAddNode(hGraph, dependencies : List[CUgraphNode], size_t numDependencies, nodeParams : CUgraphNodeParams):
+def cuGraphAddNode(hGraph, dependencies : Optional[List[CUgraphNode]], size_t numDependencies, nodeParams : Optional[CUgraphNodeParams]):
     """ Adds a node of arbitrary type to a graph.
 
     Creates a new node in `hGraph` described by `nodeParams` with
@@ -36236,7 +36244,7 @@ def cuGraphAddNode(hGraph, dependencies : List[CUgraphNode], size_t numDependenc
 {{if 'cuGraphNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphNodeSetParams(hNode, nodeParams : CUgraphNodeParams):
+def cuGraphNodeSetParams(hNode, nodeParams : Optional[CUgraphNodeParams]):
     """ Update's a graph node's parameters.
 
     Sets the parameters of graph node `hNode` to `nodeParams`. The node
@@ -36280,7 +36288,7 @@ def cuGraphNodeSetParams(hNode, nodeParams : CUgraphNodeParams):
 {{if 'cuGraphExecNodeSetParams' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGraphExecNodeSetParams(hGraphExec, hNode, nodeParams : CUgraphNodeParams):
+def cuGraphExecNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUgraphNodeParams]):
     """ Update's a graph node's parameters in an instantiated graph.
 
     Sets the parameters of a node in an executable graph `hGraphExec`. The
@@ -36643,7 +36651,7 @@ def cuOccupancyAvailableDynamicSMemPerBlock(func, int numBlocks, int blockSize):
 {{if 'cuOccupancyMaxPotentialClusterSize' in found_functions}}
 
 @cython.embedsignature(True)
-def cuOccupancyMaxPotentialClusterSize(func, config : CUlaunchConfig):
+def cuOccupancyMaxPotentialClusterSize(func, config : Optional[CUlaunchConfig]):
     """ Given the kernel function (`func`) and launch configuration (`config`), return the maximum cluster size in `*clusterSize`.
 
     The cluster dimensions in `config` are ignored. If func has a required
@@ -36694,7 +36702,7 @@ def cuOccupancyMaxPotentialClusterSize(func, config : CUlaunchConfig):
 {{if 'cuOccupancyMaxActiveClusters' in found_functions}}
 
 @cython.embedsignature(True)
-def cuOccupancyMaxActiveClusters(func, config : CUlaunchConfig):
+def cuOccupancyMaxActiveClusters(func, config : Optional[CUlaunchConfig]):
     """ Given the kernel function (`func`) and launch configuration (`config`), return the maximum number of clusters that could co-exist on the target device in `*numClusters`.
 
     If the function has required cluster size already set (see
@@ -36927,7 +36935,7 @@ def cuTexRefSetAddress(hTexRef, dptr, size_t numbytes):
 {{if 'cuTexRefSetAddress2D_v3' in found_functions}}
 
 @cython.embedsignature(True)
-def cuTexRefSetAddress2D(hTexRef, desc : CUDA_ARRAY_DESCRIPTOR, dptr, size_t Pitch):
+def cuTexRefSetAddress2D(hTexRef, desc : Optional[CUDA_ARRAY_DESCRIPTOR], dptr, size_t Pitch):
     """ Binds an address as a 2D texture reference.
 
     [Deprecated]
@@ -38116,7 +38124,7 @@ def cuSurfRefGetArray(hSurfRef):
 {{if 'cuTexObjectCreate' in found_functions}}
 
 @cython.embedsignature(True)
-def cuTexObjectCreate(pResDesc : CUDA_RESOURCE_DESC, pTexDesc : CUDA_TEXTURE_DESC, pResViewDesc : CUDA_RESOURCE_VIEW_DESC):
+def cuTexObjectCreate(pResDesc : Optional[CUDA_RESOURCE_DESC], pTexDesc : Optional[CUDA_TEXTURE_DESC], pResViewDesc : Optional[CUDA_RESOURCE_VIEW_DESC]):
     """ Creates a texture object.
 
     Creates a texture object and returns it in `pTexObject`. `pResDesc`
@@ -38505,7 +38513,7 @@ def cuTexObjectGetResourceViewDesc(texObject):
 {{if 'cuSurfObjectCreate' in found_functions}}
 
 @cython.embedsignature(True)
-def cuSurfObjectCreate(pResDesc : CUDA_RESOURCE_DESC):
+def cuSurfObjectCreate(pResDesc : Optional[CUDA_RESOURCE_DESC]):
     """ Creates a surface object.
 
     Creates a surface object and returns it in `pSurfObject`. `pResDesc`
@@ -38619,7 +38627,7 @@ def cuSurfObjectGetResourceDesc(surfObject):
 {{if 'cuTensorMapEncodeTiled' in found_functions}}
 
 @cython.embedsignature(True)
-def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensorRank, globalAddress, globalDim : List[cuuint64_t], globalStrides : List[cuuint64_t], boxDim : List[cuuint32_t], elementStrides : List[cuuint32_t], interleave not None : CUtensorMapInterleave, swizzle not None : CUtensorMapSwizzle, l2Promotion not None : CUtensorMapL2promotion, oobFill not None : CUtensorMapFloatOOBfill):
+def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensorRank, globalAddress, globalDim : Optional[List[cuuint64_t]], globalStrides : Optional[List[cuuint64_t]], boxDim : Optional[List[cuuint32_t]], elementStrides : Optional[List[cuuint32_t]], interleave not None : CUtensorMapInterleave, swizzle not None : CUtensorMapSwizzle, l2Promotion not None : CUtensorMapL2promotion, oobFill not None : CUtensorMapFloatOOBfill):
     """ Create a tensor map descriptor object representing tiled memory region.
 
     Creates a descriptor for Tensor Memory Access (TMA) object specified by
@@ -38852,7 +38860,7 @@ def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensor
 {{if 'cuTensorMapEncodeIm2col' in found_functions}}
 
 @cython.embedsignature(True)
-def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tensorRank, globalAddress, globalDim : List[cuuint64_t], globalStrides : List[cuuint64_t], pixelBoxLowerCorner : List[int], pixelBoxUpperCorner : List[int], channelsPerPixel, pixelsPerColumn, elementStrides : List[cuuint32_t], interleave not None : CUtensorMapInterleave, swizzle not None : CUtensorMapSwizzle, l2Promotion not None : CUtensorMapL2promotion, oobFill not None : CUtensorMapFloatOOBfill):
+def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tensorRank, globalAddress, globalDim : Optional[List[cuuint64_t]], globalStrides : Optional[List[cuuint64_t]], pixelBoxLowerCorner : Optional[List[int]], pixelBoxUpperCorner : Optional[List[int]], channelsPerPixel, pixelsPerColumn, elementStrides : Optional[List[cuuint32_t]], interleave not None : CUtensorMapInterleave, swizzle not None : CUtensorMapSwizzle, l2Promotion not None : CUtensorMapL2promotion, oobFill not None : CUtensorMapFloatOOBfill):
     """ Create a tensor map descriptor object representing im2col memory region.
 
     Creates a descriptor for Tensor Memory Access (TMA) object specified by
@@ -39128,7 +39136,7 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
 {{if 'cuTensorMapReplaceAddress' in found_functions}}
 
 @cython.embedsignature(True)
-def cuTensorMapReplaceAddress(tensorMap : CUtensorMap, globalAddress):
+def cuTensorMapReplaceAddress(tensorMap : Optional[CUtensorMap], globalAddress):
     """ Modify an existing tensor map descriptor with an updated global address.
 
     Modifies the descriptor for Tensor Memory Access (TMA) object passed in
@@ -40201,7 +40209,7 @@ def cuCoredumpSetAttributeGlobal(attrib not None : CUcoredumpSettings, value):
 {{if 'cuGetExportTable' in found_functions}}
 
 @cython.embedsignature(True)
-def cuGetExportTable(pExportTableId : CUuuid):
+def cuGetExportTable(pExportTableId : Optional[CUuuid]):
     """ 
 
     Parameters
@@ -40777,7 +40785,7 @@ def cuEGLStreamProducerPresentFrame(conn, eglframe not None : CUeglFrame, pStrea
 {{if True}}
 
 @cython.embedsignature(True)
-def cuEGLStreamProducerReturnFrame(conn, eglframe : CUeglFrame, pStream):
+def cuEGLStreamProducerReturnFrame(conn, eglframe : Optional[CUeglFrame], pStream):
     """ Return the CUDA eglFrame to the EGLStream released by the consumer.
 
     This API can potentially return CUDA_ERROR_LAUNCH_TIMEOUT if the
