@@ -1,4 +1,4 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -723,6 +723,25 @@ cdef extern from "driver_types.h":
 
     ctypedef cudaGraphExecUpdateResultInfo_st cudaGraphExecUpdateResultInfo
 
+    cdef struct CUgraphDeviceUpdatableNode_st:
+        pass
+    ctypedef CUgraphDeviceUpdatableNode_st* cudaGraphDeviceNode_t
+
+    cdef struct anon_struct19:
+        const void* pValue
+        size_t offset
+        size_t size
+
+    cdef union anon_union8:
+        dim3 gridDim
+        anon_struct19 param
+        unsigned int isEnabled
+
+    cdef struct cudaGraphKernelNodeUpdate:
+        cudaGraphDeviceNode_t node
+        cudaGraphKernelNodeField field
+        anon_union8 updateData
+
     cdef enum cudaLaunchMemSyncDomain:
         cudaLaunchMemSyncDomainDefault = 0
         cudaLaunchMemSyncDomainRemote = 1
@@ -746,40 +765,69 @@ cdef extern from "driver_types.h":
         cudaLaunchAttributeMemSyncDomainMap = 9
         cudaLaunchAttributeMemSyncDomain = 10
         cudaLaunchAttributeLaunchCompletionEvent = 12
+        cudaLaunchAttributeDeviceUpdatableKernelNode = 13
 
-    cdef struct anon_struct19:
+    cdef struct anon_struct20:
         unsigned int x
         unsigned int y
         unsigned int z
 
-    cdef struct anon_struct20:
+    cdef struct anon_struct21:
         cudaEvent_t event
         int flags
         int triggerAtBlockStart
 
-    cdef struct anon_struct21:
+    cdef struct anon_struct22:
         cudaEvent_t event
         int flags
+
+    cdef struct anon_struct23:
+        int deviceUpdatable
+        cudaGraphDeviceNode_t devNode
 
     cdef union cudaLaunchAttributeValue:
         char pad[64]
         cudaAccessPolicyWindow accessPolicyWindow
         int cooperative
         cudaSynchronizationPolicy syncPolicy
-        anon_struct19 clusterDim
+        anon_struct20 clusterDim
         cudaClusterSchedulingPolicy clusterSchedulingPolicyPreference
         int programmaticStreamSerializationAllowed
-        anon_struct20 programmaticEvent
+        anon_struct21 programmaticEvent
         int priority
         cudaLaunchMemSyncDomainMap memSyncDomainMap
         cudaLaunchMemSyncDomain memSyncDomain
-        anon_struct21 launchCompletionEvent
+        anon_struct22 launchCompletionEvent
+        anon_struct23 deviceUpdatableKernelNode
 
     cdef struct cudaLaunchAttribute_st:
         cudaLaunchAttributeID id
         cudaLaunchAttributeValue val
 
     ctypedef cudaLaunchAttribute_st cudaLaunchAttribute
+
+    cdef struct cudaAsyncCallbackEntry:
+        pass
+    ctypedef cudaAsyncCallbackEntry* cudaAsyncCallbackHandle_t
+
+    cdef enum cudaAsyncNotificationType_enum:
+        cudaAsyncNotificationTypeOverBudget = 1
+
+    ctypedef cudaAsyncNotificationType_enum cudaAsyncNotificationType
+
+    cdef struct anon_struct24:
+        unsigned long long bytesOverBudget
+
+    cdef union anon_union9:
+        anon_struct24 overBudget
+
+    cdef struct cudaAsyncNotificationInfo:
+        cudaAsyncNotificationType type
+        anon_union9 info
+
+    ctypedef cudaAsyncNotificationInfo cudaAsyncNotificationInfo_t
+
+    ctypedef void (*cudaAsyncCallback)(cudaAsyncNotificationInfo_t* , void* , cudaAsyncCallbackHandle_t )
 
     cdef enum cudaChannelFormatKind:
         cudaChannelFormatKindSigned = 0
@@ -1239,6 +1287,12 @@ cdef extern from "driver_types.h":
         cudaGraphExecUpdateErrorUnsupportedFunctionChange = 7
         cudaGraphExecUpdateErrorAttributesChanged = 8
 
+    cdef enum cudaGraphKernelNodeField:
+        cudaGraphKernelNodeFieldInvalid = 0
+        cudaGraphKernelNodeFieldGridDim = 1
+        cudaGraphKernelNodeFieldParam = 2
+        cudaGraphKernelNodeFieldEnabled = 3
+
     cdef enum cudaGetDriverEntryPointFlags:
         cudaEnableDefault = 0
         cudaEnableLegacyStream = 1
@@ -1547,12 +1601,12 @@ cdef struct cudaEglPlaneDesc_st:
 
 ctypedef cudaEglPlaneDesc_st cudaEglPlaneDesc
 
-cdef union anon_union8:
+cdef union anon_union10:
     cudaArray_t pArray[3]
     cudaPitchedPtr pPitch[3]
 
 cdef struct cudaEglFrame_st:
-    anon_union8 frame
+    anon_union10 frame
     cudaEglPlaneDesc planeDesc[3]
     unsigned int planeCount
     cudaEglFrameType frameType
@@ -1615,16 +1669,6 @@ cdef cudaError_t cudaDeviceGetStreamPriorityRange(int* leastPriority, int* great
 cdef cudaError_t cudaDeviceSetCacheConfig(cudaFuncCache cacheConfig) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
-{{if 'cudaDeviceGetSharedMemConfig' in found_functions}}
-
-cdef cudaError_t cudaDeviceGetSharedMemConfig(cudaSharedMemConfig* pConfig) except ?cudaErrorCallRequiresNewerDriver nogil
-{{endif}}
-
-{{if 'cudaDeviceSetSharedMemConfig' in found_functions}}
-
-cdef cudaError_t cudaDeviceSetSharedMemConfig(cudaSharedMemConfig config) except ?cudaErrorCallRequiresNewerDriver nogil
-{{endif}}
-
 {{if 'cudaDeviceGetByPCIBusId' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetByPCIBusId(int* device, const char* pciBusId) except ?cudaErrorCallRequiresNewerDriver nogil
@@ -1663,6 +1707,26 @@ cdef cudaError_t cudaIpcCloseMemHandle(void* devPtr) except ?cudaErrorCallRequir
 {{if 'cudaDeviceFlushGPUDirectRDMAWrites' in found_functions}}
 
 cdef cudaError_t cudaDeviceFlushGPUDirectRDMAWrites(cudaFlushGPUDirectRDMAWritesTarget target, cudaFlushGPUDirectRDMAWritesScope scope) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaDeviceRegisterAsyncNotification' in found_functions}}
+
+cdef cudaError_t cudaDeviceRegisterAsyncNotification(int device, cudaAsyncCallback callbackFunc, void* userData, cudaAsyncCallbackHandle_t* callback) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaDeviceUnregisterAsyncNotification' in found_functions}}
+
+cdef cudaError_t cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCallbackHandle_t callback) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaDeviceGetSharedMemConfig' in found_functions}}
+
+cdef cudaError_t cudaDeviceGetSharedMemConfig(cudaSharedMemConfig* pConfig) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaDeviceSetSharedMemConfig' in found_functions}}
+
+cdef cudaError_t cudaDeviceSetSharedMemConfig(cudaSharedMemConfig config) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaGetLastError' in found_functions}}
@@ -1965,11 +2029,6 @@ cdef cudaError_t cudaDestroyExternalSemaphore(cudaExternalSemaphore_t extSem) ex
 cdef cudaError_t cudaFuncSetCacheConfig(const void* func, cudaFuncCache cacheConfig) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
-{{if 'cudaFuncSetSharedMemConfig' in found_functions}}
-
-cdef cudaError_t cudaFuncSetSharedMemConfig(const void* func, cudaSharedMemConfig config) except ?cudaErrorCallRequiresNewerDriver nogil
-{{endif}}
-
 {{if 'cudaFuncGetAttributes' in found_functions}}
 
 cdef cudaError_t cudaFuncGetAttributes(cudaFuncAttributes* attr, const void* func) except ?cudaErrorCallRequiresNewerDriver nogil
@@ -1983,6 +2042,11 @@ cdef cudaError_t cudaFuncSetAttribute(const void* func, cudaFuncAttribute attr, 
 {{if 'cudaLaunchHostFunc' in found_functions}}
 
 cdef cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void* userData) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaFuncSetSharedMemConfig' in found_functions}}
+
+cdef cudaError_t cudaFuncSetSharedMemConfig(const void* func, cudaSharedMemConfig config) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
@@ -3196,6 +3260,8 @@ cdef enum: cudaKernelNodeAttributeMemSyncDomainMap = 9
 
 cdef enum: cudaKernelNodeAttributeMemSyncDomain = 10
 
+cdef enum: cudaKernelNodeAttributeDeviceUpdatableKernelNode = 13
+
 cdef enum: cudaSurfaceType1D = 1
 
 cdef enum: cudaSurfaceType2D = 2
@@ -3224,8 +3290,8 @@ cdef enum: cudaTextureType2DLayered = 242
 
 cdef enum: cudaTextureTypeCubemapLayered = 252
 
-cdef enum: CUDART_VERSION = 12030
+cdef enum: CUDART_VERSION = 12040
 
-cdef enum: __CUDART_API_VERSION = 12030
+cdef enum: __CUDART_API_VERSION = 12040
 
 cdef enum: CUDA_EGL_MAX_PLANES = 3

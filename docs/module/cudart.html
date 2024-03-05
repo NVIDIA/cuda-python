@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/module/cudart.html" />
 
     <!-- Generated with Sphinx 5.0.2 and Furo 2023.03.27 -->
-        <title>cudart - CUDA Python 12.3.0 documentation</title>
+        <title>cudart - CUDA Python 12.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">CUDA Python 12.3.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">CUDA Python 12.4.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 12.3.0 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.4.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.4.0-notes.html">    12.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.3.0-notes.html">    12.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.2.1-notes.html">    12.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.2.0-notes.html">    12.2.0</a></li>
@@ -631,84 +632,6 @@ shared memory</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="cuda.cudart.cudaDeviceGetSharedMemConfig">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetSharedMemConfig</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaDeviceGetSharedMemConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns the shared memory configuration for the current device.</p>
-<p>This function will return in <cite>pConfig</cite> the current size of shared
-memory banks on the current device. On devices with configurable shared
-memory banks, <a class="reference internal" href="#cuda.cudart.cudaDeviceSetSharedMemConfig" title="cuda.cudart.cudaDeviceSetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSetSharedMemConfig</span></code></a> can be used to
-change this setting, so that all subsequent kernel launches will by
-default use the new bank size. When
-<a class="reference internal" href="#cuda.cudart.cudaDeviceGetSharedMemConfig" title="cuda.cudart.cudaDeviceGetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetSharedMemConfig</span></code></a> is called on devices without
-configurable shared memory, it will return the fixed bank size of the
-hardware.</p>
-<p>The returned bank configurations can be either:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeFourByte" title="cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeFourByte"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemBankSizeFourByte</span></code></a> - shared memory bank width
-is four bytes.</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeEightByte" title="cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeEightByte"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemBankSizeEightByte</span></code></a> - shared memory bank width
-is eight bytes.</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>pConfig</strong> (<a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig" title="cuda.cudart.cudaSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemConfig</span></code></a>) – Returned cache configuration</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#cuda.cudart.cudaDeviceSetCacheConfig" title="cuda.cudart.cudaDeviceSetCacheConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSetCacheConfig</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaDeviceGetCacheConfig" title="cuda.cudart.cudaDeviceGetCacheConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetCacheConfig</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaDeviceSetSharedMemConfig" title="cuda.cudart.cudaDeviceSetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSetSharedMemConfig</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaFuncSetCacheConfig" title="cuda.cudart.cudaFuncSetCacheConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncSetCacheConfig</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuCtxGetSharedMemConfig" title="cuda.cuda.cuCtxGetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuCtxGetSharedMemConfig</span></code></a></p>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.cudart.cudaDeviceSetSharedMemConfig">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceSetSharedMemConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig" title="cuda.cudart.cudaSharedMemConfig"><span class="pre">cudaSharedMemConfig</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaDeviceSetSharedMemConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>Sets the shared memory configuration for the current device.</p>
-<p>On devices with configurable shared memory banks, this function will
-set the shared memory bank size which is used for all subsequent kernel
-launches. Any per-function setting of shared memory set via
-<a class="reference internal" href="#cuda.cudart.cudaFuncSetSharedMemConfig" title="cuda.cudart.cudaFuncSetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncSetSharedMemConfig</span></code></a> will override the device wide
-setting.</p>
-<p>Changing the shared memory configuration between launches may introduce
-a device side synchronization point.</p>
-<p>Changing the shared memory bank size will not increase shared memory
-usage or affect occupancy of kernels, but may have major effects on
-performance. Larger bank sizes will allow for greater potential
-bandwidth to shared memory, but will change what kinds of accesses to
-shared memory will result in bank conflicts.</p>
-<p>This function will do nothing on devices with fixed shared memory bank
-size.</p>
-<p>The supported bank configurations are:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeDefault" title="cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeDefault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemBankSizeDefault</span></code></a>: set bank width the device
-default (currently, four bytes)</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeFourByte" title="cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeFourByte"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemBankSizeFourByte</span></code></a>: set shared memory bank
-width to be four bytes natively.</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeEightByte" title="cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeEightByte"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemBankSizeEightByte</span></code></a>: set shared memory bank
-width to be eight bytes natively.</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig" title="cuda.cudart.cudaSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemConfig</span></code></a>) – Requested cache configuration</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaError_t" title="cuda.cudart.cudaError_t">cudaError_t</a></p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#cuda.cudart.cudaDeviceSetCacheConfig" title="cuda.cudart.cudaDeviceSetCacheConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSetCacheConfig</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaDeviceGetCacheConfig" title="cuda.cudart.cudaDeviceGetCacheConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetCacheConfig</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaDeviceGetSharedMemConfig" title="cuda.cudart.cudaDeviceGetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetSharedMemConfig</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaFuncSetCacheConfig" title="cuda.cudart.cudaFuncSetCacheConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncSetCacheConfig</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuCtxSetSharedMemConfig" title="cuda.cuda.cuCtxSetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuCtxSetSharedMemConfig</span></code></a></p>
-</div>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceGetByPCIBusId">
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetByPCIBusId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*pciBusId</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaDeviceGetByPCIBusId" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a handle to a compute device.</p>
@@ -999,6 +922,73 @@ scopes having smaller values.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="cuda.html#cuda.cuda.cuFlushGPUDirectRDMAWrites" title="cuda.cuda.cuFlushGPUDirectRDMAWrites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuFlushGPUDirectRDMAWrites</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.cudart.cudaDeviceRegisterAsyncNotification">
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceRegisterAsyncNotification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callbackFunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">userData</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaDeviceRegisterAsyncNotification" title="Permalink to this definition">#</a></dt>
+<dd><p>Registers a callback function to receive async notifications.</p>
+<p>Registers <cite>callbackFunc</cite> to receive async notifications.</p>
+<p>The <cite>userData</cite> parameter is passed to the callback function at async
+notification time. Likewise, <cite>callback</cite> is also passed to the callback
+function to distinguish between multiple registered callbacks.</p>
+<p>The callback function being registered should be designed to return
+quickly (~10ms). Any long running tasks should be queued for execution
+on an application thread.</p>
+<p>Callbacks may not call cudaDeviceRegisterAsyncNotification or
+cudaDeviceUnregisterAsyncNotification. Doing so will result in
+<a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorNotPermitted" title="cuda.cudart.cudaError_t.cudaErrorNotPermitted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotPermitted</span></code></a>. Async notification callbacks execute
+in an undefined order and may be serialized.</p>
+<p>Returns in <cite>*callback</cite> a handle representing the registered callback
+instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device</strong> (<em>int</em>) – The device on which to register the callback</p></li>
+<li><p><strong>callbackFunc</strong> (<a class="reference internal" href="#cuda.cudart.cudaAsyncCallback" title="cuda.cudart.cudaAsyncCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAsyncCallback</span></code></a>) – The function to register as a callback</p></li>
+<li><p><strong>userData</strong> (<em>Any</em>) – A generic pointer to user data. This is passed into the callback
+function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorNotSupported" title="cuda.cudart.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a> <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidDevice" title="cuda.cudart.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a> <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a> <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorNotPermitted" title="cuda.cudart.cudaError_t.cudaErrorNotPermitted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotPermitted</span></code></a> <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorUnknown" title="cuda.cudart.cudaError_t.cudaErrorUnknown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorUnknown</span></code></a></p></li>
+<li><p><strong>callback</strong> (<a class="reference internal" href="#cuda.cudart.cudaAsyncCallbackHandle_t" title="cuda.cudart.cudaAsyncCallbackHandle_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAsyncCallbackHandle_t</span></code></a>) – A handle representing the registered callback instance</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.cudart.cudaDeviceUnregisterAsyncNotification" title="cuda.cudart.cudaDeviceUnregisterAsyncNotification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceUnregisterAsyncNotification</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.cudart.cudaDeviceUnregisterAsyncNotification">
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceUnregisterAsyncNotification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaDeviceUnregisterAsyncNotification" title="Permalink to this definition">#</a></dt>
+<dd><p>Unregisters an async notification callback.</p>
+<p>Unregisters <cite>callback</cite> so that the corresponding callback function will
+stop receiving async notifications.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device</strong> (<em>int</em>) – The device from which to remove <cite>callback</cite>.</p></li>
+<li><p><strong>callback</strong> (<a class="reference internal" href="#cuda.cudart.cudaAsyncCallbackHandle_t" title="cuda.cudart.cudaAsyncCallbackHandle_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAsyncCallbackHandle_t</span></code></a>) – The callback instance to unregister from receiving async
+notifications.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorNotSupported" title="cuda.cudart.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a> <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidDevice" title="cuda.cudart.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a> <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a> <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorNotPermitted" title="cuda.cudart.cudaError_t.cudaErrorNotPermitted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotPermitted</span></code></a> <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorUnknown" title="cuda.cudart.cudaError_t.cudaErrorUnknown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorUnknown</span></code></a></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaError_t" title="cuda.cudart.cudaError_t">cudaError_t</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.cudart.cudaDeviceRegisterAsyncNotification" title="cuda.cudart.cudaDeviceRegisterAsyncNotification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceRegisterAsyncNotification</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -3946,59 +3936,6 @@ shared memory</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="cuda.cudart.cudaFuncSetSharedMemConfig">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaFuncSetSharedMemConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig" title="cuda.cudart.cudaSharedMemConfig"><span class="pre">cudaSharedMemConfig</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaFuncSetSharedMemConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>Sets the shared memory configuration for a device function.</p>
-<p>On devices with configurable shared memory banks, this function will
-force all subsequent launches of the specified device function to have
-the given shared memory bank size configuration. On any given launch of
-the function, the shared memory configuration of the device will be
-temporarily changed if needed to suit the function’s preferred
-configuration. Changes in shared memory configuration between
-subsequent launches of functions, may introduce a device side
-synchronization point.</p>
-<p>Any per-function setting of shared memory bank size set via
-<a class="reference internal" href="#cuda.cudart.cudaFuncSetSharedMemConfig" title="cuda.cudart.cudaFuncSetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncSetSharedMemConfig</span></code></a> will override the device wide
-setting set by <a class="reference internal" href="#cuda.cudart.cudaDeviceSetSharedMemConfig" title="cuda.cudart.cudaDeviceSetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSetSharedMemConfig</span></code></a>.</p>
-<p>Changing the shared memory bank size will not increase shared memory
-usage or affect occupancy of kernels, but may have major effects on
-performance. Larger bank sizes will allow for greater potential
-bandwidth to shared memory, but will change what kinds of accesses to
-shared memory will result in bank conflicts.</p>
-<p>This function will do nothing on devices with fixed shared memory bank
-size.</p>
-<p>For templated functions, pass the function symbol as follows:
-func_name&lt;template_arg_0,…,template_arg_N&gt;</p>
-<p>The supported bank configurations are:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeDefault" title="cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeDefault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemBankSizeDefault</span></code></a>: use the device’s shared
-memory configuration when launching this function.</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeFourByte" title="cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeFourByte"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemBankSizeFourByte</span></code></a>: set shared memory bank
-width to be four bytes natively when launching this function.</p></li>
-<li><p><a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeEightByte" title="cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeEightByte"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemBankSizeEightByte</span></code></a>: set shared memory bank
-width to be eight bytes natively when launching this function.</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>func</strong> (<em>Any</em>) – Device function symbol</p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="#cuda.cudart.cudaSharedMemConfig" title="cuda.cudart.cudaSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSharedMemConfig</span></code></a>) – Requested shared memory configuration</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidDeviceFunction" title="cuda.cudart.cudaError_t.cudaErrorInvalidDeviceFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDeviceFunction</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>,2</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaError_t" title="cuda.cudart.cudaError_t">cudaError_t</a></p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#cuda.cudart.cudaDeviceSetSharedMemConfig" title="cuda.cudart.cudaDeviceSetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSetSharedMemConfig</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaDeviceGetSharedMemConfig" title="cuda.cudart.cudaDeviceGetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetSharedMemConfig</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaDeviceSetCacheConfig" title="cuda.cudart.cudaDeviceSetCacheConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSetCacheConfig</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaDeviceGetCacheConfig" title="cuda.cudart.cudaDeviceGetCacheConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetCacheConfig</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaFuncSetCacheConfig" title="cuda.cudart.cudaFuncSetCacheConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncSetCacheConfig</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuFuncSetSharedMemConfig" title="cuda.cuda.cuFuncSetSharedMemConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuFuncSetSharedMemConfig</span></code></a></p>
-</div>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaFuncGetAttributes">
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaFuncGetAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaFuncGetAttributes" title="Permalink to this definition">#</a></dt>
 <dd><p>Find out attributes for a given function.</p>
@@ -4286,16 +4223,16 @@ zero value for the device attribute
 <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code></a>. Managed memory on such
 GPUs may be evicted from device memory to host memory at any time by
 the Unified Memory driver in order to make room for other allocations.</p>
-<p>In a multi-GPU system where all GPUs have a non-zero value for the
-device attribute <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code></a>,
-managed memory may not be populated when this API returns and instead
-may be populated on access. In such systems, managed memory can migrate
-to any processor’s memory at any time. The Unified Memory driver will
-employ heuristics to maintain data locality and prevent excessive page
-faults to the extent possible. The application can also guide the
-driver about memory usage patterns via <a class="reference internal" href="#cuda.cudart.cudaMemAdvise" title="cuda.cudart.cudaMemAdvise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code></a>. The
-application can also explicitly migrate memory to a desired processor’s
-memory via <a class="reference internal" href="#cuda.cudart.cudaMemPrefetchAsync" title="cuda.cudart.cudaMemPrefetchAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync</span></code></a>.</p>
+<p>In a system where all GPUs have a non-zero value for the device
+attribute <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code></a>, managed
+memory may not be populated when this API returns and instead may be
+populated on access. In such systems, managed memory can migrate to any
+processor’s memory at any time. The Unified Memory driver will employ
+heuristics to maintain data locality and prevent excessive page faults
+to the extent possible. The application can also guide the driver about
+memory usage patterns via <a class="reference internal" href="#cuda.cudart.cudaMemAdvise" title="cuda.cudart.cudaMemAdvise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code></a>. The application
+can also explicitly migrate memory to a desired processor’s memory via
+<a class="reference internal" href="#cuda.cudart.cudaMemPrefetchAsync" title="cuda.cudart.cudaMemPrefetchAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync</span></code></a>.</p>
 <p>In a multi-GPU system where all of the GPUs have a zero value for the
 device attribute <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code></a> and all
 the GPUs have peer-to-peer support with each other, the physical
@@ -11039,7 +10976,8 @@ stream priority during stream capture.</p></li>
 <p>If <cite>graph</cite> contains any allocation or free nodes, there can be at most
 one executable graph in existence for that graph at a time. An attempt
 to instantiate a second executable graph before destroying the first
-with <a class="reference internal" href="#cuda.cudart.cudaGraphExecDestroy" title="cuda.cudart.cudaGraphExecDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExecDestroy</span></code></a> will result in an error.</p>
+with <a class="reference internal" href="#cuda.cudart.cudaGraphExecDestroy" title="cuda.cudart.cudaGraphExecDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExecDestroy</span></code></a> will result in an error. The same
+also applies if <cite>graph</cite> contains any device-updatable kernel nodes.</p>
 <p>Graphs instantiated for launch on the device have additional
 restrictions which do not apply to host graphs:</p>
 <ul class="simple">
@@ -11121,7 +11059,8 @@ stream priority during stream capture.</p></li>
 <p>If <cite>graph</cite> contains any allocation or free nodes, there can be at most
 one executable graph in existence for that graph at a time. An attempt
 to instantiate a second executable graph before destroying the first
-with <a class="reference internal" href="#cuda.cudart.cudaGraphExecDestroy" title="cuda.cudart.cudaGraphExecDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExecDestroy</span></code></a> will result in an error.</p>
+with <a class="reference internal" href="#cuda.cudart.cudaGraphExecDestroy" title="cuda.cudart.cudaGraphExecDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExecDestroy</span></code></a> will result in an error. The same
+also applies if <cite>graph</cite> contains any device-updatable kernel nodes.</p>
 <p>If <cite>graph</cite> contains kernels which call device-side
 <a class="reference internal" href="#cuda.cudart.cudaGraphLaunch" title="cuda.cudart.cudaGraphLaunch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphLaunch()</span></code></a> from multiple devices, this will result
 in an error.</p>
@@ -11212,7 +11151,8 @@ stream priority during stream capture.</p></li>
 <p>If <cite>graph</cite> contains any allocation or free nodes, there can be at most
 one executable graph in existence for that graph at a time. An attempt
 to instantiate a second executable graph before destroying the first
-with <a class="reference internal" href="#cuda.cudart.cudaGraphExecDestroy" title="cuda.cudart.cudaGraphExecDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExecDestroy</span></code></a> will result in an error.</p>
+with <a class="reference internal" href="#cuda.cudart.cudaGraphExecDestroy" title="cuda.cudart.cudaGraphExecDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExecDestroy</span></code></a> will result in an error. The same
+also applies if <cite>graph</cite> contains any device-updatable kernel nodes.</p>
 <p>If <cite>graph</cite> contains kernels which call device-side
 <a class="reference internal" href="#cuda.cudart.cudaGraphLaunch" title="cuda.cudart.cudaGraphLaunch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphLaunch()</span></code></a> from multiple devices, this will result
 in an error.</p>
@@ -11321,13 +11261,16 @@ graph.</p>
 <cite>hGraphExec</cite>. The node is identified by the corresponding node <cite>node</cite>
 in the non-executable graph, from which the executable graph was
 instantiated.</p>
-<p><cite>hNode</cite> must not have been removed from the original graph. All
+<p><cite>node</cite> must not have been removed from the original graph. All
 <cite>nodeParams</cite> fields may change, but the following restrictions apply to
 <cite>func</cite> updates:</p>
 <ul class="simple">
 <li><p>The owning device of the function cannot change.</p></li>
 <li><p>A node whose function originally did not use CUDA dynamic parallelism
 cannot be updated to a function which uses CDP</p></li>
+<li><p>A node whose function originally did not make device-side update
+calls cannot be updated to a function which makes device-side update
+calls.</p></li>
 <li><p>If <cite>hGraphExec</cite> was not instantiated for device launch, a node whose
 function originally did not use device-side
 <a class="reference internal" href="#cuda.cudart.cudaGraphLaunch" title="cuda.cudart.cudaGraphLaunch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphLaunch()</span></code></a> cannot be updated to a function which
@@ -11339,6 +11282,11 @@ these updates cannot be performed at all.</p></li>
 <p>The modifications only affect future launches of <cite>hGraphExec</cite>. Already
 enqueued or running launches of <cite>hGraphExec</cite> are not affected by this
 call. <cite>node</cite> is also not modified by this call.</p>
+<p>If <cite>node</cite> is a device-updatable kernel node, the next upload/launch of
+<cite>hGraphExec</cite> will overwrite any previous device-side updates.
+Additionally, applying host updates to a device-updatable kernel node
+while it is being updated from the device will result in undefined
+behavior.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -11768,6 +11716,9 @@ graph specified by <cite>hGraph</cite>.</p>
 <li><p>The owning context of the function cannot change.</p></li>
 <li><p>A node whose function originally did not use CUDA dynamic
 parallelism cannot be updated to a function which uses CDP.</p></li>
+<li><p>A node whose function originally did not make device-side update
+calls cannot be updated to a function which makes device-side
+update calls.</p></li>
 <li><p>A cooperative node cannot be updated to a non-cooperative node, and
 vice-versa.</p></li>
 <li><p>If the graph was instantiated with
@@ -11782,6 +11733,8 @@ uses device-side <a class="reference internal" href="#cuda.cudart.cudaGraphLaunc
 resides on the same device as nodes which contained such calls at
 instantiate-time. If no such calls were present at instantiation,
 these updates cannot be performed at all.</p></li>
+<li><p>Neither <cite>hGraph</cite> nor <cite>hGraphExec</cite> may contain device-updatable
+kernel nodes.</p></li>
 </ul>
 </li>
 <li><p>Memset and memcpy nodes:</p>
@@ -12336,8 +12289,10 @@ instantiated</p></li>
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphConditionalHandleCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">defaultLaunchValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphConditionalHandleCreate" title="Permalink to this definition">#</a></dt>
 <dd><p>Create a conditional handle.</p>
 <p>Creates a conditional handle associated with <cite>hGraph</cite>.</p>
-<p>The conditional handle can be associated with conditional nodes in this
-graph or its children.</p>
+<p>The conditional handle must be associated with a conditional node in
+this graph or one of its children.</p>
+<p>Handles not associated with a conditional node may cause graph
+instantiation to fail.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -12626,7 +12581,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">frame</span></span><a class="headerlink" href="#cuda.cudart.cudaEglFrame_st.frame" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_union8</p>
+<dd class="field-odd"><p>anon_union10</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16199,8 +16154,7 @@ creating the node using cudaGraphConditionalHandleCreate.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaConditionalNodeParams.size">
 <span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#cuda.cudart.cudaConditionalNodeParams.size" title="Permalink to this definition">#</a></dt>
-<dd><p>Size of graph output array. Must be 1 for WHILE nodes, 1 or 2 for
-IF nodes, and &gt;0 for SWITCH nodes.</p>
+<dd><p>Size of graph output array. Must be 1.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>unsigned int</p>
@@ -16674,6 +16628,53 @@ Otherwise NULL.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeUpdate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphKernelNodeUpdate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeUpdate" title="Permalink to this definition">#</a></dt>
+<dd><p>Struct to specify a single node update to pass as part of a larger
+array to ::cudaGraphKernelNodeUpdatesApply</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeUpdate.node">
+<span class="sig-name descname"><span class="pre">node</span></span><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeUpdate.node" title="Permalink to this definition">#</a></dt>
+<dd><p>Node to update</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaGraphDeviceNode_t" title="cuda.cudart.cudaGraphDeviceNode_t">cudaGraphDeviceNode_t</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeUpdate.field">
+<span class="sig-name descname"><span class="pre">field</span></span><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeUpdate.field" title="Permalink to this definition">#</a></dt>
+<dd><p>Which type of update to apply. Determines how updateData is
+interpreted</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaGraphKernelNodeField" title="cuda.cudart.cudaGraphKernelNodeField">cudaGraphKernelNodeField</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeUpdate.updateData">
+<span class="sig-name descname"><span class="pre">updateData</span></span><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeUpdate.updateData" title="Permalink to this definition">#</a></dt>
+<dd><p>Update data to apply. Which field is used depends on field’s value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>anon_union8</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeUpdate.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeUpdate.getPtr" title="Permalink to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.cudart.cudaLaunchMemSyncDomainMap_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaLaunchMemSyncDomainMap_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaLaunchMemSyncDomainMap_st" title="Permalink to this definition">#</a></dt>
 <dd><p>Memory Synchronization Domain map  See cudaLaunchMemSyncDomain.  By
@@ -16775,7 +16776,7 @@ of the grid Y dimension.    - <cite>z</cite> - The Z dimension of the cluster,
 in blocks. Must be a divisor of the grid Z dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_struct19</p>
+<dd class="field-odd"><p>anon_struct20</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16811,7 +16812,7 @@ cudaLaunchAttributeProgrammaticStreamSerialization.</p>
 <dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_struct20</p>
+<dd class="field-odd"><p>anon_struct21</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16858,7 +16859,19 @@ cudaLaunchMemSyncDomain.</p>
 <dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_struct21</p>
+<dd class="field-odd"><p>anon_struct22</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.deviceUpdatableKernelNode">
+<span class="sig-name descname"><span class="pre">deviceUpdatableKernelNode</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.deviceUpdatableKernelNode" title="Permalink to this definition">#</a></dt>
+<dd><p>Value of launch attribute
+::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>anon_struct23</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16900,6 +16913,38 @@ cudaLaunchMemSyncDomain.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttribute_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttribute_st.getPtr" title="Permalink to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncNotificationInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaAsyncNotificationInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaAsyncNotificationInfo" title="Permalink to this definition">#</a></dt>
+<dd><p>Information describing an async notification event</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncNotificationInfo.type">
+<span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#cuda.cudart.cudaAsyncNotificationInfo.type" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaAsyncNotificationType" title="cuda.cudart.cudaAsyncNotificationType">cudaAsyncNotificationType</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncNotificationInfo.info">
+<span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#cuda.cudart.cudaAsyncNotificationInfo.info" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>anon_union9</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncNotificationInfo.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaAsyncNotificationInfo.getPtr" title="Permalink to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 
@@ -19416,7 +19461,7 @@ details see <a class="reference internal" href="#cuda.cudart.cudaStreamBeginCapt
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.cudart.cudaSharedMemConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaSharedMemConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaSharedMemConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>CUDA shared memory configuration</p>
+<dd><p>CUDA shared memory configuration [Deprecated]</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeDefault">
 <span class="sig-name descname"><span class="pre">cudaSharedMemBankSizeDefault</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.cudart.cudaSharedMemConfig.cudaSharedMemBankSizeDefault" title="Permalink to this definition">#</a></dt>
@@ -20964,14 +21009,8 @@ cudaFuncSetAttribute</p>
 <p>Only one instantiation of the graph may exist at any point in time.</p>
 <p>The graph cannot be cloned.</p>
 </div></blockquote>
-<p>To set the control value:</p>
-<blockquote>
-<div><p>In a kernel or kernels at appropriate locations in the graph, insert a call to</p>
-<blockquote>
-<div><p><cite>void cudaGraphSetConditional(cudaGraphConditionalHandle handle, unsigned int value)</cite>.</p>
-</div></blockquote>
-<p>Supply a default value when creating the handle.</p>
-</div></blockquote>
+<p>To set the control value, supply a default value when creating the handle and/or</p>
+<p>call <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphSetConditional</span></code> from device code.</p>
 </div></blockquote>
 </dd></dl>
 
@@ -21093,6 +21132,37 @@ cudaFuncSetAttribute</p>
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphInstantiateResult.cudaGraphInstantiateMultipleDevicesNotSupported">
 <span class="sig-name descname"><span class="pre">cudaGraphInstantiateMultipleDevicesNotSupported</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#cuda.cudart.cudaGraphInstantiateResult.cudaGraphInstantiateMultipleDevicesNotSupported" title="Permalink to this definition">#</a></dt>
 <dd><p>Instantiation for device launch failed due to the nodes belonging to different contexts</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphKernelNodeField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeField" title="Permalink to this definition">#</a></dt>
+<dd><p>Specifies the field to update when performing multiple node updates
+from the device</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldInvalid">
+<span class="sig-name descname"><span class="pre">cudaGraphKernelNodeFieldInvalid</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldInvalid" title="Permalink to this definition">#</a></dt>
+<dd><p>Invalid field</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldGridDim">
+<span class="sig-name descname"><span class="pre">cudaGraphKernelNodeFieldGridDim</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldGridDim" title="Permalink to this definition">#</a></dt>
+<dd><p>Grid dimension update</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldParam">
+<span class="sig-name descname"><span class="pre">cudaGraphKernelNodeFieldParam</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldParam" title="Permalink to this definition">#</a></dt>
+<dd><p>Kernel parameter update</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldEnabled">
+<span class="sig-name descname"><span class="pre">cudaGraphKernelNodeFieldEnabled</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldEnabled" title="Permalink to this definition">#</a></dt>
+<dd><p>Node enable/disable</p>
 </dd></dl>
 
 </dd></dl>
@@ -21372,16 +21442,20 @@ are on the same GPU.</p>
 <span class="sig-name descname"><span class="pre">cudaLaunchAttributeLaunchCompletionEvent</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent" title="Permalink to this definition">#</a></dt>
 <dd><p>Valid for launches. Set <a class="reference internal" href="#id38" title="cuda.cudart.cudaLaunchAttributeValue.launchCompletionEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launchCompletionEvent</span></code></a> to record the event.</p>
 <blockquote>
-<div><p>Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example:</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>If B can claim execution resources unavaiable to A, for example if they run on different GPUs.</p></li>
-<li><p>If B is a higher priority than A.</p></li>
-</ul>
-<p>Exercise caution if such an ordering inversion could lead to deadlock.</p>
-<blockquote>
-<div><p>A launch completion event is nominally similar to a programmatic event with <cite>triggerAtBlockStart</cite> set except that it is not visible to <cite>cudaGridDependencySynchronize()</cite> and can be used with compute capability less than 9.0.</p>
+<div><p>Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock.</p>
+<p>A launch completion event is nominally similar to a programmatic event with <cite>triggerAtBlockStart</cite> set except that it is not visible to <cite>cudaGridDependencySynchronize()</cite> and can be used with compute capability less than 9.0.</p>
 <p>The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the <a class="reference internal" href="#cuda.cudart.cudaEventDisableTiming" title="cuda.cudart.cudaEventDisableTiming"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEventDisableTiming</span></code></a> flag set).</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributeDeviceUpdatableKernelNode</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode" title="Permalink to this definition">#</a></dt>
+<dd><p>Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error.</p>
+<blockquote>
+<div><p>:cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via <a class="reference internal" href="#id0" title="cuda.cudart.cudaLaunchAttributeValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLaunchAttributeValue</span></code></a>::deviceUpdatableKernelNode::devNode which can be passed to the various device-side update functions to update the node’s kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphKernelNodeUpdatesApply</span></code>.</p>
+<p>Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via <a class="reference internal" href="#cuda.cudart.cudaGraphDestroyNode" title="cuda.cudart.cudaGraphDestroyNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphDestroyNode</span></code></a>. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via <a class="reference internal" href="#cuda.cudart.cudaGraphKernelNodeCopyAttributes" title="cuda.cudart.cudaGraphKernelNodeCopyAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphKernelNodeCopyAttributes</span></code></a>. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to <a class="reference internal" href="#cuda.cudart.cudaGraphExecUpdate" title="cuda.cudart.cudaGraphExecUpdate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExecUpdate</span></code></a>.</p>
+<p>If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with <a class="reference internal" href="cuda.html#cuda.cuda.cuGraphUpload" title="cuda.cuda.cuGraphUpload"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuGraphUpload</span></code></a> before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.</p>
 </div></blockquote>
 </dd></dl>
 
@@ -21401,6 +21475,17 @@ are on the same GPU.</p>
 <span class="sig-name descname"><span class="pre">cudaDeviceNumaConfigNumaNode</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceNumaConfig.cudaDeviceNumaConfigNumaNode" title="Permalink to this definition">#</a></dt>
 <dd><p>The GPU is a NUMA node, cudaDevAttrNumaId contains its NUMA ID</p>
 </dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncNotificationType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaAsyncNotificationType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaAsyncNotificationType" title="Permalink to this definition">#</a></dt>
+<dd><p>Types of async notification that can occur</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncNotificationType.cudaAsyncNotificationTypeOverBudget">
+<span class="sig-name descname"><span class="pre">cudaAsyncNotificationTypeOverBudget</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.cudart.cudaAsyncNotificationType.cudaAsyncNotificationTypeOverBudget" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -21618,7 +21703,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">frame</span></span><a class="headerlink" href="#cuda.cudart.cudaEglFrame.frame" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_union8</p>
+<dd class="field-odd"><p>anon_union10</p>
 </dd>
 </dl>
 </dd></dl>
@@ -22191,6 +22276,18 @@ Otherwise NULL.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphDeviceNode_t">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphDeviceNode_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphDeviceNode_t" title="Permalink to this definition">#</a></dt>
+<dd><p>CUDA device node handle for device-side node update</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGraphDeviceNode_t.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphDeviceNode_t.getPtr" title="Permalink to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.cudart.cudaLaunchMemSyncDomainMap">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaLaunchMemSyncDomainMap</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchMemSyncDomainMap" title="Permalink to this definition">#</a></dt>
 <dd><p>Memory Synchronization Domain map  See cudaLaunchMemSyncDomain.  By
@@ -22292,7 +22389,7 @@ of the grid Y dimension.    - <cite>z</cite> - The Z dimension of the cluster,
 in blocks. Must be a divisor of the grid Z dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_struct19</p>
+<dd class="field-odd"><p>anon_struct20</p>
 </dd>
 </dl>
 </dd></dl>
@@ -22328,7 +22425,7 @@ cudaLaunchAttributeProgrammaticStreamSerialization.</p>
 <dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_struct20</p>
+<dd class="field-odd"><p>anon_struct21</p>
 </dd>
 </dl>
 </dd></dl>
@@ -22375,14 +22472,26 @@ cudaLaunchMemSyncDomain.</p>
 <dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>anon_struct21</p>
+<dd class="field-odd"><p>anon_struct22</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id39">
+<span class="sig-name descname"><span class="pre">deviceUpdatableKernelNode</span></span><a class="headerlink" href="#id39" title="Permalink to this definition">#</a></dt>
+<dd><p>Value of launch attribute
+::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>anon_struct23</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id39">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id39" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id40">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id40" title="Permalink to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 
@@ -22417,6 +22526,61 @@ cudaLaunchMemSyncDomain.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttribute.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttribute.getPtr" title="Permalink to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncCallbackHandle_t">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaAsyncCallbackHandle_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaAsyncCallbackHandle_t" title="Permalink to this definition">#</a></dt>
+<dd><p>CUDA async callback handle</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncCallbackHandle_t.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaAsyncCallbackHandle_t.getPtr" title="Permalink to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncNotificationInfo_t">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaAsyncNotificationInfo_t</span></span><a class="headerlink" href="#cuda.cudart.cudaAsyncNotificationInfo_t" title="Permalink to this definition">#</a></dt>
+<dd><p>Information describing an async notification event</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncNotificationInfo_t.type">
+<span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#cuda.cudart.cudaAsyncNotificationInfo_t.type" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaAsyncNotificationType" title="cuda.cudart.cudaAsyncNotificationType">cudaAsyncNotificationType</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncNotificationInfo_t.info">
+<span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#cuda.cudart.cudaAsyncNotificationInfo_t.info" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>anon_union9</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncNotificationInfo_t.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaAsyncNotificationInfo_t.getPtr" title="Permalink to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncCallback">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaAsyncCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaAsyncCallback" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="cuda.cudart.cudaAsyncCallback.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaAsyncCallback.getPtr" title="Permalink to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 
@@ -22898,6 +23062,11 @@ cudaLaunchMemSyncDomain.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttributeDeviceUpdatableKernelNode">
+<span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttributeDeviceUpdatableKernelNode</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttributeDeviceUpdatableKernelNode" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttrValue">
 <span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttrValue</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.cudart.cudaKernelNodeAttrValue'&gt;</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttrValue" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
@@ -23004,7 +23173,7 @@ cudaLaunchMemSyncDomain.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2023, NVIDIA
+                Copyright &#169; 2021-2024, NVIDIA
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             

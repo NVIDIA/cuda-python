@@ -31,8 +31,6 @@ This section describes the device management functions of the CUDA runtime appli
 .. autofunction:: cuda.cudart.cudaDeviceGetCacheConfig
 .. autofunction:: cuda.cudart.cudaDeviceGetStreamPriorityRange
 .. autofunction:: cuda.cudart.cudaDeviceSetCacheConfig
-.. autofunction:: cuda.cudart.cudaDeviceGetSharedMemConfig
-.. autofunction:: cuda.cudart.cudaDeviceSetSharedMemConfig
 .. autofunction:: cuda.cudart.cudaDeviceGetByPCIBusId
 .. autofunction:: cuda.cudart.cudaDeviceGetPCIBusId
 .. autofunction:: cuda.cudart.cudaIpcGetEventHandle
@@ -41,6 +39,8 @@ This section describes the device management functions of the CUDA runtime appli
 .. autofunction:: cuda.cudart.cudaIpcOpenMemHandle
 .. autofunction:: cuda.cudart.cudaIpcCloseMemHandle
 .. autofunction:: cuda.cudart.cudaDeviceFlushGPUDirectRDMAWrites
+.. autofunction:: cuda.cudart.cudaDeviceRegisterAsyncNotification
+.. autofunction:: cuda.cudart.cudaDeviceUnregisterAsyncNotification
 .. autofunction:: cuda.cudart.cudaGetDeviceCount
 .. autofunction:: cuda.cudart.cudaGetDeviceProperties
 .. autofunction:: cuda.cudart.cudaDeviceGetAttribute
@@ -136,7 +136,6 @@ This section describes the execution control functions of the CUDA runtime appli
 Some functions have overloaded C++ API template versions documented separately in the C++ API Routines module.
 
 .. autofunction:: cuda.cudart.cudaFuncSetCacheConfig
-.. autofunction:: cuda.cudart.cudaFuncSetSharedMemConfig
 .. autofunction:: cuda.cudart.cudaFuncGetAttributes
 .. autofunction:: cuda.cudart.cudaFuncSetAttribute
 .. autofunction:: cuda.cudart.cudaLaunchHostFunc
@@ -794,9 +793,11 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaGraphEdgeData_st
 .. autoclass:: cuda.cudart.cudaGraphInstantiateParams_st
 .. autoclass:: cuda.cudart.cudaGraphExecUpdateResultInfo_st
+.. autoclass:: cuda.cudart.cudaGraphKernelNodeUpdate
 .. autoclass:: cuda.cudart.cudaLaunchMemSyncDomainMap_st
 .. autoclass:: cuda.cudart.cudaLaunchAttributeValue
 .. autoclass:: cuda.cudart.cudaLaunchAttribute_st
+.. autoclass:: cuda.cudart.cudaAsyncNotificationInfo
 .. autoclass:: cuda.cudart.cudaTextureDesc
 .. autoclass:: cuda.cudart.cudaEglFrameType
 
@@ -4420,15 +4421,9 @@ Data types used by CUDA Runtime
 
 
 
-                                           To set the control value:
+                                           To set the control value, supply a default value when creating the handle and/or
 
-
-
-                                            In a kernel or kernels at appropriate locations in the graph, insert a call to
-
-                                             `void cudaGraphSetConditional(cudaGraphConditionalHandle handle, unsigned int value)`.
-
-                                            Supply a default value when creating the handle.
+                                           call :py:obj:`~.cudaGraphSetConditional` from device code.
 
 
     .. autoattribute:: cuda.cudart.cudaGraphNodeType.cudaGraphNodeTypeCount
@@ -4531,6 +4526,31 @@ Data types used by CUDA Runtime
 
 
         Instantiation for device launch failed due to the nodes belonging to different contexts
+
+.. autoclass:: cuda.cudart.cudaGraphKernelNodeField
+
+    .. autoattribute:: cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldInvalid
+
+
+        Invalid field
+
+
+    .. autoattribute:: cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldGridDim
+
+
+        Grid dimension update
+
+
+    .. autoattribute:: cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldParam
+
+
+        Kernel parameter update
+
+
+    .. autoattribute:: cuda.cudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldEnabled
+
+
+        Node enable/disable
 
 .. autoclass:: cuda.cudart.cudaGetDriverEntryPointFlags
 
@@ -4758,23 +4778,23 @@ Data types used by CUDA Runtime
 
         Valid for launches. Set :py:obj:`~.cudaLaunchAttributeValue.launchCompletionEvent` to record the event. 
 
-         Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example:
-
-
-
-        - If B can claim execution resources unavaiable to A, for example if they run on different GPUs.
-
-
-
-        - If B is a higher priority than A.
-
-
-
-        Exercise caution if such an ordering inversion could lead to deadlock. 
+         Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock. 
 
          A launch completion event is nominally similar to a programmatic event with `triggerAtBlockStart` set except that it is not visible to `cudaGridDependencySynchronize()` and can be used with compute capability less than 9.0. 
 
          The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.cudaEventDisableTiming` flag set).
+
+
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode
+
+
+        Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error. 
+
+         :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue`::deviceUpdatableKernelNode::devNode which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
+
+         Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via :py:obj:`~.cudaGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via :py:obj:`~.cudaGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to :py:obj:`~.cudaGraphExecUpdate`. 
+
+         If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with :py:obj:`~.cuGraphUpload` before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.
 
 .. autoclass:: cuda.cudart.cudaDeviceNumaConfig
 
@@ -4788,6 +4808,10 @@ Data types used by CUDA Runtime
 
 
         The GPU is a NUMA node, cudaDevAttrNumaId contains its NUMA ID
+
+.. autoclass:: cuda.cudart.cudaAsyncNotificationType
+
+    .. autoattribute:: cuda.cudart.cudaAsyncNotificationType.cudaAsyncNotificationTypeOverBudget
 
 .. autoclass:: cuda.cudart.cudaSurfaceBoundaryMode
 
@@ -4901,9 +4925,13 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaGraphExec_t
 .. autoclass:: cuda.cudart.cudaGraphInstantiateParams
 .. autoclass:: cuda.cudart.cudaGraphExecUpdateResultInfo
+.. autoclass:: cuda.cudart.cudaGraphDeviceNode_t
 .. autoclass:: cuda.cudart.cudaLaunchMemSyncDomainMap
 .. autoclass:: cuda.cudart.cudaLaunchAttributeValue
 .. autoclass:: cuda.cudart.cudaLaunchAttribute
+.. autoclass:: cuda.cudart.cudaAsyncCallbackHandle_t
+.. autoclass:: cuda.cudart.cudaAsyncNotificationInfo_t
+.. autoclass:: cuda.cudart.cudaAsyncCallback
 .. autoclass:: cuda.cudart.cudaSurfaceObject_t
 .. autoclass:: cuda.cudart.cudaTextureObject_t
 .. autoattribute:: cuda.cudart.CUDA_EGL_MAX_PLANES
@@ -5190,6 +5218,7 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeClusterSchedulingPolicyPreference
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeMemSyncDomainMap
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeMemSyncDomain
+.. autoattribute:: cuda.cudart.cudaKernelNodeAttributeDeviceUpdatableKernelNode
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttrValue
 .. autoattribute:: cuda.cudart.cudaSurfaceType1D
 .. autoattribute:: cuda.cudart.cudaSurfaceType2D

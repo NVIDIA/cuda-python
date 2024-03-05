@@ -1027,3 +1027,57 @@ The valid compiler options are:
 
     Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting --split-compile=0. Setting --split-compile=1 will cause this option to be ignored.
 
+
+
+
+
+
+
+  - ``--fdevice-syntax-only``\  (``-fdevice-syntax-only``\ )
+
+
+
+    Ends device compilation after front-end syntax checking. This option does not generate valid device code.
+
+
+
+
+
+
+
+  - ``--minimal``\  (``-minimal``\ )
+
+
+
+    Omit certain language features to reduce compile time for small programs. In particular, the following are omitted:
+
+
+
+
+
+    - Texture and surface functions and associated types, e.g., ``cudaTextureObject_t``\ .
+
+
+
+
+
+
+
+    - CUDA Runtime Functions that are provided by the cudadevrt device code library, typically named with prefix "cuda", e.g., ``cudaMalloc``\ .
+
+
+
+
+
+
+
+    - Kernel launch from device code.
+
+
+
+
+
+
+
+    - Types and macros associated with CUDA Runtime and Driver APIs, provided by cuda/tools/cudart/driver_types.h, typically named with prefix "cuda", e.g., ``cudaError_t``\ .
+

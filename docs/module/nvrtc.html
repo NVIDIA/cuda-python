@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/module/nvrtc.html" />
 
     <!-- Generated with Sphinx 5.0.2 and Furo 2023.03.27 -->
-        <title>nvrtc - CUDA Python 12.3.0 documentation</title>
+        <title>nvrtc - CUDA Python 12.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">CUDA Python 12.3.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">CUDA Python 12.4.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 12.3.0 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.4.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.4.0-notes.html">    12.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.3.0-notes.html">    12.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.2.1-notes.html">    12.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.2.0-notes.html">    12.2.0</a></li>
@@ -1134,6 +1135,18 @@ expression.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--split-compile=</span></code> &lt;number of threads&gt; (<code class="docutils literal notranslate"><span class="pre">-split-compile=</span></code> &lt;number of threads&gt;)</p>
 <p>Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting –split-compile=0. Setting –split-compile=1 will cause this option to be ignored.</p>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--fdevice-syntax-only</span></code> (<code class="docutils literal notranslate"><span class="pre">-fdevice-syntax-only</span></code>)</p>
+<p>Ends device compilation after front-end syntax checking. This option does not generate valid device code.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--minimal</span></code> (<code class="docutils literal notranslate"><span class="pre">-minimal</span></code>)</p>
+<p>Omit certain language features to reduce compile time for small programs. In particular, the following are omitted:</p>
+<ul class="simple">
+<li><p>Texture and surface functions and associated types, e.g., <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>.</p></li>
+<li><p>CUDA Runtime Functions that are provided by the cudadevrt device code library, typically named with prefix “cuda”, e.g., <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>.</p></li>
+<li><p>Kernel launch from device code.</p></li>
+<li><p>Types and macros associated with CUDA Runtime and Driver APIs, provided by cuda/tools/cudart/driver_types.h, typically named with prefix “cuda”, e.g., <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>.</p></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1161,7 +1174,7 @@ expression.</p></li>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2023, NVIDIA
+                Copyright &#169; 2021-2024, NVIDIA
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             

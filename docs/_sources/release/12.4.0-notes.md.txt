@@ -1,9 +1,10 @@
-# CUDA Python 12.2.1 Release notes
+# CUDA Python 12.4.0 Release notes
 
 Released on January ??, 2024
 
 ## Hightlights
-- Compatibility with Cython 3
+- Rebase to CUDA Toolkit 12.4
+- Add PyPI/Conda support for Python 12
 
 ## Limitations
 
@@ -29,3 +30,5 @@ Released on January ??, 2024
     - cudaLaunchCooperativeKernelMultiDevice
 - cudaSetValidDevices
 - cudaVDPAUSetVDPAUDevice
+- cudaFuncGetName
+- cudaFuncGetParamInfo

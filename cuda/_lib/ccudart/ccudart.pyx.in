@@ -1,4 +1,4 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -72,7 +72,7 @@ cdef cudaError_t _cudaEventQuery(cudaEvent_t event) except ?cudaErrorCallRequire
 {{endif}}
 {{if 'cudaCreateChannelDesc' in found_functions}}
 
-cdef cudaChannelFormatDesc _cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) nogil:
+cdef cudaChannelFormatDesc _cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) noexcept nogil:
     cdef cudaChannelFormatDesc desc
     desc.x = x
     desc.y = y
@@ -1516,7 +1516,7 @@ cdef cudaError_t _cudaMemcpy3DPeerAsync(const cudaMemcpy3DPeerParms* p, cudaStre
 {{endif}}
 {{if 'make_cudaPitchedPtr' in found_functions}}
 
-cdef cudaPitchedPtr _make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) nogil:
+cdef cudaPitchedPtr _make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) noexcept nogil:
     cdef cudaPitchedPtr s
     s.ptr   = d
     s.pitch = p
@@ -1528,7 +1528,7 @@ cdef cudaPitchedPtr _make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t y
 {{endif}}
 {{if 'make_cudaPos' in found_functions}}
 
-cdef cudaPos _make_cudaPos(size_t x, size_t y, size_t z) nogil:
+cdef cudaPos _make_cudaPos(size_t x, size_t y, size_t z) noexcept nogil:
     cdef cudaPos p
     p.x = x
     p.y = y
@@ -1539,7 +1539,7 @@ cdef cudaPos _make_cudaPos(size_t x, size_t y, size_t z) nogil:
 {{endif}}
 {{if 'make_cudaExtent' in found_functions}}
 
-cdef cudaExtent _make_cudaExtent(size_t w, size_t h, size_t d) nogil:
+cdef cudaExtent _make_cudaExtent(size_t w, size_t h, size_t d) noexcept nogil:
     cdef cudaExtent e
     e.width  = w
     e.height = h
@@ -1644,6 +1644,9 @@ cdef cudaError_t _cudaGraphMemFreeNodeGetParams(cudaGraphNode_t node, void* dptr
 
 cdef cudaError_t _cudaMemAdvise(const void* devPtr, size_t count, cudaMemoryAdvise advice, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
     err = <cudaError_t>ccuda._cuMemAdvise(<ccuda.CUdeviceptr>devPtr, count, <ccuda.CUmem_advise>advice, <ccuda.CUdevice>device)
     if err != cudaSuccess:
         _setLastError(err)
@@ -1658,6 +1661,9 @@ cdef cudaError_t _cudaMemAdvise_v2(const void* devPtr, size_t count, cudaMemoryA
     cdef ccuda.CUmemLocation _driver_location
     _driver_location.type = <ccuda.CUmemLocationType>location.type
     _driver_location.id = location.id
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
     err = <cudaError_t>ccuda._cuMemAdvise_v2(<ccuda.CUdeviceptr>devPtr, count, <ccuda.CUmem_advise>advice, _driver_location)
     if err != cudaSuccess:
         _setLastError(err)
@@ -4883,7 +4889,7 @@ cdef cudaError_t _getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorC
 
     # Call
     cdef cudaError_t err = cudaSuccess
-    err = (<cudaError_t (*)(int*) nogil> __cudaRuntimeGetVersion)(runtimeVersion)
+    err = (<cudaError_t (*)(int*) except ?cudaErrorCallRequiresNewerDriver nogil> __cudaRuntimeGetVersion)(runtimeVersion)
 
     # Unload
     dlfcn.dlclose(handle)
@@ -4891,4 +4897,23 @@ cdef cudaError_t _getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorC
     # Return
     return err
     {{endif}}
+{{endif}}
+{{if 'cudaDeviceRegisterAsyncNotification' in found_functions}}
+
+cdef cudaError_t _cudaDeviceRegisterAsyncNotification(int device, cudaAsyncCallback callbackFunc, void* userData, cudaAsyncCallbackHandle_t* callback) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = DeviceRegisterAsyncNotificationCommon(device, callbackFunc, userData, callback)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaDeviceUnregisterAsyncNotification' in found_functions}}
+
+cdef cudaError_t _cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCallbackHandle_t callback) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = DeviceUnregisterAsyncNotificationCommon(device, callback)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
 {{endif}}

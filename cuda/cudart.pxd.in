@@ -1,4 +1,4 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -145,6 +145,40 @@ cdef class cudaKernel_t:
     cdef ccudart.cudaKernel_t* _ptr
 {{endif}}
 
+{{if 'cudaGraphDeviceNode_t' in found_types}}
+
+cdef class cudaGraphDeviceNode_t:
+    """
+
+    CUDA device node handle for device-side node update
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaGraphDeviceNode_t  __val
+    cdef ccudart.cudaGraphDeviceNode_t* _ptr
+{{endif}}
+
+{{if 'cudaAsyncCallbackHandle_t' in found_types}}
+
+cdef class cudaAsyncCallbackHandle_t:
+    """
+
+    CUDA async callback handle
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaAsyncCallbackHandle_t  __val
+    cdef ccudart.cudaAsyncCallbackHandle_t* _ptr
+{{endif}}
+
 {{if True}}
 
 cdef class EGLImageKHR:
@@ -203,6 +237,21 @@ cdef class cudaHostFn_t:
     """
     cdef ccudart.cudaHostFn_t  __val
     cdef ccudart.cudaHostFn_t* _ptr
+{{endif}}
+
+{{if 'cudaAsyncCallback' in found_types}}
+
+cdef class cudaAsyncCallback:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaAsyncCallback  __val
+    cdef ccudart.cudaAsyncCallback* _ptr
 {{endif}}
 
 {{if 'cudaStreamCallback_t' in found_types}}
@@ -803,7 +852,7 @@ cdef class cudaResourceDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaResourceDesc __val
+    cdef ccudart.cudaResourceDesc* _val_ptr
     cdef ccudart.cudaResourceDesc* _ptr
     cdef anon_union0 _res
 {{endif}}
@@ -1537,7 +1586,7 @@ cdef class cudaExternalMemoryHandleDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalMemoryHandleDesc __val
+    cdef ccudart.cudaExternalMemoryHandleDesc* _val_ptr
     cdef ccudart.cudaExternalMemoryHandleDesc* _ptr
     cdef anon_union1 _handle
 {{endif}}
@@ -1659,7 +1708,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaExternalSemaphoreHandleDesc __val
+    cdef ccudart.cudaExternalSemaphoreHandleDesc* _val_ptr
     cdef ccudart.cudaExternalSemaphoreHandleDesc* _ptr
     cdef anon_union2 _handle
 {{endif}}
@@ -2091,8 +2140,7 @@ cdef class cudaConditionalNodeParams:
     type : cudaGraphConditionalNodeType
         Type of conditional node.
     size : unsigned int
-        Size of graph output array. Must be 1 for WHILE nodes, 1 or 2 for
-        IF nodes, and >0 for SWITCH nodes.
+        Size of graph output array. Must be 1.
     phGraph_out : cudaGraph_t
         CUDA-owned array populated with conditional node child graphs
         during creation of the node. Valid for the lifetime of the
@@ -2346,6 +2394,78 @@ cdef class cudaGraphExecUpdateResultInfo_st:
     cdef cudaGraphNode_t _errorNode
     cdef cudaGraphNode_t _errorFromNode
 {{endif}}
+{{if 'struct cudaGraphKernelNodeUpdate' in found_types}}
+
+cdef class anon_struct19:
+    """
+    Attributes
+    ----------
+    pValue : Any
+
+    offset : size_t
+
+    size : size_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaGraphKernelNodeUpdate* _ptr
+{{endif}}
+{{if 'struct cudaGraphKernelNodeUpdate' in found_types}}
+
+cdef class anon_union8:
+    """
+    Attributes
+    ----------
+    gridDim : dim3
+
+    param : anon_struct19
+
+    isEnabled : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaGraphKernelNodeUpdate* _ptr
+    cdef dim3 _gridDim
+    cdef anon_struct19 _param
+{{endif}}
+{{if 'struct cudaGraphKernelNodeUpdate' in found_types}}
+
+cdef class cudaGraphKernelNodeUpdate:
+    """
+    Struct to specify a single node update to pass as part of a larger
+    array to ::cudaGraphKernelNodeUpdatesApply
+
+    Attributes
+    ----------
+    node : cudaGraphDeviceNode_t
+        Node to update
+    field : cudaGraphKernelNodeField
+        Which type of update to apply. Determines how updateData is
+        interpreted
+    updateData : anon_union8
+        Update data to apply. Which field is used depends on field's value
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaGraphKernelNodeUpdate* _val_ptr
+    cdef ccudart.cudaGraphKernelNodeUpdate* _ptr
+    cdef cudaGraphDeviceNode_t _node
+    cdef anon_union8 _updateData
+{{endif}}
 {{if 'struct cudaLaunchMemSyncDomainMap_st' in found_types}}
 
 cdef class cudaLaunchMemSyncDomainMap_st:
@@ -2376,7 +2496,7 @@ cdef class cudaLaunchMemSyncDomainMap_st:
 {{endif}}
 {{if 'union cudaLaunchAttributeValue' in found_types}}
 
-cdef class anon_struct19:
+cdef class anon_struct20:
     """
     Attributes
     ----------
@@ -2397,7 +2517,7 @@ cdef class anon_struct19:
 {{endif}}
 {{if 'union cudaLaunchAttributeValue' in found_types}}
 
-cdef class anon_struct20:
+cdef class anon_struct21:
     """
     Attributes
     ----------
@@ -2419,7 +2539,7 @@ cdef class anon_struct20:
 {{endif}}
 {{if 'union cudaLaunchAttributeValue' in found_types}}
 
-cdef class anon_struct21:
+cdef class anon_struct22:
     """
     Attributes
     ----------
@@ -2436,6 +2556,26 @@ cdef class anon_struct21:
     """
     cdef ccudart.cudaLaunchAttributeValue* _ptr
     cdef cudaEvent_t _event
+{{endif}}
+{{if 'union cudaLaunchAttributeValue' in found_types}}
+
+cdef class anon_struct23:
+    """
+    Attributes
+    ----------
+    deviceUpdatable : int
+
+    devNode : cudaGraphDeviceNode_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaLaunchAttributeValue* _ptr
+    cdef cudaGraphDeviceNode_t _devNode
 {{endif}}
 {{if 'union cudaLaunchAttributeValue' in found_types}}
 
@@ -2456,7 +2596,7 @@ cdef class cudaLaunchAttributeValue:
     syncPolicy : cudaSynchronizationPolicy
         Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
         ::cudaSynchronizationPolicy for work queued up in this stream.
-    clusterDim : anon_struct19
+    clusterDim : anon_struct20
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -2471,7 +2611,7 @@ cdef class cudaLaunchAttributeValue:
     programmaticStreamSerializationAllowed : int
         Value of launch attribute
         cudaLaunchAttributeProgrammaticStreamSerialization.
-    programmaticEvent : anon_struct20
+    programmaticEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent.
     priority : int
         Value of launch attribute cudaLaunchAttributePriority. Execution
@@ -2482,8 +2622,11 @@ cdef class cudaLaunchAttributeValue:
     memSyncDomain : cudaLaunchMemSyncDomain
         Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
         cudaLaunchMemSyncDomain.
-    launchCompletionEvent : anon_struct21
+    launchCompletionEvent : anon_struct22
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
+    deviceUpdatableKernelNode : anon_struct23
+        Value of launch attribute
+        ::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
 
     Methods
     -------
@@ -2494,10 +2637,11 @@ cdef class cudaLaunchAttributeValue:
     cdef ccudart.cudaLaunchAttributeValue __val
     cdef ccudart.cudaLaunchAttributeValue* _ptr
     cdef cudaAccessPolicyWindow _accessPolicyWindow
-    cdef anon_struct19 _clusterDim
-    cdef anon_struct20 _programmaticEvent
+    cdef anon_struct20 _clusterDim
+    cdef anon_struct21 _programmaticEvent
     cdef cudaLaunchMemSyncDomainMap _memSyncDomainMap
-    cdef anon_struct21 _launchCompletionEvent
+    cdef anon_struct22 _launchCompletionEvent
+    cdef anon_struct23 _deviceUpdatableKernelNode
 {{endif}}
 {{if 'struct cudaLaunchAttribute_st' in found_types}}
 
@@ -2521,6 +2665,64 @@ cdef class cudaLaunchAttribute_st:
     cdef ccudart.cudaLaunchAttribute_st __val
     cdef ccudart.cudaLaunchAttribute_st* _ptr
     cdef cudaLaunchAttributeValue _val
+{{endif}}
+{{if 'struct cudaAsyncNotificationInfo' in found_types}}
+
+cdef class anon_struct24:
+    """
+    Attributes
+    ----------
+    bytesOverBudget : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaAsyncNotificationInfo* _ptr
+{{endif}}
+{{if 'struct cudaAsyncNotificationInfo' in found_types}}
+
+cdef class anon_union9:
+    """
+    Attributes
+    ----------
+    overBudget : anon_struct24
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaAsyncNotificationInfo* _ptr
+    cdef anon_struct24 _overBudget
+{{endif}}
+{{if 'struct cudaAsyncNotificationInfo' in found_types}}
+
+cdef class cudaAsyncNotificationInfo:
+    """
+    Information describing an async notification event
+
+    Attributes
+    ----------
+    type : cudaAsyncNotificationType
+
+    info : anon_union9
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef ccudart.cudaAsyncNotificationInfo* _val_ptr
+    cdef ccudart.cudaAsyncNotificationInfo* _ptr
+    cdef anon_union9 _info
 {{endif}}
 {{if 'struct cudaTextureDesc' in found_types}}
 
@@ -2602,7 +2804,7 @@ cdef class cudaEglPlaneDesc_st:
 {{endif}}
 {{if True}}
 
-cdef class anon_union8:
+cdef class anon_union10:
     """
     Attributes
     ----------
@@ -2634,7 +2836,7 @@ cdef class cudaEglFrame_st:
 
     Attributes
     ----------
-    frame : anon_union8
+    frame : anon_union10
 
     planeDesc : List[cudaEglPlaneDesc]
         CUDA EGL Plane Descriptor cudaEglPlaneDesc
@@ -2651,9 +2853,9 @@ cdef class cudaEglFrame_st:
         Get memory address of class instance
 
     """
-    cdef ccudart.cudaEglFrame_st __val
+    cdef ccudart.cudaEglFrame_st* _val_ptr
     cdef ccudart.cudaEglFrame_st* _ptr
-    cdef anon_union8 _frame
+    cdef anon_union10 _frame
 {{endif}}
 {{if 'CUuuid' in found_types}}
 
@@ -2887,6 +3089,27 @@ cdef class cudaLaunchAttribute(cudaLaunchAttribute_st):
     """
     pass
 {{endif}}
+{{if 'cudaAsyncNotificationInfo_t' in found_types}}
+
+cdef class cudaAsyncNotificationInfo_t(cudaAsyncNotificationInfo):
+    """
+    Information describing an async notification event
+
+    Attributes
+    ----------
+    type : cudaAsyncNotificationType
+
+    info : anon_union9
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    pass
+{{endif}}
 {{if True}}
 
 cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
@@ -2906,7 +3129,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     syncPolicy : cudaSynchronizationPolicy
         Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
         ::cudaSynchronizationPolicy for work queued up in this stream.
-    clusterDim : anon_struct19
+    clusterDim : anon_struct20
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -2921,7 +3144,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     programmaticStreamSerializationAllowed : int
         Value of launch attribute
         cudaLaunchAttributeProgrammaticStreamSerialization.
-    programmaticEvent : anon_struct20
+    programmaticEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent.
     priority : int
         Value of launch attribute cudaLaunchAttributePriority. Execution
@@ -2932,8 +3155,11 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
     memSyncDomain : cudaLaunchMemSyncDomain
         Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
         cudaLaunchMemSyncDomain.
-    launchCompletionEvent : anon_struct21
+    launchCompletionEvent : anon_struct22
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
+    deviceUpdatableKernelNode : anon_struct23
+        Value of launch attribute
+        ::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
 
     Methods
     -------
@@ -2962,7 +3188,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     syncPolicy : cudaSynchronizationPolicy
         Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
         ::cudaSynchronizationPolicy for work queued up in this stream.
-    clusterDim : anon_struct19
+    clusterDim : anon_struct20
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -2977,7 +3203,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     programmaticStreamSerializationAllowed : int
         Value of launch attribute
         cudaLaunchAttributeProgrammaticStreamSerialization.
-    programmaticEvent : anon_struct20
+    programmaticEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent.
     priority : int
         Value of launch attribute cudaLaunchAttributePriority. Execution
@@ -2988,8 +3214,11 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
     memSyncDomain : cudaLaunchMemSyncDomain
         Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
         cudaLaunchMemSyncDomain.
-    launchCompletionEvent : anon_struct21
+    launchCompletionEvent : anon_struct22
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
+    deviceUpdatableKernelNode : anon_struct23
+        Value of launch attribute
+        ::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
 
     Methods
     -------
@@ -3046,7 +3275,7 @@ cdef class cudaEglFrame(cudaEglFrame_st):
 
     Attributes
     ----------
-    frame : anon_union8
+    frame : anon_union10
 
     planeDesc : List[cudaEglPlaneDesc]
         CUDA EGL Plane Descriptor cudaEglPlaneDesc

@@ -1,4 +1,4 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -307,7 +307,7 @@ cdef const char* _nvrtcGetErrorString(nvrtcResult result) except ?NULL nogil:
     if __nvrtcGetErrorString == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetErrorString" not found')
-    err = (<const char* (*)(nvrtcResult) nogil> __nvrtcGetErrorString)(result)
+    err = (<const char* (*)(nvrtcResult) except ?NULL nogil> __nvrtcGetErrorString)(result)
     return err
 {{endif}}
 
@@ -319,7 +319,7 @@ cdef nvrtcResult _nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVAL
     if __nvrtcVersion == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcVersion" not found')
-    err = (<nvrtcResult (*)(int*, int*) nogil> __nvrtcVersion)(major, minor)
+    err = (<nvrtcResult (*)(int*, int*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcVersion)(major, minor)
     return err
 {{endif}}
 
@@ -331,7 +331,7 @@ cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_I
     if __nvrtcGetNumSupportedArchs == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetNumSupportedArchs" not found')
-    err = (<nvrtcResult (*)(int*) nogil> __nvrtcGetNumSupportedArchs)(numArchs)
+    err = (<nvrtcResult (*)(int*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetNumSupportedArchs)(numArchs)
     return err
 {{endif}}
 
@@ -343,7 +343,7 @@ cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERRO
     if __nvrtcGetSupportedArchs == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetSupportedArchs" not found')
-    err = (<nvrtcResult (*)(int*) nogil> __nvrtcGetSupportedArchs)(supportedArchs)
+    err = (<nvrtcResult (*)(int*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetSupportedArchs)(supportedArchs)
     return err
 {{endif}}
 
@@ -355,7 +355,7 @@ cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const 
     if __nvrtcCreateProgram == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcCreateProgram" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram*, const char*, const char*, int, const char**, const char**) nogil> __nvrtcCreateProgram)(prog, src, name, numHeaders, headers, includeNames)
+    err = (<nvrtcResult (*)(nvrtcProgram*, const char*, const char*, int, const char**, const char**) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcCreateProgram)(prog, src, name, numHeaders, headers, includeNames)
     return err
 {{endif}}
 
@@ -367,7 +367,7 @@ cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_IN
     if __nvrtcDestroyProgram == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcDestroyProgram" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram*) nogil> __nvrtcDestroyProgram)(prog)
+    err = (<nvrtcResult (*)(nvrtcProgram*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcDestroyProgram)(prog)
     return err
 {{endif}}
 
@@ -379,7 +379,7 @@ cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const c
     if __nvrtcCompileProgram == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcCompileProgram" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, int, const char**) nogil> __nvrtcCompileProgram)(prog, numOptions, options)
+    err = (<nvrtcResult (*)(nvrtcProgram, int, const char**) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcCompileProgram)(prog, numOptions, options)
     return err
 {{endif}}
 
@@ -391,7 +391,7 @@ cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except 
     if __nvrtcGetPTXSize == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetPTXSize" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) nogil> __nvrtcGetPTXSize)(prog, ptxSizeRet)
+    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPTXSize)(prog, ptxSizeRet)
     return err
 {{endif}}
 
@@ -403,7 +403,7 @@ cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_
     if __nvrtcGetPTX == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetPTX" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, char*) nogil> __nvrtcGetPTX)(prog, ptx)
+    err = (<nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPTX)(prog, ptx)
     return err
 {{endif}}
 
@@ -415,7 +415,7 @@ cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) exc
     if __nvrtcGetCUBINSize == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetCUBINSize" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) nogil> __nvrtcGetCUBINSize)(prog, cubinSizeRet)
+    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetCUBINSize)(prog, cubinSizeRet)
     return err
 {{endif}}
 
@@ -427,7 +427,7 @@ cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ER
     if __nvrtcGetCUBIN == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetCUBIN" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, char*) nogil> __nvrtcGetCUBIN)(prog, cubin)
+    err = (<nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetCUBIN)(prog, cubin)
     return err
 {{endif}}
 
@@ -439,7 +439,7 @@ cdef nvrtcResult _nvrtcGetNVVMSize(nvrtcProgram prog, size_t* nvvmSizeRet) excep
     if __nvrtcGetNVVMSize == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetNVVMSize" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) nogil> __nvrtcGetNVVMSize)(prog, nvvmSizeRet)
+    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetNVVMSize)(prog, nvvmSizeRet)
     return err
 {{endif}}
 
@@ -451,7 +451,7 @@ cdef nvrtcResult _nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) except ?NVRTC_ERRO
     if __nvrtcGetNVVM == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetNVVM" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, char*) nogil> __nvrtcGetNVVM)(prog, nvvm)
+    err = (<nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetNVVM)(prog, nvvm)
     return err
 {{endif}}
 
@@ -463,7 +463,7 @@ cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) exc
     if __nvrtcGetLTOIRSize == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetLTOIRSize" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) nogil> __nvrtcGetLTOIRSize)(prog, LTOIRSizeRet)
+    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetLTOIRSize)(prog, LTOIRSizeRet)
     return err
 {{endif}}
 
@@ -475,7 +475,7 @@ cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ER
     if __nvrtcGetLTOIR == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetLTOIR" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, char*) nogil> __nvrtcGetLTOIR)(prog, LTOIR)
+    err = (<nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetLTOIR)(prog, LTOIR)
     return err
 {{endif}}
 
@@ -487,7 +487,7 @@ cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet)
     if __nvrtcGetOptiXIRSize == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetOptiXIRSize" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) nogil> __nvrtcGetOptiXIRSize)(prog, optixirSizeRet)
+    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetOptiXIRSize)(prog, optixirSizeRet)
     return err
 {{endif}}
 
@@ -499,7 +499,7 @@ cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRT
     if __nvrtcGetOptiXIR == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetOptiXIR" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, char*) nogil> __nvrtcGetOptiXIR)(prog, optixir)
+    err = (<nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetOptiXIR)(prog, optixir)
     return err
 {{endif}}
 
@@ -511,7 +511,7 @@ cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) 
     if __nvrtcGetProgramLogSize == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetProgramLogSize" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) nogil> __nvrtcGetProgramLogSize)(prog, logSizeRet)
+    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetProgramLogSize)(prog, logSizeRet)
     return err
 {{endif}}
 
@@ -523,7 +523,7 @@ cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC
     if __nvrtcGetProgramLog == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetProgramLog" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, char*) nogil> __nvrtcGetProgramLog)(prog, log)
+    err = (<nvrtcResult (*)(nvrtcProgram, char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetProgramLog)(prog, log)
     return err
 {{endif}}
 
@@ -535,7 +535,7 @@ cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_exp
     if __nvrtcAddNameExpression == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcAddNameExpression" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, const char*) nogil> __nvrtcAddNameExpression)(prog, name_expression)
+    err = (<nvrtcResult (*)(nvrtcProgram, const char*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcAddNameExpression)(prog, name_expression)
     return err
 {{endif}}
 
@@ -547,6 +547,6 @@ cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expres
     if __nvrtcGetLoweredName == NULL:
         with gil:
             raise RuntimeError('Function "nvrtcGetLoweredName" not found')
-    err = (<nvrtcResult (*)(nvrtcProgram, const char*, const char**) nogil> __nvrtcGetLoweredName)(prog, name_expression, lowered_name)
+    err = (<nvrtcResult (*)(nvrtcProgram, const char*, const char**) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetLoweredName)(prog, name_expression, lowered_name)
     return err
 {{endif}}

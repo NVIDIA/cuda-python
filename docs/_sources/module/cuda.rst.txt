@@ -14,6 +14,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUstreamBatchMemOpParams_union
 .. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st
 .. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st
+.. autoclass:: cuda.cuda.CUasyncNotificationInfo_st
 .. autoclass:: cuda.cuda.CUdevprop_st
 .. autoclass:: cuda.cuda.CUaccessPolicyWindow_st
 .. autoclass:: cuda.cuda.CUDA_KERNEL_NODE_PARAMS_st
@@ -424,6 +425,10 @@ Data types used by CUDA driver
 
 
         Replace the dependency set with the new nodes
+
+.. autoclass:: cuda.cuda.CUasyncNotificationType
+
+    .. autoattribute:: cuda.cuda.CUasyncNotificationType.CU_ASYNC_NOTIFICATION_TYPE_OVER_BUDGET
 
 .. autoclass:: cuda.cuda.CUarray_format
 
@@ -2281,7 +2286,23 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_MIN_CTA_PER_SM
 
 
-        This option hints to the JIT compiler the minimum number of CTAs from the kernel’s grid to be mapped to a SM. Optimizations based on this option need either :py:obj:`~.CU_JIT_MAX_REGISTERS` or :py:obj:`~.CU_JIT_THREADS_PER_BLOCK` to be specified as well. Option type: unsigned int
+        This option hints to the JIT compiler the minimum number of CTAs from the kernel’s grid to be mapped to a SM. This option is ignored when used together with :py:obj:`~.CU_JIT_MAX_REGISTERS` or :py:obj:`~.CU_JIT_THREADS_PER_BLOCK`. Optimizations based on this option need :py:obj:`~.CU_JIT_MAX_THREADS_PER_BLOCK` to be specified as well. For kernels already using PTX directive .minnctapersm, this option will be ignored by default. Use :py:obj:`~.CU_JIT_OVERRIDE_DIRECTIVE_VALUES` to let this option take precedence over the PTX directive. Option type: unsigned int
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_MAX_THREADS_PER_BLOCK
+
+
+        Maximum number threads in a thread block, computed as the product of the maximum extent specifed for each dimension of the block. This limit is guaranteed not to be exeeded in any invocation of the kernel. Exceeding the the maximum number of threads results in runtime error or kernel launch failure. For kernels already using PTX directive .maxntid, this option will be ignored by default. Use :py:obj:`~.CU_JIT_OVERRIDE_DIRECTIVE_VALUES` to let this option take precedence over the PTX directive. Option type: int
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.cuda.CUjit_option.CU_JIT_OVERRIDE_DIRECTIVE_VALUES
+
+
+        This option lets the values specified using :py:obj:`~.CU_JIT_MAX_REGISTERS`, :py:obj:`~.CU_JIT_THREADS_PER_BLOCK`, :py:obj:`~.CU_JIT_MAX_THREADS_PER_BLOCK` and :py:obj:`~.CU_JIT_MIN_CTA_PER_SM` take precedence over any PTX directives. (0: Disable, default; 1: Enable) Option type: int
 
         Applies to: compiler only
 
@@ -2761,15 +2782,9 @@ Data types used by CUDA driver
 
 
 
-                                                To set the control value:
+                                                To set the control value, supply a default value when creating the handle and/or
 
-
-
-                                                 In a kernel or kernels at appropriate locations in the graph, insert a call to
-
-                                                  void cudaGraphSetConditional(CUgraphConditionalHandle handle, unsigned int value).
-
-                                                 Supply a default value when creating the handle.
+                                                call :py:obj:`~.cudaGraphSetConditional` from device code.
 
 .. autoclass:: cuda.cuda.CUgraphDependencyType
 
@@ -2935,11 +2950,23 @@ Data types used by CUDA driver
 
         Valid for launches. Set :py:obj:`~.CUlaunchAttributeValue.launchCompletionEvent` to record the event. 
 
-         Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavaiable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock. 
+         Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock. 
 
          A launch completion event is nominally similar to a programmatic event with `triggerAtBlockStart` set except that it is not visible to `cudaGridDependencySynchronize()` and can be used with compute capability less than 9.0. 
 
          The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.CU_EVENT_DISABLE_TIMING` flag set).
+
+
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE
+
+
+        Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error. 
+
+         :py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.CUlaunchAttributeValue`::deviceUpdatableKernelNode::devNode which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
+
+         Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via :py:obj:`~.cuGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via :py:obj:`~.cuGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to :py:obj:`~.cuGraphExecUpdate`. 
+
+         If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with :py:obj:`~.cuGraphUpload` before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.
 
 .. autoclass:: cuda.cuda.CUstreamCaptureStatus
 
@@ -3126,7 +3153,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_INVALID_CONTEXT
 
 
-        This most frequently indicates that there is no context bound to the current thread. This can also be returned if the context passed to an API call is not a valid handle (such as a context that has had :py:obj:`~.cuCtxDestroy()` invoked on it). This can also be returned if a user mixes different API versions (i.e. 3010 context with 3020 API calls). See :py:obj:`~.cuCtxGetApiVersion()` for more details.
+        This most frequently indicates that there is no context bound to the current thread. This can also be returned if the context passed to an API call is not a valid handle (such as a context that has had :py:obj:`~.cuCtxDestroy()` invoked on it). This can also be returned if a user mixes different API versions (i.e. 3010 context with 3020 API calls). See :py:obj:`~.cuCtxGetApiVersion()` for more details. This can also be returned if the green context passed to an API call was not converted to a :py:obj:`~.CUcontext` using :py:obj:`~.cuCtxFromGreenCtx` API.
 
 
     .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_CONTEXT_ALREADY_CURRENT
@@ -3589,6 +3616,24 @@ Data types used by CUDA driver
 
 
         Indicates a kernel launch error due to cluster misconfiguration.
+
+
+    .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_FUNCTION_NOT_LOADED
+
+
+        Indiciates a function handle is not loaded when calling an API that requires a loaded function.
+
+
+    .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_INVALID_RESOURCE_TYPE
+
+
+        This error indicates one or more resources passed in are not valid resource types for the operation.
+
+
+    .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION
+
+
+        This error indicates one or more resources are insufficient or non-applicable for the operation.
 
 
     .. autoattribute:: cuda.cuda.CUresult.CUDA_ERROR_UNKNOWN
@@ -5286,6 +5331,8 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUmemoryPool
 .. autoclass:: cuda.cuda.CUuserObject
 .. autoclass:: cuda.cuda.CUgraphConditionalHandle
+.. autoclass:: cuda.cuda.CUgraphDeviceNode
+.. autoclass:: cuda.cuda.CUasyncCallbackHandle
 .. autoclass:: cuda.cuda.CUuuid
 .. autoclass:: cuda.cuda.CUmemFabricHandle_v1
 .. autoclass:: cuda.cuda.CUmemFabricHandle
@@ -5298,6 +5345,8 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v1
 .. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS
 .. autoclass:: cuda.cuda.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2
+.. autoclass:: cuda.cuda.CUasyncNotificationInfo
+.. autoclass:: cuda.cuda.CUasyncCallback
 .. autoclass:: cuda.cuda.CUdevprop_v1
 .. autoclass:: cuda.cuda.CUdevprop
 .. autoclass:: cuda.cuda.CUlinkState
@@ -5468,6 +5517,7 @@ Data types used by CUDA driver
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_PRIORITY
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN
+.. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE
 .. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW
 .. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY
 .. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_PRIORITY
@@ -5729,8 +5779,6 @@ Please note that some functions are described in Primary Context Management sect
 .. autofunction:: cuda.cuda.cuCtxGetLimit
 .. autofunction:: cuda.cuda.cuCtxGetCacheConfig
 .. autofunction:: cuda.cuda.cuCtxSetCacheConfig
-.. autofunction:: cuda.cuda.cuCtxGetSharedMemConfig
-.. autofunction:: cuda.cuda.cuCtxSetSharedMemConfig
 .. autofunction:: cuda.cuda.cuCtxGetApiVersion
 .. autofunction:: cuda.cuda.cuCtxGetStreamPriorityRange
 .. autofunction:: cuda.cuda.cuCtxResetPersistingL2Cache
@@ -5761,6 +5809,8 @@ This section describes the module management functions of the low-level CUDA dri
 .. autofunction:: cuda.cuda.cuModuleUnload
 .. autofunction:: cuda.cuda.cuModuleGetLoadingMode
 .. autofunction:: cuda.cuda.cuModuleGetFunction
+.. autofunction:: cuda.cuda.cuModuleGetFunctionCount
+.. autofunction:: cuda.cuda.cuModuleEnumerateFunctions
 .. autofunction:: cuda.cuda.cuModuleGetGlobal
 .. autofunction:: cuda.cuda.cuLinkCreate
 .. autofunction:: cuda.cuda.cuLinkAddData
@@ -5777,6 +5827,8 @@ This section describes the library management functions of the low-level CUDA dr
 .. autofunction:: cuda.cuda.cuLibraryLoadFromFile
 .. autofunction:: cuda.cuda.cuLibraryUnload
 .. autofunction:: cuda.cuda.cuLibraryGetKernel
+.. autofunction:: cuda.cuda.cuLibraryGetKernelCount
+.. autofunction:: cuda.cuda.cuLibraryEnumerateKernels
 .. autofunction:: cuda.cuda.cuLibraryGetModule
 .. autofunction:: cuda.cuda.cuKernelGetFunction
 .. autofunction:: cuda.cuda.cuLibraryGetGlobal
@@ -5786,6 +5838,7 @@ This section describes the library management functions of the low-level CUDA dr
 .. autofunction:: cuda.cuda.cuKernelSetAttribute
 .. autofunction:: cuda.cuda.cuKernelSetCacheConfig
 .. autofunction:: cuda.cuda.cuKernelGetName
+.. autofunction:: cuda.cuda.cuKernelGetParamInfo
 
 Memory Management
 -----------------
@@ -5803,6 +5856,8 @@ This section describes the memory management functions of the low-level CUDA dri
 .. autofunction:: cuda.cuda.cuMemHostGetDevicePointer
 .. autofunction:: cuda.cuda.cuMemHostGetFlags
 .. autofunction:: cuda.cuda.cuMemAllocManaged
+.. autofunction:: cuda.cuda.cuDeviceRegisterAsyncNotification
+.. autofunction:: cuda.cuda.cuDeviceUnregisterAsyncNotification
 .. autofunction:: cuda.cuda.cuDeviceGetByPCIBusId
 .. autofunction:: cuda.cuda.cuDeviceGetPCIBusId
 .. autofunction:: cuda.cuda.cuIpcGetEventHandle
@@ -5938,7 +5993,7 @@ This section describes the CUDA multicast object operations exposed by the low-l
 
 
 
-A multicast object created via cuMulticastCreate enables certain memory operations to be broadcasted to a team of devices. Devices can be added to a multicast object via cuMulticastAddDevice. Memory can be bound on each participating device via either cuMulticastBindMem or cuMulticastBindAddr. Multicast objects can be mapped into a device's virtual address space using the virtual memmory management APIs (see cuMemMap and cuMemSetAccess).
+A multicast object created via cuMulticastCreate enables certain memory operations to be broadcast to a team of devices. Devices can be added to a multicast object via cuMulticastAddDevice. Memory can be bound on each participating device via either cuMulticastBindMem or cuMulticastBindAddr. Multicast objects can be mapped into a device's virtual address space using the virtual memmory management APIs (see cuMemMap and cuMemSetAccess).
 
 
 
@@ -6139,12 +6194,24 @@ Execution Control
 
 This section describes the execution control functions of the low-level CUDA driver application programming interface.
 
+.. autoclass:: cuda.cuda.CUfunctionLoadingState
+
+    .. autoattribute:: cuda.cuda.CUfunctionLoadingState.CU_FUNCTION_LOADING_STATE_UNLOADED
+
+
+    .. autoattribute:: cuda.cuda.CUfunctionLoadingState.CU_FUNCTION_LOADING_STATE_LOADED
+
+
+    .. autoattribute:: cuda.cuda.CUfunctionLoadingState.CU_FUNCTION_LOADING_STATE_MAX
+
 .. autofunction:: cuda.cuda.cuFuncGetAttribute
 .. autofunction:: cuda.cuda.cuFuncSetAttribute
 .. autofunction:: cuda.cuda.cuFuncSetCacheConfig
-.. autofunction:: cuda.cuda.cuFuncSetSharedMemConfig
 .. autofunction:: cuda.cuda.cuFuncGetModule
 .. autofunction:: cuda.cuda.cuFuncGetName
+.. autofunction:: cuda.cuda.cuFuncGetParamInfo
+.. autofunction:: cuda.cuda.cuFuncIsLoaded
+.. autofunction:: cuda.cuda.cuFuncLoad
 .. autofunction:: cuda.cuda.cuLaunchKernel
 .. autofunction:: cuda.cuda.cuLaunchKernelEx
 .. autofunction:: cuda.cuda.cuLaunchCooperativeKernel
@@ -6348,6 +6415,146 @@ This section describes the coredump attribute control functions of the low-level
 .. autofunction:: cuda.cuda.cuCoredumpGetAttributeGlobal
 .. autofunction:: cuda.cuda.cuCoredumpSetAttribute
 .. autofunction:: cuda.cuda.cuCoredumpSetAttributeGlobal
+
+Green Contexts
+--------------
+
+This section describes the APIs for creation and manipulation of green contexts in the CUDA driver. Green contexts are a lightweight alternative to traditional contexts, with the ability to pass in a set of resources that they should be initialized with. This allows the developer to represent distinct spatial partitions of the GPU, provision resources for them, and target them via the same programming model that CUDA exposes (streams, kernel launches, etc.).
+
+
+
+There are 4 main steps to using these new set of APIs.
+
+- (1) Start with an initial set of resources, for example via cuDeviceGetDevResource. Only SM type is supported today.
+
+
+
+
+
+
+
+- (2) Partition this set of resources by providing them as input to a partition API, for example: cuDevSmResourceSplitByCount.
+
+
+
+
+
+
+
+- (3) Finalize the specification of resources by creating a descriptor via cuDevResourceGenerateDesc.
+
+
+
+
+
+
+
+- (4) Provision the resources and create a green context via cuGreenCtxCreate.
+
+
+
+
+
+
+
+
+
+
+
+For ``CU_DEV_RESOURCE_TYPE_SM``\ , the partitions created have minimum SM count requirements, often rounding up and aligning the minCount provided to cuDevSmResourceSplitByCount. The following is a guideline for each architecture and may be subject to change:
+
+- On Compute Architecture 6.X: The minimum count is 1 SM.
+
+
+
+
+
+
+
+- On Compute Architecture 7.X: The minimum count is 2 SMs and must be a multiple of 2.
+
+
+
+
+
+
+
+- On Compute Architecture 8.X: The minimum count is 4 SMs and must be a multiple of 2.
+
+
+
+
+
+
+
+- On Compute Architecture 9.0+: The minimum count is 8 SMs and must be a multiple of 8.
+
+
+
+
+
+
+
+
+
+
+
+In the future, flags can be provided to tradeoff functional and performance characteristics versus finer grained SM partitions.
+
+
+
+Even if the green contexts have disjoint SM partitions, it is not guaranteed that the kernels launched in them will run concurrently or have forward progress guarantees. This is due to other resources (like HW connections, see ::CUDA_DEVICE_MAX_CONNECTIONS) that could cause a dependency. Additionally, in certain scenarios, it is possible for the workload to run on more SMs than was provisioned (but never less). The following are two scenarios which can exhibit this behavior:
+
+- On Volta+ MPS: When ``CUDA_MPS_ACTIVE_THREAD_PERCENTAGE``\  is used, the set of SMs that are used for running kernels can be scaled up to the value of SMs used for the MPS client.
+
+
+
+
+
+
+
+- On Compute Architecture 9.x: When a module with dynamic parallelism (CDP) is loaded, all future kernels running under green contexts may use and share an additional set of 2 SMs.
+
+.. autoclass:: cuda.cuda.CUdevSmResource_st
+.. autoclass:: cuda.cuda.CUdevResource_st
+.. autoclass:: cuda.cuda.CUdevSmResource
+.. autoclass:: cuda.cuda.CUdevResource
+.. autoclass:: cuda.cuda.CUgreenCtxCreate_flags
+
+    .. autoattribute:: cuda.cuda.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM
+
+
+        Required. Creates a default stream to use inside the green context
+
+.. autoclass:: cuda.cuda.CUdevResourceType
+
+    .. autoattribute:: cuda.cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_INVALID
+
+
+    .. autoattribute:: cuda.cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM
+
+
+        Streaming multiprocessors related information
+
+.. autoclass:: cuda.cuda.CUgreenCtx
+.. autoclass:: cuda.cuda.CUdevResourceDesc
+.. autoclass:: cuda.cuda.CUdevSmResource
+.. autofunction:: cuda.cuda._CONCAT_OUTER
+.. autofunction:: cuda.cuda.cuGreenCtxCreate
+.. autofunction:: cuda.cuda.cuGreenCtxDestroy
+.. autofunction:: cuda.cuda.cuCtxFromGreenCtx
+.. autofunction:: cuda.cuda.cuDeviceGetDevResource
+.. autofunction:: cuda.cuda.cuCtxGetDevResource
+.. autofunction:: cuda.cuda.cuGreenCtxGetDevResource
+.. autofunction:: cuda.cuda.cuDevSmResourceSplitByCount
+.. autofunction:: cuda.cuda.cuDevResourceGenerateDesc
+.. autofunction:: cuda.cuda.cuGreenCtxRecordEvent
+.. autofunction:: cuda.cuda.cuGreenCtxWaitEvent
+.. autofunction:: cuda.cuda.cuStreamGetGreenCtx
+.. autoattribute:: cuda.cuda.RESOURCE_ABI_VERSION
+.. autoattribute:: cuda.cuda.RESOURCE_ABI_EXTERNAL_BYTES
+.. autoattribute:: cuda.cuda._CONCAT_INNER
+.. autoattribute:: cuda.cuda._CONCAT_OUTER
 
 EGL Interoperability
 --------------------

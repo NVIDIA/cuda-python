@@ -1,4 +1,4 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -217,16 +217,6 @@ cdef CUresult _cuCtxGetCacheConfig(CUfunc_cache* pconfig) except ?CUDA_ERROR_NOT
 cdef CUresult _cuCtxSetCacheConfig(CUfunc_cache config) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
-{{if 'cuCtxGetSharedMemConfig' in found_functions}}
-
-cdef CUresult _cuCtxGetSharedMemConfig(CUsharedconfig* pConfig) except ?CUDA_ERROR_NOT_FOUND nogil
-{{endif}}
-
-{{if 'cuCtxSetSharedMemConfig' in found_functions}}
-
-cdef CUresult _cuCtxSetSharedMemConfig(CUsharedconfig config) except ?CUDA_ERROR_NOT_FOUND nogil
-{{endif}}
-
 {{if 'cuCtxGetApiVersion' in found_functions}}
 
 cdef CUresult _cuCtxGetApiVersion(CUcontext ctx, unsigned int* version) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -255,6 +245,16 @@ cdef CUresult _cuCtxAttach(CUcontext* pctx, unsigned int flags) except ?CUDA_ERR
 {{if 'cuCtxDetach' in found_functions}}
 
 cdef CUresult _cuCtxDetach(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCtxGetSharedMemConfig' in found_functions}}
+
+cdef CUresult _cuCtxGetSharedMemConfig(CUsharedconfig* pConfig) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCtxSetSharedMemConfig' in found_functions}}
+
+cdef CUresult _cuCtxSetSharedMemConfig(CUsharedconfig config) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuModuleLoad' in found_functions}}
@@ -290,6 +290,16 @@ cdef CUresult _cuModuleGetLoadingMode(CUmoduleLoadingMode* mode) except ?CUDA_ER
 {{if 'cuModuleGetFunction' in found_functions}}
 
 cdef CUresult _cuModuleGetFunction(CUfunction* hfunc, CUmodule hmod, const char* name) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuModuleGetFunctionCount' in found_functions}}
+
+cdef CUresult _cuModuleGetFunctionCount(unsigned int* count, CUmodule mod) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuModuleEnumerateFunctions' in found_functions}}
+
+cdef CUresult _cuModuleEnumerateFunctions(CUfunction* functions, unsigned int numFunctions, CUmodule mod) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuModuleGetGlobal_v2' in found_functions}}
@@ -352,6 +362,16 @@ cdef CUresult _cuLibraryUnload(CUlibrary library) except ?CUDA_ERROR_NOT_FOUND n
 cdef CUresult _cuLibraryGetKernel(CUkernel* pKernel, CUlibrary library, const char* name) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuLibraryGetKernelCount' in found_functions}}
+
+cdef CUresult _cuLibraryGetKernelCount(unsigned int* count, CUlibrary lib) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLibraryEnumerateKernels' in found_functions}}
+
+cdef CUresult _cuLibraryEnumerateKernels(CUkernel* kernels, unsigned int numKernels, CUlibrary lib) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuLibraryGetModule' in found_functions}}
 
 cdef CUresult _cuLibraryGetModule(CUmodule* pMod, CUlibrary library) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -395,6 +415,11 @@ cdef CUresult _cuKernelSetCacheConfig(CUkernel kernel, CUfunc_cache config, CUde
 {{if 'cuKernelGetName' in found_functions}}
 
 cdef CUresult _cuKernelGetName(const char** name, CUkernel hfunc) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuKernelGetParamInfo' in found_functions}}
+
+cdef CUresult _cuKernelGetParamInfo(CUkernel kernel, size_t paramIndex, size_t* paramOffset, size_t* paramSize) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuMemGetInfo_v2' in found_functions}}
@@ -450,6 +475,16 @@ cdef CUresult _cuMemHostGetFlags(unsigned int* pFlags, void* p) except ?CUDA_ERR
 {{if 'cuMemAllocManaged' in found_functions}}
 
 cdef CUresult _cuMemAllocManaged(CUdeviceptr* dptr, size_t bytesize, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuDeviceRegisterAsyncNotification' in found_functions}}
+
+cdef CUresult _cuDeviceRegisterAsyncNotification(CUdevice device, CUasyncCallback callbackFunc, void* userData, CUasyncCallbackHandle* callback) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuDeviceUnregisterAsyncNotification' in found_functions}}
+
+cdef CUresult _cuDeviceUnregisterAsyncNotification(CUdevice device, CUasyncCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuDeviceGetByPCIBusId' in found_functions}}
@@ -1197,11 +1232,6 @@ cdef CUresult _cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib,
 cdef CUresult _cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
-{{if 'cuFuncSetSharedMemConfig' in found_functions}}
-
-cdef CUresult _cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config) except ?CUDA_ERROR_NOT_FOUND nogil
-{{endif}}
-
 {{if 'cuFuncGetModule' in found_functions}}
 
 cdef CUresult _cuFuncGetModule(CUmodule* hmod, CUfunction hfunc) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -1210,6 +1240,21 @@ cdef CUresult _cuFuncGetModule(CUmodule* hmod, CUfunction hfunc) except ?CUDA_ER
 {{if 'cuFuncGetName' in found_functions}}
 
 cdef CUresult _cuFuncGetName(const char** name, CUfunction hfunc) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuFuncGetParamInfo' in found_functions}}
+
+cdef CUresult _cuFuncGetParamInfo(CUfunction func, size_t paramIndex, size_t* paramOffset, size_t* paramSize) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuFuncIsLoaded' in found_functions}}
+
+cdef CUresult _cuFuncIsLoaded(CUfunctionLoadingState* state, CUfunction function) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuFuncLoad' in found_functions}}
+
+cdef CUresult _cuFuncLoad(CUfunction function) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuLaunchKernel' in found_functions}}
@@ -1285,6 +1330,11 @@ cdef CUresult _cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, 
 {{if 'cuParamSetTexRef' in found_functions}}
 
 cdef CUresult _cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuFuncSetSharedMemConfig' in found_functions}}
+
+cdef CUresult _cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuGraphCreate' in found_functions}}
@@ -2045,6 +2095,61 @@ cdef CUresult _cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, void* val
 {{if 'cuGetExportTable' in found_functions}}
 
 cdef CUresult _cuGetExportTable(const void** ppExportTable, const CUuuid* pExportTableId) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGreenCtxCreate' in found_functions}}
+
+cdef CUresult _cuGreenCtxCreate(CUgreenCtx* phCtx, CUdevResourceDesc desc, CUdevice dev, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGreenCtxDestroy' in found_functions}}
+
+cdef CUresult _cuGreenCtxDestroy(CUgreenCtx hCtx) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCtxFromGreenCtx' in found_functions}}
+
+cdef CUresult _cuCtxFromGreenCtx(CUcontext* pContext, CUgreenCtx hCtx) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuDeviceGetDevResource' in found_functions}}
+
+cdef CUresult _cuDeviceGetDevResource(CUdevice device, CUdevResource* resource, CUdevResourceType typename) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCtxGetDevResource' in found_functions}}
+
+cdef CUresult _cuCtxGetDevResource(CUcontext hCtx, CUdevResource* resource, CUdevResourceType typename) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGreenCtxGetDevResource' in found_functions}}
+
+cdef CUresult _cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource, CUdevResourceType typename) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuDevSmResourceSplitByCount' in found_functions}}
+
+cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remaining, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuDevResourceGenerateDesc' in found_functions}}
+
+cdef CUresult _cuDevResourceGenerateDesc(CUdevResourceDesc* phDesc, CUdevResource* resources, unsigned int nbResources) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGreenCtxRecordEvent' in found_functions}}
+
+cdef CUresult _cuGreenCtxRecordEvent(CUgreenCtx hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGreenCtxWaitEvent' in found_functions}}
+
+cdef CUresult _cuGreenCtxWaitEvent(CUgreenCtx hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuStreamGetGreenCtx' in found_functions}}
+
+cdef CUresult _cuStreamGetGreenCtx(CUstream hStream, CUgreenCtx* phCtx) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuProfilerStart' in found_functions}}

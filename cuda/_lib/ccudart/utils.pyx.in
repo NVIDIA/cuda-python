@@ -1,10 +1,11 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+import cython
 from cuda.ccudart cimport *
 from libc.stdlib cimport malloc, free, calloc
 from libc.string cimport memset, memcpy, strncmp, memcmp
@@ -42,6 +43,9 @@ cdef class cudaPythonGlobal:
     def __dealloc__(self):
         if self._deviceList is not NULL:
             free(self._deviceList)
+        for item in self._asyncCallbackDataMap:
+            free(item.second)
+        self._asyncCallbackDataMap.clear()
 
     cdef cudaError_t lazyInitDriver(self) except ?cudaErrorCallRequiresNewerDriver nogil:
         if self._lazyInitDriver:
@@ -113,18 +117,18 @@ cdef class cudaPythonGlobal:
         err = <cudaError_t> ccuda._cuCtxSetCurrent(device.primaryContext)
         return err
 
-    cdef cudaPythonDevice* getDevice(self, int deviceOrdinal) nogil:
+    cdef cudaPythonDevice* getDevice(self, int deviceOrdinal) noexcept nogil:
         if deviceOrdinal < 0 or deviceOrdinal >= m_global._numDevices:
             return NULL
         return &self._deviceList[deviceOrdinal]
 
-    cdef cudaPythonDevice* getDeviceFromDriver(self, ccuda.CUdevice driverDevice) nogil:
+    cdef cudaPythonDevice* getDeviceFromDriver(self, ccuda.CUdevice driverDevice) noexcept nogil:
         for i in range(self._numDevices):
             if self._deviceList[i].driverDevice == driverDevice:
                 return &self._deviceList[i]
         return NULL
 
-    cdef cudaPythonDevice* getDeviceFromPrimaryCtx(self, ccuda.CUcontext context) nogil:
+    cdef cudaPythonDevice* getDeviceFromPrimaryCtx(self, ccuda.CUcontext context) noexcept nogil:
         if context == NULL:
             return NULL
         for i in range(self._numDevices):
@@ -826,6 +830,7 @@ cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChanne
     return cudaSuccess
 
 
+@cython.show_performance_hints(False)
 cdef void cudaStreamRtCallbackWrapper(ccuda.CUstream stream, ccuda.CUresult status, void *data) nogil:
     cdef cudaStreamCallbackData *cbData = <cudaStreamCallbackData *>data
     cdef cudaError_t err = <cudaError_t>status
@@ -858,6 +863,7 @@ cdef cudaError_t streamAddCallbackCommon(
     return err
 
 
+@cython.show_performance_hints(False)
 cdef void cudaStreamRtHostCallbackWrapper(void *data) nogil:
     cdef cudaStreamHostCallbackData *cbData = <cudaStreamHostCallbackData *>data
     with gil:
@@ -945,7 +951,7 @@ cdef cudaError_t streamGetCaptureInfoCommon_v3(
     return toRuntimeStreamCaptureStatus(driverCaptureStatus, captureStatus_out)
 
 
-cdef ccuda.CUDA_MEMCPY3D_v2 memCopy3DInit(ccuda.CUmemorytype_enum dstType, ccuda.CUmemorytype_enum srcType) nogil:
+cdef ccuda.CUDA_MEMCPY3D_v2 memCopy3DInit(ccuda.CUmemorytype_enum dstType, ccuda.CUmemorytype_enum srcType) noexcept nogil:
     cdef ccuda.CUDA_MEMCPY3D_v2 cp
     memset(&cp, 0, sizeof(cp))
     cp.dstMemoryType = dstType
@@ -956,7 +962,7 @@ cdef ccuda.CUDA_MEMCPY3D_v2 memCopy3DInit(ccuda.CUmemorytype_enum dstType, ccuda
     return cp
 
 
-cdef ccuda.CUDA_MEMCPY2D_v2 memCopy2DInit(ccuda.CUmemorytype_enum dstType, ccuda.CUmemorytype_enum srcType) nogil:
+cdef ccuda.CUDA_MEMCPY2D_v2 memCopy2DInit(ccuda.CUmemorytype_enum dstType, ccuda.CUmemorytype_enum srcType) noexcept nogil:
     cdef ccuda.CUDA_MEMCPY2D_v2 cp
     memset(&cp, 0, sizeof(cp))
     cp.dstMemoryType = dstType
@@ -2103,7 +2109,7 @@ cdef cudaError_t copy1DConvertTo3DParams(void* dst, const void* src, size_t coun
     p[0].kind = kind
 
 
-cdef void toDriverMemsetNodeParams(const cudaMemsetParams *pRuntimeParams, ccuda.CUDA_MEMSET_NODE_PARAMS *pDriverParams) nogil:
+cdef void toDriverMemsetNodeParams(const cudaMemsetParams *pRuntimeParams, ccuda.CUDA_MEMSET_NODE_PARAMS *pDriverParams) noexcept nogil:
     pDriverParams[0].dst = <ccuda.CUdeviceptr_v2>pRuntimeParams[0].dst
     pDriverParams[0].pitch = pRuntimeParams[0].pitch
     pDriverParams[0].value = pRuntimeParams[0].value
@@ -3003,6 +3009,7 @@ cdef cudaError_t getDriverEglFrame(ccuda.CUeglFrame *cuEglFrame, cudaEglFrame eg
         return cudaErrorInvalidValue
 
 
+@cython.show_performance_hints(False)
 cdef cudaError_t getRuntimeEglFrame(cudaEglFrame *eglFrame, ccuda.CUeglFrame cueglFrame) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef cudaError_t err = cudaSuccess
     cdef unsigned int i
@@ -3424,7 +3431,7 @@ cdef cudaError_t toDriverGraphNodeParams(const cudaGraphNodeParams *rtParams, cc
     return cudaSuccess
 
 
-cdef void toCudartGraphNodeOutParams(const ccuda.CUgraphNodeParams *driverParams, cudaGraphNodeParams *rtParams) nogil:
+cdef void toCudartGraphNodeOutParams(const ccuda.CUgraphNodeParams *driverParams, cudaGraphNodeParams *rtParams) noexcept nogil:
     if driverParams[0].type == ccuda.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_MEM_ALLOC:
         rtParams[0].alloc.dptr = <void *>driverParams[0].alloc.dptr
     elif driverParams[0].type == ccuda.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_CONDITIONAL:
@@ -3453,6 +3460,44 @@ cdef cudaError_t toDriverKernelNodeParams(const cudaKernelNodeParams nodeParams[
     return err
 
 
-cdef void toDriverHostNodeParams(const cudaHostNodeParams *pRuntimeNodeParams, ccuda.CUDA_HOST_NODE_PARAMS *pDriverNodeParams) nogil:
+cdef void toDriverHostNodeParams(const cudaHostNodeParams *pRuntimeNodeParams, ccuda.CUDA_HOST_NODE_PARAMS *pDriverNodeParams) noexcept nogil:
     pDriverNodeParams[0].fn = pRuntimeNodeParams[0].fn
     pDriverNodeParams[0].userData = pRuntimeNodeParams[0].userData
+
+
+@cython.show_performance_hints(False)
+cdef void cudaAsyncNotificationCallbackWrapper(cudaAsyncNotificationInfo_t *info, void *data, cudaAsyncCallbackHandle_t handle) nogil:
+    cdef cudaAsyncCallbackData *cbData = <cudaAsyncCallbackData *>data
+    with gil:
+        cbData.callback(info, cbData.userData, handle)
+
+
+cdef cudaError_t DeviceRegisterAsyncNotificationCommon(int device, cudaAsyncCallback callbackFunc, void* userData, cudaAsyncCallbackHandle_t* callback) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaAsyncCallbackData *cbData = NULL
+    cdef cudaError_t err = cudaSuccess
+    cbData = <cudaAsyncCallbackData *>malloc(sizeof(cbData[0]))
+
+    if cbData == NULL:
+        return cudaErrorMemoryAllocation
+
+    cbData.callback = callbackFunc
+    cbData.userData = userData
+    err = <cudaError_t>ccuda._cuDeviceRegisterAsyncNotification(<ccuda.CUdevice>device, <ccuda.CUasyncCallback>cudaAsyncNotificationCallbackWrapper, <void*>cbData, <ccuda.CUasyncCallbackHandle*>callback)
+    if err != cudaSuccess:
+        free(cbData)
+
+    m_global._asyncCallbackDataMap[callback[0]] = cbData
+
+    return err
+
+cdef cudaError_t DeviceUnregisterAsyncNotificationCommon(int device, cudaAsyncCallbackHandle_t callback) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = <cudaError_t>ccuda._cuDeviceUnregisterAsyncNotification(<ccuda.CUdevice>device, <ccuda.CUasyncCallbackHandle>callback)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+
+    free(m_global._asyncCallbackDataMap[callback])
+    m_global._asyncCallbackDataMap.erase(callback)
+
+    return err

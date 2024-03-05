@@ -1,4 +1,4 @@
-# Copyright 2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2023-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -7,7 +7,7 @@
 # is strictly prohibited.
 
 [build-system]
-requires = ["setuptools", "setuptools-scm", "cython", "pyclibrary"]
+requires = ["setuptools", "versioneer[toml]==0.29", "cython", "pyclibrary"]
 build-backend = "setuptools.build_meta"
 
 [project]

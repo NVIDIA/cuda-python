@@ -1,4 +1,4 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -15,7 +15,7 @@ from libcpp cimport bool
 {{if 'cudaStreamCreate' in found_functions}}cdef cudaError_t _cudaStreamCreate(cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaEventCreate' in found_functions}}cdef cudaError_t _cudaEventCreate(cudaEvent_t* event) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaEventQuery' in found_functions}}cdef cudaError_t _cudaEventQuery(cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
-{{if 'cudaCreateChannelDesc' in found_functions}}cdef cudaChannelFormatDesc _cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) nogil{{endif}}
+{{if 'cudaCreateChannelDesc' in found_functions}}cdef cudaChannelFormatDesc _cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) noexcept nogil{{endif}}
 {{if 'cudaDriverGetVersion' in found_functions}}cdef cudaError_t _cudaDriverGetVersion(int* driverVersion) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaRuntimeGetVersion' in found_functions}}cdef cudaError_t _cudaRuntimeGetVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaDeviceGetTexture1DLinearMaxWidth' in found_functions}}cdef cudaError_t _cudaDeviceGetTexture1DLinearMaxWidth(size_t* maxWidthInElements, const cudaChannelFormatDesc* fmtDesc, int device) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
@@ -77,9 +77,9 @@ from libcpp cimport bool
 {{if 'cudaGetExportTable' in found_functions}}cdef cudaError_t _cudaGetExportTable(const void** ppExportTable, const cudaUUID_t* pExportTableId) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaMemcpy3DPeer' in found_functions}}cdef cudaError_t _cudaMemcpy3DPeer(const cudaMemcpy3DPeerParms* p) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaMemcpy3DPeerAsync' in found_functions}}cdef cudaError_t _cudaMemcpy3DPeerAsync(const cudaMemcpy3DPeerParms* p, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
-{{if 'make_cudaPitchedPtr' in found_functions}}cdef cudaPitchedPtr _make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) nogil{{endif}}
-{{if 'make_cudaPos' in found_functions}}cdef cudaPos _make_cudaPos(size_t x, size_t y, size_t z) nogil{{endif}}
-{{if 'make_cudaExtent' in found_functions}}cdef cudaExtent _make_cudaExtent(size_t w, size_t h, size_t d) nogil{{endif}}
+{{if 'make_cudaPitchedPtr' in found_functions}}cdef cudaPitchedPtr _make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) noexcept nogil{{endif}}
+{{if 'make_cudaPos' in found_functions}}cdef cudaPos _make_cudaPos(size_t x, size_t y, size_t z) noexcept nogil{{endif}}
+{{if 'make_cudaExtent' in found_functions}}cdef cudaExtent _make_cudaExtent(size_t w, size_t h, size_t d) noexcept nogil{{endif}}
 {{if 'cudaSetDeviceFlags' in found_functions}}cdef cudaError_t _cudaSetDeviceFlags(unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaGraphAddMemAllocNode' in found_functions}}cdef cudaError_t _cudaGraphAddMemAllocNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaMemAllocNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaGraphMemAllocNodeGetParams' in found_functions}}cdef cudaError_t _cudaGraphMemAllocNodeGetParams(cudaGraphNode_t node, cudaMemAllocNodeParams* params_out) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
@@ -306,3 +306,5 @@ from libcpp cimport bool
 {{if 'cudaGraphRemoveDependencies_v2' in found_functions}}cdef cudaError_t _cudaGraphRemoveDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaGraphAddNode_v2' in found_functions}}cdef cudaError_t _cudaGraphAddNode_v2(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if True}}cdef cudaError_t _getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
+{{if 'cudaDeviceRegisterAsyncNotification' in found_functions}}cdef cudaError_t _cudaDeviceRegisterAsyncNotification(int device, cudaAsyncCallback callbackFunc, void* userData, cudaAsyncCallbackHandle_t* callback) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
+{{if 'cudaDeviceUnregisterAsyncNotification' in found_functions}}cdef cudaError_t _cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCallbackHandle_t callback) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}

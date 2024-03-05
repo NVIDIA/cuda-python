@@ -1,4 +1,4 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -299,6 +299,8 @@ cudaKernelNodeAttributeClusterSchedulingPolicyPreference = ccudart.cudaKernelNod
 cudaKernelNodeAttributeMemSyncDomainMap = ccudart.cudaKernelNodeAttributeMemSyncDomainMap
 
 cudaKernelNodeAttributeMemSyncDomain = ccudart.cudaKernelNodeAttributeMemSyncDomain
+
+cudaKernelNodeAttributeDeviceUpdatableKernelNode = ccudart.cudaKernelNodeAttributeDeviceUpdatableKernelNode
 
 cudaSurfaceType1D = ccudart.cudaSurfaceType1D
 
@@ -1297,15 +1299,10 @@ class cudaLaunchAttributeID(IntEnum):
     #: have begun execution. Currently this is a best effort. If a kernel B
     #: has a launch completion dependency on a kernel A, B may wait until A
     #: is complete. Alternatively, blocks of B may begin before all blocks
-    #: of A have begun, for example:
-    #:
-    #: - If B can claim execution resources unavaiable to A, for example if
-    #: they run on different GPUs.
-    #:
-    #: - If B is a higher priority than A.
-    #:
-    #: Exercise caution if such an ordering inversion could lead to
-    #: deadlock.
+    #: of A have begun, for example if B can claim execution resources
+    #: unavailable to A (e.g. they run on different GPUs) or if B is a
+    #: higher priority than A. Exercise caution if such an ordering
+    #: inversion could lead to deadlock.
     #:  A launch completion event is nominally similar to a programmatic
     #: event with `triggerAtBlockStart` set except that it is not visible
     #: to `cudaGridDependencySynchronize()` and can be used with compute
@@ -1314,6 +1311,49 @@ class cudaLaunchAttributeID(IntEnum):
     #: The event must disable timing (i.e. must be created with the
     #: :py:obj:`~.cudaEventDisableTiming` flag set).
     cudaLaunchAttributeLaunchCompletionEvent = ccudart.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent{{endif}}
+    {{if 'cudaLaunchAttributeDeviceUpdatableKernelNode' in found_values}}
+
+    #: Valid for graph nodes, launches. This attribute is graphs-only, and
+    #: passing it to a launch in a non-capturing stream will result in an
+    #: error.
+    #: :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable
+    #: can only be set to 0 or 1. Setting the field to 1 indicates that the
+    #: corresponding kernel node should be device-updatable. On success, a
+    #: handle will be returned via
+    #: :py:obj:`~.cudaLaunchAttributeValue`::deviceUpdatableKernelNode::devNode
+    #: which can be passed to the various device-side update functions to
+    #: update the node's kernel parameters from within another kernel. For
+    #: more information on the types of device updates that can be made, as
+    #: well as the relevant limitations thereof, see
+    #: :py:obj:`~.cudaGraphKernelNodeUpdatesApply`.
+    #:  Nodes which are device-updatable have additional restrictions
+    #: compared to regular kernel nodes. Firstly, device-updatable nodes
+    #: cannot be removed from their graph via
+    #: :py:obj:`~.cudaGraphDestroyNode`. Additionally, once opted-in to
+    #: this functionality, a node cannot opt out, and any attempt to set
+    #: the deviceUpdatable attribute to 0 will result in an error. Device-
+    #: updatable kernel nodes also cannot have their attributes copied
+    #: to/from another kernel node via
+    #: :py:obj:`~.cudaGraphKernelNodeCopyAttributes`. Graphs containing one
+    #: or more device-updatable nodes also do not allow multiple
+    #: instantiation, and neither the graph nor its instantiated version
+    #: can be passed to :py:obj:`~.cudaGraphExecUpdate`.
+    #:  If a graph contains device-updatable nodes and updates those nodes
+    #: from the device from within the graph, the graph must be uploaded
+    #: with :py:obj:`~.cuGraphUpload` before it is launched. For such a
+    #: graph, if host-side executable graph updates are made to the device-
+    #: updatable nodes, the graph must be uploaded before it is launched
+    #: again.
+    cudaLaunchAttributeDeviceUpdatableKernelNode = ccudart.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode{{endif}}
+{{endif}}
+{{if 'cudaAsyncNotificationType_enum' in found_types}}
+
+class cudaAsyncNotificationType(IntEnum):
+    """
+    Types of async notification that can occur
+    """
+    {{if 'cudaAsyncNotificationTypeOverBudget' in found_values}}
+    cudaAsyncNotificationTypeOverBudget = ccudart.cudaAsyncNotificationType_enum.cudaAsyncNotificationTypeOverBudget{{endif}}
 {{endif}}
 {{if 'cudaDataType_t' in found_types}}
 
@@ -2616,7 +2656,7 @@ class cudaFuncCache(IntEnum):
 
 class cudaSharedMemConfig(IntEnum):
     """
-    CUDA shared memory configuration
+    CUDA shared memory configuration [Deprecated]
     """
     {{if 'cudaSharedMemBankSizeDefault' in found_values}}
     cudaSharedMemBankSizeDefault = ccudart.cudaSharedMemConfig.cudaSharedMemBankSizeDefault{{endif}}
@@ -3781,15 +3821,10 @@ class cudaGraphNodeType(IntEnum):
     #: graph may exist at any point in time.
     #:                                      The graph cannot be cloned.
     #:
-    #:                                    To set the control value:
-    #:
-    #:                                     In a kernel or kernels at
-    #: appropriate locations in the graph, insert a call to
-    #:                                      `void
-    #: cudaGraphSetConditional(cudaGraphConditionalHandle handle, unsigned
-    #: int value)`.
-    #:                                     Supply a default value when
-    #: creating the handle.
+    #:                                    To set the control value, supply
+    #: a default value when creating the handle and/or
+    #:                                    call
+    #: :py:obj:`~.cudaGraphSetConditional` from device code.
     cudaGraphNodeTypeConditional = ccudart.cudaGraphNodeType.cudaGraphNodeTypeConditional{{endif}}
     {{if 'cudaGraphNodeTypeCount' in found_values}}
     cudaGraphNodeTypeCount = ccudart.cudaGraphNodeType.cudaGraphNodeTypeCount{{endif}}
@@ -3841,6 +3876,30 @@ class cudaGraphExecUpdateResult(IntEnum):
     #: The update failed because the node attributes changed in a way that
     #: is not supported
     cudaGraphExecUpdateErrorAttributesChanged = ccudart.cudaGraphExecUpdateResult.cudaGraphExecUpdateErrorAttributesChanged{{endif}}
+{{endif}}
+{{if 'cudaGraphKernelNodeField' in found_types}}
+
+class cudaGraphKernelNodeField(IntEnum):
+    """
+    Specifies the field to update when performing multiple node updates
+    from the device
+    """
+    {{if 'cudaGraphKernelNodeFieldInvalid' in found_values}}
+
+    #: Invalid field
+    cudaGraphKernelNodeFieldInvalid = ccudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldInvalid{{endif}}
+    {{if 'cudaGraphKernelNodeFieldGridDim' in found_values}}
+
+    #: Grid dimension update
+    cudaGraphKernelNodeFieldGridDim = ccudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldGridDim{{endif}}
+    {{if 'cudaGraphKernelNodeFieldParam' in found_values}}
+
+    #: Kernel parameter update
+    cudaGraphKernelNodeFieldParam = ccudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldParam{{endif}}
+    {{if 'cudaGraphKernelNodeFieldEnabled' in found_values}}
+
+    #: Node enable/disable
+    cudaGraphKernelNodeFieldEnabled = ccudart.cudaGraphKernelNodeField.cudaGraphKernelNodeFieldEnabled{{endif}}
 {{endif}}
 {{if 'cudaGetDriverEntryPointFlags' in found_types}}
 
@@ -4217,15 +4276,10 @@ class cudaStreamAttrID(IntEnum):
     #: have begun execution. Currently this is a best effort. If a kernel B
     #: has a launch completion dependency on a kernel A, B may wait until A
     #: is complete. Alternatively, blocks of B may begin before all blocks
-    #: of A have begun, for example:
-    #:
-    #: - If B can claim execution resources unavaiable to A, for example if
-    #: they run on different GPUs.
-    #:
-    #: - If B is a higher priority than A.
-    #:
-    #: Exercise caution if such an ordering inversion could lead to
-    #: deadlock.
+    #: of A have begun, for example if B can claim execution resources
+    #: unavailable to A (e.g. they run on different GPUs) or if B is a
+    #: higher priority than A. Exercise caution if such an ordering
+    #: inversion could lead to deadlock.
     #:  A launch completion event is nominally similar to a programmatic
     #: event with `triggerAtBlockStart` set except that it is not visible
     #: to `cudaGridDependencySynchronize()` and can be used with compute
@@ -4234,6 +4288,40 @@ class cudaStreamAttrID(IntEnum):
     #: The event must disable timing (i.e. must be created with the
     #: :py:obj:`~.cudaEventDisableTiming` flag set).
     cudaLaunchAttributeLaunchCompletionEvent = ccudart.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent{{endif}}
+    {{if 'cudaLaunchAttributeDeviceUpdatableKernelNode' in found_values}}
+
+    #: Valid for graph nodes, launches. This attribute is graphs-only, and
+    #: passing it to a launch in a non-capturing stream will result in an
+    #: error.
+    #: :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable
+    #: can only be set to 0 or 1. Setting the field to 1 indicates that the
+    #: corresponding kernel node should be device-updatable. On success, a
+    #: handle will be returned via
+    #: :py:obj:`~.cudaLaunchAttributeValue`::deviceUpdatableKernelNode::devNode
+    #: which can be passed to the various device-side update functions to
+    #: update the node's kernel parameters from within another kernel. For
+    #: more information on the types of device updates that can be made, as
+    #: well as the relevant limitations thereof, see
+    #: :py:obj:`~.cudaGraphKernelNodeUpdatesApply`.
+    #:  Nodes which are device-updatable have additional restrictions
+    #: compared to regular kernel nodes. Firstly, device-updatable nodes
+    #: cannot be removed from their graph via
+    #: :py:obj:`~.cudaGraphDestroyNode`. Additionally, once opted-in to
+    #: this functionality, a node cannot opt out, and any attempt to set
+    #: the deviceUpdatable attribute to 0 will result in an error. Device-
+    #: updatable kernel nodes also cannot have their attributes copied
+    #: to/from another kernel node via
+    #: :py:obj:`~.cudaGraphKernelNodeCopyAttributes`. Graphs containing one
+    #: or more device-updatable nodes also do not allow multiple
+    #: instantiation, and neither the graph nor its instantiated version
+    #: can be passed to :py:obj:`~.cudaGraphExecUpdate`.
+    #:  If a graph contains device-updatable nodes and updates those nodes
+    #: from the device from within the graph, the graph must be uploaded
+    #: with :py:obj:`~.cuGraphUpload` before it is launched. For such a
+    #: graph, if host-side executable graph updates are made to the device-
+    #: updatable nodes, the graph must be uploaded before it is launched
+    #: again.
+    cudaLaunchAttributeDeviceUpdatableKernelNode = ccudart.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode{{endif}}
 {{endif}}
 {{if 'cudaLaunchAttributeID' in found_types}}
 
@@ -4330,15 +4418,10 @@ class cudaKernelNodeAttrID(IntEnum):
     #: have begun execution. Currently this is a best effort. If a kernel B
     #: has a launch completion dependency on a kernel A, B may wait until A
     #: is complete. Alternatively, blocks of B may begin before all blocks
-    #: of A have begun, for example:
-    #:
-    #: - If B can claim execution resources unavaiable to A, for example if
-    #: they run on different GPUs.
-    #:
-    #: - If B is a higher priority than A.
-    #:
-    #: Exercise caution if such an ordering inversion could lead to
-    #: deadlock.
+    #: of A have begun, for example if B can claim execution resources
+    #: unavailable to A (e.g. they run on different GPUs) or if B is a
+    #: higher priority than A. Exercise caution if such an ordering
+    #: inversion could lead to deadlock.
     #:  A launch completion event is nominally similar to a programmatic
     #: event with `triggerAtBlockStart` set except that it is not visible
     #: to `cudaGridDependencySynchronize()` and can be used with compute
@@ -4347,6 +4430,40 @@ class cudaKernelNodeAttrID(IntEnum):
     #: The event must disable timing (i.e. must be created with the
     #: :py:obj:`~.cudaEventDisableTiming` flag set).
     cudaLaunchAttributeLaunchCompletionEvent = ccudart.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent{{endif}}
+    {{if 'cudaLaunchAttributeDeviceUpdatableKernelNode' in found_values}}
+
+    #: Valid for graph nodes, launches. This attribute is graphs-only, and
+    #: passing it to a launch in a non-capturing stream will result in an
+    #: error.
+    #: :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable
+    #: can only be set to 0 or 1. Setting the field to 1 indicates that the
+    #: corresponding kernel node should be device-updatable. On success, a
+    #: handle will be returned via
+    #: :py:obj:`~.cudaLaunchAttributeValue`::deviceUpdatableKernelNode::devNode
+    #: which can be passed to the various device-side update functions to
+    #: update the node's kernel parameters from within another kernel. For
+    #: more information on the types of device updates that can be made, as
+    #: well as the relevant limitations thereof, see
+    #: :py:obj:`~.cudaGraphKernelNodeUpdatesApply`.
+    #:  Nodes which are device-updatable have additional restrictions
+    #: compared to regular kernel nodes. Firstly, device-updatable nodes
+    #: cannot be removed from their graph via
+    #: :py:obj:`~.cudaGraphDestroyNode`. Additionally, once opted-in to
+    #: this functionality, a node cannot opt out, and any attempt to set
+    #: the deviceUpdatable attribute to 0 will result in an error. Device-
+    #: updatable kernel nodes also cannot have their attributes copied
+    #: to/from another kernel node via
+    #: :py:obj:`~.cudaGraphKernelNodeCopyAttributes`. Graphs containing one
+    #: or more device-updatable nodes also do not allow multiple
+    #: instantiation, and neither the graph nor its instantiated version
+    #: can be passed to :py:obj:`~.cudaGraphExecUpdate`.
+    #:  If a graph contains device-updatable nodes and updates those nodes
+    #: from the device from within the graph, the graph must be uploaded
+    #: with :py:obj:`~.cuGraphUpload` before it is launched. For such a
+    #: graph, if host-side executable graph updates are made to the device-
+    #: updatable nodes, the graph must be uploaded before it is launched
+    #: again.
+    cudaLaunchAttributeDeviceUpdatableKernelNode = ccudart.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode{{endif}}
 {{endif}}
 {{if 'cudaArray_t' in found_types}}
 
@@ -4596,6 +4713,68 @@ cdef class cudaKernel_t:
         return <void_ptr>self._ptr
 {{endif}}
 
+{{if 'cudaGraphDeviceNode_t' in found_types}}
+
+cdef class cudaGraphDeviceNode_t:
+    """
+
+    CUDA device node handle for device-side node update
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+            self._ptr[0] = <ccudart.cudaGraphDeviceNode_t>init_value
+        else:
+            self._ptr = <ccudart.cudaGraphDeviceNode_t *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __repr__(self):
+        return '<cudaGraphDeviceNode_t ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __int__(self):
+        return <void_ptr>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+{{endif}}
+
+{{if 'cudaAsyncCallbackHandle_t' in found_types}}
+
+cdef class cudaAsyncCallbackHandle_t:
+    """
+
+    CUDA async callback handle
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+            self._ptr[0] = <ccudart.cudaAsyncCallbackHandle_t>init_value
+        else:
+            self._ptr = <ccudart.cudaAsyncCallbackHandle_t *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __repr__(self):
+        return '<cudaAsyncCallbackHandle_t ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __int__(self):
+        return <void_ptr>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+{{endif}}
+
 {{if True}}
 
 cdef class EGLImageKHR:
@@ -4704,6 +4883,35 @@ cdef class cudaHostFn_t:
         pass
     def __repr__(self):
         return '<cudaHostFn_t ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __int__(self):
+        return <void_ptr>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+{{endif}}
+
+{{if 'cudaAsyncCallback' in found_types}}
+
+cdef class cudaAsyncCallback:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+            self._ptr[0] = <ccudart.cudaAsyncCallback>init_value
+        else:
+            self._ptr = <ccudart.cudaAsyncCallback *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __repr__(self):
+        return '<cudaAsyncCallback ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
     def __int__(self):
@@ -6544,13 +6752,15 @@ cdef class cudaResourceDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self.__val
+            self._val_ptr = <ccudart.cudaResourceDesc *>calloc(1, sizeof(ccudart.cudaResourceDesc))
+            self._ptr = self._val_ptr
         else:
             self._ptr = <ccudart.cudaResourceDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         self._res = anon_union0(_ptr=<void_ptr>self._ptr)
     def __dealloc__(self):
-        pass
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._ptr
     def __repr__(self):
@@ -9203,13 +9413,15 @@ cdef class cudaExternalMemoryHandleDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self.__val
+            self._val_ptr = <ccudart.cudaExternalMemoryHandleDesc *>calloc(1, sizeof(ccudart.cudaExternalMemoryHandleDesc))
+            self._ptr = self._val_ptr
         else:
             self._ptr = <ccudart.cudaExternalMemoryHandleDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         self._handle = anon_union1(_ptr=<void_ptr>self._ptr)
     def __dealloc__(self):
-        pass
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._ptr
     def __repr__(self):
@@ -9568,13 +9780,15 @@ cdef class cudaExternalSemaphoreHandleDesc:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self.__val
+            self._val_ptr = <ccudart.cudaExternalSemaphoreHandleDesc *>calloc(1, sizeof(ccudart.cudaExternalSemaphoreHandleDesc))
+            self._ptr = self._val_ptr
         else:
             self._ptr = <ccudart.cudaExternalSemaphoreHandleDesc *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         self._handle = anon_union2(_ptr=<void_ptr>self._ptr)
     def __dealloc__(self):
-        pass
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._ptr
     def __repr__(self):
@@ -10850,8 +11064,7 @@ cdef class cudaConditionalNodeParams:
     type : cudaGraphConditionalNodeType
         Type of conditional node.
     size : unsigned int
-        Size of graph output array. Must be 1 for WHILE nodes, 1 or 2 for
-        IF nodes, and >0 for SWITCH nodes.
+        Size of graph output array. Must be 1.
     phGraph_out : cudaGraph_t
         CUDA-owned array populated with conditional node child graphs
         during creation of the node. Valid for the lifetime of the
@@ -11631,6 +11844,221 @@ cdef class cudaGraphExecUpdateResultInfo_st:
             cerrorFromNode = <ccudart.cudaGraphNode_t><void_ptr>perrorFromNode
         self._errorFromNode._ptr[0] = cerrorFromNode
 {{endif}}
+{{if 'struct cudaGraphKernelNodeUpdate' in found_types}}
+
+cdef class anon_struct19:
+    """
+    Attributes
+    ----------
+    pValue : Any
+
+    offset : size_t
+
+    size : size_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._ptr = <ccudart.cudaGraphKernelNodeUpdate *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._ptr[0].updateData.param
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['pValue : ' + hex(self.pValue)]
+            except ValueError:
+                str_list += ['pValue : <ValueError>']
+            try:
+                str_list += ['offset : ' + str(self.offset)]
+            except ValueError:
+                str_list += ['offset : <ValueError>']
+            try:
+                str_list += ['size : ' + str(self.size)]
+            except ValueError:
+                str_list += ['size : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def pValue(self):
+        return <void_ptr>self._ptr[0].updateData.param.pValue
+    @pValue.setter
+    def pValue(self, pValue):
+        _cpValue = utils.HelperInputVoidPtr(pValue)
+        self._ptr[0].updateData.param.pValue = <void*><void_ptr>_cpValue.cptr
+    @property
+    def offset(self):
+        return self._ptr[0].updateData.param.offset
+    @offset.setter
+    def offset(self, size_t offset):
+        self._ptr[0].updateData.param.offset = offset
+    @property
+    def size(self):
+        return self._ptr[0].updateData.param.size
+    @size.setter
+    def size(self, size_t size):
+        self._ptr[0].updateData.param.size = size
+{{endif}}
+{{if 'struct cudaGraphKernelNodeUpdate' in found_types}}
+
+cdef class anon_union8:
+    """
+    Attributes
+    ----------
+    gridDim : dim3
+
+    param : anon_struct19
+
+    isEnabled : unsigned int
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._ptr = <ccudart.cudaGraphKernelNodeUpdate *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        self._gridDim = dim3(_ptr=<void_ptr>&self._ptr[0].updateData.gridDim)
+        self._param = anon_struct19(_ptr=<void_ptr>self._ptr)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._ptr[0].updateData
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['gridDim :\n' + '\n'.join(['    ' + line for line in str(self.gridDim).splitlines()])]
+            except ValueError:
+                str_list += ['gridDim : <ValueError>']
+            try:
+                str_list += ['param :\n' + '\n'.join(['    ' + line for line in str(self.param).splitlines()])]
+            except ValueError:
+                str_list += ['param : <ValueError>']
+            try:
+                str_list += ['isEnabled : ' + str(self.isEnabled)]
+            except ValueError:
+                str_list += ['isEnabled : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def gridDim(self):
+        return self._gridDim
+    @gridDim.setter
+    def gridDim(self, gridDim not None : dim3):
+        string.memcpy(&self._ptr[0].updateData.gridDim, <ccudart.dim3*><void_ptr>gridDim.getPtr(), sizeof(self._ptr[0].updateData.gridDim))
+    @property
+    def param(self):
+        return self._param
+    @param.setter
+    def param(self, param not None : anon_struct19):
+        string.memcpy(&self._ptr[0].updateData.param, <ccudart.anon_struct19*><void_ptr>param.getPtr(), sizeof(self._ptr[0].updateData.param))
+    @property
+    def isEnabled(self):
+        return self._ptr[0].updateData.isEnabled
+    @isEnabled.setter
+    def isEnabled(self, unsigned int isEnabled):
+        self._ptr[0].updateData.isEnabled = isEnabled
+{{endif}}
+{{if 'struct cudaGraphKernelNodeUpdate' in found_types}}
+
+cdef class cudaGraphKernelNodeUpdate:
+    """
+    Struct to specify a single node update to pass as part of a larger
+    array to ::cudaGraphKernelNodeUpdatesApply
+
+    Attributes
+    ----------
+    node : cudaGraphDeviceNode_t
+        Node to update
+    field : cudaGraphKernelNodeField
+        Which type of update to apply. Determines how updateData is
+        interpreted
+    updateData : anon_union8
+        Update data to apply. Which field is used depends on field's value
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._val_ptr = <ccudart.cudaGraphKernelNodeUpdate *>calloc(1, sizeof(ccudart.cudaGraphKernelNodeUpdate))
+            self._ptr = self._val_ptr
+        else:
+            self._ptr = <ccudart.cudaGraphKernelNodeUpdate *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._node = cudaGraphDeviceNode_t(_ptr=<void_ptr>&self._ptr[0].node)
+        self._updateData = anon_union8(_ptr=<void_ptr>self._ptr)
+    def __dealloc__(self):
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['node : ' + str(self.node)]
+            except ValueError:
+                str_list += ['node : <ValueError>']
+            try:
+                str_list += ['field : ' + str(self.field)]
+            except ValueError:
+                str_list += ['field : <ValueError>']
+            try:
+                str_list += ['updateData :\n' + '\n'.join(['    ' + line for line in str(self.updateData).splitlines()])]
+            except ValueError:
+                str_list += ['updateData : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def node(self):
+        return self._node
+    @node.setter
+    def node(self, node):
+        cdef ccudart.cudaGraphDeviceNode_t cnode
+        if node is None:
+            cnode = <ccudart.cudaGraphDeviceNode_t><void_ptr>0
+        elif isinstance(node, (cudaGraphDeviceNode_t,)):
+            pnode = int(node)
+            cnode = <ccudart.cudaGraphDeviceNode_t><void_ptr>pnode
+        else:
+            pnode = int(cudaGraphDeviceNode_t(node))
+            cnode = <ccudart.cudaGraphDeviceNode_t><void_ptr>pnode
+        self._node._ptr[0] = cnode
+    @property
+    def field(self):
+        return cudaGraphKernelNodeField(self._ptr[0].field)
+    @field.setter
+    def field(self, field not None : cudaGraphKernelNodeField):
+        self._ptr[0].field = field.value
+    @property
+    def updateData(self):
+        return self._updateData
+    @updateData.setter
+    def updateData(self, updateData not None : anon_union8):
+        string.memcpy(&self._ptr[0].updateData, <ccudart.anon_union8*><void_ptr>updateData.getPtr(), sizeof(self._ptr[0].updateData))
+{{endif}}
 {{if 'struct cudaLaunchMemSyncDomainMap_st' in found_types}}
 
 cdef class cudaLaunchMemSyncDomainMap_st:
@@ -11696,7 +12124,7 @@ cdef class cudaLaunchMemSyncDomainMap_st:
 {{endif}}
 {{if 'union cudaLaunchAttributeValue' in found_types}}
 
-cdef class anon_struct19:
+cdef class anon_struct20:
     """
     Attributes
     ----------
@@ -11761,7 +12189,7 @@ cdef class anon_struct19:
 {{endif}}
 {{if 'union cudaLaunchAttributeValue' in found_types}}
 
-cdef class anon_struct20:
+cdef class anon_struct21:
     """
     Attributes
     ----------
@@ -11835,7 +12263,7 @@ cdef class anon_struct20:
 {{endif}}
 {{if 'union cudaLaunchAttributeValue' in found_types}}
 
-cdef class anon_struct21:
+cdef class anon_struct22:
     """
     Attributes
     ----------
@@ -11897,6 +12325,68 @@ cdef class anon_struct21:
 {{endif}}
 {{if 'union cudaLaunchAttributeValue' in found_types}}
 
+cdef class anon_struct23:
+    """
+    Attributes
+    ----------
+    deviceUpdatable : int
+
+    devNode : cudaGraphDeviceNode_t
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._ptr = <ccudart.cudaLaunchAttributeValue *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        self._devNode = cudaGraphDeviceNode_t(_ptr=<void_ptr>&self._ptr[0].deviceUpdatableKernelNode.devNode)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._ptr[0].deviceUpdatableKernelNode
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['deviceUpdatable : ' + str(self.deviceUpdatable)]
+            except ValueError:
+                str_list += ['deviceUpdatable : <ValueError>']
+            try:
+                str_list += ['devNode : ' + str(self.devNode)]
+            except ValueError:
+                str_list += ['devNode : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def deviceUpdatable(self):
+        return self._ptr[0].deviceUpdatableKernelNode.deviceUpdatable
+    @deviceUpdatable.setter
+    def deviceUpdatable(self, int deviceUpdatable):
+        self._ptr[0].deviceUpdatableKernelNode.deviceUpdatable = deviceUpdatable
+    @property
+    def devNode(self):
+        return self._devNode
+    @devNode.setter
+    def devNode(self, devNode):
+        cdef ccudart.cudaGraphDeviceNode_t cdevNode
+        if devNode is None:
+            cdevNode = <ccudart.cudaGraphDeviceNode_t><void_ptr>0
+        elif isinstance(devNode, (cudaGraphDeviceNode_t,)):
+            pdevNode = int(devNode)
+            cdevNode = <ccudart.cudaGraphDeviceNode_t><void_ptr>pdevNode
+        else:
+            pdevNode = int(cudaGraphDeviceNode_t(devNode))
+            cdevNode = <ccudart.cudaGraphDeviceNode_t><void_ptr>pdevNode
+        self._devNode._ptr[0] = cdevNode
+{{endif}}
+{{if 'union cudaLaunchAttributeValue' in found_types}}
+
 cdef class cudaLaunchAttributeValue:
     """
     Launch attributes union; used as value field of
@@ -11914,7 +12404,7 @@ cdef class cudaLaunchAttributeValue:
     syncPolicy : cudaSynchronizationPolicy
         Value of launch attribute cudaLaunchAttributeSynchronizationPolicy.
         ::cudaSynchronizationPolicy for work queued up in this stream.
-    clusterDim : anon_struct19
+    clusterDim : anon_struct20
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -11929,7 +12419,7 @@ cdef class cudaLaunchAttributeValue:
     programmaticStreamSerializationAllowed : int
         Value of launch attribute
         cudaLaunchAttributeProgrammaticStreamSerialization.
-    programmaticEvent : anon_struct20
+    programmaticEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent.
     priority : int
         Value of launch attribute cudaLaunchAttributePriority. Execution
@@ -11940,8 +12430,11 @@ cdef class cudaLaunchAttributeValue:
     memSyncDomain : cudaLaunchMemSyncDomain
         Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
         cudaLaunchMemSyncDomain.
-    launchCompletionEvent : anon_struct21
+    launchCompletionEvent : anon_struct22
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
+    deviceUpdatableKernelNode : anon_struct23
+        Value of launch attribute
+        ::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
 
     Methods
     -------
@@ -11956,10 +12449,11 @@ cdef class cudaLaunchAttributeValue:
             self._ptr = <ccudart.cudaLaunchAttributeValue *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         self._accessPolicyWindow = cudaAccessPolicyWindow(_ptr=<void_ptr>&self._ptr[0].accessPolicyWindow)
-        self._clusterDim = anon_struct19(_ptr=<void_ptr>self._ptr)
-        self._programmaticEvent = anon_struct20(_ptr=<void_ptr>self._ptr)
+        self._clusterDim = anon_struct20(_ptr=<void_ptr>self._ptr)
+        self._programmaticEvent = anon_struct21(_ptr=<void_ptr>self._ptr)
         self._memSyncDomainMap = cudaLaunchMemSyncDomainMap(_ptr=<void_ptr>&self._ptr[0].memSyncDomainMap)
-        self._launchCompletionEvent = anon_struct21(_ptr=<void_ptr>self._ptr)
+        self._launchCompletionEvent = anon_struct22(_ptr=<void_ptr>self._ptr)
+        self._deviceUpdatableKernelNode = anon_struct23(_ptr=<void_ptr>self._ptr)
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -12015,6 +12509,10 @@ cdef class cudaLaunchAttributeValue:
                 str_list += ['launchCompletionEvent :\n' + '\n'.join(['    ' + line for line in str(self.launchCompletionEvent).splitlines()])]
             except ValueError:
                 str_list += ['launchCompletionEvent : <ValueError>']
+            try:
+                str_list += ['deviceUpdatableKernelNode :\n' + '\n'.join(['    ' + line for line in str(self.deviceUpdatableKernelNode).splitlines()])]
+            except ValueError:
+                str_list += ['deviceUpdatableKernelNode : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -12057,8 +12555,8 @@ cdef class cudaLaunchAttributeValue:
     def clusterDim(self):
         return self._clusterDim
     @clusterDim.setter
-    def clusterDim(self, clusterDim not None : anon_struct19):
-        string.memcpy(&self._ptr[0].clusterDim, <ccudart.anon_struct19*><void_ptr>clusterDim.getPtr(), sizeof(self._ptr[0].clusterDim))
+    def clusterDim(self, clusterDim not None : anon_struct20):
+        string.memcpy(&self._ptr[0].clusterDim, <ccudart.anon_struct20*><void_ptr>clusterDim.getPtr(), sizeof(self._ptr[0].clusterDim))
     @property
     def clusterSchedulingPolicyPreference(self):
         return cudaClusterSchedulingPolicy(self._ptr[0].clusterSchedulingPolicyPreference)
@@ -12075,8 +12573,8 @@ cdef class cudaLaunchAttributeValue:
     def programmaticEvent(self):
         return self._programmaticEvent
     @programmaticEvent.setter
-    def programmaticEvent(self, programmaticEvent not None : anon_struct20):
-        string.memcpy(&self._ptr[0].programmaticEvent, <ccudart.anon_struct20*><void_ptr>programmaticEvent.getPtr(), sizeof(self._ptr[0].programmaticEvent))
+    def programmaticEvent(self, programmaticEvent not None : anon_struct21):
+        string.memcpy(&self._ptr[0].programmaticEvent, <ccudart.anon_struct21*><void_ptr>programmaticEvent.getPtr(), sizeof(self._ptr[0].programmaticEvent))
     @property
     def priority(self):
         return self._ptr[0].priority
@@ -12099,8 +12597,14 @@ cdef class cudaLaunchAttributeValue:
     def launchCompletionEvent(self):
         return self._launchCompletionEvent
     @launchCompletionEvent.setter
-    def launchCompletionEvent(self, launchCompletionEvent not None : anon_struct21):
-        string.memcpy(&self._ptr[0].launchCompletionEvent, <ccudart.anon_struct21*><void_ptr>launchCompletionEvent.getPtr(), sizeof(self._ptr[0].launchCompletionEvent))
+    def launchCompletionEvent(self, launchCompletionEvent not None : anon_struct22):
+        string.memcpy(&self._ptr[0].launchCompletionEvent, <ccudart.anon_struct22*><void_ptr>launchCompletionEvent.getPtr(), sizeof(self._ptr[0].launchCompletionEvent))
+    @property
+    def deviceUpdatableKernelNode(self):
+        return self._deviceUpdatableKernelNode
+    @deviceUpdatableKernelNode.setter
+    def deviceUpdatableKernelNode(self, deviceUpdatableKernelNode not None : anon_struct23):
+        string.memcpy(&self._ptr[0].deviceUpdatableKernelNode, <ccudart.anon_struct23*><void_ptr>deviceUpdatableKernelNode.getPtr(), sizeof(self._ptr[0].deviceUpdatableKernelNode))
 {{endif}}
 {{if 'struct cudaLaunchAttribute_st' in found_types}}
 
@@ -12158,6 +12662,147 @@ cdef class cudaLaunchAttribute_st:
     @val.setter
     def val(self, val not None : cudaLaunchAttributeValue):
         string.memcpy(&self._ptr[0].val, <ccudart.cudaLaunchAttributeValue*><void_ptr>val.getPtr(), sizeof(self._ptr[0].val))
+{{endif}}
+{{if 'struct cudaAsyncNotificationInfo' in found_types}}
+
+cdef class anon_struct24:
+    """
+    Attributes
+    ----------
+    bytesOverBudget : unsigned long long
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._ptr = <ccudart.cudaAsyncNotificationInfo *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._ptr[0].info.overBudget
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['bytesOverBudget : ' + str(self.bytesOverBudget)]
+            except ValueError:
+                str_list += ['bytesOverBudget : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def bytesOverBudget(self):
+        return self._ptr[0].info.overBudget.bytesOverBudget
+    @bytesOverBudget.setter
+    def bytesOverBudget(self, unsigned long long bytesOverBudget):
+        self._ptr[0].info.overBudget.bytesOverBudget = bytesOverBudget
+{{endif}}
+{{if 'struct cudaAsyncNotificationInfo' in found_types}}
+
+cdef class anon_union9:
+    """
+    Attributes
+    ----------
+    overBudget : anon_struct24
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._ptr = <ccudart.cudaAsyncNotificationInfo *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        self._overBudget = anon_struct24(_ptr=<void_ptr>self._ptr)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._ptr[0].info
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['overBudget :\n' + '\n'.join(['    ' + line for line in str(self.overBudget).splitlines()])]
+            except ValueError:
+                str_list += ['overBudget : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def overBudget(self):
+        return self._overBudget
+    @overBudget.setter
+    def overBudget(self, overBudget not None : anon_struct24):
+        string.memcpy(&self._ptr[0].info.overBudget, <ccudart.anon_struct24*><void_ptr>overBudget.getPtr(), sizeof(self._ptr[0].info.overBudget))
+{{endif}}
+{{if 'struct cudaAsyncNotificationInfo' in found_types}}
+
+cdef class cudaAsyncNotificationInfo:
+    """
+    Information describing an async notification event
+
+    Attributes
+    ----------
+    type : cudaAsyncNotificationType
+
+    info : anon_union9
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._val_ptr = <ccudart.cudaAsyncNotificationInfo *>calloc(1, sizeof(ccudart.cudaAsyncNotificationInfo))
+            self._ptr = self._val_ptr
+        else:
+            self._ptr = <ccudart.cudaAsyncNotificationInfo *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._info = anon_union9(_ptr=<void_ptr>self._ptr)
+    def __dealloc__(self):
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['type : ' + str(self.type)]
+            except ValueError:
+                str_list += ['type : <ValueError>']
+            try:
+                str_list += ['info :\n' + '\n'.join(['    ' + line for line in str(self.info).splitlines()])]
+            except ValueError:
+                str_list += ['info : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def type(self):
+        return cudaAsyncNotificationType(self._ptr[0].type)
+    @type.setter
+    def type(self, type not None : cudaAsyncNotificationType):
+        self._ptr[0].type = type.value
+    @property
+    def info(self):
+        return self._info
+    @info.setter
+    def info(self, info not None : anon_union9):
+        string.memcpy(&self._ptr[0].info, <ccudart.anon_union9*><void_ptr>info.getPtr(), sizeof(self._ptr[0].info))
 {{endif}}
 {{if 'struct cudaTextureDesc' in found_types}}
 
@@ -12468,7 +13113,7 @@ cdef class cudaEglPlaneDesc_st:
 {{endif}}
 {{if True}}
 
-cdef class anon_union8:
+cdef class anon_union10:
     """
     Attributes
     ----------
@@ -12546,7 +13191,7 @@ cdef class cudaEglFrame_st:
 
     Attributes
     ----------
-    frame : anon_union8
+    frame : anon_union10
 
     planeDesc : List[cudaEglPlaneDesc]
         CUDA EGL Plane Descriptor cudaEglPlaneDesc
@@ -12565,13 +13210,15 @@ cdef class cudaEglFrame_st:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self.__val
+            self._val_ptr = <ccudart.cudaEglFrame_st *>calloc(1, sizeof(ccudart.cudaEglFrame_st))
+            self._ptr = self._val_ptr
         else:
             self._ptr = <ccudart.cudaEglFrame_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        self._frame = anon_union8(_ptr=<void_ptr>self._ptr)
+        self._frame = anon_union10(_ptr=<void_ptr>self._ptr)
     def __dealloc__(self):
-        pass
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._ptr
     def __repr__(self):
@@ -12604,8 +13251,8 @@ cdef class cudaEglFrame_st:
     def frame(self):
         return self._frame
     @frame.setter
-    def frame(self, frame not None : anon_union8):
-        string.memcpy(&self._ptr[0].frame, <ccudart.anon_union8*><void_ptr>frame.getPtr(), sizeof(self._ptr[0].frame))
+    def frame(self, frame not None : anon_union10):
+        string.memcpy(&self._ptr[0].frame, <ccudart.anon_union10*><void_ptr>frame.getPtr(), sizeof(self._ptr[0].frame))
     @property
     def planeDesc(self):
         out_planeDesc = [cudaEglPlaneDesc() for _planeDesc in self._ptr[0].planeDesc]
@@ -13331,99 +13978,6 @@ def cudaDeviceSetCacheConfig(cacheConfig not None : cudaFuncCache):
     return (cudaError_t(err),)
 {{endif}}
 
-{{if 'cudaDeviceGetSharedMemConfig' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaDeviceGetSharedMemConfig():
-    """ Returns the shared memory configuration for the current device.
-
-    This function will return in `pConfig` the current size of shared
-    memory banks on the current device. On devices with configurable shared
-    memory banks, :py:obj:`~.cudaDeviceSetSharedMemConfig` can be used to
-    change this setting, so that all subsequent kernel launches will by
-    default use the new bank size. When
-    :py:obj:`~.cudaDeviceGetSharedMemConfig` is called on devices without
-    configurable shared memory, it will return the fixed bank size of the
-    hardware.
-
-    The returned bank configurations can be either:
-
-    - :py:obj:`~.cudaSharedMemBankSizeFourByte` - shared memory bank width
-      is four bytes.
-
-    - :py:obj:`~.cudaSharedMemBankSizeEightByte` - shared memory bank width
-      is eight bytes.
-
-    Returns
-    -------
-    cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-    pConfig : :py:obj:`~.cudaSharedMemConfig`
-        Returned cache configuration
-
-    See Also
-    --------
-    :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cudaDeviceGetCacheConfig`, :py:obj:`~.cudaDeviceSetSharedMemConfig`, :py:obj:`~.cudaFuncSetCacheConfig`, :py:obj:`~.cuCtxGetSharedMemConfig`
-    """
-    cdef ccudart.cudaSharedMemConfig pConfig
-    err = ccudart.cudaDeviceGetSharedMemConfig(&pConfig)
-    return (cudaError_t(err), cudaSharedMemConfig(pConfig))
-{{endif}}
-
-{{if 'cudaDeviceSetSharedMemConfig' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaDeviceSetSharedMemConfig(config not None : cudaSharedMemConfig):
-    """ Sets the shared memory configuration for the current device.
-
-    On devices with configurable shared memory banks, this function will
-    set the shared memory bank size which is used for all subsequent kernel
-    launches. Any per-function setting of shared memory set via
-    :py:obj:`~.cudaFuncSetSharedMemConfig` will override the device wide
-    setting.
-
-    Changing the shared memory configuration between launches may introduce
-    a device side synchronization point.
-
-    Changing the shared memory bank size will not increase shared memory
-    usage or affect occupancy of kernels, but may have major effects on
-    performance. Larger bank sizes will allow for greater potential
-    bandwidth to shared memory, but will change what kinds of accesses to
-    shared memory will result in bank conflicts.
-
-    This function will do nothing on devices with fixed shared memory bank
-    size.
-
-    The supported bank configurations are:
-
-    - :py:obj:`~.cudaSharedMemBankSizeDefault`: set bank width the device
-      default (currently, four bytes)
-
-    - :py:obj:`~.cudaSharedMemBankSizeFourByte`: set shared memory bank
-      width to be four bytes natively.
-
-    - :py:obj:`~.cudaSharedMemBankSizeEightByte`: set shared memory bank
-      width to be eight bytes natively.
-
-    Parameters
-    ----------
-    config : :py:obj:`~.cudaSharedMemConfig`
-        Requested cache configuration
-
-    Returns
-    -------
-    cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-
-    See Also
-    --------
-    :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cudaDeviceGetCacheConfig`, :py:obj:`~.cudaDeviceGetSharedMemConfig`, :py:obj:`~.cudaFuncSetCacheConfig`, :py:obj:`~.cuCtxSetSharedMemConfig`
-    """
-    cdef ccudart.cudaSharedMemConfig cconfig = config.value
-    err = ccudart.cudaDeviceSetSharedMemConfig(cconfig)
-    return (cudaError_t(err),)
-{{endif}}
-
 {{if 'cudaDeviceGetByPCIBusId' in found_functions}}
 
 @cython.embedsignature(True)
@@ -13790,6 +14344,203 @@ def cudaDeviceFlushGPUDirectRDMAWrites(target not None : cudaFlushGPUDirectRDMAW
     cdef ccudart.cudaFlushGPUDirectRDMAWritesTarget ctarget = target.value
     cdef ccudart.cudaFlushGPUDirectRDMAWritesScope cscope = scope.value
     err = ccudart.cudaDeviceFlushGPUDirectRDMAWrites(ctarget, cscope)
+    return (cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaDeviceRegisterAsyncNotification' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
+    """ Registers a callback function to receive async notifications.
+
+    Registers `callbackFunc` to receive async notifications.
+
+    The `userData` parameter is passed to the callback function at async
+    notification time. Likewise, `callback` is also passed to the callback
+    function to distinguish between multiple registered callbacks.
+
+    The callback function being registered should be designed to return
+    quickly (~10ms). Any long running tasks should be queued for execution
+    on an application thread.
+
+    Callbacks may not call cudaDeviceRegisterAsyncNotification or
+    cudaDeviceUnregisterAsyncNotification. Doing so will result in
+    :py:obj:`~.cudaErrorNotPermitted`. Async notification callbacks execute
+    in an undefined order and may be serialized.
+
+    Returns in `*callback` a handle representing the registered callback
+    instance.
+
+    Parameters
+    ----------
+    device : int
+        The device on which to register the callback
+    callbackFunc : :py:obj:`~.cudaAsyncCallback`
+        The function to register as a callback
+    userData : Any
+        A generic pointer to user data. This is passed into the callback
+        function.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorNotSupported` :py:obj:`~.cudaErrorInvalidDevice` :py:obj:`~.cudaErrorInvalidValue` :py:obj:`~.cudaErrorNotPermitted` :py:obj:`~.cudaErrorUnknown`
+    callback : :py:obj:`~.cudaAsyncCallbackHandle_t`
+        A handle representing the registered callback instance
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceUnregisterAsyncNotification`
+    """
+    cdef ccudart.cudaAsyncCallback ccallbackFunc
+    if callbackFunc is None:
+        ccallbackFunc = <ccudart.cudaAsyncCallback><void_ptr>0
+    elif isinstance(callbackFunc, (cudaAsyncCallback,)):
+        pcallbackFunc = int(callbackFunc)
+        ccallbackFunc = <ccudart.cudaAsyncCallback><void_ptr>pcallbackFunc
+    else:
+        pcallbackFunc = int(cudaAsyncCallback(callbackFunc))
+        ccallbackFunc = <ccudart.cudaAsyncCallback><void_ptr>pcallbackFunc
+    cuserData = utils.HelperInputVoidPtr(userData)
+    cdef void* cuserData_ptr = <void*><void_ptr>cuserData.cptr
+    cdef cudaAsyncCallbackHandle_t callback = cudaAsyncCallbackHandle_t()
+    err = ccudart.cudaDeviceRegisterAsyncNotification(device, ccallbackFunc, cuserData_ptr, <ccudart.cudaAsyncCallbackHandle_t*>callback._ptr)
+    return (cudaError_t(err), callback)
+{{endif}}
+
+{{if 'cudaDeviceUnregisterAsyncNotification' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDeviceUnregisterAsyncNotification(int device, callback):
+    """ Unregisters an async notification callback.
+
+    Unregisters `callback` so that the corresponding callback function will
+    stop receiving async notifications.
+
+    Parameters
+    ----------
+    device : int
+        The device from which to remove `callback`.
+    callback : :py:obj:`~.cudaAsyncCallbackHandle_t`
+        The callback instance to unregister from receiving async
+        notifications.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorNotSupported` :py:obj:`~.cudaErrorInvalidDevice` :py:obj:`~.cudaErrorInvalidValue` :py:obj:`~.cudaErrorNotPermitted` :py:obj:`~.cudaErrorUnknown`
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceRegisterAsyncNotification`
+    """
+    cdef ccudart.cudaAsyncCallbackHandle_t ccallback
+    if callback is None:
+        ccallback = <ccudart.cudaAsyncCallbackHandle_t><void_ptr>0
+    elif isinstance(callback, (cudaAsyncCallbackHandle_t,)):
+        pcallback = int(callback)
+        ccallback = <ccudart.cudaAsyncCallbackHandle_t><void_ptr>pcallback
+    else:
+        pcallback = int(cudaAsyncCallbackHandle_t(callback))
+        ccallback = <ccudart.cudaAsyncCallbackHandle_t><void_ptr>pcallback
+    err = ccudart.cudaDeviceUnregisterAsyncNotification(device, ccallback)
+    return (cudaError_t(err),)
+{{endif}}
+
+{{if 'cudaDeviceGetSharedMemConfig' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDeviceGetSharedMemConfig():
+    """ Returns the shared memory configuration for the current device.
+
+    [Deprecated]
+
+    This function will return in `pConfig` the current size of shared
+    memory banks on the current device. On devices with configurable shared
+    memory banks, :py:obj:`~.cudaDeviceSetSharedMemConfig` can be used to
+    change this setting, so that all subsequent kernel launches will by
+    default use the new bank size. When
+    :py:obj:`~.cudaDeviceGetSharedMemConfig` is called on devices without
+    configurable shared memory, it will return the fixed bank size of the
+    hardware.
+
+    The returned bank configurations can be either:
+
+    - :py:obj:`~.cudaSharedMemBankSizeFourByte` - shared memory bank width
+      is four bytes.
+
+    - :py:obj:`~.cudaSharedMemBankSizeEightByte` - shared memory bank width
+      is eight bytes.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    pConfig : :py:obj:`~.cudaSharedMemConfig`
+        Returned cache configuration
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cudaDeviceGetCacheConfig`, :py:obj:`~.cudaDeviceSetSharedMemConfig`, :py:obj:`~.cudaFuncSetCacheConfig`, :py:obj:`~.cuCtxGetSharedMemConfig`
+    """
+    cdef ccudart.cudaSharedMemConfig pConfig
+    err = ccudart.cudaDeviceGetSharedMemConfig(&pConfig)
+    return (cudaError_t(err), cudaSharedMemConfig(pConfig))
+{{endif}}
+
+{{if 'cudaDeviceSetSharedMemConfig' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDeviceSetSharedMemConfig(config not None : cudaSharedMemConfig):
+    """ Sets the shared memory configuration for the current device.
+
+    [Deprecated]
+
+    On devices with configurable shared memory banks, this function will
+    set the shared memory bank size which is used for all subsequent kernel
+    launches. Any per-function setting of shared memory set via
+    :py:obj:`~.cudaFuncSetSharedMemConfig` will override the device wide
+    setting.
+
+    Changing the shared memory configuration between launches may introduce
+    a device side synchronization point.
+
+    Changing the shared memory bank size will not increase shared memory
+    usage or affect occupancy of kernels, but may have major effects on
+    performance. Larger bank sizes will allow for greater potential
+    bandwidth to shared memory, but will change what kinds of accesses to
+    shared memory will result in bank conflicts.
+
+    This function will do nothing on devices with fixed shared memory bank
+    size.
+
+    The supported bank configurations are:
+
+    - :py:obj:`~.cudaSharedMemBankSizeDefault`: set bank width the device
+      default (currently, four bytes)
+
+    - :py:obj:`~.cudaSharedMemBankSizeFourByte`: set shared memory bank
+      width to be four bytes natively.
+
+    - :py:obj:`~.cudaSharedMemBankSizeEightByte`: set shared memory bank
+      width to be eight bytes natively.
+
+    Parameters
+    ----------
+    config : :py:obj:`~.cudaSharedMemConfig`
+        Requested cache configuration
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cudaDeviceGetCacheConfig`, :py:obj:`~.cudaDeviceGetSharedMemConfig`, :py:obj:`~.cudaFuncSetCacheConfig`, :py:obj:`~.cuCtxSetSharedMemConfig`
+    """
+    cdef ccudart.cudaSharedMemConfig cconfig = config.value
+    err = ccudart.cudaDeviceSetSharedMemConfig(cconfig)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -17874,71 +18625,6 @@ def cudaFuncSetCacheConfig(func, cacheConfig not None : cudaFuncCache):
     return (cudaError_t(err),)
 {{endif}}
 
-{{if 'cudaFuncSetSharedMemConfig' in found_functions}}
-
-@cython.embedsignature(True)
-def cudaFuncSetSharedMemConfig(func, config not None : cudaSharedMemConfig):
-    """ Sets the shared memory configuration for a device function.
-
-    On devices with configurable shared memory banks, this function will
-    force all subsequent launches of the specified device function to have
-    the given shared memory bank size configuration. On any given launch of
-    the function, the shared memory configuration of the device will be
-    temporarily changed if needed to suit the function's preferred
-    configuration. Changes in shared memory configuration between
-    subsequent launches of functions, may introduce a device side
-    synchronization point.
-
-    Any per-function setting of shared memory bank size set via
-    :py:obj:`~.cudaFuncSetSharedMemConfig` will override the device wide
-    setting set by :py:obj:`~.cudaDeviceSetSharedMemConfig`.
-
-    Changing the shared memory bank size will not increase shared memory
-    usage or affect occupancy of kernels, but may have major effects on
-    performance. Larger bank sizes will allow for greater potential
-    bandwidth to shared memory, but will change what kinds of accesses to
-    shared memory will result in bank conflicts.
-
-    This function will do nothing on devices with fixed shared memory bank
-    size.
-
-    For templated functions, pass the function symbol as follows:
-    func_name<template_arg_0,...,template_arg_N>
-
-    The supported bank configurations are:
-
-    - :py:obj:`~.cudaSharedMemBankSizeDefault`: use the device's shared
-      memory configuration when launching this function.
-
-    - :py:obj:`~.cudaSharedMemBankSizeFourByte`: set shared memory bank
-      width to be four bytes natively when launching this function.
-
-    - :py:obj:`~.cudaSharedMemBankSizeEightByte`: set shared memory bank
-      width to be eight bytes natively when launching this function.
-
-    Parameters
-    ----------
-    func : Any
-        Device function symbol
-    config : :py:obj:`~.cudaSharedMemConfig`
-        Requested shared memory configuration
-
-    Returns
-    -------
-    cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDeviceFunction`, :py:obj:`~.cudaErrorInvalidValue`,2
-
-    See Also
-    --------
-    :py:obj:`~.cudaDeviceSetSharedMemConfig`, :py:obj:`~.cudaDeviceGetSharedMemConfig`, :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cudaDeviceGetCacheConfig`, :py:obj:`~.cudaFuncSetCacheConfig`, :py:obj:`~.cuFuncSetSharedMemConfig`
-    """
-    cfunc = utils.HelperInputVoidPtr(func)
-    cdef void* cfunc_ptr = <void*><void_ptr>cfunc.cptr
-    cdef ccudart.cudaSharedMemConfig cconfig = config.value
-    err = ccudart.cudaFuncSetSharedMemConfig(cfunc_ptr, cconfig)
-    return (cudaError_t(err),)
-{{endif}}
-
 {{if 'cudaFuncGetAttributes' in found_functions}}
 
 @cython.embedsignature(True)
@@ -18126,6 +18812,73 @@ def cudaLaunchHostFunc(stream, fn, userData):
     return (cudaError_t(err),)
 {{endif}}
 
+{{if 'cudaFuncSetSharedMemConfig' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaFuncSetSharedMemConfig(func, config not None : cudaSharedMemConfig):
+    """ Sets the shared memory configuration for a device function.
+
+    [Deprecated]
+
+    On devices with configurable shared memory banks, this function will
+    force all subsequent launches of the specified device function to have
+    the given shared memory bank size configuration. On any given launch of
+    the function, the shared memory configuration of the device will be
+    temporarily changed if needed to suit the function's preferred
+    configuration. Changes in shared memory configuration between
+    subsequent launches of functions, may introduce a device side
+    synchronization point.
+
+    Any per-function setting of shared memory bank size set via
+    :py:obj:`~.cudaFuncSetSharedMemConfig` will override the device wide
+    setting set by :py:obj:`~.cudaDeviceSetSharedMemConfig`.
+
+    Changing the shared memory bank size will not increase shared memory
+    usage or affect occupancy of kernels, but may have major effects on
+    performance. Larger bank sizes will allow for greater potential
+    bandwidth to shared memory, but will change what kinds of accesses to
+    shared memory will result in bank conflicts.
+
+    This function will do nothing on devices with fixed shared memory bank
+    size.
+
+    For templated functions, pass the function symbol as follows:
+    func_name<template_arg_0,...,template_arg_N>
+
+    The supported bank configurations are:
+
+    - :py:obj:`~.cudaSharedMemBankSizeDefault`: use the device's shared
+      memory configuration when launching this function.
+
+    - :py:obj:`~.cudaSharedMemBankSizeFourByte`: set shared memory bank
+      width to be four bytes natively when launching this function.
+
+    - :py:obj:`~.cudaSharedMemBankSizeEightByte`: set shared memory bank
+      width to be eight bytes natively when launching this function.
+
+    Parameters
+    ----------
+    func : Any
+        Device function symbol
+    config : :py:obj:`~.cudaSharedMemConfig`
+        Requested shared memory configuration
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDeviceFunction`, :py:obj:`~.cudaErrorInvalidValue`,2
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceSetSharedMemConfig`, :py:obj:`~.cudaDeviceGetSharedMemConfig`, :py:obj:`~.cudaDeviceSetCacheConfig`, :py:obj:`~.cudaDeviceGetCacheConfig`, :py:obj:`~.cudaFuncSetCacheConfig`, :py:obj:`~.cuFuncSetSharedMemConfig`
+    """
+    cfunc = utils.HelperInputVoidPtr(func)
+    cdef void* cfunc_ptr = <void*><void_ptr>cfunc.cptr
+    cdef ccudart.cudaSharedMemConfig cconfig = config.value
+    err = ccudart.cudaFuncSetSharedMemConfig(cfunc_ptr, cconfig)
+    return (cudaError_t(err),)
+{{endif}}
+
 {{if 'cudaOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
 
 @cython.embedsignature(True)
@@ -18298,16 +19051,16 @@ def cudaMallocManaged(size_t size, unsigned int flags):
     GPUs may be evicted from device memory to host memory at any time by
     the Unified Memory driver in order to make room for other allocations.
 
-    In a multi-GPU system where all GPUs have a non-zero value for the
-    device attribute :py:obj:`~.cudaDevAttrConcurrentManagedAccess`,
-    managed memory may not be populated when this API returns and instead
-    may be populated on access. In such systems, managed memory can migrate
-    to any processor's memory at any time. The Unified Memory driver will
-    employ heuristics to maintain data locality and prevent excessive page
-    faults to the extent possible. The application can also guide the
-    driver about memory usage patterns via :py:obj:`~.cudaMemAdvise`. The
-    application can also explicitly migrate memory to a desired processor's
-    memory via :py:obj:`~.cudaMemPrefetchAsync`.
+    In a system where all GPUs have a non-zero value for the device
+    attribute :py:obj:`~.cudaDevAttrConcurrentManagedAccess`, managed
+    memory may not be populated when this API returns and instead may be
+    populated on access. In such systems, managed memory can migrate to any
+    processor's memory at any time. The Unified Memory driver will employ
+    heuristics to maintain data locality and prevent excessive page faults
+    to the extent possible. The application can also guide the driver about
+    memory usage patterns via :py:obj:`~.cudaMemAdvise`. The application
+    can also explicitly migrate memory to a desired processor's memory via
+    :py:obj:`~.cudaMemPrefetchAsync`.
 
     In a multi-GPU system where all of the GPUs have a zero value for the
     device attribute :py:obj:`~.cudaDevAttrConcurrentManagedAccess` and all
@@ -27376,7 +28129,8 @@ def cudaGraphInstantiate(graph, unsigned long long flags):
     If `graph` contains any allocation or free nodes, there can be at most
     one executable graph in existence for that graph at a time. An attempt
     to instantiate a second executable graph before destroying the first
-    with :py:obj:`~.cudaGraphExecDestroy` will result in an error.
+    with :py:obj:`~.cudaGraphExecDestroy` will result in an error. The same
+    also applies if `graph` contains any device-updatable kernel nodes.
 
     Graphs instantiated for launch on the device have additional
     restrictions which do not apply to host graphs:
@@ -27479,7 +28233,8 @@ def cudaGraphInstantiateWithFlags(graph, unsigned long long flags):
     If `graph` contains any allocation or free nodes, there can be at most
     one executable graph in existence for that graph at a time. An attempt
     to instantiate a second executable graph before destroying the first
-    with :py:obj:`~.cudaGraphExecDestroy` will result in an error.
+    with :py:obj:`~.cudaGraphExecDestroy` will result in an error. The same
+    also applies if `graph` contains any device-updatable kernel nodes.
 
     If `graph` contains kernels which call device-side
     :py:obj:`~.cudaGraphLaunch()` from multiple devices, this will result
@@ -27594,7 +28349,8 @@ def cudaGraphInstantiateWithParams(graph, instantiateParams : Optional[cudaGraph
     If `graph` contains any allocation or free nodes, there can be at most
     one executable graph in existence for that graph at a time. An attempt
     to instantiate a second executable graph before destroying the first
-    with :py:obj:`~.cudaGraphExecDestroy` will result in an error.
+    with :py:obj:`~.cudaGraphExecDestroy` will result in an error. The same
+    also applies if `graph` contains any device-updatable kernel nodes.
 
     If `graph` contains kernels which call device-side
     :py:obj:`~.cudaGraphLaunch()` from multiple devices, this will result
@@ -27742,7 +28498,7 @@ def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     in the non-executable graph, from which the executable graph was
     instantiated.
 
-    `hNode` must not have been removed from the original graph. All
+    `node` must not have been removed from the original graph. All
     `nodeParams` fields may change, but the following restrictions apply to
     `func` updates:
 
@@ -27750,6 +28506,10 @@ def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
 
     - A node whose function originally did not use CUDA dynamic parallelism
       cannot be updated to a function which uses CDP
+
+    - A node whose function originally did not make device-side update
+      calls cannot be updated to a function which makes device-side update
+      calls.
 
     - If `hGraphExec` was not instantiated for device launch, a node whose
       function originally did not use device-side
@@ -27762,6 +28522,12 @@ def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     The modifications only affect future launches of `hGraphExec`. Already
     enqueued or running launches of `hGraphExec` are not affected by this
     call. `node` is also not modified by this call.
+
+    If `node` is a device-updatable kernel node, the next upload/launch of
+    `hGraphExec` will overwrite any previous device-side updates.
+    Additionally, applying host updates to a device-updatable kernel node
+    while it is being updated from the device will result in undefined
+    behavior.
 
     Parameters
     ----------
@@ -28529,6 +29295,10 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
       - A node whose function originally did not use CUDA dynamic
         parallelism cannot be updated to a function which uses CDP.
 
+      - A node whose function originally did not make device-side update
+        calls cannot be updated to a function which makes device-side
+        update calls.
+
       - A cooperative node cannot be updated to a non-cooperative node, and
         vice-versa.
 
@@ -28545,6 +29315,9 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
         resides on the same device as nodes which contained such calls at
         instantiate-time. If no such calls were present at instantiation,
         these updates cannot be performed at all.
+
+      - Neither `hGraph` nor `hGraphExec` may contain device-updatable
+        kernel nodes.
 
     - Memset and memcpy nodes:
 
@@ -29426,8 +30199,11 @@ def cudaGraphConditionalHandleCreate(graph, unsigned int defaultLaunchValue, uns
 
     Creates a conditional handle associated with `hGraph`.
 
-    The conditional handle can be associated with conditional nodes in this
-    graph or its children.
+    The conditional handle must be associated with a conditional node in
+    this graph or one of its children.
+
+    Handles not associated with a conditional node may cause graph
+    instantiation to fail.
 
     Parameters
     ----------
@@ -31116,6 +31892,12 @@ def sizeof(objType):
     {{if 'cudaGraphExecUpdateResultInfo' in found_types}}
     if objType == cudaGraphExecUpdateResultInfo:
         return sizeof(ccudart.cudaGraphExecUpdateResultInfo){{endif}}
+    {{if 'cudaGraphDeviceNode_t' in found_types}}
+    if objType == cudaGraphDeviceNode_t:
+        return sizeof(ccudart.cudaGraphDeviceNode_t){{endif}}
+    {{if 'struct cudaGraphKernelNodeUpdate' in found_types}}
+    if objType == cudaGraphKernelNodeUpdate:
+        return sizeof(ccudart.cudaGraphKernelNodeUpdate){{endif}}
     {{if 'struct cudaLaunchMemSyncDomainMap_st' in found_types}}
     if objType == cudaLaunchMemSyncDomainMap_st:
         return sizeof(ccudart.cudaLaunchMemSyncDomainMap_st){{endif}}
@@ -31131,6 +31913,18 @@ def sizeof(objType):
     {{if 'cudaLaunchAttribute' in found_types}}
     if objType == cudaLaunchAttribute:
         return sizeof(ccudart.cudaLaunchAttribute){{endif}}
+    {{if 'cudaAsyncCallbackHandle_t' in found_types}}
+    if objType == cudaAsyncCallbackHandle_t:
+        return sizeof(ccudart.cudaAsyncCallbackHandle_t){{endif}}
+    {{if 'struct cudaAsyncNotificationInfo' in found_types}}
+    if objType == cudaAsyncNotificationInfo:
+        return sizeof(ccudart.cudaAsyncNotificationInfo){{endif}}
+    {{if 'cudaAsyncNotificationInfo_t' in found_types}}
+    if objType == cudaAsyncNotificationInfo_t:
+        return sizeof(ccudart.cudaAsyncNotificationInfo_t){{endif}}
+    {{if 'cudaAsyncCallback' in found_types}}
+    if objType == cudaAsyncCallback:
+        return sizeof(ccudart.cudaAsyncCallback){{endif}}
     {{if 'cudaSurfaceObject_t' in found_types}}
     if objType == cudaSurfaceObject_t:
         return sizeof(ccudart.cudaSurfaceObject_t){{endif}}

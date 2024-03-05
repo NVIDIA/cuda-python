@@ -1,10 +1,13 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+
+# cython: show_performance_hints=False
+
 cimport cuda._cuda.ccuda as ccuda
 from cuda._lib.ccudart.ccudart cimport *
 from cuda._lib.ccudart.utils cimport *
@@ -70,20 +73,6 @@ cdef cudaError_t cudaDeviceSetCacheConfig(cudaFuncCache cacheConfig) except ?cud
 
 {{endif}}
 
-{{if 'cudaDeviceGetSharedMemConfig' in found_functions}}
-
-cdef cudaError_t cudaDeviceGetSharedMemConfig(cudaSharedMemConfig* pConfig) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return _cudaDeviceGetSharedMemConfig(pConfig)
-
-{{endif}}
-
-{{if 'cudaDeviceSetSharedMemConfig' in found_functions}}
-
-cdef cudaError_t cudaDeviceSetSharedMemConfig(cudaSharedMemConfig config) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return _cudaDeviceSetSharedMemConfig(config)
-
-{{endif}}
-
 {{if 'cudaDeviceGetByPCIBusId' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetByPCIBusId(int* device, const char* pciBusId) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -137,6 +126,34 @@ cdef cudaError_t cudaIpcCloseMemHandle(void* devPtr) except ?cudaErrorCallRequir
 
 cdef cudaError_t cudaDeviceFlushGPUDirectRDMAWrites(cudaFlushGPUDirectRDMAWritesTarget target, cudaFlushGPUDirectRDMAWritesScope scope) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _cudaDeviceFlushGPUDirectRDMAWrites(target, scope)
+
+{{endif}}
+
+{{if 'cudaDeviceRegisterAsyncNotification' in found_functions}}
+
+cdef cudaError_t cudaDeviceRegisterAsyncNotification(int device, cudaAsyncCallback callbackFunc, void* userData, cudaAsyncCallbackHandle_t* callback) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaDeviceRegisterAsyncNotification(device, callbackFunc, userData, callback)
+
+{{endif}}
+
+{{if 'cudaDeviceUnregisterAsyncNotification' in found_functions}}
+
+cdef cudaError_t cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCallbackHandle_t callback) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaDeviceUnregisterAsyncNotification(device, callback)
+
+{{endif}}
+
+{{if 'cudaDeviceGetSharedMemConfig' in found_functions}}
+
+cdef cudaError_t cudaDeviceGetSharedMemConfig(cudaSharedMemConfig* pConfig) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaDeviceGetSharedMemConfig(pConfig)
+
+{{endif}}
+
+{{if 'cudaDeviceSetSharedMemConfig' in found_functions}}
+
+cdef cudaError_t cudaDeviceSetSharedMemConfig(cudaSharedMemConfig config) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaDeviceSetSharedMemConfig(config)
 
 {{endif}}
 
@@ -948,13 +965,6 @@ cdef cudaError_t cudaFuncSetCacheConfig(const void* func, cudaFuncCache cacheCon
 
 {{endif}}
 
-{{if 'cudaFuncSetSharedMemConfig' in found_functions}}
-
-cdef cudaError_t cudaFuncSetSharedMemConfig(const void* func, cudaSharedMemConfig config) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return _cudaFuncSetSharedMemConfig(func, config)
-
-{{endif}}
-
 {{if 'cudaFuncGetAttributes' in found_functions}}
 
 cdef cudaError_t cudaFuncGetAttributes(cudaFuncAttributes* attr, const void* func) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -973,6 +983,13 @@ cdef cudaError_t cudaFuncSetAttribute(const void* func, cudaFuncAttribute attr, 
 
 cdef cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void* userData) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _cudaLaunchHostFunc(stream, fn, userData)
+
+{{endif}}
+
+{{if 'cudaFuncSetSharedMemConfig' in found_functions}}
+
+cdef cudaError_t cudaFuncSetSharedMemConfig(const void* func, cudaSharedMemConfig config) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaFuncSetSharedMemConfig(func, config)
 
 {{endif}}
 

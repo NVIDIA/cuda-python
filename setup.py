@@ -1,4 +1,4 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -8,7 +8,6 @@
 
 from Cython import Tempita
 from Cython.Build import cythonize
-from distutils.sysconfig import get_python_lib
 import os
 import platform
 from pyclibrary import CParser
@@ -17,11 +16,7 @@ import sysconfig
 from setuptools import find_packages, setup
 from setuptools.extension import Extension
 from setuptools.command.build_ext import build_ext
-try:
-    import versioneer
-except ImportError:
-    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-    import versioneer
+import versioneer
 
 # ----------------------------------------------------------------------
 # Fetch configuration options
@@ -32,6 +27,7 @@ if not CUDA_HOME:
 if not CUDA_HOME:
     raise RuntimeError('Environment variable CUDA_HOME or CUDA_PATH is not set')
 
+CUDA_HOME = CUDA_HOME.split(os.pathsep)
 nthreads = int(os.environ.get("PARALLEL_LEVEL", "0") or "0")
 PARSER_CACHING = os.environ.get("CUDA_PYTHON_PARSER_CACHING", False)
 PARSER_CACHING = True if PARSER_CACHING else False
@@ -70,7 +66,7 @@ replace = {' __device_builtin__ ':' ',
            'typedef enum libraryPropertyType_t libraryPropertyType_t;' : '',
            '  enum ' : '   ',
            ', enum ' : ', ',
-           '\(enum ' : '(',}
+           '\\(enum ' : '(',}
 
 found_types = []
 found_structs = {}
@@ -78,16 +74,18 @@ found_unions = {}
 found_functions = []
 found_values = []
 
-include_path = os.path.join(CUDA_HOME, 'include')
-print(f'Parsing headers in "{include_path}" (Caching {PARSER_CACHING})')
+include_path_list = [os.path.join(path, 'include') for path in CUDA_HOME]
+print(f'Parsing headers in "{include_path_list}" (Caching {PARSER_CACHING})')
 for library, header_list in header_dict.items():
     header_paths = []
     for header in header_list:
-        path = os.path.join(include_path, header)
+        path_candidate = [os.path.join(path, header) for path in include_path_list]
+        for path in path_candidate:
+            if os.path.exists(path):
+                header_paths += [path]
+                break
         if not os.path.exists(path):
             print(f'Missing header {header}')
-            continue
-        header_paths += [path]
 
     print(f'Parsing {library} headers')
     parser = CParser(header_paths,
@@ -127,9 +125,9 @@ def generate_output(infile, local):
 
     with open(infile) as f:
         pxdcontent = Tempita.Template(f.read()).substitute(local)
-    
+
     if os.path.exists(outfile):
-        with open(outfile) as f: 
+        with open(outfile) as f:
             if f.read() == pxdcontent:
                 print(f'Skipping {infile} (No change)')
                 return
@@ -154,9 +152,8 @@ for file in input_files:
 # For Cython
 include_dirs = [
     os.path.dirname(sysconfig.get_path("include")),
-    f'{CUDA_HOME}/include',
-]
-library_dirs = [get_python_lib(), os.path.join(os.sys.prefix, "lib")]
+] + include_path_list
+library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
 
 extra_compile_args = []
 extra_cythonize_kwargs = {}

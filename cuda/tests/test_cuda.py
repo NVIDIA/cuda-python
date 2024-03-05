@@ -1,4 +1,4 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -815,6 +815,32 @@ def test_graph_poly():
     assert(err == cuda.CUresult.CUDA_SUCCESS)
     err, = cuda.cuStreamDestroy(stream)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, = cuda.cuCtxDestroy(ctx)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+@pytest.mark.skipif(driverVersionLessThan(12040)
+                    or not supportsCudaAPI('cuDeviceGetDevResource'), reason='Polymorphic graph APIs required')
+def test_cuDeviceGetDevResource():
+    err, = cuda.cuInit(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, device = cuda.cuDeviceGet(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    err, res, count, rem = cuda.cuDevSmResourceSplitByCount(0, resource_in, 0, 2)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    assert(count != 0)
+    assert(len(res) == 0)
+    err, res, count_same, rem = cuda.cuDevSmResourceSplitByCount(count, resource_in, 0, 2)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    assert(count == count_same)
+    assert(len(res) == count)
+    err, res, count, rem = cuda.cuDevSmResourceSplitByCount(3, resource_in, 0, 2)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+    assert(len(res) == 3)
+
     err, = cuda.cuCtxDestroy(ctx)
     assert(err == cuda.CUresult.CUDA_SUCCESS)
 

@@ -1,2 +1,1 @@
-include versioneer.py
 include cuda/_version.py

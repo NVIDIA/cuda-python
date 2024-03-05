@@ -1,4 +1,4 @@
-# Copyright 2021-2023 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -1278,7 +1278,6 @@ def cudart_func_stream_callback(use_host_api):
 def test_cudart_func_callback():
     cudart_func_stream_callback(use_host_api=False)
     cudart_func_stream_callback(use_host_api=True)
-
 
 @pytest.mark.skipif(driverVersionLessThan(12030)
                     or not supportsCudaAPI('cudaGraphConditionalHandleCreate'), reason='Conditional graph APIs required')
