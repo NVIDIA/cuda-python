@@ -7,7 +7,7 @@
 # is strictly prohibited.
 
 [build-system]
-requires = ["setuptools", "setuptools-scm", "cython", "pyclibrary"]
+requires = ["setuptools", "versioneer[toml]==0.29", "cython", "pyclibrary"]
 build-backend = "setuptools.build_meta"
 
 [project]

@@ -17,11 +17,7 @@ import sysconfig
 from setuptools import find_packages, setup
 from setuptools.extension import Extension
 from setuptools.command.build_ext import build_ext
-try:
-    import versioneer
-except ImportError:
-    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-    import versioneer
+import versioneer
 
 # ----------------------------------------------------------------------
 # Fetch configuration options
