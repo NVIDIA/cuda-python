@@ -239,6 +239,7 @@ cmdclass = versioneer.get_cmdclass(cmdclass)
 # Setup
 
 setup(
+    name="cuda-python",
     version=versioneer.get_version(),
     ext_modules=extensions,
     packages=find_packages(include=["cuda", "cuda.*"]),
