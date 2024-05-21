@@ -98,6 +98,8 @@ CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN = ccuda.CU_KERNEL_NODE_ATTRIBUTE_MEM_SY
 
 CU_KERNEL_NODE_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE = ccuda.CU_KERNEL_NODE_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE
 
+CU_KERNEL_NODE_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT = ccuda.CU_KERNEL_NODE_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
+
 CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW = ccuda.CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW
 
 CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY = ccuda.CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY
@@ -248,6 +250,10 @@ CUDA_ARRAY3D_SPARSE = ccuda.CUDA_ARRAY3D_SPARSE
 #: This flag if set indicates that the CUDA array or CUDA mipmapped array
 #: will allow deferred memory mapping
 CUDA_ARRAY3D_DEFERRED_MAPPING = ccuda.CUDA_ARRAY3D_DEFERRED_MAPPING
+
+#: This flag indicates that the CUDA array will be used for hardware
+#: accelerated video encode/decode operations.
+CUDA_ARRAY3D_VIDEO_ENCODE_DECODE = ccuda.CUDA_ARRAY3D_VIDEO_ENCODE_DECODE
 
 #: Override the texref format with a format inferred from the array. Flag
 #: for :py:obj:`~.cuTexRefSetArray()`
@@ -807,10 +813,62 @@ class CUarray_format(IntEnum):
     #: 4 channel unsigned normalized block-compressed (BC7 compression)
     #: format with sRGB encoding
     CU_AD_FORMAT_BC7_UNORM_SRGB = ccuda.CUarray_format_enum.CU_AD_FORMAT_BC7_UNORM_SRGB{{endif}}
+    {{if 'CU_AD_FORMAT_P010' in found_values}}
+
+    #: 10-bit YUV planar format, with 4:2:0 sampling
+    CU_AD_FORMAT_P010 = ccuda.CUarray_format_enum.CU_AD_FORMAT_P010{{endif}}
+    {{if 'CU_AD_FORMAT_P016' in found_values}}
+
+    #: 16-bit YUV planar format, with 4:2:0 sampling
+    CU_AD_FORMAT_P016 = ccuda.CUarray_format_enum.CU_AD_FORMAT_P016{{endif}}
+    {{if 'CU_AD_FORMAT_NV16' in found_values}}
+
+    #: 8-bit YUV planar format, with 4:2:2 sampling
+    CU_AD_FORMAT_NV16 = ccuda.CUarray_format_enum.CU_AD_FORMAT_NV16{{endif}}
+    {{if 'CU_AD_FORMAT_P210' in found_values}}
+
+    #: 10-bit YUV planar format, with 4:2:2 sampling
+    CU_AD_FORMAT_P210 = ccuda.CUarray_format_enum.CU_AD_FORMAT_P210{{endif}}
+    {{if 'CU_AD_FORMAT_P216' in found_values}}
+
+    #: 16-bit YUV planar format, with 4:2:2 sampling
+    CU_AD_FORMAT_P216 = ccuda.CUarray_format_enum.CU_AD_FORMAT_P216{{endif}}
+    {{if 'CU_AD_FORMAT_YUY2' in found_values}}
+
+    #: 2 channel, 8-bit YUV packed planar format, with 4:2:2 sampling
+    CU_AD_FORMAT_YUY2 = ccuda.CUarray_format_enum.CU_AD_FORMAT_YUY2{{endif}}
+    {{if 'CU_AD_FORMAT_Y210' in found_values}}
+
+    #: 2 channel, 10-bit YUV packed planar format, with 4:2:2 sampling
+    CU_AD_FORMAT_Y210 = ccuda.CUarray_format_enum.CU_AD_FORMAT_Y210{{endif}}
+    {{if 'CU_AD_FORMAT_Y216' in found_values}}
+
+    #: 2 channel, 16-bit YUV packed planar format, with 4:2:2 sampling
+    CU_AD_FORMAT_Y216 = ccuda.CUarray_format_enum.CU_AD_FORMAT_Y216{{endif}}
+    {{if 'CU_AD_FORMAT_AYUV' in found_values}}
+
+    #: 4 channel, 8-bit YUV packed planar format, with 4:4:4 sampling
+    CU_AD_FORMAT_AYUV = ccuda.CUarray_format_enum.CU_AD_FORMAT_AYUV{{endif}}
+    {{if 'CU_AD_FORMAT_Y410' in found_values}}
+
+    #: 10-bit YUV packed planar format, with 4:4:4 sampling
+    CU_AD_FORMAT_Y410 = ccuda.CUarray_format_enum.CU_AD_FORMAT_Y410{{endif}}
     {{if 'CU_AD_FORMAT_NV12' in found_values}}
 
     #: 8-bit YUV planar format, with 4:2:0 sampling
     CU_AD_FORMAT_NV12 = ccuda.CUarray_format_enum.CU_AD_FORMAT_NV12{{endif}}
+    {{if 'CU_AD_FORMAT_Y416' in found_values}}
+
+    #: 4 channel, 12-bit YUV packed planar format, with 4:4:4 sampling
+    CU_AD_FORMAT_Y416 = ccuda.CUarray_format_enum.CU_AD_FORMAT_Y416{{endif}}
+    {{if 'CU_AD_FORMAT_Y444_PLANAR8' in found_values}}
+
+    #: 3 channel 8-bit YUV planar format, with 4:4:4 sampling
+    CU_AD_FORMAT_Y444_PLANAR8 = ccuda.CUarray_format_enum.CU_AD_FORMAT_Y444_PLANAR8{{endif}}
+    {{if 'CU_AD_FORMAT_Y444_PLANAR10' in found_values}}
+
+    #: 3 channel 10-bit YUV planar format, with 4:4:4 sampling
+    CU_AD_FORMAT_Y444_PLANAR10 = ccuda.CUarray_format_enum.CU_AD_FORMAT_Y444_PLANAR10{{endif}}
     {{if 'CU_AD_FORMAT_UNORM_INT8X1' in found_values}}
 
     #: 1 channel unsigned 8-bit normalized integer
@@ -859,6 +917,8 @@ class CUarray_format(IntEnum):
 
     #: 4 channel signed 16-bit normalized integer
     CU_AD_FORMAT_SNORM_INT16X4 = ccuda.CUarray_format_enum.CU_AD_FORMAT_SNORM_INT16X4{{endif}}
+    {{if 'CU_AD_FORMAT_MAX' in found_values}}
+    CU_AD_FORMAT_MAX = ccuda.CUarray_format_enum.CU_AD_FORMAT_MAX{{endif}}
 {{endif}}
 {{if 'CUaddress_mode_enum' in found_types}}
 
@@ -1487,8 +1547,13 @@ class CUdevice_attribute(IntEnum):
     #: Device supports unified function pointers.
     CU_DEVICE_ATTRIBUTE_UNIFIED_FUNCTION_POINTERS = ccuda.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_UNIFIED_FUNCTION_POINTERS{{endif}}
     {{if 'CU_DEVICE_ATTRIBUTE_NUMA_CONFIG' in found_values}}
+
+    #: NUMA configuration of a device: value is of type
+    #: :py:obj:`~.CUdeviceNumaConfig` enum
     CU_DEVICE_ATTRIBUTE_NUMA_CONFIG = ccuda.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_NUMA_CONFIG{{endif}}
     {{if 'CU_DEVICE_ATTRIBUTE_NUMA_ID' in found_values}}
+
+    #: NUMA node ID of the GPU memory
     CU_DEVICE_ATTRIBUTE_NUMA_ID = ccuda.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_NUMA_ID{{endif}}
     {{if 'CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED' in found_values}}
 
@@ -1503,6 +1568,10 @@ class CUdevice_attribute(IntEnum):
     #: NUMA ID of the host node closest to the device. Returns -1 when
     #: system does not support NUMA.
     CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID = ccuda.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID{{endif}}
+    {{if 'CU_DEVICE_ATTRIBUTE_D3D12_CIG_SUPPORTED' in found_values}}
+
+    #: Device supports CIG with D3D12.
+    CU_DEVICE_ATTRIBUTE_D3D12_CIG_SUPPORTED = ccuda.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_D3D12_CIG_SUPPORTED{{endif}}
     {{if 'CU_DEVICE_ATTRIBUTE_MAX' in found_values}}
     CU_DEVICE_ATTRIBUTE_MAX = ccuda.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX{{endif}}
 {{endif}}
@@ -2447,6 +2516,22 @@ class CUlimit(IntEnum):
 
     #: A size in bytes for L2 persisting lines cache size
     CU_LIMIT_PERSISTING_L2_CACHE_SIZE = ccuda.CUlimit_enum.CU_LIMIT_PERSISTING_L2_CACHE_SIZE{{endif}}
+    {{if 'CU_LIMIT_SHMEM_SIZE' in found_values}}
+
+    #: A maximum size in bytes of shared memory available to CUDA kernels
+    #: on a CIG context. Can only be queried, cannot be set
+    CU_LIMIT_SHMEM_SIZE = ccuda.CUlimit_enum.CU_LIMIT_SHMEM_SIZE{{endif}}
+    {{if 'CU_LIMIT_CIG_ENABLED' in found_values}}
+
+    #: A non-zero value indicates this CUDA context is a CIG-enabled
+    #: context. Can only be queried, cannot be set
+    CU_LIMIT_CIG_ENABLED = ccuda.CUlimit_enum.CU_LIMIT_CIG_ENABLED{{endif}}
+    {{if 'CU_LIMIT_CIG_SHMEM_FALLBACK_ENABLED' in found_values}}
+
+    #: When set to a non-zero value, CUDA will fail to launch a kernel on a
+    #: CIG context, instead of using the fallback path, if the kernel uses
+    #: more shared memory than available
+    CU_LIMIT_CIG_SHMEM_FALLBACK_ENABLED = ccuda.CUlimit_enum.CU_LIMIT_CIG_SHMEM_FALLBACK_ENABLED{{endif}}
     {{if 'CU_LIMIT_MAX' in found_values}}
     CU_LIMIT_MAX = ccuda.CUlimit_enum.CU_LIMIT_MAX{{endif}}
 {{endif}}
@@ -2857,6 +2942,18 @@ class CUlaunchAttributeID(IntEnum):
     #: updatable nodes, the graph must be uploaded before it is launched
     #: again.
     CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE = ccuda.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE{{endif}}
+    {{if 'CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT' in found_values}}
+
+    #: Valid for launches. On devices where the L1 cache and shared memory
+    #: use the same hardware resources, setting
+    #: :py:obj:`~.CUlaunchAttributeValue.sharedMemCarveout` to a percentage
+    #: between 0-100 signals the CUDA driver to set the shared memory
+    #: carveout preference, in percent of the total shared memory for that
+    #: kernel launch. This attribute takes precedence over
+    #: :py:obj:`~.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT`. This
+    #: is only a hint, and the CUDA driver can choose a different
+    #: configuration if required for the launch.
+    CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT = ccuda.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT{{endif}}
 {{endif}}
 {{if 'CUstreamCaptureStatus_enum' in found_types}}
 
@@ -2946,6 +3043,15 @@ class CUexecAffinityType(IntEnum):
     CU_EXEC_AFFINITY_TYPE_SM_COUNT = ccuda.CUexecAffinityType_enum.CU_EXEC_AFFINITY_TYPE_SM_COUNT{{endif}}
     {{if 'CU_EXEC_AFFINITY_TYPE_MAX' in found_values}}
     CU_EXEC_AFFINITY_TYPE_MAX = ccuda.CUexecAffinityType_enum.CU_EXEC_AFFINITY_TYPE_MAX{{endif}}
+{{endif}}
+{{if 'CUcigDataType_enum' in found_types}}
+
+class CUcigDataType(IntEnum):
+    """
+
+    """
+    {{if 'CIG_DATA_TYPE_D3D12_COMMAND_QUEUE' in found_values}}
+    CIG_DATA_TYPE_D3D12_COMMAND_QUEUE = ccuda.CUcigDataType_enum.CIG_DATA_TYPE_D3D12_COMMAND_QUEUE{{endif}}
 {{endif}}
 {{if 'CUlibraryOption_enum' in found_types}}
 
@@ -4423,7 +4529,7 @@ class CUgraphInstantiate_flags(IntEnum):
 
 class CUdeviceNumaConfig(IntEnum):
     """
-
+    CUDA device NUMA configuration
     """
     {{if 'CU_DEVICE_NUMA_CONFIG_NONE' in found_values}}
 
@@ -4481,8 +4587,31 @@ class CUcoredumpSettings(IntEnum):
     CU_COREDUMP_FILE = ccuda.CUcoredumpSettings_enum.CU_COREDUMP_FILE{{endif}}
     {{if 'CU_COREDUMP_PIPE' in found_values}}
     CU_COREDUMP_PIPE = ccuda.CUcoredumpSettings_enum.CU_COREDUMP_PIPE{{endif}}
+    {{if 'CU_COREDUMP_GENERATION_FLAGS' in found_values}}
+    CU_COREDUMP_GENERATION_FLAGS = ccuda.CUcoredumpSettings_enum.CU_COREDUMP_GENERATION_FLAGS{{endif}}
     {{if 'CU_COREDUMP_MAX' in found_values}}
     CU_COREDUMP_MAX = ccuda.CUcoredumpSettings_enum.CU_COREDUMP_MAX{{endif}}
+{{endif}}
+{{if 'CUCoredumpGenerationFlags' in found_types}}
+
+class CUCoredumpGenerationFlags(IntEnum):
+    """
+    Flags for controlling coredump contents
+    """
+    {{if 'CU_COREDUMP_DEFAULT_FLAGS' in found_values}}
+    CU_COREDUMP_DEFAULT_FLAGS = ccuda.CUCoredumpGenerationFlags.CU_COREDUMP_DEFAULT_FLAGS{{endif}}
+    {{if 'CU_COREDUMP_SKIP_NONRELOCATED_ELF_IMAGES' in found_values}}
+    CU_COREDUMP_SKIP_NONRELOCATED_ELF_IMAGES = ccuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_NONRELOCATED_ELF_IMAGES{{endif}}
+    {{if 'CU_COREDUMP_SKIP_GLOBAL_MEMORY' in found_values}}
+    CU_COREDUMP_SKIP_GLOBAL_MEMORY = ccuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_GLOBAL_MEMORY{{endif}}
+    {{if 'CU_COREDUMP_SKIP_SHARED_MEMORY' in found_values}}
+    CU_COREDUMP_SKIP_SHARED_MEMORY = ccuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_SHARED_MEMORY{{endif}}
+    {{if 'CU_COREDUMP_SKIP_LOCAL_MEMORY' in found_values}}
+    CU_COREDUMP_SKIP_LOCAL_MEMORY = ccuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_LOCAL_MEMORY{{endif}}
+    {{if 'CU_COREDUMP_LIGHTWEIGHT_FLAGS' in found_values}}
+    CU_COREDUMP_LIGHTWEIGHT_FLAGS = ccuda.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS{{endif}}
+    {{if 'CU_COREDUMP_SKIP_ABORT' in found_values}}
+    CU_COREDUMP_SKIP_ABORT = ccuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_ABORT{{endif}}
 {{endif}}
 {{if 'CUgreenCtxCreate_flags' in found_types}}
 
@@ -4494,6 +4623,17 @@ class CUgreenCtxCreate_flags(IntEnum):
 
     #: Required. Creates a default stream to use inside the green context
     CU_GREEN_CTX_DEFAULT_STREAM = ccuda.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM{{endif}}
+{{endif}}
+{{if 'CUdevSmResourceSplit_flags' in found_types}}
+
+class CUdevSmResourceSplit_flags(IntEnum):
+    """
+
+    """
+    {{if 'CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING' in found_values}}
+    CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING = ccuda.CUdevSmResourceSplit_flags.CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING{{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE' in found_values}}
+    CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE = ccuda.CUdevSmResourceSplit_flags.CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE{{endif}}
 {{endif}}
 {{if 'CUdevResourceType' in found_types}}
 
@@ -5452,6 +5592,18 @@ class CUkernelNodeAttrID(IntEnum):
     #: updatable nodes, the graph must be uploaded before it is launched
     #: again.
     CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE = ccuda.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE{{endif}}
+    {{if 'CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT' in found_values}}
+
+    #: Valid for launches. On devices where the L1 cache and shared memory
+    #: use the same hardware resources, setting
+    #: :py:obj:`~.CUlaunchAttributeValue.sharedMemCarveout` to a percentage
+    #: between 0-100 signals the CUDA driver to set the shared memory
+    #: carveout preference, in percent of the total shared memory for that
+    #: kernel launch. This attribute takes precedence over
+    #: :py:obj:`~.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT`. This
+    #: is only a hint, and the CUDA driver can choose a different
+    #: configuration if required for the launch.
+    CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT = ccuda.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT{{endif}}
 {{endif}}
 {{if 'CUlaunchAttributeID_enum' in found_types}}
 
@@ -5595,6 +5747,18 @@ class CUstreamAttrID(IntEnum):
     #: updatable nodes, the graph must be uploaded before it is launched
     #: again.
     CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE = ccuda.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE{{endif}}
+    {{if 'CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT' in found_values}}
+
+    #: Valid for launches. On devices where the L1 cache and shared memory
+    #: use the same hardware resources, setting
+    #: :py:obj:`~.CUlaunchAttributeValue.sharedMemCarveout` to a percentage
+    #: between 0-100 signals the CUDA driver to set the shared memory
+    #: carveout preference, in percent of the total shared memory for that
+    #: kernel launch. This attribute takes precedence over
+    #: :py:obj:`~.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT`. This
+    #: is only a hint, and the CUDA driver can choose a different
+    #: configuration if required for the launch.
+    CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT = ccuda.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT{{endif}}
 {{endif}}
 {{if 'CUmemGenericAllocationHandle' in found_types}}
 
@@ -5629,7 +5793,7 @@ cdef class CUmemGenericAllocationHandle:
 cdef class CUcontext:
     """
 
-    CUDA context
+    A regular context handle
 
     Methods
     -------
@@ -6275,35 +6439,6 @@ cdef class CUasyncCallbackHandle:
         return <void_ptr>self._ptr
 {{endif}}
 
-{{if 'CUlinkState' in found_types}}
-
-cdef class CUlinkState:
-    """
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-
-    """
-    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._ptr = &self.__val
-            self._ptr[0] = <ccuda.CUlinkState>init_value
-        else:
-            self._ptr = <ccuda.CUlinkState *>_ptr
-    def __init__(self, *args, **kwargs):
-        self._keepalive = []
-    def __repr__(self):
-        return '<CUlinkState ' + str(hex(self.__int__())) + '>'
-    def __index__(self):
-        return self.__int__()
-    def __int__(self):
-        return <void_ptr>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-{{endif}}
-
 {{if 'CUgreenCtx' in found_types}}
 
 cdef class CUgreenCtx:
@@ -6327,6 +6462,35 @@ cdef class CUgreenCtx:
         pass
     def __repr__(self):
         return '<CUgreenCtx ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __int__(self):
+        return <void_ptr>self._ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._ptr
+{{endif}}
+
+{{if 'CUlinkState' in found_types}}
+
+cdef class CUlinkState:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+            self._ptr[0] = <ccuda.CUlinkState>init_value
+        else:
+            self._ptr = <ccuda.CUlinkState *>_ptr
+    def __init__(self, *args, **kwargs):
+        self._keepalive = []
+    def __repr__(self):
+        return '<CUlinkState ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
     def __int__(self):
@@ -9597,6 +9761,9 @@ cdef class CUlaunchAttributeValue_union:
     deviceUpdatableKernelNode : anon_struct4
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+    sharedMemCarveout : unsigned int
+        Value of launch attribute
+        CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
 
     Methods
     -------
@@ -9675,6 +9842,10 @@ cdef class CUlaunchAttributeValue_union:
                 str_list += ['deviceUpdatableKernelNode :\n' + '\n'.join(['    ' + line for line in str(self.deviceUpdatableKernelNode).splitlines()])]
             except ValueError:
                 str_list += ['deviceUpdatableKernelNode : <ValueError>']
+            try:
+                str_list += ['sharedMemCarveout : ' + str(self.sharedMemCarveout)]
+            except ValueError:
+                str_list += ['sharedMemCarveout : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -9767,6 +9938,12 @@ cdef class CUlaunchAttributeValue_union:
     @deviceUpdatableKernelNode.setter
     def deviceUpdatableKernelNode(self, deviceUpdatableKernelNode not None : anon_struct4):
         string.memcpy(&self._ptr[0].deviceUpdatableKernelNode, <ccuda.anon_struct4*><void_ptr>deviceUpdatableKernelNode.getPtr(), sizeof(self._ptr[0].deviceUpdatableKernelNode))
+    @property
+    def sharedMemCarveout(self):
+        return self._ptr[0].sharedMemCarveout
+    @sharedMemCarveout.setter
+    def sharedMemCarveout(self, unsigned int sharedMemCarveout):
+        self._ptr[0].sharedMemCarveout = sharedMemCarveout
 {{endif}}
 {{if 'struct CUlaunchAttribute_st' in found_types}}
 
@@ -10147,6 +10324,167 @@ cdef class CUexecAffinityParam_st:
     @param.setter
     def param(self, param not None : anon_union3):
         string.memcpy(&self._ptr[0].param, <ccuda.anon_union3*><void_ptr>param.getPtr(), sizeof(self._ptr[0].param))
+{{endif}}
+{{if 'struct CUctxCigParam_st' in found_types}}
+
+cdef class CUctxCigParam_st:
+    """
+    CIG Context Create Params
+
+    Attributes
+    ----------
+    sharedDataType : CUcigDataType
+
+    sharedData : Any
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccuda.CUctxCigParam_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['sharedDataType : ' + str(self.sharedDataType)]
+            except ValueError:
+                str_list += ['sharedDataType : <ValueError>']
+            try:
+                str_list += ['sharedData : ' + hex(self.sharedData)]
+            except ValueError:
+                str_list += ['sharedData : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def sharedDataType(self):
+        return CUcigDataType(self._ptr[0].sharedDataType)
+    @sharedDataType.setter
+    def sharedDataType(self, sharedDataType not None : CUcigDataType):
+        self._ptr[0].sharedDataType = sharedDataType.value
+    @property
+    def sharedData(self):
+        return <void_ptr>self._ptr[0].sharedData
+    @sharedData.setter
+    def sharedData(self, sharedData):
+        _csharedData = utils.HelperInputVoidPtr(sharedData)
+        self._ptr[0].sharedData = <void*><void_ptr>_csharedData.cptr
+{{endif}}
+{{if 'struct CUctxCreateParams_st' in found_types}}
+
+cdef class CUctxCreateParams_st:
+    """
+    Params for creating CUDA context Exactly one of execAffinityParams
+    and cigParams must be non-NULL.
+
+    Attributes
+    ----------
+    execAffinityParams : CUexecAffinityParam
+
+    numExecAffinityParams : int
+
+    cigParams : CUctxCigParam
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._ptr = &self.__val
+        else:
+            self._ptr = <ccuda.CUctxCreateParams_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        if self._execAffinityParams is not NULL:
+            free(self._execAffinityParams)
+        if self._cigParams is not NULL:
+            free(self._cigParams)
+    def getPtr(self):
+        return <void_ptr>self._ptr
+    def __repr__(self):
+        if self._ptr is not NULL:
+            str_list = []
+            try:
+                str_list += ['execAffinityParams : ' + str(self.execAffinityParams)]
+            except ValueError:
+                str_list += ['execAffinityParams : <ValueError>']
+            try:
+                str_list += ['numExecAffinityParams : ' + str(self.numExecAffinityParams)]
+            except ValueError:
+                str_list += ['numExecAffinityParams : <ValueError>']
+            try:
+                str_list += ['cigParams : ' + str(self.cigParams)]
+            except ValueError:
+                str_list += ['cigParams : <ValueError>']
+            return '\n'.join(str_list)
+        else:
+            return ''
+    @property
+    def execAffinityParams(self):
+        arrs = [<void_ptr>self._ptr[0].execAffinityParams + x*sizeof(ccuda.CUexecAffinityParam) for x in range(self._execAffinityParams_length)]
+        return [CUexecAffinityParam(_ptr=arr) for arr in arrs]
+    @execAffinityParams.setter
+    def execAffinityParams(self, val):
+        if len(val) == 0:
+            free(self._execAffinityParams)
+            self._execAffinityParams_length = 0
+            self._ptr[0].execAffinityParams = NULL
+        else:
+            if self._execAffinityParams_length != <size_t>len(val):
+                free(self._execAffinityParams)
+                self._execAffinityParams = <ccuda.CUexecAffinityParam*> calloc(len(val), sizeof(ccuda.CUexecAffinityParam))
+                if self._execAffinityParams is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(ccuda.CUexecAffinityParam)))
+                self._execAffinityParams_length = <size_t>len(val)
+                self._ptr[0].execAffinityParams = self._execAffinityParams
+            for idx in range(len(val)):
+                string.memcpy(&self._execAffinityParams[idx], (<CUexecAffinityParam>val[idx])._ptr, sizeof(ccuda.CUexecAffinityParam))
+
+    @property
+    def numExecAffinityParams(self):
+        return self._ptr[0].numExecAffinityParams
+    @numExecAffinityParams.setter
+    def numExecAffinityParams(self, int numExecAffinityParams):
+        self._ptr[0].numExecAffinityParams = numExecAffinityParams
+    @property
+    def cigParams(self):
+        arrs = [<void_ptr>self._ptr[0].cigParams + x*sizeof(ccuda.CUctxCigParam) for x in range(self._cigParams_length)]
+        return [CUctxCigParam(_ptr=arr) for arr in arrs]
+    @cigParams.setter
+    def cigParams(self, val):
+        if len(val) == 0:
+            free(self._cigParams)
+            self._cigParams_length = 0
+            self._ptr[0].cigParams = NULL
+        else:
+            if self._cigParams_length != <size_t>len(val):
+                free(self._cigParams)
+                self._cigParams = <ccuda.CUctxCigParam*> calloc(len(val), sizeof(ccuda.CUctxCigParam))
+                if self._cigParams is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(ccuda.CUctxCigParam)))
+                self._cigParams_length = <size_t>len(val)
+                self._ptr[0].cigParams = self._cigParams
+            for idx in range(len(val)):
+                string.memcpy(&self._cigParams[idx], (<CUctxCigParam>val[idx])._ptr, sizeof(ccuda.CUctxCigParam))
+
 {{endif}}
 {{if 'struct CUlibraryHostUniversalFunctionAndDataTable_st' in found_types}}
 
@@ -17888,6 +18226,15 @@ def cuDeviceGetAttribute(attrib not None : CUdevice_attribute, dev):
       Device supports deferred mapping CUDA arrays and CUDA mipmapped
       arrays.
 
+    - :py:obj:`~.CU_DEVICE_ATTRIBUTE_NUMA_CONFIG`: NUMA configuration of a
+      device: value is of type :py:obj:`~.CUdeviceNumaConfig` enum
+
+    - :py:obj:`~.CU_DEVICE_ATTRIBUTE_NUMA_ID`: NUMA node ID of the GPU
+      memory
+
+    - :py:obj:`~.CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED`: Device supports
+      switch multicast and reduction operations.
+
     Parameters
     ----------
     attrib : :py:obj:`~.CUdevice_attribute`
@@ -18976,6 +19323,188 @@ def cuCtxCreate_v3(paramsArray : Optional[List[CUexecAffinityParam]], int numPar
     return (CUresult(err), pctx)
 {{endif}}
 
+{{if 'cuCtxCreate_v4' in found_functions}}
+
+@cython.embedsignature(True)
+def cuCtxCreate_v4(ctxCreateParams : Optional[CUctxCreateParams], unsigned int flags, dev):
+    """ Create a CUDA context.
+
+    Creates a new CUDA context and associates it with the calling thread.
+    The `flags` parameter is described below. The context is created with a
+    usage count of 1 and the caller of :py:obj:`~.cuCtxCreate()` must call
+    :py:obj:`~.cuCtxDestroy()` when done using the context. If a context is
+    already current to the thread, it is supplanted by the newly created
+    context and may be restored by a subsequent call to
+    :py:obj:`~.cuCtxPopCurrent()`.
+
+    CUDA context can be created with execution affinity. The type and the
+    amount of execution resource the context can use is limited by
+    `paramsArray` and `numExecAffinityParams` in `execAffinity`. The
+    `paramsArray` is an array of `CUexecAffinityParam` and the
+    `numExecAffinityParams` describes the size of the paramsArray. If two
+    `CUexecAffinityParam` in the array have the same type, the latter
+    execution affinity parameter overrides the former execution affinity
+    parameter. The supported execution affinity types are:
+
+    - :py:obj:`~.CU_EXEC_AFFINITY_TYPE_SM_COUNT` limits the portion of SMs
+      that the context can use. The portion of SMs is specified as the
+      number of SMs via `CUexecAffinitySmCount`. This limit will be
+      internally rounded up to the next hardware-supported amount. Hence,
+      it is imperative to query the actual execution affinity of the
+      context via `cuCtxGetExecAffinity` after context creation. Currently,
+      this attribute is only supported under Volta+ MPS.
+
+    CUDA context can be created in CIG(CUDA in Graphics) mode by setting /p
+    cigParams. Hardware support and software support for graphics clients
+    can be determined using :py:obj:`~.cuDeviceGetAttribute()` with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_D3D12_CIG_SUPPORTED`. Data from graphics
+    client is shared with CUDA via the /p sharedData in /pcigParams. For
+    D3D12, /p sharedData is a ID3D12CommandQueue handle.
+
+    Either /p execAffinityParams or /p cigParams can be set to a non-null
+    value. Setting both to a non-null value will result in an undefined
+    behavior.
+
+    The three LSBs of the `flags` parameter can be used to control how the
+    OS thread, which owns the CUDA context at the time of an API call,
+    interacts with the OS scheduler when waiting for results from the GPU.
+    Only one of the scheduling flags can be set when creating a context.
+
+    - :py:obj:`~.CU_CTX_SCHED_SPIN`: Instruct CUDA to actively spin when
+      waiting for results from the GPU. This can decrease latency when
+      waiting for the GPU, but may lower the performance of CPU threads if
+      they are performing work in parallel with the CUDA thread.
+
+    - :py:obj:`~.CU_CTX_SCHED_YIELD`: Instruct CUDA to yield its thread
+      when waiting for results from the GPU. This can increase latency when
+      waiting for the GPU, but can increase the performance of CPU threads
+      performing work in parallel with the GPU.
+
+    - :py:obj:`~.CU_CTX_SCHED_BLOCKING_SYNC`: Instruct CUDA to block the
+      CPU thread on a synchronization primitive when waiting for the GPU to
+      finish work.
+
+    - :py:obj:`~.CU_CTX_BLOCKING_SYNC`: Instruct CUDA to block the CPU
+      thread on a synchronization primitive when waiting for the GPU to
+      finish work.   Deprecated: This flag was deprecated as of CUDA 4.0
+      and was replaced with :py:obj:`~.CU_CTX_SCHED_BLOCKING_SYNC`.
+
+    - :py:obj:`~.CU_CTX_SCHED_AUTO`: The default value if the `flags`
+      parameter is zero, uses a heuristic based on the number of active
+      CUDA contexts in the process `C` and the number of logical processors
+      in the system `P`. If `C` > `P`, then CUDA will yield to other OS
+      threads when waiting for the GPU (:py:obj:`~.CU_CTX_SCHED_YIELD`),
+      otherwise CUDA will not yield while waiting for results and actively
+      spin on the processor (:py:obj:`~.CU_CTX_SCHED_SPIN`). Additionally,
+      on Tegra devices, :py:obj:`~.CU_CTX_SCHED_AUTO` uses a heuristic
+      based on the power profile of the platform and may choose
+      :py:obj:`~.CU_CTX_SCHED_BLOCKING_SYNC` for low-powered devices.
+
+    - :py:obj:`~.CU_CTX_MAP_HOST`: Instruct CUDA to support mapped pinned
+      allocations. This flag must be set in order to allocate pinned host
+      memory that is accessible to the GPU.
+
+    - :py:obj:`~.CU_CTX_LMEM_RESIZE_TO_MAX`: Instruct CUDA to not reduce
+      local memory after resizing local memory for a kernel. This can
+      prevent thrashing by local memory allocations when launching many
+      kernels with high local memory usage at the cost of potentially
+      increased memory usage.   Deprecated: This flag is deprecated and the
+      behavior enabled by this flag is now the default and cannot be
+      disabled. Instead, the per-thread stack size can be controlled with
+      :py:obj:`~.cuCtxSetLimit()`.
+
+    - :py:obj:`~.CU_CTX_COREDUMP_ENABLE`: If GPU coredumps have not been
+      enabled globally with :py:obj:`~.cuCoredumpSetAttributeGlobal` or
+      environment variables, this flag can be set during context creation
+      to instruct CUDA to create a coredump if this context raises an
+      exception during execution. These environment variables are described
+      in the CUDA-GDB user guide under the "GPU core dump support" section.
+      The initial attributes will be taken from the global attributes at
+      the time of context creation. The other attributes that control
+      coredump output can be modified by calling
+      :py:obj:`~.cuCoredumpSetAttribute` from the created context after it
+      becomes current. This flag is not supported when CUDA context is
+      created in CIG(CUDA in Graphics) mode.
+
+    - :py:obj:`~.CU_CTX_USER_COREDUMP_ENABLE`: If user-triggered GPU
+      coredumps have not been enabled globally with
+      :py:obj:`~.cuCoredumpSetAttributeGlobal` or environment variables,
+      this flag can be set during context creation to instruct CUDA to
+      create a coredump if data is written to a certain pipe that is
+      present in the OS space. These environment variables are described in
+      the CUDA-GDB user guide under the "GPU core dump support" section. It
+      is important to note that the pipe name `must` be set with
+      :py:obj:`~.cuCoredumpSetAttributeGlobal` before creating the context
+      if this flag is used. Setting this flag implies that
+      :py:obj:`~.CU_CTX_COREDUMP_ENABLE` is set. The initial attributes
+      will be taken from the global attributes at the time of context
+      creation. The other attributes that control coredump output can be
+      modified by calling :py:obj:`~.cuCoredumpSetAttribute` from the
+      created context after it becomes current. Setting this flag on any
+      context creation is equivalent to setting the
+      :py:obj:`~.CU_COREDUMP_ENABLE_USER_TRIGGER` attribute to `true`
+      globally. This flag is not supported when CUDA context is created in
+      CIG(CUDA in Graphics) mode.
+
+    - :py:obj:`~.CU_CTX_SYNC_MEMOPS`: Ensures that synchronous memory
+      operations initiated on this context will always synchronize. See
+      further documentation in the section titled "API Synchronization
+      behavior" to learn more about cases when synchronous memory
+      operations can exhibit asynchronous behavior.
+
+    Context creation will fail with :py:obj:`~.CUDA_ERROR_UNKNOWN` if the
+    compute mode of the device is :py:obj:`~.CU_COMPUTEMODE_PROHIBITED`.
+    The function :py:obj:`~.cuDeviceGetAttribute()` can be used with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_COMPUTE_MODE` to determine the compute
+    mode of the device. The `nvidia-smi` tool can be used to set the
+    compute mode for * devices. Documentation for `nvidia-smi` can be
+    obtained by passing a -h option to it.
+
+    Context creation will fail with :: CUDA_ERROR_INVALID_VALUE if invalid
+    parameter was passed by client to create the CUDA context.
+
+    Context creation in CIG mode will fail with
+    :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED` if CIG is not supported by the
+    device or the driver. Hardware support is available starting Volta.
+    Software support for graphics clients can be determined using
+    :py:obj:`~.cuDeviceGetAttribute()` with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_D3D12_CIG_SUPPORTED`.
+
+    Parameters
+    ----------
+    ctxCreateParams : :py:obj:`~.CUctxCreateParams`
+        Context creation parameters
+    flags : unsigned int
+        Context creation flags
+    dev : :py:obj:`~.CUdevice`
+        Device to create context on
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_UNKNOWN`
+    pctx : :py:obj:`~.CUcontext`
+        Returned context handle of the new context
+
+    See Also
+    --------
+    :py:obj:`~.cuCtxDestroy`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxGetLimit`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuCtxSetLimit`, :py:obj:`~.cuCoredumpSetAttributeGlobal`, :py:obj:`~.cuCoredumpSetAttribute`, :py:obj:`~.cuCtxSynchronize`
+    """
+    cdef ccuda.CUdevice cdev
+    if dev is None:
+        cdev = <ccuda.CUdevice>0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+        cdev = <ccuda.CUdevice>pdev
+    else:
+        pdev = int(CUdevice(dev))
+        cdev = <ccuda.CUdevice>pdev
+    cdef CUcontext pctx = CUcontext()
+    cdef ccuda.CUctxCreateParams* cctxCreateParams_ptr = ctxCreateParams._ptr if ctxCreateParams != None else NULL
+    err = ccuda.cuCtxCreate_v4(<ccuda.CUcontext*>pctx._ptr, cctxCreateParams_ptr, flags, cdev)
+    return (CUresult(err), pctx)
+{{endif}}
+
 {{if 'cuCtxDestroy_v2' in found_functions}}
 
 @cython.embedsignature(True)
@@ -18990,13 +19519,16 @@ def cuCtxDestroy(ctx):
     Destroys and cleans up all resources associated with the context. It is
     the caller's responsibility to ensure that the context or its resources
     are not accessed or passed in subsequent API calls and doing so will
-    result in undefined behavior. These resources include CUDA types such
-    as :py:obj:`~.CUmodule`, :py:obj:`~.CUfunction`, :py:obj:`~.CUstream`,
+    result in undefined behavior. These resources include CUDA types
+    :py:obj:`~.CUmodule`, :py:obj:`~.CUfunction`, :py:obj:`~.CUstream`,
     :py:obj:`~.CUevent`, :py:obj:`~.CUarray`, :py:obj:`~.CUmipmappedArray`,
     :py:obj:`~.CUtexObject`, :py:obj:`~.CUsurfObject`,
     :py:obj:`~.CUtexref`, :py:obj:`~.CUsurfref`,
     :py:obj:`~.CUgraphicsResource`, :py:obj:`~.CUlinkState`,
-    :py:obj:`~.CUexternalMemory` and :py:obj:`~.CUexternalSemaphore`.
+    :py:obj:`~.CUexternalMemory` and :py:obj:`~.CUexternalSemaphore`. These
+    resources also include memory allocations by :py:obj:`~.cuMemAlloc()`,
+    :py:obj:`~.cuMemAllocHost()`, :py:obj:`~.cuMemAllocManaged()` and
+    :py:obj:`~.cuMemAllocPitch()`.
 
     If `ctx` is current to the calling thread then `ctx` will also be
     popped from the current thread's context stack (as though
@@ -19018,6 +19550,10 @@ def cuCtxDestroy(ctx):
     See Also
     --------
     :py:obj:`~.cuCtxCreate`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxGetLimit`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuCtxSetLimit`, :py:obj:`~.cuCtxSynchronize`
+
+    Notes
+    -----
+    :py:obj:`~.cuCtxDestroy()` will not destroy memory allocations by :py:obj:`~.cuMemCreate()`, :py:obj:`~.cuMemAllocAsync()` and :py:obj:`~.cuMemAllocFromPoolAsync()`. These memory allocations are not associated with any CUDA context and need to be destroyed explicitly.
     """
     cdef ccuda.CUcontext cctx
     if ctx is None:
@@ -19293,9 +19829,11 @@ def cuCtxGetId(ctx):
 
 @cython.embedsignature(True)
 def cuCtxSynchronize():
-    """ Block for a context's tasks to complete.
+    """ Block for the current context's tasks to complete.
 
-    Blocks until the device has completed all preceding requested tasks.
+    Blocks until the current context has completed all preceding requested
+    tasks. If the current context is the primary context, green contexts
+    that have been created will also be synchronized.
     :py:obj:`~.cuCtxSynchronize()` returns an error if one of the preceding
     tasks failed. If the context was created with the
     :py:obj:`~.CU_CTX_SCHED_BLOCKING_SYNC` flag, the CPU thread will block
@@ -19721,6 +20259,127 @@ def cuCtxGetExecAffinity(typename not None : CUexecAffinityType):
     cdef ccuda.CUexecAffinityType ctypename = typename.value
     err = ccuda.cuCtxGetExecAffinity(<ccuda.CUexecAffinityParam*>pExecAffinity._ptr, ctypename)
     return (CUresult(err), pExecAffinity)
+{{endif}}
+
+{{if 'cuCtxRecordEvent' in found_functions}}
+
+@cython.embedsignature(True)
+def cuCtxRecordEvent(hCtx, hEvent):
+    """ Records an event.
+
+    Captures in `hEvent` all the activities of the context `hCtx` at the
+    time of this call. `hEvent` and `hCtx` must be from the same CUDA
+    context, otherwise :py:obj:`~.CUDA_ERROR_INVALID_HANDLE` will be
+    returned. Calls such as :py:obj:`~.cuEventQuery()` or
+    :py:obj:`~.cuCtxWaitEvent()` will then examine or wait for completion
+    of the work that was captured. Uses of `hCtx` after this call do not
+    modify `hEvent`. If the context passed to `hCtx` is the primary
+    context, `hEvent` will capture all the activities of the primary
+    context and its green contexts. If the context passed to `hCtx` is a
+    context converted from green context via
+    :py:obj:`~.cuCtxFromGreenCtx()`, `hEvent` will capture only the
+    activities of the green context.
+
+    Parameters
+    ----------
+    hCtx : :py:obj:`~.CUcontext`
+        Context to record event for
+    hEvent : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Event to record
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED`
+
+    See Also
+    --------
+    :py:obj:`~.cuCtxWaitEvent`, :py:obj:`~.cuGreenCtxRecordEvent`, :py:obj:`~.cuGreenCtxWaitEvent`, :py:obj:`~.cuEventRecord`
+
+    Notes
+    -----
+    The API will return :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED` if the specified context `hCtx` has a stream in the capture mode. In such a case, the call will invalidate all the conflicting captures.
+    """
+    cdef ccuda.CUevent chEvent
+    if hEvent is None:
+        chEvent = <ccuda.CUevent><void_ptr>0
+    elif isinstance(hEvent, (CUevent,)):
+        phEvent = int(hEvent)
+        chEvent = <ccuda.CUevent><void_ptr>phEvent
+    else:
+        phEvent = int(CUevent(hEvent))
+        chEvent = <ccuda.CUevent><void_ptr>phEvent
+    cdef ccuda.CUcontext chCtx
+    if hCtx is None:
+        chCtx = <ccuda.CUcontext><void_ptr>0
+    elif isinstance(hCtx, (CUcontext,)):
+        phCtx = int(hCtx)
+        chCtx = <ccuda.CUcontext><void_ptr>phCtx
+    else:
+        phCtx = int(CUcontext(hCtx))
+        chCtx = <ccuda.CUcontext><void_ptr>phCtx
+    err = ccuda.cuCtxRecordEvent(chCtx, chEvent)
+    return (CUresult(err),)
+{{endif}}
+
+{{if 'cuCtxWaitEvent' in found_functions}}
+
+@cython.embedsignature(True)
+def cuCtxWaitEvent(hCtx, hEvent):
+    """ Make a context wait on an event.
+
+    Makes all future work submitted to context `hCtx` wait for all work
+    captured in `hEvent`. The synchronization will be performed on the
+    device and will not block the calling CPU thread. See
+    :py:obj:`~.cuCtxRecordEvent()` for details on what is captured by an
+    event. If the context passed to `hCtx` is the primary context, the
+    primary context and its green contexts will wait for `hEvent`. If the
+    context passed to `hCtx` is a context converted from green context via
+    :py:obj:`~.cuCtxFromGreenCtx()`, the green context will wait for
+    `hEvent`.
+
+    Parameters
+    ----------
+    hCtx : :py:obj:`~.CUcontext`
+        Context to wait
+    hEvent : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Event to wait on
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED`
+
+    See Also
+    --------
+    :py:obj:`~.cuCtxRecordEvent`, :py:obj:`~.cuGreenCtxRecordEvent`, :py:obj:`~.cuGreenCtxWaitEvent`, :py:obj:`~.cuStreamWaitEvent`
+
+    Notes
+    -----
+    `hEvent` may be from a different context or device than `hCtx`.
+
+    The API will return :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED` and invalidate the capture if the specified event `hEvent` is part of an ongoing capture sequence or if the specified context `hCtx` has a stream in the capture mode.
+    """
+    cdef ccuda.CUevent chEvent
+    if hEvent is None:
+        chEvent = <ccuda.CUevent><void_ptr>0
+    elif isinstance(hEvent, (CUevent,)):
+        phEvent = int(hEvent)
+        chEvent = <ccuda.CUevent><void_ptr>phEvent
+    else:
+        phEvent = int(CUevent(hEvent))
+        chEvent = <ccuda.CUevent><void_ptr>phEvent
+    cdef ccuda.CUcontext chCtx
+    if hCtx is None:
+        chCtx = <ccuda.CUcontext><void_ptr>0
+    elif isinstance(hCtx, (CUcontext,)):
+        phCtx = int(hCtx)
+        chCtx = <ccuda.CUcontext><void_ptr>phCtx
+    else:
+        phCtx = int(CUcontext(hCtx))
+        chCtx = <ccuda.CUcontext><void_ptr>phCtx
+    err = ccuda.cuCtxWaitEvent(chCtx, chEvent)
+    return (CUresult(err),)
 {{endif}}
 
 {{if 'cuCtxAttach' in found_functions}}
@@ -20731,13 +21390,17 @@ def cuLibraryLoadData(code, jitOptions : Optional[List[CUjit_option]], jitOption
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_PTX`, :py:obj:`~.CUDA_ERROR_UNSUPPORTED_PTX_VERSION`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_NO_BINARY_FOR_GPU`, :py:obj:`~.CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND`, :py:obj:`~.CUDA_ERROR_SHARED_OBJECT_INIT_FAILED`, :py:obj:`~.CUDA_ERROR_JIT_COMPILER_NOT_FOUND`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_PTX`, :py:obj:`~.CUDA_ERROR_UNSUPPORTED_PTX_VERSION`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_NO_BINARY_FOR_GPU`, :py:obj:`~.CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND`, :py:obj:`~.CUDA_ERROR_SHARED_OBJECT_INIT_FAILED`, :py:obj:`~.CUDA_ERROR_JIT_COMPILER_NOT_FOUND`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     library : :py:obj:`~.CUlibrary`
         Returned library
 
     See Also
     --------
     :py:obj:`~.cuLibraryLoadFromFile`, :py:obj:`~.cuLibraryUnload`, :py:obj:`~.cuModuleLoad`, :py:obj:`~.cuModuleLoadData`, :py:obj:`~.cuModuleLoadDataEx`
+
+    Notes
+    -----
+    If the library contains managed variables and no device in the system supports managed variables this call is expected to return :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     """
     libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
     libraryOptions = [] if libraryOptions is None else libraryOptions
@@ -20820,13 +21483,17 @@ def cuLibraryLoadFromFile(char* fileName, jitOptions : Optional[List[CUjit_optio
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_PTX`, :py:obj:`~.CUDA_ERROR_UNSUPPORTED_PTX_VERSION`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_NO_BINARY_FOR_GPU`, :py:obj:`~.CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND`, :py:obj:`~.CUDA_ERROR_SHARED_OBJECT_INIT_FAILED`, :py:obj:`~.CUDA_ERROR_JIT_COMPILER_NOT_FOUND`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_PTX`, :py:obj:`~.CUDA_ERROR_UNSUPPORTED_PTX_VERSION`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_NO_BINARY_FOR_GPU`, :py:obj:`~.CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND`, :py:obj:`~.CUDA_ERROR_SHARED_OBJECT_INIT_FAILED`, :py:obj:`~.CUDA_ERROR_JIT_COMPILER_NOT_FOUND`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     library : :py:obj:`~.CUlibrary`
         Returned library
 
     See Also
     --------
     :py:obj:`~.cuLibraryLoadData`, :py:obj:`~.cuLibraryUnload`, :py:obj:`~.cuModuleLoad`, :py:obj:`~.cuModuleLoadData`, :py:obj:`~.cuModuleLoadDataEx`
+
+    Notes
+    -----
+    If the library contains managed variables and no device in the system supports managed variables this call is expected to return :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     """
     libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
     libraryOptions = [] if libraryOptions is None else libraryOptions
@@ -21093,6 +21760,45 @@ def cuKernelGetFunction(kernel):
     return (CUresult(err), pFunc)
 {{endif}}
 
+{{if 'cuKernelGetLibrary' in found_functions}}
+
+@cython.embedsignature(True)
+def cuKernelGetLibrary(kernel):
+    """ Returns a library handle.
+
+    Returns in `pLib` the handle of the library for the requested kernel
+    `kernel`
+
+    Parameters
+    ----------
+    kernel : :py:obj:`~.CUkernel`
+        Kernel to retrieve library handle
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_FOUND`
+    pLib : :py:obj:`~.CUlibrary`
+        Returned library handle
+
+    See Also
+    --------
+    :py:obj:`~.cuLibraryLoadData`, :py:obj:`~.cuLibraryLoadFromFile`, :py:obj:`~.cuLibraryUnload`, :py:obj:`~.cuLibraryGetKernel`
+    """
+    cdef ccuda.CUkernel ckernel
+    if kernel is None:
+        ckernel = <ccuda.CUkernel><void_ptr>0
+    elif isinstance(kernel, (CUkernel,)):
+        pkernel = int(kernel)
+        ckernel = <ccuda.CUkernel><void_ptr>pkernel
+    else:
+        pkernel = int(CUkernel(kernel))
+        ckernel = <ccuda.CUkernel><void_ptr>pkernel
+    cdef CUlibrary pLib = CUlibrary()
+    err = ccuda.cuKernelGetLibrary(<ccuda.CUlibrary*>pLib._ptr, ckernel)
+    return (CUresult(err), pLib)
+{{endif}}
+
 {{if 'cuLibraryGetGlobal' in found_functions}}
 
 @cython.embedsignature(True)
@@ -21173,10 +21879,6 @@ def cuLibraryGetManaged(library, char* name):
     See Also
     --------
     :py:obj:`~.cuLibraryLoadData`, :py:obj:`~.cuLibraryLoadFromFile`, :py:obj:`~.cuLibraryUnload`
-
-    Notes
-    -----
-    The API requires a CUDA context to be present and initialized on at least one device. If no context is present, the call returns :py:obj:`~.CUDA_ERROR_NOT_FOUND`.
     """
     cdef ccuda.CUlibrary clibrary
     if library is None:
@@ -21432,6 +22134,10 @@ def cuKernelSetAttribute(attrib not None : CUfunction_attribute, int val, kernel
       dimensions is checked at launch time. If the value is set during
       compile time, it cannot be set at runtime. Setting it at runtime will
       return CUDA_ERROR_NOT_PERMITTED.
+
+    - :py:obj:`~.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED`:
+      Indicates whether the function can be launched with non-portable
+      cluster size. 1 is allowed, 0 is disallowed.
 
     - :py:obj:`~.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE`:
       The block scheduling policy of a function. The value type is
@@ -22516,9 +23222,10 @@ def cuIpcGetEventHandle(event):
 
     IPC functionality is restricted to devices with support for unified
     addressing on Linux and Windows operating systems. IPC functionality on
-    Windows is restricted to GPUs in TCC mode Users can test their device
-    for IPC functionality by calling :py:obj:`~.cuapiDeviceGetAttribute`
-    with :py:obj:`~.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED`
+    Windows is supported for compatibility purposes but not recommended as
+    it comes with performance cost. Users can test their device for IPC
+    functionality by calling :py:obj:`~.cuapiDeviceGetAttribute` with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED`
 
     Parameters
     ----------
@@ -22570,9 +23277,10 @@ def cuIpcOpenEventHandle(handle not None : CUipcEventHandle):
 
     IPC functionality is restricted to devices with support for unified
     addressing on Linux and Windows operating systems. IPC functionality on
-    Windows is restricted to GPUs in TCC mode Users can test their device
-    for IPC functionality by calling :py:obj:`~.cuapiDeviceGetAttribute`
-    with :py:obj:`~.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED`
+    Windows is supported for compatibility purposes but not recommended as
+    it comes with performance cost. Users can test their device for IPC
+    functionality by calling :py:obj:`~.cuapiDeviceGetAttribute` with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED`
 
     Parameters
     ----------
@@ -22613,9 +23321,10 @@ def cuIpcGetMemHandle(dptr):
 
     IPC functionality is restricted to devices with support for unified
     addressing on Linux and Windows operating systems. IPC functionality on
-    Windows is restricted to GPUs in TCC mode Users can test their device
-    for IPC functionality by calling :py:obj:`~.cuapiDeviceGetAttribute`
-    with :py:obj:`~.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED`
+    Windows is supported for compatibility purposes but not recommended as
+    it comes with performance cost. Users can test their device for IPC
+    functionality by calling :py:obj:`~.cuapiDeviceGetAttribute` with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED`
 
     Parameters
     ----------
@@ -22681,9 +23390,10 @@ def cuIpcOpenMemHandle(handle not None : CUipcMemHandle, unsigned int Flags):
 
     IPC functionality is restricted to devices with support for unified
     addressing on Linux and Windows operating systems. IPC functionality on
-    Windows is restricted to GPUs in TCC mode Users can test their device
-    for IPC functionality by calling :py:obj:`~.cuapiDeviceGetAttribute`
-    with :py:obj:`~.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED`
+    Windows is supported for compatibility purposes but not recommended as
+    it comes with performance cost. Users can test their device for IPC
+    functionality by calling :py:obj:`~.cuapiDeviceGetAttribute` with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED`
 
     Parameters
     ----------
@@ -22730,9 +23440,10 @@ def cuIpcCloseMemHandle(dptr):
 
     IPC functionality is restricted to devices with support for unified
     addressing on Linux and Windows operating systems. IPC functionality on
-    Windows is restricted to GPUs in TCC mode Users can test their device
-    for IPC functionality by calling :py:obj:`~.cuapiDeviceGetAttribute`
-    with :py:obj:`~.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED`
+    Windows is supported for compatibility purposes but not recommended as
+    it comes with performance cost. Users can test their device for IPC
+    functionality by calling :py:obj:`~.cuapiDeviceGetAttribute` with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED`
 
     Parameters
     ----------
@@ -26151,8 +26862,25 @@ def cuMemCreate(size_t size, prop : Optional[CUmemAllocationProp], unsigned long
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA` and
     :py:obj:`~.CUmemAllocationProp`::CUmemLocation::id must specify the
     NUMA ID of the CPU. On systems where NUMA is not available
-    :py:obj:`~.CUmemAllocationProp`::CUmemLocation::id must be set to 0. If
-    :py:obj:`~.CUmemAllocationProp`::allocFlags::usage contains
+    :py:obj:`~.CUmemAllocationProp`::CUmemLocation::id must be set to 0.
+
+    Applications can set
+    :py:obj:`~.CUmemAllocationProp.requestedHandleTypes` to
+    :py:obj:`~.CU_MEM_HANDLE_TYPE_FABRIC` in order to create allocations
+    suitable for sharing within an IMEX domain. An IMEX domain is either an
+    OS instance or a group of securely connected OS instances using the
+    NVIDIA IMEX daemon. An IMEX channel is a global resource within the
+    IMEX domain that represents a logical entity that aims to provide fine
+    grained accessibility control for the participating processes. When
+    exporter and importer CUDA processes have been granted access to the
+    same IMEX channel, they can securely share memory. If the allocating
+    process does not have access setup for an IMEX channel, attempting to
+    create a :py:obj:`~.CUmemGenericAllocationHandle` with
+    :py:obj:`~.CU_MEM_HANDLE_TYPE_FABRIC` will result in
+    :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`. The nvidia-modprobe CLI provides
+    more information regarding setting up of IMEX channels.
+
+    If :py:obj:`~.CUmemAllocationProp`::allocFlags::usage contains
     :py:obj:`~.CU_MEM_CREATE_USAGE_TILE_POOL` flag then the memory
     allocation is intended only to be used as backing tile pool for sparse
     CUDA arrays and sparse CUDA mipmapped arrays. (see
@@ -26702,7 +27430,13 @@ def cuMemImportFromShareableHandle(osHandle, shHandleType not None : CUmemAlloca
     """ Imports an allocation from a requested shareable handle type.
 
     If the current process cannot support the memory described by this
-    shareable handle, this API will error as CUDA_ERROR_NOT_SUPPORTED.
+    shareable handle, this API will error as
+    :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`.
+
+    If `shHandleType` is :py:obj:`~.CU_MEM_HANDLE_TYPE_FABRIC` and the
+    importer process has not been granted access to the same IMEX channel
+    as the exporter process, this API will error as
+    :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`.
 
     Parameters
     ----------
@@ -27270,6 +28004,21 @@ def cuMemPoolCreate(poolProps : Optional[CUmemPoolProps]):
     :py:obj:`~.CUmemPoolProps.maxSize`. If set to 0, the maximum size of
     the pool will default to a system dependent value.
 
+    Applications can set :py:obj:`~.CUmemPoolProps.handleTypes` to
+    :py:obj:`~.CU_MEM_HANDLE_TYPE_FABRIC` in order to create
+    :py:obj:`~.CUmemoryPool` suitable for sharing within an IMEX domain. An
+    IMEX domain is either an OS instance or a group of securely connected
+    OS instances using the NVIDIA IMEX daemon. An IMEX channel is a global
+    resource within the IMEX domain that represents a logical entity that
+    aims to provide fine grained accessibility control for the
+    participating processes. When exporter and importer CUDA processes have
+    been granted access to the same IMEX channel, they can securely share
+    memory. If the allocating process does not have access setup for an
+    IMEX channel, attempting to export a :py:obj:`~.CUmemoryPool` with
+    :py:obj:`~.CU_MEM_HANDLE_TYPE_FABRIC` will result in
+    :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`. The nvidia-modprobe CLI provides
+    more information regarding setting up of IMEX channels.
+
     Parameters
     ----------
     poolProps : :py:obj:`~.CUmemPoolProps`
@@ -27278,7 +28027,7 @@ def cuMemPoolCreate(poolProps : Optional[CUmemPoolProps]):
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED` :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     pool : :py:obj:`~.CUmemoryPool`
         None
 
@@ -27463,6 +28212,11 @@ def cuMemPoolImportFromShareableHandle(handle, handleType not None : CUmemAlloca
 
     Specific allocations can be imported from the imported pool with
     cuMemPoolImportPointer.
+
+    If `handleType` is :py:obj:`~.CU_MEM_HANDLE_TYPE_FABRIC` and the
+    importer process has not been granted access to the same IMEX channel
+    as the exporter process, this API will error as
+    :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`.
 
     Parameters
     ----------
@@ -27722,12 +28476,12 @@ def cuMulticastBindMem(mcHandle, size_t mcOffset, memHandle, size_t memOffset, s
     :py:obj:`~.cuMulticastGetGranularity` with the flag
     :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED`.
 
-    The `size` + `memOffset` must be smaller than the size of the allocated
-    memory. Similarly the `size` + `mcOffset` must be smaller than the size
-    of the multicast object. The memory allocation must have beeen created
-    on one of the devices that was added to the multicast team via
-    :py:obj:`~.cuMulticastAddDevice`. Externally shareable as well as
-    imported multicast objects can be bound only to externally shareable
+    The `size` + `memOffset` cannot be larger than the size of the
+    allocated memory. Similarly the `size` + `mcOffset` cannot be larger
+    than the size of the multicast object. The memory allocation must have
+    beeen created on one of the devices that was added to the multicast
+    team via :py:obj:`~.cuMulticastAddDevice`. Externally shareable as well
+    as imported multicast objects can be bound only to externally shareable
     memory. Note that this call will return CUDA_ERROR_OUT_OF_MEMORY if
     there are insufficient resources required to perform the bind. This
     call may also return CUDA_ERROR_SYSTEM_NOT_READY if the necessary
@@ -27796,8 +28550,8 @@ def cuMulticastBindAddr(mcHandle, size_t mcOffset, memptr, size_t size, unsigned
     returned by :py:obj:`~.cuMulticastGetGranularity` with the flag
     :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED`.
 
-    The `size` must be smaller than the size of the allocated memory.
-    Similarly the `size` + `mcOffset` must be smaller than the total size
+    The `size` cannot be larger than the size of the allocated memory.
+    Similarly the `size` + `mcOffset` cannot be larger than the total size
     of the multicast object. The memory allocation must have beeen created
     on one of the devices that was added to the multicast team via
     :py:obj:`~.cuMulticastAddDevice`. Externally shareable as well as
@@ -27863,7 +28617,7 @@ def cuMulticastUnbind(mcHandle, dev, size_t mcOffset, size_t size):
     a multiple of the value returned by
     :py:obj:`~.cuMulticastGetGranularity` flag
     :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`. The `size` + `mcOffset`
-    must be smaller than the total size of the multicast object.
+    cannot be larger than the total size of the multicast object.
 
     Parameters
     ----------
@@ -29203,7 +29957,7 @@ def cuStreamCreate(unsigned int Flags):
 
     See Also
     --------
-    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreateWithPriority`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuStreamQuery`, :py:obj:`~.cuStreamSynchronize`, :py:obj:`~.cuStreamAddCallback`, :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamCreateWithFlags`
+    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreateWithPriority`, :py:obj:`~.cuGreenCtxStreamCreate`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuStreamQuery`, :py:obj:`~.cuStreamSynchronize`, :py:obj:`~.cuStreamAddCallback`, :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamCreateWithFlags`
     """
     cdef CUstream phStream = CUstream()
     err = ccuda.cuStreamCreate(<ccuda.CUstream*>phStream._ptr, Flags)
@@ -29249,7 +30003,7 @@ def cuStreamCreateWithPriority(unsigned int flags, int priority):
 
     See Also
     --------
-    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cuCtxGetStreamPriorityRange`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuStreamQuery`, :py:obj:`~.cuStreamSynchronize`, :py:obj:`~.cuStreamAddCallback`, :py:obj:`~.cudaStreamCreateWithPriority`
+    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuGreenCtxStreamCreate`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cuCtxGetStreamPriorityRange`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuStreamQuery`, :py:obj:`~.cuStreamSynchronize`, :py:obj:`~.cuStreamAddCallback`, :py:obj:`~.cudaStreamCreateWithPriority`
 
     Notes
     -----
@@ -29268,8 +30022,9 @@ def cuStreamCreateWithPriority(unsigned int flags, int priority):
 def cuStreamGetPriority(hStream):
     """ Query the priority of a given stream.
 
-    Query the priority of a stream created using :py:obj:`~.cuStreamCreate`
-    or :py:obj:`~.cuStreamCreateWithPriority` and return the priority in
+    Query the priority of a stream created using
+    :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamCreateWithPriority` or
+    :py:obj:`~.cuGreenCtxStreamCreate` and return the priority in
     `priority`. Note that if the stream was created with a priority outside
     the numerical range returned by
     :py:obj:`~.cuCtxGetStreamPriorityRange`, this function returns the
@@ -29291,7 +30046,7 @@ def cuStreamGetPriority(hStream):
 
     See Also
     --------
-    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamCreateWithPriority`, :py:obj:`~.cuCtxGetStreamPriorityRange`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cudaStreamGetPriority`
+    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamCreateWithPriority`, :py:obj:`~.cuGreenCtxStreamCreate`, :py:obj:`~.cuCtxGetStreamPriorityRange`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cudaStreamGetPriority`
     """
     cdef ccuda.CUstream chStream
     if hStream is None:
@@ -29313,8 +30068,9 @@ def cuStreamGetPriority(hStream):
 def cuStreamGetFlags(hStream):
     """ Query the flags of a given stream.
 
-    Query the flags of a stream created using :py:obj:`~.cuStreamCreate` or
-    :py:obj:`~.cuStreamCreateWithPriority` and return the flags in `flags`.
+    Query the flags of a stream created using :py:obj:`~.cuStreamCreate`,
+    :py:obj:`~.cuStreamCreateWithPriority` or
+    :py:obj:`~.cuGreenCtxStreamCreate` and return the flags in `flags`.
 
     Parameters
     ----------
@@ -29333,7 +30089,7 @@ def cuStreamGetFlags(hStream):
 
     See Also
     --------
-    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cudaStreamGetFlags`
+    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuGreenCtxStreamCreate`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cudaStreamGetFlags`
     """
     cdef ccuda.CUstream chStream
     if hStream is None:
@@ -29412,6 +30168,12 @@ def cuStreamGetCtx(hStream):
 
     Returns the CUDA context that the stream is associated with.
 
+    Note there is a later version of this API,
+    :py:obj:`~.cuStreamGetCtx_v2`. It will supplant this version in CUDA
+    13.0. It is recommended to use :py:obj:`~.cuStreamGetCtx_v2` till then
+    as this version will return :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED` for
+    streams created via the API :py:obj:`~.cuGreenCtxStreamCreate`.
+
     The stream handle `hStream` can refer to any of the following:
 
     - a stream created via any of the CUDA driver APIs such as
@@ -29440,13 +30202,13 @@ def cuStreamGetCtx(hStream):
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`,
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     pctx : :py:obj:`~.CUcontext`
         Returned context associated with the stream
 
     See Also
     --------
-    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreateWithPriority`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuStreamQuery`, :py:obj:`~.cuStreamSynchronize`, :py:obj:`~.cuStreamAddCallback`, :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamCreateWithFlags`
+    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreateWithPriority`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuStreamQuery`, :py:obj:`~.cuStreamSynchronize`, :py:obj:`~.cuStreamAddCallback`, :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cuStreamGetCtx_v2`, :py:obj:`~.cudaStreamCreateWithFlags`
     """
     cdef ccuda.CUstream chStream
     if hStream is None:
@@ -29460,6 +30222,82 @@ def cuStreamGetCtx(hStream):
     cdef CUcontext pctx = CUcontext()
     err = ccuda.cuStreamGetCtx(chStream, <ccuda.CUcontext*>pctx._ptr)
     return (CUresult(err), pctx)
+{{endif}}
+
+{{if 'cuStreamGetCtx_v2' in found_functions}}
+
+@cython.embedsignature(True)
+def cuStreamGetCtx_v2(hStream):
+    """ Query the contexts associated with a stream.
+
+    Returns the contexts that the stream is associated with.
+
+    If the stream is associated with a green context, the API returns the
+    green context in `pGreenCtx` and the primary context of the associated
+    device in `pCtx`.
+
+    If the stream is associated with a regular context, the API returns the
+    regular context in `pCtx` and NULL in `pGreenCtx`.
+
+    The stream handle `hStream` can refer to any of the following:
+
+    - a stream created via any of the CUDA driver APIs such as
+      :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamCreateWithPriority`
+      and :py:obj:`~.cuGreenCtxStreamCreate`, or their runtime API
+      equivalents such as :py:obj:`~.cudaStreamCreate`,
+      :py:obj:`~.cudaStreamCreateWithFlags` and
+      :py:obj:`~.cudaStreamCreateWithPriority`. Passing an invalid handle
+      will result in undefined behavior.
+
+    - any of the special streams such as the NULL stream,
+      :py:obj:`~.CU_STREAM_LEGACY` and :py:obj:`~.CU_STREAM_PER_THREAD`.
+      The runtime API equivalents of these are also accepted, which are
+      NULL, :py:obj:`~.cudaStreamLegacy` and
+      :py:obj:`~.cudaStreamPerThread` respectively. If any of the special
+      handles are specified, the API will operate on the context current to
+      the calling thread. If a green context (that was converted via
+      :py:obj:`~.cuCtxFromGreenCtx()` before setting it current) is current
+      to the calling thread, the API will return the green context in
+      `pGreenCtx` and the primary context of the associated device in
+      `pCtx`. If a regular context is current, the API returns the regular
+      context in `pCtx` and NULL in `pGreenCtx`. Note that specifying
+      :py:obj:`~.CU_STREAM_PER_THREAD` or :py:obj:`~.cudaStreamPerThread`
+      will return :py:obj:`~.CUDA_ERROR_INVALID_HANDLE` if a green context
+      is current to the calling thread. If no context is current to the
+      calling thread, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT` is returned.
+
+    Parameters
+    ----------
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Handle to the stream to be queried
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`
+    pCtx : :py:obj:`~.CUcontext`
+        Returned regular context associated with the stream
+    pGreenCtx : :py:obj:`~.CUgreenCtx`
+        Returned green context if the stream is associated with a green
+        context or NULL if not
+
+    See Also
+    --------
+    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreate` :py:obj:`~.cuStreamCreateWithPriority`, :py:obj:`~.cuGreenCtxStreamCreate`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuStreamQuery`, :py:obj:`~.cuStreamSynchronize`, :py:obj:`~.cuStreamAddCallback`, :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamCreateWithFlags`,
+    """
+    cdef ccuda.CUstream chStream
+    if hStream is None:
+        chStream = <ccuda.CUstream><void_ptr>0
+    elif isinstance(hStream, (CUstream,)):
+        phStream = int(hStream)
+        chStream = <ccuda.CUstream><void_ptr>phStream
+    else:
+        phStream = int(CUstream(hStream))
+        chStream = <ccuda.CUstream><void_ptr>phStream
+    cdef CUcontext pCtx = CUcontext()
+    cdef CUgreenCtx pGreenCtx = CUgreenCtx()
+    err = ccuda.cuStreamGetCtx_v2(chStream, <ccuda.CUcontext*>pCtx._ptr, <ccuda.CUgreenCtx*>pGreenCtx._ptr)
+    return (CUresult(err), pCtx, pGreenCtx)
 {{endif}}
 
 {{if 'cuStreamWaitEvent' in found_functions}}
@@ -30715,11 +31553,12 @@ def cuEventRecord(hEvent, hStream):
     """ Records an event.
 
     Captures in `hEvent` the contents of `hStream` at the time of this
-    call. `hEvent` and `hStream` must be from the same context. Calls such
-    as :py:obj:`~.cuEventQuery()` or :py:obj:`~.cuStreamWaitEvent()` will
-    then examine or wait for completion of the work that was captured. Uses
-    of `hStream` after this call do not modify `hEvent`. See note on
-    default stream behavior for what is captured in the default case.
+    call. `hEvent` and `hStream` must be from the same context otherwise
+    :py:obj:`~.CUDA_ERROR_INVALID_HANDLE` is returned. Calls such as
+    :py:obj:`~.cuEventQuery()` or :py:obj:`~.cuStreamWaitEvent()` will then
+    examine or wait for completion of the work that was captured. Uses of
+    `hStream` after this call do not modify `hEvent`. See note on default
+    stream behavior for what is captured in the default case.
 
     :py:obj:`~.cuEventRecord()` can be called multiple times on the same
     event and will overwrite the previously captured state. Other APIs such
@@ -30775,11 +31614,12 @@ def cuEventRecordWithFlags(hEvent, hStream, unsigned int flags):
     """ Records an event.
 
     Captures in `hEvent` the contents of `hStream` at the time of this
-    call. `hEvent` and `hStream` must be from the same context. Calls such
-    as :py:obj:`~.cuEventQuery()` or :py:obj:`~.cuStreamWaitEvent()` will
-    then examine or wait for completion of the work that was captured. Uses
-    of `hStream` after this call do not modify `hEvent`. See note on
-    default stream behavior for what is captured in the default case.
+    call. `hEvent` and `hStream` must be from the same context otherwise
+    :py:obj:`~.CUDA_ERROR_INVALID_HANDLE` is returned. Calls such as
+    :py:obj:`~.cuEventQuery()` or :py:obj:`~.cuStreamWaitEvent()` will then
+    examine or wait for completion of the work that was captured. Uses of
+    `hStream` after this call do not modify `hEvent`. See note on default
+    stream behavior for what is captured in the default case.
 
     :py:obj:`~.cuEventRecordWithFlags()` can be called multiple times on
     the same event and will overwrite the previously captured state. Other
@@ -32351,6 +33191,10 @@ def cuFuncSetAttribute(hfunc, attrib not None : CUfunction_attribute, int value)
       compile time, it cannot be set at runtime. Setting it at runtime will
       return CUDA_ERROR_NOT_PERMITTED.
 
+    - :py:obj:`~.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED`:
+      Indicates whether the function can be launched with non-portable
+      cluster size. 1 is allowed, 0 is disallowed.
+
     - :py:obj:`~.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE`:
       The block scheduling policy of a function. The value type is
       CUclusterSchedulingPolicy.
@@ -33013,13 +33857,6 @@ def cuLaunchCooperativeKernel(f, unsigned int gridDimX, unsigned int gridDimY, u
     :py:obj:`~.CUkernel` `f` on a `gridDimX` x `gridDimY` x `gridDimZ` grid
     of blocks. Each block contains `blockDimX` x `blockDimY` x `blockDimZ`
     threads.
-
-    Note that the API can also be used to launch context-less kernel
-    :py:obj:`~.CUkernel` by querying the handle using
-    :py:obj:`~.cuLibraryGetKernel()` and then passing it to the API by
-    casting to :py:obj:`~.CUfunction`. Here, the context to launch the
-    kernel on will either be taken from the specified stream `hStream` or
-    the current context in case of NULL stream.
 
     `sharedMemBytes` sets the amount of dynamic shared memory that will be
     available to each thread block.
@@ -39296,6 +40133,12 @@ def cuOccupancyMaxActiveBlocksPerMultiprocessor(func, int blockSize, size_t dyna
     Returns in `*numBlocks` the number of the maximum active blocks per
     streaming multiprocessor.
 
+    Note that the API can also be used with context-less kernel
+    :py:obj:`~.CUkernel` by querying the handle using
+    :py:obj:`~.cuLibraryGetKernel()` and then passing it to the API by
+    casting to :py:obj:`~.CUfunction`. Here, the context to use for
+    calculations will be the current context.
+
     Parameters
     ----------
     func : :py:obj:`~.CUfunction`
@@ -39354,6 +40197,12 @@ def cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(func, int blockSize, si
       occupancy calculator to return 0 in such cases. More information can
       be found about this feature in the "Unified L1/Texture Cache" section
       of the Maxwell tuning guide.
+
+    Note that the API can also be with launch context-less kernel
+    :py:obj:`~.CUkernel` by querying the handle using
+    :py:obj:`~.cuLibraryGetKernel()` and then passing it to the API by
+    casting to :py:obj:`~.CUfunction`. Here, the context to use for
+    calculations will be the current context.
 
     Parameters
     ----------
@@ -39421,6 +40270,12 @@ def cuOccupancyMaxPotentialBlockSize(func, blockSizeToDynamicSMemSize, size_t dy
     ignored. An example signature is:
 
     **View CUDA Toolkit Documentation for a C++ code example**
+
+    Note that the API can also be used with context-less kernel
+    :py:obj:`~.CUkernel` by querying the handle using
+    :py:obj:`~.cuLibraryGetKernel()` and then passing it to the API by
+    casting to :py:obj:`~.CUfunction`. Here, the context to use for
+    calculations will be the current context.
 
     Parameters
     ----------
@@ -39499,6 +40354,12 @@ def cuOccupancyMaxPotentialBlockSizeWithFlags(func, blockSizeToDynamicSMemSize, 
       feature in the "Unified L1/Texture Cache" section of the Maxwell
       tuning guide.
 
+    Note that the API can also be used with context-less kernel
+    :py:obj:`~.CUkernel` by querying the handle using
+    :py:obj:`~.cuLibraryGetKernel()` and then passing it to the API by
+    casting to :py:obj:`~.CUfunction`. Here, the context to use for
+    calculations will be the current context.
+
     Parameters
     ----------
     func : :py:obj:`~.CUfunction`
@@ -39559,6 +40420,12 @@ def cuOccupancyAvailableDynamicSMemPerBlock(func, int numBlocks, int blockSize):
     Returns in `*dynamicSmemSize` the maximum size of dynamic shared memory
     to allow `numBlocks` blocks per SM.
 
+    Note that the API can also be used with context-less kernel
+    :py:obj:`~.CUkernel` by querying the handle using
+    :py:obj:`~.cuLibraryGetKernel()` and then passing it to the API by
+    casting to :py:obj:`~.CUfunction`. Here, the context to use for
+    calculations will be the current context.
+
     Parameters
     ----------
     func : :py:obj:`~.CUfunction`
@@ -39605,6 +40472,13 @@ def cuOccupancyMaxPotentialClusterSize(func, config : Optional[CUlaunchConfig]):
     allows non-portable cluster sizes.
 
     This function will respect the compile time launch bounds.
+
+    Note that the API can also be used with context-less kernel
+    :py:obj:`~.CUkernel` by querying the handle using
+    :py:obj:`~.cuLibraryGetKernel()` and then passing it to the API by
+    casting to :py:obj:`~.CUfunction`. Here, the context to use for
+    calculations will either be taken from the specified stream
+    `config->hStream` or the current context in case of NULL stream.
 
     Parameters
     ----------
@@ -39656,6 +40530,13 @@ def cuOccupancyMaxActiveClusters(func, config : Optional[CUlaunchConfig]):
     occupancy calculation. Runtime environment may affect how the hardware
     schedules the clusters, so the calculated occupancy is not guaranteed
     to be achievable.
+
+    Note that the API can also be used with context-less kernel
+    :py:obj:`~.CUkernel` by querying the handle using
+    :py:obj:`~.cuLibraryGetKernel()` and then passing it to the API by
+    casting to :py:obj:`~.CUfunction`. Here, the context to use for
+    calculations will either be taken from the specified stream
+    `config->hStream` or the current context in case of NULL stream.
 
     Parameters
     ----------
@@ -41074,7 +41955,8 @@ def cuTexObjectCreate(pResDesc : Optional[CUDA_RESOURCE_DESC], pTexDesc : Option
     specifies an alternate format for the data described by `pResDesc`, and
     also describes the subresource region to restrict access to when
     texturing. `pResViewDesc` can only be specified if the type of resource
-    is a CUDA array or a CUDA mipmapped array.
+    is a CUDA array or a CUDA mipmapped array not in a block compressed
+    format.
 
     Texture objects are only supported on devices of compute capability 3.0
     or higher. Additionally, a texture object is an opaque value, and, as
@@ -42845,12 +43727,16 @@ def cuCoredumpGetAttribute(attrib not None : CUcoredumpSettings):
     - :py:obj:`~.CU_COREDUMP_TRIGGER_HOST`: Bool where :py:obj:`~.true`
       means that the host CPU will also create a coredump. The default
       value is :py:obj:`~.true` unless set to :py:obj:`~.false` globally or
-      or locally.
+      or locally. This value is deprecated as of CUDA 12.5 - raise the
+      :py:obj:`~.CU_COREDUMP_SKIP_ABORT` flag to disable host device
+      abort() if needed.
 
     - :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT`: Bool where :py:obj:`~.true`
       means that any resulting coredumps will not have a dump of GPU memory
       or non-reloc ELF images. The default value is :py:obj:`~.false`
-      unless set to :py:obj:`~.true` globally or locally.
+      unless set to :py:obj:`~.true` globally or locally. This attribute is
+      deprecated as of CUDA 12.5, please use
+      :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS` instead.
 
     - :py:obj:`~.CU_COREDUMP_ENABLE_USER_TRIGGER`: Bool where
       :py:obj:`~.true` means that a coredump can be created by writing to
@@ -42871,6 +43757,38 @@ def cuCoredumpGetAttribute(attrib not None : CUcoredumpSettings):
       :py:obj:`~.corepipe`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is
       the host name of the machine running the CUDA application and
       :py:obj:`~.PID` is the process ID of the CUDA application.
+
+    - :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS`: An integer with values to
+      allow granular control the data contained in a coredump specified as
+      a bitwise OR combination of the following values:
+
+      - :py:obj:`~.CU_COREDUMP_DEFAULT_FLAGS` - if set by itself, coredump
+        generation returns to its default settings of including all memory
+        regions that it is able to access
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_NONRELOCATED_ELF_IMAGES` - Coredump
+        will not include the data from CUDA source modules that are not
+        relocated at runtime.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_GLOBAL_MEMORY` - Coredump will not
+        include device-side global data that does not belong to any
+        context.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_SHARED_MEMORY` - Coredump will not
+        include grid-scale shared memory for the warp that the dumped
+        kernel belonged to.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_LOCAL_MEMORY` - Coredump will not
+        include local memory from the kernel.
+
+      - :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT_FLAGS` - Enables all of the
+        above options. Equiavlent to setting the
+        :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT` attribute to :py:obj:`~.true`.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_ABORT` - If set, GPU exceptions will
+        not raise an abort() in the host CPU process. Same functional goal
+        as :py:obj:`~.CU_COREDUMP_TRIGGER_HOST` but better reflects the
+        default behavior.
 
     Parameters
     ----------
@@ -42923,11 +43841,16 @@ def cuCoredumpGetAttributeGlobal(attrib not None : CUcoredumpSettings):
 
     - :py:obj:`~.CU_COREDUMP_TRIGGER_HOST`: Bool where :py:obj:`~.true`
       means that the host CPU will also create a coredump. The default
-      value is :py:obj:`~.true`.
+      value is :py:obj:`~.true` unless set to :py:obj:`~.false` globally or
+      or locally. This value is deprecated as of CUDA 12.5 - raise the
+      :py:obj:`~.CU_COREDUMP_SKIP_ABORT` flag to disable host device
+      abort() if needed.
 
     - :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT`: Bool where :py:obj:`~.true`
       means that any resulting coredumps will not have a dump of GPU memory
-      or non-reloc ELF images. The default value is :py:obj:`~.false`.
+      or non-reloc ELF images. The default value is :py:obj:`~.false`. This
+      attribute is deprecated as of CUDA 12.5, please use
+      :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS` instead.
 
     - :py:obj:`~.CU_COREDUMP_ENABLE_USER_TRIGGER`: Bool where
       :py:obj:`~.true` means that a coredump can be created by writing to
@@ -42947,6 +43870,38 @@ def cuCoredumpGetAttributeGlobal(attrib not None : CUcoredumpSettings):
       :py:obj:`~.corepipe`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is
       the host name of the machine running the CUDA application and
       :py:obj:`~.PID` is the process ID of the CUDA application.
+
+    - :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS`: An integer with values to
+      allow granular control the data contained in a coredump specified as
+      a bitwise OR combination of the following values:
+
+      - :py:obj:`~.CU_COREDUMP_DEFAULT_FLAGS` - if set by itself, coredump
+        generation returns to its default settings of including all memory
+        regions that it is able to access
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_NONRELOCATED_ELF_IMAGES` - Coredump
+        will not include the data from CUDA source modules that are not
+        relocated at runtime.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_GLOBAL_MEMORY` - Coredump will not
+        include device-side global data that does not belong to any
+        context.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_SHARED_MEMORY` - Coredump will not
+        include grid-scale shared memory for the warp that the dumped
+        kernel belonged to.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_LOCAL_MEMORY` - Coredump will not
+        include local memory from the kernel.
+
+      - :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT_FLAGS` - Enables all of the
+        above options. Equiavlent to setting the
+        :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT` attribute to :py:obj:`~.true`.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_ABORT` - If set, GPU exceptions will
+        not raise an abort() in the host CPU process. Same functional goal
+        as :py:obj:`~.CU_COREDUMP_TRIGGER_HOST` but better reflects the
+        default behavior.
 
     Parameters
     ----------
@@ -42988,8 +43943,8 @@ def cuCoredumpSetAttribute(attrib not None : CUcoredumpSettings, value):
 
     An important design decision to note is that any coredump environment
     variable values set before CUDA initializes will take permanent
-    precedence over any values set with this this function. This decision
-    was made to ensure no change in behavior for any users that may be
+    precedence over any values set with this function. This decision was
+    made to ensure no change in behavior for any users that may be
     currently using these variables to get coredumps.
 
     `*value` shall contain the requested value specified by `set`. It is up
@@ -43018,11 +43973,16 @@ def cuCoredumpSetAttribute(attrib not None : CUcoredumpSettings, value):
 
     - :py:obj:`~.CU_COREDUMP_TRIGGER_HOST`: Bool where :py:obj:`~.true`
       means that the host CPU will also create a coredump. The default
-      value is :py:obj:`~.true`.
+      value is :py:obj:`~.true` unless set to :py:obj:`~.false` globally or
+      or locally. This value is deprecated as of CUDA 12.5 - raise the
+      :py:obj:`~.CU_COREDUMP_SKIP_ABORT` flag to disable host device
+      abort() if needed.
 
     - :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT`: Bool where :py:obj:`~.true`
       means that any resulting coredumps will not have a dump of GPU memory
-      or non-reloc ELF images. The default value is :py:obj:`~.false`.
+      or non-reloc ELF images. The default value is :py:obj:`~.false`. This
+      attribute is deprecated as of CUDA 12.5, please use
+      :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS` instead.
 
     - :py:obj:`~.CU_COREDUMP_FILE`: String of up to 1023 characters that
       defines the location where any coredumps generated by this context
@@ -43030,6 +43990,38 @@ def cuCoredumpSetAttribute(attrib not None : CUcoredumpSettings, value):
       :py:obj:`~.core`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is the
       host name of the machine running the CUDA applications and
       :py:obj:`~.PID` is the process ID of the CUDA application.
+
+    - :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS`: An integer with values to
+      allow granular control the data contained in a coredump specified as
+      a bitwise OR combination of the following values:
+
+      - :py:obj:`~.CU_COREDUMP_DEFAULT_FLAGS` - if set by itself, coredump
+        generation returns to its default settings of including all memory
+        regions that it is able to access
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_NONRELOCATED_ELF_IMAGES` - Coredump
+        will not include the data from CUDA source modules that are not
+        relocated at runtime.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_GLOBAL_MEMORY` - Coredump will not
+        include device-side global data that does not belong to any
+        context.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_SHARED_MEMORY` - Coredump will not
+        include grid-scale shared memory for the warp that the dumped
+        kernel belonged to.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_LOCAL_MEMORY` - Coredump will not
+        include local memory from the kernel.
+
+      - :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT_FLAGS` - Enables all of the
+        above options. Equiavlent to setting the
+        :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT` attribute to :py:obj:`~.true`.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_ABORT` - If set, GPU exceptions will
+        not raise an abort() in the host CPU process. Same functional goal
+        as :py:obj:`~.CU_COREDUMP_TRIGGER_HOST` but better reflects the
+        default behavior.
 
     Parameters
     ----------
@@ -43071,8 +44063,8 @@ def cuCoredumpSetAttributeGlobal(attrib not None : CUcoredumpSettings, value):
 
     An important design decision to note is that any coredump environment
     variable values set before CUDA initializes will take permanent
-    precedence over any values set with this this function. This decision
-    was made to ensure no change in behavior for any users that may be
+    precedence over any values set with this function. This decision was
+    made to ensure no change in behavior for any users that may be
     currently using these variables to get coredumps.
 
     `*value` shall contain the requested value specified by `set`. It is up
@@ -43092,11 +44084,16 @@ def cuCoredumpSetAttributeGlobal(attrib not None : CUcoredumpSettings, value):
 
     - :py:obj:`~.CU_COREDUMP_TRIGGER_HOST`: Bool where :py:obj:`~.true`
       means that the host CPU will also create a coredump. The default
-      value is :py:obj:`~.true`.
+      value is :py:obj:`~.true` unless set to :py:obj:`~.false` globally or
+      or locally. This value is deprecated as of CUDA 12.5 - raise the
+      :py:obj:`~.CU_COREDUMP_SKIP_ABORT` flag to disable host device
+      abort() if needed.
 
     - :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT`: Bool where :py:obj:`~.true`
       means that any resulting coredumps will not have a dump of GPU memory
-      or non-reloc ELF images. The default value is :py:obj:`~.false`.
+      or non-reloc ELF images. The default value is :py:obj:`~.false`. This
+      attribute is deprecated as of CUDA 12.5, please use
+      :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS` instead.
 
     - :py:obj:`~.CU_COREDUMP_ENABLE_USER_TRIGGER`: Bool where
       :py:obj:`~.true` means that a coredump can be created by writing to
@@ -43118,6 +44115,38 @@ def cuCoredumpSetAttributeGlobal(attrib not None : CUcoredumpSettings, value):
       :py:obj:`~.corepipe`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is
       the host name of the machine running the CUDA application and
       :py:obj:`~.PID` is the process ID of the CUDA application.
+
+    - :py:obj:`~.CU_COREDUMP_GENERATION_FLAGS`: An integer with values to
+      allow granular control the data contained in a coredump specified as
+      a bitwise OR combination of the following values:
+
+      - :py:obj:`~.CU_COREDUMP_DEFAULT_FLAGS` - if set by itself, coredump
+        generation returns to its default settings of including all memory
+        regions that it is able to access
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_NONRELOCATED_ELF_IMAGES` - Coredump
+        will not include the data from CUDA source modules that are not
+        relocated at runtime.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_GLOBAL_MEMORY` - Coredump will not
+        include device-side global data that does not belong to any
+        context.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_SHARED_MEMORY` - Coredump will not
+        include grid-scale shared memory for the warp that the dumped
+        kernel belonged to.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_LOCAL_MEMORY` - Coredump will not
+        include local memory from the kernel.
+
+      - :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT_FLAGS` - Enables all of the
+        above options. Equiavlent to setting the
+        :py:obj:`~.CU_COREDUMP_LIGHTWEIGHT` attribute to :py:obj:`~.true`.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_ABORT` - If set, GPU exceptions will
+        not raise an abort() in the host CPU process. Same functional goal
+        as :py:obj:`~.CU_COREDUMP_TRIGGER_HOST` but better reflects the
+        default behavior.
 
     Parameters
     ----------
@@ -43486,25 +44515,40 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
     When creating the groups, the API will take into account the
     performance and functional characteristics of the input resource, and
     guarantee a split that will create a disjoint set of symmetrical
-    partitions. This may lead to less groups created than purely dividing
+    partitions. This may lead to fewer groups created than purely dividing
     the total SM count by the `minCount` due to cluster requirements or
     alignment and granularity requirements for the minCount.
 
-    The `remainder` set, might not have the same functional or performance
+    The `remainder` set does not have the same functional or performance
     guarantees as the groups in `result`. Its use should be carefully
     planned and future partitions of the `remainder` set are discouraged.
+
+    The following flags are supported:
+
+    - `CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING` : Lower the minimum
+      SM count and alignment, and treat each SM independent of its
+      hierarchy. This allows more fine grained partitions but at the cost
+      of advanced features (such as large clusters on compute capability
+      9.0+).
+
+    - `CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE` : Compute
+      Capability 9.0+ only. Attempt to create groups that may allow for
+      maximally sized thread clusters. This can be queried post green
+      context creation using
+      :py:obj:`~.cuOccupancyMaxPotentialClusterSize`.
 
     A successful API call must either have:
 
     - A valid array of `result` pointers of size passed in `nbGroups`, with
-      `Input` of type `CU_DEV_RESOURCE_TYPE_SM`. Value of `minCount` must
-      be between 0 and the SM count specified in `input`. `remaining` and
-      `useFlags` are optional.
+      `input` of type `CU_DEV_RESOURCE_TYPE_SM`. Value of `minCount` must
+      be between 0 and the SM count specified in `input`. `remaining` may
+      be NULL.
 
     - NULL passed in for `result`, with a valid integer pointer in
-      `nbGroups` and `Input` of type `CU_DEV_RESOURCE_TYPE_SM`. Value of
+      `nbGroups` and `input` of type `CU_DEV_RESOURCE_TYPE_SM`. Value of
       `minCount` must be between 0 and the SM count specified in `input`.
-      This queries the number of groups that would be created by the API.
+      `remaining` may be NULL. This queries the number of groups that would
+      be created by the API.
 
     Note: The API is not supported on 32-bit platforms.
 
@@ -43518,7 +44562,8 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
         `CU_DEV_RESOURCE_TYPE_SM` resource.
     useFlags : unsigned int
         Flags specifying how these partitions are used or which constraints
-        to abide by when splitting the input.
+        to abide by when splitting the input. Zero is valid for default
+        behavior.
     minCount : unsigned int
         Minimum number of SMs required
 
@@ -43565,12 +44610,23 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
 def cuDevResourceGenerateDesc(resources : Optional[List[CUdevResource]], unsigned int nbResources):
     """ Generate a resource descriptor.
 
-    Generates a resource descriptor with the set of resources specified in
-    `resources`. The generated resource descriptor is necessary for the
-    creation of green contexts via the :py:obj:`~.cuGreenCtxCreate` API.
-    The API expects `nbResources` == 1, as there is only one type of
-    resource and merging the same types of resource is currently not
-    supported.
+    Generates a single resource descriptor with the set of resources
+    specified in `resources`. The generated resource descriptor is
+    necessary for the creation of green contexts via the
+    :py:obj:`~.cuGreenCtxCreate` API. Resources of the same type can be
+    passed in, provided they meet the requirements as noted below.
+
+    A successful API call must have:
+
+    - A valid output pointer for the `phDesc` descriptor as well as a valid
+      array of `resources` pointers, with the array size passed in
+      `nbResources`. If multiple resources are provided in `resources`, the
+      device they came from must be the same, otherwise
+      CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned. If multiple
+      resources are provided in `resources` and they are of type
+      :py:obj:`~.CU_DEV_RESOURCE_TYPE_SM`, they must be outputs (whether
+      `result` or `remaining`) from the same split API instance, otherwise
+      CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned.
 
     Note: The API is not supported on 32-bit platforms.
 
@@ -43616,9 +44672,10 @@ def cuDevResourceGenerateDesc(resources : Optional[List[CUdevResource]], unsigne
 def cuGreenCtxRecordEvent(hCtx, hEvent):
     """ Records an event.
 
-    Captures in \phEvent all the activities of the green context of \phCtx
-    at the time of this call. \phEvent and \phCtx must be from the same
-    CUDA context. Calls such as :py:obj:`~.cuEventQuery()` or
+    Captures in `hEvent` all the activities of the green context of `hCtx`
+    at the time of this call. `hEvent` and `hCtx` must be from the same
+    primary context otherwise :py:obj:`~.CUDA_ERROR_INVALID_HANDLE` is
+    returned. Calls such as :py:obj:`~.cuEventQuery()` or
     :py:obj:`~.cuGreenCtxWaitEvent()` will then examine or wait for
     completion of the work that was captured. Uses of `hCtx` after this
     call do not modify `hEvent`.
@@ -43633,15 +44690,15 @@ def cuGreenCtxRecordEvent(hCtx, hEvent):
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED`
 
     See Also
     --------
-    :py:obj:`~.cuGreenCtxWaitEvent`, :py:obj:`~.cuEventRecord`
+    :py:obj:`~.cuGreenCtxWaitEvent`, :py:obj:`~.cuEventRecord`, :py:obj:`~.cuCtxRecordEvent`, :py:obj:`~.cuCtxWaitEvent`
 
     Notes
     -----
-    The API will return an error if the specified green context `hCtx` has a stream in the capture mode. In such a case, the call will invalidate all the conflicting captures.
+    The API will return :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED` if the specified green context `hCtx` has a stream in the capture mode. In such a case, the call will invalidate all the conflicting captures.
     """
     cdef ccuda.CUevent chEvent
     if hEvent is None:
@@ -43671,31 +44728,33 @@ def cuGreenCtxRecordEvent(hCtx, hEvent):
 def cuGreenCtxWaitEvent(hCtx, hEvent):
     """ Make a green context wait on an event.
 
-    Makes all future work submitted to green context \phCtx wait for all
-    work captured in \phEvent. The synchronization will be performed on the
+    Makes all future work submitted to green context `hCtx` wait for all
+    work captured in `hEvent`. The synchronization will be performed on the
     device and will not block the calling CPU thread. See
-    :py:obj:`~.cuGreenCtxRecordEvent()` for details on what is captured by
-    an event.
+    :py:obj:`~.cuGreenCtxRecordEvent()` or :py:obj:`~.cuEventRecord()`, for
+    details on what is captured by an event.
 
     Parameters
     ----------
     hCtx : :py:obj:`~.CUgreenCtx`
         Green context to wait
     hEvent : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
-        Event to wait on (may not be NULL)
+        Event to wait on
 
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED`
 
     See Also
     --------
-    :py:obj:`~.cuGreenCtxRecordEvent`, :py:obj:`~.cuStreamWaitEvent`
+    :py:obj:`~.cuGreenCtxRecordEvent`, :py:obj:`~.cuStreamWaitEvent` :py:obj:`~.cuCtxRecordEvent`, :py:obj:`~.cuCtxWaitEvent`
 
     Notes
     -----
-    The API will return an error and invalidate the capture if the specified event `hEvent` is part of an ongoing capture sequence.
+    `hEvent` may be from a different context or device than `hCtx`.
+
+    The API will return :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED` and invalidate the capture if the specified event `hEvent` is part of an ongoing capture sequence or if the specified green context `hCtx` has a stream in the capture mode.
     """
     cdef ccuda.CUevent chEvent
     if hEvent is None:
@@ -43731,8 +44790,12 @@ def cuStreamGetGreenCtx(hStream):
     The stream handle `hStream` can refer to any of the following:
 
     - a stream created via any of the CUDA driver APIs such as
-      :py:obj:`~.cuStreamCreate`. If during stream creation the context
-      that was active in the calling thread was obtained with
+      :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamCreateWithPriority`
+      and :py:obj:`~.cuGreenCtxStreamCreate`, or their runtime API
+      equivalents such as :py:obj:`~.cudaStreamCreate`,
+      :py:obj:`~.cudaStreamCreateWithFlags` and
+      :py:obj:`~.cudaStreamCreateWithPriority`. If during stream creation
+      the context that was active in the calling thread was obtained with
       cuCtxFromGreenCtx, that green context is returned in `phCtx`.
       Otherwise, `*phCtx` is set to NULL instead.
 
@@ -43757,7 +44820,7 @@ def cuStreamGetGreenCtx(hStream):
 
     See Also
     --------
-    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreateWithPriority`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuStreamQuery`, :py:obj:`~.cuStreamSynchronize`, :py:obj:`~.cuStreamAddCallback`, :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamCreateWithFlags`
+    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamCreateWithPriority`, :py:obj:`~.cuStreamGetCtx_v2`, :py:obj:`~.cuGreenCtxStreamCreate`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuStreamQuery`, :py:obj:`~.cuStreamSynchronize`, :py:obj:`~.cuStreamAddCallback`, :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamCreateWithFlags`
     """
     cdef ccuda.CUstream chStream
     if hStream is None:
@@ -43771,6 +44834,79 @@ def cuStreamGetGreenCtx(hStream):
     cdef CUgreenCtx phCtx = CUgreenCtx()
     err = ccuda.cuStreamGetGreenCtx(chStream, <ccuda.CUgreenCtx*>phCtx._ptr)
     return (CUresult(err), phCtx)
+{{endif}}
+
+{{if 'cuGreenCtxStreamCreate' in found_functions}}
+
+@cython.embedsignature(True)
+def cuGreenCtxStreamCreate(greenCtx, unsigned int flags, int priority):
+    """ Create a stream for use in the green context.
+
+    Creates a stream for use in the specified green context `greenCtx` and
+    returns a handle in `phStream`. The stream can be destroyed by calling
+    :py:obj:`~.cuStreamDestroy()`. Note that the API ignores the context
+    that is current to the calling thread and creates a stream in the
+    specified green context `greenCtx`.
+
+    The supported values for `flags` are:
+
+    - :py:obj:`~.CU_STREAM_NON_BLOCKING`: This must be specified. It
+      indicates that work running in the created stream may run
+      concurrently with work in the default stream, and that the created
+      stream should perform no implicit synchronization with the default
+      stream.
+
+    Specifying `priority` affects the scheduling priority of work in the
+    stream. Priorities provide a hint to preferentially run work with
+    higher priority when possible, but do not preempt already-running work
+    or provide any other functional guarantee on execution order.
+    `priority` follows a convention where lower numbers represent higher
+    priorities. '0' represents default priority. The range of meaningful
+    numerical priorities can be queried using
+    :py:obj:`~.cuCtxGetStreamPriorityRange`. If the specified priority is
+    outside the numerical range returned by
+    :py:obj:`~.cuCtxGetStreamPriorityRange`, it will automatically be
+    clamped to the lowest or the highest number in the range.
+
+    Parameters
+    ----------
+    greenCtx : :py:obj:`~.CUgreenCtx`
+        Green context for which to create the stream for
+    flags : unsigned int
+        Flags for stream creation. `CU_STREAM_NON_BLOCKING` must be
+        specified.
+    priority : int
+        Stream priority. Lower numbers represent higher priorities. See
+        :py:obj:`~.cuCtxGetStreamPriorityRange` for more information about
+        meaningful stream priorities that can be passed.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`
+    phStream : :py:obj:`~.CUstream`
+        Returned newly created stream
+
+    See Also
+    --------
+    :py:obj:`~.cuStreamDestroy`, :py:obj:`~.cuGreenCtxCreate` :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuStreamGetPriority`, :py:obj:`~.cuCtxGetStreamPriorityRange`, :py:obj:`~.cuStreamGetFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuStreamQuery`, :py:obj:`~.cuStreamSynchronize`, :py:obj:`~.cuStreamAddCallback`, :py:obj:`~.cudaStreamCreateWithPriority`
+
+    Notes
+    -----
+    In the current implementation, only compute kernels launched in priority streams are affected by the stream's priority. Stream priorities have no effect on host-to-device and device-to-host memory operations.
+    """
+    cdef ccuda.CUgreenCtx cgreenCtx
+    if greenCtx is None:
+        cgreenCtx = <ccuda.CUgreenCtx><void_ptr>0
+    elif isinstance(greenCtx, (CUgreenCtx,)):
+        pgreenCtx = int(greenCtx)
+        cgreenCtx = <ccuda.CUgreenCtx><void_ptr>pgreenCtx
+    else:
+        pgreenCtx = int(CUgreenCtx(greenCtx))
+        cgreenCtx = <ccuda.CUgreenCtx><void_ptr>pgreenCtx
+    cdef CUstream phStream = CUstream()
+    err = ccuda.cuGreenCtxStreamCreate(<ccuda.CUstream*>phStream._ptr, cgreenCtx, flags, priority)
+    return (CUresult(err), phStream)
 {{endif}}
 
 {{if 'cuProfilerStart' in found_functions}}
@@ -45053,6 +46189,9 @@ def sizeof(objType):
     {{if 'CUasyncCallbackHandle' in found_types}}
     if objType == CUasyncCallbackHandle:
         return sizeof(ccuda.CUasyncCallbackHandle){{endif}}
+    {{if 'CUgreenCtx' in found_types}}
+    if objType == CUgreenCtx:
+        return sizeof(ccuda.CUgreenCtx){{endif}}
     {{if 'struct CUuuid_st' in found_types}}
     if objType == CUuuid_st:
         return sizeof(ccuda.CUuuid_st){{endif}}
@@ -45263,6 +46402,18 @@ def sizeof(objType):
     {{if 'CUexecAffinityParam' in found_types}}
     if objType == CUexecAffinityParam:
         return sizeof(ccuda.CUexecAffinityParam){{endif}}
+    {{if 'struct CUctxCigParam_st' in found_types}}
+    if objType == CUctxCigParam_st:
+        return sizeof(ccuda.CUctxCigParam_st){{endif}}
+    {{if 'CUctxCigParam' in found_types}}
+    if objType == CUctxCigParam:
+        return sizeof(ccuda.CUctxCigParam){{endif}}
+    {{if 'struct CUctxCreateParams_st' in found_types}}
+    if objType == CUctxCreateParams_st:
+        return sizeof(ccuda.CUctxCreateParams_st){{endif}}
+    {{if 'CUctxCreateParams' in found_types}}
+    if objType == CUctxCreateParams:
+        return sizeof(ccuda.CUctxCreateParams){{endif}}
     {{if 'struct CUlibraryHostUniversalFunctionAndDataTable_st' in found_types}}
     if objType == CUlibraryHostUniversalFunctionAndDataTable_st:
         return sizeof(ccuda.CUlibraryHostUniversalFunctionAndDataTable_st){{endif}}
@@ -45602,9 +46753,6 @@ def sizeof(objType):
     {{if 'CUgraphNodeParams' in found_types}}
     if objType == CUgraphNodeParams:
         return sizeof(ccuda.CUgraphNodeParams){{endif}}
-    {{if 'CUgreenCtx' in found_types}}
-    if objType == CUgreenCtx:
-        return sizeof(ccuda.CUgreenCtx){{endif}}
     {{if 'CUdevResourceDesc' in found_types}}
     if objType == CUdevResourceDesc:
         return sizeof(ccuda.CUdevResourceDesc){{endif}}

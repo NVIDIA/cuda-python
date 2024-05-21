@@ -44,6 +44,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuDevicePrimaryCtxReset_v2' in found_functions}}cdef void *__cuDevicePrimaryCtxReset_v2 = NULL{{endif}}
 {{if 'cuCtxCreate_v2' in found_functions}}cdef void *__cuCtxCreate_v2 = NULL{{endif}}
 {{if 'cuCtxCreate_v3' in found_functions}}cdef void *__cuCtxCreate_v3 = NULL{{endif}}
+{{if 'cuCtxCreate_v4' in found_functions}}cdef void *__cuCtxCreate_v4 = NULL{{endif}}
 {{if 'cuCtxDestroy_v2' in found_functions}}cdef void *__cuCtxDestroy_v2 = NULL{{endif}}
 {{if 'cuCtxPushCurrent_v2' in found_functions}}cdef void *__cuCtxPushCurrent_v2 = NULL{{endif}}
 {{if 'cuCtxPopCurrent_v2' in found_functions}}cdef void *__cuCtxPopCurrent_v2 = NULL{{endif}}
@@ -62,6 +63,8 @@ cdef bint __cuPythonInit = False
 {{if 'cuCtxGetStreamPriorityRange' in found_functions}}cdef void *__cuCtxGetStreamPriorityRange = NULL{{endif}}
 {{if 'cuCtxResetPersistingL2Cache' in found_functions}}cdef void *__cuCtxResetPersistingL2Cache = NULL{{endif}}
 {{if 'cuCtxGetExecAffinity' in found_functions}}cdef void *__cuCtxGetExecAffinity = NULL{{endif}}
+{{if 'cuCtxRecordEvent' in found_functions}}cdef void *__cuCtxRecordEvent = NULL{{endif}}
+{{if 'cuCtxWaitEvent' in found_functions}}cdef void *__cuCtxWaitEvent = NULL{{endif}}
 {{if 'cuCtxAttach' in found_functions}}cdef void *__cuCtxAttach = NULL{{endif}}
 {{if 'cuCtxDetach' in found_functions}}cdef void *__cuCtxDetach = NULL{{endif}}
 {{if 'cuCtxGetSharedMemConfig' in found_functions}}cdef void *__cuCtxGetSharedMemConfig = NULL{{endif}}
@@ -91,6 +94,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuLibraryEnumerateKernels' in found_functions}}cdef void *__cuLibraryEnumerateKernels = NULL{{endif}}
 {{if 'cuLibraryGetModule' in found_functions}}cdef void *__cuLibraryGetModule = NULL{{endif}}
 {{if 'cuKernelGetFunction' in found_functions}}cdef void *__cuKernelGetFunction = NULL{{endif}}
+{{if 'cuKernelGetLibrary' in found_functions}}cdef void *__cuKernelGetLibrary = NULL{{endif}}
 {{if 'cuLibraryGetGlobal' in found_functions}}cdef void *__cuLibraryGetGlobal = NULL{{endif}}
 {{if 'cuLibraryGetManaged' in found_functions}}cdef void *__cuLibraryGetManaged = NULL{{endif}}
 {{if 'cuLibraryGetUnifiedFunction' in found_functions}}cdef void *__cuLibraryGetUnifiedFunction = NULL{{endif}}
@@ -220,6 +224,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuStreamGetFlags' in found_functions}}cdef void *__cuStreamGetFlags = NULL{{endif}}
 {{if 'cuStreamGetId' in found_functions}}cdef void *__cuStreamGetId = NULL{{endif}}
 {{if 'cuStreamGetCtx' in found_functions}}cdef void *__cuStreamGetCtx = NULL{{endif}}
+{{if 'cuStreamGetCtx_v2' in found_functions}}cdef void *__cuStreamGetCtx_v2 = NULL{{endif}}
 {{if 'cuStreamWaitEvent' in found_functions}}cdef void *__cuStreamWaitEvent = NULL{{endif}}
 {{if 'cuStreamAddCallback' in found_functions}}cdef void *__cuStreamAddCallback = NULL{{endif}}
 {{if 'cuStreamBeginCapture_v2' in found_functions}}cdef void *__cuStreamBeginCapture_v2 = NULL{{endif}}
@@ -445,6 +450,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuGreenCtxRecordEvent' in found_functions}}cdef void *__cuGreenCtxRecordEvent = NULL{{endif}}
 {{if 'cuGreenCtxWaitEvent' in found_functions}}cdef void *__cuGreenCtxWaitEvent = NULL{{endif}}
 {{if 'cuStreamGetGreenCtx' in found_functions}}cdef void *__cuStreamGetGreenCtx = NULL{{endif}}
+{{if 'cuGreenCtxStreamCreate' in found_functions}}cdef void *__cuGreenCtxStreamCreate = NULL{{endif}}
 {{if 'cuProfilerStart' in found_functions}}cdef void *__cuProfilerStart = NULL{{endif}}
 {{if 'cuProfilerStop' in found_functions}}cdef void *__cuProfilerStop = NULL{{endif}}
 {{if True}}cdef void *__cuGraphicsEGLRegisterImage = NULL{{endif}}
@@ -703,6 +709,10 @@ cdef int cuPythonInit() except -1 nogil:
             {{if 'cuStreamGetCtx' in found_functions}}
             global __cuStreamGetCtx
             cuGetProcAddress('cuStreamGetCtx', &__cuStreamGetCtx, 9020, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
+            {{endif}}
+            {{if 'cuStreamGetCtx_v2' in found_functions}}
+            global __cuStreamGetCtx_v2
+            cuGetProcAddress('cuStreamGetCtx', &__cuStreamGetCtx_v2, 12050, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
             {{endif}}
             {{if 'cuStreamWaitEvent' in found_functions}}
             global __cuStreamWaitEvent
@@ -1027,6 +1037,10 @@ cdef int cuPythonInit() except -1 nogil:
             global __cuStreamGetCtx
             cuGetProcAddress('cuStreamGetCtx', &__cuStreamGetCtx, 9020, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
+            {{if 'cuStreamGetCtx_v2' in found_functions}}
+            global __cuStreamGetCtx_v2
+            cuGetProcAddress('cuStreamGetCtx', &__cuStreamGetCtx_v2, 12050, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
             {{if 'cuStreamWaitEvent' in found_functions}}
             global __cuStreamWaitEvent
             cuGetProcAddress('cuStreamWaitEvent', &__cuStreamWaitEvent, 3020, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -1276,6 +1290,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuCtxCreate_v3
         cuGetProcAddress('cuCtxCreate', &__cuCtxCreate_v3, 11040, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuCtxCreate_v4' in found_functions}}
+        global __cuCtxCreate_v4
+        cuGetProcAddress('cuCtxCreate', &__cuCtxCreate_v4, 12050, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuCtxDestroy_v2' in found_functions}}
         global __cuCtxDestroy_v2
         cuGetProcAddress('cuCtxDestroy', &__cuCtxDestroy_v2, 4000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -1347,6 +1365,14 @@ cdef int cuPythonInit() except -1 nogil:
         {{if 'cuCtxGetExecAffinity' in found_functions}}
         global __cuCtxGetExecAffinity
         cuGetProcAddress('cuCtxGetExecAffinity', &__cuCtxGetExecAffinity, 11040, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCtxRecordEvent' in found_functions}}
+        global __cuCtxRecordEvent
+        cuGetProcAddress('cuCtxRecordEvent', &__cuCtxRecordEvent, 12050, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCtxWaitEvent' in found_functions}}
+        global __cuCtxWaitEvent
+        cuGetProcAddress('cuCtxWaitEvent', &__cuCtxWaitEvent, 12050, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
         {{if 'cuCtxAttach' in found_functions}}
         global __cuCtxAttach
@@ -1463,6 +1489,10 @@ cdef int cuPythonInit() except -1 nogil:
         {{if 'cuKernelGetFunction' in found_functions}}
         global __cuKernelGetFunction
         cuGetProcAddress('cuKernelGetFunction', &__cuKernelGetFunction, 12000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuKernelGetLibrary' in found_functions}}
+        global __cuKernelGetLibrary
+        cuGetProcAddress('cuKernelGetLibrary', &__cuKernelGetLibrary, 12050, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
         {{if 'cuLibraryGetGlobal' in found_functions}}
         global __cuLibraryGetGlobal
@@ -2560,6 +2590,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuStreamGetGreenCtx
         cuGetProcAddress('cuStreamGetGreenCtx', &__cuStreamGetGreenCtx, 12040, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuGreenCtxStreamCreate' in found_functions}}
+        global __cuGreenCtxStreamCreate
+        cuGetProcAddress('cuGreenCtxStreamCreate', &__cuGreenCtxStreamCreate, 12050, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuProfilerStart' in found_functions}}
         global __cuProfilerStart
         cuGetProcAddress('cuProfilerStart', &__cuProfilerStart, 4000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -2971,6 +3005,13 @@ cdef int cuPythonInit() except -1 nogil:
             try:
                 global __cuStreamGetCtx
                 __cuStreamGetCtx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCtx_ptsz')
+            except:
+                pass
+            {{endif}}
+            {{if 'cuStreamGetCtx_v2' in found_functions}}
+            try:
+                global __cuStreamGetCtx_v2
+                __cuStreamGetCtx_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCtx_v2_ptsz')
             except:
                 pass
             {{endif}}
@@ -3537,6 +3578,13 @@ cdef int cuPythonInit() except -1 nogil:
             except:
                 pass
             {{endif}}
+            {{if 'cuStreamGetCtx_v2' in found_functions}}
+            try:
+                global __cuStreamGetCtx_v2
+                __cuStreamGetCtx_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCtx_v2')
+            except:
+                pass
+            {{endif}}
             {{if 'cuStreamWaitEvent' in found_functions}}
             try:
                 global __cuStreamWaitEvent
@@ -3972,6 +4020,13 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuCtxCreate_v4' in found_functions}}
+        try:
+            global __cuCtxCreate_v4
+            __cuCtxCreate_v4 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxCreate_v4')
+        except:
+            pass
+        {{endif}}
         {{if 'cuCtxDestroy_v2' in found_functions}}
         try:
             global __cuCtxDestroy_v2
@@ -4095,6 +4150,20 @@ cdef int cuPythonInit() except -1 nogil:
         try:
             global __cuCtxGetExecAffinity
             __cuCtxGetExecAffinity = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetExecAffinity')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCtxRecordEvent' in found_functions}}
+        try:
+            global __cuCtxRecordEvent
+            __cuCtxRecordEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxRecordEvent')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCtxWaitEvent' in found_functions}}
+        try:
+            global __cuCtxWaitEvent
+            __cuCtxWaitEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxWaitEvent')
         except:
             pass
         {{endif}}
@@ -4298,6 +4367,13 @@ cdef int cuPythonInit() except -1 nogil:
         try:
             global __cuKernelGetFunction
             __cuKernelGetFunction = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuKernelGetFunction')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuKernelGetLibrary' in found_functions}}
+        try:
+            global __cuKernelGetLibrary
+            __cuKernelGetLibrary = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuKernelGetLibrary')
         except:
             pass
         {{endif}}
@@ -6219,6 +6295,13 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuGreenCtxStreamCreate' in found_functions}}
+        try:
+            global __cuGreenCtxStreamCreate
+            __cuGreenCtxStreamCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGreenCtxStreamCreate')
+        except:
+            pass
+        {{endif}}
         {{if 'cuProfilerStart' in found_functions}}
         try:
             global __cuProfilerStart
@@ -6555,6 +6638,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuStreamGetCtx
         __cuStreamGetCtx = dlfcn.dlsym(handle, 'cuStreamGetCtx_ptsz')
         {{endif}}
+        {{if 'cuStreamGetCtx_v2' in found_functions}}
+        global __cuStreamGetCtx_v2
+        __cuStreamGetCtx_v2 = dlfcn.dlsym(handle, 'cuStreamGetCtx_v2_ptsz')
+        {{endif}}
         {{if 'cuStreamWaitEvent' in found_functions}}
         global __cuStreamWaitEvent
         __cuStreamWaitEvent = dlfcn.dlsym(handle, 'cuStreamWaitEvent_ptsz')
@@ -6878,6 +6965,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuStreamGetCtx
         __cuStreamGetCtx = dlfcn.dlsym(handle, 'cuStreamGetCtx')
         {{endif}}
+        {{if 'cuStreamGetCtx_v2' in found_functions}}
+        global __cuStreamGetCtx_v2
+        __cuStreamGetCtx_v2 = dlfcn.dlsym(handle, 'cuStreamGetCtx_v2')
+        {{endif}}
         {{if 'cuStreamWaitEvent' in found_functions}}
         global __cuStreamWaitEvent
         __cuStreamWaitEvent = dlfcn.dlsym(handle, 'cuStreamWaitEvent')
@@ -7127,6 +7218,10 @@ cdef int cuPythonInit() except -1 nogil:
     global __cuCtxCreate_v3
     __cuCtxCreate_v3 = dlfcn.dlsym(handle, 'cuCtxCreate_v3')
     {{endif}}
+    {{if 'cuCtxCreate_v4' in found_functions}}
+    global __cuCtxCreate_v4
+    __cuCtxCreate_v4 = dlfcn.dlsym(handle, 'cuCtxCreate_v4')
+    {{endif}}
     {{if 'cuCtxDestroy_v2' in found_functions}}
     global __cuCtxDestroy_v2
     __cuCtxDestroy_v2 = dlfcn.dlsym(handle, 'cuCtxDestroy_v2')
@@ -7198,6 +7293,14 @@ cdef int cuPythonInit() except -1 nogil:
     {{if 'cuCtxGetExecAffinity' in found_functions}}
     global __cuCtxGetExecAffinity
     __cuCtxGetExecAffinity = dlfcn.dlsym(handle, 'cuCtxGetExecAffinity')
+    {{endif}}
+    {{if 'cuCtxRecordEvent' in found_functions}}
+    global __cuCtxRecordEvent
+    __cuCtxRecordEvent = dlfcn.dlsym(handle, 'cuCtxRecordEvent')
+    {{endif}}
+    {{if 'cuCtxWaitEvent' in found_functions}}
+    global __cuCtxWaitEvent
+    __cuCtxWaitEvent = dlfcn.dlsym(handle, 'cuCtxWaitEvent')
     {{endif}}
     {{if 'cuCtxAttach' in found_functions}}
     global __cuCtxAttach
@@ -7314,6 +7417,10 @@ cdef int cuPythonInit() except -1 nogil:
     {{if 'cuKernelGetFunction' in found_functions}}
     global __cuKernelGetFunction
     __cuKernelGetFunction = dlfcn.dlsym(handle, 'cuKernelGetFunction')
+    {{endif}}
+    {{if 'cuKernelGetLibrary' in found_functions}}
+    global __cuKernelGetLibrary
+    __cuKernelGetLibrary = dlfcn.dlsym(handle, 'cuKernelGetLibrary')
     {{endif}}
     {{if 'cuLibraryGetGlobal' in found_functions}}
     global __cuLibraryGetGlobal
@@ -8411,6 +8518,10 @@ cdef int cuPythonInit() except -1 nogil:
     global __cuStreamGetGreenCtx
     __cuStreamGetGreenCtx = dlfcn.dlsym(handle, 'cuStreamGetGreenCtx')
     {{endif}}
+    {{if 'cuGreenCtxStreamCreate' in found_functions}}
+    global __cuGreenCtxStreamCreate
+    __cuGreenCtxStreamCreate = dlfcn.dlsym(handle, 'cuGreenCtxStreamCreate')
+    {{endif}}
     {{if 'cuProfilerStart' in found_functions}}
     global __cuProfilerStart
     __cuProfilerStart = dlfcn.dlsym(handle, 'cuProfilerStart')
@@ -8833,6 +8944,18 @@ cdef CUresult _cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray,
     return err
 {{endif}}
 
+{{if 'cuCtxCreate_v4' in found_functions}}
+
+cdef CUresult _cuCtxCreate_v4(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCtxCreate_v4
+    cuPythonInit()
+    if __cuCtxCreate_v4 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCtxCreate_v4" not found')
+    err = (<CUresult (*)(CUcontext*, CUctxCreateParams*, unsigned int, CUdevice) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCtxCreate_v4)(pctx, ctxCreateParams, flags, dev)
+    return err
+{{endif}}
+
 {{if 'cuCtxDestroy_v2' in found_functions}}
 
 cdef CUresult _cuCtxDestroy_v2(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -9046,6 +9169,30 @@ cdef CUresult _cuCtxGetExecAffinity(CUexecAffinityParam* pExecAffinity, CUexecAf
         with gil:
             raise RuntimeError('Function "cuCtxGetExecAffinity" not found')
     err = (<CUresult (*)(CUexecAffinityParam*, CUexecAffinityType) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCtxGetExecAffinity)(pExecAffinity, typename)
+    return err
+{{endif}}
+
+{{if 'cuCtxRecordEvent' in found_functions}}
+
+cdef CUresult _cuCtxRecordEvent(CUcontext hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCtxRecordEvent
+    cuPythonInit()
+    if __cuCtxRecordEvent == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCtxRecordEvent" not found')
+    err = (<CUresult (*)(CUcontext, CUevent) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCtxRecordEvent)(hCtx, hEvent)
+    return err
+{{endif}}
+
+{{if 'cuCtxWaitEvent' in found_functions}}
+
+cdef CUresult _cuCtxWaitEvent(CUcontext hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCtxWaitEvent
+    cuPythonInit()
+    if __cuCtxWaitEvent == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCtxWaitEvent" not found')
+    err = (<CUresult (*)(CUcontext, CUevent) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCtxWaitEvent)(hCtx, hEvent)
     return err
 {{endif}}
 
@@ -9394,6 +9541,18 @@ cdef CUresult _cuKernelGetFunction(CUfunction* pFunc, CUkernel kernel) except ?C
         with gil:
             raise RuntimeError('Function "cuKernelGetFunction" not found')
     err = (<CUresult (*)(CUfunction*, CUkernel) except ?CUDA_ERROR_NOT_FOUND nogil> __cuKernelGetFunction)(pFunc, kernel)
+    return err
+{{endif}}
+
+{{if 'cuKernelGetLibrary' in found_functions}}
+
+cdef CUresult _cuKernelGetLibrary(CUlibrary* pLib, CUkernel kernel) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuKernelGetLibrary
+    cuPythonInit()
+    if __cuKernelGetLibrary == NULL:
+        with gil:
+            raise RuntimeError('Function "cuKernelGetLibrary" not found')
+    err = (<CUresult (*)(CUlibrary*, CUkernel) except ?CUDA_ERROR_NOT_FOUND nogil> __cuKernelGetLibrary)(pLib, kernel)
     return err
 {{endif}}
 
@@ -10942,6 +11101,18 @@ cdef CUresult _cuStreamGetCtx(CUstream hStream, CUcontext* pctx) except ?CUDA_ER
         with gil:
             raise RuntimeError('Function "cuStreamGetCtx" not found')
     err = (<CUresult (*)(CUstream, CUcontext*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuStreamGetCtx)(hStream, pctx)
+    return err
+{{endif}}
+
+{{if 'cuStreamGetCtx_v2' in found_functions}}
+
+cdef CUresult _cuStreamGetCtx_v2(CUstream hStream, CUcontext* pCtx, CUgreenCtx* pGreenCtx) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamGetCtx_v2
+    cuPythonInit()
+    if __cuStreamGetCtx_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamGetCtx_v2" not found')
+    err = (<CUresult (*)(CUstream, CUcontext*, CUgreenCtx*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuStreamGetCtx_v2)(hStream, pCtx, pGreenCtx)
     return err
 {{endif}}
 
@@ -13642,6 +13813,18 @@ cdef CUresult _cuStreamGetGreenCtx(CUstream hStream, CUgreenCtx* phCtx) except ?
         with gil:
             raise RuntimeError('Function "cuStreamGetGreenCtx" not found')
     err = (<CUresult (*)(CUstream, CUgreenCtx*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuStreamGetGreenCtx)(hStream, phCtx)
+    return err
+{{endif}}
+
+{{if 'cuGreenCtxStreamCreate' in found_functions}}
+
+cdef CUresult _cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, unsigned int flags, int priority) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGreenCtxStreamCreate
+    cuPythonInit()
+    if __cuGreenCtxStreamCreate == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGreenCtxStreamCreate" not found')
+    err = (<CUresult (*)(CUstream*, CUgreenCtx, unsigned int, int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuGreenCtxStreamCreate)(phStream, greenCtx, flags, priority)
     return err
 {{endif}}
 

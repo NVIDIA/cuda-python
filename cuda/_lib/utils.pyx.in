@@ -142,6 +142,8 @@ cdef class HelperInputVoidPtr:
         elif isinstance(ptr, (int)):
             # Easy run, user gave us an already configured void** address
             self._cptr = <void*><void_ptr>ptr
+        elif isinstance(ptr, (cuda.CUdeviceptr)):
+            self._cptr = <void*><void_ptr>int(ptr)
         elif PyObject_CheckBuffer(ptr):
             # Easy run, get address from Python Buffer Protocol
             err_buffer = PyObject_GetBuffer(ptr, &self._pybuffer, PyBUF_SIMPLE | PyBUF_ANY_CONTIGUOUS)

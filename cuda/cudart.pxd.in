@@ -2626,7 +2626,10 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
     deviceUpdatableKernelNode : anon_struct23
         Value of launch attribute
-        ::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        cudaLaunchAttributeDeviceUpdatableKernelNode.
+    sharedMemCarveout : unsigned int
+        Value of launch attribute
+        cudaLaunchAttributePreferredSharedMemoryCarveout.
 
     Methods
     -------
@@ -3159,7 +3162,10 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
     deviceUpdatableKernelNode : anon_struct23
         Value of launch attribute
-        ::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        cudaLaunchAttributeDeviceUpdatableKernelNode.
+    sharedMemCarveout : unsigned int
+        Value of launch attribute
+        cudaLaunchAttributePreferredSharedMemoryCarveout.
 
     Methods
     -------
@@ -3218,7 +3224,10 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
     deviceUpdatableKernelNode : anon_struct23
         Value of launch attribute
-        ::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        cudaLaunchAttributeDeviceUpdatableKernelNode.
+    sharedMemCarveout : unsigned int
+        Value of launch attribute
+        cudaLaunchAttributePreferredSharedMemoryCarveout.
 
     Methods
     -------

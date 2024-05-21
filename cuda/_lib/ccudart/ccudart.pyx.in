@@ -4916,4 +4916,15 @@ cdef cudaError_t _cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCal
     if err != cudaSuccess:
         _setLastError(err)
     return err
+
+{{endif}}
+{{if 'cudaGetDriverEntryPointByVersion' in found_functions}}
+
+cdef cudaError_t _cudaGetDriverEntryPointByVersion(const char* symbol, void** funcPtr, unsigned int cudaVersion, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = <cudaError_t>ccuda._cuGetProcAddress_v2(symbol, funcPtr, cudaVersion, flags, <ccuda.CUdriverProcAddressQueryResult*>driverStatus)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
 {{endif}}

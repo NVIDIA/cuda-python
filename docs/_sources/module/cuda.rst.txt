@@ -33,6 +33,8 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUlaunchConfig_st
 .. autoclass:: cuda.cuda.CUexecAffinitySmCount_st
 .. autoclass:: cuda.cuda.CUexecAffinityParam_st
+.. autoclass:: cuda.cuda.CUctxCigParam_st
+.. autoclass:: cuda.cuda.CUctxCreateParams_st
 .. autoclass:: cuda.cuda.CUlibraryHostUniversalFunctionAndDataTable_st
 .. autoclass:: cuda.cuda.CUDA_MEMCPY2D_st
 .. autoclass:: cuda.cuda.CUDA_MEMCPY3D_st
@@ -640,6 +642,87 @@ Data types used by CUDA driver
 
 
         4 channel unsigned normalized block-compressed (BC7 compression) format with sRGB encoding
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_P010
+
+
+        10-bit YUV planar format, with 4:2:0 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_P016
+
+
+        16-bit YUV planar format, with 4:2:0 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_NV16
+
+
+        8-bit YUV planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_P210
+
+
+        10-bit YUV planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_P216
+
+
+        16-bit YUV planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_YUY2
+
+
+        2 channel, 8-bit YUV packed planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_Y210
+
+
+        2 channel, 10-bit YUV packed planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_Y216
+
+
+        2 channel, 16-bit YUV packed planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_AYUV
+
+
+        4 channel, 8-bit YUV packed planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_Y410
+
+
+        10-bit YUV packed planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_Y416
+
+
+        4 channel, 12-bit YUV packed planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_Y444_PLANAR8
+
+
+        3 channel 8-bit YUV planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_Y444_PLANAR10
+
+
+        3 channel 10-bit YUV planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.cuda.CUarray_format.CU_AD_FORMAT_MAX
 
 .. autoclass:: cuda.cuda.CUaddress_mode
 
@@ -1494,7 +1577,13 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_NUMA_CONFIG
 
 
+        NUMA configuration of a device: value is of type :py:obj:`~.CUdeviceNumaConfig` enum
+
+
     .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_NUMA_ID
+
+
+        NUMA node ID of the GPU memory
 
 
     .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED
@@ -1513,6 +1602,12 @@ Data types used by CUDA driver
 
 
         NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
+
+
+    .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_D3D12_CIG_SUPPORTED
+
+
+        Device supports CIG with D3D12.
 
 
     .. autoattribute:: cuda.cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX
@@ -2614,6 +2709,24 @@ Data types used by CUDA driver
         A size in bytes for L2 persisting lines cache size
 
 
+    .. autoattribute:: cuda.cuda.CUlimit.CU_LIMIT_SHMEM_SIZE
+
+
+        A maximum size in bytes of shared memory available to CUDA kernels on a CIG context. Can only be queried, cannot be set
+
+
+    .. autoattribute:: cuda.cuda.CUlimit.CU_LIMIT_CIG_ENABLED
+
+
+        A non-zero value indicates this CUDA context is a CIG-enabled context. Can only be queried, cannot be set
+
+
+    .. autoattribute:: cuda.cuda.CUlimit.CU_LIMIT_CIG_SHMEM_FALLBACK_ENABLED
+
+
+        When set to a non-zero value, CUDA will fail to launch a kernel on a CIG context, instead of using the fallback path, if the kernel uses more shared memory than available
+
+
     .. autoattribute:: cuda.cuda.CUlimit.CU_LIMIT_MAX
 
 .. autoclass:: cuda.cuda.CUresourcetype
@@ -2968,6 +3081,12 @@ Data types used by CUDA driver
 
          If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with :py:obj:`~.cuGraphUpload` before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.
 
+
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
+
+
+        Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.CUlaunchAttributeValue.sharedMemCarveout` to a percentage between 0-100 signals the CUDA driver to set the shared memory carveout preference, in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT`. This is only a hint, and the CUDA driver can choose a different configuration if required for the launch.
+
 .. autoclass:: cuda.cuda.CUstreamCaptureStatus
 
     .. autoattribute:: cuda.cuda.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE
@@ -3044,6 +3163,10 @@ Data types used by CUDA driver
 
 
     .. autoattribute:: cuda.cuda.CUexecAffinityType.CU_EXEC_AFFINITY_TYPE_MAX
+
+.. autoclass:: cuda.cuda.CUcigDataType
+
+    .. autoattribute:: cuda.cuda.CUcigDataType.CIG_DATA_TYPE_D3D12_COMMAND_QUEUE
 
 .. autoclass:: cuda.cuda.CUlibraryOption
 
@@ -5333,6 +5456,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUgraphConditionalHandle
 .. autoclass:: cuda.cuda.CUgraphDeviceNode
 .. autoclass:: cuda.cuda.CUasyncCallbackHandle
+.. autoclass:: cuda.cuda.CUgreenCtx
 .. autoclass:: cuda.cuda.CUuuid
 .. autoclass:: cuda.cuda.CUmemFabricHandle_v1
 .. autoclass:: cuda.cuda.CUmemFabricHandle
@@ -5380,6 +5504,8 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUexecAffinitySmCount
 .. autoclass:: cuda.cuda.CUexecAffinityParam_v1
 .. autoclass:: cuda.cuda.CUexecAffinityParam
+.. autoclass:: cuda.cuda.CUctxCigParam
+.. autoclass:: cuda.cuda.CUctxCreateParams
 .. autoclass:: cuda.cuda.CUlibraryHostUniversalFunctionAndDataTable
 .. autoclass:: cuda.cuda.CUstreamCallback
 .. autoclass:: cuda.cuda.CUoccupancyB2DSize
@@ -5518,6 +5644,7 @@ Data types used by CUDA driver
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN
 .. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE
+.. autoattribute:: cuda.cuda.CU_KERNEL_NODE_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
 .. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW
 .. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY
 .. autoattribute:: cuda.cuda.CU_STREAM_ATTRIBUTE_PRIORITY
@@ -5626,6 +5753,10 @@ Data types used by CUDA driver
 .. autoattribute:: cuda.cuda.CUDA_ARRAY3D_DEFERRED_MAPPING
 
     This flag if set indicates that the CUDA array or CUDA mipmapped array will allow deferred memory mapping
+
+.. autoattribute:: cuda.cuda.CUDA_ARRAY3D_VIDEO_ENCODE_DECODE
+
+    This flag indicates that the CUDA array will be used for hardware accelerated video encode/decode operations.
 
 .. autoattribute:: cuda.cuda.CU_TRSA_OVERRIDE_FORMAT
 
@@ -5765,6 +5896,7 @@ Please note that some functions are described in Primary Context Management sect
 
 .. autofunction:: cuda.cuda.cuCtxCreate
 .. autofunction:: cuda.cuda.cuCtxCreate_v3
+.. autofunction:: cuda.cuda.cuCtxCreate_v4
 .. autofunction:: cuda.cuda.cuCtxDestroy
 .. autofunction:: cuda.cuda.cuCtxPushCurrent
 .. autofunction:: cuda.cuda.cuCtxPopCurrent
@@ -5783,6 +5915,8 @@ Please note that some functions are described in Primary Context Management sect
 .. autofunction:: cuda.cuda.cuCtxGetStreamPriorityRange
 .. autofunction:: cuda.cuda.cuCtxResetPersistingL2Cache
 .. autofunction:: cuda.cuda.cuCtxGetExecAffinity
+.. autofunction:: cuda.cuda.cuCtxRecordEvent
+.. autofunction:: cuda.cuda.cuCtxWaitEvent
 
 Module Management
 -----------------
@@ -5831,6 +5965,7 @@ This section describes the library management functions of the low-level CUDA dr
 .. autofunction:: cuda.cuda.cuLibraryEnumerateKernels
 .. autofunction:: cuda.cuda.cuLibraryGetModule
 .. autofunction:: cuda.cuda.cuKernelGetFunction
+.. autofunction:: cuda.cuda.cuKernelGetLibrary
 .. autofunction:: cuda.cuda.cuLibraryGetGlobal
 .. autofunction:: cuda.cuda.cuLibraryGetManaged
 .. autofunction:: cuda.cuda.cuLibraryGetUnifiedFunction
@@ -6108,6 +6243,7 @@ This section describes the stream management functions of the low-level CUDA dri
 .. autofunction:: cuda.cuda.cuStreamGetFlags
 .. autofunction:: cuda.cuda.cuStreamGetId
 .. autofunction:: cuda.cuda.cuStreamGetCtx
+.. autofunction:: cuda.cuda.cuStreamGetCtx_v2
 .. autofunction:: cuda.cuda.cuStreamWaitEvent
 .. autofunction:: cuda.cuda.cuStreamAddCallback
 .. autofunction:: cuda.cuda.cuStreamBeginCapture
@@ -6409,7 +6545,32 @@ This section describes the coredump attribute control functions of the low-level
     .. autoattribute:: cuda.cuda.CUcoredumpSettings.CU_COREDUMP_PIPE
 
 
+    .. autoattribute:: cuda.cuda.CUcoredumpSettings.CU_COREDUMP_GENERATION_FLAGS
+
+
     .. autoattribute:: cuda.cuda.CUcoredumpSettings.CU_COREDUMP_MAX
+
+.. autoclass:: cuda.cuda.CUCoredumpGenerationFlags
+
+    .. autoattribute:: cuda.cuda.CUCoredumpGenerationFlags.CU_COREDUMP_DEFAULT_FLAGS
+
+
+    .. autoattribute:: cuda.cuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_NONRELOCATED_ELF_IMAGES
+
+
+    .. autoattribute:: cuda.cuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_GLOBAL_MEMORY
+
+
+    .. autoattribute:: cuda.cuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_SHARED_MEMORY
+
+
+    .. autoattribute:: cuda.cuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_LOCAL_MEMORY
+
+
+    .. autoattribute:: cuda.cuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_ABORT
+
+
+    .. autoattribute:: cuda.cuda.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
 .. autofunction:: cuda.cuda.cuCoredumpGetAttribute
 .. autofunction:: cuda.cuda.cuCoredumpGetAttributeGlobal
@@ -6526,6 +6687,13 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 
         Required. Creates a default stream to use inside the green context
 
+.. autoclass:: cuda.cuda.CUdevSmResourceSplit_flags
+
+    .. autoattribute:: cuda.cuda.CUdevSmResourceSplit_flags.CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING
+
+
+    .. autoattribute:: cuda.cuda.CUdevSmResourceSplit_flags.CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE
+
 .. autoclass:: cuda.cuda.CUdevResourceType
 
     .. autoattribute:: cuda.cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_INVALID
@@ -6536,7 +6704,6 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 
         Streaming multiprocessors related information
 
-.. autoclass:: cuda.cuda.CUgreenCtx
 .. autoclass:: cuda.cuda.CUdevResourceDesc
 .. autoclass:: cuda.cuda.CUdevSmResource
 .. autofunction:: cuda.cuda._CONCAT_OUTER
@@ -6551,6 +6718,7 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 .. autofunction:: cuda.cuda.cuGreenCtxRecordEvent
 .. autofunction:: cuda.cuda.cuGreenCtxWaitEvent
 .. autofunction:: cuda.cuda.cuStreamGetGreenCtx
+.. autofunction:: cuda.cuda.cuGreenCtxStreamCreate
 .. autoattribute:: cuda.cuda.RESOURCE_ABI_VERSION
 .. autoattribute:: cuda.cuda.RESOURCE_ABI_EXTERNAL_BYTES
 .. autoattribute:: cuda.cuda._CONCAT_INNER

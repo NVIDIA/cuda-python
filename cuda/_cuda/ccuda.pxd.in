@@ -147,6 +147,11 @@ cdef CUresult _cuCtxCreate_v2(CUcontext* pctx, unsigned int flags, CUdevice dev)
 cdef CUresult _cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray, int numParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuCtxCreate_v4' in found_functions}}
+
+cdef CUresult _cuCtxCreate_v4(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuCtxDestroy_v2' in found_functions}}
 
 cdef CUresult _cuCtxDestroy_v2(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -235,6 +240,16 @@ cdef CUresult _cuCtxResetPersistingL2Cache() except ?CUDA_ERROR_NOT_FOUND nogil
 {{if 'cuCtxGetExecAffinity' in found_functions}}
 
 cdef CUresult _cuCtxGetExecAffinity(CUexecAffinityParam* pExecAffinity, CUexecAffinityType typename) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCtxRecordEvent' in found_functions}}
+
+cdef CUresult _cuCtxRecordEvent(CUcontext hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCtxWaitEvent' in found_functions}}
+
+cdef CUresult _cuCtxWaitEvent(CUcontext hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuCtxAttach' in found_functions}}
@@ -380,6 +395,11 @@ cdef CUresult _cuLibraryGetModule(CUmodule* pMod, CUlibrary library) except ?CUD
 {{if 'cuKernelGetFunction' in found_functions}}
 
 cdef CUresult _cuKernelGetFunction(CUfunction* pFunc, CUkernel kernel) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuKernelGetLibrary' in found_functions}}
+
+cdef CUresult _cuKernelGetLibrary(CUlibrary* pLib, CUkernel kernel) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuLibraryGetGlobal' in found_functions}}
@@ -1025,6 +1045,11 @@ cdef CUresult _cuStreamGetId(CUstream hStream, unsigned long long* streamId) exc
 {{if 'cuStreamGetCtx' in found_functions}}
 
 cdef CUresult _cuStreamGetCtx(CUstream hStream, CUcontext* pctx) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuStreamGetCtx_v2' in found_functions}}
+
+cdef CUresult _cuStreamGetCtx_v2(CUstream hStream, CUcontext* pCtx, CUgreenCtx* pGreenCtx) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuStreamWaitEvent' in found_functions}}
@@ -2150,6 +2175,11 @@ cdef CUresult _cuGreenCtxWaitEvent(CUgreenCtx hCtx, CUevent hEvent) except ?CUDA
 {{if 'cuStreamGetGreenCtx' in found_functions}}
 
 cdef CUresult _cuStreamGetGreenCtx(CUstream hStream, CUgreenCtx* phCtx) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGreenCtxStreamCreate' in found_functions}}
+
+cdef CUresult _cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, unsigned int flags, int priority) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuProfilerStart' in found_functions}}

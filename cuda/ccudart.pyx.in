@@ -2295,6 +2295,13 @@ cdef cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, uns
 
 {{endif}}
 
+{{if 'cudaGetDriverEntryPointByVersion' in found_functions}}
+
+cdef cudaError_t cudaGetDriverEntryPointByVersion(const char* symbol, void** funcPtr, unsigned int cudaVersion, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaGetDriverEntryPointByVersion(symbol, funcPtr, cudaVersion, flags, driverStatus)
+
+{{endif}}
+
 {{if 'cudaGetExportTable' in found_functions}}
 
 cdef cudaError_t cudaGetExportTable(const void** ppExportTable, const cudaUUID_t* pExportTableId) except ?cudaErrorCallRequiresNewerDriver nogil:

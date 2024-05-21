@@ -574,6 +574,7 @@ Driver Entry Point Access
 This section describes the driver entry point access functions of CUDA runtime application programming interface.
 
 .. autofunction:: cuda.cudart.cudaGetDriverEntryPoint
+.. autofunction:: cuda.cudart.cudaGetDriverEntryPointByVersion
 
 C++ API Routines
 ----------------
@@ -3959,7 +3960,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrNumaConfig
 
 
-        NUMA configuration of a device: value is of type cudaDeviceNumaConfig enum
+        NUMA configuration of a device: value is of type :py:obj:`~.cudaDeviceNumaConfig` enum
 
 
     .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrNumaId
@@ -3981,6 +3982,12 @@ Data types used by CUDA Runtime
 
 
         NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
+
+
+    .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrD3D12CigSupported
+
+
+        Device supports CIG with D3D12.
 
 
     .. autoattribute:: cuda.cudart.cudaDeviceAttr.cudaDevAttrMax
@@ -4118,6 +4125,12 @@ Data types used by CUDA Runtime
 
 
         Allows a Win32 KMT handle to be used for exporting. (D3DKMT_HANDLE)
+
+
+    .. autoattribute:: cuda.cudart.cudaMemAllocationHandleType.cudaMemHandleTypeFabric
+
+
+        Allows a fabric handle to be used for exporting. (cudaMemFabricHandle_t)
 
 .. autoclass:: cuda.cudart.cudaGraphMemAttributeType
 
@@ -4796,6 +4809,12 @@ Data types used by CUDA Runtime
 
          If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with :py:obj:`~.cuGraphUpload` before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.
 
+
+    .. autoattribute:: cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout
+
+
+        Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.cudaLaunchAttributeValue.sharedMemCarveout` to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is only a hint, and the driver can choose a different configuration if required for the launch.
+
 .. autoclass:: cuda.cudart.cudaDeviceNumaConfig
 
     .. autoattribute:: cuda.cudart.cudaDeviceNumaConfig.cudaDeviceNumaConfigNone
@@ -5218,6 +5237,7 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeClusterSchedulingPolicyPreference
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeMemSyncDomainMap
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeMemSyncDomain
+.. autoattribute:: cuda.cudart.cudaKernelNodeAttributePreferredSharedMemoryCarveout
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttributeDeviceUpdatableKernelNode
 .. autoattribute:: cuda.cudart.cudaKernelNodeAttrValue
 .. autoattribute:: cuda.cudart.cudaSurfaceType1D

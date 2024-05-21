@@ -308,3 +308,4 @@ from libcpp cimport bool
 {{if True}}cdef cudaError_t _getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaDeviceRegisterAsyncNotification' in found_functions}}cdef cudaError_t _cudaDeviceRegisterAsyncNotification(int device, cudaAsyncCallback callbackFunc, void* userData, cudaAsyncCallbackHandle_t* callback) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
 {{if 'cudaDeviceUnregisterAsyncNotification' in found_functions}}cdef cudaError_t _cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCallbackHandle_t callback) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}
+{{if 'cudaGetDriverEntryPointByVersion' in found_functions}}cdef cudaError_t _cudaGetDriverEntryPointByVersion(const char* symbol, void** funcPtr, unsigned int cudaVersion, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil{{endif}}

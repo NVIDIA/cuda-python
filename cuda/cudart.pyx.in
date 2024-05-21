@@ -300,6 +300,8 @@ cudaKernelNodeAttributeMemSyncDomainMap = ccudart.cudaKernelNodeAttributeMemSync
 
 cudaKernelNodeAttributeMemSyncDomain = ccudart.cudaKernelNodeAttributeMemSyncDomain
 
+cudaKernelNodeAttributePreferredSharedMemoryCarveout = ccudart.cudaKernelNodeAttributePreferredSharedMemoryCarveout
+
 cudaKernelNodeAttributeDeviceUpdatableKernelNode = ccudart.cudaKernelNodeAttributeDeviceUpdatableKernelNode
 
 cudaSurfaceType1D = ccudart.cudaSurfaceType1D
@@ -1345,6 +1347,18 @@ class cudaLaunchAttributeID(IntEnum):
     #: updatable nodes, the graph must be uploaded before it is launched
     #: again.
     cudaLaunchAttributeDeviceUpdatableKernelNode = ccudart.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode{{endif}}
+    {{if 'cudaLaunchAttributePreferredSharedMemoryCarveout' in found_values}}
+
+    #: Valid for launches. On devices where the L1 cache and shared memory
+    #: use the same hardware resources, setting
+    #: :py:obj:`~.cudaLaunchAttributeValue.sharedMemCarveout` to a
+    #: percentage between 0-100 signals sets the shared memory carveout
+    #: preference in percent of the total shared memory for that kernel
+    #: launch. This attribute takes precedence over
+    #: :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is
+    #: only a hint, and the driver can choose a different configuration if
+    #: required for the launch.
+    cudaLaunchAttributePreferredSharedMemoryCarveout = ccudart.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout{{endif}}
 {{endif}}
 {{if 'cudaAsyncNotificationType_enum' in found_types}}
 
@@ -3395,7 +3409,7 @@ class cudaDeviceAttr(IntEnum):
     {{if 'cudaDevAttrNumaConfig' in found_values}}
 
     #: NUMA configuration of a device: value is of type
-    #: cudaDeviceNumaConfig enum
+    #: :py:obj:`~.cudaDeviceNumaConfig` enum
     cudaDevAttrNumaConfig = ccudart.cudaDeviceAttr.cudaDevAttrNumaConfig{{endif}}
     {{if 'cudaDevAttrNumaId' in found_values}}
 
@@ -3412,6 +3426,10 @@ class cudaDeviceAttr(IntEnum):
     #: NUMA ID of the host node closest to the device. Returns -1 when
     #: system does not support NUMA.
     cudaDevAttrHostNumaId = ccudart.cudaDeviceAttr.cudaDevAttrHostNumaId{{endif}}
+    {{if 'cudaDevAttrD3D12CigSupported' in found_values}}
+
+    #: Device supports CIG with D3D12.
+    cudaDevAttrD3D12CigSupported = ccudart.cudaDeviceAttr.cudaDevAttrD3D12CigSupported{{endif}}
     {{if 'cudaDevAttrMax' in found_values}}
     cudaDevAttrMax = ccudart.cudaDeviceAttr.cudaDevAttrMax{{endif}}
 {{endif}}
@@ -3555,6 +3573,11 @@ class cudaMemAllocationHandleType(IntEnum):
 
     #: Allows a Win32 KMT handle to be used for exporting. (D3DKMT_HANDLE)
     cudaMemHandleTypeWin32Kmt = ccudart.cudaMemAllocationHandleType.cudaMemHandleTypeWin32Kmt{{endif}}
+    {{if 'cudaMemHandleTypeFabric' in found_values}}
+
+    #: Allows a fabric handle to be used for exporting.
+    #: (cudaMemFabricHandle_t)
+    cudaMemHandleTypeFabric = ccudart.cudaMemAllocationHandleType.cudaMemHandleTypeFabric{{endif}}
 {{endif}}
 {{if 'cudaGraphMemAttributeType' in found_types}}
 
@@ -4030,7 +4053,7 @@ class cudaGraphInstantiateFlags(IntEnum):
 
 class cudaDeviceNumaConfig(IntEnum):
     """
-
+    CUDA device NUMA config
     """
     {{if 'cudaDeviceNumaConfigNone' in found_values}}
 
@@ -4322,6 +4345,18 @@ class cudaStreamAttrID(IntEnum):
     #: updatable nodes, the graph must be uploaded before it is launched
     #: again.
     cudaLaunchAttributeDeviceUpdatableKernelNode = ccudart.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode{{endif}}
+    {{if 'cudaLaunchAttributePreferredSharedMemoryCarveout' in found_values}}
+
+    #: Valid for launches. On devices where the L1 cache and shared memory
+    #: use the same hardware resources, setting
+    #: :py:obj:`~.cudaLaunchAttributeValue.sharedMemCarveout` to a
+    #: percentage between 0-100 signals sets the shared memory carveout
+    #: preference in percent of the total shared memory for that kernel
+    #: launch. This attribute takes precedence over
+    #: :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is
+    #: only a hint, and the driver can choose a different configuration if
+    #: required for the launch.
+    cudaLaunchAttributePreferredSharedMemoryCarveout = ccudart.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout{{endif}}
 {{endif}}
 {{if 'cudaLaunchAttributeID' in found_types}}
 
@@ -4464,6 +4499,18 @@ class cudaKernelNodeAttrID(IntEnum):
     #: updatable nodes, the graph must be uploaded before it is launched
     #: again.
     cudaLaunchAttributeDeviceUpdatableKernelNode = ccudart.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode{{endif}}
+    {{if 'cudaLaunchAttributePreferredSharedMemoryCarveout' in found_values}}
+
+    #: Valid for launches. On devices where the L1 cache and shared memory
+    #: use the same hardware resources, setting
+    #: :py:obj:`~.cudaLaunchAttributeValue.sharedMemCarveout` to a
+    #: percentage between 0-100 signals sets the shared memory carveout
+    #: preference in percent of the total shared memory for that kernel
+    #: launch. This attribute takes precedence over
+    #: :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is
+    #: only a hint, and the driver can choose a different configuration if
+    #: required for the launch.
+    cudaLaunchAttributePreferredSharedMemoryCarveout = ccudart.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout{{endif}}
 {{endif}}
 {{if 'cudaArray_t' in found_types}}
 
@@ -12434,7 +12481,10 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
     deviceUpdatableKernelNode : anon_struct23
         Value of launch attribute
-        ::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        cudaLaunchAttributeDeviceUpdatableKernelNode.
+    sharedMemCarveout : unsigned int
+        Value of launch attribute
+        cudaLaunchAttributePreferredSharedMemoryCarveout.
 
     Methods
     -------
@@ -12513,6 +12563,10 @@ cdef class cudaLaunchAttributeValue:
                 str_list += ['deviceUpdatableKernelNode :\n' + '\n'.join(['    ' + line for line in str(self.deviceUpdatableKernelNode).splitlines()])]
             except ValueError:
                 str_list += ['deviceUpdatableKernelNode : <ValueError>']
+            try:
+                str_list += ['sharedMemCarveout : ' + str(self.sharedMemCarveout)]
+            except ValueError:
+                str_list += ['sharedMemCarveout : <ValueError>']
             return '\n'.join(str_list)
         else:
             return ''
@@ -12605,6 +12659,12 @@ cdef class cudaLaunchAttributeValue:
     @deviceUpdatableKernelNode.setter
     def deviceUpdatableKernelNode(self, deviceUpdatableKernelNode not None : anon_struct23):
         string.memcpy(&self._ptr[0].deviceUpdatableKernelNode, <ccudart.anon_struct23*><void_ptr>deviceUpdatableKernelNode.getPtr(), sizeof(self._ptr[0].deviceUpdatableKernelNode))
+    @property
+    def sharedMemCarveout(self):
+        return self._ptr[0].sharedMemCarveout
+    @sharedMemCarveout.setter
+    def sharedMemCarveout(self, unsigned int sharedMemCarveout):
+        self._ptr[0].sharedMemCarveout = sharedMemCarveout
 {{endif}}
 {{if 'struct cudaLaunchAttribute_st' in found_types}}
 
@@ -13581,14 +13641,17 @@ def cudaDeviceReset():
     current device in the current process. It is the caller's
     responsibility to ensure that the resources are not accessed or passed
     in subsequent API calls and doing so will result in undefined behavior.
-    These resources include CUDA types such as :py:obj:`~.cudaStream_t`,
+    These resources include CUDA types :py:obj:`~.cudaStream_t`,
     :py:obj:`~.cudaEvent_t`, :py:obj:`~.cudaArray_t`,
-    :py:obj:`~.cudaMipmappedArray_t`, :py:obj:`~.cudaTextureObject_t`,
-    :py:obj:`~.cudaSurfaceObject_t`, :py:obj:`~.textureReference`,
-    :py:obj:`~.surfaceReference`, :py:obj:`~.cudaExternalMemory_t`,
-    :py:obj:`~.cudaExternalSemaphore_t` and
-    :py:obj:`~.cudaGraphicsResource_t`. Any subsequent API call to this
-    device will reinitialize the device.
+    :py:obj:`~.cudaMipmappedArray_t`, :py:obj:`~.cudaPitchedPtr`,
+    :py:obj:`~.cudaTextureObject_t`, :py:obj:`~.cudaSurfaceObject_t`,
+    :py:obj:`~.textureReference`, :py:obj:`~.surfaceReference`,
+    :py:obj:`~.cudaExternalMemory_t`, :py:obj:`~.cudaExternalSemaphore_t`
+    and :py:obj:`~.cudaGraphicsResource_t`. These resources also include
+    memory allocations by :py:obj:`~.cudaMalloc`,
+    :py:obj:`~.cudaMallocHost`, :py:obj:`~.cudaMallocManaged` and
+    :py:obj:`~.cudaMallocPitch`. Any subsequent API call to this device
+    will reinitialize the device.
 
     Note that this function will reset the device immediately. It is the
     caller's responsibility to ensure that the device is not being accessed
@@ -13603,6 +13666,12 @@ def cudaDeviceReset():
     See Also
     --------
     :py:obj:`~.cudaDeviceSynchronize`
+
+    Notes
+    -----
+    :py:obj:`~.cudaDeviceReset()` will not destroy memory allocations by :py:obj:`~.cudaMallocAsync()` and :py:obj:`~.cudaMallocFromPoolAsync()`. These memory allocations need to be destroyed explicitly.
+
+    If a non-primary :py:obj:`~.CUcontext` is current to the thread, :py:obj:`~.cudaDeviceReset()` will destroy only the internal CUDA RT state for that :py:obj:`~.CUcontext`.
     """
     err = ccudart.cudaDeviceReset()
     return (cudaError_t(err),)
@@ -14070,9 +14139,10 @@ def cudaIpcGetEventHandle(event):
 
     IPC functionality is restricted to devices with support for unified
     addressing on Linux and Windows operating systems. IPC functionality on
-    Windows is restricted to GPUs in TCC mode. Users can test their device
-    for IPC functionality by calling :py:obj:`~.cudaDeviceGetAttribute`
-    with :py:obj:`~.cudaDevAttrIpcEventSupport`
+    Windows is supported for compatibility purposes but not recommended as
+    it comes with performance cost. Users can test their device for IPC
+    functionality by calling :py:obj:`~.cudaDeviceGetAttribute` with
+    :py:obj:`~.cudaDevAttrIpcEventSupport`
 
     Parameters
     ----------
@@ -14124,9 +14194,10 @@ def cudaIpcOpenEventHandle(handle not None : cudaIpcEventHandle_t):
 
     IPC functionality is restricted to devices with support for unified
     addressing on Linux and Windows operating systems. IPC functionality on
-    Windows is restricted to GPUs in TCC mode. Users can test their device
-    for IPC functionality by calling :py:obj:`~.cudaDeviceGetAttribute`
-    with :py:obj:`~.cudaDevAttrIpcEventSupport`
+    Windows is supported for compatibility purposes but not recommended as
+    it comes with performance cost. Users can test their device for IPC
+    functionality by calling :py:obj:`~.cudaDeviceGetAttribute` with
+    :py:obj:`~.cudaDevAttrIpcEventSupport`
 
     Parameters
     ----------
@@ -14167,9 +14238,10 @@ def cudaIpcGetMemHandle(devPtr):
 
     IPC functionality is restricted to devices with support for unified
     addressing on Linux and Windows operating systems. IPC functionality on
-    Windows is restricted to GPUs in TCC mode. Users can test their device
-    for IPC functionality by calling :py:obj:`~.cudaDeviceGetAttribute`
-    with :py:obj:`~.cudaDevAttrIpcEventSupport`
+    Windows is supported for compatibility purposes but not recommended as
+    it comes with performance cost. Users can test their device for IPC
+    functionality by calling :py:obj:`~.cudaDeviceGetAttribute` with
+    :py:obj:`~.cudaDevAttrIpcEventSupport`
 
     Parameters
     ----------
@@ -14231,9 +14303,10 @@ def cudaIpcOpenMemHandle(handle not None : cudaIpcMemHandle_t, unsigned int flag
 
     IPC functionality is restricted to devices with support for unified
     addressing on Linux and Windows operating systems. IPC functionality on
-    Windows is restricted to GPUs in TCC mode. Users can test their device
-    for IPC functionality by calling :py:obj:`~.cudaDeviceGetAttribute`
-    with :py:obj:`~.cudaDevAttrIpcEventSupport`
+    Windows is supported for compatibility purposes but not recommended as
+    it comes with performance cost. Users can test their device for IPC
+    functionality by calling :py:obj:`~.cudaDeviceGetAttribute` with
+    :py:obj:`~.cudaDevAttrIpcEventSupport`
 
     Parameters
     ----------
@@ -14281,9 +14354,10 @@ def cudaIpcCloseMemHandle(devPtr):
 
     IPC functionality is restricted to devices with support for unified
     addressing on Linux and Windows operating systems. IPC functionality on
-    Windows is restricted to GPUs in TCC mode. Users can test their device
-    for IPC functionality by calling :py:obj:`~.cudaDeviceGetAttribute`
-    with :py:obj:`~.cudaDevAttrIpcEventSupport`
+    Windows is supported for compatibility purposes but not recommended as
+    it comes with performance cost. Users can test their device for IPC
+    functionality by calling :py:obj:`~.cudaDeviceGetAttribute` with
+    :py:obj:`~.cudaDevAttrIpcEventSupport`
 
     Parameters
     ----------
@@ -15356,6 +15430,11 @@ def cudaDeviceGetAttribute(attr not None : cudaDeviceAttr, int device):
 
     - :py:obj:`~.cudaDevAttrIpcEventSupport`: 1 if the device supports IPC
       Events.
+
+    - :py:obj:`~.cudaDevAttrNumaConfig`: NUMA configuration of a device:
+      value is of type :py:obj:`~.cudaDeviceNumaConfig` enum
+
+    - :py:obj:`~.cudaDevAttrNumaId`: NUMA node ID of the GPU memory
 
     Parameters
     ----------
@@ -18697,6 +18776,35 @@ def cudaFuncSetAttribute(func, attr not None : cudaFuncAttribute, int value):
       :py:obj:`~.cudaDevAttrMaxSharedMemoryPerMultiprocessor`. This is only
       a hint, and the driver can choose a different ratio if required to
       execute the function.
+
+    - :py:obj:`~.cudaFuncAttributeRequiredClusterWidth`: The required
+      cluster width in blocks. The width, height, and depth values must
+      either all be 0 or all be positive. The validity of the cluster
+      dimensions is checked at launch time. If the value is set during
+      compile time, it cannot be set at runtime. Setting it at runtime will
+      return cudaErrorNotPermitted.
+
+    - :py:obj:`~.cudaFuncAttributeRequiredClusterHeight`: The required
+      cluster height in blocks. The width, height, and depth values must
+      either all be 0 or all be positive. The validity of the cluster
+      dimensions is checked at launch time. If the value is set during
+      compile time, it cannot be set at runtime. Setting it at runtime will
+      return cudaErrorNotPermitted.
+
+    - :py:obj:`~.cudaFuncAttributeRequiredClusterDepth`: The required
+      cluster depth in blocks. The width, height, and depth values must
+      either all be 0 or all be positive. The validity of the cluster
+      dimensions is checked at launch time. If the value is set during
+      compile time, it cannot be set at runtime. Setting it at runtime will
+      return cudaErrorNotPermitted.
+
+    - :py:obj:`~.cudaFuncAttributeNonPortableClusterSizeAllowed`: Indicates
+      whether the function can be launched with non-portable cluster size.
+      1 is allowed, 0 is disallowed.
+
+    - :py:obj:`~.cudaFuncAttributeClusterSchedulingPolicyPreference`: The
+      block scheduling policy of a function. The value type is
+      cudaClusterSchedulingPolicy.
 
     cudaLaunchKernel (C++ API), cudaFuncSetCacheConfig (C++ API),
     :py:obj:`~.cudaFuncGetAttributes (C API)`,
@@ -23379,6 +23487,21 @@ def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
     :py:obj:`~.cudaMemPoolProps.maxSize`. If set to 0, the maximum size of
     the pool will default to a system dependent value.
 
+    Applications can set :py:obj:`~.cudaMemPoolProps.handleTypes` to
+    :py:obj:`~.cudaMemHandleTypeFabric` in order to create
+    :py:obj:`~.cudaMemPool_t` suitable for sharing within an IMEX domain.
+    An IMEX domain is either an OS instance or a group of securely
+    connected OS instances using the NVIDIA IMEX daemon. An IMEX channel is
+    a global resource within the IMEX domain that represents a logical
+    entity that aims to provide fine grained accessibility control for the
+    participating processes. When exporter and importer CUDA processes have
+    been granted access to the same IMEX channel, they can securely share
+    memory. If the allocating process does not have access setup for an
+    IMEX channel, attempting to export a :py:obj:`~.CUmemoryPool` with
+    :py:obj:`~.cudaMemHandleTypeFabric` will result in
+    :py:obj:`~.cudaErrorNotPermitted`. The nvidia-modprobe CLI provides
+    more information regarding setting up of IMEX channels.
+
     Parameters
     ----------
     poolProps : :py:obj:`~.cudaMemPoolProps`
@@ -24335,7 +24458,8 @@ def cudaCreateTextureObject(pResDesc : Optional[cudaResourceDesc], pTexDesc : Op
     specifies an alternate format for the data described by `pResDesc`, and
     also describes the subresource region to restrict access to when
     texturing. `pResViewDesc` can only be specified if the type of resource
-    is a CUDA array or a CUDA mipmapped array.
+    is a CUDA array or a CUDA mipmapped array not in a block compressed
+    format.
 
     Texture objects are only supported on devices of compute capability 3.0
     or higher. Additionally, a texture object is an opaque value, and, as
@@ -30261,6 +30385,10 @@ def cudaGetDriverEntryPoint(char* symbol, unsigned long long flags):
     cuda.h.
 
     The API will return :py:obj:`~.cudaSuccess` and set the returned
+    `funcPtr` if the requested driver function is valid and supported on
+    the platform.
+
+    The API will return :py:obj:`~.cudaSuccess` and set the returned
     `funcPtr` to NULL if the requested driver function is not supported on
     the platform, no ABI compatible driver function exists for the CUDA
     runtime version or if the driver symbol is invalid.
@@ -30327,6 +30455,109 @@ def cudaGetDriverEntryPoint(char* symbol, unsigned long long flags):
     cdef void_ptr funcPtr = 0
     cdef ccudart.cudaDriverEntryPointQueryResult driverStatus
     err = ccudart.cudaGetDriverEntryPoint(symbol, <void**>&funcPtr, flags, &driverStatus)
+    return (cudaError_t(err), funcPtr, cudaDriverEntryPointQueryResult(driverStatus))
+{{endif}}
+
+{{if 'cudaGetDriverEntryPointByVersion' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGetDriverEntryPointByVersion(char* symbol, unsigned int cudaVersion, unsigned long long flags):
+    """ Returns the requested driver API function pointer by CUDA version.
+
+    Returns in `**funcPtr` the address of the CUDA driver function for the
+    requested flags and CUDA driver version.
+
+    The CUDA version is specified as (1000 * major + 10 * minor), so CUDA
+    11.2 should be specified as 11020. For a requested driver symbol, if
+    the specified CUDA version is greater than or equal to the CUDA version
+    in which the driver symbol was introduced, this API will return the
+    function pointer to the corresponding versioned function.
+
+    The pointer returned by the API should be cast to a function pointer
+    matching the requested driver function's definition in the API header
+    file. The function pointer typedef can be picked up from the
+    corresponding typedefs header file. For example, cudaTypedefs.h
+    consists of function pointer typedefs for driver APIs defined in
+    cuda.h.
+
+    For the case where the CUDA version requested is greater than the CUDA
+    Toolkit installed, there may not be an appropriate function pointer
+    typedef in the corresponding header file and may need a custom typedef
+    to match the driver function signature returned. This can be done by
+    getting the typedefs from a later toolkit or creating appropriately
+    matching custom function typedefs.
+
+    The API will return :py:obj:`~.cudaSuccess` and set the returned
+    `funcPtr` if the requested driver function is valid and supported on
+    the platform.
+
+    The API will return :py:obj:`~.cudaSuccess` and set the returned
+    `funcPtr` to NULL if the requested driver function is not supported on
+    the platform, no ABI compatible driver function exists for the
+    requested version or if the driver symbol is invalid.
+
+    It will also set the optional `driverStatus` to one of the values in
+    :py:obj:`~.cudaDriverEntryPointQueryResult` with the following
+    meanings:
+
+    - :py:obj:`~.cudaDriverEntryPointSuccess` - The requested symbol was
+      succesfully found based on input arguments and `pfn` is valid
+
+    - :py:obj:`~.cudaDriverEntryPointSymbolNotFound` - The requested symbol
+      was not found
+
+    - :py:obj:`~.cudaDriverEntryPointVersionNotSufficent` - The requested
+      symbol was found but is not supported by the specified version
+      `cudaVersion`
+
+    The requested flags can be:
+
+    - :py:obj:`~.cudaEnableDefault`: This is the default mode. This is
+      equivalent to :py:obj:`~.cudaEnablePerThreadDefaultStream` if the
+      code is compiled with --default-stream per-thread compilation flag or
+      the macro CUDA_API_PER_THREAD_DEFAULT_STREAM is defined;
+      :py:obj:`~.cudaEnableLegacyStream` otherwise.
+
+    - :py:obj:`~.cudaEnableLegacyStream`: This will enable the search for
+      all driver symbols that match the requested driver symbol name except
+      the corresponding per-thread versions.
+
+    - :py:obj:`~.cudaEnablePerThreadDefaultStream`: This will enable the
+      search for all driver symbols that match the requested driver symbol
+      name including the per-thread versions. If a per-thread version is
+      not found, the API will return the legacy version of the driver
+      function.
+
+    Parameters
+    ----------
+    symbol : bytes
+        The base name of the driver API function to look for. As an
+        example, for the driver API :py:obj:`~.cuMemAlloc_v2`, `symbol`
+        would be cuMemAlloc.
+    cudaVersion : unsigned int
+        The CUDA version to look for the requested driver symbol
+    flags : unsigned long long
+        Flags to specify search options.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotSupported`
+    funcPtr : Any
+        Location to return the function pointer to the requested driver
+        function
+    driverStatus : :py:obj:`~.cudaDriverEntryPointQueryResult`
+        Optional location to store the status of finding the symbol from
+        the driver. See :py:obj:`~.cudaDriverEntryPointQueryResult` for
+        possible values.
+
+    See Also
+    --------
+    :py:obj:`~.cuGetProcAddress`
+    """
+    cdef void_ptr funcPtr = 0
+    cdef ccudart.cudaDriverEntryPointQueryResult driverStatus
+    err = ccudart.cudaGetDriverEntryPointByVersion(symbol, <void**>&funcPtr, cudaVersion, flags, &driverStatus)
     return (cudaError_t(err), funcPtr, cudaDriverEntryPointQueryResult(driverStatus))
 {{endif}}
 

@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/module/cudart.html" />
 
     <!-- Generated with Sphinx 5.0.2 and Furo 2023.03.27 -->
-        <title>cudart - CUDA Python 12.4.0 documentation</title>
+        <title>cudart - CUDA Python 12.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">CUDA Python 12.4.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">CUDA Python 12.5.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 12.4.0 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.5.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.5.0-notes.html">    12.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.4.0-notes.html">    12.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.3.0-notes.html">    12.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.2.1-notes.html">    12.2.1</a></li>
@@ -292,14 +293,17 @@ profiling to be done only on selective pieces of code.</p>
 current device in the current process. It is the caller’s
 responsibility to ensure that the resources are not accessed or passed
 in subsequent API calls and doing so will result in undefined behavior.
-These resources include CUDA types such as <a class="reference internal" href="#cuda.cudart.cudaStream_t" title="cuda.cudart.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>,
+These resources include CUDA types <a class="reference internal" href="#cuda.cudart.cudaStream_t" title="cuda.cudart.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>,
 <a class="reference internal" href="#cuda.cudart.cudaEvent_t" title="cuda.cudart.cudaEvent_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEvent_t</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaArray_t" title="cuda.cudart.cudaArray_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArray_t</span></code></a>,
-<a class="reference internal" href="#cuda.cudart.cudaMipmappedArray_t" title="cuda.cudart.cudaMipmappedArray_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMipmappedArray_t</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaTextureObject_t" title="cuda.cudart.cudaTextureObject_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code></a>,
-<a class="reference internal" href="#cuda.cudart.cudaSurfaceObject_t" title="cuda.cudart.cudaSurfaceObject_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSurfaceObject_t</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">textureReference</span></code>,
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">surfaceReference</span></code>, <a class="reference internal" href="#cuda.cudart.cudaExternalMemory_t" title="cuda.cudart.cudaExternalMemory_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemory_t</span></code></a>,
-<a class="reference internal" href="#cuda.cudart.cudaExternalSemaphore_t" title="cuda.cudart.cudaExternalSemaphore_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphore_t</span></code></a> and
-<a class="reference internal" href="#cuda.cudart.cudaGraphicsResource_t" title="cuda.cudart.cudaGraphicsResource_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphicsResource_t</span></code></a>. Any subsequent API call to this
-device will reinitialize the device.</p>
+<a class="reference internal" href="#cuda.cudart.cudaMipmappedArray_t" title="cuda.cudart.cudaMipmappedArray_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMipmappedArray_t</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaPitchedPtr" title="cuda.cudart.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a>,
+<a class="reference internal" href="#cuda.cudart.cudaTextureObject_t" title="cuda.cudart.cudaTextureObject_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaSurfaceObject_t" title="cuda.cudart.cudaSurfaceObject_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSurfaceObject_t</span></code></a>,
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">textureReference</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">surfaceReference</span></code>,
+<a class="reference internal" href="#cuda.cudart.cudaExternalMemory_t" title="cuda.cudart.cudaExternalMemory_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalMemory_t</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaExternalSemaphore_t" title="cuda.cudart.cudaExternalSemaphore_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphore_t</span></code></a>
+and <a class="reference internal" href="#cuda.cudart.cudaGraphicsResource_t" title="cuda.cudart.cudaGraphicsResource_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphicsResource_t</span></code></a>. These resources also include
+memory allocations by <a class="reference internal" href="#cuda.cudart.cudaMalloc" title="cuda.cudart.cudaMalloc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMalloc</span></code></a>,
+<a class="reference internal" href="#cuda.cudart.cudaMallocHost" title="cuda.cudart.cudaMallocHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocHost</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaMallocManaged" title="cuda.cudart.cudaMallocManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></a> and
+<a class="reference internal" href="#cuda.cudart.cudaMallocPitch" title="cuda.cudart.cudaMallocPitch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocPitch</span></code></a>. Any subsequent API call to this device
+will reinitialize the device.</p>
 <p>Note that this function will reset the device immediately. It is the
 caller’s responsibility to ensure that the device is not being accessed
 by any other host threads from the process when this function is
@@ -316,6 +320,9 @@ called.</p>
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="#cuda.cudart.cudaDeviceSynchronize" title="cuda.cudart.cudaDeviceSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code></a></p>
 </div>
+<p class="rubric">Notes</p>
+<p><a class="reference internal" href="#cuda.cudart.cudaDeviceReset" title="cuda.cudart.cudaDeviceReset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceReset()</span></code></a> will not destroy memory allocations by <a class="reference internal" href="#cuda.cudart.cudaMallocAsync" title="cuda.cudart.cudaMallocAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocAsync()</span></code></a> and <a class="reference internal" href="#cuda.cudart.cudaMallocFromPoolAsync" title="cuda.cudart.cudaMallocFromPoolAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync()</span></code></a>. These memory allocations need to be destroyed explicitly.</p>
+<p>If a non-primary <a class="reference internal" href="cuda.html#cuda.cuda.CUcontext" title="cuda.cuda.CUcontext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUcontext</span></code></a> is current to the thread, <a class="reference internal" href="#cuda.cudart.cudaDeviceReset" title="cuda.cudart.cudaDeviceReset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceReset()</span></code></a> will destroy only the internal CUDA RT state for that <a class="reference internal" href="cuda.html#cuda.cuda.CUcontext" title="cuda.cuda.CUcontext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUcontext</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -705,9 +712,10 @@ after the exported event has been freed with
 <a class="reference internal" href="#cuda.cudart.cudaEventDestroy" title="cuda.cudart.cudaEventDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEventDestroy</span></code></a> will result in undefined behavior.</p>
 <p>IPC functionality is restricted to devices with support for unified
 addressing on Linux and Windows operating systems. IPC functionality on
-Windows is restricted to GPUs in TCC mode. Users can test their device
-for IPC functionality by calling <a class="reference internal" href="#cuda.cudart.cudaDeviceGetAttribute" title="cuda.cudart.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a>
-with <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a></p>
+Windows is supported for compatibility purposes but not recommended as
+it comes with performance cost. Users can test their device for IPC
+functionality by calling <a class="reference internal" href="#cuda.cudart.cudaDeviceGetAttribute" title="cuda.cudart.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a> with
+<a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>event</strong> (<a class="reference internal" href="cuda.html#cuda.cuda.CUevent" title="cuda.cuda.CUevent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUevent</span></code></a> or <a class="reference internal" href="#cuda.cudart.cudaEvent_t" title="cuda.cudart.cudaEvent_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEvent_t</span></code></a>) – Event allocated with <a class="reference internal" href="#cuda.cudart.cudaEventInterprocess" title="cuda.cudart.cudaEventInterprocess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEventInterprocess</span></code></a> and
@@ -742,9 +750,10 @@ has been freed with <a class="reference internal" href="#cuda.cudart.cudaEventDe
 undefined behavior.</p>
 <p>IPC functionality is restricted to devices with support for unified
 addressing on Linux and Windows operating systems. IPC functionality on
-Windows is restricted to GPUs in TCC mode. Users can test their device
-for IPC functionality by calling <a class="reference internal" href="#cuda.cudart.cudaDeviceGetAttribute" title="cuda.cudart.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a>
-with <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a></p>
+Windows is supported for compatibility purposes but not recommended as
+it comes with performance cost. Users can test their device for IPC
+functionality by calling <a class="reference internal" href="#cuda.cudart.cudaDeviceGetAttribute" title="cuda.cudart.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a> with
+<a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>handle</strong> (<a class="reference internal" href="#cuda.cudart.cudaIpcEventHandle_t" title="cuda.cudart.cudaIpcEventHandle_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaIpcEventHandle_t</span></code></a>) – Interprocess handle to open</p>
@@ -777,9 +786,10 @@ device address, <a class="reference internal" href="#cuda.cudart.cudaIpcGetMemHa
 handle for the new memory.</p>
 <p>IPC functionality is restricted to devices with support for unified
 addressing on Linux and Windows operating systems. IPC functionality on
-Windows is restricted to GPUs in TCC mode. Users can test their device
-for IPC functionality by calling <a class="reference internal" href="#cuda.cudart.cudaDeviceGetAttribute" title="cuda.cudart.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a>
-with <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a></p>
+Windows is supported for compatibility purposes but not recommended as
+it comes with performance cost. Users can test their device for IPC
+functionality by calling <a class="reference internal" href="#cuda.cudart.cudaDeviceGetAttribute" title="cuda.cudart.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a> with
+<a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>devPtr</strong> (<em>Any</em>) – Base pointer to previously allocated device memory</p>
@@ -827,9 +837,10 @@ calling <a class="reference internal" href="#cuda.cudart.cudaIpcCloseMemHandle" 
 result in undefined behavior.</p>
 <p>IPC functionality is restricted to devices with support for unified
 addressing on Linux and Windows operating systems. IPC functionality on
-Windows is restricted to GPUs in TCC mode. Users can test their device
-for IPC functionality by calling <a class="reference internal" href="#cuda.cudart.cudaDeviceGetAttribute" title="cuda.cudart.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a>
-with <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a></p>
+Windows is supported for compatibility purposes but not recommended as
+it comes with performance cost. Users can test their device for IPC
+functionality by calling <a class="reference internal" href="#cuda.cudart.cudaDeviceGetAttribute" title="cuda.cudart.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a> with
+<a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -870,9 +881,10 @@ unaffected.</p>
 last mapping using them.</p>
 <p>IPC functionality is restricted to devices with support for unified
 addressing on Linux and Windows operating systems. IPC functionality on
-Windows is restricted to GPUs in TCC mode. Users can test their device
-for IPC functionality by calling <a class="reference internal" href="#cuda.cudart.cudaDeviceGetAttribute" title="cuda.cudart.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a>
-with <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a></p>
+Windows is supported for compatibility purposes but not recommended as
+it comes with performance cost. Users can test their device for IPC
+functionality by calling <a class="reference internal" href="#cuda.cudart.cudaDeviceGetAttribute" title="cuda.cudart.cudaDeviceGetAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code></a> with
+<a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>devPtr</strong> (<em>Any</em>) – Device pointer returned by <a class="reference internal" href="#cuda.cudart.cudaIpcOpenMemHandle" title="cuda.cudart.cudaIpcOpenMemHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaIpcOpenMemHandle</span></code></a></p>
@@ -1483,6 +1495,9 @@ device supports deferred mapping CUDA arrays and CUDA mipmapped
 arrays.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrIpcEventSupport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrIpcEventSupport</span></code></a>: 1 if the device supports IPC
 Events.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrNumaConfig" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrNumaConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrNumaConfig</span></code></a>: NUMA configuration of a device:
+value is of type <a class="reference internal" href="#cuda.cudart.cudaDeviceNumaConfig" title="cuda.cudart.cudaDeviceNumaConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceNumaConfig</span></code></a> enum</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrNumaId" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrNumaId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrNumaId</span></code></a>: NUMA node ID of the GPU memory</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3994,6 +4009,30 @@ percent of the total shared memory. See
 <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerMultiprocessor" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerMultiprocessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrMaxSharedMemoryPerMultiprocessor</span></code></a>. This is only
 a hint, and the driver can choose a different ratio if required to
 execute the function.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterWidth" title="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterWidth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttributeRequiredClusterWidth</span></code></a>: The required
+cluster width in blocks. The width, height, and depth values must
+either all be 0 or all be positive. The validity of the cluster
+dimensions is checked at launch time. If the value is set during
+compile time, it cannot be set at runtime. Setting it at runtime will
+return cudaErrorNotPermitted.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterHeight" title="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterHeight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttributeRequiredClusterHeight</span></code></a>: The required
+cluster height in blocks. The width, height, and depth values must
+either all be 0 or all be positive. The validity of the cluster
+dimensions is checked at launch time. If the value is set during
+compile time, it cannot be set at runtime. Setting it at runtime will
+return cudaErrorNotPermitted.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterDepth" title="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeRequiredClusterDepth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttributeRequiredClusterDepth</span></code></a>: The required
+cluster depth in blocks. The width, height, and depth values must
+either all be 0 or all be positive. The validity of the cluster
+dimensions is checked at launch time. If the value is set during
+compile time, it cannot be set at runtime. Setting it at runtime will
+return cudaErrorNotPermitted.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeNonPortableClusterSizeAllowed" title="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeNonPortableClusterSizeAllowed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttributeNonPortableClusterSizeAllowed</span></code></a>: Indicates
+whether the function can be launched with non-portable cluster size.
+1 is allowed, 0 is disallowed.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributeClusterSchedulingPolicyPreference" title="cuda.cudart.cudaFuncAttribute.cudaFuncAttributeClusterSchedulingPolicyPreference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttributeClusterSchedulingPolicyPreference</span></code></a>: The
+block scheduling policy of a function. The value type is
+cudaClusterSchedulingPolicy.</p></li>
 </ul>
 <p>cudaLaunchKernel (C++ API), cudaFuncSetCacheConfig (C++ API),
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncGetAttributes</span> <span class="pre">(C</span> <span class="pre">API)</span></code>,</p>
@@ -7288,6 +7327,20 @@ accessibility will be from the host CPU. Applications can control the
 maximum size of the pool by specifying a non-zero value for
 <a class="reference internal" href="#cuda.cudart.cudaMemPoolProps.maxSize" title="cuda.cudart.cudaMemPoolProps.maxSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxSize</span></code></a>. If set to 0, the maximum size of
 the pool will default to a system dependent value.</p>
+<p>Applications can set <a class="reference internal" href="#cuda.cudart.cudaMemPoolProps.handleTypes" title="cuda.cudart.cudaMemPoolProps.handleTypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handleTypes</span></code></a> to
+<a class="reference internal" href="#cuda.cudart.cudaMemAllocationHandleType.cudaMemHandleTypeFabric" title="cuda.cudart.cudaMemAllocationHandleType.cudaMemHandleTypeFabric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemHandleTypeFabric</span></code></a> in order to create
+<a class="reference internal" href="#cuda.cudart.cudaMemPool_t" title="cuda.cudart.cudaMemPool_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPool_t</span></code></a> suitable for sharing within an IMEX domain.
+An IMEX domain is either an OS instance or a group of securely
+connected OS instances using the NVIDIA IMEX daemon. An IMEX channel is
+a global resource within the IMEX domain that represents a logical
+entity that aims to provide fine grained accessibility control for the
+participating processes. When exporter and importer CUDA processes have
+been granted access to the same IMEX channel, they can securely share
+memory. If the allocating process does not have access setup for an
+IMEX channel, attempting to export a <a class="reference internal" href="cuda.html#cuda.cuda.CUmemoryPool" title="cuda.cuda.CUmemoryPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmemoryPool</span></code></a> with
+<a class="reference internal" href="#cuda.cudart.cudaMemAllocationHandleType.cudaMemHandleTypeFabric" title="cuda.cudart.cudaMemAllocationHandleType.cudaMemHandleTypeFabric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemHandleTypeFabric</span></code></a> will result in
+<a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorNotPermitted" title="cuda.cudart.cudaError_t.cudaErrorNotPermitted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotPermitted</span></code></a>. The nvidia-modprobe CLI provides
+more information regarding setting up of IMEX channels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>poolProps</strong> (<a class="reference internal" href="#cuda.cudart.cudaMemPoolProps" title="cuda.cudart.cudaMemPoolProps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPoolProps</span></code></a>) – None</p>
@@ -8695,7 +8748,8 @@ should be sampled. <cite>pResViewDesc</cite> is an optional argument that
 specifies an alternate format for the data described by <cite>pResDesc</cite>, and
 also describes the subresource region to restrict access to when
 texturing. <cite>pResViewDesc</cite> can only be specified if the type of resource
-is a CUDA array or a CUDA mipmapped array.</p>
+is a CUDA array or a CUDA mipmapped array not in a block compressed
+format.</p>
 <p>Texture objects are only supported on devices of compute capability 3.0
 or higher. Additionally, a texture object is an opaque value, and, as
 such, should only be accessed through CUDA API calls.</p>
@@ -12336,6 +12390,9 @@ corresponding typedefs header file. For example, cudaTypedefs.h
 consists of function pointer typedefs for driver APIs defined in
 cuda.h.</p>
 <p>The API will return <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> and set the returned
+<cite>funcPtr</cite> if the requested driver function is valid and supported on
+the platform.</p>
+<p>The API will return <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> and set the returned
 <cite>funcPtr</cite> to NULL if the requested driver function is not supported on
 the platform, no ABI compatible driver function exists for the CUDA
 runtime version or if the driver symbol is invalid.</p>
@@ -12375,6 +12432,92 @@ example, for the driver API <code class="xref py py-obj docutils literal notrans
 would be cuMemAlloc. Note that the API will use the CUDA runtime
 version to return the address to the most recent ABI compatible
 driver symbol, <a class="reference internal" href="cuda.html#cuda.cuda.cuMemAlloc" title="cuda.cuda.cuMemAlloc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAlloc</span></code></a> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAlloc_v2</span></code>.</p></li>
+<li><p><strong>flags</strong> (<em>unsigned long long</em>) – Flags to specify search options.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorNotSupported" title="cuda.cudart.cudaError_t.cudaErrorNotSupported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorNotSupported</span></code></a></p></li>
+<li><p><strong>funcPtr</strong> (<em>Any</em>) – Location to return the function pointer to the requested driver
+function</p></li>
+<li><p><strong>driverStatus</strong> (<a class="reference internal" href="#cuda.cudart.cudaDriverEntryPointQueryResult" title="cuda.cudart.cudaDriverEntryPointQueryResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDriverEntryPointQueryResult</span></code></a>) – Optional location to store the status of finding the symbol from
+the driver. See <a class="reference internal" href="#cuda.cudart.cudaDriverEntryPointQueryResult" title="cuda.cudart.cudaDriverEntryPointQueryResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDriverEntryPointQueryResult</span></code></a> for
+possible values.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="cuda.html#cuda.cuda.cuGetProcAddress" title="cuda.cuda.cuGetProcAddress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.cudart.cudaGetDriverEntryPointByVersion">
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGetDriverEntryPointByVersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">cudaVersion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGetDriverEntryPointByVersion" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the requested driver API function pointer by CUDA version.</p>
+<p>Returns in <cite>**funcPtr</cite> the address of the CUDA driver function for the
+requested flags and CUDA driver version.</p>
+<p>The CUDA version is specified as (1000 * major + 10 * minor), so CUDA
+11.2 should be specified as 11020. For a requested driver symbol, if
+the specified CUDA version is greater than or equal to the CUDA version
+in which the driver symbol was introduced, this API will return the
+function pointer to the corresponding versioned function.</p>
+<p>The pointer returned by the API should be cast to a function pointer
+matching the requested driver function’s definition in the API header
+file. The function pointer typedef can be picked up from the
+corresponding typedefs header file. For example, cudaTypedefs.h
+consists of function pointer typedefs for driver APIs defined in
+cuda.h.</p>
+<p>For the case where the CUDA version requested is greater than the CUDA
+Toolkit installed, there may not be an appropriate function pointer
+typedef in the corresponding header file and may need a custom typedef
+to match the driver function signature returned. This can be done by
+getting the typedefs from a later toolkit or creating appropriately
+matching custom function typedefs.</p>
+<p>The API will return <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> and set the returned
+<cite>funcPtr</cite> if the requested driver function is valid and supported on
+the platform.</p>
+<p>The API will return <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a> and set the returned
+<cite>funcPtr</cite> to NULL if the requested driver function is not supported on
+the platform, no ABI compatible driver function exists for the
+requested version or if the driver symbol is invalid.</p>
+<p>It will also set the optional <cite>driverStatus</cite> to one of the values in
+<a class="reference internal" href="#cuda.cudart.cudaDriverEntryPointQueryResult" title="cuda.cudart.cudaDriverEntryPointQueryResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDriverEntryPointQueryResult</span></code></a> with the following
+meanings:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#cuda.cudart.cudaDriverEntryPointQueryResult.cudaDriverEntryPointSuccess" title="cuda.cudart.cudaDriverEntryPointQueryResult.cudaDriverEntryPointSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDriverEntryPointSuccess</span></code></a> - The requested symbol was
+succesfully found based on input arguments and <cite>pfn</cite> is valid</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaDriverEntryPointQueryResult.cudaDriverEntryPointSymbolNotFound" title="cuda.cudart.cudaDriverEntryPointQueryResult.cudaDriverEntryPointSymbolNotFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDriverEntryPointSymbolNotFound</span></code></a> - The requested symbol
+was not found</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaDriverEntryPointQueryResult.cudaDriverEntryPointVersionNotSufficent" title="cuda.cudart.cudaDriverEntryPointQueryResult.cudaDriverEntryPointVersionNotSufficent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDriverEntryPointVersionNotSufficent</span></code></a> - The requested
+symbol was found but is not supported by the specified version
+<cite>cudaVersion</cite></p></li>
+</ul>
+<p>The requested flags can be:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#cuda.cudart.cudaGetDriverEntryPointFlags.cudaEnableDefault" title="cuda.cudart.cudaGetDriverEntryPointFlags.cudaEnableDefault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEnableDefault</span></code></a>: This is the default mode. This is
+equivalent to <a class="reference internal" href="#cuda.cudart.cudaGetDriverEntryPointFlags.cudaEnablePerThreadDefaultStream" title="cuda.cudart.cudaGetDriverEntryPointFlags.cudaEnablePerThreadDefaultStream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEnablePerThreadDefaultStream</span></code></a> if the
+code is compiled with –default-stream per-thread compilation flag or
+the macro CUDA_API_PER_THREAD_DEFAULT_STREAM is defined;
+<a class="reference internal" href="#cuda.cudart.cudaGetDriverEntryPointFlags.cudaEnableLegacyStream" title="cuda.cudart.cudaGetDriverEntryPointFlags.cudaEnableLegacyStream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEnableLegacyStream</span></code></a> otherwise.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaGetDriverEntryPointFlags.cudaEnableLegacyStream" title="cuda.cudart.cudaGetDriverEntryPointFlags.cudaEnableLegacyStream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEnableLegacyStream</span></code></a>: This will enable the search for
+all driver symbols that match the requested driver symbol name except
+the corresponding per-thread versions.</p></li>
+<li><p><a class="reference internal" href="#cuda.cudart.cudaGetDriverEntryPointFlags.cudaEnablePerThreadDefaultStream" title="cuda.cudart.cudaGetDriverEntryPointFlags.cudaEnablePerThreadDefaultStream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEnablePerThreadDefaultStream</span></code></a>: This will enable the
+search for all driver symbols that match the requested driver symbol
+name including the per-thread versions. If a per-thread version is
+not found, the API will return the legacy version of the driver
+function.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symbol</strong> (<em>bytes</em>) – The base name of the driver API function to look for. As an
+example, for the driver API <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAlloc_v2</span></code>, <cite>symbol</cite>
+would be cuMemAlloc.</p></li>
+<li><p><strong>cudaVersion</strong> (<em>unsigned int</em>) – The CUDA version to look for the requested driver symbol</p></li>
 <li><p><strong>flags</strong> (<em>unsigned long long</em>) – Flags to specify search options.</p></li>
 </ul>
 </dd>
@@ -16868,10 +17011,22 @@ cudaLaunchMemSyncDomain.</p>
 <dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.deviceUpdatableKernelNode">
 <span class="sig-name descname"><span class="pre">deviceUpdatableKernelNode</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.deviceUpdatableKernelNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Value of launch attribute
-::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.</p>
+cudaLaunchAttributeDeviceUpdatableKernelNode.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>anon_struct23</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.sharedMemCarveout">
+<span class="sig-name descname"><span class="pre">sharedMemCarveout</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.sharedMemCarveout" title="Permalink to this definition">#</a></dt>
+<dd><p>Value of launch attribute
+cudaLaunchAttributePreferredSharedMemoryCarveout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>unsigned int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -20486,7 +20641,7 @@ cudaFuncSetAttribute</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceAttr.cudaDevAttrNumaConfig">
 <span class="sig-name descname"><span class="pre">cudaDevAttrNumaConfig</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">130</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrNumaConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>NUMA configuration of a device: value is of type cudaDeviceNumaConfig enum</p>
+<dd><p>NUMA configuration of a device: value is of type <a class="reference internal" href="#cuda.cudart.cudaDeviceNumaConfig" title="cuda.cudart.cudaDeviceNumaConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceNumaConfig</span></code></a> enum</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -20513,8 +20668,14 @@ cudaFuncSetAttribute</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaDeviceAttr.cudaDevAttrD3D12CigSupported">
+<span class="sig-name descname"><span class="pre">cudaDevAttrD3D12CigSupported</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">135</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrD3D12CigSupported" title="Permalink to this definition">#</a></dt>
+<dd><p>Device supports CIG with D3D12.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceAttr.cudaDevAttrMax">
-<span class="sig-name descname"><span class="pre">cudaDevAttrMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">135</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrMax" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cudaDevAttrMax</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">136</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrMax" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -20680,6 +20841,12 @@ cudaFuncSetAttribute</p>
 <dt class="sig sig-object py" id="cuda.cudart.cudaMemAllocationHandleType.cudaMemHandleTypeWin32Kmt">
 <span class="sig-name descname"><span class="pre">cudaMemHandleTypeWin32Kmt</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#cuda.cudart.cudaMemAllocationHandleType.cudaMemHandleTypeWin32Kmt" title="Permalink to this definition">#</a></dt>
 <dd><p>Allows a Win32 KMT handle to be used for exporting. (D3DKMT_HANDLE)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaMemAllocationHandleType.cudaMemHandleTypeFabric">
+<span class="sig-name descname"><span class="pre">cudaMemHandleTypeFabric</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#cuda.cudart.cudaMemAllocationHandleType.cudaMemHandleTypeFabric" title="Permalink to this definition">#</a></dt>
+<dd><p>Allows a fabric handle to be used for exporting. (cudaMemFabricHandle_t)</p>
 </dd></dl>
 
 </dd></dl>
@@ -21459,12 +21626,19 @@ are on the same GPU.</p>
 </div></blockquote>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout">
+<span class="sig-name descname"><span class="pre">cudaLaunchAttributePreferredSharedMemoryCarveout</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14</span></em><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeID.cudaLaunchAttributePreferredSharedMemoryCarveout" title="Permalink to this definition">#</a></dt>
+<dd><p>Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting <a class="reference internal" href="#id40" title="cuda.cudart.cudaLaunchAttributeValue.sharedMemCarveout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sharedMemCarveout</span></code></a> to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over <a class="reference internal" href="#cuda.cudart.cudaFuncAttribute.cudaFuncAttributePreferredSharedMemoryCarveout" title="cuda.cudart.cudaFuncAttribute.cudaFuncAttributePreferredSharedMemoryCarveout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttributePreferredSharedMemoryCarveout</span></code></a>. This is only a hint, and the driver can choose a different configuration if required for the launch.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceNumaConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceNumaConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaDeviceNumaConfig" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py attribute">
+<dd><p>CUDA device NUMA config</p>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaDeviceNumaConfig.cudaDeviceNumaConfigNone">
 <span class="sig-name descname"><span class="pre">cudaDeviceNumaConfigNone</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.cudart.cudaDeviceNumaConfig.cudaDeviceNumaConfigNone" title="Permalink to this definition">#</a></dt>
 <dd><p>The GPU is not a NUMA node</p>
@@ -22481,7 +22655,7 @@ cudaLaunchMemSyncDomain.</p>
 <dt class="sig sig-object py" id="id39">
 <span class="sig-name descname"><span class="pre">deviceUpdatableKernelNode</span></span><a class="headerlink" href="#id39" title="Permalink to this definition">#</a></dt>
 <dd><p>Value of launch attribute
-::CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.</p>
+cudaLaunchAttributeDeviceUpdatableKernelNode.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>anon_struct23</p>
@@ -22489,9 +22663,21 @@ cudaLaunchMemSyncDomain.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="py attribute">
 <dt class="sig sig-object py" id="id40">
-<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id40" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">sharedMemCarveout</span></span><a class="headerlink" href="#id40" title="Permalink to this definition">#</a></dt>
+<dd><p>Value of launch attribute
+cudaLaunchAttributePreferredSharedMemoryCarveout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>unsigned int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id41">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id41" title="Permalink to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
 </dd></dl>
 
@@ -23059,6 +23245,11 @@ cudaLaunchMemSyncDomain.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttributeMemSyncDomain">
 <span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttributeMemSyncDomain</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttributeMemSyncDomain" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaKernelNodeAttributePreferredSharedMemoryCarveout">
+<span class="sig-prename descclassname"><span class="pre">cudart.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttributePreferredSharedMemoryCarveout</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14</span></em><a class="headerlink" href="#cuda.cudart.cudaKernelNodeAttributePreferredSharedMemoryCarveout" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">

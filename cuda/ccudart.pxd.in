@@ -766,6 +766,7 @@ cdef extern from "driver_types.h":
         cudaLaunchAttributeMemSyncDomain = 10
         cudaLaunchAttributeLaunchCompletionEvent = 12
         cudaLaunchAttributeDeviceUpdatableKernelNode = 13
+        cudaLaunchAttributePreferredSharedMemoryCarveout = 14
 
     cdef struct anon_struct20:
         unsigned int x
@@ -799,6 +800,7 @@ cdef extern from "driver_types.h":
         cudaLaunchMemSyncDomain memSyncDomain
         anon_struct22 launchCompletionEvent
         anon_struct23 deviceUpdatableKernelNode
+        unsigned int sharedMemCarveout
 
     cdef struct cudaLaunchAttribute_st:
         cudaLaunchAttributeID id
@@ -1179,7 +1181,8 @@ cdef extern from "driver_types.h":
         cudaDevAttrReserved132 = 132
         cudaDevAttrMpsEnabled = 133
         cudaDevAttrHostNumaId = 134
-        cudaDevAttrMax = 135
+        cudaDevAttrD3D12CigSupported = 135
+        cudaDevAttrMax = 136
 
     cdef enum cudaMemPoolAttr:
         cudaMemPoolReuseFollowEventDependencies = 1
@@ -1213,6 +1216,7 @@ cdef extern from "driver_types.h":
         cudaMemHandleTypePosixFileDescriptor = 1
         cudaMemHandleTypeWin32 = 2
         cudaMemHandleTypeWin32Kmt = 4
+        cudaMemHandleTypeFabric = 8
 
     cdef enum cudaGraphMemAttributeType:
         cudaGraphMemAttrUsedMemCurrent = 0
@@ -2979,6 +2983,11 @@ cdef cudaError_t cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle* pH
 cdef cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaGetDriverEntryPointByVersion' in found_functions}}
+
+cdef cudaError_t cudaGetDriverEntryPointByVersion(const char* symbol, void** funcPtr, unsigned int cudaVersion, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaGetExportTable' in found_functions}}
 
 cdef cudaError_t cudaGetExportTable(const void** ppExportTable, const cudaUUID_t* pExportTableId) except ?cudaErrorCallRequiresNewerDriver nogil
@@ -3260,6 +3269,8 @@ cdef enum: cudaKernelNodeAttributeMemSyncDomainMap = 9
 
 cdef enum: cudaKernelNodeAttributeMemSyncDomain = 10
 
+cdef enum: cudaKernelNodeAttributePreferredSharedMemoryCarveout = 14
+
 cdef enum: cudaKernelNodeAttributeDeviceUpdatableKernelNode = 13
 
 cdef enum: cudaSurfaceType1D = 1
@@ -3290,8 +3301,8 @@ cdef enum: cudaTextureType2DLayered = 242
 
 cdef enum: cudaTextureTypeCubemapLayered = 252
 
-cdef enum: CUDART_VERSION = 12040
+cdef enum: CUDART_VERSION = 12050
 
-cdef enum: __CUDART_API_VERSION = 12040
+cdef enum: __CUDART_API_VERSION = 12050
 
 cdef enum: CUDA_EGL_MAX_PLANES = 3

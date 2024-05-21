@@ -191,3 +191,43 @@ def test_interop_graphExec():
     assert(err_rt == cudart.cudaError_t.cudaSuccess)
     err_dr, = cuda.cuCtxDestroy(ctx)
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
+
+def test_interop_deviceptr():
+    # Init CUDA
+    err, = cuda.cuInit(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    # Get device
+    err, device = cuda.cuDeviceGet(0)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    # Construct context
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert(err == cuda.CUresult.CUDA_SUCCESS)
+
+    # Allocate dev memory
+    size = 1024 * np.uint8().itemsize
+    err_dr, dptr = cuda.cuMemAlloc(size)
+    assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
+
+    # Allocate host memory
+    h1 = np.full(size, 1).astype(np.uint8)
+    h2 = np.full(size, 2).astype(np.uint8)
+    assert(np.array_equal(h1, h2) is False)
+
+    # Initialize device memory
+    err_rt, = cudart.cudaMemset(dptr, 1, size)
+    assert(err_rt == cudart.cudaError_t.cudaSuccess)
+
+    # D to h2
+    err_rt, = cudart.cudaMemcpy(h2, dptr, size, cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost)
+    assert(err_rt == cudart.cudaError_t.cudaSuccess)
+
+    # Validate h1 == h2
+    assert(np.array_equal(h1, h2))
+
+    # Cleanup
+    err_dr, = cuda.cuMemFree(dptr)
+    assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
+    err_dr, = cuda.cuCtxDestroy(ctx)
+    assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
