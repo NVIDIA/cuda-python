@@ -54,20 +54,29 @@ import numpy as np
 ```
 
 Error checking is a fundamental best practice in code development and a code
-example is provided. For brevity, error checking within the example is omitted.
+example is provided.
 In a future release, this may automatically raise exceptions using a Python
 object model.
 
 ```{code-cell} python
-def ASSERT_DRV(err):
-    if isinstance(err, cuda.CUresult):
-        if err != cuda.CUresult.CUDA_SUCCESS:
-            raise RuntimeError("Cuda Error: {}".format(err))
-    elif isinstance(err, nvrtc.nvrtcResult):
-        if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
-            raise RuntimeError("Nvrtc Error: {}".format(err))
+def _cudaGetErrorEnum(error):
+    if isinstance(error, cuda.CUresult):
+        err, name = cuda.cuGetErrorName(error)
+        return name if err == cuda.CUresult.CUDA_SUCCESS else "<unknown>"
+    elif isinstance(error, nvrtc.nvrtcResult):
+        return nvrtc.nvrtcGetErrorString(error)[1]
     else:
-        raise RuntimeError("Unknown error type: {}".format(err))
+        raise RuntimeError('Unknown error type: {}'.format(error))
+
+def checkCudaErrors(result):
+    if result[0].value:
+        raise RuntimeError("CUDA error code={}({})".format(result[0].value, _cudaGetErrorEnum(result[0])))
+    if len(result) == 1:
+        return None
+    elif len(result) == 2:
+        return result[1]
+    else:
+        return result[1:]
 ```
 
 It’s common practice to write CUDA kernels near the top of a translation unit,
@@ -95,40 +104,43 @@ Go ahead and compile the kernel into PTX. Remember that this is executed at runt
 - Compile the program.
 - Extract PTX from the compiled program.
 
-In the following code example, compilation is targeting compute capability 75,
-or Turing architecture, with FMAD enabled. If compilation fails, use
-`nvrtcGetProgramLog` to retrieve a compile log for additional information.
+In the following code example, the Driver API is initialized so that the NVIDIA driver
+and GPU are accessible. Next, the GPU is queried for their compute capability. Finally,
+the program is compiled to target our local compute capability architecture with FMAD enabled.
 
 ```{code-cell} python
+# Initialize CUDA Driver API
+checkCudaErrors(cuda.cuInit(0))
+
+# Retrieve handle for device 0
+cuDevice = checkCudaErrors(cuda.cuDeviceGet(0))
+
+# Derive target architecture for device 0
+major = checkCudaErrors(cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice))
+minor = checkCudaErrors(cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice))
+arch_arg = bytes(f'--gpu-architecture=compute_{major}{minor}', 'ascii')
+
 # Create program
-err, prog = nvrtc.nvrtcCreateProgram(str.encode(saxpy), b"saxpy.cu", 0, [], [])
+prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(saxpy), b"saxpy.cu", 0, [], []))
 
 # Compile program
-opts = [b"--fmad=false", b"--gpu-architecture=compute_75"]
-err, = nvrtc.nvrtcCompileProgram(prog, 2, opts)
+opts = [b"--fmad=false", arch_arg]
+checkCudaErrors(nvrtc.nvrtcCompileProgram(prog, 2, opts))
 
 # Get PTX from compilation
-err, ptxSize = nvrtc.nvrtcGetPTXSize(prog)
+ptxSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
 ptx = b" " * ptxSize
-err, = nvrtc.nvrtcGetPTX(prog, ptx)
+checkCudaErrors(nvrtc.nvrtcGetPTX(prog, ptx))
 ```
 
 Before you can use the PTX or do any work on the GPU, you must create a CUDA
 context. CUDA contexts are analogous to host processes for the device. In the
-following code example, the Driver API is initialized so that the NVIDIA driver
-and GPU are accessible. Next, a handle for compute device 0 is passed to
-`cuCtxCreate` to designate that GPU for context creation. With the context
-created, you can proceed in compiling the CUDA kernel using NVRTC.
+following code example, a handle for compute device 0 is passed to
+`cuCtxCreate` to designate that GPU for context creation.
 
 ```{code-cell} python
-# Initialize CUDA Driver API
-err, = cuda.cuInit(0)
-
-# Retrieve handle for device 0
-err, cuDevice = cuda.cuDeviceGet(0)
-
 # Create context
-err, context = cuda.cuCtxCreate(0, cuDevice)
+context = checkCudaErrors(cuda.cuCtxCreate(0, cuDevice))
 ```
 
 With a CUDA context created on device 0, load the PTX generated earlier into a
@@ -140,10 +152,8 @@ After loading into the module, extract a specific kernel with
 # Load PTX as module data and retrieve function
 ptx = np.char.array(ptx)
 # Note: Incompatible --gpu-architecture would be detected here
-err, module = cuda.cuModuleLoadData(ptx.ctypes.data)
-ASSERT_DRV(err)
-err, kernel = cuda.cuModuleGetFunction(module, b"saxpy")
-ASSERT_DRV(err)
+module = checkCudaErrors(cuda.cuModuleLoadData(ptx.ctypes.data))
+kernel = checkCudaErrors(cuda.cuModuleGetFunction(module, b"saxpy"))
 ```
 
 Next, get all your data prepared and transferred to the GPU. For increased
@@ -175,18 +185,18 @@ Python doesn’t have a natural concept of pointers, yet `cuMemcpyHtoDAsync` exp
 XX.
 
 ```{code-cell} python
-err, dXclass = cuda.cuMemAlloc(bufferSize)
-err, dYclass = cuda.cuMemAlloc(bufferSize)
-err, dOutclass = cuda.cuMemAlloc(bufferSize)
+dXclass = checkCudaErrors(cuda.cuMemAlloc(bufferSize))
+dYclass = checkCudaErrors(cuda.cuMemAlloc(bufferSize))
+dOutclass = checkCudaErrors(cuda.cuMemAlloc(bufferSize))
 
-err, stream = cuda.cuStreamCreate(0)
+stream = checkCudaErrors(cuda.cuStreamCreate(0))
 
-err, = cuda.cuMemcpyHtoDAsync(
+checkCudaErrors(cuda.cuMemcpyHtoDAsync(
    dXclass, hX.ctypes.data, bufferSize, stream
-)
-err, = cuda.cuMemcpyHtoDAsync(
+))
+checkCudaErrors(cuda.cuMemcpyHtoDAsync(
    dYclass, hY.ctypes.data, bufferSize, stream
-)
+))
 ```
 
 With data prep and resources allocation finished, the kernel is ready to be
@@ -213,7 +223,7 @@ args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 Now the kernel can be launched:
 
 ```{code-cell} python
-err, = cuda.cuLaunchKernel(
+checkCudaErrors(cuda.cuLaunchKernel(
    kernel,
    NUM_BLOCKS,  # grid x dim
    1,  # grid y dim
@@ -225,12 +235,12 @@ err, = cuda.cuLaunchKernel(
    stream,  # stream
    args.ctypes.data,  # kernel arguments
    0,  # extra (ignore)
-)
+))
 
-err, = cuda.cuMemcpyDtoHAsync(
+checkCudaErrors(cuda.cuMemcpyDtoHAsync(
    hOut.ctypes.data, dOutclass, bufferSize, stream
-)
-err, = cuda.cuStreamSynchronize(stream)
+))
+checkCudaErrors(cuda.cuStreamSynchronize(stream))
 ```
 
 The `cuLaunchKernel` function takes the compiled module kernel and execution
@@ -252,12 +262,12 @@ Perform verification of the data to ensure correctness and finish the code with
 memory clean up.
 
 ```{code-cell} python
-err, = cuda.cuStreamDestroy(stream)
-err, = cuda.cuMemFree(dXclass)
-err, = cuda.cuMemFree(dYclass)
-err, = cuda.cuMemFree(dOutclass)
-err, = cuda.cuModuleUnload(module)
-err, = cuda.cuCtxDestroy(context)
+checkCudaErrors(cuda.cuStreamDestroy(stream))
+checkCudaErrors(cuda.cuMemFree(dXclass))
+checkCudaErrors(cuda.cuMemFree(dYclass))
+checkCudaErrors(cuda.cuMemFree(dOutclass))
+checkCudaErrors(cuda.cuModuleUnload(module))
+checkCudaErrors(cuda.cuCtxDestroy(context))
 ```
 
 ## Performance
