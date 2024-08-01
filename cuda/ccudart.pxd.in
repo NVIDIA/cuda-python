@@ -145,6 +145,9 @@ cdef extern from "driver_types.h":
         cudaErrorGraphExecUpdateFailure = 910
         cudaErrorExternalDevice = 911
         cudaErrorInvalidClusterSize = 912
+        cudaErrorFunctionNotLoaded = 913
+        cudaErrorInvalidResourceType = 914
+        cudaErrorInvalidResourceConfiguration = 915
         cudaErrorUnknown = 999
         cudaErrorApiFailureBase = 10000
 
@@ -342,7 +345,8 @@ cdef extern from "driver_types.h":
         cudaMemLocation location
         void* win32SecurityAttributes
         size_t maxSize
-        unsigned char reserved[56]
+        unsigned short usage
+        unsigned char reserved[54]
 
     cdef struct cudaMemPoolPtrExportData:
         unsigned char reserved[64]
@@ -3301,8 +3305,8 @@ cdef enum: cudaTextureType2DLayered = 242
 
 cdef enum: cudaTextureTypeCubemapLayered = 252
 
-cdef enum: CUDART_VERSION = 12050
+cdef enum: CUDART_VERSION = 12060
 
-cdef enum: __CUDART_API_VERSION = 12050
+cdef enum: __CUDART_API_VERSION = 12060
 
 cdef enum: CUDA_EGL_MAX_PLANES = 3

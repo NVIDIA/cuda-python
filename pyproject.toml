@@ -28,6 +28,9 @@ classifiers = [
     "Environment :: GPU :: NVIDIA CUDA",
 ]
 dynamic = ["version"]
+dependencies = [
+  "pywin32; sys_platform == 'win32'",
+]
 
 [project.urls]
 Repository = "https://github.com/NVIDIA/cuda-python"

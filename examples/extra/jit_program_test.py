@@ -44,7 +44,7 @@ def main():
     ASSERT_DRV(err)
 
     # Create program
-    err, prog = nvrtc.nvrtcCreateProgram(str.encode(saxpy), b'saxpy.cu', 0, [], [])
+    err, prog = nvrtc.nvrtcCreateProgram(str.encode(saxpy), b'saxpy.cu', 0, None, None)
     ASSERT_DRV(err)
 
     # Get target architecture

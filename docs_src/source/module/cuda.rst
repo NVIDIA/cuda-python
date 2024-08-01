@@ -6570,6 +6570,9 @@ This section describes the coredump attribute control functions of the low-level
     .. autoattribute:: cuda.cuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_ABORT
 
 
+    .. autoattribute:: cuda.cuda.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_CONSTBANK_MEMORY
+
+
     .. autoattribute:: cuda.cuda.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
 .. autofunction:: cuda.cuda.cuCoredumpGetAttribute

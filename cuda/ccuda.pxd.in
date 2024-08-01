@@ -1995,7 +1995,8 @@ cdef extern from "cuda.h":
         CUmemLocation location
         void* win32SecurityAttributes
         size_t maxSize
-        unsigned char reserved[56]
+        unsigned short usage
+        unsigned char reserved[54]
 
     ctypedef CUmemPoolProps_st CUmemPoolProps_v1
 
@@ -2176,8 +2177,9 @@ cdef extern from "cuda.h":
         CU_COREDUMP_SKIP_GLOBAL_MEMORY = 2
         CU_COREDUMP_SKIP_SHARED_MEMORY = 4
         CU_COREDUMP_SKIP_LOCAL_MEMORY = 8
-        CU_COREDUMP_LIGHTWEIGHT_FLAGS = 15
         CU_COREDUMP_SKIP_ABORT = 16
+        CU_COREDUMP_SKIP_CONSTBANK_MEMORY = 32
+        CU_COREDUMP_LIGHTWEIGHT_FLAGS = 47
 
     cdef struct CUdevResourceDesc_st:
         pass
@@ -4696,7 +4698,7 @@ cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResou
 cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
-cdef enum: CUDA_VERSION = 12050
+cdef enum: CUDA_VERSION = 12060
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 

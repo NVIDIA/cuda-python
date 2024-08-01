@@ -1457,10 +1457,18 @@ cdef class CUlaunchAttributeValue_union:
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct2
-        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+        with the following fields: - `CUevent` event - Event to fire when
+        all blocks trigger it.    - `Event` record flags, see
+        cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
+        - `triggerAtBlockStart` - If this is set to non-0, each block
+        launch will automatically trigger the event.
     launchCompletionEvent : anon_struct3
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
+        fields: - `CUevent` event - Event to fire when the last block
+        launches    - `int` flags; - Event record flags, see
+        cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     priority : int
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
         priority of the kernel.
@@ -1472,7 +1480,11 @@ cdef class CUlaunchAttributeValue_union:
         See::CUlaunchMemSyncDomain
     deviceUpdatableKernelNode : anon_struct4
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
+        following fields: - `int` deviceUpdatable - Whether or not the
+        resulting kernel node should be device-updatable.    -
+        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        various device-side update functions.
     sharedMemCarveout : unsigned int
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
@@ -3255,6 +3267,8 @@ cdef class CUmemPoolProps_st:
     maxSize : size_t
         Maximum pool size. When set to 0, defaults to a system dependent
         value.
+    usage : unsigned short
+        Bitmask indicating intended usage for the pool.
     reserved : bytes
         reserved for future use, must be 0
 
@@ -4582,10 +4596,18 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct2
-        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+        with the following fields: - `CUevent` event - Event to fire when
+        all blocks trigger it.    - `Event` record flags, see
+        cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
+        - `triggerAtBlockStart` - If this is set to non-0, each block
+        launch will automatically trigger the event.
     launchCompletionEvent : anon_struct3
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
+        fields: - `CUevent` event - Event to fire when the last block
+        launches    - `int` flags; - Event record flags, see
+        cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     priority : int
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
         priority of the kernel.
@@ -4597,7 +4619,11 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
         See::CUlaunchMemSyncDomain
     deviceUpdatableKernelNode : anon_struct4
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
+        following fields: - `int` deviceUpdatable - Whether or not the
+        resulting kernel node should be device-updatable.    -
+        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        various device-side update functions.
     sharedMemCarveout : unsigned int
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
@@ -4703,10 +4729,18 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct2
-        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+        with the following fields: - `CUevent` event - Event to fire when
+        all blocks trigger it.    - `Event` record flags, see
+        cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
+        - `triggerAtBlockStart` - If this is set to non-0, each block
+        launch will automatically trigger the event.
     launchCompletionEvent : anon_struct3
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
+        fields: - `CUevent` event - Event to fire when the last block
+        launches    - `int` flags; - Event record flags, see
+        cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     priority : int
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
         priority of the kernel.
@@ -4718,7 +4752,11 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
         See::CUlaunchMemSyncDomain
     deviceUpdatableKernelNode : anon_struct4
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
+        following fields: - `int` deviceUpdatable - Whether or not the
+        resulting kernel node should be device-updatable.    -
+        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        various device-side update functions.
     sharedMemCarveout : unsigned int
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
@@ -4766,10 +4804,18 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct2
-        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+        with the following fields: - `CUevent` event - Event to fire when
+        all blocks trigger it.    - `Event` record flags, see
+        cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
+        - `triggerAtBlockStart` - If this is set to non-0, each block
+        launch will automatically trigger the event.
     launchCompletionEvent : anon_struct3
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
+        fields: - `CUevent` event - Event to fire when the last block
+        launches    - `int` flags; - Event record flags, see
+        cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     priority : int
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
         priority of the kernel.
@@ -4781,7 +4827,11 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
         See::CUlaunchMemSyncDomain
     deviceUpdatableKernelNode : anon_struct4
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
+        following fields: - `int` deviceUpdatable - Whether or not the
+        resulting kernel node should be device-updatable.    -
+        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        various device-side update functions.
     sharedMemCarveout : unsigned int
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
@@ -4829,10 +4879,18 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct2
-        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+        with the following fields: - `CUevent` event - Event to fire when
+        all blocks trigger it.    - `Event` record flags, see
+        cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
+        - `triggerAtBlockStart` - If this is set to non-0, each block
+        launch will automatically trigger the event.
     launchCompletionEvent : anon_struct3
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
+        fields: - `CUevent` event - Event to fire when the last block
+        launches    - `int` flags; - Event record flags, see
+        cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     priority : int
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
         priority of the kernel.
@@ -4844,7 +4902,11 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
         See::CUlaunchMemSyncDomain
     deviceUpdatableKernelNode : anon_struct4
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
+        following fields: - `int` deviceUpdatable - Whether or not the
+        resulting kernel node should be device-updatable.    -
+        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        various device-side update functions.
     sharedMemCarveout : unsigned int
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
@@ -4892,10 +4954,18 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION.
     programmaticEvent : anon_struct2
-        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT.
+        Value of launch attribute CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+        with the following fields: - `CUevent` event - Event to fire when
+        all blocks trigger it.    - `Event` record flags, see
+        cuEventRecordWithFlags. Does not accept :CU_EVENT_RECORD_EXTERNAL.
+        - `triggerAtBlockStart` - If this is set to non-0, each block
+        launch will automatically trigger the event.
     launchCompletionEvent : anon_struct3
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT.
+        CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT with the following
+        fields: - `CUevent` event - Event to fire when the last block
+        launches    - `int` flags; - Event record flags, see
+        cuEventRecordWithFlags. Does not accept CU_EVENT_RECORD_EXTERNAL.
     priority : int
         Value of launch attribute CU_LAUNCH_ATTRIBUTE_PRIORITY. Execution
         priority of the kernel.
@@ -4907,7 +4977,11 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
         See::CUlaunchMemSyncDomain
     deviceUpdatableKernelNode : anon_struct4
         Value of launch attribute
-        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE.
+        CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE. with the
+        following fields: - `int` deviceUpdatable - Whether or not the
+        resulting kernel node should be device-updatable.    -
+        `CUgraphDeviceNode` devNode - Returns a handle to pass to the
+        various device-side update functions.
     sharedMemCarveout : unsigned int
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
@@ -6843,6 +6917,8 @@ cdef class CUmemPoolProps_v1(CUmemPoolProps_st):
     maxSize : size_t
         Maximum pool size. When set to 0, defaults to a system dependent
         value.
+    usage : unsigned short
+        Bitmask indicating intended usage for the pool.
     reserved : bytes
         reserved for future use, must be 0
 
@@ -6878,6 +6954,8 @@ cdef class CUmemPoolProps(CUmemPoolProps_v1):
     maxSize : size_t
         Maximum pool size. When set to 0, defaults to a system dependent
         value.
+    usage : unsigned short
+        Bitmask indicating intended usage for the pool.
     reserved : bytes
         reserved for future use, must be 0
 

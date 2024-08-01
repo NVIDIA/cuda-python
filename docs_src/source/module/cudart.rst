@@ -2251,6 +2251,24 @@ Data types used by CUDA Runtime
         This indicates that a kernel launch error has occurred due to cluster misconfiguration.
 
 
+    .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorFunctionNotLoaded
+
+
+        Indiciates a function handle is not loaded when calling an API that requires a loaded function.
+
+
+    .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorInvalidResourceType
+
+
+        This error indicates one or more resources passed in are not valid resource types for the operation.
+
+
+    .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorInvalidResourceConfiguration
+
+
+        This error indicates one or more resources are insufficient or non-applicable for the operation.
+
+
     .. autoattribute:: cuda.cudart.cudaError_t.cudaErrorUnknown
 
 

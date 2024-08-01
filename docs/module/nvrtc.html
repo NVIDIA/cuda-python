@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/module/nvrtc.html" />
 
     <!-- Generated with Sphinx 5.0.2 and Furo 2023.03.27 -->
-        <title>nvrtc - CUDA Python 12.5.0 documentation</title>
+        <title>nvrtc - CUDA Python 12.6.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">CUDA Python 12.5.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">CUDA Python 12.6.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 12.5.0 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.6.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.0-notes.html">    12.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.5.0-notes.html">    12.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.4.0-notes.html">    12.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.3.0-notes.html">    12.3.0</a></li>
@@ -408,7 +409,7 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.nvrtc.nvrtcCreateProgram">
-<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCreateProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">numHeaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list</span> <span class="pre">headers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list</span> <span class="pre">includeNames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcCreateProgram" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCreateProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">char</span> <span class="pre">*src,</span> <span class="pre">char</span> <span class="pre">*name,</span> <span class="pre">int</span> <span class="pre">numHeaders,</span> <span class="pre">headers:</span> <span class="pre">Optional[Tuple[bytes]</span> <span class="pre">|</span> <span class="pre">List[bytes]],</span> <span class="pre">includeNames:</span> <span class="pre">Optional[Tuple[bytes]</span> <span class="pre">|</span> <span class="pre">List[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcCreateProgram" title="Permalink to this definition">#</a></dt>
 <dd><p>nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter <cite>prog</cite> with it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -475,7 +476,7 @@ here.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.nvrtc.nvrtcCompileProgram">
-<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCompileProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">numOptions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list</span> <span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcCompileProgram" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCompileProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog,</span> <span class="pre">int</span> <span class="pre">numOptions,</span> <span class="pre">options:</span> <span class="pre">Optional[Tuple[bytes]</span> <span class="pre">|</span> <span class="pre">List[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.nvrtc.nvrtcCompileProgram" title="Permalink to this definition">#</a></dt>
 <dd><p>nvrtcCompileProgram compiles the given program.</p>
 <p>It supports compile options listed in <code class="xref py py-obj docutils literal notranslate"><span class="pre">Supported</span> <span class="pre">Compile</span>
 <span class="pre">Options</span></code>.</p>
@@ -1039,6 +1040,12 @@ expression.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--jump-table-density=</span></code>[0-101] (<code class="docutils literal notranslate"><span class="pre">-jtd</span></code>)</p>
 <p>Specify the case density percentage in switch statements, and use it as a minimal threshold to determine whether jump table(brx.idx instruction) will be used to implement a switch statement. Default value is 101. The percentage ranges from 0 to 101 inclusively.</p>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-stack-protector={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-stack-protector</span></code>)</p>
+<p>Enable (disable) the generation of stack canaries in device code.</p>
+<ul class="simple">
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
+</ul>
+</li>
 </ul>
 </div></blockquote>
 <ul>
@@ -1147,6 +1154,9 @@ expression.</p></li>
 <li><p>Kernel launch from device code.</p></li>
 <li><p>Types and macros associated with CUDA Runtime and Driver APIs, provided by cuda/tools/cudart/driver_types.h, typically named with prefix “cuda”, e.g., <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>.</p></li>
 </ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-stack-protector</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-stack-protector</span></code>)</p>
+<p>Enable stack canaries in device code. Stack canaries make it more difficult to exploit certain types of memory safety bugs involving stack-local variables. The compiler uses heuristics to assess the risk of such a bug in each function. Only those functions which are deemed high-risk make use of a stack canary.</p>
 </li>
 </ul>
 </li>

@@ -697,6 +697,28 @@ The valid compiler options are:
 
 
 
+  - ``--device-stack-protector={true|false}``\  (``-device-stack-protector``\ )
+
+
+
+    Enable (disable) the generation of stack canaries in device code.
+
+
+
+
+
+
+
+    - Default: ``false``\  
+
+
+
+
+
+
+
+
+
 
 
 - Preprocessing
@@ -1080,4 +1102,18 @@ The valid compiler options are:
 
 
     - Types and macros associated with CUDA Runtime and Driver APIs, provided by cuda/tools/cudart/driver_types.h, typically named with prefix "cuda", e.g., ``cudaError_t``\ .
+
+
+
+
+
+
+
+
+
+  - ``--device-stack-protector``\  (``-device-stack-protector``\ )
+
+
+
+    Enable stack canaries in device code. Stack canaries make it more difficult to exploit certain types of memory safety bugs involving stack-local variables. The compiler uses heuristics to assess the risk of such a bug in each function. Only those functions which are deemed high-risk make use of a stack canary.
 

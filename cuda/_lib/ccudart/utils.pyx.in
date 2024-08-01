@@ -555,6 +555,51 @@ cdef cudaError_t initDevice(cudaPythonDevice *device, int deviceOrdinal) except 
     if err != ccuda.cudaError_enum.CUDA_SUCCESS:
         return cudaErrorInitializationError
 
+    err = ccuda._cuDeviceGetAttribute(&(device[0].deviceProperties.hostRegisterSupported), ccuda.CU_DEVICE_ATTRIBUTE_HOST_REGISTER_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+    err = ccuda._cuDeviceGetAttribute(&(device[0].deviceProperties.sparseCudaArraySupported), ccuda.CU_DEVICE_ATTRIBUTE_SPARSE_CUDA_ARRAY_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+    err = ccuda._cuDeviceGetAttribute(&(device[0].deviceProperties.hostRegisterReadOnlySupported), ccuda.CU_DEVICE_ATTRIBUTE_READ_ONLY_HOST_REGISTER_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+    err = ccuda._cuDeviceGetAttribute(&(device[0].deviceProperties.timelineSemaphoreInteropSupported), ccuda.CU_DEVICE_ATTRIBUTE_TIMELINE_SEMAPHORE_INTEROP_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+    err = ccuda._cuDeviceGetAttribute(&(device[0].deviceProperties.memoryPoolsSupported), ccuda.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+    err = ccuda._cuDeviceGetAttribute(&(device[0].deviceProperties.gpuDirectRDMASupported), ccuda.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+
+    cdef int gpuDirectRDMAFlushWritesOptions
+    err = ccuda._cuDeviceGetAttribute(&gpuDirectRDMAFlushWritesOptions, ccuda.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_FLUSH_WRITES_OPTIONS, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+    device[0].deviceProperties.gpuDirectRDMAFlushWritesOptions = gpuDirectRDMAFlushWritesOptions
+
+    err = ccuda._cuDeviceGetAttribute(&(device[0].deviceProperties.gpuDirectRDMAWritesOrdering), ccuda.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+
+    cdef int memoryPoolSupportedHandleTypes
+    err = ccuda._cuDeviceGetAttribute(&memoryPoolSupportedHandleTypes, ccuda.CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+    device[0].deviceProperties.memoryPoolSupportedHandleTypes = memoryPoolSupportedHandleTypes;
+
+    err = ccuda._cuDeviceGetAttribute(&(device[0].deviceProperties.deferredMappingCudaArraySupported), ccuda.CU_DEVICE_ATTRIBUTE_DEFERRED_MAPPING_CUDA_ARRAY_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+    err = ccuda._cuDeviceGetAttribute(&(device[0].deviceProperties.ipcEventSupported), ccuda.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+    err = ccuda._cuDeviceGetAttribute(&(device[0].deviceProperties.clusterLaunch), ccuda.CU_DEVICE_ATTRIBUTE_CLUSTER_LAUNCH, <ccuda.CUdevice>(deviceOrdinal))
+    if err != ccuda.cudaError_enum.CUDA_SUCCESS:
+        return cudaErrorInitializationError
+
     cdef int reservedSharedMemPerBlock
     err = ccuda._cuDeviceGetAttribute(&reservedSharedMemPerBlock, ccuda.CU_DEVICE_ATTRIBUTE_RESERVED_SHARED_MEMORY_PER_BLOCK, <ccuda.CUdevice>(deviceOrdinal))
     if err != ccuda.cudaError_enum.CUDA_SUCCESS:

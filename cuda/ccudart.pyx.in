@@ -556,6 +556,15 @@ cdef const char* cudaGetErrorName(cudaError_t error) except ?NULL nogil:
     {{if 'cudaErrorInvalidClusterSize' in found_values}}
     if error == cudaErrorInvalidClusterSize:
         return "cudaErrorInvalidClusterSize"{{endif}}
+    {{if 'cudaErrorFunctionNotLoaded' in found_values}}
+    if error == cudaErrorFunctionNotLoaded:
+        return "cudaErrorFunctionNotLoaded"{{endif}}
+    {{if 'cudaErrorInvalidResourceType' in found_values}}
+    if error == cudaErrorInvalidResourceType:
+        return "cudaErrorInvalidResourceType"{{endif}}
+    {{if 'cudaErrorInvalidResourceConfiguration' in found_values}}
+    if error == cudaErrorInvalidResourceConfiguration:
+        return "cudaErrorInvalidResourceConfiguration"{{endif}}
     {{if 'cudaErrorUnknown' in found_values}}
     if error == cudaErrorUnknown:
         return "cudaErrorUnknown"{{endif}}

@@ -13,7 +13,7 @@ from examples.common.helper_cuda import checkCudaErrors
 
 class KernelHelper:
     def __init__(self, code, devID):
-        prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(code), b'sourceCode.cu', 0, [], []))
+        prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(code), b'sourceCode.cu', 0, None, None))
         CUDA_HOME = os.getenv('CUDA_HOME')
         if CUDA_HOME == None:
             CUDA_HOME = os.getenv('CUDA_PATH')

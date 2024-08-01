@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/module/cudart.html" />
 
     <!-- Generated with Sphinx 5.0.2 and Furo 2023.03.27 -->
-        <title>cudart - CUDA Python 12.5.0 documentation</title>
+        <title>cudart - CUDA Python 12.6.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">CUDA Python 12.5.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">CUDA Python 12.6.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 12.5.0 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.6.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.0-notes.html">    12.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.5.0-notes.html">    12.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.4.0-notes.html">    12.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.3.0-notes.html">    12.3.0</a></li>
@@ -1854,7 +1855,7 @@ previous flags are overwritten. If the current device has not been
 initialized, it is initialized with the provided flags. If no device
 has been made current to the calling thread, a default device is
 selected and initialized with the provided flags.</p>
-<p>The two LSBs of the <cite>flags</cite> parameter can be used to control how the
+<p>The three LSBs of the <cite>flags</cite> parameter can be used to control how the
 CPU thread interacts with the OS scheduler when waiting for results
 from the device.</p>
 <ul class="simple">
@@ -2080,7 +2081,10 @@ not recognized, “unrecognized error code” is returned.</p>
 <dt class="sig sig-object py" id="cuda.cudart.cudaStreamCreate">
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamCreate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamCreate" title="Permalink to this definition">#</a></dt>
 <dd><p>Create an asynchronous stream.</p>
-<p>Creates a new asynchronous stream.</p>
+<p>Creates a new asynchronous stream on the context that is current to the
+calling host thread. If no context is current to the calling host
+thread, then the primary context for a device is selected, made current
+to the calling thread, and initialized before creating a stream on it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
@@ -2092,7 +2096,7 @@ not recognized, “unrecognized error code” is returned.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#cuda.cudart.cudaStreamCreateWithPriority" title="cuda.cudart.cudaStreamCreateWithPriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamCreateWithFlags" title="cuda.cudart.cudaStreamCreateWithFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamGetPriority" title="cuda.cudart.cudaStreamGetPriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamGetPriority</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamGetFlags" title="cuda.cudart.cudaStreamGetFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamGetFlags</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamQuery" title="cuda.cudart.cudaStreamQuery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamSynchronize" title="cuda.cudart.cudaStreamSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamSynchronize</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamWaitEvent" title="cuda.cudart.cudaStreamWaitEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamAddCallback" title="cuda.cudart.cudaStreamAddCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAddCallback</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamDestroy" title="cuda.cudart.cudaStreamDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamDestroy</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuStreamCreate" title="cuda.cuda.cuStreamCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuStreamCreate</span></code></a></p>
+<p><a class="reference internal" href="#cuda.cudart.cudaStreamCreateWithPriority" title="cuda.cudart.cudaStreamCreateWithPriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamCreateWithFlags" title="cuda.cudart.cudaStreamCreateWithFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamGetPriority" title="cuda.cudart.cudaStreamGetPriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamGetPriority</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamGetFlags" title="cuda.cudart.cudaStreamGetFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamGetFlags</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamQuery" title="cuda.cudart.cudaStreamQuery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamSynchronize" title="cuda.cudart.cudaStreamSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamSynchronize</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamWaitEvent" title="cuda.cudart.cudaStreamWaitEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamAddCallback" title="cuda.cudart.cudaStreamAddCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAddCallback</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaSetDevice" title="cuda.cudart.cudaSetDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSetDevice</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamDestroy" title="cuda.cudart.cudaStreamDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamDestroy</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuStreamCreate" title="cuda.cuda.cuStreamCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuStreamCreate</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -2100,8 +2104,12 @@ not recognized, “unrecognized error code” is returned.</p>
 <dt class="sig sig-object py" id="cuda.cudart.cudaStreamCreateWithFlags">
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamCreateWithFlags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamCreateWithFlags" title="Permalink to this definition">#</a></dt>
 <dd><p>Create an asynchronous stream.</p>
-<p>Creates a new asynchronous stream. The <cite>flags</cite> argument determines the
-behaviors of the stream. Valid values for <cite>flags</cite> are</p>
+<p>Creates a new asynchronous stream on the context that is current to the
+calling host thread. If no context is current to the calling host
+thread, then the primary context for a device is selected, made current
+to the calling thread, and initialized before creating a stream on it.
+The <cite>flags</cite> argument determines the behaviors of the stream. Valid
+values for <cite>flags</cite> are</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#cuda.cudart.cudaStreamDefault" title="cuda.cudart.cudaStreamDefault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamDefault</span></code></a>: Default stream creation flag.</p></li>
 <li><p><a class="reference internal" href="#cuda.cudart.cudaStreamNonBlocking" title="cuda.cudart.cudaStreamNonBlocking"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code></a>: Specifies that work running in the
@@ -2123,7 +2131,7 @@ synchronization with stream 0.</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#cuda.cudart.cudaStreamCreate" title="cuda.cudart.cudaStreamCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreate</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamCreateWithPriority" title="cuda.cudart.cudaStreamCreateWithPriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamGetFlags" title="cuda.cudart.cudaStreamGetFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamGetFlags</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamQuery" title="cuda.cudart.cudaStreamQuery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamSynchronize" title="cuda.cudart.cudaStreamSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamSynchronize</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamWaitEvent" title="cuda.cudart.cudaStreamWaitEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamAddCallback" title="cuda.cudart.cudaStreamAddCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAddCallback</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamDestroy" title="cuda.cudart.cudaStreamDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamDestroy</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuStreamCreate" title="cuda.cuda.cuStreamCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuStreamCreate</span></code></a></p>
+<p><a class="reference internal" href="#cuda.cudart.cudaStreamCreate" title="cuda.cudart.cudaStreamCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreate</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamCreateWithPriority" title="cuda.cudart.cudaStreamCreateWithPriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamGetFlags" title="cuda.cudart.cudaStreamGetFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamGetFlags</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamQuery" title="cuda.cudart.cudaStreamQuery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamSynchronize" title="cuda.cudart.cudaStreamSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamSynchronize</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamWaitEvent" title="cuda.cudart.cudaStreamWaitEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamAddCallback" title="cuda.cudart.cudaStreamAddCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAddCallback</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaSetDevice" title="cuda.cudart.cudaSetDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSetDevice</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamDestroy" title="cuda.cudart.cudaStreamDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamDestroy</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuStreamCreate" title="cuda.cuda.cuStreamCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuStreamCreate</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -2132,10 +2140,14 @@ synchronization with stream 0.</p></li>
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamCreateWithPriority</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">priority</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamCreateWithPriority" title="Permalink to this definition">#</a></dt>
 <dd><p>Create an asynchronous stream with the specified priority.</p>
 <p>Creates a stream with the specified priority and returns a handle in
-<cite>pStream</cite>. This affects the scheduling priority of work in the stream.
-Priorities provide a hint to preferentially run work with higher
-priority when possible, but do not preempt already-running work or
-provide any other functional guarantee on execution order.</p>
+<cite>pStream</cite>. The stream is created on the context that is current to the
+calling host thread. If no context is current to the calling host
+thread, then the primary context for a device is selected, made current
+to the calling thread, and initialized before creating a stream on it.
+This affects the scheduling priority of work in the stream. Priorities
+provide a hint to preferentially run work with higher priority when
+possible, but do not preempt already-running work or provide any other
+functional guarantee on execution order.</p>
 <p><cite>priority</cite> follows a convention where lower numbers represent higher
 priorities. ‘0’ represents default priority. The range of meaningful
 numerical priorities can be queried using
@@ -2165,7 +2177,7 @@ passed.</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#cuda.cudart.cudaStreamCreate" title="cuda.cudart.cudaStreamCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreate</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamCreateWithFlags" title="cuda.cudart.cudaStreamCreateWithFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaDeviceGetStreamPriorityRange" title="cuda.cudart.cudaDeviceGetStreamPriorityRange"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamGetPriority" title="cuda.cudart.cudaStreamGetPriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamGetPriority</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamQuery" title="cuda.cudart.cudaStreamQuery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamWaitEvent" title="cuda.cudart.cudaStreamWaitEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamAddCallback" title="cuda.cudart.cudaStreamAddCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAddCallback</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamSynchronize" title="cuda.cudart.cudaStreamSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamSynchronize</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamDestroy" title="cuda.cudart.cudaStreamDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamDestroy</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuStreamCreateWithPriority" title="cuda.cuda.cuStreamCreateWithPriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuStreamCreateWithPriority</span></code></a></p>
+<p><a class="reference internal" href="#cuda.cudart.cudaStreamCreate" title="cuda.cudart.cudaStreamCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreate</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamCreateWithFlags" title="cuda.cudart.cudaStreamCreateWithFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaDeviceGetStreamPriorityRange" title="cuda.cudart.cudaDeviceGetStreamPriorityRange"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamGetPriority" title="cuda.cudart.cudaStreamGetPriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamGetPriority</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamQuery" title="cuda.cudart.cudaStreamQuery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamWaitEvent" title="cuda.cudart.cudaStreamWaitEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamAddCallback" title="cuda.cudart.cudaStreamAddCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAddCallback</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamSynchronize" title="cuda.cudart.cudaStreamSynchronize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamSynchronize</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaSetDevice" title="cuda.cudart.cudaSetDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSetDevice</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaStreamDestroy" title="cuda.cudart.cudaStreamDestroy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamDestroy</span></code></a>, <a class="reference internal" href="cuda.html#cuda.cuda.cuStreamCreateWithPriority" title="cuda.cuda.cuStreamCreateWithPriority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuStreamCreateWithPriority</span></code></a></p>
 </div>
 <p class="rubric">Notes</p>
 <p>Stream priorities are supported only on GPUs with compute capability 3.5 or higher.</p>
@@ -2671,7 +2683,7 @@ calls that are potentially unsafe. For more details see
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaStreamBeginCaptureToGraph">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamBeginCaptureToGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">dependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">list</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">mode:</span> <span class="pre">cudaStreamCaptureMode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamBeginCaptureToGraph" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamBeginCaptureToGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">graph,</span> <span class="pre">dependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[Tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">mode:</span> <span class="pre">cudaStreamCaptureMode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamBeginCaptureToGraph" title="Permalink to this definition">#</a></dt>
 <dd><p>Begins graph capture on a stream to an existing graph.</p>
 <p>Begin graph capture on <cite>stream</cite>. When a stream is in capture mode, all
 operations pushed into the stream will not be executed, but will
@@ -2967,7 +2979,7 @@ dependencies_out.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaStreamUpdateCaptureDependencies">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamUpdateCaptureDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">list</span> <span class="pre">dependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamUpdateCaptureDependencies" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamUpdateCaptureDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">dependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamUpdateCaptureDependencies" title="Permalink to this definition">#</a></dt>
 <dd><p>Update the set of dependencies in a capturing stream (11.3+)</p>
 <p>Modifies the dependency set of a capturing stream. The dependency set
 is the set of nodes that the next captured node in the stream will
@@ -3009,7 +3021,7 @@ provide a fallback.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaStreamUpdateCaptureDependencies_v2">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamUpdateCaptureDependencies_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">list</span> <span class="pre">dependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">list</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamUpdateCaptureDependencies_v2" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaStreamUpdateCaptureDependencies_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">dependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[Tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaStreamUpdateCaptureDependencies_v2" title="Permalink to this definition">#</a></dt>
 <dd><p>Update the set of dependencies in a capturing stream (12.3+)</p>
 <p>Modifies the dependency set of a capturing stream. The dependency set
 is the set of nodes that the next captured node in the stream will
@@ -3705,7 +3717,7 @@ NULL, then it must name a valid synchronization object.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaSignalExternalSemaphoresAsync">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaSignalExternalSemaphoresAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">list</span> <span class="pre">extSemArray:</span> <span class="pre">Optional[List[cudaExternalSemaphore_t]],</span> <span class="pre">list</span> <span class="pre">paramsArray:</span> <span class="pre">Optional[List[cudaExternalSemaphoreSignalParams]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numExtSems,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaSignalExternalSemaphoresAsync" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaSignalExternalSemaphoresAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">extSemArray:</span> <span class="pre">Optional[Tuple[cudaExternalSemaphore_t]</span> <span class="pre">|</span> <span class="pre">List[cudaExternalSemaphore_t]],</span> <span class="pre">paramsArray:</span> <span class="pre">Optional[Tuple[cudaExternalSemaphoreSignalParams]</span> <span class="pre">|</span> <span class="pre">List[cudaExternalSemaphoreSignalParams]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numExtSems,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaSignalExternalSemaphoresAsync" title="Permalink to this definition">#</a></dt>
 <dd><p>Signals a set of external semaphore objects.</p>
 <p>Enqueues a signal operation on a set of externally allocated semaphore
 object in the specified stream. The operations will be executed when
@@ -3794,7 +3806,7 @@ keyed mutex will be released with the key specified in
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaWaitExternalSemaphoresAsync">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaWaitExternalSemaphoresAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">list</span> <span class="pre">extSemArray:</span> <span class="pre">Optional[List[cudaExternalSemaphore_t]],</span> <span class="pre">list</span> <span class="pre">paramsArray:</span> <span class="pre">Optional[List[cudaExternalSemaphoreWaitParams]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numExtSems,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaWaitExternalSemaphoresAsync" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaWaitExternalSemaphoresAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">extSemArray:</span> <span class="pre">Optional[Tuple[cudaExternalSemaphore_t]</span> <span class="pre">|</span> <span class="pre">List[cudaExternalSemaphore_t]],</span> <span class="pre">paramsArray:</span> <span class="pre">Optional[Tuple[cudaExternalSemaphoreWaitParams]</span> <span class="pre">|</span> <span class="pre">List[cudaExternalSemaphoreWaitParams]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numExtSems,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaWaitExternalSemaphoresAsync" title="Permalink to this definition">#</a></dt>
 <dd><p>Waits on a set of external semaphore objects.</p>
 <p>Enqueues a wait operation on a set of externally allocated semaphore
 object in the specified stream. The operations will be executed when
@@ -4518,10 +4530,11 @@ APIs - <a class="reference internal" href="#cuda.cudart.cudaMalloc" title="cuda.
 <p>Note - This API will not perform any implicit synchronization when the
 pointer was allocated with <a class="reference internal" href="#cuda.cudart.cudaMallocAsync" title="cuda.cudart.cudaMallocAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code></a> or
 <a class="reference internal" href="#cuda.cudart.cudaMallocFromPoolAsync" title="cuda.cudart.cudaMallocFromPoolAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code></a>. Callers must ensure that all
-accesses to the pointer have completed before invoking
+accesses to these pointer have completed before invoking
 <a class="reference internal" href="#cuda.cudart.cudaFree" title="cuda.cudart.cudaFree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFree</span></code></a>. For best performance and memory reuse, users
 should use <a class="reference internal" href="#cuda.cudart.cudaFreeAsync" title="cuda.cudart.cudaFreeAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code></a> to free memory allocated via the
-stream ordered memory allocator.</p>
+stream ordered memory allocator. For all other pointers, this API may
+perform implicit synchronization.</p>
 <p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFree`(`devPtr</span></code>) has already been called before, an
 error is returned. If <cite>devPtr</cite> is 0, no operation is performed.
 <a class="reference internal" href="#cuda.cudart.cudaFree" title="cuda.cudart.cudaFree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFree()</span></code></a> returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorValue</span></code> in case of
@@ -6339,7 +6352,9 @@ base device pointer of the memory to be prefetched and <cite>dstDevice</cite> is
 the destination device. <cite>count</cite> specifies the number of bytes to copy.
 <cite>stream</cite> is the stream in which the operation is enqueued. The memory
 range must refer to managed memory allocated via
-<a class="reference internal" href="#cuda.cudart.cudaMallocManaged" title="cuda.cudart.cudaMallocManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></a> or declared via managed variables.</p>
+<a class="reference internal" href="#cuda.cudart.cudaMallocManaged" title="cuda.cudart.cudaMallocManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></a> or declared via managed variables, or it
+may also refer to system-allocated memory on systems with non-zero
+cudaDevAttrPageableMemoryAccess.</p>
 <p>Passing in cudaCpuDeviceId for <cite>dstDevice</cite> will prefetch the data to
 host memory. If <cite>dstDevice</cite> is a GPU, then the device attribute
 <a class="reference internal" href="#cuda.cudart.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess" title="cuda.cudart.cudaDeviceAttr.cudaDevAttrConcurrentManagedAccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code></a> must be non-zero.
@@ -6405,20 +6420,92 @@ all work on other devices.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaMemPrefetchAsync_v2">
 <span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaMemPrefetchAsync_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">devPtr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cudaMemLocation</span> <span class="pre">location:</span> <span class="pre">cudaMemLocation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaMemPrefetchAsync_v2" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Prefetches memory to the specified destination location.</p>
+<p>Prefetches memory to the specified destination location. <cite>devPtr</cite> is
+the base device pointer of the memory to be prefetched and <cite>location</cite>
+specifies the destination location. <cite>count</cite> specifies the number of
+bytes to copy. <cite>stream</cite> is the stream in which the operation is
+enqueued. The memory range must refer to managed memory allocated via
+<a class="reference internal" href="#cuda.cudart.cudaMallocManaged" title="cuda.cudart.cudaMallocManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></a> or declared via managed variables, or it
+may also refer to system-allocated memory on systems with non-zero
+cudaDevAttrPageableMemoryAccess.</p>
+<p>Specifying <a class="reference internal" href="#cuda.cudart.cudaMemLocationType.cudaMemLocationTypeDevice" title="cuda.cudart.cudaMemLocationType.cudaMemLocationTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code></a> for
+<a class="reference internal" href="#cuda.cudart.cudaMemLocation.type" title="cuda.cudart.cudaMemLocation.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code></a> will prefetch memory to GPU specified
+by device ordinal <a class="reference internal" href="#cuda.cudart.cudaMemLocation.id" title="cuda.cudart.cudaMemLocation.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span></code></a> which must have non-
+zero value for the device attribute
+<a class="reference internal" href="#cuda.cudart.cudaDeviceProp.concurrentManagedAccess" title="cuda.cudart.cudaDeviceProp.concurrentManagedAccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concurrentManagedAccess</span></code></a>. Additionally, <cite>stream</cite> must be
+associated with a device that has a non-zero value for the device
+attribute <a class="reference internal" href="#cuda.cudart.cudaDeviceProp.concurrentManagedAccess" title="cuda.cudart.cudaDeviceProp.concurrentManagedAccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concurrentManagedAccess</span></code></a>. Specifying
+<a class="reference internal" href="#cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a> as <a class="reference internal" href="#cuda.cudart.cudaMemLocation.type" title="cuda.cudart.cudaMemLocation.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code></a>
+will prefetch data to host memory. Applications can request prefetching
+memory to a specific host NUMA node by specifying
+<a class="reference internal" href="#cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a> for
+<a class="reference internal" href="#cuda.cudart.cudaMemLocation.type" title="cuda.cudart.cudaMemLocation.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code></a> and a valid host NUMA node id in
+<a class="reference internal" href="#cuda.cudart.cudaMemLocation.id" title="cuda.cudart.cudaMemLocation.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span></code></a> Users can also request prefetching
+memory to the host NUMA node closest to the current thread’s CPU by
+specifying <a class="reference internal" href="#cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent" title="cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNumaCurrent</span></code></a> for
+<a class="reference internal" href="#cuda.cudart.cudaMemLocation.type" title="cuda.cudart.cudaMemLocation.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code></a>. Note when
+<a class="reference internal" href="#cuda.cudart.cudaMemLocation.type" title="cuda.cudart.cudaMemLocation.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code></a> is etiher
+<a class="reference internal" href="#cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a> OR
+<a class="reference internal" href="#cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent" title="cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNumaCurrent</span></code></a>,
+<a class="reference internal" href="#cuda.cudart.cudaMemLocation.id" title="cuda.cudart.cudaMemLocation.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span></code></a> will be ignored.</p>
+<p>The start address and end address of the memory range will be rounded
+down and rounded up respectively to be aligned to CPU page size before
+the prefetch operation is enqueued in the stream.</p>
+<p>If no physical memory has been allocated for this region, then this
+memory region will be populated and mapped on the destination device.
+If there’s insufficient memory to prefetch the desired region, the
+Unified Memory driver may evict pages from other
+<a class="reference internal" href="#cuda.cudart.cudaMallocManaged" title="cuda.cudart.cudaMallocManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></a> allocations to host memory in order to
+make room. Device memory allocated using <a class="reference internal" href="#cuda.cudart.cudaMalloc" title="cuda.cudart.cudaMalloc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMalloc</span></code></a> or
+<a class="reference internal" href="#cuda.cudart.cudaMallocArray" title="cuda.cudart.cudaMallocArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocArray</span></code></a> will not be evicted.</p>
+<p>By default, any mappings to the previous location of the migrated pages
+are removed and mappings for the new location are only setup on the
+destination location. The exact behavior however also depends on the
+settings applied to this memory range via <a class="reference internal" href="cuda.html#cuda.cuda.cuMemAdvise" title="cuda.cuda.cuMemAdvise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAdvise</span></code></a> as
+described below:</p>
+<p>If <a class="reference internal" href="#cuda.cudart.cudaMemoryAdvise.cudaMemAdviseSetReadMostly" title="cuda.cudart.cudaMemoryAdvise.cudaMemAdviseSetReadMostly"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAdviseSetReadMostly</span></code></a> was set on any subset of this
+memory range, then that subset will create a read-only copy of the
+pages on destination location. If however the destination location is a
+host NUMA node, then any pages of that subset that are already in
+another host NUMA node will be transferred to the destination.</p>
+<p>If <a class="reference internal" href="#cuda.cudart.cudaMemoryAdvise.cudaMemAdviseSetPreferredLocation" title="cuda.cudart.cudaMemoryAdvise.cudaMemAdviseSetPreferredLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAdviseSetPreferredLocation</span></code></a> was called on any
+subset of this memory range, then the pages will be migrated to
+<cite>location</cite> even if <cite>location</cite> is not the preferred location of any
+pages in the memory range.</p>
+<p>If <a class="reference internal" href="#cuda.cudart.cudaMemoryAdvise.cudaMemAdviseSetAccessedBy" title="cuda.cudart.cudaMemoryAdvise.cudaMemAdviseSetAccessedBy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAdviseSetAccessedBy</span></code></a> was called on any subset of
+this memory range, then mappings to those pages from all the
+appropriate processors are updated to refer to the new location if
+establishing such a mapping is possible. Otherwise, those mappings are
+cleared.</p>
+<p>Note that this API is not required for functionality and only serves to
+improve performance by allowing the application to migrate data to a
+suitable location before it is accessed. Memory accesses to this range
+are always coherent and are allowed even when the data is actively
+being migrated.</p>
+<p>Note that this function is asynchronous with respect to the host and
+all work on other devices.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>devPtr</strong> (<em>Any</em>) – None</p></li>
-<li><p><strong>count</strong> (<em>size_t</em>) – None</p></li>
-<li><p><strong>location</strong> (<a class="reference internal" href="#cuda.cudart.cudaMemLocation" title="cuda.cudart.cudaMemLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocation</span></code></a>) – None</p></li>
-<li><p><strong>flags</strong> (<em>unsigned int</em>) – None</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.html#cuda.cuda.CUstream" title="cuda.cuda.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.cudart.cudaStream_t" title="cuda.cudart.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – None</p></li>
+<li><p><strong>devPtr</strong> (<em>Any</em>) – Pointer to be prefetched</p></li>
+<li><p><strong>count</strong> (<em>size_t</em>) – Size in bytes</p></li>
+<li><p><strong>location</strong> (<a class="reference internal" href="#cuda.cudart.cudaMemLocation" title="cuda.cudart.cudaMemLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocation</span></code></a>) – location to prefetch to</p></li>
+<li><p><strong>flags</strong> (<em>unsigned int</em>) – flags for future use, must be zero now.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.html#cuda.cuda.CUstream" title="cuda.cuda.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.cudart.cudaStream_t" title="cuda.cudart.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue prefetch operation</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cuda.cudart.cudaError_t" title="cuda.cudart.cudaError_t">cudaError_t</a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.cudart.cudaError_t.cudaSuccess" title="cuda.cudart.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidDevice" title="cuda.cudart.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.cudart.cudaError_t" title="cuda.cudart.cudaError_t">cudaError_t</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.cudart.cudaMemcpy" title="cuda.cudart.cudaMemcpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaMemcpyPeer" title="cuda.cudart.cudaMemcpyPeer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpyPeer</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaMemcpyAsync" title="cuda.cudart.cudaMemcpyAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpyAsync</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaMemcpy3DPeerAsync" title="cuda.cudart.cudaMemcpy3DPeerAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DPeerAsync</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaMemAdvise" title="cuda.cudart.cudaMemAdvise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code></a>, <a class="reference internal" href="#cuda.cudart.cudaMemAdvise_v2" title="cuda.cudart.cudaMemAdvise_v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAdvise_v2</span></code></a></p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -6582,7 +6669,7 @@ memory range starting at <cite>devPtr</cite> with a size of <cite>count</cite> b
 start address and end address of the memory range will be rounded down
 and rounded up respectively to be aligned to CPU page size before the
 advice is applied. The memory range must refer to managed memory
-allocated via <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocManaged</span></code> or declared via managed
+allocated via <a class="reference internal" href="#cuda.cudart.cudaMallocManaged" title="cuda.cudart.cudaMallocManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></a> or declared via managed
 variables. The memory range could also refer to system-allocated
 pageable memory provided it represents a valid, host-accessible region
 of memory and all additional constraints imposed by <cite>advice</cite> as
@@ -6897,7 +6984,7 @@ query will be written to.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaMemRangeGetAttributes">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaMemRangeGetAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">list</span> <span class="pre">dataSizes:</span> <span class="pre">List[int],</span> <span class="pre">list</span> <span class="pre">attributes:</span> <span class="pre">Optional[List[cudaMemRangeAttribute]],</span> <span class="pre">size_t</span> <span class="pre">numAttributes,</span> <span class="pre">devPtr,</span> <span class="pre">size_t</span> <span class="pre">count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaMemRangeGetAttributes" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaMemRangeGetAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dataSizes:</span> <span class="pre">Tuple[int]</span> <span class="pre">|</span> <span class="pre">List[int],</span> <span class="pre">attributes:</span> <span class="pre">Optional[Tuple[cudaMemRangeAttribute]</span> <span class="pre">|</span> <span class="pre">List[cudaMemRangeAttribute]],</span> <span class="pre">size_t</span> <span class="pre">numAttributes,</span> <span class="pre">devPtr,</span> <span class="pre">size_t</span> <span class="pre">count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaMemRangeGetAttributes" title="Permalink to this definition">#</a></dt>
 <dd><p>Query attributes of a given memory range.</p>
 <p>Query attributes of the memory range starting at <cite>devPtr</cite> with a size
 of <cite>count</cite> bytes. The memory range must refer to managed memory
@@ -7257,7 +7344,7 @@ by the application since the last time it was reset.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaMemPoolSetAccess">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaMemPoolSetAccess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">memPool,</span> <span class="pre">list</span> <span class="pre">descList:</span> <span class="pre">Optional[List[cudaMemAccessDesc]],</span> <span class="pre">size_t</span> <span class="pre">count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaMemPoolSetAccess" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaMemPoolSetAccess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">memPool,</span> <span class="pre">descList:</span> <span class="pre">Optional[Tuple[cudaMemAccessDesc]</span> <span class="pre">|</span> <span class="pre">List[cudaMemAccessDesc]],</span> <span class="pre">size_t</span> <span class="pre">count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaMemPoolSetAccess" title="Permalink to this definition">#</a></dt>
 <dd><p>Controls visibility of pools between devices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -7320,8 +7407,12 @@ applications must set
 <a class="reference internal" href="#cuda.cudart.cudaMemPoolProps" title="cuda.cudart.cudaMemPoolProps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPoolProps</span></code></a>::cudaMemLocation::type to
 <a class="reference internal" href="#cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a> and
 <a class="reference internal" href="#cuda.cudart.cudaMemPoolProps" title="cuda.cudart.cudaMemPoolProps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPoolProps</span></code></a>::cudaMemLocation::id must specify the NUMA
-ID of the host memory node. By default, the pool’s memory will be
-accessible from the device it is allocated on. In the case of pools
+ID of the host memory node. Specifying
+<a class="reference internal" href="#cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent" title="cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNumaCurrent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNumaCurrent</span></code></a> or
+<a class="reference internal" href="#cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a> as the
+<a class="reference internal" href="#cuda.cudart.cudaMemPoolProps" title="cuda.cudart.cudaMemPoolProps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPoolProps</span></code></a>::cudaMemLocation::type will result in
+<a class="reference internal" href="#cuda.cudart.cudaError_t.cudaErrorInvalidValue" title="cuda.cudart.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>. By default, the pool’s memory will
+be accessible from the device it is allocated on. In the case of pools
 created with <a class="reference internal" href="#cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.cudart.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>, their default
 accessibility will be from the host CPU. Applications can control the
 maximum size of the pool by specifying a non-zero value for
@@ -9210,7 +9301,7 @@ if the <cite>runtimeVersion</cite> argument is NULL.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddKernelNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddKernelNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaKernelNodeParams</span> <span class="pre">pNodeParams:</span> <span class="pre">Optional[cudaKernelNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddKernelNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddKernelNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaKernelNodeParams</span> <span class="pre">pNodeParams:</span> <span class="pre">Optional[cudaKernelNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddKernelNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates a kernel execution node and adds it to a graph.</p>
 <p>Creates a new kernel execution node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite> and
@@ -9422,7 +9513,7 @@ corresponding member of <cite>value_out</cite>.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddMemcpyNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemcpyNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemcpy3DParms</span> <span class="pre">pCopyParams:</span> <span class="pre">Optional[cudaMemcpy3DParms]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddMemcpyNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemcpyNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemcpy3DParms</span> <span class="pre">pCopyParams:</span> <span class="pre">Optional[cudaMemcpy3DParms]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddMemcpyNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates a memcpy node and adds it to a graph.</p>
 <p>Creates a new memcpy node and adds it to <cite>graph</cite> with <cite>numDependencies</cite>
 dependencies specified via <cite>pDependencies</cite>. It is possible for
@@ -9461,7 +9552,7 @@ value for the device attribute
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddMemcpyNode1D">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemcpyNode1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">dst,</span> <span class="pre">src,</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">kind:</span> <span class="pre">cudaMemcpyKind</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddMemcpyNode1D" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemcpyNode1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">dst,</span> <span class="pre">src,</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">kind:</span> <span class="pre">cudaMemcpyKind</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddMemcpyNode1D" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates a 1D memcpy node and adds it to a graph.</p>
 <p>Creates a new 1D memcpy node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite>. It is
@@ -9602,7 +9693,7 @@ undefined behavior.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddMemsetNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemsetNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemsetParams</span> <span class="pre">pMemsetParams:</span> <span class="pre">Optional[cudaMemsetParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddMemsetNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemsetNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemsetParams</span> <span class="pre">pMemsetParams:</span> <span class="pre">Optional[cudaMemsetParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddMemsetNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates a memset node and adds it to a graph.</p>
 <p>Creates a new memset node and adds it to <cite>graph</cite> with <cite>numDependencies</cite>
 dependencies specified via <cite>pDependencies</cite>. It is possible for
@@ -9684,7 +9775,7 @@ the node will perform the memset described by <cite>pMemsetParams</cite>.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddHostNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddHostNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaHostNodeParams</span> <span class="pre">pNodeParams:</span> <span class="pre">Optional[cudaHostNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddHostNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddHostNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaHostNodeParams</span> <span class="pre">pNodeParams:</span> <span class="pre">Optional[cudaHostNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddHostNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates a host execution node and adds it to a graph.</p>
 <p>Creates a new CPU execution node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite> and
@@ -9767,7 +9858,7 @@ function. Host nodes are not supported under MPS with pre-Volta GPUs.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddChildGraphNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddChildGraphNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">childGraph</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddChildGraphNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddChildGraphNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">childGraph</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddChildGraphNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates a child graph node and adds it to a graph.</p>
 <p>Creates a new node which executes an embedded graph, and adds it to
 <cite>graph</cite> with <cite>numDependencies</cite> dependencies specified via
@@ -9831,7 +9922,7 @@ Attempting to do so will return an error.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddEmptyNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEmptyNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddEmptyNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEmptyNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddEmptyNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates an empty node and adds it to a graph.</p>
 <p>Creates a new node which performs no operation, and adds it to <cite>graph</cite>
 with <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite>. It
@@ -9868,7 +9959,7 @@ n^2 dependency edges.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddEventRecordNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEventRecordNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">event</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddEventRecordNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEventRecordNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">event</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddEventRecordNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates an event record node and adds it to a graph.</p>
 <p>Creates a new event record node and adds it to <cite>hGraph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>dependencies</cite> and event
@@ -9952,7 +10043,7 @@ the node’s dependencies.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddEventWaitNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEventWaitNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">event</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddEventWaitNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEventWaitNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">event</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddEventWaitNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates an event wait node and adds it to a graph.</p>
 <p>Creates a new event wait node and adds it to <cite>hGraph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>dependencies</cite> and event
@@ -10039,7 +10130,7 @@ the launch stream.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddExternalSemaphoresSignalNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddExternalSemaphoresSignalNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaExternalSemaphoreSignalNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreSignalNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddExternalSemaphoresSignalNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddExternalSemaphoresSignalNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaExternalSemaphoreSignalNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreSignalNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddExternalSemaphoresSignalNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates an external semaphore signal node and adds it to a graph.</p>
 <p>Creates a new external semaphore signal node and adds it to <cite>graph</cite>
 with <cite>numDependencies</cite> dependencies specified via <cite>dependencies</cite> and
@@ -10130,7 +10221,7 @@ the parameters of this node.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddExternalSemaphoresWaitNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddExternalSemaphoresWaitNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaExternalSemaphoreWaitNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreWaitNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddExternalSemaphoresWaitNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddExternalSemaphoresWaitNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaExternalSemaphoreWaitNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreWaitNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddExternalSemaphoresWaitNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates an external semaphore wait node and adds it to a graph.</p>
 <p>Creates a new external semaphore wait node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>dependencies</cite> and
@@ -10221,7 +10312,7 @@ the parameters of this node.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddMemAllocNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemAllocNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemAllocNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaMemAllocNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddMemAllocNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemAllocNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemAllocNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaMemAllocNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddMemAllocNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates an allocation node and adds it to a graph.</p>
 <p>Creates a new allocation node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite> and
@@ -10313,7 +10404,7 @@ returned parameters must not be modified.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddMemFreeNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemFreeNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">dptr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddMemFreeNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemFreeNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">dptr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddMemFreeNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates a memory free node and adds it to a graph.</p>
 <p>Creates a new memory free node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite> and
@@ -10846,7 +10937,7 @@ returned in <cite>pNumDependentNodes</cite>.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddDependencies">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">from_:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">list</span> <span class="pre">to:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddDependencies" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">from_:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">to:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddDependencies" title="Permalink to this definition">#</a></dt>
 <dd><p>Adds dependency edges to a graph.</p>
 <p>The number of dependencies to be added is defined by <cite>numDependencies</cite>
 Elements in <cite>pFrom</cite> and <cite>pTo</cite> at corresponding indices define a
@@ -10877,7 +10968,7 @@ ignored. Specifying an existing dependency will return an error.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddDependencies_v2">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddDependencies_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">from_:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">list</span> <span class="pre">to:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">list</span> <span class="pre">edgeData:</span> <span class="pre">Optional[List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddDependencies_v2" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddDependencies_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">from_:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">to:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">edgeData:</span> <span class="pre">Optional[Tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddDependencies_v2" title="Permalink to this definition">#</a></dt>
 <dd><p>Adds dependency edges to a graph. (12.3+)</p>
 <p>The number of dependencies to be added is defined by <cite>numDependencies</cite>
 Elements in <cite>pFrom</cite> and <cite>pTo</cite> at corresponding indices define a
@@ -10910,7 +11001,7 @@ assumed.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphRemoveDependencies">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphRemoveDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">from_:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">list</span> <span class="pre">to:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphRemoveDependencies" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphRemoveDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">from_:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">to:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphRemoveDependencies" title="Permalink to this definition">#</a></dt>
 <dd><p>Removes dependency edges from a graph.</p>
 <p>The number of <cite>pDependencies</cite> to be removed is defined by
 <cite>numDependencies</cite>. Elements in <cite>pFrom</cite> and <cite>pTo</cite> at corresponding
@@ -10942,7 +11033,7 @@ ignored. Specifying a non-existing dependency will return an error.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphRemoveDependencies_v2">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphRemoveDependencies_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">from_:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">list</span> <span class="pre">to:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">list</span> <span class="pre">edgeData:</span> <span class="pre">Optional[List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphRemoveDependencies_v2" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphRemoveDependencies_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">from_:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">to:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">edgeData:</span> <span class="pre">Optional[Tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphRemoveDependencies_v2" title="Permalink to this definition">#</a></dt>
 <dd><p>Removes dependency edges from a graph. (12.3+)</p>
 <p>The number of <cite>pDependencies</cite> to be removed is defined by
 <cite>numDependencies</cite>. Elements in <cite>pFrom</cite> and <cite>pTo</cite> at corresponding
@@ -11451,15 +11542,21 @@ mappings changed or the original memory operands are multidimensional.</p>
 had contained <cite>pNodeParams</cite> at instantiation. <cite>node</cite> must remain in the
 graph which was used to instantiate <cite>hGraphExec</cite>. Changed edges to and
 from <cite>node</cite> are ignored.</p>
-<p>The destination memory in <cite>pNodeParams</cite> must be allocated from the same
-context as the original destination memory. Both the instantiation-time
-memory operand and the memory operand in <cite>pNodeParams</cite> must be
-1-dimensional. Zero-length operations are not supported.</p>
+<p>Zero sized operations are not supported.</p>
+<p>The new destination pointer in <cite>pNodeParams</cite> must be to the same kind
+of allocation as the original destination pointer and have the same
+context association and device mapping as the original destination
+pointer.</p>
+<p>Both the value and pointer address may be updated.   Changing other
+aspects of the memset (width, height, element size or pitch) may cause
+the update to be rejected. Specifically, for 2d memsets, all dimension
+changes are rejected. For 1d memsets, changes in height are explicitly
+rejected and other changes are oportunistically allowed if the
+resulting work maps onto the work resources already allocated for the
+node.</p>
 <p>The modifications only affect future launches of <cite>hGraphExec</cite>. Already
 enqueued or running launches of <cite>hGraphExec</cite> are not affected by this
 call. <cite>node</cite> is also not modified by this call.</p>
-<p>Returns cudaErrorInvalidValue if the memory operand’s mappings changed
-or either the original or new memory operand are multidimensional.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -11797,7 +11894,10 @@ kernel nodes.</p></li>
 cannot change.</p></li>
 <li><p>The source/destination memory must be allocated from the same
 contexts as the original source/destination memory.</p></li>
-<li><p>Only 1D memsets can be changed.</p></li>
+<li><p>For 2d memsets, only address and assinged value may be updated.</p></li>
+<li><p>For 1d memsets, updating dimensions is also allowed, but may fail
+if the resulting operation doesn’t map onto the work resources
+already allocated for the node.</p></li>
 </ul>
 </li>
 <li><p>Additional memcpy node restrictions:</p>
@@ -12189,7 +12289,7 @@ and not larger than INT_MAX.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaGraphNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaGraphNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddNode" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaGraphNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaGraphNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Adds a node of arbitrary type to a graph.</p>
 <p>Creates a new node in <cite>graph</cite> described by <cite>nodeParams</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite>.
@@ -12231,7 +12331,7 @@ parameters” which are modified during the call, such as
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.cudart.cudaGraphAddNode_v2">
-<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddNode_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">list</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[List[cudaGraphNode_t]],</span> <span class="pre">list</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaGraphNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaGraphNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddNode_v2" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.cudart.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddNode_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[Tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaGraphNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaGraphNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.cudart.cudaGraphAddNode_v2" title="Permalink to this definition">#</a></dt>
 <dd><p>Adds a node of arbitrary type to a graph (12.3+)</p>
 <p>Creates a new node in <cite>graph</cite> described by <cite>nodeParams</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite>.
@@ -14228,6 +14328,17 @@ value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>size_t</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaMemPoolProps.usage">
+<span class="sig-name descname"><span class="pre">usage</span></span><a class="headerlink" href="#cuda.cudart.cudaMemPoolProps.usage" title="Permalink to this definition">#</a></dt>
+<dd><p>Bitmask indicating intended usage for the pool.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>unsigned short</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16952,7 +17063,12 @@ cudaLaunchAttributeProgrammaticStreamSerialization.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.programmaticEvent">
 <span class="sig-name descname"><span class="pre">programmaticEvent</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.programmaticEvent" title="Permalink to this definition">#</a></dt>
-<dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent.</p>
+<dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
+the following fields: - <cite>cudaEvent_t</cite> event - Event to fire when
+all blocks trigger it.    - <cite>int</cite> flags; - Event record flags, see
+cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+- <cite>int</cite> triggerAtBlockStart - If this is set to non-0, each block
+launch will automatically trigger the event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>anon_struct21</p>
@@ -16999,7 +17115,11 @@ cudaLaunchMemSyncDomain.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.launchCompletionEvent">
 <span class="sig-name descname"><span class="pre">launchCompletionEvent</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.launchCompletionEvent" title="Permalink to this definition">#</a></dt>
-<dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.</p>
+<dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
+with the following fields: - <cite>cudaEvent_t</cite> event - Event to fire
+when the last block launches.    - <cite>int</cite> flags - Event record
+flags, see cudaEventRecordWithFlags. Does not accept
+cudaEventRecordExternal.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>anon_struct22</p>
@@ -17011,7 +17131,11 @@ cudaLaunchMemSyncDomain.</p>
 <dt class="sig sig-object py" id="cuda.cudart.cudaLaunchAttributeValue.deviceUpdatableKernelNode">
 <span class="sig-name descname"><span class="pre">deviceUpdatableKernelNode</span></span><a class="headerlink" href="#cuda.cudart.cudaLaunchAttributeValue.deviceUpdatableKernelNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Value of launch attribute
-cudaLaunchAttributeDeviceUpdatableKernelNode.</p>
+cudaLaunchAttributeDeviceUpdatableKernelNode with the following
+fields: - <cite>int</cite> deviceUpdatable - Whether or not the resulting
+kernel node should be device-updatable.    -
+<cite>cudaGraphDeviceNode_t</cite> devNode - Returns a handle to pass to the
+various device-side update functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>anon_struct23</p>
@@ -18737,6 +18861,24 @@ formats currently supported for CUDA_EGL interops.</p>
 <dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorInvalidClusterSize">
 <span class="sig-name descname"><span class="pre">cudaErrorInvalidClusterSize</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">912</span></em><a class="headerlink" href="#cuda.cudart.cudaError_t.cudaErrorInvalidClusterSize" title="Permalink to this definition">#</a></dt>
 <dd><p>This indicates that a kernel launch error has occurred due to cluster misconfiguration.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorFunctionNotLoaded">
+<span class="sig-name descname"><span class="pre">cudaErrorFunctionNotLoaded</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">913</span></em><a class="headerlink" href="#cuda.cudart.cudaError_t.cudaErrorFunctionNotLoaded" title="Permalink to this definition">#</a></dt>
+<dd><p>Indiciates a function handle is not loaded when calling an API that requires a loaded function.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorInvalidResourceType">
+<span class="sig-name descname"><span class="pre">cudaErrorInvalidResourceType</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">914</span></em><a class="headerlink" href="#cuda.cudart.cudaError_t.cudaErrorInvalidResourceType" title="Permalink to this definition">#</a></dt>
+<dd><p>This error indicates one or more resources passed in are not valid resource types for the operation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.cudart.cudaError_t.cudaErrorInvalidResourceConfiguration">
+<span class="sig-name descname"><span class="pre">cudaErrorInvalidResourceConfiguration</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">915</span></em><a class="headerlink" href="#cuda.cudart.cudaError_t.cudaErrorInvalidResourceConfiguration" title="Permalink to this definition">#</a></dt>
+<dd><p>This error indicates one or more resources are insufficient or non-applicable for the operation.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -22596,7 +22738,12 @@ cudaLaunchAttributeProgrammaticStreamSerialization.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id34">
 <span class="sig-name descname"><span class="pre">programmaticEvent</span></span><a class="headerlink" href="#id34" title="Permalink to this definition">#</a></dt>
-<dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent.</p>
+<dd><p>Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
+the following fields: - <cite>cudaEvent_t</cite> event - Event to fire when
+all blocks trigger it.    - <cite>int</cite> flags; - Event record flags, see
+cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+- <cite>int</cite> triggerAtBlockStart - If this is set to non-0, each block
+launch will automatically trigger the event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>anon_struct21</p>
@@ -22643,7 +22790,11 @@ cudaLaunchMemSyncDomain.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id38">
 <span class="sig-name descname"><span class="pre">launchCompletionEvent</span></span><a class="headerlink" href="#id38" title="Permalink to this definition">#</a></dt>
-<dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.</p>
+<dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
+with the following fields: - <cite>cudaEvent_t</cite> event - Event to fire
+when the last block launches.    - <cite>int</cite> flags - Event record
+flags, see cudaEventRecordWithFlags. Does not accept
+cudaEventRecordExternal.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>anon_struct22</p>
@@ -22655,7 +22806,11 @@ cudaLaunchMemSyncDomain.</p>
 <dt class="sig sig-object py" id="id39">
 <span class="sig-name descname"><span class="pre">deviceUpdatableKernelNode</span></span><a class="headerlink" href="#id39" title="Permalink to this definition">#</a></dt>
 <dd><p>Value of launch attribute
-cudaLaunchAttributeDeviceUpdatableKernelNode.</p>
+cudaLaunchAttributeDeviceUpdatableKernelNode with the following
+fields: - <cite>int</cite> deviceUpdatable - Whether or not the resulting
+kernel node should be device-updatable.    -
+<cite>cudaGraphDeviceNode_t</cite> devNode - Returns a handle to pass to the
+various device-side update functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>anon_struct23</p>

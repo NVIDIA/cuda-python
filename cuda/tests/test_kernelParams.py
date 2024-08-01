@@ -34,9 +34,9 @@ def common_nvrtc(allKernelStrings, dev):
     prefix = 'sm' if use_cubin else 'compute'
     arch_arg = bytes(f'--gpu-architecture={prefix}_{major}{minor}', 'ascii')
 
-    err, prog = nvrtc.nvrtcCreateProgram(str.encode(allKernelStrings), b'allKernelStrings.cu', 0, [], [])
+    err, prog = nvrtc.nvrtcCreateProgram(str.encode(allKernelStrings), b'allKernelStrings.cu', 0, None, None)
     ASSERT_DRV(err)
-    opts = [b'--fmad=false', arch_arg]
+    opts = (b'--fmad=false', arch_arg)
     err, = nvrtc.nvrtcCompileProgram(prog, len(opts), opts)
 
     err_log, logSize = nvrtc.nvrtcGetProgramLogSize(prog)

@@ -1088,6 +1088,8 @@ cdef class cudaMemPoolProps:
     maxSize : size_t
         Maximum pool size. When set to 0, defaults to a system dependent
         value.
+    usage : unsigned short
+        Bitmask indicating intended usage for the pool.
     reserved : bytes
         reserved for future use, must be 0
 
@@ -2612,7 +2614,12 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute
         cudaLaunchAttributeProgrammaticStreamSerialization.
     programmaticEvent : anon_struct21
-        Value of launch attribute cudaLaunchAttributeProgrammaticEvent.
+        Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
+        the following fields: - `cudaEvent_t` event - Event to fire when
+        all blocks trigger it.    - `int` flags; - Event record flags, see
+        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+        - `int` triggerAtBlockStart - If this is set to non-0, each block
+        launch will automatically trigger the event.
     priority : int
         Value of launch attribute cudaLaunchAttributePriority. Execution
         priority of the kernel.
@@ -2623,10 +2630,18 @@ cdef class cudaLaunchAttributeValue:
         Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
         cudaLaunchMemSyncDomain.
     launchCompletionEvent : anon_struct22
-        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
+        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
+        with the following fields: - `cudaEvent_t` event - Event to fire
+        when the last block launches.    - `int` flags - Event record
+        flags, see cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.
     deviceUpdatableKernelNode : anon_struct23
         Value of launch attribute
-        cudaLaunchAttributeDeviceUpdatableKernelNode.
+        cudaLaunchAttributeDeviceUpdatableKernelNode with the following
+        fields: - `int` deviceUpdatable - Whether or not the resulting
+        kernel node should be device-updatable.    -
+        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
+        various device-side update functions.
     sharedMemCarveout : unsigned int
         Value of launch attribute
         cudaLaunchAttributePreferredSharedMemoryCarveout.
@@ -3148,7 +3163,12 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute
         cudaLaunchAttributeProgrammaticStreamSerialization.
     programmaticEvent : anon_struct21
-        Value of launch attribute cudaLaunchAttributeProgrammaticEvent.
+        Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
+        the following fields: - `cudaEvent_t` event - Event to fire when
+        all blocks trigger it.    - `int` flags; - Event record flags, see
+        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+        - `int` triggerAtBlockStart - If this is set to non-0, each block
+        launch will automatically trigger the event.
     priority : int
         Value of launch attribute cudaLaunchAttributePriority. Execution
         priority of the kernel.
@@ -3159,10 +3179,18 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
         cudaLaunchMemSyncDomain.
     launchCompletionEvent : anon_struct22
-        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
+        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
+        with the following fields: - `cudaEvent_t` event - Event to fire
+        when the last block launches.    - `int` flags - Event record
+        flags, see cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.
     deviceUpdatableKernelNode : anon_struct23
         Value of launch attribute
-        cudaLaunchAttributeDeviceUpdatableKernelNode.
+        cudaLaunchAttributeDeviceUpdatableKernelNode with the following
+        fields: - `int` deviceUpdatable - Whether or not the resulting
+        kernel node should be device-updatable.    -
+        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
+        various device-side update functions.
     sharedMemCarveout : unsigned int
         Value of launch attribute
         cudaLaunchAttributePreferredSharedMemoryCarveout.
@@ -3210,7 +3238,12 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute
         cudaLaunchAttributeProgrammaticStreamSerialization.
     programmaticEvent : anon_struct21
-        Value of launch attribute cudaLaunchAttributeProgrammaticEvent.
+        Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
+        the following fields: - `cudaEvent_t` event - Event to fire when
+        all blocks trigger it.    - `int` flags; - Event record flags, see
+        cudaEventRecordWithFlags. Does not accept cudaEventRecordExternal.
+        - `int` triggerAtBlockStart - If this is set to non-0, each block
+        launch will automatically trigger the event.
     priority : int
         Value of launch attribute cudaLaunchAttributePriority. Execution
         priority of the kernel.
@@ -3221,10 +3254,18 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         Value of launch attribute cudaLaunchAttributeMemSyncDomain. See
         cudaLaunchMemSyncDomain.
     launchCompletionEvent : anon_struct22
-        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent.
+        Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
+        with the following fields: - `cudaEvent_t` event - Event to fire
+        when the last block launches.    - `int` flags - Event record
+        flags, see cudaEventRecordWithFlags. Does not accept
+        cudaEventRecordExternal.
     deviceUpdatableKernelNode : anon_struct23
         Value of launch attribute
-        cudaLaunchAttributeDeviceUpdatableKernelNode.
+        cudaLaunchAttributeDeviceUpdatableKernelNode with the following
+        fields: - `int` deviceUpdatable - Whether or not the resulting
+        kernel node should be device-updatable.    -
+        `cudaGraphDeviceNode_t` devNode - Returns a handle to pass to the
+        various device-side update functions.
     sharedMemCarveout : unsigned int
         Value of launch attribute
         cudaLaunchAttributePreferredSharedMemoryCarveout.
