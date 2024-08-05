@@ -5,6 +5,9 @@ build_ci() {
 
     cd "${REPO_DIR}"
 
+    export CUDA_HOME="${CONDA_PREFIX}/targets/x86_64-linux"
+    export PARALLEL_LEVEL=$(nproc --ignore 1)
+
     python setup.py build_ext --inplace
 }
 
