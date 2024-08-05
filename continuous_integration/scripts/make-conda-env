@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -x
+
+make_ci_env() {
+    mamba create -y -n "${CONDA_ENV}" -f "${REPO_DIR}/continuous_integration/environment.yml"
+}
+
+make_conda_env() {
+    set -xeuo pipefail
+
+    export CONDA_ENV=cupy
+
+    case "$1" in
+        ci) make_ci_env;;
+        *) return 1;;
+    esac
+
+    return 0;
+}
+
+(make_conda_env "$@");

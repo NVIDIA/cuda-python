@@ -1,0 +1,35 @@
+on:
+  workflow_call:
+    inputs:
+      platform:
+        type: string
+        required: true
+      target-device:
+        type: string
+        required: true
+      build-mode:
+        type: string
+        required: true
+      build-type:
+        type: string
+        required: true
+      upload-enabled:
+        type: boolean
+        required: true
+jobs:
+  build:
+    if: ${{ github.repository_owner == 'nvidia' }}
+    uses:
+      nv-legate/legate-gh-ci/.github/workflows/gh-build.yml@v1.10
+    with:
+      client-repo: ${{ github.event.repository.name }}
+      target-device: ${{ inputs.target-device }}
+      runs-on: ${{ (inputs.platform == 'linux' && 'linux-amd64-cpu16') || (inputs.platform == 'linux-aarch64' && 'linux-arm64-cpu16') || (inputs.platform == 'mac' && 'macos-latest') }}
+      build-type: ${{ inputs.build-type }}
+      use-container: ${{ inputs.platform == 'linux' || inputs.platform == 'linux-aarch64'}}
+      platform: ${{ inputs.platform }}
+      dependencies-file: ""
+      legate-gh-ci-tag: "v1.10"
+      build-mode: ${{ inputs.build-mode }}
+      upload-enabled: ${{ inputs.upload-enabled }}
+    secrets: inherit

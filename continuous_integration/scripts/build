@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+build_ci() {
+    set -xeou pipefail
+
+    cd "${REPO_DIR}"
+
+    python setup.py build_ext --inplace
+}
+
+build_project() {
+    set -xeou pipefail
+
+    export PYTHONUNBUFFERED=1
+
+    git config --global --add safe.directory "$REPO_DIR/.git"
+
+    case "${BUILD_TYPE}" in
+        ci) build_ci;;
+        *) return 1;;
+    esac
+}
+
+(build_project "$@");

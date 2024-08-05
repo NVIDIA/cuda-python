@@ -1,0 +1,35 @@
+name: Build and test conda release package
+
+concurrency:
+  group: ${{ startsWith(github.ref_name, 'main') && format('unique-{0}', github.run_id) || format('ci-build-and-test-on-{0}-from-{1}', github.event_name, github.ref_name) }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+      - "main"
+
+jobs:
+  build-and-test:
+    name: Build and test (${{ matrix.platform }}, ${{ matrix.target-device }}, ${{ matrix.build-mode }})
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux
+        target-device:
+          - gpu
+        build-mode:
+          - release
+        upload-enabled:
+          - false
+    uses:
+      ./.github/workflows/gh-build-and-test.yml
+    with:
+      platform: ${{ matrix.platform }}
+      target-device: ${{ matrix.target-device }}
+      build-mode: ${{ matrix.build-mode }}
+      build-type: release
+      upload-enabled: ${{ matrix.upload-enabled }}
+    secrets: inherit
