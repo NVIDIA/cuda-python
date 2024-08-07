@@ -30,6 +30,6 @@ jobs:
       platform: ${{ matrix.platform }}
       target-device: ${{ matrix.target-device }}
       build-mode: ${{ matrix.build-mode }}
-      build-type: release
+      build-type: ci
       upload-enabled: ${{ matrix.upload-enabled }}
     secrets: inherit
