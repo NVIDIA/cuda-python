@@ -54,7 +54,7 @@ jobs:
           path: ${{ inputs.client-repo }}
 
       - name: Setup
-        uses: ./.github/actions/setup
+        uses: ./${{ inputs.client-repo }}/.github/actions/setup
         with:
           client-repo: ${{ inputs.client-repo }}
           build-type: ${{ inputs.build-type }}
@@ -86,7 +86,7 @@ jobs:
           cat ${REPO_DIR}/.github/actions/build/action.yml
 
       - name: Call build action
-        uses: ./.github/actions/build
+        uses: ./${{ inputs.client-repo }}/.github/actions/build
         with:
           build-type: ${{ inputs.build-type }}
           target-device: "${{ inputs.target-device }}"

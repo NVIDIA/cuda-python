@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Setup
-        uses: ./.github/actions/setup
+        uses: ./${{ inputs.client-repo }}/.github/actions/setup
         with:
           client-repo: ${{ inputs.client-repo }}
           build-type: ${{ inputs.build-type }}
@@ -61,7 +61,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
 
       - name: Call test action
-        uses: ./.github/actions/test
+        uses: ./${{ inputs.client-repo }}/.github/actions/test
         with:
           test-options: ${{ inputs.test-options }}
           has-gpu: ${{ inputs.has-gpu }}
