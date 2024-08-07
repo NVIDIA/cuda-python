@@ -16,6 +16,9 @@ build_project() {
 
     export PYTHONUNBUFFERED=1
 
+    . setup-utils;
+    init_build_env "$@";
+
     git config --global --add safe.directory "$REPO_DIR/.git"
 
     case "${BUILD_TYPE}" in
