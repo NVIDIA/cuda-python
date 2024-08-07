@@ -71,12 +71,12 @@ jobs:
           DEPENDENCIES_FILE=""
 
           if [ -z "${{ inputs.dependencies-file }}" ]; then
-            DEPENDENCIES_FILE="${REPO_DIR}/continous_integration/no_dependencies.json"
+            DEPENDENCIES_FILE="${REPO_DIR}/continuous_integration/no_dependencies.json"
           else
             DEPENDENCIES_FILE="${REPO_DIR}/${{ inputs.dependencies-file }}"
           fi
 
-          ${REPO_DIR}/continous_integration/scripts/render-template.py ${REPO_DIR}/.github/actions/build/action.yml.j2 "${DEPENDENCIES_FILE}" ${REPO_DIR}/.github/actions/build/action.yml
+          ${REPO_DIR}/continuous_integration/scripts/render-template.py ${REPO_DIR}/.github/actions/build/action.yml.j2 "${DEPENDENCIES_FILE}" ${REPO_DIR}/.github/actions/build/action.yml
 
       - name: Dump templates
         shell: bash --noprofile --norc -xeuo pipefail {0}

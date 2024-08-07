@@ -1,4 +1,4 @@
-name: Build and test conda release package
+name: Build and test
 
 concurrency:
   group: ${{ startsWith(github.ref_name, 'main') && format('unique-{0}', github.run_id) || format('ci-build-and-test-on-{0}-from-{1}', github.event_name, github.ref_name) }}
