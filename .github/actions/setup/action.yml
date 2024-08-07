@@ -29,7 +29,6 @@ runs:
     - name: Set REPO_DIR and Dump environment
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        cd ${{ inputs.client-repo }}
         echo "REPO_DIR=$(pwd)" >> $GITHUB_ENV
         env
 

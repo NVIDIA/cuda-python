@@ -32,7 +32,7 @@ runs:
 
 <% for package_id, package_info in packages.items() %>
     - name: Download <<package_info.repo>> (artifacts)
-      uses: ./${{ inputs.client-repo }}/.github/actions/download-artifacts
+      uses: ./.github/actions/download-artifacts
       with:
         artifact-repo: "<<package_info.repo>>"
         artifact-name: "<<package_info.artifact_name | replace_placeholder('repo', package_info.repo) | replace_placeholder('git_tag', package_info.git_tag) >>"

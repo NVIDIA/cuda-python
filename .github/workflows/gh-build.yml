@@ -51,10 +51,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          path: ${{ inputs.client-repo }}
 
       - name: Setup
-        uses: ./${{ inputs.client-repo }}/.github/actions/setup
+        uses: ./.github/actions/setup
         with:
           client-repo: ${{ inputs.client-repo }}
           build-type: ${{ inputs.build-type }}
@@ -86,7 +85,7 @@ jobs:
           cat ${REPO_DIR}/.github/actions/build/action.yml
 
       - name: Call build action
-        uses: ./${{ inputs.client-repo }}/.github/actions/build
+        uses: ./.github/actions/build
         with:
           build-type: ${{ inputs.build-type }}
           target-device: "${{ inputs.target-device }}"
