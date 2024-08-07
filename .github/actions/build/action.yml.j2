@@ -77,19 +77,17 @@ runs:
           -e USE_CUDA="$USE_CUDA" \
           -e REPO_DIR="$REPO_DIR" \
           -e LEGATE_CORE_BUILD_MODE="$LEGATE_CORE_BUILD_MODE" \
-          -e LEGATE_GH_CI_DIR="${{ env.LEGATE_GH_CI_DIR }}" \
           -e PYTHON_VERSION="$PYTHON_VERSION" \
           -v "${{ env.REPO_DIR }}:${{ env.REPO_DIR }}" \
-          -v "${{ env.LEGATE_GH_CI_DIR }}:${{ env.LEGATE_GH_CI_DIR }}" \
           -v "${{ env.ARTIFACTS_DIR }}:${{ env.ARTIFACTS_DIR }}" \
           --rm "${{ inputs.docker-image }}" \
-          /bin/bash -c "${{ env.LEGATE_GH_CI_DIR }}/scripts/entrypoint ${{ env.REPO_DIR }}/continuous_integration/scripts/build ${{ inputs.build-type}} ${{ inputs.target-device }}"
+          /bin/bash -c "${{ env.REPO_DIR }}/scripts/entrypoint ${{ env.REPO_DIR }}/continuous_integration/scripts/build ${{ inputs.build-type}} ${{ inputs.target-device }}"
 
     - if: ${{ !inputs.use-container }}
       name: Build (without container)
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        "${{ env.LEGATE_GH_CI_DIR }}/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/build" "${{ inputs.build-type}}" "${{ inputs.target-device }}"
+        "${{ env.REPO_DIR }}/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/build" "${{ inputs.build-type}}" "${{ inputs.target-device }}"
 
     - name: Display structure of the artifacts folder (post build)
       shell: bash --noprofile --norc -xeuo pipefail {0}

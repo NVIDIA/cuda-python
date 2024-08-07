@@ -3,7 +3,7 @@
 set_initial_env() {
     set -xeuo pipefail
 
-    export PATH="${PATH}:${REPO_DIR}/continuous_integration/scripts:${LEGATE_GH_CI_DIR}/scripts"
+    export PATH="${PATH}:${REPO_DIR}/continuous_integration/scripts"
 }
 
 entrypoint() {
