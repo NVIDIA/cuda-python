@@ -34,4 +34,4 @@ runs:
     - name: Run test / analysis
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        "${{ env.REPO_DIR }}/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/test" ${{ inputs.test-options }}
+        "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/test" ${{ inputs.test-options }}

@@ -81,13 +81,13 @@ runs:
           -v "${{ env.REPO_DIR }}:${{ env.REPO_DIR }}" \
           -v "${{ env.ARTIFACTS_DIR }}:${{ env.ARTIFACTS_DIR }}" \
           --rm "${{ inputs.docker-image }}" \
-          /bin/bash -c "${{ env.REPO_DIR }}/scripts/entrypoint ${{ env.REPO_DIR }}/continuous_integration/scripts/build ${{ inputs.build-type}} ${{ inputs.target-device }}"
+          /bin/bash -c "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint ${{ env.REPO_DIR }}/continuous_integration/scripts/build ${{ inputs.build-type}} ${{ inputs.target-device }}"
 
     - if: ${{ !inputs.use-container }}
       name: Build (without container)
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        "${{ env.REPO_DIR }}/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/build" "${{ inputs.build-type}}" "${{ inputs.target-device }}"
+        "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/build" "${{ inputs.build-type}}" "${{ inputs.target-device }}"
 
     - name: Display structure of the artifacts folder (post build)
       shell: bash --noprofile --norc -xeuo pipefail {0}
