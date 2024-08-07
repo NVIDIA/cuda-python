@@ -13,9 +13,6 @@ inputs:
   platform:
     required: true
     type: string
-  legate-gh-ci-tag:
-    required: true
-    type: string
   build-mode:
     required: true
     type: string
@@ -29,13 +26,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Set LEGATE_GH_CI_DIR dir
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        cd legate-gh-ci
-        echo "LEGATE_GH_CI_DIR=$(pwd)" >> $GITHUB_ENV
-        env
-
     - name: Checkout ${{ inputs.client-repo }}
       uses: actions/checkout@v4
       with:
@@ -54,7 +44,7 @@ runs:
       run: |
 
         WITH_TESTS_STR=''
-        if [[ ("${{ inputs.upload-enabled }}" == "false") && ("${{ inputs.build-type }}" != "ci") ]]; then       
+        if [[ ("${{ inputs.upload-enabled }}" == "false") && ("${{ inputs.build-type }}" != "ci") ]]; then
           WITH_TESTS_STR='-with_tests'
         fi
 

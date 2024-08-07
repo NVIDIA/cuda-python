@@ -28,9 +28,6 @@ on:
       platform:
         required: true
         type: string
-      legate-gh-ci-tag:
-        required: true
-        type: string
       build-mode:
         required: true
         type: string
@@ -52,29 +49,19 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
 
     steps:
-      - name: Checkout legate-gh-ci
-        uses: actions/checkout@v4
-        with:
-          repository: 'nv-legate/legate-gh-ci'
-          ref: ${{ inputs.legate-gh-ci-tag }}
-          token: ${{ secrets.NV_LEGATE_INTER_REPOS_ACCESS_RO }}
-          fetch-depth: 0
-          path: legate-gh-ci
-
       - name: Setup
-        uses: ./legate-gh-ci/.github/actions/setup
+        uses: ./.github/actions/setup
         with:
           client-repo: ${{ inputs.client-repo }}
           build-type: ${{ inputs.build-type }}
           target-device: "${{ inputs.target-device }}"
           platform: ${{ inputs.platform }}
-          legate-gh-ci-tag: ${{ inputs.legate-gh-ci-tag }}
           build-mode: ${{ inputs.build-mode }}
           upload-enabled: ${{ inputs.upload-enabled }}
           python-version: ${{ inputs.python-version }}
 
       - name: Call test action
-        uses: ./legate-gh-ci/.github/actions/test
+        uses: ./.github/actions/test
         with:
           test-options: ${{ inputs.test-options }}
           has-gpu: ${{ inputs.has-gpu }}

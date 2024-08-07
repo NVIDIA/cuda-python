@@ -20,7 +20,7 @@ jobs:
   build:
     if: ${{ github.repository_owner == 'nvidia' }}
     uses:
-      nv-legate/legate-gh-ci/.github/workflows/gh-build.yml@v1.10
+      .github/workflows/gh-build.yml
     with:
       client-repo: ${{ github.event.repository.name }}
       target-device: ${{ inputs.target-device }}
@@ -29,7 +29,6 @@ jobs:
       use-container: ${{ inputs.platform == 'linux-x64' || inputs.platform == 'linux-aarch64'}}
       platform: ${{ inputs.platform }}
       dependencies-file: ""
-      legate-gh-ci-tag: "v1.10"
       build-mode: ${{ inputs.build-mode }}
       upload-enabled: ${{ inputs.upload-enabled }}
     secrets: inherit
