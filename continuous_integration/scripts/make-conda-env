@@ -9,7 +9,8 @@ make_ci_env() {
 make_conda_env() {
     set -xeuo pipefail
 
-    export CONDA_ENV=cupy
+    . setup-utils;
+    set_base_defs;
 
     case "$1" in
         ci) make_ci_env;;
