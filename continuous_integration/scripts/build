@@ -8,7 +8,7 @@ build_ci() {
     export CUDA_HOME="${CONDA_PREFIX}/targets/x86_64-linux"
     export PARALLEL_LEVEL=$(nproc --ignore 1)
 
-    python setup.py build_ext --inplace
+    python setup.py bdist_wheel
 }
 
 build_project() {
