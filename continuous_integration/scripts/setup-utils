@@ -1,0 +1,333 @@
+#!/usr/bin/env bash
+
+set_darwin_build_env() {
+    set -xeuo pipefail
+
+    export USE_CUDA=OFF
+    export OS_SHORT_NAME=osx
+    export PATH="/usr/local/opt/coreutils/libexec/gnubin:${PATH}"
+}
+
+install_darwin_mamba() {
+    set -xeuo pipefail
+
+    if [ "${GITHUB_ACTIONS:-}" == "true" ]; then
+        conda install -y -n base anaconda-clean
+        conda run -n base anaconda-clean --yes
+        sudo rm -rf /usr/local/miniconda
+    fi
+
+    brew install --cask mambaforge
+}
+
+install_darwin_tools() {
+    set -xeuo pipefail
+
+    export SED=gsed
+    export READLINK=greadlink
+
+    brew update
+    brew install cmake coreutils git gnu-getopt gnu-sed jq ninja wget sccache
+    install_darwin_mamba;
+}
+
+install_darwin_test_tools() {
+    set -xeuo pipefail
+
+    export SED=gsed
+    export READLINK=greadlink
+
+    brew update
+    brew install coreutils git gnu-getopt gnu-sed jq wget
+    install_darwin_mamba;
+}
+
+# Function to compare version numbers
+version_greater_equal() {
+    set -xeuo pipefail
+
+    set +x
+    IFS='.' read -ra ver1 <<< "$1"
+    IFS='.' read -ra ver2 <<< "$2"
+
+    for i in "${!ver1[@]}"; do
+        if [[ -z ${ver2[i]} ]]; then
+            # ver1 has more segments and is greater
+            set -x
+            return 0
+        fi
+
+        if ((10#${ver1[i]} > 10#${ver2[i]})); then
+            set -x
+            return 0
+        elif ((10#${ver1[i]} < 10#${ver2[i]})); then
+            set -x
+            return 1
+        fi
+    done
+
+    return 0
+}
+
+install_from_apt() {
+    set -xeuo pipefail
+
+    export DEBIAN_FRONTEND=non-interactive
+
+    # Run package updates and install packages
+    apt-get -q update
+    apt-get -q install -y wget curl jq sudo ninja-build vim numactl rsync
+}
+
+install_sccache_linux() {
+    set -xeuo pipefail
+
+    ARCH=$(uname -m)
+
+    if [ "$ARCH" == "x86_64" ]; then
+        SCCACHE_ARCH="x86_64-unknown-linux-musl"
+    elif [ "$ARCH" == "aarch64" ]; then
+        SCCACHE_ARCH="aarch64-unknown-linux-musl"
+    else
+        echo "Unsupported architecture: $ARCH"
+        exit 1
+    fi
+
+    SCCACHE_VERSION="v0.8.1"
+    SCCACHE_URL="https://github.com/mozilla/sccache/releases/download/${SCCACHE_VERSION}/sccache-${SCCACHE_VERSION}-${SCCACHE_ARCH}.tar.gz"
+
+    wget -q "$SCCACHE_URL"
+    tar -xf "sccache-${SCCACHE_VERSION}-${SCCACHE_ARCH}.tar.gz"
+    sudo mv "sccache-${SCCACHE_VERSION}-${SCCACHE_ARCH}/sccache" /usr/bin/sccache
+}
+
+
+maybe_install_sccache_linux() {
+    set -xeuo pipefail
+
+    if ! command -v sccache &> /dev/null; then
+        echo "sccache not found, proceeding with installation."
+        install_sccache_linux
+    else
+        sccache_version=$(sccache --version 2>&1 | awk '/sccache/ {print $2}')
+        if [[ -z "$sccache_version" ]] || ! version_greater_equal "$sccache_version" "0.5.4"; then
+            echo "sccache version less than 0.5.4, proceeding with installation."
+            install_sccache_linux
+        else
+            echo "sccache version is 0.5.4 or greater, no need to install."
+        fi
+    fi
+}
+
+
+install_cmake() {
+    set -xeuo pipefail
+
+    wget -q https://github.com/Kitware/CMake/releases/download/v3.26.5/cmake-3.26.5-linux-x86_64.tar.gz
+
+    tar -xzf cmake-3.26.5-linux-x86_64.tar.gz
+}
+
+setup_linux_build_env() {
+    set -xeuo pipefail
+    export OS_SHORT_NAME=linux
+    export PATH="${PATH}:${PREBUILD_DIR}/cmake-3.26.5-linux-x86_64/bin"
+
+    mkdir -p /tmp/out /tmp/env_yaml
+}
+
+install_linux_tools() {
+    set -xeuo pipefail
+
+    export SED=sed
+    export READLINK=readlink
+
+    install_from_apt;
+    maybe_install_sccache_linux;
+    install_cmake;
+
+    mkdir -p /tmp/out /tmp/env_yaml
+}
+
+install_linux_test_tools() {
+    set -xeuo pipefail
+
+    export SED=sed
+    export READLINK=readlink
+
+    # Run package updates and install packages
+    apt-get -q update
+    apt-get -q install -y numactl
+}
+
+set_base_defs() {
+    set -xeuo pipefail
+
+    export CONDA_ENV=legate
+
+    CONDA_PLATFORM=$(conda info | grep 'platform' | awk -F ' : ' '{print $2}')
+    export CONDA_PLATFORM
+
+    export PREBUILD_DIR=/tmp/prebuild
+    mkdir -p "$PREBUILD_DIR"
+
+    export BUILD_DIR="$REPO_DIR/build"
+
+    # Get the machine architecture
+    ARCH=$(uname -m)
+
+    if [ "$ARCH" == "aarch64" ]; then
+        # Use the gcc march value used by aarch64 Ubuntu.
+        BUILD_MARCH=armv8-a
+    else
+        # Use uname -m otherwise
+        BUILD_MARCH=$(uname -m | tr '_' '-')
+    fi
+
+    export BUILD_MARCH
+
+    export CUDA_VERSION=12.2.2
+
+    export MAX_LIBSANITIZER_VERSION=11.4
+
+    export USE_OPENMP=ON
+}
+
+# -----------------------------------------------------------------------------
+
+prep_git() {
+    # Temporarily disable exit on error
+    set +e
+    git config --global user.email > /dev/null
+    local email_exit_status=$?
+    git config --global user.name > /dev/null
+    local name_exit_status=$?
+    # Re-enable exit on error
+    set -e
+
+    if [ $email_exit_status -ne 0 ]; then
+        git config --global --add user.email "users.noreply.github.com"
+        echo "git user.email was not set. It's now set to users.noreply.github.com"
+    else
+        echo "Note: git user.email is already set."
+    fi
+
+    if [ $name_exit_status -ne 0 ]; then
+        git config --global --add user.name "anon"
+        echo "git user.name was not set. It's now set to anon"
+    else
+        echo "Note: git user.name is already set."
+    fi
+
+    # Fix "fatal: detected dubious ownership in repository at '/tmp/legate.core'"
+    # during local builds.
+    git config --global --add safe.directory "$REPO_DIR"
+}
+
+
+install_tools() {
+    if [[ "$(uname)" == "Darwin" ]]; then
+        install_darwin_tools;
+    elif [[ "$(uname)" == "Linux" ]]; then
+        install_linux_tools;
+    else
+        echo "Unknown OS"
+        exit 1
+    fi
+}
+
+install_test_tools() {
+    if [[ "$(uname)" == "Darwin" ]]; then
+        install_darwin_test_tools;
+    elif [[ "$(uname)" == "Linux" ]]; then
+        install_linux_test_tools;
+    else
+        echo "Unknown OS"
+        exit 1
+    fi
+}
+
+setup_os_specific_env() {
+    if [[ "$(uname)" == "Darwin" ]]; then
+        set_darwin_build_env;
+    elif [[ "$(uname)" == "Linux" ]]; then
+        setup_linux_build_env;
+    else
+        echo "Unknown OS"
+        exit 1
+    fi
+}
+
+setup_build_env() {
+    set -xeuo pipefail
+
+    install_tools;
+
+    setup_os_specific_env;
+
+    rm -rf "$PREBUILD_DIR"
+    mkdir -p "$PREBUILD_DIR"
+    cd $PREBUILD_DIR
+
+    prep_git;
+}
+
+sccache_stop_server_and_show_stats() {
+    set -xeuo pipefail
+    sccache --stop-server || true && sccache --show-stats;
+}
+
+init_sccache() {
+    set -xeuo pipefail
+
+    export SCCACHE_REGION="us-east-2"
+    export SCCACHE_BUCKET="rapids-sccache-east"
+    export SCCACHE_S3_KEY_PREFIX=legate-cunumeric-dev
+    export VAULT_HOST=https://vault.ops.k8s.rapids.ai
+    CMAKE_C_COMPILER_LAUNCHER=$(which sccache)
+    export CMAKE_C_COMPILER_LAUNCHER
+    export CMAKE_CXX_COMPILER_LAUNCHER=${CMAKE_C_COMPILER_LAUNCHER}
+    export CMAKE_CUDA_COMPILER_LAUNCHER=${CMAKE_C_COMPILER_LAUNCHER}
+
+    echo AWS_REGION="${AWS_REGION:-}"
+    echo AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN:-}"
+    echo AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-}"
+    echo AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-}"
+
+    mkdir -p ~/.cache;
+
+    local secrets_dir="$REPO_DIR/.creds"
+
+    if [ -d "$secrets_dir" ] && [ "$(ls -A "$secrets_dir")" ]; then
+        vault-s3-init;
+    else
+        sccache_stop_server_and_show_stats
+    fi
+}
+
+init_build_env() {
+    set -x;
+
+    . conda-utils;
+
+    export BUILD_TYPE=$1
+
+    set -xeuo pipefail;
+
+    set_base_defs;
+
+    cd "$PREBUILD_DIR"
+
+    setup_build_env;
+    init_sccache;
+    cd "$REPO_DIR";
+
+    if [[ -d "${BUILD_DIR}" ]]; then
+        rm -rf "${BUILD_DIR}"
+    fi
+
+    make-conda-env "$BUILD_TYPE";
+
+    activate_conda_env;
+    conda_info;
+}
