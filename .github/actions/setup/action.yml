@@ -26,12 +26,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Checkout ${{ inputs.client-repo }}
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        path: ${{ inputs.client-repo }}
-
     - name: Set REPO_DIR and Dump environment
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |

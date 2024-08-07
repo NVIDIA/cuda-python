@@ -47,6 +47,12 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
 
     steps:
+      - name: Checkout ${{ inputs.client-repo }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: ${{ inputs.client-repo }}
+
       - name: Setup
         uses: ./.github/actions/setup
         with:
