@@ -53,14 +53,6 @@ runs:
         ls -lahR ${{ env.ARTIFACTS_DIR }}
 <% endif %>
 
-    - if: github.repository_owner == 'nvidia'
-      name: Get AWS credentials for sccache bucket
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: us-east-2
-        role-duration-seconds: 28800 # 8 hours
-        role-to-assume: arn:aws:iam::279114543810:role/gha-oidc-nv-legate
-
     - if: ${{ inputs.use-container }}
       name: Build (in container)
       shell: bash --noprofile --norc -xeuo pipefail {0}

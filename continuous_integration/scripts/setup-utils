@@ -27,7 +27,7 @@ install_darwin_tools() {
     export READLINK=greadlink
 
     brew update
-    brew install cmake coreutils git gnu-getopt gnu-sed jq ninja wget sccache
+    brew install cmake coreutils git gnu-getopt gnu-sed jq ninja wget
     install_darwin_mamba;
 }
 
@@ -79,47 +79,6 @@ install_from_apt() {
     apt-get -q install -y wget curl jq sudo ninja-build vim numactl rsync
 }
 
-install_sccache_linux() {
-    set -xeuo pipefail
-
-    ARCH=$(uname -m)
-
-    if [ "$ARCH" == "x86_64" ]; then
-        SCCACHE_ARCH="x86_64-unknown-linux-musl"
-    elif [ "$ARCH" == "aarch64" ]; then
-        SCCACHE_ARCH="aarch64-unknown-linux-musl"
-    else
-        echo "Unsupported architecture: $ARCH"
-        exit 1
-    fi
-
-    SCCACHE_VERSION="v0.8.1"
-    SCCACHE_URL="https://github.com/mozilla/sccache/releases/download/${SCCACHE_VERSION}/sccache-${SCCACHE_VERSION}-${SCCACHE_ARCH}.tar.gz"
-
-    wget -q "$SCCACHE_URL"
-    tar -xf "sccache-${SCCACHE_VERSION}-${SCCACHE_ARCH}.tar.gz"
-    sudo mv "sccache-${SCCACHE_VERSION}-${SCCACHE_ARCH}/sccache" /usr/bin/sccache
-}
-
-
-maybe_install_sccache_linux() {
-    set -xeuo pipefail
-
-    if ! command -v sccache &> /dev/null; then
-        echo "sccache not found, proceeding with installation."
-        install_sccache_linux
-    else
-        sccache_version=$(sccache --version 2>&1 | awk '/sccache/ {print $2}')
-        if [[ -z "$sccache_version" ]] || ! version_greater_equal "$sccache_version" "0.5.4"; then
-            echo "sccache version less than 0.5.4, proceeding with installation."
-            install_sccache_linux
-        else
-            echo "sccache version is 0.5.4 or greater, no need to install."
-        fi
-    fi
-}
-
-
 install_cmake() {
     set -xeuo pipefail
 
@@ -143,7 +102,6 @@ install_linux_tools() {
     export READLINK=readlink
 
     install_from_apt;
-    maybe_install_sccache_linux;
     install_cmake;
 
     mkdir -p /tmp/out /tmp/env_yaml
@@ -272,39 +230,6 @@ setup_build_env() {
     prep_git;
 }
 
-sccache_stop_server_and_show_stats() {
-    set -xeuo pipefail
-    sccache --stop-server || true && sccache --show-stats;
-}
-
-init_sccache() {
-    set -xeuo pipefail
-
-    export SCCACHE_REGION="us-east-2"
-    export SCCACHE_BUCKET="rapids-sccache-east"
-    export SCCACHE_S3_KEY_PREFIX=legate-cunumeric-dev
-    export VAULT_HOST=https://vault.ops.k8s.rapids.ai
-    CMAKE_C_COMPILER_LAUNCHER=$(which sccache)
-    export CMAKE_C_COMPILER_LAUNCHER
-    export CMAKE_CXX_COMPILER_LAUNCHER=${CMAKE_C_COMPILER_LAUNCHER}
-    export CMAKE_CUDA_COMPILER_LAUNCHER=${CMAKE_C_COMPILER_LAUNCHER}
-
-    echo AWS_REGION="${AWS_REGION:-}"
-    echo AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN:-}"
-    echo AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-}"
-    echo AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-}"
-
-    mkdir -p ~/.cache;
-
-    local secrets_dir="$REPO_DIR/.creds"
-
-    if [ -d "$secrets_dir" ] && [ "$(ls -A "$secrets_dir")" ]; then
-        vault-s3-init;
-    else
-        sccache_stop_server_and_show_stats
-    fi
-}
-
 init_build_env() {
     set -x;
 
@@ -319,7 +244,7 @@ init_build_env() {
     cd "$PREBUILD_DIR"
 
     setup_build_env;
-    init_sccache;
+
     cd "$REPO_DIR";
 
     if [[ -d "${BUILD_DIR}" ]]; then
