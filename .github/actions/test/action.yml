@@ -31,7 +31,14 @@ runs:
         pwd
         ls -lahR $ARTIFACTS_DIR
 
+    - name: Make test env
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/make-conda-env" test
+
     - name: Run test / analysis
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
+        . conda-utils
+        activate_conda_env
         "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/test" ${{ inputs.test-options }}

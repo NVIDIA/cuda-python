@@ -3,7 +3,18 @@
 set -x
 
 make_ci_env() {
-    mamba env create -n "${CONDA_ENV}" -f "${REPO_DIR}/continuous_integration/environment.yml"
+    mamba env create -n "${CONDA_ENV}" -f "${REPO_DIR}/continuous_integration/build-environment.yml"
+}
+
+make_test_env() {
+    . conda-utils
+
+    mamba env create -n "${CONDA_ENV}" -f "${REPO_DIR}/continuous_integration/test-environment.yml"
+
+    activate_conda_env
+
+    pip install "${ARTIFACTS_DIR}/*.whl"
+
 }
 
 make_conda_env() {
@@ -14,6 +25,7 @@ make_conda_env() {
 
     case "$1" in
         ci) make_ci_env;;
+        test) make_test_env;;
         *) return 1;;
     esac
 

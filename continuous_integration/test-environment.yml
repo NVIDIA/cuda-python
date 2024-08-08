@@ -1,0 +1,9 @@
+name: cupy
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pytest>=6.2.4
+  - pip
+  - pip:
+    - pytest-benchmark>=3.4.1

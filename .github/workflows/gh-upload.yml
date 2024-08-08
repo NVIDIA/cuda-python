@@ -40,7 +40,7 @@ on:
 jobs:
   upload:
     name: ${{ inputs.name }}
-    if: github.repository_owner == 'nv-legate'
+    if: github.repository_owner == 'nvidia'
     runs-on: linux-amd64-gpu-v100-earliest-1
 
     container:

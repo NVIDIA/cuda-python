@@ -41,7 +41,7 @@ on:
 jobs:
   test:
     name: ${{ inputs.name }}
-    if: github.repository_owner == 'nv-legate'
+    if: github.repository_owner == 'nvidia
     runs-on: ${{ inputs.runs-on }}
 
     container:

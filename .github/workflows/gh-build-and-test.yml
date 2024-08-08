@@ -32,3 +32,93 @@ jobs:
       build-mode: ${{ inputs.build-mode }}
       upload-enabled: ${{ inputs.upload-enabled }}
     secrets: inherit
+
+  setup-test:
+    name: Setup test
+    if: inputs.upload-enabled == false
+    needs:
+      - build
+    runs-on: linux-amd64-cpu4
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          set -xeuo pipefail
+          MATRIX_JSON='{"include": ['
+          RUNNERS=('linux-amd64-gpu-v100-latest-1:gpu:linux')
+          TEST_CONFIGS=('Unit Tests:unit' 'Samples:samples')
+
+          for RUNNER in "${RUNNERS[@]}"; do
+            IFS=':' read -ra RUNNER_INFO <<< "$RUNNER"
+            RUNNER_NAME=${RUNNER_INFO[0]}
+            TARGET_DEVICE=${RUNNER_INFO[1]}
+            RUNNER_PLATFORM=${RUNNER_INFO[2]}
+
+            if [[ "$TARGET_DEVICE" == "${{ inputs.target-device }}" && "$RUNNER_PLATFORM" == "${{ inputs.platform }}" ]]; then
+              for TEST_CONFIG in "${TEST_CONFIGS[@]}"; do
+                IFS=':' read -ra CONFIG_INFO <<< "$TEST_CONFIG"
+                CONFIG_NAME=${CONFIG_INFO[0]}
+                CONFIG_SCOPE=${CONFIG_INFO[1]}
+
+                MATRIX_JSON+="{\"runner\": {\"name\": \"$RUNNER_NAME\", \"type\": \"$TARGET_DEVICE\", \"platform\": \"$RUNNER_PLATFORM\"}, \"test-config\": {\"name\": \"$CONFIG_NAME\", \"test-scope\": \"$CONFIG_SCOPE\"}},"
+              done
+            fi
+          done
+
+          MATRIX_JSON=$(echo "$MATRIX_JSON" | sed 's/,$//') # Remove the trailing comma
+          MATRIX_JSON+=']}'
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+
+  test-within-container:
+    if: github.repository_owner == 'nvidia' && (inputs.platform == 'linux-x64' || inputs.platform == 'linux-aarch64')
+    needs:
+      - setup-test
+
+    name: ${{ matrix.test-config.name }} (${{ inputs.platform }}, ${{ inputs.target-device }}, ${{ inputs.build-mode }})
+
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.setup-test.outputs.matrix)}}
+
+    uses:
+      ./.github/workflows/gh-test-within-container.yml
+    with:
+      client-repo: ${{ github.event.repository.name }}
+      build-type: ${{ inputs.build-type }}
+      name: ${{ matrix.test-config.name }}
+      target-device: ${{ inputs.target-device }}
+      runs-on: ${{ matrix.runner.name }}
+      has-gpu: ${{ matrix.runner.type == 'gpu' }}
+      test-options: ${{ matrix.test-config.test-scope }}
+      platform: ${{ matrix.runner.platform }}
+      build-mode: ${{ inputs.build-mode }}
+      upload-enabled: ${{ inputs.upload-enabled }}
+    secrets: inherit
+
+
+  test-without-container:
+    if: github.repository_owner == 'nv-legate' && (inputs.platform != 'linux-x64' && inputs.platform != '-aarch64')
+    needs:
+      - setup-test
+
+    name: ${{ matrix.test-config.name }} (${{ inputs.platform }}, ${{ inputs.target-device }}, ${{ inputs.build-mode }})
+
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.setup-test.outputs.matrix)}}
+
+    uses:
+      ./.github/workflows/gh-test-without-container.yml
+    with:
+      client-repo: ${{ github.event.repository.name }}
+      build-type: ${{ inputs.build-type }}
+      name: ${{ matrix.test-config.name }}
+      target-device: ${{ inputs.target-device }}
+      runs-on: ${{ matrix.runner.name }}
+      has-gpu: ${{ matrix.runner.type == 'gpu' }}
+      test-options: ${{ matrix.test-config.test-scope }}
+      platform: ${{ matrix.runner.platform }}
+      build-mode: ${{ inputs.build-mode }}
+      upload-enabled: ${{ inputs.upload-enabled }}
+    secrets: inherit

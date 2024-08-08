@@ -53,7 +53,7 @@ runs:
         ls -lahR ${{ env.ARTIFACTS_DIR }}
 <% endif %>
 
-    - if: github.repository_owner == 'nv-legate'
+    - if: github.repository_owner == 'nvidia'
       name: Get AWS credentials for sccache bucket
       uses: aws-actions/configure-aws-credentials@v4
       with:

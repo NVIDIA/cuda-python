@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+run_test_or_analysis() {
+    set -x
+
+    conda_info;
+
+    set -xeuo pipefail
+
+    case "$1" in
+        "unit")
+            echo "Executing unit tests..."
+            python -m pytest
+            ;;
+        "samples")
+            echo "Running samples..."
+            python -m pytest examples
+            ;;
+
+        *)
+            echo "Invalid command: $1"
+            return 1
+            ;;
+    esac
+
+    return 0
+}
+
+(run_test_or_analysis "$@");

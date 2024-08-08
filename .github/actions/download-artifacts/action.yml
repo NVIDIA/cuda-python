@@ -36,7 +36,7 @@ runs:
       name: Cache conda artifacts
       uses: actions/cache@v4
       with:
-        key: "nv-legate/${{ inputs.artifact-repo }}@${{ inputs.platform }}-${{ inputs.git_sha }}-${{ inputs.target-device }}"
+        key: "nvidia/{ inputs.artifact-repo }}@${{ inputs.platform }}-${{ inputs.git_sha }}-${{ inputs.target-device }}"
         path: ${{ inputs.dest-dir }}
 
     - if: steps.cache.outputs.cache-hit != 'true'
@@ -45,7 +45,7 @@ runs:
       with:
         github_token: ${{ inputs.inter-repos-ro-access-token }}
         path: ${{ inputs.dest-dir }}
-        repo: nv-legate/${{ inputs.artifact-repo }}
+        repo: nvidia/${{ inputs.artifact-repo }}
         check_artifacts: true
         commit: ${{ inputs.git_sha }}
         workflow_conclusion: ""
