@@ -39,7 +39,7 @@ vault_s3_init() {
     echo ""
 
     local vault_token=null;
-    local user_orgs=nvidia;
+    local user_orgs=nv-legate;
 
     # Attempt to authenticate with GitHub
     eval "$(get_vault_token "${VAULT_HOST}" ${user_orgs} "$GH_TOKEN")";
