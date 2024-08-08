@@ -1,0 +1,74 @@
+name: upload action
+
+description: Run upload actions in specified project
+
+inputs:
+  urmToken:
+    required: true
+    type: string
+  upload-action:
+    required: true
+    type: string
+  pkgSubString:
+    required: true
+    type: string
+  
+
+runs:
+  using: composite
+  steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.ARTIFACTS_DIR }}
+
+    - name: Display structure of downloaded artifacts
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        pwd
+        ls -lahR $ARTIFACTS_DIR
+
+    - name: Install pre-requisites
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+          echo "Install pre-requisites"
+          apt-get update
+          apt-get install -y curl jq
+
+    - name: Call action, Upload Package
+      if: inputs.upload-action == 'upload-package'
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+          echo "Call action, Upload Package"
+          for f in $(find $ARTIFACTS_DIR/$OUTPUT_FOLDER/$TARGET_PLATFORM/. -name "${{ inputs.pkgSubString }}"'*.tar.bz2'); do
+            fname=$(basename $f)
+            packageFound=$(curl -usvc-legate-github:${{ inputs.urmToken }} -X POST  -H "content-type: text/plain" "$ARTIFACT_SERVER/api/search/aql" -d 'items.find({"repo":"'"$ARTIFACT_REPOS"'","path": {"$match":"'"$PKG_DIR"'"}, "name":{"$eq":"'"$fname"'"}})' | jq -r .results[].name)
+            if [ -z $packageFound ]; then
+              echo "Uploading the package: $fname"
+              curl -usvc-legate-github:${{ inputs.urmToken }} -T $f "$ARTIFACT_SERVER/$ARTIFACT_REPOS/$PKG_DIR/$fname;buildDate=$BUILD_DATE;automatedTestingPassed=0;sha=${{ github.sha }}"
+            else
+              echo "The package: $fname already exists on the server..skipping upload"
+            fi
+          done  
+
+    - name: Call action, Update Test status
+      if: inputs.upload-action == 'update-test-status'
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+          echo "Call action, Update Test status"
+          for f in $(find $ARTIFACTS_DIR/$OUTPUT_FOLDER/$TARGET_PLATFORM/. -name "${{ inputs.pkgSubString }}"'*.tar.bz2'); do
+            fname=$(basename $f)
+            packageFound=$(curl -usvc-legate-github:${{ inputs.urmToken }} -X POST  -H "content-type: text/plain" "$ARTIFACT_SERVER/api/search/aql" -d 'items.find({"repo":"'"$ARTIFACT_REPOS"'","path": {"$match":"'"$PKG_DIR"'"}, "name":{"$eq":"'"$fname"'"}})' | jq -r .results[].name)
+            if [ -z $packageFound ]; then
+              echo "Cannot update. Package:$fname not found on server"
+            else
+              testStatus=$(curl -usvc-legate-github:${{ inputs.urmToken }} -X GET -H "content-type: text/plain" "$ARTIFACT_SERVER/api/storage/$ARTIFACT_REPOS/$PKG_DIR/$fname?properties" | grep automatedTestingPassed | cut -d '"' -f 4)
+              if [[ "$testStatus" == "0" ]]; then
+                echo "Updating Test status of Package: $fname"
+                curl -H "Content-Type: application/json" -X PATCH -usvc-legate-github:${{ inputs.urmToken }} -d '{"props":{"automatedTestingPassed": "1"}}' "$ARTIFACT_SERVER/api/metadata/$ARTIFACT_REPOS/$PKG_DIR/$fname"
+              else
+                echo "status already set..Skipping Update"
+              fi
+            fi
+          done
