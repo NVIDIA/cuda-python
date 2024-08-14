@@ -46,7 +46,7 @@ jobs:
         run: |
           set -xeuo pipefail
           MATRIX_JSON='{"include": ['
-          RUNNERS=('linux-amd64-gpu-v100-latest-1:gpu:linux')
+          RUNNERS=('linux-amd64-gpu-v100-latest-1:gpu:linux-x64')
           TEST_CONFIGS=('Unit Tests:unit' 'Samples:samples')
 
           for RUNNER in "${RUNNERS[@]}"; do
