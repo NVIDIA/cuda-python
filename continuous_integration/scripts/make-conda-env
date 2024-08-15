@@ -13,7 +13,7 @@ make_test_env() {
 
     activate_conda_env
 
-    pip install "${ARTIFACTS_DIR}/*.whl"
+    pip install "${ARTIFACTS_DIR}"/*.whl
 
 }
 
