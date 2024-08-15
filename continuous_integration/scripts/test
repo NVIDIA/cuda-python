@@ -5,6 +5,8 @@ run_test_or_analysis() {
 
     . conda-utils;
 
+    activate_conda_env;
+
     conda_info;
 
     set -xeuo pipefail
