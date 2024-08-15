@@ -55,6 +55,11 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
 
     steps:
+      - name: Checkout ${{ inputs.client-repo }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Setup
         uses: ./.github/actions/setup
         with:
