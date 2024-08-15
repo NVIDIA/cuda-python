@@ -39,6 +39,6 @@ runs:
     - name: Run test / analysis
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        . conda-utils
+        . "${{ env.REPO_DIR }}/continuous_integration/scripts/conda-utils"
         activate_conda_env
         "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/test" ${{ inputs.test-options }}
