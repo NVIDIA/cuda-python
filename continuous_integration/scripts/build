@@ -11,6 +11,17 @@ build_ci() {
     python setup.py bdist_wheel
 }
 
+build_ci_fake() {
+    set -xeou pipefail
+
+    cd "${REPO_DIR}"
+
+    mkdir "${REPO_DIR}"/dist
+
+    cp cuda_python-12.6.0+28.g3453074-cp311-cp311-linux_x86_64.whl "${REPO_DIR}"/dist
+
+}
+
 build_project() {
     set -xeou pipefail
 
@@ -22,7 +33,9 @@ build_project() {
     git config --global --add safe.directory "$REPO_DIR/.git"
 
     case "${BUILD_TYPE}" in
-        ci) build_ci;;
+        # TODO: uncomment and delete line below it
+        # ci) build_ci;;
+        ci) build_ci_fake ;;
         *) return 1;;
     esac
 }
