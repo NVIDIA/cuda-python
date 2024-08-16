@@ -3,13 +3,13 @@
 set -x
 
 make_ci_env() {
-    mamba env create -n "${CONDA_ENV}" -f "${REPO_DIR}/continuous_integration/build-environment.yml"
+    mamba env create -n "${CONDA_ENV}" -f "${REPO_DIR}/continuous_integration/environment.yml"
 }
 
 make_test_env() {
     . conda-utils
 
-    mamba env create -n "${CONDA_ENV}" -f "${REPO_DIR}/continuous_integration/test-environment.yml"
+    mamba env create -n "${CONDA_ENV}" -f "${REPO_DIR}/continuous_integration/environment.yml"
 
     activate_conda_env
 
