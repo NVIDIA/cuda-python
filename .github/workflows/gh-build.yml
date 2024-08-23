@@ -92,5 +92,4 @@ jobs:
           platform: ${{ inputs.platform }}
           use-container: ${{ inputs.use-container }}
           docker-image: "condaforge/miniforge3:latest"
-          inter-repos-ro-access-token: ${{ secrets.NV_LEGATE_INTER_REPOS_ACCESS_RO }}
           upload-enabled: ${{ inputs.upload-enabled }}

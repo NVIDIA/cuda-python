@@ -19,9 +19,6 @@ inputs:
   docker-image:
     type: string
     required: true
-  inter-repos-ro-access-token:
-    type: string
-    required: true
   upload-enabled:
     required: true
     type: boolean
@@ -38,7 +35,6 @@ runs:
         artifact-name: "<<package_info.artifact_name | replace_placeholder('repo', package_info.repo) | replace_placeholder('git_tag', package_info.git_tag) >>"
         target-device: "${{ inputs.target-device }}"
         git_sha: "<<package_info.git_tag>>"
-        inter-repos-ro-access-token: ${{ inputs.inter-repos-ro-access-token }}
         platform: ${{ inputs.platform }}
         dest-dir: ${{ env.ARTIFACTS_DIR }}
         dependencies-workflow: <<package_info.artifact_workflow>>

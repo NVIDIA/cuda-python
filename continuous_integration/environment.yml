@@ -9,7 +9,7 @@ dependencies:
   - setuptools
   - wheel
   - pip
-  - cuda-version >= 12.6
+  - cuda-version=12.6
   - cuda-cudart-static
   - cuda-driver-dev
   - cuda-cudart-dev

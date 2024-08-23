@@ -15,9 +15,6 @@ inputs:
   git_sha:
     type: string
     required: true
-  inter-repos-ro-access-token:
-    type: string
-    required: true
   platform:
     type: string
     required: true
@@ -43,7 +40,6 @@ runs:
       name: Download ${{ inputs.artifact-repo }} artifacts
       uses: dawidd6/action-download-artifact@v3
       with:
-        github_token: ${{ inputs.inter-repos-ro-access-token }}
         path: ${{ inputs.dest-dir }}
         repo: nvidia/${{ inputs.artifact-repo }}
         check_artifacts: true
