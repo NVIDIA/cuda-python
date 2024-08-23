@@ -1,4 +1,4 @@
-name: cupy
+name: cuda_python
 channels:
   - defaults
 dependencies:

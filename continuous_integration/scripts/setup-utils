@@ -121,7 +121,7 @@ install_linux_test_tools() {
 set_base_defs() {
     set -xeuo pipefail
 
-    export CONDA_ENV=cupy
+    export CONDA_ENV=cuda_python
 
     CONDA_PLATFORM=$(conda info | grep 'platform' | awk -F ' : ' '{print $2}')
     export CONDA_PLATFORM
