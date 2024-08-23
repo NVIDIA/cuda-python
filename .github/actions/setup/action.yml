@@ -10,7 +10,7 @@ inputs:
   target-device:
     required: true
     type: string
-  platform:
+  host-platform:
     required: true
     type: string
   build-mode:
@@ -42,7 +42,7 @@ runs:
         fi
 
         TARGET_PLATFORM='linux-64'
-        if [[ "${{ inputs.platform }}" == "linux-aarch64" ]]; then
+        if [[ "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
           TARGET_PLATFORM='linux-aarch64'
         fi
 
@@ -57,7 +57,7 @@ runs:
           PKG_DIR="${BUILD_MODE}/${TARGET_PLATFORM}"
         fi
 
-        echo "ARTIFACT_NAME=${{ inputs.platform }}-${{ inputs.build-type }}-${{ inputs.client-repo }}-python${{ inputs.python-version }}-${{ inputs.target-device }}${BUILD_MODE_STR}${WITH_TESTS_STR}-${{ github.sha }}" >> $GITHUB_ENV
+        echo "ARTIFACT_NAME=${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ inputs.client-repo }}-python${{ inputs.python-version }}-${{ inputs.target-device }}${BUILD_MODE_STR}${WITH_TESTS_STR}-${{ github.sha }}" >> $GITHUB_ENV
         echo "ARTIFACTS_DIR=$(realpath "$(pwd)/dist")" >> $GITHUB_ENV
         echo "USE_CUDA=${{ (inputs.target-device == 'cpu' && 'OFF') || 'ON' }}" >> $GITHUB_ENV
         echo "UPLOAD_ENABLED=${{ (inputs.upload-enabled  == 'true' && 'ON') || 'OFF' }}" >> $GITHUB_ENV

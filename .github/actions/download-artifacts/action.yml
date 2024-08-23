@@ -15,7 +15,7 @@ inputs:
   git_sha:
     type: string
     required: true
-  platform:
+  host-platform:
     type: string
     required: true
   dest-dir:
@@ -33,7 +33,7 @@ runs:
       name: Cache conda artifacts
       uses: actions/cache@v4
       with:
-        key: "nvidia/{ inputs.artifact-repo }}@${{ inputs.platform }}-${{ inputs.git_sha }}-${{ inputs.target-device }}"
+        key: "nvidia/{ inputs.artifact-repo }}@${{ inputs.host-platform }}-${{ inputs.git_sha }}-${{ inputs.target-device }}"
         path: ${{ inputs.dest-dir }}
 
     - if: steps.cache.outputs.cache-hit != 'true'

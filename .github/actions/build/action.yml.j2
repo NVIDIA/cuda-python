@@ -10,7 +10,7 @@ inputs:
   target-device:
     required: true
     type: string
-  platform:
+  host-platform:
     required: true
     type: string
   use-container:
@@ -35,7 +35,7 @@ runs:
         artifact-name: "<<package_info.artifact_name | replace_placeholder('repo', package_info.repo) | replace_placeholder('git_tag', package_info.git_tag) >>"
         target-device: "${{ inputs.target-device }}"
         git_sha: "<<package_info.git_tag>>"
-        platform: ${{ inputs.platform }}
+        host-platform: ${{ inputs.host-platform }}
         dest-dir: ${{ env.ARTIFACTS_DIR }}
         dependencies-workflow: <<package_info.artifact_workflow>>
 <% endfor %>

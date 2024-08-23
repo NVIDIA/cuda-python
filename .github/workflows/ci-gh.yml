@@ -12,11 +12,11 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and test (${{ matrix.platform }}, ${{ matrix.target-device }}, ${{ matrix.build-mode }})
+    name: Build and test (${{ matrix.host-platform }}, ${{ matrix.target-device }}, ${{ matrix.build-mode }})
     strategy:
       fail-fast: false
       matrix:
-        platform:
+        host-platform:
           - linux-x64
         target-device:
           - gpu
@@ -27,7 +27,7 @@ jobs:
     uses:
       ./.github/workflows/gh-build-and-test.yml
     with:
-      platform: ${{ matrix.platform }}
+      host-platform: ${{ matrix.host-platform }}
       target-device: ${{ matrix.target-device }}
       build-mode: ${{ matrix.build-mode }}
       build-type: ci
