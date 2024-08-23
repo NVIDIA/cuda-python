@@ -2,7 +2,7 @@ name: cuda_python
 channels:
   - defaults
 dependencies:
-  - python=3.11
+  - python>=3.10
   - cython>=3.0.0
   - pytest>=6.2.4
   - numpy>=1.21.1
