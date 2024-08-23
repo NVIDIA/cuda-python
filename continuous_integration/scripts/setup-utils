@@ -1,74 +1,5 @@
 #!/usr/bin/env bash
 
-set_darwin_build_env() {
-    set -xeuo pipefail
-
-    export USE_CUDA=OFF
-    export OS_SHORT_NAME=osx
-    export PATH="/usr/local/opt/coreutils/libexec/gnubin:${PATH}"
-}
-
-install_darwin_mamba() {
-    set -xeuo pipefail
-
-    if [ "${GITHUB_ACTIONS:-}" == "true" ]; then
-        conda install -y -n base anaconda-clean
-        conda run -n base anaconda-clean --yes
-        sudo rm -rf /usr/local/miniconda
-    fi
-
-    brew install --cask mambaforge
-}
-
-install_darwin_tools() {
-    set -xeuo pipefail
-
-    export SED=gsed
-    export READLINK=greadlink
-
-    brew update
-    brew install cmake coreutils git gnu-getopt gnu-sed jq ninja wget
-    install_darwin_mamba;
-}
-
-install_darwin_test_tools() {
-    set -xeuo pipefail
-
-    export SED=gsed
-    export READLINK=greadlink
-
-    brew update
-    brew install coreutils git gnu-getopt gnu-sed jq wget
-    install_darwin_mamba;
-}
-
-# Function to compare version numbers
-version_greater_equal() {
-    set -xeuo pipefail
-
-    set +x
-    IFS='.' read -ra ver1 <<< "$1"
-    IFS='.' read -ra ver2 <<< "$2"
-
-    for i in "${!ver1[@]}"; do
-        if [[ -z ${ver2[i]} ]]; then
-            # ver1 has more segments and is greater
-            set -x
-            return 0
-        fi
-
-        if ((10#${ver1[i]} > 10#${ver2[i]})); then
-            set -x
-            return 0
-        elif ((10#${ver1[i]} < 10#${ver2[i]})); then
-            set -x
-            return 1
-        fi
-    done
-
-    return 0
-}
-
 install_from_apt() {
     set -xeuo pipefail
 
@@ -183,45 +114,12 @@ prep_git() {
 }
 
 
-install_tools() {
-    if [[ "$(uname)" == "Darwin" ]]; then
-        install_darwin_tools;
-    elif [[ "$(uname)" == "Linux" ]]; then
-        install_linux_tools;
-    else
-        echo "Unknown OS"
-        exit 1
-    fi
-}
-
-install_test_tools() {
-    if [[ "$(uname)" == "Darwin" ]]; then
-        install_darwin_test_tools;
-    elif [[ "$(uname)" == "Linux" ]]; then
-        install_linux_test_tools;
-    else
-        echo "Unknown OS"
-        exit 1
-    fi
-}
-
-setup_os_specific_env() {
-    if [[ "$(uname)" == "Darwin" ]]; then
-        set_darwin_build_env;
-    elif [[ "$(uname)" == "Linux" ]]; then
-        setup_linux_build_env;
-    else
-        echo "Unknown OS"
-        exit 1
-    fi
-}
-
 setup_build_env() {
     set -xeuo pipefail
 
-    install_tools;
+    install_linux_tools;
 
-    setup_os_specific_env;
+    setup_linux_build_env;
 
     rm -rf "$PREBUILD_DIR"
     mkdir -p "$PREBUILD_DIR"
