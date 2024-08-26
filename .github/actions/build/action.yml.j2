@@ -1,0 +1,90 @@
+name: build
+
+description: Build specified project
+
+inputs:
+  build-type:
+    required: true
+    type: string
+    description: One of ci / release
+  target-device:
+    required: true
+    type: string
+  host-platform:
+    required: true
+    type: string
+  use-container:
+    required: true
+    type: boolean
+  docker-image:
+    type: string
+    required: true
+  upload-enabled:
+    required: true
+    type: boolean
+
+runs:
+  using: composite
+  steps:
+
+<% for package_id, package_info in packages.items() %>
+    - name: Download <<package_info.repo>> (artifacts)
+      uses: ./.github/actions/download-artifacts
+      with:
+        artifact-repo: "<<package_info.repo>>"
+        artifact-name: "<<package_info.artifact_name | replace_placeholder('repo', package_info.repo) | replace_placeholder('git_tag', package_info.git_tag) >>"
+        target-device: "${{ inputs.target-device }}"
+        git_sha: "<<package_info.git_tag>>"
+        host-platform: ${{ inputs.host-platform }}
+        dest-dir: ${{ env.ARTIFACTS_DIR }}
+        dependencies-workflow: <<package_info.artifact_workflow>>
+<% endfor %>
+
+<% if packages %>
+
+    - name: Display structure of downloaded artifacts
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        pwd
+        ls -lahR ${{ env.ARTIFACTS_DIR }}
+<% endif %>
+
+    - if: ${{ inputs.use-container }}
+      name: Build (in container)
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+
+        docker run \
+          -e AWS_REGION \
+          -e AWS_SESSION_TOKEN \
+          -e AWS_ACCESS_KEY_ID \
+          -e AWS_SECRET_ACCESS_KEY \
+          -e GITHUB_TOKEN \
+          -e ARTIFACTS_DIR="$ARTIFACTS_DIR" \
+          -e UPLOAD_ENABLED="$UPLOAD_ENABLED" \
+          -e USE_CUDA="$USE_CUDA" \
+          -e REPO_DIR="$REPO_DIR" \
+          -e LEGATE_CORE_BUILD_MODE="$LEGATE_CORE_BUILD_MODE" \
+          -e PYTHON_VERSION="$PYTHON_VERSION" \
+          -v "${{ env.REPO_DIR }}:${{ env.REPO_DIR }}" \
+          -v "${{ env.ARTIFACTS_DIR }}:${{ env.ARTIFACTS_DIR }}" \
+          --rm "${{ inputs.docker-image }}" \
+          /bin/bash -c "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint ${{ env.REPO_DIR }}/continuous_integration/scripts/build ${{ inputs.build-type}} ${{ inputs.target-device }}"
+
+    - if: ${{ !inputs.use-container }}
+      name: Build (without container)
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/build" "${{ inputs.build-type}}" "${{ inputs.target-device }}"
+
+    - name: Display structure of the artifacts folder (post build)
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        sudo chown -R $(whoami) ${{ env.ARTIFACTS_DIR }}
+        ls -lahR ${{ env.ARTIFACTS_DIR }}
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.ARTIFACTS_DIR }}
