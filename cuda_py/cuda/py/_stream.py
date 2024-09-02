@@ -133,7 +133,12 @@ class Stream:
         # Create an Event object (or reusing the given one) by recording
         # on the stream. Event flags such as disabling timing, nonblocking,
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
-        raise NotImplementedError("TODO")
+        if event is None:
+            event = Event._init(options)
+        elif not isinstance(event, Event):
+            raise TypeError("record only takes an Event object")
+        handle_return(cuda.cuEventRecord(event.handle, self._handle))
+        return event
 
     def wait(self, event_or_stream: Union[Event, Stream]):
         # Wait for a CUDA event or a CUDA stream to establish a stream order.
@@ -154,7 +159,8 @@ class Stream:
                         "__cuda_stream__ can be waited") from e
             else:
                 stream = event_or_stream
-            event = handle_return(cuda.cuEventCreate(cuda.CU_EVENT_DISABLE_TIMING))
+            event = handle_return(
+                cuda.cuEventCreate(cuda.CUevent_flags.CU_EVENT_DISABLE_TIMING))
             handle_return(cuda.cuEventRecord(event, stream.handle))
             discard_event = True
 
