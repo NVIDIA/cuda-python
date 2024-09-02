@@ -3,9 +3,9 @@ import warnings
 
 from cuda import cuda, cudart
 from cuda.py._utils import handle_return, CUDAError
-from cuda.py.context import Context
+from cuda.py._context import Context
 from cuda.py._memory import _DefaultAsyncMempool, MemoryResource
-from cuda.py.stream import default_stream, Stream
+from cuda.py._stream import default_stream, Stream
 
 
 _tls = threading.local()

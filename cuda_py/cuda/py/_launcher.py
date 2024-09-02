@@ -6,8 +6,8 @@ import numpy as np
 from cuda import cuda, cudart
 from cuda.py._utils import CUDAError, check_or_create_options, handle_return
 from cuda.py._memory import Buffer
-from cuda.py.module import Kernel
-from cuda.py.stream import Stream
+from cuda.py._module import Kernel
+from cuda.py._stream import Stream
 
 
 @dataclass

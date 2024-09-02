@@ -1,7 +1,7 @@
 import abc
 
 from cuda import cuda
-from cuda.py.stream import default_stream
+from cuda.py._stream import default_stream
 from cuda.py._utils import handle_return
 
 

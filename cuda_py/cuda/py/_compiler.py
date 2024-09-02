@@ -1,6 +1,6 @@
 from cuda import nvrtc
 from cuda.py._utils import handle_return
-from cuda.py.module import Module
+from cuda.py._module import Module
 
 
 class Compiler:
