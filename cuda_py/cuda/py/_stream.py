@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 import os
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, TYPE_CHECKING, Union
 
+if TYPE_CHECKING:
+    from cuda.py._context import Context
+    from cuda.py._device import Device
 from cuda import cuda, cudart
-from cuda.py._context import Context
 from cuda.py._event import Event, EventOptions
 from cuda.py._utils import check_or_create_options
 from cuda.py._utils import handle_return
@@ -132,7 +136,7 @@ class Stream:
         raise NotImplementedError("TODO")
 
     @property
-    def device(self) -> "Device":
+    def device(self) -> Device:
         # Inverse look-up to find on which device this stream instance was
         # created.
         #
@@ -148,7 +152,7 @@ class Stream:
         raise NotImplementedError("TODO")
 
     @staticmethod
-    def from_handle(handle: int) -> "Stream":
+    def from_handle(handle: int) -> Stream:
         class _stream_holder:
             @property
             def __cuda_stream__(self):
