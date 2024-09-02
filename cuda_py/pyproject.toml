@@ -1,0 +1,52 @@
+# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+[build-system]
+requires = ["setuptools",]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "cuda-py"
+dynamic = [
+    "version",
+    "readme",
+]
+requires-python = '>=3.9'
+description = "cuda.py: (experimental) pythonic CUDA module"
+authors = [
+    { name = "NVIDIA Corporation" }
+]
+license = {text = "NVIDIA Software License"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "License :: Other/Proprietary License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Environment :: GPU :: NVIDIA CUDA",
+    "Environment :: GPU :: NVIDIA CUDA :: 11",
+    "Environment :: GPU :: NVIDIA CUDA :: 12",
+]
+
+
+[tool.setuptools]
+packages = ["cuda", "cuda.py"]
+
+
+[tool.setuptools.dynamic]
+version = { attr = "cuda.py._version.__version__" }
+readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
