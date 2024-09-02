@@ -76,3 +76,20 @@ def check_or_create_options(cls, options, options_description, *, keep_none=Fals
                         f"The provided object is '{options}'.")
 
     return options
+
+
+def get_device_from_ctx(ctx_handle) -> int:
+    """Get device ID from the given ctx."""
+    prev_ctx = Device().context.handle
+    if ctx_handle != prev_ctx:
+        switch_context = True
+    else:
+        switch_context = False
+    if switch_context:
+        assert prev_ctx == handle_return(cuda.cuCtxPopCurrent())
+        handle_return(cuda.cuCtxPushCurrent(ctx_handle))
+    device_id = int(handle_return(cuda.cuCtxGetDevice()))
+    if switch_context:
+        assert ctx_handle ==  handle_return(cuda.cuCtxPopCurrent())
+        handle_return(cuda.cuCtxPushCurrent(prev_ctx))
+    return device_id

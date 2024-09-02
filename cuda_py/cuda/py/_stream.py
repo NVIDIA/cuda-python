@@ -5,11 +5,12 @@ import os
 from typing import Optional, Tuple, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    from cuda.py._context import Context
     from cuda.py._device import Device
 from cuda import cuda, cudart
+from cuda.py._context import Context
 from cuda.py._event import Event, EventOptions
 from cuda.py._utils import check_or_create_options
+from cuda.py._utils import get_device_from_ctx
 from cuda.py._utils import handle_return
 
 
@@ -22,7 +23,8 @@ class StreamOptions:
 
 class Stream:
 
-    __slots__ = ("_handle", "_nonblocking", "_priority", "_owner", "_builtin")
+    __slots__ = ("_handle", "_nonblocking", "_priority", "_owner", "_builtin",
+                 "_device_id", "_ctx_handle")
 
     def __init__(self):
         # minimal requirements for the destructor
@@ -55,6 +57,8 @@ class Stream:
             self._owner = obj
             self._nonblocking = None  # delayed
             self._priority = None  # delayed
+            self._device_id = None  # delayed
+            self._ctx_handle = None  # delayed
             return self
 
         options = check_or_create_options(StreamOptions, options, "Stream options")
@@ -76,9 +80,13 @@ class Stream:
 
         self._handle = handle_return(
             cuda.cuStreamCreateWithPriority(flags, priority))
-        self._owner = None  # TODO: hold the Context object?
+        self._owner = None
         self._nonblocking = nonblocking
         self._priority = priority
+        # don't defer this because we will have to pay a cost for context
+        # switch later
+        self._device_id = int(handle_return(cuda.cuCtxGetDevice()))
+        self._ctx_handle = None  # delayed
         return self
 
     def __del__(self):
@@ -127,13 +135,33 @@ class Stream:
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
         raise NotImplementedError("TODO")
 
-    def wait(self, event_or_stream: Union[Event, "Stream"]):
+    def wait(self, event_or_stream: Union[Event, Stream]):
         # Wait for a CUDA event or a CUDA stream to establish a stream order.
         #
         # If a Stream instance is provided, the effect is as if an event is
         # recorded on the given stream, and then self waits on the recorded
         # event.
-        raise NotImplementedError("TODO")
+        if isinstance(event_or_stream, Event):
+            event = event_or_stream.handle
+            discard_event = False
+        else:
+            if not isinstance(event_or_stream, Stream):
+                try:
+                    stream = Stream._init(event_or_stream)
+                except Exception as e:
+                    raise ValueError(
+                        "only an Event, Stream, or object supporting "
+                        "__cuda_stream__ can be waited") from e
+            else:
+                stream = event_or_stream
+            event = handle_return(cuda.cuEventCreate(cuda.CU_EVENT_DISABLE_TIMING))
+            handle_return(cuda.cuEventRecord(event, stream.handle))
+            discard_event = True
+
+        # TODO: support flags other than 0?
+        handle_return(cuda.cuStreamWaitEvent(self._handle, event, 0))
+        if discard_event:
+            handle_return(cuda.cuEventDestroy(event))
 
     @property
     def device(self) -> Device:
@@ -143,13 +171,25 @@ class Stream:
         # Note that Stream.device.context might not necessarily agree with
         # Stream.context, in cases where a different CUDA context is set
         # current after a stream was created.
-        raise NotImplementedError("TODO")
+        from cuda.py._device import Device  # avoid circular import
+        if self._device_id is None:
+            # Get the stream context first
+            if self._ctx_handle is None:
+                self._ctx_handle = handle_return(
+                    cuda.cuStreamGetCtx(self._handle))
+            self._device_id = get_device_from_ctx(self._ctx_handle)
+        return Device(self._device_id)
 
     @property
     def context(self) -> Context:
         # Inverse look-up to find in which CUDA context this stream instance
         # was created
-        raise NotImplementedError("TODO")
+        if self._ctx_handle is None:
+            self._ctx_handle = handle_return(
+                cuda.cuStreamGetCtx(self._handle))
+        if self._device_id is None:
+            self._device_id = get_device_from_ctx(self._ctx_handle)
+        return Context._from_ctx(self._ctx_handle, self._device_id)
 
     @staticmethod
     def from_handle(handle: int) -> Stream:
