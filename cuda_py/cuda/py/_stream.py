@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 import os
-from typing import Optional
+from typing import Optional, Tuple, Union
 
 from cuda import cuda, cudart
+from cuda.py._context import Context
+from cuda.py._event import Event, EventOptions
 from cuda.py._utils import check_or_create_options
 from cuda.py._utils import handle_return
 
@@ -18,7 +20,20 @@ class Stream:
 
     __slots__ = ("_handle", "_nonblocking", "_priority", "_owner", "_builtin")
 
-    def __init__(self, obj=None, *, options: Optional[StreamOptions]=None):
+    def __init__(self):
+        # minimal requirements for the destructor
+        self._handle = None
+        self._owner = None
+        self._builtin = False
+        raise NotImplementedError(
+            "directly creating a Stream object can be ambiguous. Please either "
+            "call Device.create_stream() or, if a stream pointer is already "
+            "available from somewhere else, Stream.from_handle()")
+
+    @staticmethod
+    def _init(obj=None, *, options: Optional[StreamOptions]=None):
+        self = Stream.__new__(Stream)
+
         # minimal requirements for the destructor
         self._handle = None
         self._owner = None
@@ -29,12 +44,14 @@ class Stream:
         if obj is not None:
             if not hasattr(obj, "__cuda_stream__"):
                 raise ValueError
-            self._handle = cuda.CUstream(obj.__cuda_stream__())
+            info = obj.__cuda_stream__
+            assert info[0] == 0
+            self._handle = cuda.CUstream(info[1])
             # TODO: check if obj is created under the current context/device
             self._owner = obj
             self._nonblocking = None  # delayed
             self._priority = None  # delayed
-            return
+            return self
 
         options = check_or_create_options(StreamOptions, options, "Stream options")
         nonblocking = options.nonblocking
@@ -58,16 +75,30 @@ class Stream:
         self._owner = None  # TODO: hold the Context object?
         self._nonblocking = nonblocking
         self._priority = priority
+        return self
 
     def __del__(self):
-        if self._owner is None and self._handle and not self._builtin:
-            handle_return(cuda.cuStreamDestroy(self._handle))
+        self.close()
 
-    def __cuda_stream__(self):
+    def close(self):
+        if self._owner is None:
+            if self._handle and not self._builtin:
+                handle_return(cuda.cuStreamDestroy(self._handle))
+        else:
+            self._owner = None
+        self._handle = None
+
+    @property
+    def __cuda_stream__(self) -> Tuple[int, int]:
+        return (0, int(self._handle))
+
+    @property
+    def handle(self) -> int:
+        # Return the underlying cudaStream_t pointer address as Python int.
         return int(self._handle)
 
     @property
-    def nonblocking(self):
+    def is_nonblocking(self) -> bool:
         if self._nonblocking is None:
             flag = handle_return(cuda.cuStreamGetFlags(self._handle))
             if flag == cuda.CUstream_flags.CU_STREAM_NON_BLOCKING:
@@ -77,7 +108,7 @@ class Stream:
         return self._nonblocking
 
     @property
-    def priority(self):
+    def priority(self) -> int:
         if self._priority is None:
             prio = handle_return(cuda.cuStreamGetPriority(self._handle))
             self._priority = prio
@@ -85,6 +116,44 @@ class Stream:
 
     def sync(self):
         handle_return(cuda.cuStreamSynchronize(self._handle))
+
+    def record(self, event: Event=None, options: EventOptions=None) -> Event:
+        # Create an Event object (or reusing the given one) by recording
+        # on the stream. Event flags such as disabling timing, nonblocking,
+        # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
+        raise NotImplementedError("TODO")
+
+    def wait(self, event_or_stream: Union[Event, "Stream"]):
+        # Wait for a CUDA event or a CUDA stream to establish a stream order.
+        #
+        # If a Stream instance is provided, the effect is as if an event is
+        # recorded on the given stream, and then self waits on the recorded
+        # event.
+        raise NotImplementedError("TODO")
+
+    @property
+    def device(self) -> "Device":
+        # Inverse look-up to find on which device this stream instance was
+        # created.
+        #
+        # Note that Stream.device.context might not necessarily agree with
+        # Stream.context, in cases where a different CUDA context is set
+        # current after a stream was created.
+        raise NotImplementedError("TODO")
+
+    @property
+    def context(self) -> Context:
+        # Inverse look-up to find in which CUDA context this stream instance
+        # was created
+        raise NotImplementedError("TODO")
+
+    @staticmethod
+    def from_handle(handle: int) -> "Stream":
+        class _stream_holder:
+            @property
+            def __cuda_stream__(self):
+                return (0, handle)
+        return Stream._init(obj=_stream_holder())
 
 
 class _LegacyDefaultStream(Stream):

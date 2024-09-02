@@ -26,7 +26,7 @@ class LaunchConfig:
         if self.stream is not None:
             if not isinstance(self.stream, Stream):
                 try:
-                    self.stream = Stream(self.stream)
+                    self.stream = Stream._init(self.stream)
                 except Exception as e:
                     raise ValueError(
                         "stream must either be a Stream object "

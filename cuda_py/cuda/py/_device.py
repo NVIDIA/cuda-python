@@ -163,7 +163,7 @@ class Device:
         # CUDA stream or wrapping an existing foreign object supporting
         # the __cuda_stream__ protocol. In the latter case, a reference
         # to obj is held internally so that its lifetime is managed.
-        return Stream(obj=obj, options=options)
+        return Stream._init(obj=obj, options=options)
 
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
