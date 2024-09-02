@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import Dict
 
 from cuda import cuda, cudart, nvrtc
@@ -6,7 +7,10 @@ from cuda import cuda, cudart, nvrtc
 class CUDAError(Exception): pass
 
 
-class NVRTCError(Exception): pass
+class NVRTCError(CUDAError): pass
+
+
+ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
 
 
 def _check_error(error, handle=None):

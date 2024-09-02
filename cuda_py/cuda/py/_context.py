@@ -1,5 +1,12 @@
+from dataclasses import dataclass
+
 from cuda import cuda, cudart
 from cuda.py._utils import handle_return
+
+
+@dataclass
+class ContextOptions:
+    pass  # TODO
 
 
 class Context:

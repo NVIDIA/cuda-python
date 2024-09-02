@@ -1,11 +1,12 @@
 import threading
+from typing import Optional, Union
 import warnings
 
 from cuda import cuda, cudart
-from cuda.py._utils import handle_return, CUDAError
-from cuda.py._context import Context
-from cuda.py._memory import _DefaultAsyncMempool, MemoryResource
-from cuda.py._stream import default_stream, Stream
+from cuda.py._utils import handle_return, ComputeCapability, CUDAError
+from cuda.py._context import Context, ContextOptions
+from cuda.py._memory import _DefaultAsyncMempool, Buffer, MemoryResource
+from cuda.py._stream import default_stream, Stream, StreamOptions
 
 
 _tls = threading.local()
@@ -15,7 +16,6 @@ _tls_lock = threading.Lock()
 class Device:
 
     __slots__ = ("_id", "_mr")
-    Stream = Stream
 
     def __new__(cls, device_id=None):
         # important: creating a Device instance does not initialize the GPU!
@@ -42,16 +42,16 @@ class Device:
         return _tls.devices[device_id]
 
     @property
-    def device_id(self):
+    def device_id(self) -> int:
         return self._id
 
     @property
-    def pci_bus_id(self):
+    def pci_bus_id(self) -> str:
         bus_id = handle_return(cudart.cudaDeviceGetPCIBusId(13, self._id))
         return bus_id[:12].decode()
 
     @property
-    def uuid(self):
+    def uuid(self) -> str:
         driver_ver = handle_return(cuda.cuDriverGetVersion())
         if driver_ver >= 11040:
             uuid = handle_return(cuda.cuDeviceGetUuid_v2(self._id))
@@ -62,26 +62,28 @@ class Device:
         return f"{uuid[:8]}-{uuid[8:12]}-{uuid[12:16]}-{uuid[16:20]}-{uuid[20:]}"
 
     @property
-    def name(self):
+    def name(self) -> str:
         # assuming a GPU name is less than 128 characters...
         name = handle_return(cuda.cuDeviceGetName(128, self._id))
         name = name.split(b'\0')[0]
         return name.decode()
 
     @property
-    def properties(self):
+    def properties(self) -> dict:
+        # TODO: pythonize the key names
         return handle_return(cudart.cudaGetDeviceProperties(self._id))
 
     @property
-    def compute_capability(self):
+    def compute_capability(self) -> ComputeCapability:
+        """Returns a named tuple with 2 fields: major and minor. """
         major = handle_return(cudart.cudaDeviceGetAttribute(
             cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, self._id))
         minor = handle_return(cudart.cudaDeviceGetAttribute(
             cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, self._id))
-        return (major, minor)
+        return ComputeCapability(major, minor)
 
     @property
-    def context(self):
+    def context(self) -> Context:
         ctx = handle_return(cuda.cuCtxGetCurrent())
         if int(ctx) == 0:
             raise CUDAError("the device is not yet initialized, "
@@ -89,7 +91,7 @@ class Device:
         return Context._from_ctx(ctx, self._id)
 
     @property
-    def memory_resource(self):
+    def memory_resource(self) -> MemoryResource:
         return self._mr
 
     @memory_resource.setter
@@ -99,7 +101,7 @@ class Device:
         self._mr = mr
 
     @property
-    def default_stream(self):
+    def default_stream(self) -> Stream:
         return default_stream()
 
     def __int__(self):
@@ -108,7 +110,20 @@ class Device:
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
 
-    def use(self, ctx=None):
+    def use(self, ctx: Context=None) -> Union[Context, None]:
+        """
+        Entry point of this object. Users always start a code by
+        calling this method, e.g.
+        
+        >>> from cuda.py import Device
+        >>> dev0 = Device(0)
+        >>> dev0.use()
+        >>> # ... do work on device 0 ...
+        
+        The optional ctx argument is for advanced users to bind a
+        CUDA context with the device. In this case, the previously
+        set context is popped and returned to the user.
+        """
         if ctx is not None:
             if not isinstance(ctx, Context):
                 raise TypeError("a Context object is required")
@@ -137,7 +152,20 @@ class Device:
                     # no-op, a valid context already exists and is set current
                     pass
 
-    def allocate(self, size, stream=None):
+    def create_context(self, options: ContextOptions = None) -> Context:
+        # Create a Context object (but do NOT set it current yet!).
+        # ContextOptions is a dataclass for setting e.g. affinity or CIG
+        # options. 
+        raise NotImplementedError("TODO")
+
+    def create_stream(self, obj=None, options: StreamOptions=None) -> Stream:
+        # Create a Stream object by either holding a newly created
+        # CUDA stream or wrapping an existing foreign object supporting
+        # the __cuda_stream__ protocol. In the latter case, a reference
+        # to obj is held internally so that its lifetime is managed.
+        return Stream(obj=obj, options=options)
+
+    def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
             stream = default_stream()
         return self._mr.allocate(size, stream)

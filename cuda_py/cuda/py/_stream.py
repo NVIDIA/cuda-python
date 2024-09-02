@@ -1,19 +1,31 @@
+from dataclasses import dataclass
 import os
+from typing import Optional
 
 from cuda import cuda, cudart
+from cuda.py._utils import check_or_create_options
 from cuda.py._utils import handle_return
+
+
+@dataclass
+class StreamOptions:
+
+    nonblocking: bool = True
+    priority: Optional[int] = None
 
 
 class Stream:
 
     __slots__ = ("_handle", "_nonblocking", "_priority", "_owner", "_builtin")
 
-    def __init__(self, obj=None, *, nonblocking=True, priority=None):
+    def __init__(self, obj=None, *, options: Optional[StreamOptions]=None):
         # minimal requirements for the destructor
         self._handle = None
         self._owner = None
         self._builtin = False
 
+        if obj is not None and options is not None:
+            raise ValueError("obj and options cannot be both specified")
         if obj is not None:
             if not hasattr(obj, "__cuda_stream__"):
                 raise ValueError
@@ -23,6 +35,10 @@ class Stream:
             self._nonblocking = None  # delayed
             self._priority = None  # delayed
             return
+
+        options = check_or_create_options(StreamOptions, options, "Stream options")
+        nonblocking = options.nonblocking
+        priority = options.priority
 
         if nonblocking:
             flags = cuda.CUstream_flags.CU_STREAM_NON_BLOCKING
