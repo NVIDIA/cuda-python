@@ -85,7 +85,7 @@ def launch(kernel, config, *kernel_args):
                 if isinstance(arg, Buffer):
                     # this is super weird... we need the address of where the actual
                     # buffer address is stored...
-                    args[i] = arg.ptr.getPtr()
+                    args[i] = arg._ptr.getPtr()
                 else:
                     raise NotImplementedError
             args_ptr = args.ctypes.data
