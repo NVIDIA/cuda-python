@@ -73,7 +73,8 @@ class Event:
         # Sync over the event.
         handle_return(cuda.cuEventSynchronize(self._handle))
 
-    def query(self) -> bool:
+    @property
+    def is_done(self) -> bool:
         # Return True if all captured works have been completed,
         # otherwise False.
         result, = cuda.cuEventQuery(self._handle)

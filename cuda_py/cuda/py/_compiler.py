@@ -24,6 +24,9 @@ class Compiler:
             self._backend = "nvrtc"
 
     def __del__(self):
+        self.close()
+
+    def close(self):
         if self._handle is not None:
             handle_return(nvrtc.nvrtcDestroyProgram(self._handle))
             self._handle = None
