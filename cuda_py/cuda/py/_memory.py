@@ -2,13 +2,19 @@ from __future__ import annotations
 
 import abc
 from typing import Optional, Tuple, TypeVar
+import warnings
 
 from cuda import cuda
+from cuda.py._dlpack import DLDeviceType, make_py_capsule
 from cuda.py._stream import default_stream
 from cuda.py._utils import handle_return
 
 
 PyCapsule = TypeVar("PyCapsule")
+
+
+# TODO: define a memory property mixin class and make Buffer and
+# MemoryResource both inherit from it
 
 
 class Buffer:
@@ -59,6 +65,12 @@ class Buffer:
             return self._mr.is_host_accessible
         raise NotImplementedError
 
+    @property
+    def device_id(self) -> int:
+        if self._mr is not None:
+            return self._mr.device_id
+        raise NotImplementedError
+
     def copy_to(self, dst: Buffer=None, stream=None) -> Buffer:
         # Copy from this buffer to the dst buffer asynchronously on the
         # given stream. The dst buffer is returned. If the dst is not provided,
@@ -87,18 +99,36 @@ class Buffer:
             cuda.cuMemcpyAsync(self._ptr, src._ptr, self._size, stream._handle))
 
     def __dlpack__(self, *,
-                   stream: int, 
+                   stream: Optional[int] = None,
                    max_version: Optional[Tuple[int, int]] = None, 
                    dl_device: Optional[Tuple[int, int]] = None, 
                    copy: Optional[bool] = None) -> PyCapsule:
         # Support for Python-level DLPack protocol.
-        # Note that we do not support stream=None on purpose, see the 
-        # discussion in GPUMemoryView below.
-        raise NotImplementedError("TODO")
+        if stream is not None:
+            warnings.warn("stream != None is ignored")
+        # TODO: add checks for dl_device and copy
+        # FIXME: fix v1.0 support
+        if max_version is None:
+            versioned = False
+        else:
+            assert len(max_version) == 2
+            if max_version >= (1, 0):
+                versioned = True
+            else:
+                versioned = False
+        capsule = make_py_capsule(self)#, versioned)
+        return capsule
 
     def __dlpack_device__(self) -> Tuple[int, int]:
-        # Supporting methond paired with __dlpack__.
-        raise NotImplementedError("TODO")
+        if self.is_device_accessible and not self.is_host_accessible:
+            return (DLDeviceType.kDLCUDA, self.device_id)
+        elif self.is_device_accessible and self.is_host_accessible:
+            # TODO: this can also be kDLCUDAManaged, we need more fine-grained checks
+            return (DLDeviceType.kDLCUDAHost, 0)
+        elif not self.is_device_accessible and self.is_host_accessible:
+            return (DLDeviceType.kDLCPU, 0)
+        else:  # not self.is_device_accessible and not self.is_host_accessible
+            raise BufferError("invalid buffer")
 
     def __buffer__(self, flags: int, /) -> memoryview:
         # Support for Python-level buffer protocol as per PEP 688. 
@@ -142,11 +172,21 @@ class MemoryResource(abc.ABC):
         # CPUs.
         ...
 
+    @property
+    @abc.abstractmethod
+    def device_id(self) -> int:
+        # Return the device ID if this MR is for single devices. Raise an
+        # exception if it is not.
+        ...
+
 
 class _DefaultAsyncMempool(MemoryResource):
 
+    __slots__ = ("_dev_id",)
+
     def __init__(self, dev_id):
         self._handle = handle_return(cuda.cuDeviceGetMemPool(dev_id))
+        self._dev_id = dev_id
 
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
@@ -166,6 +206,10 @@ class _DefaultAsyncMempool(MemoryResource):
     @property
     def is_host_accessible(self) -> bool:
         return False
+
+    @property
+    def device_id(self) -> int:
+        return self._dev_id
 
 
 class _DefaultPinnedMemorySource(MemoryResource):
@@ -188,3 +232,7 @@ class _DefaultPinnedMemorySource(MemoryResource):
     @property
     def is_host_accessible(self) -> bool:
         return True
+
+    @property
+    def device_id(self) -> int:
+        raise RuntimeError("the pinned memory resource is not bound to any GPU")
