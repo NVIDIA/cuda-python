@@ -1,3 +1,7 @@
+# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 from cuda import nvrtc
 from cuda.py._utils import handle_return
 from cuda.py._module import Module

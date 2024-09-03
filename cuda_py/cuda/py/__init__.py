@@ -1,3 +1,7 @@
+# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 from cuda.py._compiler import Compiler
 from cuda.py._device import Device
 from cuda.py._event import EventOptions

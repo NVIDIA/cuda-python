@@ -1,6 +1,10 @@
 # distutils: language = c++
 
-cimport cpython  # NOQA
+# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+cimport cpython
 
 from libc cimport stdlib
 from libc.stdint cimport uint8_t
@@ -28,11 +32,6 @@ cdef extern from "dlpack.h" nogil:
 
     cdef enum DLDataTypeCode:
         kDLInt
-        kDLUInt
-        kDLFloat
-        kDLBfloat
-        kDLComplex
-        kDLBool
 
     ctypedef struct DLDataType:
         uint8_t code
@@ -51,7 +50,7 @@ cdef extern from "dlpack.h" nogil:
     ctypedef struct DLManagedTensor:
         DLTensor dl_tensor
         void* manager_ctx
-        void (*deleter)(DLManagedTensor*)  # noqa: E211
+        void (*deleter)(DLManagedTensor*)
 
 
 cdef void pycapsule_deleter(object dltensor):
