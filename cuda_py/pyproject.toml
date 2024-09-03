@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 [build-system]
-requires = ["setuptools",]
+requires = ["setuptools", "Cython<3"]
 build-backend = "setuptools.build_meta"
 
 
