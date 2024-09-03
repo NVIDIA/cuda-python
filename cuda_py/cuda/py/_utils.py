@@ -1,5 +1,6 @@
 from collections import namedtuple
-from typing import Dict
+import functools
+from typing import Callable, Dict
 
 from cuda import cuda, cudart, nvrtc
 
@@ -76,6 +77,37 @@ def check_or_create_options(cls, options, options_description, *, keep_none=Fals
                         f"The provided object is '{options}'.")
 
     return options
+
+
+def precondition(checker: Callable[..., None], what: str = "") -> Callable:
+    """
+    A decorator that adds checks to ensure any preconditions are met.
+
+    Args:
+        checker: The function to call to check whether the preconditions are met. It has the same signature as the wrapped
+            function with the addition of the keyword argument `what`.
+        what: A string that is passed in to `checker` to provide context information.
+
+    Returns:
+        Callable: A decorator that creates the wrapping.
+    """
+    def outer(wrapped_function):
+        """
+        A decorator that actually wraps the function for checking preconditions.
+        """
+        @functools.wraps(wrapped_function)
+        def inner(*args, **kwargs):
+            """
+            Check preconditions and if they are met, call the wrapped function.
+            """
+            checker(*args, **kwargs, what=what)
+            result = wrapped_function(*args, **kwargs)
+
+            return result
+
+        return inner
+
+    return outer
 
 
 def get_device_from_ctx(ctx_handle) -> int:

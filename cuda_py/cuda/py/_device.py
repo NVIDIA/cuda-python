@@ -3,7 +3,8 @@ from typing import Optional, Union
 import warnings
 
 from cuda import cuda, cudart
-from cuda.py._utils import handle_return, ComputeCapability, CUDAError
+from cuda.py._utils import handle_return, ComputeCapability, CUDAError, \
+                           precondition
 from cuda.py._context import Context, ContextOptions
 from cuda.py._memory import _DefaultAsyncMempool, Buffer, MemoryResource
 from cuda.py._stream import default_stream, Stream, StreamOptions
@@ -15,7 +16,7 @@ _tls_lock = threading.Lock()
 
 class Device:
 
-    __slots__ = ("_id", "_mr")
+    __slots__ = ("_id", "_mr", "_has_inited")
 
     def __new__(cls, device_id=None):
         # important: creating a Device instance does not initialize the GPU!
@@ -37,9 +38,15 @@ class Device:
                     dev = super().__new__(cls)
                     dev._id = dev_id
                     dev._mr = _DefaultAsyncMempool(dev_id)
+                    dev._has_inited = False
                     _tls.devices.append(dev)
 
         return _tls.devices[device_id]
+
+    def _check_context_initialized(self, *args, **kwargs):
+        if not self._has_inited:
+            raise CUDAError("the device is not yet initialized, "
+                            "perhaps you forgot to call .use() first?")
 
     @property
     def device_id(self) -> int:
@@ -83,11 +90,10 @@ class Device:
         return ComputeCapability(major, minor)
 
     @property
+    @precondition(_check_context_initialized)
     def context(self) -> Context:
         ctx = handle_return(cuda.cuCtxGetCurrent())
-        if int(ctx) == 0:
-            raise CUDAError("the device is not yet initialized, "
-                            "perhaps you forgot to call .use() first?")
+        assert int(ctx) != 0
         return Context._from_ctx(ctx, self._id)
 
     @property
@@ -132,9 +138,8 @@ class Device:
                                   f"device {ctx._id} other than the target {self._id}")
             prev_ctx = handle_return(cuda.cuCtxPopCurrent())
             handle_return(cuda.cuCtxPushCurrent(ctx._handle))
-            if int(prev_ctx) == 0:
-                return None
-            else:
+            self._has_inited = True
+            if int(prev_ctx) != 0:
                 return Context._from_ctx(prev_ctx, self._id)
         else:
             ctx = handle_return(cuda.cuCtxGetCurrent())
@@ -151,6 +156,7 @@ class Device:
                 else:
                     # no-op, a valid context already exists and is set current
                     pass
+            self._has_inited = True
 
     def create_context(self, options: ContextOptions = None) -> Context:
         # Create a Context object (but do NOT set it current yet!).
@@ -158,6 +164,7 @@ class Device:
         # options. 
         raise NotImplementedError("TODO")
 
+    @precondition(_check_context_initialized)
     def create_stream(self, obj=None, options: StreamOptions=None) -> Stream:
         # Create a Stream object by either holding a newly created
         # CUDA stream or wrapping an existing foreign object supporting
@@ -165,10 +172,12 @@ class Device:
         # to obj is held internally so that its lifetime is managed.
         return Stream._init(obj=obj, options=options)
 
+    @precondition(_check_context_initialized)
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
             stream = default_stream()
         return self._mr.allocate(size, stream)
 
+    @precondition(_check_context_initialized)
     def sync(self):
         handle_return(cudart.cudaDeviceSynchronize())
