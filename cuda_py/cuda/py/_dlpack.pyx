@@ -20,17 +20,7 @@ cdef extern from "dlpack.h" nogil:
         _kDLCPU "kDLCPU"
         _kDLCUDA "kDLCUDA"
         _kDLCUDAHost "kDLCUDAHost"
-        kDLOpenCL
-        kDLVulkan
-        kDLMetal
-        kDLVPI
-        kDLROCM
-        kDLROCMHost
-        kDLExtDev
         _kDLCUDAManaged "kDLCUDAManaged"
-        kDLOneAPI
-        kDLWebGPU
-        kDLHexagon
 
     ctypedef struct DLDevice:
         _DLDeviceType device_type
@@ -93,14 +83,24 @@ cpdef object make_py_capsule(object buf) except +:
     cdef int64_t* shape_strides = \
         <int64_t*>stdlib.malloc(sizeof(int64_t) * 2)
     shape_strides[0] = <int64_t>buf.size
-    shape_strides[1] = 0
+    shape_strides[1] = 1  # redundant
     dl_tensor.shape = shape_strides
-    dl_tensor.strides = shape_strides + 1
+    dl_tensor.strides = NULL
     dl_tensor.byte_offset = 0
 
     cdef DLDevice* device = &dl_tensor.device
-    device.device_type = _kDLCUDA
-    device.device_id = buf.device_id
+    # buf should be a Buffer instance
+    if buf.is_device_accessible and not buf.is_host_accessible:
+        device.device_type = _kDLCUDA
+        device.device_id = buf.device_id
+    elif buf.is_device_accessible and buf.is_host_accessible:
+        device.device_type = _kDLCUDAHost
+        device.device_id = 0
+    elif not buf.is_device_accessible and buf.is_host_accessible:
+        device.device_type = _kDLCPU
+        device.device_id = 0
+    else:  # not buf.is_device_accessible and not buf.is_host_accessible
+        raise BufferError("invalid buffer")
 
     cdef DLDataType* dtype = &dl_tensor.dtype
     dtype.code = <uint8_t>kDLInt

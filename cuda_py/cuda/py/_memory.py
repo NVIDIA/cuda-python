@@ -108,14 +108,14 @@ class Buffer:
             warnings.warn("stream != None is ignored")
         # TODO: add checks for dl_device and copy
         # FIXME: fix v1.0 support
-        if max_version is None:
-            versioned = False
-        else:
-            assert len(max_version) == 2
-            if max_version >= (1, 0):
-                versioned = True
-            else:
-                versioned = False
+        #if max_version is None:
+        #    versioned = False
+        #else:
+        #    assert len(max_version) == 2
+        #    if max_version >= (1, 0):
+        #        versioned = True
+        #    else:
+        #        versioned = False
         capsule = make_py_capsule(self)#, versioned)
         return capsule
 
@@ -219,7 +219,7 @@ class _DefaultPinnedMemorySource(MemoryResource):
         self._handle = None
 
     def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(cuda.cuMemHostAlloc(size))
+        ptr = handle_return(cuda.cuMemAllocHost(size))
         return Buffer(ptr, size, self)
 
     def deallocate(self, ptr, size, stream=None):
