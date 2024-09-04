@@ -107,20 +107,19 @@ class Buffer:
                    max_version: Optional[Tuple[int, int]] = None, 
                    dl_device: Optional[Tuple[int, int]] = None, 
                    copy: Optional[bool] = None) -> PyCapsule:
-        # Support for Python-level DLPack protocol.
-        if stream is not None:
-            warnings.warn("stream != None is ignored")
-        # TODO: add checks for dl_device and copy
-        # FIXME: fix v1.0 support
-        #if max_version is None:
-        #    versioned = False
-        #else:
-        #    assert len(max_version) == 2
-        #    if max_version >= (1, 0):
-        #        versioned = True
-        #    else:
-        #        versioned = False
-        capsule = make_py_capsule(self)#, versioned)
+        # Note: we ignore the stream argument entirely (as if it is -1).
+        # It is the user's responsibility to maintain stream order.
+        if dl_device is not None or copy is True:
+            raise BufferError
+        if max_version is None:
+            versioned = False
+        else:
+            assert len(max_version) == 2
+            if max_version >= (1, 0):
+                versioned = True
+            else:
+                versioned = False
+        capsule = make_py_capsule(self, versioned)
         return capsule
 
     def __dlpack_device__(self) -> Tuple[int, int]:
