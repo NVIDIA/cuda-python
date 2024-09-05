@@ -12,6 +12,11 @@ ext_modules = (
         sources=["cuda/py/_dlpack.pyx"],
         language="c++",
     ),
+    Extension(
+        "cuda.py._memoryview",
+        sources=["cuda/py/_memoryview.pyx"],
+        language="c++",
+    ),
 )
 
 

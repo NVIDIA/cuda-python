@@ -18,6 +18,8 @@ cdef extern from "dlpack.h" nogil:
     """
     #define DLPACK_TENSOR_UNUSED_NAME "dltensor"
     #define DLPACK_VERSIONED_TENSOR_UNUSED_NAME "dltensor_versioned"
+    #define DLPACK_TENSOR_USED_NAME "used_dltensor"
+    #define DLPACK_VERSIONED_TENSOR_USED_NAME "used_dltensor_versioned"
     """
     ctypedef enum _DLDeviceType "DLDeviceType":
         _kDLCPU "kDLCPU"
@@ -31,6 +33,11 @@ cdef extern from "dlpack.h" nogil:
 
     cdef enum DLDataTypeCode:
         kDLInt
+        kDLUInt
+        kDLFloat
+        kDLBfloat
+        kDLComplex
+        kDLBool
 
     ctypedef struct DLDataType:
         uint8_t code
@@ -64,6 +71,9 @@ cdef extern from "dlpack.h" nogil:
 
     int DLPACK_MAJOR_VERSION
     int DLPACK_MINOR_VERSION
+    int DLPACK_FLAG_BITMASK_READ_ONLY
 
     const char* DLPACK_TENSOR_UNUSED_NAME
     const char* DLPACK_VERSIONED_TENSOR_UNUSED_NAME
+    const char* DLPACK_TENSOR_USED_NAME
+    const char* DLPACK_VERSIONED_TENSOR_USED_NAME
