@@ -1,79 +1,11 @@
-# distutils: language = c++
-
 # Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-cimport cpython
-
-from libc cimport stdlib
-from libc.stdint cimport uint8_t
-from libc.stdint cimport uint16_t
-from libc.stdint cimport uint32_t
-from libc.stdint cimport int32_t
-from libc.stdint cimport int64_t
-from libc.stdint cimport uint64_t
-from libc.stdint cimport intptr_t
-
 from enum import IntEnum
 
 
-cdef extern from "dlpack.h" nogil:
-    """
-    #define DLPACK_TENSOR_UNUSED_NAME "dltensor"
-    #define DLPACK_VERSIONED_TENSOR_UNUSED_NAME "dltensor_versioned"
-    """
-    ctypedef enum _DLDeviceType "DLDeviceType":
-        _kDLCPU "kDLCPU"
-        _kDLCUDA "kDLCUDA"
-        _kDLCUDAHost "kDLCUDAHost"
-        _kDLCUDAManaged "kDLCUDAManaged"
-
-    ctypedef struct DLDevice:
-        _DLDeviceType device_type
-        int32_t device_id
-
-    cdef enum DLDataTypeCode:
-        kDLInt
-
-    ctypedef struct DLDataType:
-        uint8_t code
-        uint8_t bits
-        uint16_t lanes
-
-    ctypedef struct DLTensor:
-        void* data
-        DLDevice device
-        int32_t ndim
-        DLDataType dtype
-        int64_t* shape
-        int64_t* strides
-        uint64_t byte_offset
-
-    ctypedef struct DLManagedTensor:
-        DLTensor dl_tensor
-        void* manager_ctx
-        void (*deleter)(DLManagedTensor*)
-
-    ctypedef struct DLPackVersion:
-        uint32_t major
-        uint32_t minor
-
-    ctypedef struct DLManagedTensorVersioned:
-        DLPackVersion version
-        void* manager_ctx
-        void (*deleter)(DLManagedTensorVersioned*)
-        uint64_t flags
-        DLTensor dl_tensor
-
-    int DLPACK_MAJOR_VERSION
-    int DLPACK_MINOR_VERSION
-
-    const char* DLPACK_TENSOR_UNUSED_NAME
-    const char* DLPACK_VERSIONED_TENSOR_UNUSED_NAME
-
-
-cdef void pycapsule_deleter(object capsule):
+cdef void pycapsule_deleter(object capsule) noexcept:
     cdef DLManagedTensor* dlm_tensor
     cdef DLManagedTensorVersioned* dlm_tensor_ver
     # Do not invoke the deleter on a used capsule.
@@ -93,7 +25,7 @@ cdef void pycapsule_deleter(object capsule):
             dlm_tensor_ver.deleter(dlm_tensor_ver)
 
 
-cdef void deleter(DLManagedTensor* tensor) with gil:
+cdef void deleter(DLManagedTensor* tensor) noexcept with gil:
     stdlib.free(tensor.dl_tensor.shape)
     if tensor.manager_ctx:
         cpython.Py_DECREF(<object>tensor.manager_ctx)
@@ -101,7 +33,7 @@ cdef void deleter(DLManagedTensor* tensor) with gil:
     stdlib.free(tensor)
 
 
-cdef void versioned_deleter(DLManagedTensorVersioned* tensor) with gil:
+cdef void versioned_deleter(DLManagedTensorVersioned* tensor) noexcept with gil:
     stdlib.free(tensor.dl_tensor.shape)
     if tensor.manager_ctx:
         cpython.Py_DECREF(<object>tensor.manager_ctx)
