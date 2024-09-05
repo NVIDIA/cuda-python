@@ -25,7 +25,25 @@ cdef class GPUMemoryView:
     readonly: bool = None
     obj: Any = None
 
-    # TODO: implement __repr__ to avoid printing obj's content
+    def __repr__(self):
+        return (f"GPUMemoryView(ptr={self.ptr},\n"
+              + f"              shape={self.shape},\n"
+              + f"              strides={self.strides},\n"
+              + f"              dtype={get_simple_repr(numpy.dtype(self.dtype))},\n"
+              + f"              device_id={self.device_id},\n"
+              + f"              device_accessible={self.device_accessible},\n"
+              + f"              readonly={self.readonly},\n"
+              + f"              obj={get_simple_repr(self.obj)})")
+
+
+cdef str get_simple_repr(obj):
+    cdef object obj_class = obj.__class__
+    cdef str obj_repr
+    if obj_class.__module__ in (None, "__builtin__"):
+        obj_repr = obj_class.__name__
+    else:
+        obj_repr = f"{obj_class.__module__}.{obj_class.__name__}"
+    return obj_repr
 
 
 cdef class _GPUMemoryViewProxy:
