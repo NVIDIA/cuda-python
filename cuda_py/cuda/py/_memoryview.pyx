@@ -263,6 +263,7 @@ cdef GPUMemoryView view_as_cai(obj, stream_ptr):
                 cuda.CUevent_flags.CU_EVENT_DISABLE_TIMING))
             handle_return(cuda.cuEventRecord(e, producer_s))
             handle_return(cuda.cuStreamWaitEvent(consumer_s, e, 0))
+            handle_return(cuda.cuEventDestroy(e))
 
     return buf
 
@@ -275,6 +276,6 @@ def viewable(tuple arg_indices):
             cdef int idx
             for idx in arg_indices:
                 args[idx] = _GPUMemoryViewProxy(args[idx])
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
         return wrapped_func
     return wrapped_func_with_indices
