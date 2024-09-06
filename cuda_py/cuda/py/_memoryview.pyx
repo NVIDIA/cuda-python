@@ -29,7 +29,7 @@ cdef class GPUMemoryView:
         return (f"GPUMemoryView(ptr={self.ptr},\n"
               + f"              shape={self.shape},\n"
               + f"              strides={self.strides},\n"
-              + f"              dtype={self.dtype.__name__},\n"
+              + f"              dtype={get_simple_repr(self.dtype)},\n"
               + f"              device_id={self.device_id},\n"
               + f"              device_accessible={self.device_accessible},\n"
               + f"              readonly={self.readonly},\n"
@@ -37,8 +37,12 @@ cdef class GPUMemoryView:
 
 
 cdef str get_simple_repr(obj):
-    cdef object obj_class = obj.__class__
+    cdef object obj_class
     cdef str obj_repr
+    if isinstance(obj, type):
+        obj_class = obj
+    else:
+        obj_class = obj.__class__
     if obj_class.__module__ in (None, "builtins"):
         obj_repr = obj_class.__name__
     else:
