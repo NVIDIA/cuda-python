@@ -41,7 +41,7 @@ cdef void versioned_deleter(DLManagedTensorVersioned* tensor) noexcept with gil:
     stdlib.free(tensor)
 
 
-cpdef object make_py_capsule(object buf, bint versioned) except +:
+cpdef object make_py_capsule(object buf, bint versioned):
     cdef DLManagedTensor* dlm_tensor
     cdef DLManagedTensorVersioned* dlm_tensor_ver
     cdef DLTensor* dl_tensor
