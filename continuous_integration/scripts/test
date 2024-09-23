@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+test_ci() {
+    set -xeou pipefail
+
+    cd "${REPO_DIR}"
+
+    export CUDA_HOME="${CONDA_PREFIX}/targets/x86_64-linux"
+    export PARALLEL_LEVEL=$(nproc --ignore 1)
+
+    python setup.py bdist_wheel
+}
+
+test_project() {
+    set -xeou pipefail
+
+    export PYTHONUNBUFFERED=1
+
+    . setup-utils;
+    init_test_env "$@";
+
+    git config --global --add safe.directory "$REPO_DIR/.git"
+
+    case "${TEST_TYPE}" in
+        ci) test_ci;;
+        *) return 1;;
+    esac
+}
+
+(test_project "$@");
