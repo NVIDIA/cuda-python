@@ -60,7 +60,7 @@ jobs:
   test:
     if: ${{ github.repository_owner == 'nvidia' }}
     uses:
-      ./.github/workflows/gh-build.yml
+      ./.github/workflows/gh-test.yml
     with:
       client-repo: ${{ github.event.repository.name }}
       target-device: ${{ inputs.target-device }}
