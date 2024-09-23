@@ -3,12 +3,15 @@
 test_ci() {
     set -xeou pipefail
 
+    cd "${ARTIFACTS_DIR}"
+
+    activate_conda_env;
+
+    pip install *.whl
+
     cd "${REPO_DIR}"
 
-    export CUDA_HOME="${CONDA_PREFIX}/targets/x86_64-linux"
-    export PARALLEL_LEVEL=$(nproc --ignore 1)
-
-    python setup.py bdist_wheel
+    python -m pytest
 }
 
 test_project() {
