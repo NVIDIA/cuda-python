@@ -59,6 +59,8 @@ jobs:
 
   test:
     if: ${{ github.repository_owner == 'nvidia' }}
+    needs:
+      - build
     uses:
       ./.github/workflows/gh-test.yml
     with:
