@@ -74,7 +74,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
 
       - name: Call test action
-        uses: ./legate-gh-ci/.github/actions/test
+        uses: ./.github/actions/test
         with:
           test-options: ${{ inputs.test-options }}
           has-gpu: ${{ inputs.runner-has-gpu }}
