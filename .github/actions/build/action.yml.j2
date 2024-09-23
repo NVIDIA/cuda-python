@@ -59,7 +59,7 @@ runs:
         key: ${{ inputs.client-repo }}-${{ runner.os }}-build
 
 
-    - if: ${{ inputs.use-container }}
+    - if: ${{ inputs.use-container == true }}
       name: Build (in container)
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
