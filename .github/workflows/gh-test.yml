@@ -23,9 +23,6 @@ on:
         required: true
         type: string
         description: One of ci / release
-      use-container:
-        required: true
-        type: boolean
       host-platform:
         required: true
         type: string
@@ -52,6 +49,12 @@ jobs:
       contents: read  # This is required for actions/checkout
 
     runs-on: ${{ inputs.runs-on }}
+
+    container:
+      options: -u root --security-opt seccomp=unconfined --privileged --shm-size 16g
+      image: condaforge/miniforge3:latest
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
 
     steps:
       - name: Checkout ${{ inputs.client-repo }}
