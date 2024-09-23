@@ -77,4 +77,4 @@ jobs:
         uses: ./.github/actions/test
         with:
           test-options: ${{ inputs.test-options }}
-          has-gpu: ${{ inputs.runner-has-gpu }}
+          runner-has-gpu: ${{ inputs.runner-has-gpu }}
