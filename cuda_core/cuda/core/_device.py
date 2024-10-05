@@ -7,11 +7,11 @@ from typing import Optional, Union
 import warnings
 
 from cuda import cuda, cudart
-from cuda.py._utils import handle_return, ComputeCapability, CUDAError, \
+from cuda.core._utils import handle_return, ComputeCapability, CUDAError, \
                            precondition
-from cuda.py._context import Context, ContextOptions
-from cuda.py._memory import _DefaultAsyncMempool, Buffer, MemoryResource
-from cuda.py._stream import default_stream, Stream, StreamOptions
+from cuda.core._context import Context, ContextOptions
+from cuda.core._memory import _DefaultAsyncMempool, Buffer, MemoryResource
+from cuda.core._stream import default_stream, Stream, StreamOptions
 
 
 _tls = threading.local()
@@ -125,7 +125,7 @@ class Device:
         Entry point of this object. Users always start a code by
         calling this method, e.g.
         
-        >>> from cuda.py import Device
+        >>> from cuda.core import Device
         >>> dev0 = Device(0)
         >>> dev0.use()
         >>> # ... do work on device 0 ...

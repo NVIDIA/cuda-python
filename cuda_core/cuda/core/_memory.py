@@ -9,9 +9,9 @@ from typing import Optional, Tuple, TypeVar
 import warnings
 
 from cuda import cuda
-from cuda.py._dlpack import DLDeviceType, make_py_capsule
-from cuda.py._stream import default_stream
-from cuda.py._utils import handle_return
+from cuda.core._dlpack import DLDeviceType, make_py_capsule
+from cuda.core._stream import default_stream
+from cuda.core._utils import handle_return
 
 
 PyCapsule = TypeVar("PyCapsule")

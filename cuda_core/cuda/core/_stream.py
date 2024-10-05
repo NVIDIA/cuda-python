@@ -9,13 +9,13 @@ import os
 from typing import Optional, Tuple, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    from cuda.py._device import Device
+    from cuda.core._device import Device
 from cuda import cuda, cudart
-from cuda.py._context import Context
-from cuda.py._event import Event, EventOptions
-from cuda.py._utils import check_or_create_options
-from cuda.py._utils import get_device_from_ctx
-from cuda.py._utils import handle_return
+from cuda.core._context import Context
+from cuda.core._event import Event, EventOptions
+from cuda.core._utils import check_or_create_options
+from cuda.core._utils import get_device_from_ctx
+from cuda.core._utils import handle_return
 
 
 @dataclass
@@ -181,7 +181,7 @@ class Stream:
         # Note that Stream.device.context might not necessarily agree with
         # Stream.context, in cases where a different CUDA context is set
         # current after a stream was created.
-        from cuda.py._device import Device  # avoid circular import
+        from cuda.core._device import Device  # avoid circular import
         if self._device_id is None:
             # Get the stream context first
             if self._ctx_handle is None:

@@ -8,10 +8,10 @@ from typing import Optional, Union
 import numpy as np
 
 from cuda import cuda, cudart
-from cuda.py._utils import CUDAError, check_or_create_options, handle_return
-from cuda.py._memory import Buffer
-from cuda.py._module import Kernel
-from cuda.py._stream import Stream
+from cuda.core._utils import CUDAError, check_or_create_options, handle_return
+from cuda.core._memory import Buffer
+from cuda.core._module import Kernel
+from cuda.core._stream import Stream
 
 
 @dataclass

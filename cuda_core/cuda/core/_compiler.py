@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 from cuda import nvrtc
-from cuda.py._utils import handle_return
-from cuda.py._module import Module
+from cuda.core._utils import handle_return
+from cuda.core._module import Module
 
 
 class Compiler:

@@ -8,13 +8,13 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "cuda-py"
+name = "cuda-core"
 dynamic = [
     "version",
     "readme",
 ]
 requires-python = '>=3.9'
-description = "cuda.py: (experimental) pythonic CUDA module"
+description = "cuda.core: (experimental) pythonic CUDA module"
 authors = [
     { name = "NVIDIA Corporation" }
 ]
@@ -44,9 +44,9 @@ classifiers = [
 
 
 [tool.setuptools]
-packages = ["cuda", "cuda.py"]
+packages = ["cuda", "cuda.core"]
 
 
 [tool.setuptools.dynamic]
-version = { attr = "cuda.py._version.__version__" }
+version = { attr = "cuda.core._version.__version__" }
 readme = { file = ["README.md"], content-type = "text/markdown" }

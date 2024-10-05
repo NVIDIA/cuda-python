@@ -12,7 +12,7 @@ from typing import Any, Optional
 from cuda import cuda
 import numpy
 
-from cuda.py._utils import handle_return
+from cuda.core._utils import handle_return
 
 
 # TODO(leofang): support NumPy structured dtypes

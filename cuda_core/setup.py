@@ -8,13 +8,13 @@ from setuptools import setup, Extension, find_packages
 
 ext_modules = (
     Extension(
-        "cuda.py._dlpack",
-        sources=["cuda/py/_dlpack.pyx"],
+        "cuda.core._dlpack",
+        sources=["cuda/core/_dlpack.pyx"],
         language="c++",
     ),
     Extension(
-        "cuda.py._memoryview",
-        sources=["cuda/py/_memoryview.pyx"],
+        "cuda.core._memoryview",
+        sources=["cuda/core/_memoryview.pyx"],
         language="c++",
     ),
 )
@@ -24,9 +24,9 @@ setup(
     ext_modules=cythonize(ext_modules,
         verbose=True, language_level=3,
         compiler_directives={'embedsignature': True}),
-    packages=find_packages(include=['cuda.py', 'cuda.py.*']),
+    packages=find_packages(include=['cuda.core', 'cuda.core.*']),
     package_data=dict.fromkeys(
-        find_packages(include=["cuda.py.*"]),
+        find_packages(include=["cuda.core.*"]),
         ["*.pxd", "*.pyx", "*.py"],
     ),
     zip_safe=False,
