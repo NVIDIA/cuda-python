@@ -8,7 +8,7 @@ import warnings
 
 from cuda import cuda, cudart
 from cuda.core._utils import handle_return, ComputeCapability, CUDAError, \
-                           precondition
+                             precondition
 from cuda.core._context import Context, ContextOptions
 from cuda.core._memory import _DefaultAsyncMempool, Buffer, MemoryResource
 from cuda.core._stream import default_stream, Stream, StreamOptions
@@ -50,7 +50,7 @@ class Device:
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
             raise CUDAError("the device is not yet initialized, "
-                            "perhaps you forgot to call .use() first?")
+                            "perhaps you forgot to call .set_current() first?")
 
     @property
     def device_id(self) -> int:
@@ -120,14 +120,14 @@ class Device:
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
 
-    def use(self, ctx: Context=None) -> Union[Context, None]:
+    def set_current(self, ctx: Context=None) -> Union[Context, None]:
         """
         Entry point of this object. Users always start a code by
         calling this method, e.g.
         
         >>> from cuda.core import Device
         >>> dev0 = Device(0)
-        >>> dev0.use()
+        >>> dev0.set_current()
         >>> # ... do work on device 0 ...
         
         The optional ctx argument is for advanced users to bind a

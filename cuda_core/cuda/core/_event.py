@@ -13,7 +13,7 @@ from cuda.core._utils import handle_return
 
 @dataclass
 class EventOptions:
-    disable_timing: Optional[bool] = False
+    enable_timing: Optional[bool] = False
     busy_waited_sync: Optional[bool] = False
     support_ipc: Optional[bool] = False
 
@@ -37,8 +37,9 @@ class Event:
 
         options = check_or_create_options(EventOptions, options, "Event options")
         flags = 0x0
-        self._timing_disabled = self._busy_waited = False
-        if options.disable_timing:
+        self._timing_disabled = False
+        self._busy_waited = False
+        if not options.enable_timing:
             flags |= cuda.CUevent_flags.CU_EVENT_DISABLE_TIMING
             self._timing_disabled = True
         if options.busy_waited_sync:
@@ -91,4 +92,4 @@ class Event:
 
     @property
     def handle(self) -> int:
-        return self._handle
+        return int(self._handle)

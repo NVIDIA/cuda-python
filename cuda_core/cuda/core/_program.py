@@ -4,10 +4,10 @@
 
 from cuda import nvrtc
 from cuda.core._utils import handle_return
-from cuda.core._module import Module
+from cuda.core._module import ObjectCode
 
 
-class Compiler:
+class Program:
 
     __slots__ = ("_handle", "_backend", )
     _supported_code_type = ("c++", )
@@ -26,6 +26,8 @@ class Compiler:
             self._handle = handle_return(
                 nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
             self._backend = "nvrtc"
+        else:
+            raise NotImplementedError
 
     def __del__(self):
         self.close()
@@ -72,7 +74,7 @@ class Compiler:
 
             # TODO: handle jit_options for ptx?
 
-            return Module(data, target_type, symbol_mapping=symbol_mapping)
+            return ObjectCode(data, target_type, symbol_mapping=symbol_mapping)
 
     @property
     def backend(self):

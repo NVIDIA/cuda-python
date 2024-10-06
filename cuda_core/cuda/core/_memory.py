@@ -75,7 +75,7 @@ class Buffer:
             return self._mr.device_id
         raise NotImplementedError
 
-    def copy_to(self, dst: Buffer=None, stream=None) -> Buffer:
+    def copy_to(self, dst: Buffer=None, *, stream) -> Buffer:
         # Copy from this buffer to the dst buffer asynchronously on the
         # given stream. The dst buffer is returned. If the dst is not provided,
         # allocate one from self.memory_resource. Raise an exception if the
@@ -92,7 +92,7 @@ class Buffer:
             cuda.cuMemcpyAsync(dst._ptr, self._ptr, self._size, stream._handle))
         return dst
 
-    def copy_from(self, src: Buffer, stream=None):
+    def copy_from(self, src: Buffer, *, stream):
         # Copy from the src buffer to this buffer asynchronously on the
         # given stream. Raise an exception if the stream is not provided. 
         if stream is None:

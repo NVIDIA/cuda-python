@@ -31,6 +31,17 @@ cdef class GPUMemoryView:
     readonly: bool = None
     obj: Any = None
 
+    def __init__(self, obj=None, stream_ptr=None):
+        if obj is not None:
+            # populate self's attributes
+            if check_has_dlpack(obj):
+                view_as_dlpack(obj, stream_ptr, self)
+            else:
+                view_as_cai(obj, stream_ptr, self)
+        else:
+            # default construct
+            pass
+
     def __repr__(self):
         return (f"GPUMemoryView(ptr={self.ptr},\n"
               + f"              shape={self.shape},\n"
@@ -57,6 +68,18 @@ cdef str get_simple_repr(obj):
     return obj_repr
 
 
+cdef bint check_has_dlpack(obj) except*:
+    cdef bint has_dlpack
+    if hasattr(obj, "__dlpack__") and hasattr(obj, "__dlpack_device__"):
+        has_dlpack = True
+    elif hasattr(obj, "__cuda_array_interface__"):
+        has_dlpack = False
+    else:
+        raise RuntimeError(
+            "the input object does not support any data exchange protocol")
+    return has_dlpack
+
+
 cdef class _GPUMemoryViewProxy:
 
     cdef:
@@ -64,15 +87,8 @@ cdef class _GPUMemoryViewProxy:
         bint has_dlpack
 
     def __init__(self, obj):
-        if hasattr(obj, "__dlpack__") and hasattr(obj, "__dlpack_device__"):
-            has_dlpack = True
-        elif hasattr(obj, "__cuda_array_interface__"):
-            has_dlpack = False
-        else:
-            raise RuntimeError(
-                "the input object does not support any data exchange protocol")
         self.obj = obj
-        self.has_dlpack = has_dlpack
+        self.has_dlpack = check_has_dlpack(obj)
 
     cpdef GPUMemoryView view(self, stream_ptr=None):
         if self.has_dlpack:
@@ -81,7 +97,7 @@ cdef class _GPUMemoryViewProxy:
             return view_as_cai(self.obj, stream_ptr)
 
 
-cdef GPUMemoryView view_as_dlpack(obj, stream_ptr):
+cdef GPUMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef int dldevice, device_id, i
     cdef bint device_accessible, versioned, is_readonly
     dldevice, device_id = obj.__dlpack_device__()
@@ -144,7 +160,7 @@ cdef GPUMemoryView view_as_dlpack(obj, stream_ptr):
         dl_tensor = &dlm_tensor.dl_tensor
         is_readonly = False
 
-    cdef GPUMemoryView buf = GPUMemoryView()
+    cdef GPUMemoryView buf = GPUMemoryView() if view is None else view
     buf.ptr = <intptr_t>(dl_tensor.data)
     buf.shape = tuple(int(dl_tensor.shape[i]) for i in range(dl_tensor.ndim))
     if dl_tensor.strides:
@@ -226,7 +242,7 @@ cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
     return numpy.dtype(np_dtype)
 
 
-cdef GPUMemoryView view_as_cai(obj, stream_ptr):
+cdef GPUMemoryView view_as_cai(obj, stream_ptr, view=None):
     cdef dict cai_data = obj.__cuda_array_interface__
     if cai_data["version"] < 3:
         raise BufferError("only CUDA Array Interface v3 or above is supported")
@@ -235,7 +251,7 @@ cdef GPUMemoryView view_as_cai(obj, stream_ptr):
     if stream_ptr is None:
         raise BufferError("stream=None is ambiguous with view()")
 
-    cdef GPUMemoryView buf = GPUMemoryView()
+    cdef GPUMemoryView buf = GPUMemoryView() if view is None else view
     buf.obj = obj
     buf.ptr, buf.readonly = cai_data["data"]
     buf.shape = cai_data["shape"]

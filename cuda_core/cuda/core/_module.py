@@ -30,14 +30,14 @@ class Kernel:
     @staticmethod
     def _from_obj(obj, mod):
         assert isinstance(obj, (cuda.CUkernel, cuda.CUfunction))
-        assert isinstance(mod, Module)
+        assert isinstance(mod, ObjectCode)
         ker = Kernel.__new__(Kernel)
         ker._handle = obj
         ker._module = mod
         return ker
 
 
-class Module:
+class ObjectCode:
 
     __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "fatbin")
