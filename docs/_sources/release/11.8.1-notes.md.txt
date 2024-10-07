@@ -1,6 +1,6 @@
 # CUDA Python 11.8.1 Release notes
 
-Released on November 4, 2022
+Released on October ??, 2022
 
 ## Hightlights
 - Resolves [issue #27](https://github.com/NVIDIA/cuda-python/issues/24)

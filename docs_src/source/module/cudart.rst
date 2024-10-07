@@ -19,6 +19,8 @@ impl_private
 
 
 
+
+
 This section describes the device management functions of the CUDA runtime application programming interface.
 
 .. autofunction:: cuda.cudart.cudaDeviceReset
@@ -133,8 +135,6 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.cudart.cudaFuncSetSharedMemConfig
 .. autofunction:: cuda.cudart.cudaFuncGetAttributes
 .. autofunction:: cuda.cudart.cudaFuncSetAttribute
-.. autofunction:: cuda.cudart.cudaSetDoubleForDevice
-.. autofunction:: cuda.cudart.cudaSetDoubleForHost
 .. autofunction:: cuda.cudart.cudaLaunchHostFunc
 
 Occupancy
@@ -469,6 +469,7 @@ Version Management
 
 .. autofunction:: cuda.cudart.cudaDriverGetVersion
 .. autofunction:: cuda.cudart.cudaRuntimeGetVersion
+.. autofunction:: cuda.cudart.getLocalRuntimeVersion
 
 Graph Management
 ----------------
@@ -563,6 +564,8 @@ C++ API Routines
 ----------------
 C++-style interface built on top of CUDA runtime API.
 impl_private
+
+
 
 
 
@@ -752,19 +755,13 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaExternalMemoryBufferDesc
 .. autoclass:: cuda.cudart.cudaExternalMemoryMipmappedArrayDesc
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreHandleDesc
-.. autoclass:: cuda.cudart.cudaExternalSemaphoreSignalParams_v1
-.. autoclass:: cuda.cudart.cudaExternalSemaphoreWaitParams_v1
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreSignalParams
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreWaitParams
-.. autoclass:: cuda.cudart.cudaLaunchParams
 .. autoclass:: cuda.cudart.cudaKernelNodeParams
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreSignalNodeParams
 .. autoclass:: cuda.cudart.cudaExternalSemaphoreWaitNodeParams
 .. autoclass:: cuda.cudart.cudaLaunchAttributeValue
 .. autoclass:: cuda.cudart.cudaLaunchAttribute_st
-.. autoclass:: cuda.cudart.cudaLaunchConfig_st
-.. autoclass:: cuda.cudart.surfaceReference
-.. autoclass:: cuda.cudart.textureReference
 .. autoclass:: cuda.cudart.cudaTextureDesc
 .. autoclass:: cuda.cudart.cudaTextureDesc_v2
 .. autoclass:: cuda.cudart.cudaEglFrameType
@@ -4546,7 +4543,6 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.cudart.cudaGraphExec_t
 .. autoclass:: cuda.cudart.cudaLaunchAttributeValue
 .. autoclass:: cuda.cudart.cudaLaunchAttribute
-.. autoclass:: cuda.cudart.cudaLaunchConfig_t
 .. autoclass:: cuda.cudart.cudaSurfaceObject_t
 .. autoclass:: cuda.cudart.cudaTextureObject_t
 .. autoattribute:: cuda.cudart.CUDA_EGL_MAX_PLANES

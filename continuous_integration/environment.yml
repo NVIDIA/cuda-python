@@ -1,0 +1,24 @@
+name: cuda_python
+channels:
+  - defaults
+dependencies:
+  - python>=3.10
+  - cython>=3.0.0
+  - pytest>=6.2.4
+  - numpy>=1.21.1
+  - setuptools
+  - wheel
+  - pip
+  - cuda-version=12.6
+  - cuda-cudart-static
+  - cuda-driver-dev
+  - cuda-cudart-dev
+  - cuda-profiler-api
+  - cuda-nvrtc-dev
+  - cuda-nvcc
+  - pip:
+    - pytest-benchmark>=3.4.1
+    - pyclibrary>=0.1.7
+    - versioneer==0.29
+    - tomli; python_version < "3.11"
+    - pywin32; sys_platform == 'win32'

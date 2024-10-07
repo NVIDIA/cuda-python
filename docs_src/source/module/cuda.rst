@@ -2632,57 +2632,57 @@ Data types used by CUDA driver
 
         allow the hardware to load-balance the blocks in a cluster to the SMs
 
-.. autoclass:: cuda.cuda.CUstreamAttrID
+.. autoclass:: cuda.cuda.CUlaunchAttributeID
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_IGNORE
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_IGNORE
 
 
         Ignored entry, for convenient composition
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW
 
 
         Valid for streams, graph nodes, launches.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
 
 
         Valid for graph nodes, launches.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
 
 
         Valid for streams.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
 
 
         Valid for graph nodes, launches.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
 
 
         Valid for graph nodes, launches.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
 
 
         Valid for launches. Setting programmaticStreamSerializationAllowed to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap.
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT
 
 
         Valid for launches. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event through PTX griddepcontrol.launch_dependents. A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. Note that dependents (including the CPU thread calling :py:obj:`~.cuEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, :py:obj:`~.cuEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. created with :py:obj:`~.CU_EVENT_DISABLE_TIMING` flag set).
 
 
-    .. autoattribute:: cuda.cuda.CUstreamAttrID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+    .. autoattribute:: cuda.cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
 
 
         Valid for graph nodes.
@@ -4833,8 +4833,10 @@ Data types used by CUDA driver
 .. autoclass:: cuda.cuda.CUlaunchAttributeValue
 .. autoclass:: cuda.cuda.CUlaunchAttribute
 .. autoclass:: cuda.cuda.CUlaunchConfig
+.. autoclass:: cuda.cuda.CUkernelNodeAttrID
 .. autoclass:: cuda.cuda.CUkernelNodeAttrValue_v1
 .. autoclass:: cuda.cuda.CUkernelNodeAttrValue
+.. autoclass:: cuda.cuda.CUstreamAttrID
 .. autoclass:: cuda.cuda.CUstreamAttrValue_v1
 .. autoclass:: cuda.cuda.CUstreamAttrValue
 .. autoclass:: cuda.cuda.CUexecAffinitySmCount_v1

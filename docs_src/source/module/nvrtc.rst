@@ -7,73 +7,73 @@ Error Handling
 
 NVRTC defines the following enumeration type and function for API call error handling.
 
-.. autoclass:: cuda.nvrtc.nvrtcResult
+.. autoclass:: cuda.bindings.nvrtc.nvrtcResult
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_SUCCESS
-
-
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS
 
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY
 
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE
 
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT
 
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM
 
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION
 
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION
 
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE
 
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION
 
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
 
 
-    .. autoattribute:: cuda.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID
 
-.. autofunction:: cuda.nvrtc.nvrtcGetErrorString
+
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR
+
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetErrorString
 
 General Information Query
 -------------------------
 
 NVRTC defines the following function for general information query.
 
-.. autofunction:: cuda.nvrtc.nvrtcVersion
-.. autofunction:: cuda.nvrtc.nvrtcGetNumSupportedArchs
-.. autofunction:: cuda.nvrtc.nvrtcGetSupportedArchs
+.. autofunction:: cuda.bindings.nvrtc.nvrtcVersion
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetSupportedArchs
 
 Compilation
 -----------
 
 NVRTC defines the following type and functions for actual compilation.
 
-.. autoclass:: cuda.nvrtc.nvrtcProgram
-.. autofunction:: cuda.nvrtc.nvrtcCreateProgram
-.. autofunction:: cuda.nvrtc.nvrtcDestroyProgram
-.. autofunction:: cuda.nvrtc.nvrtcCompileProgram
-.. autofunction:: cuda.nvrtc.nvrtcGetPTXSize
-.. autofunction:: cuda.nvrtc.nvrtcGetPTX
-.. autofunction:: cuda.nvrtc.nvrtcGetCUBINSize
-.. autofunction:: cuda.nvrtc.nvrtcGetCUBIN
-.. autofunction:: cuda.nvrtc.nvrtcGetNVVMSize
-.. autofunction:: cuda.nvrtc.nvrtcGetNVVM
-.. autofunction:: cuda.nvrtc.nvrtcGetProgramLogSize
-.. autofunction:: cuda.nvrtc.nvrtcGetProgramLog
-.. autofunction:: cuda.nvrtc.nvrtcAddNameExpression
-.. autofunction:: cuda.nvrtc.nvrtcGetLoweredName
+.. autoclass:: cuda.bindings.nvrtc.nvrtcProgram
+.. autofunction:: cuda.bindings.nvrtc.nvrtcCreateProgram
+.. autofunction:: cuda.bindings.nvrtc.nvrtcDestroyProgram
+.. autofunction:: cuda.bindings.nvrtc.nvrtcCompileProgram
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetPTXSize
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetPTX
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetCUBINSize
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetCUBIN
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetNVVMSize
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetNVVM
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetProgramLogSize
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetProgramLog
+.. autofunction:: cuda.bindings.nvrtc.nvrtcAddNameExpression
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetLoweredName
 
 Supported Compile Options
 -------------------------
