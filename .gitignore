@@ -11,32 +11,32 @@ __pycache__/
 .pytest_cache/
 .benchmarks/
 *.cpp
-!cuda/_lib/param_packer.cpp
-!cuda/_cuda/loader.cpp
+!cuda/cuda/bindings/_lib/param_packer.cpp
+!cuda/cuda/bindings/_bindings/loader.cpp
 
 # CUDA Python specific (auto-generated)
-cuda/_cuda/ccuda.pxd
-cuda/_cuda/ccuda.pyx
-cuda/_cuda/cnvrtc.pxd
-cuda/_cuda/cnvrtc.pyx
-cuda/_lib/ccudart/ccudart.pxd
-cuda/_lib/ccudart/ccudart.pyx
-cuda/_lib/ccudart/utils.pxd
-cuda/_lib/ccudart/utils.pyx
-cuda/_lib/utils.pxd
-cuda/_lib/utils.pyx
-cuda/ccuda.pxd
-cuda/ccuda.pyx
-cuda/ccudart.pxd
-cuda/ccudart.pyx
-cuda/cnvrtc.pxd
-cuda/cnvrtc.pyx
-cuda/cuda.pxd
-cuda/cuda.pyx
-cuda/cudart.pxd
-cuda/cudart.pyx
-cuda/nvrtc.pxd
-cuda/nvrtc.pyx
+cuda/cuda/bindings/_bindings/cydriver.pxd
+cuda/cuda/bindings/_bindings/cydriver.pyx
+cuda/cuda/bindings/_bindings/cynvrtc.pxd
+cuda/cuda/bindings/_bindings/cynvrtc.pyx
+cuda/cuda/bindings/_lib/cyruntime/cyruntime.pxd
+cuda/cuda/bindings/_lib/cyruntime/cyruntime.pyx
+cuda/cuda/bindings/_lib/cyruntime/utils.pxd
+cuda/cuda/bindings/_lib/cyruntime/utils.pyx
+cuda/cuda/bindings/_lib/utils.pxd
+cuda/cuda/bindings/_lib/utils.pyx
+cuda/cuda/bindings/cydriver.pxd
+cuda/cuda/bindings/cydriver.pyx
+cuda/cuda/bindings/cyruntime.pxd
+cuda/cuda/bindings/cyruntime.pyx
+cuda/cuda/bindings/cynvrtc.pxd
+cuda/cuda/bindings/cynvrtc.pyx
+cuda/cuda/bindings/driver.pxd
+cuda/cuda/bindings/driver.pyx
+cuda/cuda/bindings/runtime.pxd
+cuda/cuda/bindings/runtime.pyx
+cuda/cuda/bindings/nvrtc.pxd
+cuda/cuda/bindings/nvrtc.pyx
 
 # Distribution / packaging
 .Python

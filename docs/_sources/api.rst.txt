@@ -6,6 +6,6 @@ CUDA Python API Reference
    :maxdepth: 3
    :caption: CaptionHolder:
 
-   module/cuda
-   module/cudart
+   module/driver
+   module/runtime
    module/nvrtc
