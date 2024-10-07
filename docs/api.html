@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="cuda" href="module/cuda.html" /><link rel="prev" title="CUDA Python 11.4.0 Release notes" href="release/11.4.0-notes.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="driver" href="module/driver.html" /><link rel="prev" title="CUDA Python 11.4.0 Release notes" href="release/11.4.0-notes.html" />
         <link rel="canonical" href="docs/api.html" />
 
     <!-- Generated with Sphinx 5.0.2 and Furo 2023.03.27 -->
-        <title>CUDA Python API Reference - CUDA Python 12.6.0 documentation</title>
+        <title>CUDA Python API Reference - CUDA Python 12.6.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">CUDA Python 12.6.0 documentation</div></a>
+      <a href="index.html"><div class="brand">CUDA Python 12.6.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -152,7 +152,7 @@
     <img class="sidebar-logo only-dark" src="_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 12.6.0 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.6.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -168,6 +168,7 @@
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/12.6.1-notes.html">    12.6.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.0-notes.html">    12.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.5.0-notes.html">    12.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.4.0-notes.html">    12.4.0</a></li>
@@ -176,6 +177,7 @@
 <li class="toctree-l2"><a class="reference internal" href="release/12.2.0-notes.html">    12.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.1.0-notes.html">    12.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.0.0-notes.html">    12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.4-notes.html">    11.8.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.3-notes.html">    11.8.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.2-notes.html">    11.8.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.1-notes.html">    11.8.1</a></li>
@@ -189,8 +191,8 @@
 </ul>
 </li>
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">CUDA Python API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html">cuda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html">cudart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html">driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html">runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvrtc.html">nvrtc</a></li>
 </ul>
 </li>
@@ -233,70 +235,70 @@
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">CaptionHolder:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="module/cuda.html">cuda</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#data-types-used-by-cuda-driver">Data types used by CUDA driver</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#error-handling">Error Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#initialization">Initialization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#version-management">Version Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#device-management">Device Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#primary-context-management">Primary Context Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#context-management">Context Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#module-management">Module Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#library-management">Library Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#memory-management">Memory Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#virtual-memory-management">Virtual Memory Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#stream-ordered-memory-allocator">Stream Ordered Memory Allocator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#multicast-object-management">Multicast Object Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#unified-addressing">Unified Addressing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#stream-management">Stream Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#event-management">Event Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#external-resource-interoperability">External Resource Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#stream-memory-operations">Stream Memory Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#execution-control">Execution Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#graph-management">Graph Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#occupancy">Occupancy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#texture-object-management">Texture Object Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#surface-object-management">Surface Object Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#tensor-map-object-managment">Tensor Map Object Managment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#peer-context-memory-access">Peer Context Memory Access</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#graphics-interoperability">Graphics Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#driver-entry-point-access">Driver Entry Point Access</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#coredump-attributes-control-api">Coredump Attributes Control API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#green-contexts">Green Contexts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#egl-interoperability">EGL Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#opengl-interoperability">OpenGL Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#profiler-control">Profiler Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cuda.html#vdpau-interoperability">VDPAU Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module/driver.html">driver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#data-types-used-by-cuda-driver">Data types used by CUDA driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#initialization">Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#version-management">Version Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#device-management">Device Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#primary-context-management">Primary Context Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#context-management">Context Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#module-management">Module Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#library-management">Library Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#memory-management">Memory Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#virtual-memory-management">Virtual Memory Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#stream-ordered-memory-allocator">Stream Ordered Memory Allocator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#multicast-object-management">Multicast Object Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#unified-addressing">Unified Addressing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#stream-management">Stream Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#event-management">Event Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#external-resource-interoperability">External Resource Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#stream-memory-operations">Stream Memory Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#execution-control">Execution Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#graph-management">Graph Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#occupancy">Occupancy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#texture-object-management">Texture Object Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#surface-object-management">Surface Object Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#tensor-map-object-managment">Tensor Map Object Managment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#peer-context-memory-access">Peer Context Memory Access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#graphics-interoperability">Graphics Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#driver-entry-point-access">Driver Entry Point Access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#coredump-attributes-control-api">Coredump Attributes Control API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#green-contexts">Green Contexts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#egl-interoperability">EGL Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#opengl-interoperability">OpenGL Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#profiler-control">Profiler Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#vdpau-interoperability">VDPAU Interoperability</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="module/cudart.html">cudart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#profiler-control">Profiler Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#device-management">Device Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#error-handling">Error Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#stream-management">Stream Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#event-management">Event Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#external-resource-interoperability">External Resource Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#execution-control">Execution Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#occupancy">Occupancy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#memory-management">Memory Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#stream-ordered-memory-allocator">Stream Ordered Memory Allocator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#unified-addressing">Unified Addressing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#peer-device-memory-access">Peer Device Memory Access</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#opengl-interoperability">OpenGL Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#direct3d-9-interoperability">Direct3D 9 Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#direct3d-10-interoperability">Direct3D 10 Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#direct3d-11-interoperability">Direct3D 11 Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#vdpau-interoperability">VDPAU Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#egl-interoperability">EGL Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#graphics-interoperability">Graphics Interoperability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#texture-object-management">Texture Object Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#surface-object-management">Surface Object Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#version-management">Version Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#graph-management">Graph Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#driver-entry-point-access">Driver Entry Point Access</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#c-api-routines">C++ API Routines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#interactions-with-the-cuda-driver-api">Interactions with the CUDA Driver API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module/cudart.html#data-types-used-by-cuda-runtime">Data types used by CUDA Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module/runtime.html">runtime</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#profiler-control">Profiler Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#device-management">Device Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#stream-management">Stream Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#event-management">Event Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#external-resource-interoperability">External Resource Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#execution-control">Execution Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#occupancy">Occupancy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#memory-management">Memory Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#stream-ordered-memory-allocator">Stream Ordered Memory Allocator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#unified-addressing">Unified Addressing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#peer-device-memory-access">Peer Device Memory Access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#opengl-interoperability">OpenGL Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#direct3d-9-interoperability">Direct3D 9 Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#direct3d-10-interoperability">Direct3D 10 Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#direct3d-11-interoperability">Direct3D 11 Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#vdpau-interoperability">VDPAU Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#egl-interoperability">EGL Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#graphics-interoperability">Graphics Interoperability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#texture-object-management">Texture Object Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#surface-object-management">Surface Object Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#version-management">Version Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#graph-management">Graph Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#driver-entry-point-access">Driver Entry Point Access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#c-api-routines">C++ API Routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#interactions-with-the-cuda-driver-api">Interactions with the CUDA Driver API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html#data-types-used-by-cuda-runtime">Data types used by CUDA Runtime</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="module/nvrtc.html">nvrtc</a><ul>
@@ -315,12 +317,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="module/cuda.html">
+          <a class="next-page" href="module/driver.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">cuda</div>
+                <div class="title">driver</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

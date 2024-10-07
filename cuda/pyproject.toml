@@ -1,0 +1,58 @@
+# Copyright 2023-2024 NVIDIA Corporation.  All rights reserved.
+#
+# Please refer to the NVIDIA end user license agreement (EULA) associated
+# with this source code for terms and conditions that govern your use of
+# this software. Any use, reproduction, disclosure, or distribution of
+# this software and related documentation outside the terms of the EULA
+# is strictly prohibited.
+
+[build-system]
+requires = ["setuptools", "versioneer[toml]==0.29", "cython", "pyclibrary"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cuda-python"
+description = "Python bindings for CUDA"
+authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
+license = {file = "LICENSE"}
+classifiers = [
+    "Intended Audience :: Developers",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Environment :: GPU :: NVIDIA CUDA",
+]
+dynamic = ["version"]
+dependencies = [
+  "pywin32; sys_platform == 'win32'",
+]
+
+[project.urls]
+Repository = "https://github.com/NVIDIA/cuda-python"
+Documentation = "https://nvidia.github.io/cuda-python/"
+
+# BETA
+# [tool.setuptools]
+# zip-safe = false
+
+# BETA
+# [tool.setuptools.packages.find]
+# where = ["cuda"]
+# include = ["cuda", "cuda.*"]
+
+# BETA
+# [tool.setuptools.package-data]
+# "*" = ["*.pxd", "*.pyx", "*.h", "*.cpp"]
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "cuda/bindings/_version.py"
+versionfile_build = "cuda/bindings/_version.py"
+tag_prefix = "v"
+parentdir_prefix = "cuda-python-"
