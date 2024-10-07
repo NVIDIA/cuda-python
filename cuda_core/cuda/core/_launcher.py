@@ -8,10 +8,11 @@ from typing import Optional, Union
 import numpy as np
 
 from cuda import cuda, cudart
-from cuda.core._utils import CUDAError, check_or_create_options, handle_return
+from cuda.core._kernel_arg_handler import ParamHolder
 from cuda.core._memory import Buffer
 from cuda.core._module import Kernel
 from cuda.core._stream import Stream
+from cuda.core._utils import CUDAError, check_or_create_options, handle_return
 
 
 @dataclass
@@ -80,19 +81,8 @@ def launch(kernel, config, *kernel_args):
         drv_cfg.numAttrs = 0  # FIXME
 
         # TODO: merge with HelperKernelParams?
-        num_args = len(kernel_args)
-        args_ptr = 0
-        if num_args:
-            # FIXME: support args passed by value
-            args = np.empty(num_args, dtype=np.intp)
-            for i, arg in enumerate(kernel_args):
-                if isinstance(arg, Buffer):
-                    # this is super weird... we need the address of where the actual
-                    # buffer address is stored...
-                    args[i] = arg._ptr.getPtr()
-                else:
-                    raise NotImplementedError
-            args_ptr = args.ctypes.data
+        kernel_args = ParamHolder(kernel_args)
+        args_ptr = kernel_args.ptr
 
         handle_return(cuda.cuLaunchKernelEx(
             drv_cfg, int(kernel._handle), args_ptr, 0))

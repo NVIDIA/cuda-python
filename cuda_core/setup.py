@@ -17,6 +17,11 @@ ext_modules = (
         sources=["cuda/core/_memoryview.pyx"],
         language="c++",
     ),
+    Extension(
+        "cuda.core._kernel_arg_handler",
+        sources=["cuda/core/_kernel_arg_handler.pyx"],
+        language="c++",
+    ),
 )
 
 
