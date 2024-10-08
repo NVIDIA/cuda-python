@@ -1,0 +1,127 @@
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+#
+# Please refer to the NVIDIA end user license agreement (EULA) associated
+# with this source code for terms and conditions that govern your use of
+# this software. Any use, reproduction, disclosure, or distribution of
+# this software and related documentation outside the terms of the EULA
+# is strictly prohibited.
+cimport cuda.bindings.driver as driver
+cimport cuda.bindings.cydriver as cydriver
+from libcpp.vector cimport vector
+
+cdef class HelperKernelParams:
+    cdef Py_buffer _pybuffer
+    cdef bint _pyobj_acquired
+    cdef void** _ckernelParams
+    cdef char* _ckernelParamsData
+    cdef int _length
+    cdef bint _malloc_list_created
+
+cdef class HelperInputVoidPtr:
+    cdef Py_buffer _pybuffer
+    cdef void* _cptr
+    cdef bint _pyobj_acquired
+{{if 'CUmemPool_attribute_enum' in found_types}}
+
+cdef class HelperCUmemPool_attribute:
+    cdef void* _cptr
+    cdef cydriver.CUmemPool_attribute_enum _attr
+    cdef bint _is_getter
+
+    # Return values
+    cdef int _int_val
+    cdef driver.cuuint64_t _cuuint64_t_val
+{{endif}}
+{{if 'CUmem_range_attribute_enum' in found_types}}
+
+cdef class HelperCUmem_range_attribute:
+    cdef void* _cptr
+    cdef cydriver.CUmem_range_attribute_enum _attr
+    cdef size_t _data_size
+
+    # Return values
+    cdef int _int_val # 32 bit integer
+    cdef int* _int_val_list # 32 bit integer array
+{{endif}}
+{{if 'CUpointer_attribute_enum' in found_types}}
+
+cdef class HelperCUpointer_attribute:
+    cdef void* _cptr
+    cdef cydriver.CUpointer_attribute_enum _attr
+    cdef bint _is_getter
+
+    # Return values
+    cdef driver.CUcontext _ctx
+    cdef unsigned int _uint
+    cdef driver.CUdeviceptr _devptr
+    cdef void** _void
+    cdef driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS _token
+    cdef bint _bool
+    cdef unsigned long long _ull
+    cdef size_t _size
+    cdef driver.CUmemoryPool _mempool
+{{endif}}
+{{if 'CUgraphMem_attribute_enum' in found_types}}
+
+cdef class HelperCUgraphMem_attribute:
+    cdef void* _cptr
+    cdef cydriver.CUgraphMem_attribute_enum _attr
+    cdef bint _is_getter
+
+    # Return values
+    cdef driver.cuuint64_t _cuuint64_t_val
+{{endif}}
+{{if 'CUjit_option_enum' in found_types}}
+
+cdef class HelperCUjit_option:
+    cdef void* _cptr
+    cdef cydriver.CUjit_option_enum _attr
+
+    # Return values
+    cdef unsigned int _uint
+    cdef float _float
+    cdef char* _charstar
+    cdef cydriver.CUjit_target_enum _target
+    cdef cydriver.CUjit_fallback_enum _fallback
+    cdef int _int
+    cdef cydriver.CUjit_cacheMode_enum _cacheMode
+    cdef vector[char*] _charstarstar # list of names
+    cdef InputVoidPtrPtrHelper _voidstarstar # list of addresses
+{{endif}}
+{{if 'CUlibraryOption_enum' in found_types}}
+
+cdef class HelperCUlibraryOption:
+    cdef void* _cptr
+    cdef cydriver.CUlibraryOption_enum _attr
+
+    # Return values
+    cdef unsigned int _uint
+{{endif}}
+{{if 'CUmemAllocationHandleType_enum' in found_types}}
+
+cdef class HelperCUmemAllocationHandleType:
+    cdef void* _cptr
+    cdef cydriver.CUmemAllocationHandleType_enum _type
+
+    # Return values
+    cdef int _int
+    cdef void* _handle
+    cdef unsigned int _d3dkmt_handle
+    cdef driver.CUmemFabricHandle _mem_fabric_handle
+{{endif}}
+
+cdef class InputVoidPtrPtrHelper:
+    cdef void** _cptr
+
+{{if 'CUcoredumpSettings_enum' in found_types}}
+
+cdef class HelperCUcoredumpSettings:
+    cdef void* _cptr
+    cdef cydriver.CUcoredumpSettings_enum _attrib
+    cdef bint _is_getter
+    cdef size_t _size
+
+    # Return values
+    cdef bint _bool
+    cdef char* _charstar
+{{endif}}

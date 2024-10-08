@@ -49,7 +49,7 @@ Python package. In this example, you copy data from the host to device. You need
 [NumPy](https://numpy.org/doc/stable/contents.html) to store data on the host.
 
 ```{code-cell} python
-from cuda import cuda, nvrtc
+from cuda.bindings import driver, nvrtc
 import numpy as np
 ```
 
@@ -60,9 +60,9 @@ object model.
 
 ```{code-cell} python
 def _cudaGetErrorEnum(error):
-    if isinstance(error, cuda.CUresult):
-        err, name = cuda.cuGetErrorName(error)
-        return name if err == cuda.CUresult.CUDA_SUCCESS else "<unknown>"
+    if isinstance(error, driver.CUresult):
+        err, name = driver.cuGetErrorName(error)
+        return name if err == driver.CUresult.CUDA_SUCCESS else "<unknown>"
     elif isinstance(error, nvrtc.nvrtcResult):
         return nvrtc.nvrtcGetErrorString(error)[1]
     else:
@@ -110,14 +110,14 @@ the program is compiled to target our local compute capability architecture with
 
 ```{code-cell} python
 # Initialize CUDA Driver API
-checkCudaErrors(cuda.cuInit(0))
+checkCudaErrors(driver.cuInit(0))
 
 # Retrieve handle for device 0
-cuDevice = checkCudaErrors(cuda.cuDeviceGet(0))
+cuDevice = checkCudaErrors(driver.cuDeviceGet(0))
 
 # Derive target architecture for device 0
-major = checkCudaErrors(cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice))
-minor = checkCudaErrors(cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice))
+major = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice))
+minor = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice))
 arch_arg = bytes(f'--gpu-architecture=compute_{major}{minor}', 'ascii')
 
 # Create program
@@ -140,7 +140,7 @@ following code example, a handle for compute device 0 is passed to
 
 ```{code-cell} python
 # Create context
-context = checkCudaErrors(cuda.cuCtxCreate(0, cuDevice))
+context = checkCudaErrors(driver.cuCtxCreate(0, cuDevice))
 ```
 
 With a CUDA context created on device 0, load the PTX generated earlier into a
@@ -152,8 +152,8 @@ After loading into the module, extract a specific kernel with
 # Load PTX as module data and retrieve function
 ptx = np.char.array(ptx)
 # Note: Incompatible --gpu-architecture would be detected here
-module = checkCudaErrors(cuda.cuModuleLoadData(ptx.ctypes.data))
-kernel = checkCudaErrors(cuda.cuModuleGetFunction(module, b"saxpy"))
+module = checkCudaErrors(driver.cuModuleLoadData(ptx.ctypes.data))
+kernel = checkCudaErrors(driver.cuModuleGetFunction(module, b"saxpy"))
 ```
 
 Next, get all your data prepared and transferred to the GPU. For increased
@@ -185,16 +185,16 @@ Python doesn’t have a natural concept of pointers, yet `cuMemcpyHtoDAsync` exp
 XX.
 
 ```{code-cell} python
-dXclass = checkCudaErrors(cuda.cuMemAlloc(bufferSize))
-dYclass = checkCudaErrors(cuda.cuMemAlloc(bufferSize))
-dOutclass = checkCudaErrors(cuda.cuMemAlloc(bufferSize))
+dXclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
+dYclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
+dOutclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
 
-stream = checkCudaErrors(cuda.cuStreamCreate(0))
+stream = checkCudaErrors(driver.cuStreamCreate(0))
 
-checkCudaErrors(cuda.cuMemcpyHtoDAsync(
+checkCudaErrors(driver.cuMemcpyHtoDAsync(
    dXclass, hX.ctypes.data, bufferSize, stream
 ))
-checkCudaErrors(cuda.cuMemcpyHtoDAsync(
+checkCudaErrors(driver.cuMemcpyHtoDAsync(
    dYclass, hY.ctypes.data, bufferSize, stream
 ))
 ```
@@ -223,7 +223,7 @@ args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 Now the kernel can be launched:
 
 ```{code-cell} python
-checkCudaErrors(cuda.cuLaunchKernel(
+checkCudaErrors(driver.cuLaunchKernel(
    kernel,
    NUM_BLOCKS,  # grid x dim
    1,  # grid y dim
@@ -237,10 +237,10 @@ checkCudaErrors(cuda.cuLaunchKernel(
    0,  # extra (ignore)
 ))
 
-checkCudaErrors(cuda.cuMemcpyDtoHAsync(
+checkCudaErrors(driver.cuMemcpyDtoHAsync(
    hOut.ctypes.data, dOutclass, bufferSize, stream
 ))
-checkCudaErrors(cuda.cuStreamSynchronize(stream))
+checkCudaErrors(driver.cuStreamSynchronize(stream))
 ```
 
 The `cuLaunchKernel` function takes the compiled module kernel and execution
@@ -262,12 +262,12 @@ Perform verification of the data to ensure correctness and finish the code with
 memory clean up.
 
 ```{code-cell} python
-checkCudaErrors(cuda.cuStreamDestroy(stream))
-checkCudaErrors(cuda.cuMemFree(dXclass))
-checkCudaErrors(cuda.cuMemFree(dYclass))
-checkCudaErrors(cuda.cuMemFree(dOutclass))
-checkCudaErrors(cuda.cuModuleUnload(module))
-checkCudaErrors(cuda.cuCtxDestroy(context))
+checkCudaErrors(driver.cuStreamDestroy(stream))
+checkCudaErrors(driver.cuMemFree(dXclass))
+checkCudaErrors(driver.cuMemFree(dYclass))
+checkCudaErrors(driver.cuMemFree(dOutclass))
+checkCudaErrors(driver.cuModuleUnload(module))
+checkCudaErrors(driver.cuCtxDestroy(context))
 ```
 
 ## Performance
