@@ -49,7 +49,17 @@ runs:
         ls -lahR ${{ env.ARTIFACTS_DIR }}
 <% endif %>
 
-    - if: ${{ inputs.use-container }}
+    # TODO: Remove
+    - name: Cache build
+      id: cache-build
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ env.ARTIFACTS_DIR }}
+        key: ${{ inputs.client-repo }}-${{ runner.os }}-build
+
+
+    - if: ${{ inputs.use-container == true }}
       name: Build (in container)
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
@@ -71,7 +81,7 @@ runs:
           --rm "${{ inputs.docker-image }}" \
           /bin/bash -c "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint ${{ env.REPO_DIR }}/continuous_integration/scripts/build ${{ inputs.build-type}} ${{ inputs.target-device }}"
 
-    - if: ${{ !inputs.use-container }}
+    - if: ${{ !inputs.use-container && steps.cache-build.outputs.cache-hit != 'true'}}
       name: Build (without container)
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
