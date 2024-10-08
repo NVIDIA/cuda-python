@@ -41,6 +41,9 @@ classifiers = [
     "Environment :: GPU :: NVIDIA CUDA :: 11",
     "Environment :: GPU :: NVIDIA CUDA :: 12",
 ]
+dependencies = [
+    "numpy",
+]
 
 
 [tool.setuptools]
