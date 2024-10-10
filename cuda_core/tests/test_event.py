@@ -1,4 +1,4 @@
-from cuda.py._event import Event
+from cuda.core._event import Event
 
 def test_event_initialization():
     try:

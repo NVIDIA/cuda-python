@@ -1,4 +1,4 @@
-from cuda.py._stream import Stream
+from cuda.core._stream import Stream
 
 def test_stream_initialization():
     try:

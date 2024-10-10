@@ -1,4 +1,4 @@
-from cuda.py._context import Context
+from cuda.core._context import Context
 
 def test_context_initialization():
     try:

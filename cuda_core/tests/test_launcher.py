@@ -1,4 +1,4 @@
-from cuda.py._launcher import LaunchConfig
+from cuda.core._launcher import LaunchConfig
 
 def test_launch_initialization():
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None, shmem_size=0)

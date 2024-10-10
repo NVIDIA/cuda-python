@@ -1,4 +1,4 @@
-from cuda.py._memory import Buffer, MemoryResource
+from cuda.core._memory import Buffer, MemoryResource
 
 class DummyMemoryResource(MemoryResource):
     def __init__(self):

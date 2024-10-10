@@ -1,4 +1,4 @@
-from cuda.py._device import Device
+from cuda.core._device import Device
 
 def test_device_initialization():
     device = Device()
