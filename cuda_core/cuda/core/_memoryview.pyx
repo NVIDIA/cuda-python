@@ -19,7 +19,7 @@ from cuda.core._utils import handle_return
 
 
 @cython.dataclasses.dataclass
-cdef class GPUMemoryView:
+cdef class StridedMemoryView:
 
     # TODO: switch to use Cython's cdef typing?
     ptr: int = None
@@ -43,14 +43,14 @@ cdef class GPUMemoryView:
             pass
 
     def __repr__(self):
-        return (f"GPUMemoryView(ptr={self.ptr},\n"
-              + f"              shape={self.shape},\n"
-              + f"              strides={self.strides},\n"
-              + f"              dtype={get_simple_repr(self.dtype)},\n"
-              + f"              device_id={self.device_id},\n"
-              + f"              device_accessible={self.device_accessible},\n"
-              + f"              readonly={self.readonly},\n"
-              + f"              obj={get_simple_repr(self.obj)})")
+        return (f"StridedMemoryView(ptr={self.ptr},\n"
+              + f"                  shape={self.shape},\n"
+              + f"                  strides={self.strides},\n"
+              + f"                  dtype={get_simple_repr(self.dtype)},\n"
+              + f"                  device_id={self.device_id},\n"
+              + f"                  device_accessible={self.device_accessible},\n"
+              + f"                  readonly={self.readonly},\n"
+              + f"                  obj={get_simple_repr(self.obj)})")
 
 
 cdef str get_simple_repr(obj):
@@ -80,7 +80,7 @@ cdef bint check_has_dlpack(obj) except*:
     return has_dlpack
 
 
-cdef class _GPUMemoryViewProxy:
+cdef class _StridedMemoryViewProxy:
 
     cdef:
         object obj
@@ -90,14 +90,14 @@ cdef class _GPUMemoryViewProxy:
         self.obj = obj
         self.has_dlpack = check_has_dlpack(obj)
 
-    cpdef GPUMemoryView view(self, stream_ptr=None):
+    cpdef StridedMemoryView view(self, stream_ptr=None):
         if self.has_dlpack:
             return view_as_dlpack(self.obj, stream_ptr)
         else:
             return view_as_cai(self.obj, stream_ptr)
 
 
-cdef GPUMemoryView view_as_dlpack(obj, stream_ptr, view=None):
+cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef int dldevice, device_id, i
     cdef bint device_accessible, versioned, is_readonly
     dldevice, device_id = obj.__dlpack_device__()
@@ -160,7 +160,7 @@ cdef GPUMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         dl_tensor = &dlm_tensor.dl_tensor
         is_readonly = False
 
-    cdef GPUMemoryView buf = GPUMemoryView() if view is None else view
+    cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.ptr = <intptr_t>(dl_tensor.data)
     buf.shape = tuple(int(dl_tensor.shape[i]) for i in range(dl_tensor.ndim))
     if dl_tensor.strides:
@@ -242,7 +242,7 @@ cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
     return numpy.dtype(np_dtype)
 
 
-cdef GPUMemoryView view_as_cai(obj, stream_ptr, view=None):
+cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     cdef dict cai_data = obj.__cuda_array_interface__
     if cai_data["version"] < 3:
         raise BufferError("only CUDA Array Interface v3 or above is supported")
@@ -251,7 +251,7 @@ cdef GPUMemoryView view_as_cai(obj, stream_ptr, view=None):
     if stream_ptr is None:
         raise BufferError("stream=None is ambiguous with view()")
 
-    cdef GPUMemoryView buf = GPUMemoryView() if view is None else view
+    cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.obj = obj
     buf.ptr, buf.readonly = cai_data["data"]
     buf.shape = cai_data["shape"]
@@ -291,7 +291,7 @@ def viewable(tuple arg_indices):
             args = list(args)
             cdef int idx
             for idx in arg_indices:
-                args[idx] = _GPUMemoryViewProxy(args[idx])
+                args[idx] = _StridedMemoryViewProxy(args[idx])
             return func(*args, **kwargs)
         return wrapped_func
     return wrapped_func_with_indices
