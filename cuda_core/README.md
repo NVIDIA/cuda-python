@@ -2,7 +2,7 @@
 
 Currently under active development. To build from source, just do:
 ```shell
-$ git clone -b cuda_py https://github.com/NVIDIA/cuda-python
+$ git clone https://github.com/NVIDIA/cuda-python
 $ cd cuda-python/cuda_core  # move to the directory where this README locates
 $ pip install .
 ```
