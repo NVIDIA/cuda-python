@@ -57,7 +57,8 @@ header_dict = {
                  'cuda_egl_interop.h',
                  'cuda_gl_interop.h',
                  'cuda_vdpau_interop.h'],
-    'nvrtc' : ['nvrtc.h']}
+    'nvrtc' : ['nvrtc.h'],
+    'nvJitLink' : ['nvJitLink.h'],}
 
 replace = {' __device_builtin__ ':' ',
            'CUDARTAPI ':' ',
