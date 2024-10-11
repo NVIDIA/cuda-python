@@ -95,6 +95,10 @@ for library, header_list in header_dict.items():
                      cache='./cache_{}'.format(library.split('.')[0]) if PARSER_CACHING else None,
                      replace=replace)
 
+    if library == 'driver':
+        CUDA_VERSION = parser.defs['macros']['CUDA_VERSION'] if 'CUDA_VERSION' in parser.defs['macros'] else 'Unknown'
+        print(f'Found CUDA_VERSION: {CUDA_VERSION}')
+
     # Combine types with others since they sometimes get tangled
     found_types += {key for key in parser.defs['types']}
     found_types += {key for key in parser.defs['structs']}
@@ -225,7 +229,7 @@ sources_list = [
     # public (deprecated, to be removed)
     ["cuda/*.pyx"],
     # tests
-    ["cuda/bindings/tests/*.pyx"],
+    ["tests/*.pyx"],
 ]
 
 for sources in sources_list:
@@ -256,9 +260,9 @@ cmdclass = versioneer.get_cmdclass(cmdclass)
 setup(
     version=versioneer.get_version(),
     ext_modules=do_cythonize(extensions),
-    packages=find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings.tests"]),
+    packages=find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "tests"]),
     package_data=dict.fromkeys(
-        find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings.tests"]),
+        find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "tests"]),
         ["*.pxd", "*.pyx", "*.py", "*.h", "*.cpp"],
     ),
     cmdclass=cmdclass,

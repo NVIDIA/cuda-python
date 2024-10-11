@@ -236,8 +236,28 @@
 <section id="hightlights">
 <h2>Hightlights<a class="headerlink" href="#hightlights" title="Permalink to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Resolve <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/90">Issue #90</a>: Use new layout in preperation for cuda-python becoming a metapackage</p></li>
+<li><p>Resolve <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/90">Issue #90</a>: Use new layout in preparation for cuda-python becoming a metapackage</p></li>
+<li><p>Resolve <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/75">Issue #75</a>: CUDA namespace cleanup</p></li>
 </ul>
+</section>
+<section id="cuda-namespace-cleanup-with-a-new-module-layout">
+<h2>CUDA namespace cleanup with a new module layout<a class="headerlink" href="#cuda-namespace-cleanup-with-a-new-module-layout" title="Permalink to this heading">#</a></h2>
+<p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/75">Issue #75</a> explains in detail what the new module layout is, what problem it fixes and how it impacts the users. However for the sake of completeness, this release notes will highlight key points of this change.</p>
+<p>Before this change, <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> was tightly coupled to CUDA Toolkit releases and all new features would inherit this coupling regardless of their applicability. As we develop new features, this coupling was becoming overly restrictive and motivated a new solution: Convert <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> into a metapackage where we use <code class="docutils literal notranslate"><span class="pre">cuda</span></code> as a namespace with existing bindings code moved to a <code class="docutils literal notranslate"><span class="pre">cuda_bindings</span></code> subpackage.</p>
+<p>This patch release applies the new module layout for the bindings as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.cuda</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">cuda.bindings.driver</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.ccuda</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">cuda.bindings.cydriver</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.cudart</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">cuda.bindings.runtime</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.ccudart</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">cuda.bindings.cyruntime</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.nvrtc</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">cuda.bindings.nvrtc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.cnvrtc</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">cuda.bindings.cynvrtc</span></code></p></li>
+</ul>
+<p>Deprecation warnings are turned on as a notice to switch to the new module layout.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is non-breaking, backwards compatible change. All old module path will continue work as they “forward” user calls towards the new layout.</p>
+</div>
 </section>
 <section id="limitations">
 <h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this heading">#</a></h2>
@@ -334,6 +354,7 @@
             <ul>
 <li><a class="reference internal" href="#">CUDA Python 12.6.1 Release notes</a><ul>
 <li><a class="reference internal" href="#hightlights">Hightlights</a></li>
+<li><a class="reference internal" href="#cuda-namespace-cleanup-with-a-new-module-layout">CUDA namespace cleanup with a new module layout</a></li>
 <li><a class="reference internal" href="#limitations">Limitations</a><ul>
 <li><a class="reference internal" href="#cuda-functions-not-supported-in-this-release">CUDA Functions Not Supported in this Release</a></li>
 </ul>

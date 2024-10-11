@@ -9,7 +9,7 @@ import ctypes
 import numpy as np
 import os
 from cuda import cuda, cudart, nvrtc
-from cuda.bindings.examples.common.helper_cuda import checkCudaErrors
+from common.helper_cuda import checkCudaErrors
 
 class KernelHelper:
     def __init__(self, code, devID):

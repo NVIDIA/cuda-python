@@ -10,8 +10,8 @@ import math
 import numpy as np
 import sys
 from cuda import cuda
-from cuda.bindings.examples.common import common
-from cuda.bindings.examples.common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
+from common import common
+from common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
 
 vectorAddMMAP = '''\
 /* Vector addition: C = A + B.
