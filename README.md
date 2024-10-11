@@ -42,7 +42,7 @@ Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA
 You can run the included tests with:
 
 ```
-python -m pytest
+python -m pytest tests/
 ```
 
 ### Benchmark
@@ -50,7 +50,7 @@ python -m pytest
 You can run benchmark only tests with:
 
 ```
-python -m pytest --benchmark-only
+python -m pytest --benchmark-only benchmarks/
 ```
 
 ### Samples
@@ -58,7 +58,7 @@ python -m pytest --benchmark-only
 You can run the included tests with:
 
 ```
-python -m pytest examples
+python -m pytest examples/
 ```
 
 ## Examples

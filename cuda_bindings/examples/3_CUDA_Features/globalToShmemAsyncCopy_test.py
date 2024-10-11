@@ -12,9 +12,9 @@ import sys
 import pytest
 from cuda import cuda, cudart
 from enum import Enum
-from cuda.bindings.examples.common import common
-from cuda.bindings.examples.common.helper_cuda import checkCudaErrors, findCudaDevice
-from cuda.bindings.examples.common.helper_string import checkCmdLineFlag, getCmdLineArgumentInt
+from common import common
+from common.helper_cuda import checkCudaErrors, findCudaDevice
+from common.helper_string import checkCmdLineFlag, getCmdLineArgumentInt
 
 blockSize = 16
 class kernels(Enum):

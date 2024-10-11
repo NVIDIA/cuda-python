@@ -11,9 +11,9 @@ import numpy as np
 import random as rnd
 import sys
 from cuda import cuda, cudart
-from cuda.bindings.examples.common import common
-from cuda.bindings.examples.common.helper_cuda import checkCudaErrors
-from cuda.bindings.examples.common.helper_string import checkCmdLineFlag
+from common import common
+from common.helper_cuda import checkCudaErrors
+from common.helper_string import checkCmdLineFlag
 
 simpleZeroCopy = '''\
 extern "C"

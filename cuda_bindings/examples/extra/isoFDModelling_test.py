@@ -8,8 +8,8 @@
 import numpy as np
 import time
 from cuda import cuda, cudart
-from cuda.bindings.examples.common import common
-from cuda.bindings.examples.common.helper_cuda import checkCudaErrors
+from common import common
+from common.helper_cuda import checkCudaErrors
 
 isoPropagator = '''\
 extern "C"

@@ -11,9 +11,9 @@ import numpy as np
 import random as rnd
 import sys
 from cuda import cuda, cudart
-from cuda.bindings.examples.common import common
-from cuda.bindings.examples.common.helper_cuda import checkCudaErrors, findCudaDevice
-from cuda.bindings.examples.common.helper_string import checkCmdLineFlag
+from common import common
+from common.helper_cuda import checkCudaErrors, findCudaDevice
+from common.helper_string import checkCmdLineFlag
 
 streamOrderedAllocation = '''\
 /* Add two vectors on the GPU */
@@ -166,6 +166,7 @@ def streamOrderedAllocationPostSync(dev, nelem, a, b, c) :
     return errorNorm/refNorm < 1.e-6
 
 def main():
+    cuda.cuInit(0)
     if checkCmdLineFlag("help"):
         print("Usage:  streamOrderedAllocation [OPTION]\n");
         print("Options:");

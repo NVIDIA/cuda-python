@@ -7,8 +7,8 @@
 # is strictly prohibited.
 import numpy as np
 from cuda import cuda
-from cuda.bindings.examples.common import common
-from cuda.bindings.examples.common.helper_cuda import checkCudaErrors, findCudaDevice
+from common import common
+from common.helper_cuda import checkCudaErrors, findCudaDevice
 
 clock_nvrtc = '''\
 extern "C" __global__  void timedReduction(const float *hinput, float *output, clock_t *timer)
