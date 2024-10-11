@@ -39,26 +39,35 @@ Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA
 
 ### Unit-tests
 
-You can run the included tests with:
-
+To run unit-tests against local builds:
 ```
-python -m pytest
+python -m pytest tests/
+```
+To run unit-tests against installed builds:
+```
+pytest tests/
 ```
 
 ### Benchmark
 
-You can run benchmark only tests with:
-
+To run unit-tests against local builds:
 ```
-python -m pytest --benchmark-only
+python -m pytest --benchmark-only benchmark/
+```
+To run unit-tests against installed builds:
+```
+pytest --benchmark-only benchmark/
 ```
 
 ### Samples
 
-You can run the included tests with:
-
+To run unit-tests against local builds:
 ```
-python -m pytest examples
+python -m pytest benchmark/
+```
+To run unit-tests against installed builds:
+```
+pytest benchmark/
 ```
 
 ## Examples
