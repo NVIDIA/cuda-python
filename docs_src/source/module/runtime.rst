@@ -4964,7 +4964,6 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaGraphExecUpdateResultInfo
 .. autoclass:: cuda.bindings.runtime.cudaGraphDeviceNode_t
 .. autoclass:: cuda.bindings.runtime.cudaLaunchMemSyncDomainMap
-.. autoclass:: cuda.bindings.runtime.cudaLaunchAttributeValue
 .. autoclass:: cuda.bindings.runtime.cudaLaunchAttribute
 .. autoclass:: cuda.bindings.runtime.cudaAsyncCallbackHandle_t
 .. autoclass:: cuda.bindings.runtime.cudaAsyncNotificationInfo_t
@@ -5198,11 +5197,6 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaArraySparsePropertiesSingleMipTail
 
     Indicates that the layered sparse CUDA array or CUDA mipmapped array has a single mip tail region for all layers
-
-.. autoattribute:: cuda.bindings.runtime.CUDART_CB
-.. autoattribute:: cuda.bindings.runtime.CU_UUID_HAS_BEEN_DEFINED
-
-    CUDA UUID types
 
 .. autoattribute:: cuda.bindings.runtime.CUDA_IPC_HANDLE_SIZE
 

@@ -5487,7 +5487,6 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUDA_HOST_NODE_PARAMS_v1
 .. autoclass:: cuda.bindings.driver.CUDA_HOST_NODE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUDA_HOST_NODE_PARAMS_v2
-.. autoclass:: cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUgraphEdgeData
 .. autoclass:: cuda.bindings.driver.CUDA_GRAPH_INSTANTIATE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUlaunchMemSyncDomainMap
@@ -5586,10 +5585,6 @@ Data types used by CUDA driver
 
     CUDA API version number
 
-.. autoattribute:: cuda.bindings.driver.CU_UUID_HAS_BEEN_DEFINED
-
-    CUDA UUID types
-
 .. autoattribute:: cuda.bindings.driver.CU_IPC_HANDLE_SIZE
 
     CUDA IPC handle size
@@ -5619,7 +5614,6 @@ Data types used by CUDA driver
     See details of the \link_sync_behavior
 
 .. autoattribute:: cuda.bindings.driver.CU_COMPUTE_ACCELERATED_TARGET_BASE
-.. autoattribute:: cuda.bindings.driver.CUDA_CB
 .. autoattribute:: cuda.bindings.driver.CU_GRAPH_COND_ASSIGN_DEFAULT
 
     Conditional node handle flags Default value is applied when graph is launched.
@@ -6708,8 +6702,6 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
         Streaming multiprocessors related information
 
 .. autoclass:: cuda.bindings.driver.CUdevResourceDesc
-.. autoclass:: cuda.bindings.driver.CUdevSmResource
-.. autofunction:: cuda.bindings.driver._CONCAT_OUTER
 .. autofunction:: cuda.bindings.driver.cuGreenCtxCreate
 .. autofunction:: cuda.bindings.driver.cuGreenCtxDestroy
 .. autofunction:: cuda.bindings.driver.cuCtxFromGreenCtx
@@ -6724,8 +6716,6 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 .. autofunction:: cuda.bindings.driver.cuGreenCtxStreamCreate
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_VERSION
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_EXTERNAL_BYTES
-.. autoattribute:: cuda.bindings.driver._CONCAT_INNER
-.. autoattribute:: cuda.bindings.driver._CONCAT_OUTER
 
 EGL Interoperability
 --------------------
