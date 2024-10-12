@@ -9,8 +9,8 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
+
+import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -22,7 +22,7 @@ copyright = '2021-2024, NVIDIA'
 author = 'NVIDIA'
 
 # The full version, including alpha/beta/rc tags
-release = '12.6.1'
+release = os.environ["SPHINX_CUDA_BINDINGS_VER"]
 
 
 # -- General configuration ---------------------------------------------------
@@ -52,13 +52,25 @@ exclude_patterns = []
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
 html_baseurl = 'docs'
-html_theme = 'furo'
-# html_theme = 'pydata_sphinx_theme'
+html_theme = 'pydata_sphinx_theme'
 html_theme_options = {
-	"light_logo": "logo-light-mode.png",
-    "dark_logo": "logo-dark-mode.png",
+    "logo": {
+	    "image_light": "_static/logo-light-mode.png",
+        "image_dark": "_static/logo-dark-mode.png",
+    },
+    "switcher": {
+        #"json_url": "https://nvidia.github.io/cuda-python/cuda-bindings/versions.json",
+        "json_url": "https://leofang.github.io/assets/versions.json",
+        "version_match": release,
+    },
+    # Add light/dark mode and documentation version switcher
+    "navbar_end": [
+        "search-button",
+        "theme-switcher",
+        "version-switcher",
+        "navbar-icon-links",
+    ],
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
