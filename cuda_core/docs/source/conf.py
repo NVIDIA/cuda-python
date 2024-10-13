@@ -16,12 +16,12 @@ import os
 
 # -- Project information -----------------------------------------------------
 
-project = 'cuda.bindings'
-copyright = '2021-2024, NVIDIA'
+project = 'cuda.core'
+copyright = '2024, NVIDIA'
 author = 'NVIDIA'
 
 # The full version, including alpha/beta/rc tags
-release = os.environ["SPHINX_CUDA_BINDINGS_VER"]
+release = os.environ["SPHINX_CUDA_CORE_VER"]
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,13 +31,11 @@ release = os.environ["SPHINX_CUDA_BINDINGS_VER"]
 # ones.
 extensions = [
 	'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
 	'sphinx.ext.napoleon',
 	'myst_nb',
 	'enum_tools.autoenum'
 ]
-
-jupyter_execute_notebooks = "force"
-numfig=True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -63,7 +61,7 @@ html_theme_options = {
     #    "image_dark": "_static/logo-dark-mode.png",
     #},
     #"switcher": {
-    #    "json_url": "https://nvidia.github.io/cuda-python/cuda-bindings/versions.json",
+    #    "json_url": "https://nvidia.github.io/cuda-python/cuda-core/versions.json",
     #    "version_match": release,
     #},
     ## Add light/dark mode and documentation version switcher
@@ -79,8 +77,3 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-
-suppress_warnings = [
-    # for warnings about multiple possible targets, see NVIDIA/cuda-python#152
-    'ref.python',
-]
