@@ -13,10 +13,18 @@ CUDA Python is currently undergoing an overhaul to improve existing and bring up
 All of the previously available functionalities from the ``cuda-python`` package will continue to
 be available, please refer to the `cuda.bindings`_ documentation for installation guide and further detail.
 
+..
+   The urls above can be auto-inserted by Sphinx (see rst_epilog in conf.py), but
+   not for the urls below, which must be hard-coded due to Sphinx limitation...
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    release.md
+   cuda.core <https://nvidia.github.io/cuda-python/cuda-core/latest>
+   cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/latest>
+   cuda.cooperative <https://nvidia.github.io/cccl/cuda_cooperative>
+   cuda.parallel <https://nvidia.github.io/cccl/cuda_parallel>
    conduct.md
    contribute.md
