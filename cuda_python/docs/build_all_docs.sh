@@ -13,7 +13,7 @@ pushd .
 cd ../../cuda_bindings/docs
 rm -rf build
 ./build_docs.sh
-cp -r build/html/* "$(dirs +1)"/$CUDA_BINDINGS_PATH
+cp -r build/html/* "$(dirs -l +1)"/$CUDA_BINDINGS_PATH
 popd
 
 # build cuda-core docs
@@ -23,5 +23,5 @@ pushd .
 cd ../../cuda_core/docs
 rm -rf build
 ./build_docs.sh
-cp -r build/html/* "$(dirs +1)"/$CUDA_CORE_PATH
+cp -r build/html/* "$(dirs -l +1)"/$CUDA_CORE_PATH
 popd
