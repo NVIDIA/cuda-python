@@ -9,6 +9,10 @@ multiple components:
 - `cuda.cooperative`_: Pythonic exposure of CUB cooperative algorithms
 - `cuda.parallel`_: Pythonic exposure of Thrust parallel algorithms
 
+For access to NVIDIA Math Libraries, please refer to `nvmath-python`_.
+
+.. _nvmath-python: https://docs.nvidia.com/cuda/nvmath-python/latest
+
 CUDA Python is currently undergoing an overhaul to improve existing and bring up new components.
 All of the previously available functionalities from the ``cuda-python`` package will continue to
 be available, please refer to the `cuda.bindings`_ documentation for installation guide and further detail.
