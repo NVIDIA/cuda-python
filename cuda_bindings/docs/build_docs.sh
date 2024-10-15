@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -ex
+
+# SPHINX_CUDA_BINDINGS_VER is used to create a subdir under build/html
+# (the Makefile file for sphinx-build also honors it if defined)
+if [[ -z "${SPHINX_CUDA_BINDINGS_VER}" ]]; then
+    export SPHINX_CUDA_BINDINGS_VER=$(python -c "from importlib.metadata import version; print(version('cuda-python'))" \
+                                      | awk -F'+' '{print $1}')
+fi
+
+# build the docs (in parallel)
+SPHINXOPTS="-j 4" make html
+
+# for debugging/developing (conf.py), please comment out the above line and
+# use the line below instead, as we must build in serial to avoid getting
+# obsecure Sphinx errors
+#SPHINXOPTS="-v" make html
+
+# to support version dropdown menu
+cp ./versions.json build/html
+
+# to have a redirection page (to the latest docs)
+cp source/_templates/main.html build/html/index.html
+
+# ensure that the latest docs is the one we built
+cp -r build/html/${SPHINX_CUDA_BINDINGS_VER} build/html/latest
+
+# ensure that the Sphinx reference uses the latest docs
+cp build/html/latest/objects.inv build/html
