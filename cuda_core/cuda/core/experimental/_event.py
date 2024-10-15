@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from typing import Optional
 
 from cuda import cuda
-from cuda.core._utils import check_or_create_options
-from cuda.core._utils import CUDAError
-from cuda.core._utils import handle_return
+from cuda.core.experimental._utils import check_or_create_options
+from cuda.core.experimental._utils import CUDAError
+from cuda.core.experimental._utils import handle_return
 
 
 @dataclass

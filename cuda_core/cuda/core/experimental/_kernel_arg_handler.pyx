@@ -15,7 +15,7 @@ import ctypes
 
 import numpy
 
-from cuda.core._memory import Buffer
+from cuda.core.experimental._memory import Buffer
 
 
 ctypedef cpp_complex.complex[float] cpp_single_complex

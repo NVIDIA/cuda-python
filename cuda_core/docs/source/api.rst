@@ -1,7 +1,7 @@
-.. module:: cuda.core
+.. module:: cuda.core.experimental
 
-``cuda.core`` API Reference
-===========================
+``cuda.core.experimental`` API Reference
+========================================
 
 CUDA runtime
 ------------

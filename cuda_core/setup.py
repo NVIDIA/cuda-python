@@ -5,24 +5,24 @@
 import os
 
 from Cython.Build import cythonize
-from setuptools import setup, Extension, find_packages
+from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 
 
 ext_modules = (
     Extension(
-        "cuda.core._dlpack",
-        sources=["cuda/core/_dlpack.pyx"],
+        "cuda.core.experimental._dlpack",
+        sources=["cuda/core/experimental/_dlpack.pyx"],
         language="c++",
     ),
     Extension(
-        "cuda.core._memoryview",
-        sources=["cuda/core/_memoryview.pyx"],
+        "cuda.core.experimental._memoryview",
+        sources=["cuda/core/experimental/_memoryview.pyx"],
         language="c++",
     ),
     Extension(
-        "cuda.core._kernel_arg_handler",
-        sources=["cuda/core/_kernel_arg_handler.pyx"],
+        "cuda.core.experimental._kernel_arg_handler",
+        sources=["cuda/core/experimental/_kernel_arg_handler.pyx"],
         language="c++",
     ),
 )
@@ -39,11 +39,6 @@ setup(
     ext_modules=cythonize(ext_modules,
         verbose=True, language_level=3,
         compiler_directives={'embedsignature': True}),
-    packages=find_packages(include=['cuda.core', 'cuda.core.*']),
-    package_data=dict.fromkeys(
-        find_packages(include=["cuda.core.*"]),
-        ["*.pxd", "*.pyx", "*.py"],
-    ),
     cmdclass = {'build_ext': build_ext,},
     zip_safe=False,
 )
