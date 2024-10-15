@@ -76,3 +76,15 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# Allow overwriting CUDA Python's domain name for local development. See:
+#   - https://stackoverflow.com/a/61694897/2344149
+#   - https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-rst_epilog
+CUDA_PYTHON_DOMAIN = os.environ.get('CUDA_PYTHON_DOMAIN',
+                                    'https://nvidia.github.io/cuda-python')
+rst_epilog = f"""
+.. _cuda.core: {CUDA_PYTHON_DOMAIN}/cuda-core/latest
+.. _cuda.bindings: {CUDA_PYTHON_DOMAIN}/cuda-bindings/latest
+.. _cuda.cooperative: https://nvidia.github.io/cccl/cuda_cooperative/
+.. _cuda.parallel: https://nvidia.github.io/cccl/cuda_parallel/
+"""

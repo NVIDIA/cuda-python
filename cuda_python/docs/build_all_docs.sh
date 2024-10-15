@@ -3,20 +3,25 @@
 set -ex
 
 # build cuda-python docs
+rm -rf build
 ./build_docs.sh
 
 # build cuda-bindings docs
-mkdir -p build/html/cuda-bindings
+CUDA_BINDINGS_PATH=build/html/cuda-bindings
+mkdir -p $CUDA_BINDINGS_PATH
 pushd .
 cd ../../cuda_bindings/docs
+rm -rf build
 ./build_docs.sh
-cp -r build/html/* "$(dirs +1)"/build/html/cuda-bindings
+cp -r build/html/* "$(dirs +1)"/$CUDA_BINDINGS_PATH
 popd
 
 # build cuda-core docs
-mkdir -p build/html/cuda-core
+CUDA_CORE_PATH=build/html/cuda-core
+mkdir -p $CUDA_CORE_PATH
 pushd .
 cd ../../cuda_core/docs
+rm -rf build
 ./build_docs.sh
-cp -r build/html/* "$(dirs +1)"/build/html/cuda-core
+cp -r build/html/* "$(dirs +1)"/$CUDA_CORE_PATH
 popd
