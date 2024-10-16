@@ -5,7 +5,10 @@
 # This code was automatically generated across versions from 12.0.76 to 12.6.77. Do not modify it directly.
 
 from ._internal cimport nvjitlink as _nvjitlink
+<<<<<<< HEAD
 from libc.stdint cimport uint32_t
+=======
+>>>>>>> 5d60eb1 (more changes)
 
 
 ###############################################################################
