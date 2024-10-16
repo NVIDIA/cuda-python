@@ -42,12 +42,12 @@ def _check_error(error, handle=None):
     elif isinstance(error, nvrtc.nvrtcResult):
         if error == nvrtc.nvrtcResult.NVRTC_SUCCESS:
             return
-        assert handle is not None
-        _, logsize = nvrtc.nvrtcGetProgramLogSize(handle)
-        log = b" " * logsize
-        _ = nvrtc.nvrtcGetProgramLog(handle, log)
-        err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}, " \
-              f"compilation log:\n\n{log.decode()}"
+        err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}"
+        if handle is not None:
+            _, logsize = nvrtc.nvrtcGetProgramLogSize(handle)
+            log = b" " * logsize
+            _ = nvrtc.nvrtcGetProgramLog(handle, log)
+            err += f", compilation log:\n\n{log.decode()}"
         raise NVRTCError(err)
     else:
         raise RuntimeError('Unknown error type: {}'.format(error))
