@@ -20,8 +20,8 @@ make_test_env() {
 make_conda_env() {
     set -xeuo pipefail
 
-    . setup-utils;
-    set_base_defs;
+    # . setup-utils;
+    # set_base_defs;
 
     case "$1" in
         ci) make_ci_env;;

@@ -154,3 +154,26 @@ init_build_env() {
     activate_conda_env;
     conda_info;
 }
+
+init_test_env() {
+    set -x;
+
+    . conda-utils;
+
+    export TEST_TYPE=$1
+
+    set -xeuo pipefail;
+
+    set_base_defs;
+
+    cd "$PREBUILD_DIR"
+
+    # setup_test_env;
+
+    cd "$REPO_DIR";
+
+    make-conda-env "$TEST_TYPE";
+
+    activate_conda_env;
+    conda_info;
+}
