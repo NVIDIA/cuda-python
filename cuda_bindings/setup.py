@@ -11,6 +11,7 @@ import os
 import platform
 import sys
 import sysconfig
+import atexit
 
 from Cython import Tempita
 from Cython.Build import cythonize
@@ -19,6 +20,8 @@ from setuptools import find_packages, setup
 from setuptools.extension import Extension
 from setuptools.command.build_ext import build_ext
 import versioneer
+import tempfile
+import shutil
 
 
 # ----------------------------------------------------------------------
@@ -90,16 +93,13 @@ for library, header_list in header_dict.items():
                 break
         if not os.path.exists(path):
             print(f'Missing header {header}')
-
     print(f'Parsing {library} headers')
     parser = CParser(header_paths,
                      cache='./cache_{}'.format(library.split('.')[0]) if PARSER_CACHING else None,
                      replace=replace)
-
     if library == 'driver':
         CUDA_VERSION = parser.defs['macros']['CUDA_VERSION'] if 'CUDA_VERSION' in parser.defs['macros'] else 'Unknown'
         print(f'Found CUDA_VERSION: {CUDA_VERSION}')
-
     # Combine types with others since they sometimes get tangled
     found_types += {key for key in parser.defs['types']}
     found_types += {key for key in parser.defs['structs']}
@@ -109,16 +109,13 @@ for library, header_list in header_dict.items():
     found_types += {key for key in parser.defs['enums']}
     found_functions += {key for key in parser.defs['functions']}
     found_values += {key for key in parser.defs['values']}
-
 if len(found_functions) == 0:
     raise RuntimeError(f'Parser found no functions. Is CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
-
 # Unwrap struct and union members
 def unwrapMembers(found_dict):
     for key in found_dict:
         members = [var for var, _, _ in found_dict[key]['members']]
         found_dict[key]['members'] = members
-
 unwrapMembers(found_structs)
 unwrapMembers(found_unions)
 
@@ -148,7 +145,9 @@ path_list = [os.path.join('cuda'),
              os.path.join('cuda', 'bindings'),
              os.path.join('cuda', 'bindings', '_bindings'),
              os.path.join('cuda', 'bindings', '_lib'),
-             os.path.join('cuda', 'bindings', '_lib', 'cyruntime')]
+             os.path.join('cuda', 'bindings', '_lib', 'cyruntime'),
+             os.path.join('cuda', 'bindings', '_internal'),
+            ]
 input_files = []
 for path in path_list:
     input_files += fetch_input_files(path)
@@ -183,6 +182,7 @@ if sys.platform != 'win32':
 
 # For Setup
 extensions = []
+new_extensions = []
 cmdclass = {}
 
 # ----------------------------------------------------------------------
@@ -192,6 +192,7 @@ def prep_extensions(sources):
     pattern = sources[0]
     files = glob.glob(pattern)
     exts = []
+    print(include_dirs, library_dirs)
     for pyx in files:
         mod_name = pyx.replace(".pyx", "").replace(os.sep, ".").replace("/", ".")
         exts.append(
@@ -208,6 +209,34 @@ def prep_extensions(sources):
         )
     return exts
 
+# new path for the bindings from cybind
+def rename_architecture_specific_files():
+    if sys.platform == 'linux':
+        src_files = glob.glob('cuda/bindings/_internal/*_linux.pyx')
+    elif sys.platform == 'win32':
+        src_files = glob.glob('cuda/bindings/_internal/*_windows.pyx')
+    else:
+        raise RuntimeError(f'platform is unrecognized: {sys.platform}')
+    dst_files = []
+    for src in src_files:
+        # Set up a temporary file; it must be under the cache directory so
+        # that atomic moves within the same filesystem can be guaranteed
+        with tempfile.NamedTemporaryFile(delete=False, dir='.') as f:
+            shutil.copy2(src, f.name)
+            f_name = f.name
+        dst = src.replace('_linux', '').replace('_windows', '')
+        # atomic move with the destination guaranteed to be overwritten
+        os.replace(f_name, f"./{dst}")
+        dst_files.append(dst)
+
+@atexit.register
+def cleanup_dst_files():
+    pass
+    # for dst in sources_list:
+    #     try:
+    #         os.remove(dst)
+    #     except FileNotFoundError:
+    #         pass
 
 def do_cythonize(extensions):
     return cythonize(
@@ -231,10 +260,19 @@ sources_list = [
     ["cuda/*.pyx"],
     # tests
     ["tests/*.pyx"],
+    # interal files used by cybind
+    ['cuda/bindings/_internal/*.pyx'],
 ]
+
+
+rename_architecture_specific_files()
 
 for sources in sources_list:
     extensions += prep_extensions(sources)
+
+# for sources in new_sources_list:
+#     new_extensions += prep_extensions(sources)
+
 
 # ---------------------------------------------------------------------
 # Custom build_ext command
@@ -258,14 +296,20 @@ cmdclass = versioneer.get_cmdclass(cmdclass)
 # ----------------------------------------------------------------------
 # Setup
 
+package_data=dict.fromkeys(
+        find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings._internal", "tests"]),
+        ["*.pxd", "*.pyx", "*.py", "*.h", "*.cpp"],
+    )
+
 setup(
     version=versioneer.get_version(),
     ext_modules=do_cythonize(extensions),
-    packages=find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "tests"]),
+    packages=find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings._internal", "tests"]),
     package_data=dict.fromkeys(
-        find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "tests"]),
+        find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings._internal", "tests"]),
         ["*.pxd", "*.pyx", "*.py", "*.h", "*.cpp"],
     ),
+    
     cmdclass=cmdclass,
     zip_safe=False,
 )

@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 12.4.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.76 to 12.6.77. Do not modify it directly.
 
 
-from libc.stdint cimport int64_t
+from libc.stdint cimport intptr_t, uint32_t
 
 
 ###############################################################################
@@ -13,7 +13,28 @@ from libc.stdint cimport int64_t
 ###############################################################################
 
 # enums
+ctypedef enum nvJitLinkResult "nvJitLinkResult":
+    NVJITLINK_SUCCESS "NVJITLINK_SUCCESS" = 0
+    NVJITLINK_ERROR_UNRECOGNIZED_OPTION "NVJITLINK_ERROR_UNRECOGNIZED_OPTION"
+    NVJITLINK_ERROR_MISSING_ARCH "NVJITLINK_ERROR_MISSING_ARCH"
+    NVJITLINK_ERROR_INVALID_INPUT "NVJITLINK_ERROR_INVALID_INPUT"
+    NVJITLINK_ERROR_PTX_COMPILE "NVJITLINK_ERROR_PTX_COMPILE"
+    NVJITLINK_ERROR_NVVM_COMPILE "NVJITLINK_ERROR_NVVM_COMPILE"
+    NVJITLINK_ERROR_INTERNAL "NVJITLINK_ERROR_INTERNAL"
+    NVJITLINK_ERROR_THREADPOOL "NVJITLINK_ERROR_THREADPOOL"
+    NVJITLINK_ERROR_UNRECOGNIZED_INPUT "NVJITLINK_ERROR_UNRECOGNIZED_INPUT"
+    NVJITLINK_ERROR_FINALIZE "NVJITLINK_ERROR_FINALIZE"
 
+ctypedef enum nvJitLinkInputType "nvJitLinkInputType":
+    NVJITLINK_INPUT_NONE "NVJITLINK_INPUT_NONE" = 0
+    NVJITLINK_INPUT_CUBIN "NVJITLINK_INPUT_CUBIN" = 1
+    NVJITLINK_INPUT_PTX "NVJITLINK_INPUT_PTX"
+    NVJITLINK_INPUT_LTOIR "NVJITLINK_INPUT_LTOIR"
+    NVJITLINK_INPUT_FATBIN "NVJITLINK_INPUT_FATBIN"
+    NVJITLINK_INPUT_OBJECT "NVJITLINK_INPUT_OBJECT"
+    NVJITLINK_INPUT_LIBRARY "NVJITLINK_INPUT_LIBRARY"
+    NVJITLINK_INPUT_INDEX "NVJITLINK_INPUT_INDEX"
+    NVJITLINK_INPUT_ANY "NVJITLINK_INPUT_ANY" = 10
 
 
 # types
@@ -26,7 +47,7 @@ cdef extern from *:
     ctypedef void* cudaStream_t 'cudaStream_t'
 
 
-
+ctypedef void* nvJitLinkHandle 'nvJitLinkHandle'
 
 
 ###############################################################################
