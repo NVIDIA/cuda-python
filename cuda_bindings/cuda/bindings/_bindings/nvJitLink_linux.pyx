@@ -2,28 +2,39 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.76 to 12.6.77. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 12.4.1. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
-from .utils cimport get_nvjitlink_dso_version_suffix
-
-import os
-import site
-
-import win32api
+from .utils cimport get_nvJitLink_dso_version_suffix
 
 from .utils import FunctionNotFoundError, NotSupportedError
+
+
+###############################################################################
+# Extern
+###############################################################################
+
+cdef extern from "<dlfcn.h>" nogil:
+    void* dlopen(const char*, int)
+    char* dlerror()
+    void* dlsym(void*, const char*)
+    int dlclose(void*)
+
+    enum:
+        RTLD_LAZY
+        RTLD_NOW
+        RTLD_GLOBAL
+        RTLD_LOCAL
+
+    const void* RTLD_DEFAULT 'RTLD_DEFAULT'
 
 
 ###############################################################################
 # Wrapper init
 ###############################################################################
 
-LOAD_LIBRARY_SEARCH_SYSTEM32     = 0x00000800
-LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
-LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
-cdef bint __py_nvjitlink_init = False
+cdef bint __py_nvJitLink_init = False
 cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __nvJitLinkCreate = NULL
@@ -41,160 +52,138 @@ cdef void* __nvJitLinkGetInfoLogSize = NULL
 cdef void* __nvJitLinkGetInfoLog = NULL
 
 
-cdef inline list get_site_packages():
-    return [site.getusersitepackages()] + site.getsitepackages()
-
-
-cdef load_library(const int driver_ver):
-    handle = 0
-
-    for suffix in get_nvjitlink_dso_version_suffix(driver_ver):
-        if len(suffix) == 0:
-            continue
-        dll_name = f"nvjitlink64_{suffix}.dll"
-
-        # First check if the DLL has been loaded by 3rd parties
-        try:
-            handle = win32api.GetModuleHandle(dll_name)
-        except:
-            pass
-        else:
-            break
-
-        # Next, check if DLLs are installed via pip
-        for sp in get_site_packages():
-            mod_path = os.path.join(sp, "nvidia", "nvjitlink", "bin")
-            if not os.path.isdir(mod_path):
-                continue
-            os.add_dll_directory(mod_path)
-        try:
-            handle = win32api.LoadLibraryEx(
-                # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
-                os.path.join(mod_path, dll_name),
-                0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
-        except:
-            pass
-        else:
-            break
-
-        # Finally, try default search
-        try:
-            handle = win32api.LoadLibrary(dll_name)
-        except:
-            pass
-        else:
+cdef void* load_library(const int driver_ver) except* with gil:
+    cdef void* handle
+    for suffix in get_nvJitLink_dso_version_suffix(driver_ver):
+        so_name = "libnvJitLink.so" + (f".{suffix}" if suffix else suffix)
+        handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
+        if handle != NULL:
             break
     else:
-        raise RuntimeError('Failed to load nvjitlink')
-
-    assert handle != 0
+        err_msg = dlerror()
+        raise RuntimeError(f'Failed to dlopen libnvJitLink ({err_msg.decode()})')
     return handle
 
 
-cdef int _check_or_init_nvjitlink() except -1 nogil:
-    global __py_nvjitlink_init
-    if __py_nvjitlink_init:
+cdef int _check_or_init_nvJitLink() except -1 nogil:
+    global __py_nvJitLink_init
+    if __py_nvJitLink_init:
         return 0
 
-    cdef int err, driver_ver
-    with gil:
-        # Load driver to check version
-        try:
-            handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
-        except Exception as e:
-            raise NotSupportedError(f'CUDA driver is not found ({e})')
-        global __cuDriverGetVersion
-        if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'cuDriverGetVersion')
-            if __cuDriverGetVersion == NULL:
-                raise RuntimeError('something went wrong')
-        err = (<int (*)(int*) nogil>__cuDriverGetVersion)(&driver_ver)
-        if err != 0:
+    # Load driver to check version
+    cdef void* handle = NULL
+    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
+    if handle == NULL:
+        with gil:
+            err_msg = dlerror()
+            raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
+    global __cuDriverGetVersion
+    if __cuDriverGetVersion == NULL:
+        __cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
+    if __cuDriverGetVersion == NULL:
+        with gil:
             raise RuntimeError('something went wrong')
+    cdef int err, driver_ver
+    err = (<int (*)(int*) nogil>__cuDriverGetVersion)(&driver_ver)
+    if err != 0:
+        with gil:
+            raise RuntimeError('something went wrong')
+    #dlclose(handle)
+    handle = NULL
 
-        # Load library
-        handle = load_library(driver_ver)
+    # Load function
+    global __nvJitLinkCreate
+    __nvJitLinkCreate = dlsym(RTLD_DEFAULT, 'nvJitLinkCreate')
+    if __nvJitLinkCreate == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkCreate = dlsym(handle, 'nvJitLinkCreate')
+    
+    global __nvJitLinkDestroy
+    __nvJitLinkDestroy = dlsym(RTLD_DEFAULT, 'nvJitLinkDestroy')
+    if __nvJitLinkDestroy == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkDestroy = dlsym(handle, 'nvJitLinkDestroy')
+    
+    global __nvJitLinkAddData
+    __nvJitLinkAddData = dlsym(RTLD_DEFAULT, 'nvJitLinkAddData')
+    if __nvJitLinkAddData == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkAddData = dlsym(handle, 'nvJitLinkAddData')
+    
+    global __nvJitLinkAddFile
+    __nvJitLinkAddFile = dlsym(RTLD_DEFAULT, 'nvJitLinkAddFile')
+    if __nvJitLinkAddFile == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkAddFile = dlsym(handle, 'nvJitLinkAddFile')
+    
+    global __nvJitLinkComplete
+    __nvJitLinkComplete = dlsym(RTLD_DEFAULT, 'nvJitLinkComplete')
+    if __nvJitLinkComplete == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkComplete = dlsym(handle, 'nvJitLinkComplete')
+    
+    global __nvJitLinkGetLinkedCubinSize
+    __nvJitLinkGetLinkedCubinSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedCubinSize')
+    if __nvJitLinkGetLinkedCubinSize == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkGetLinkedCubinSize = dlsym(handle, 'nvJitLinkGetLinkedCubinSize')
+    
+    global __nvJitLinkGetLinkedCubin
+    __nvJitLinkGetLinkedCubin = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedCubin')
+    if __nvJitLinkGetLinkedCubin == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkGetLinkedCubin = dlsym(handle, 'nvJitLinkGetLinkedCubin')
+    
+    global __nvJitLinkGetLinkedPtxSize
+    __nvJitLinkGetLinkedPtxSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedPtxSize')
+    if __nvJitLinkGetLinkedPtxSize == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkGetLinkedPtxSize = dlsym(handle, 'nvJitLinkGetLinkedPtxSize')
+    
+    global __nvJitLinkGetLinkedPtx
+    __nvJitLinkGetLinkedPtx = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedPtx')
+    if __nvJitLinkGetLinkedPtx == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkGetLinkedPtx = dlsym(handle, 'nvJitLinkGetLinkedPtx')
+    
+    global __nvJitLinkGetErrorLogSize
+    __nvJitLinkGetErrorLogSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetErrorLogSize')
+    if __nvJitLinkGetErrorLogSize == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkGetErrorLogSize = dlsym(handle, 'nvJitLinkGetErrorLogSize')
+    
+    global __nvJitLinkGetErrorLog
+    __nvJitLinkGetErrorLog = dlsym(RTLD_DEFAULT, 'nvJitLinkGetErrorLog')
+    if __nvJitLinkGetErrorLog == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkGetErrorLog = dlsym(handle, 'nvJitLinkGetErrorLog')
+    
+    global __nvJitLinkGetInfoLogSize
+    __nvJitLinkGetInfoLogSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetInfoLogSize')
+    if __nvJitLinkGetInfoLogSize == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkGetInfoLogSize = dlsym(handle, 'nvJitLinkGetInfoLogSize')
+    
+    global __nvJitLinkGetInfoLog
+    __nvJitLinkGetInfoLog = dlsym(RTLD_DEFAULT, 'nvJitLinkGetInfoLog')
+    if __nvJitLinkGetInfoLog == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkGetInfoLog = dlsym(handle, 'nvJitLinkGetInfoLog')
 
-        # Load function
-        global __nvJitLinkCreate
-        try:
-            __nvJitLinkCreate = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkCreate')
-        except:
-            pass
-    
-        global __nvJitLinkDestroy
-        try:
-            __nvJitLinkDestroy = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkDestroy')
-        except:
-            pass
-    
-        global __nvJitLinkAddData
-        try:
-            __nvJitLinkAddData = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkAddData')
-        except:
-            pass
-    
-        global __nvJitLinkAddFile
-        try:
-            __nvJitLinkAddFile = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkAddFile')
-        except:
-            pass
-    
-        global __nvJitLinkComplete
-        try:
-            __nvJitLinkComplete = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkComplete')
-        except:
-            pass
-    
-        global __nvJitLinkGetLinkedCubinSize
-        try:
-            __nvJitLinkGetLinkedCubinSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedCubinSize')
-        except:
-            pass
-    
-        global __nvJitLinkGetLinkedCubin
-        try:
-            __nvJitLinkGetLinkedCubin = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedCubin')
-        except:
-            pass
-    
-        global __nvJitLinkGetLinkedPtxSize
-        try:
-            __nvJitLinkGetLinkedPtxSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedPtxSize')
-        except:
-            pass
-    
-        global __nvJitLinkGetLinkedPtx
-        try:
-            __nvJitLinkGetLinkedPtx = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedPtx')
-        except:
-            pass
-    
-        global __nvJitLinkGetErrorLogSize
-        try:
-            __nvJitLinkGetErrorLogSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetErrorLogSize')
-        except:
-            pass
-    
-        global __nvJitLinkGetErrorLog
-        try:
-            __nvJitLinkGetErrorLog = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetErrorLog')
-        except:
-            pass
-    
-        global __nvJitLinkGetInfoLogSize
-        try:
-            __nvJitLinkGetInfoLogSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetInfoLogSize')
-        except:
-            pass
-    
-        global __nvJitLinkGetInfoLog
-        try:
-            __nvJitLinkGetInfoLog = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetInfoLog')
-        except:
-            pass
-
-    __py_nvjitlink_init = True
+    __py_nvJitLink_init = True
     return 0
 
 
@@ -206,7 +195,7 @@ cpdef dict _inspect_function_pointers():
     if func_ptrs is not None:
         return func_ptrs
 
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     cdef dict data = {}
 
     global __nvJitLinkCreate
@@ -265,7 +254,7 @@ cpdef _inspect_function_pointer(str name):
 
 cdef nvJitLinkResult _nvJitLinkCreate(nvJitLinkHandle* handle, uint32_t numOptions, const char** options) except* nogil:
     global __nvJitLinkCreate
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkCreate == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkCreate is not found")
@@ -275,7 +264,7 @@ cdef nvJitLinkResult _nvJitLinkCreate(nvJitLinkHandle* handle, uint32_t numOptio
 
 cdef nvJitLinkResult _nvJitLinkDestroy(nvJitLinkHandle* handle) except* nogil:
     global __nvJitLinkDestroy
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkDestroy == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkDestroy is not found")
@@ -285,7 +274,7 @@ cdef nvJitLinkResult _nvJitLinkDestroy(nvJitLinkHandle* handle) except* nogil:
 
 cdef nvJitLinkResult _nvJitLinkAddData(nvJitLinkHandle handle, nvJitLinkInputType inputType, const void* data, size_t size, const char* name) except* nogil:
     global __nvJitLinkAddData
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkAddData == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkAddData is not found")
@@ -295,7 +284,7 @@ cdef nvJitLinkResult _nvJitLinkAddData(nvJitLinkHandle handle, nvJitLinkInputTyp
 
 cdef nvJitLinkResult _nvJitLinkAddFile(nvJitLinkHandle handle, nvJitLinkInputType inputType, const char* fileName) except* nogil:
     global __nvJitLinkAddFile
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkAddFile == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkAddFile is not found")
@@ -305,7 +294,7 @@ cdef nvJitLinkResult _nvJitLinkAddFile(nvJitLinkHandle handle, nvJitLinkInputTyp
 
 cdef nvJitLinkResult _nvJitLinkComplete(nvJitLinkHandle handle) except* nogil:
     global __nvJitLinkComplete
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkComplete == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkComplete is not found")
@@ -315,7 +304,7 @@ cdef nvJitLinkResult _nvJitLinkComplete(nvJitLinkHandle handle) except* nogil:
 
 cdef nvJitLinkResult _nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, size_t* size) except* nogil:
     global __nvJitLinkGetLinkedCubinSize
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetLinkedCubinSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetLinkedCubinSize is not found")
@@ -325,7 +314,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, size_t
 
 cdef nvJitLinkResult _nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, void* cubin) except* nogil:
     global __nvJitLinkGetLinkedCubin
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetLinkedCubin == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetLinkedCubin is not found")
@@ -335,7 +324,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, void* cubi
 
 cdef nvJitLinkResult _nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, size_t* size) except* nogil:
     global __nvJitLinkGetLinkedPtxSize
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetLinkedPtxSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetLinkedPtxSize is not found")
@@ -345,7 +334,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, size_t* 
 
 cdef nvJitLinkResult _nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, char* ptx) except* nogil:
     global __nvJitLinkGetLinkedPtx
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetLinkedPtx == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetLinkedPtx is not found")
@@ -355,7 +344,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, char* ptx) e
 
 cdef nvJitLinkResult _nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, size_t* size) except* nogil:
     global __nvJitLinkGetErrorLogSize
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetErrorLogSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetErrorLogSize is not found")
@@ -365,7 +354,7 @@ cdef nvJitLinkResult _nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, size_t* s
 
 cdef nvJitLinkResult _nvJitLinkGetErrorLog(nvJitLinkHandle handle, char* log) except* nogil:
     global __nvJitLinkGetErrorLog
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetErrorLog == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetErrorLog is not found")
@@ -375,7 +364,7 @@ cdef nvJitLinkResult _nvJitLinkGetErrorLog(nvJitLinkHandle handle, char* log) ex
 
 cdef nvJitLinkResult _nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t* size) except* nogil:
     global __nvJitLinkGetInfoLogSize
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetInfoLogSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetInfoLogSize is not found")
@@ -385,7 +374,7 @@ cdef nvJitLinkResult _nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t* si
 
 cdef nvJitLinkResult _nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) except* nogil:
     global __nvJitLinkGetInfoLog
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetInfoLog == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetInfoLog is not found")

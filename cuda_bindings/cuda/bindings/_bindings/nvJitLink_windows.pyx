@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.76 to 12.6.77. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 12.4.1. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
-from .utils cimport get_nvjitlink_dso_version_suffix
+from .utils cimport get_nvJitLink_dso_version_suffix
 
 import os
 import site
@@ -23,7 +23,7 @@ from .utils import FunctionNotFoundError, NotSupportedError
 LOAD_LIBRARY_SEARCH_SYSTEM32     = 0x00000800
 LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
 LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
-cdef bint __py_nvjitlink_init = False
+cdef bint __py_nvJitLink_init = False
 cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __nvJitLinkCreate = NULL
@@ -48,10 +48,10 @@ cdef inline list get_site_packages():
 cdef load_library(const int driver_ver):
     handle = 0
 
-    for suffix in get_nvjitlink_dso_version_suffix(driver_ver):
+    for suffix in get_nvJitLink_dso_version_suffix(driver_ver):
         if len(suffix) == 0:
             continue
-        dll_name = f"nvjitlink64_{suffix}.dll"
+        dll_name = f"nvJitLink64_{suffix}.dll"
 
         # First check if the DLL has been loaded by 3rd parties
         try:
@@ -63,7 +63,7 @@ cdef load_library(const int driver_ver):
 
         # Next, check if DLLs are installed via pip
         for sp in get_site_packages():
-            mod_path = os.path.join(sp, "nvidia", "nvjitlink", "bin")
+            mod_path = os.path.join(sp, "nvidia", "nvJitLink", "bin")
             if not os.path.isdir(mod_path):
                 continue
             os.add_dll_directory(mod_path)
@@ -85,15 +85,15 @@ cdef load_library(const int driver_ver):
         else:
             break
     else:
-        raise RuntimeError('Failed to load nvjitlink')
+        raise RuntimeError('Failed to load nvJitLink')
 
     assert handle != 0
     return handle
 
 
-cdef int _check_or_init_nvjitlink() except -1 nogil:
-    global __py_nvjitlink_init
-    if __py_nvjitlink_init:
+cdef int _check_or_init_nvJitLink() except -1 nogil:
+    global __py_nvJitLink_init
+    if __py_nvJitLink_init:
         return 0
 
     cdef int err, driver_ver
@@ -194,7 +194,7 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
         except:
             pass
 
-    __py_nvjitlink_init = True
+    __py_nvJitLink_init = True
     return 0
 
 
@@ -206,7 +206,7 @@ cpdef dict _inspect_function_pointers():
     if func_ptrs is not None:
         return func_ptrs
 
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     cdef dict data = {}
 
     global __nvJitLinkCreate
@@ -265,7 +265,7 @@ cpdef _inspect_function_pointer(str name):
 
 cdef nvJitLinkResult _nvJitLinkCreate(nvJitLinkHandle* handle, uint32_t numOptions, const char** options) except* nogil:
     global __nvJitLinkCreate
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkCreate == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkCreate is not found")
@@ -275,7 +275,7 @@ cdef nvJitLinkResult _nvJitLinkCreate(nvJitLinkHandle* handle, uint32_t numOptio
 
 cdef nvJitLinkResult _nvJitLinkDestroy(nvJitLinkHandle* handle) except* nogil:
     global __nvJitLinkDestroy
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkDestroy == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkDestroy is not found")
@@ -285,7 +285,7 @@ cdef nvJitLinkResult _nvJitLinkDestroy(nvJitLinkHandle* handle) except* nogil:
 
 cdef nvJitLinkResult _nvJitLinkAddData(nvJitLinkHandle handle, nvJitLinkInputType inputType, const void* data, size_t size, const char* name) except* nogil:
     global __nvJitLinkAddData
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkAddData == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkAddData is not found")
@@ -295,7 +295,7 @@ cdef nvJitLinkResult _nvJitLinkAddData(nvJitLinkHandle handle, nvJitLinkInputTyp
 
 cdef nvJitLinkResult _nvJitLinkAddFile(nvJitLinkHandle handle, nvJitLinkInputType inputType, const char* fileName) except* nogil:
     global __nvJitLinkAddFile
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkAddFile == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkAddFile is not found")
@@ -305,7 +305,7 @@ cdef nvJitLinkResult _nvJitLinkAddFile(nvJitLinkHandle handle, nvJitLinkInputTyp
 
 cdef nvJitLinkResult _nvJitLinkComplete(nvJitLinkHandle handle) except* nogil:
     global __nvJitLinkComplete
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkComplete == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkComplete is not found")
@@ -315,7 +315,7 @@ cdef nvJitLinkResult _nvJitLinkComplete(nvJitLinkHandle handle) except* nogil:
 
 cdef nvJitLinkResult _nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, size_t* size) except* nogil:
     global __nvJitLinkGetLinkedCubinSize
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetLinkedCubinSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetLinkedCubinSize is not found")
@@ -325,7 +325,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, size_t
 
 cdef nvJitLinkResult _nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, void* cubin) except* nogil:
     global __nvJitLinkGetLinkedCubin
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetLinkedCubin == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetLinkedCubin is not found")
@@ -335,7 +335,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, void* cubi
 
 cdef nvJitLinkResult _nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, size_t* size) except* nogil:
     global __nvJitLinkGetLinkedPtxSize
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetLinkedPtxSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetLinkedPtxSize is not found")
@@ -345,7 +345,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, size_t* 
 
 cdef nvJitLinkResult _nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, char* ptx) except* nogil:
     global __nvJitLinkGetLinkedPtx
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetLinkedPtx == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetLinkedPtx is not found")
@@ -355,7 +355,7 @@ cdef nvJitLinkResult _nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, char* ptx) e
 
 cdef nvJitLinkResult _nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, size_t* size) except* nogil:
     global __nvJitLinkGetErrorLogSize
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetErrorLogSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetErrorLogSize is not found")
@@ -365,7 +365,7 @@ cdef nvJitLinkResult _nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, size_t* s
 
 cdef nvJitLinkResult _nvJitLinkGetErrorLog(nvJitLinkHandle handle, char* log) except* nogil:
     global __nvJitLinkGetErrorLog
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetErrorLog == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetErrorLog is not found")
@@ -375,7 +375,7 @@ cdef nvJitLinkResult _nvJitLinkGetErrorLog(nvJitLinkHandle handle, char* log) ex
 
 cdef nvJitLinkResult _nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t* size) except* nogil:
     global __nvJitLinkGetInfoLogSize
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetInfoLogSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetInfoLogSize is not found")
@@ -385,7 +385,7 @@ cdef nvJitLinkResult _nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t* si
 
 cdef nvJitLinkResult _nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) except* nogil:
     global __nvJitLinkGetInfoLog
-    _check_or_init_nvjitlink()
+    _check_or_init_nvJitLink()
     if __nvJitLinkGetInfoLog == NULL:
         with gil:
             raise FunctionNotFoundError("function nvJitLinkGetInfoLog is not found")
