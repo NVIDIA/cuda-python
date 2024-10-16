@@ -6,14 +6,14 @@
 
 from libc.stdint cimport intptr_t
 
-from .utils cimport get_nvjitlink_dso_version_suffix
+from utils cimport get_nvjitlink_dso_version_suffix
 
 import os
 import site
 
 import win32api
 
-from .utils import FunctionNotFoundError, NotSupportedError
+from utils import FunctionNotFoundError, NotSupportedError
 
 
 ###############################################################################

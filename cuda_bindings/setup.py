@@ -239,7 +239,6 @@ def cleanup_dst_files():
         
 architechture_specific_files_dir = 'cuda/bindings/_internal/'
 
-
 def do_cythonize(extensions):
     return cythonize(
         extensions,
@@ -269,16 +268,8 @@ sources_list = [
     ['cuda/bindings/_internal/utils.pyx'],
 ]
 
-
-
-rename_architecture_specific_files()
-
 for sources in sources_list:
     extensions += prep_extensions(sources)
-
-# for sources in new_sources_list:
-#     new_extensions += prep_extensions(sources)
-
 
 # ---------------------------------------------------------------------
 # Custom build_ext command
@@ -301,11 +292,6 @@ cmdclass = versioneer.get_cmdclass(cmdclass)
 
 # ----------------------------------------------------------------------
 # Setup
-
-package_data=dict.fromkeys(
-        find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings._internal", "tests"]),
-        ["*.pxd", "*.pyx", "*.py", "*.h", "*.cpp"],
-    )
 
 setup(
     version=versioneer.get_version(),

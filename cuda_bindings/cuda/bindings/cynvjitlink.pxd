@@ -6,10 +6,14 @@
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from libc.stdint cimport uint32_t
 =======
 from libc.stdint cimport intptr_t, uint32_t
 >>>>>>> 5d60eb1 (more changes)
+=======
+from libc.stdint cimport uint32_t
+>>>>>>> 8c4029f (working)
 
 
 ###############################################################################
