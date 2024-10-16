@@ -210,11 +210,11 @@ def prep_extensions(sources):
     return exts
 
 # new path for the bindings from cybind
-def rename_architecture_specific_files():
+def rename_architecture_specific_files(path):
     if sys.platform == 'linux':
-        src_files = glob.glob('cuda/bindings/_internal/*_linux.pyx')
+        src_files = glob.glob(os.path.join(path, '*_linux.pyx'))
     elif sys.platform == 'win32':
-        src_files = glob.glob('cuda/bindings/_internal/*_windows.pyx')
+        src_files = glob.glob(os.path.join(path, '*_windows.pyx'))
     else:
         raise RuntimeError(f'platform is unrecognized: {sys.platform}')
     dst_files = []
@@ -232,11 +232,13 @@ def rename_architecture_specific_files():
 @atexit.register
 def cleanup_dst_files():
     pass
-    # for dst in sources_list:
-    #     try:
-    #         os.remove(dst)
-    #     except FileNotFoundError:
-    #         pass
+    for dst in architechture_specific_files_dir:
+        try:
+            os.remove(dst)
+        except FileNotFoundError:
+            pass
+        
+architechture_specific_files_dir = 'cuda/bindings/_internal/'
 
 def do_cythonize(extensions):
     return cythonize(
@@ -247,6 +249,7 @@ def do_cythonize(extensions):
         ),
         **extra_cythonize_kwargs)
 
+rename_architecture_specific_files(architechture_specific_files_dir)
 
 sources_list = [
     # private
@@ -260,19 +263,17 @@ sources_list = [
     ["cuda/*.pyx"],
     # tests
     ["tests/*.pyx"],
-    # interal files used by cybind
-    ['cuda/bindings/_internal/*.pyx'],
+
+    # interal files used by cybind. We on
+    ['cuda/bindings/_internal/nvjitlink.pyx'],
+    ['cuda/bindings/_internal/utils.pyx'],
+
 ]
 
 
-rename_architecture_specific_files()
 
 for sources in sources_list:
     extensions += prep_extensions(sources)
-
-# for sources in new_sources_list:
-#     new_extensions += prep_extensions(sources)
-
 
 # ---------------------------------------------------------------------
 # Custom build_ext command
@@ -295,11 +296,6 @@ cmdclass = versioneer.get_cmdclass(cmdclass)
 
 # ----------------------------------------------------------------------
 # Setup
-
-package_data=dict.fromkeys(
-        find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings._internal", "tests"]),
-        ["*.pxd", "*.pyx", "*.py", "*.h", "*.cpp"],
-    )
 
 setup(
     version=versioneer.get_version(),
