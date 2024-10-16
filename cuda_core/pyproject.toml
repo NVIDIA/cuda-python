@@ -46,8 +46,8 @@ dependencies = [
 ]
 
 
-[tool.setuptools]
-packages = ["cuda", "cuda.core"]
+[tool.setuptools.packages.find]
+include = ["cuda.core*"]
 
 
 [tool.setuptools.dynamic]

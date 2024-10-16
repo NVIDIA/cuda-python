@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from cuda.core import Device
-from cuda.core import LaunchConfig, launch
-from cuda.core import Program
+from cuda.core.experimental import Device
+from cuda.core.experimental import LaunchConfig, launch
+from cuda.core.experimental import Program
 
 import cupy as cp
 
