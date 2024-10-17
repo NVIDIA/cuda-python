@@ -61,7 +61,7 @@ header_dict = {
                  'cuda_gl_interop.h',
                  'cuda_vdpau_interop.h'],
     'nvrtc' : ['nvrtc.h'],
-    'nvJitLink' : ['nvJitLink.h'],}
+    'nvJitLink' : ['nvJitLink.h']}
 
 replace = {' __device_builtin__ ':' ',
            'CUDARTAPI ':' ',
@@ -93,13 +93,16 @@ for library, header_list in header_dict.items():
                 break
         if not os.path.exists(path):
             print(f'Missing header {header}')
+
     print(f'Parsing {library} headers')
     parser = CParser(header_paths,
                      cache='./cache_{}'.format(library.split('.')[0]) if PARSER_CACHING else None,
                      replace=replace)
+    
     if library == 'driver':
         CUDA_VERSION = parser.defs['macros']['CUDA_VERSION'] if 'CUDA_VERSION' in parser.defs['macros'] else 'Unknown'
         print(f'Found CUDA_VERSION: {CUDA_VERSION}')
+
     # Combine types with others since they sometimes get tangled
     found_types += {key for key in parser.defs['types']}
     found_types += {key for key in parser.defs['structs']}
@@ -109,13 +112,16 @@ for library, header_list in header_dict.items():
     found_types += {key for key in parser.defs['enums']}
     found_functions += {key for key in parser.defs['functions']}
     found_values += {key for key in parser.defs['values']}
+
 if len(found_functions) == 0:
     raise RuntimeError(f'Parser found no functions. Is CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
+
 # Unwrap struct and union members
 def unwrapMembers(found_dict):
     for key in found_dict:
         members = [var for var, _, _ in found_dict[key]['members']]
         found_dict[key]['members'] = members
+        
 unwrapMembers(found_structs)
 unwrapMembers(found_unions)
 
