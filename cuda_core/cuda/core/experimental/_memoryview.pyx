@@ -29,7 +29,7 @@ cdef class StridedMemoryView:
     device_id: int = None  # -1 for CPU
     device_accessible: bool = None
     readonly: bool = None
-    obj: Any = None
+    exporting_obj: Any = None
 
     def __init__(self, obj=None, stream_ptr=None):
         if obj is not None:
@@ -50,7 +50,7 @@ cdef class StridedMemoryView:
               + f"                  device_id={self.device_id},\n"
               + f"                  device_accessible={self.device_accessible},\n"
               + f"                  readonly={self.readonly},\n"
-              + f"                  obj={get_simple_repr(self.obj)})")
+              + f"                  exporting_obj={get_simple_repr(self.exporting_obj)})")
 
 
 cdef str get_simple_repr(obj):
@@ -173,7 +173,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     buf.device_id = device_id
     buf.device_accessible = device_accessible
     buf.readonly = is_readonly
-    buf.obj = obj
+    buf.exporting_obj = obj
 
     cdef const char* used_name = (
         DLPACK_VERSIONED_TENSOR_USED_NAME if versioned else DLPACK_TENSOR_USED_NAME)
@@ -252,7 +252,7 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
         raise BufferError("stream=None is ambiguous with view()")
 
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
-    buf.obj = obj
+    buf.exporting_obj = obj
     buf.ptr, buf.readonly = cai_data["data"]
     buf.shape = cai_data["shape"]
     # TODO: this only works for built-in numeric types
