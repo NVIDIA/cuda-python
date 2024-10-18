@@ -1,0 +1,15 @@
+# ``cuda.core`` Release notes
+
+Released on Oct XX, 2024
+
+## Hightlights
+- Initial beta 1 release
+- Supports all platforms that CUDA is supported
+- Supports all CUDA 12.x drivers
+- Supports all CUDA 12.x Toolkits
+- Pythonic CUDA runtime and other core functionalities
+
+## Limitations
+
+- Source code release only; Python packages coming in a future release
+- Support for CUDA 11.x coming in the next release

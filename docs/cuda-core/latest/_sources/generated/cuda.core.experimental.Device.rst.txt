@@ -1,0 +1,41 @@
+﻿cuda.core.experimental.Device
+=============================
+
+.. currentmodule:: cuda.core.experimental
+
+.. autoclass:: Device
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Device.__init__
+      ~Device.allocate
+      ~Device.create_context
+      ~Device.create_stream
+      ~Device.set_current
+      ~Device.sync
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Device.compute_capability
+      ~Device.context
+      ~Device.default_stream
+      ~Device.device_id
+      ~Device.memory_resource
+      ~Device.name
+      ~Device.pci_bus_id
+      ~Device.properties
+      ~Device.uuid
+   
+   
