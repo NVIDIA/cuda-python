@@ -60,8 +60,7 @@ header_dict = {
                  'cuda_egl_interop.h',
                  'cuda_gl_interop.h',
                  'cuda_vdpau_interop.h'],
-    'nvrtc' : ['nvrtc.h'],
-    'nvJitLink' : ['nvJitLink.h']}
+    'nvrtc' : ['nvrtc.h']}
 
 replace = {' __device_builtin__ ':' ',
            'CUDARTAPI ':' ',
@@ -98,7 +97,7 @@ for library, header_list in header_dict.items():
     parser = CParser(header_paths,
                      cache='./cache_{}'.format(library.split('.')[0]) if PARSER_CACHING else None,
                      replace=replace)
-    
+
     if library == 'driver':
         CUDA_VERSION = parser.defs['macros']['CUDA_VERSION'] if 'CUDA_VERSION' in parser.defs['macros'] else 'Unknown'
         print(f'Found CUDA_VERSION: {CUDA_VERSION}')
@@ -121,7 +120,7 @@ def unwrapMembers(found_dict):
     for key in found_dict:
         members = [var for var, _, _ in found_dict[key]['members']]
         found_dict[key]['members'] = members
-        
+
 unwrapMembers(found_structs)
 unwrapMembers(found_unions)
 
@@ -198,7 +197,6 @@ def prep_extensions(sources):
     pattern = sources[0]
     files = glob.glob(pattern)
     exts = []
-    print(include_dirs, library_dirs)
     for pyx in files:
         mod_name = pyx.replace(".pyx", "").replace(os.sep, ".").replace("/", ".")
         exts.append(
@@ -215,8 +213,10 @@ def prep_extensions(sources):
         )
     return exts
 
+
 # new path for the bindings from cybind
-def rename_architecture_specific_files(path):
+def rename_architecture_specific_files():
+    architechture_specific_files_dir = 'cuda/bindings/_internal/'
     if sys.platform == 'linux':
         src_files = glob.glob(os.path.join(path, '*_linux.pyx'))
     elif sys.platform == 'win32':
@@ -234,16 +234,20 @@ def rename_architecture_specific_files(path):
         # atomic move with the destination guaranteed to be overwritten
         os.replace(f_name, f"./{dst}")
         dst_files.append(dst)
+    return dst_files
+
+
+dst_files = rename_architecture_specific_files()
+
 
 @atexit.register
 def cleanup_dst_files():
-    for dst in architechture_specific_files_dir:
+    for dst in dst_files:
         try:
             os.remove(dst)
         except FileNotFoundError:
             pass
-        
-architechture_specific_files_dir = 'cuda/bindings/_internal/'
+
 
 def do_cythonize(extensions):
     return cythonize(
@@ -254,7 +258,6 @@ def do_cythonize(extensions):
         ),
         **extra_cythonize_kwargs)
 
-rename_architecture_specific_files(architechture_specific_files_dir)
 
 sources_list = [
     # private
@@ -307,7 +310,6 @@ setup(
         find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings._internal", "tests"]),
         ["*.pxd", "*.pyx", "*.py", "*.h", "*.cpp"],
     ),
-    
     cmdclass=cmdclass,
     zip_safe=False,
 )
