@@ -61,3 +61,7 @@ cdef nvJitLinkResult nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t* siz
 
 cdef nvJitLinkResult nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) except* nogil:
     return _nvjitlink._nvJitLinkGetInfoLog(handle, log)
+
+
+cdef nvJitLinkResult nvJitLinkVersion(unsigned int* major, unsigned int* minor) except* nogil:
+    return _nvjitlink._nvJitLinkVersion(major, minor)

@@ -105,7 +105,7 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
     return <intptr_t>handle
 
 
-cpdef add_data(intptr_t handle, int input_type, intptr_t data, size_t size, intptr_t name):
+cpdef add_data(intptr_t handle, int input_type, intptr_t data, size_t size, name):
     """nvJitLinkAddData adds data image to the link.
 
     Args:
@@ -113,27 +113,35 @@ cpdef add_data(intptr_t handle, int input_type, intptr_t data, size_t size, intp
         input_type (InputType): kind of input.
         data (intptr_t): pointer to data image in memory.
         size (size_t): size of the data.
-        name (intptr_t): name of input object.
+        name (str): name of input object.
 
     .. seealso:: `nvJitLinkAddData`
     """
+    if not isinstance(name, str):
+        raise TypeError("name must be a Python str")
+    cdef bytes _temp_name_ = (<str>name).encode()
+    cdef char* _name_ = _temp_name_
     with nogil:
-        status = nvJitLinkAddData(<Handle>handle, <_InputType>input_type, <const void*>data, size, <const char*>name)
+        status = nvJitLinkAddData(<Handle>handle, <_InputType>input_type, <const void*>data, size, <const char*>_name_)
     check_status(status)
 
 
-cpdef add_file(intptr_t handle, int input_type, intptr_t file_name):
+cpdef add_file(intptr_t handle, int input_type, file_name):
     """nvJitLinkAddFile reads data from file and links it in.
 
     Args:
         handle (intptr_t): nvJitLink handle.
         input_type (InputType): kind of input.
-        file_name (intptr_t): name of file.
+        file_name (str): name of file.
 
     .. seealso:: `nvJitLinkAddFile`
     """
+    if not isinstance(file_name, str):
+        raise TypeError("file_name must be a Python str")
+    cdef bytes _temp_file_name_ = (<str>file_name).encode()
+    cdef char* _file_name_ = _temp_file_name_
     with nogil:
-        status = nvJitLinkAddFile(<Handle>handle, <_InputType>input_type, <const char*>file_name)
+        status = nvJitLinkAddFile(<Handle>handle, <_InputType>input_type, <const char*>_file_name_)
     check_status(status)
 
 
@@ -150,18 +158,22 @@ cpdef complete(intptr_t handle):
     check_status(status)
 
 
-cpdef get_linked_cubin_size(intptr_t handle, intptr_t size):
+cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0:
     """nvJitLinkGetLinkedCubinSize gets the size of the linked cubin.
 
     Args:
         handle (intptr_t): nvJitLink handle.
-        size (intptr_t): Size of the linked cubin.
+
+    Returns:
+        size_t: Size of the linked cubin.
 
     .. seealso:: `nvJitLinkGetLinkedCubinSize`
     """
+    cdef size_t size
     with nogil:
-        status = nvJitLinkGetLinkedCubinSize(<Handle>handle, <size_t*>size)
+        status = nvJitLinkGetLinkedCubinSize(<Handle>handle, &size)
     check_status(status)
+    return size
 
 
 cpdef get_linked_cubin(intptr_t handle, intptr_t cubin):
@@ -178,18 +190,22 @@ cpdef get_linked_cubin(intptr_t handle, intptr_t cubin):
     check_status(status)
 
 
-cpdef get_linked_ptx_size(intptr_t handle, intptr_t size):
+cpdef size_t get_linked_ptx_size(intptr_t handle) except? 0:
     """nvJitLinkGetLinkedPtxSize gets the size of the linked ptx.
 
     Args:
         handle (intptr_t): nvJitLink handle.
-        size (intptr_t): Size of the linked PTX.
+
+    Returns:
+        size_t: Size of the linked PTX.
 
     .. seealso:: `nvJitLinkGetLinkedPtxSize`
     """
+    cdef size_t size
     with nogil:
-        status = nvJitLinkGetLinkedPtxSize(<Handle>handle, <size_t*>size)
+        status = nvJitLinkGetLinkedPtxSize(<Handle>handle, &size)
     check_status(status)
+    return size
 
 
 cpdef get_linked_ptx(intptr_t handle, intptr_t ptx):
@@ -206,18 +222,22 @@ cpdef get_linked_ptx(intptr_t handle, intptr_t ptx):
     check_status(status)
 
 
-cpdef get_error_log_size(intptr_t handle, intptr_t size):
+cpdef size_t get_error_log_size(intptr_t handle) except? 0:
     """nvJitLinkGetErrorLogSize gets the size of the error log.
 
     Args:
         handle (intptr_t): nvJitLink handle.
-        size (intptr_t): Size of the error log.
+
+    Returns:
+        size_t: Size of the error log.
 
     .. seealso:: `nvJitLinkGetErrorLogSize`
     """
+    cdef size_t size
     with nogil:
-        status = nvJitLinkGetErrorLogSize(<Handle>handle, <size_t*>size)
+        status = nvJitLinkGetErrorLogSize(<Handle>handle, &size)
     check_status(status)
+    return size
 
 
 cpdef get_error_log(intptr_t handle, intptr_t log):
@@ -234,18 +254,22 @@ cpdef get_error_log(intptr_t handle, intptr_t log):
     check_status(status)
 
 
-cpdef get_info_log_size(intptr_t handle, intptr_t size):
+cpdef size_t get_info_log_size(intptr_t handle) except? 0:
     """nvJitLinkGetInfoLogSize gets the size of the info log.
 
     Args:
         handle (intptr_t): nvJitLink handle.
-        size (intptr_t): Size of the info log.
+
+    Returns:
+        size_t: Size of the info log.
 
     .. seealso:: `nvJitLinkGetInfoLogSize`
     """
+    cdef size_t size
     with nogil:
-        status = nvJitLinkGetInfoLogSize(<Handle>handle, <size_t*>size)
+        status = nvJitLinkGetInfoLogSize(<Handle>handle, &size)
     check_status(status)
+    return size
 
 
 cpdef get_info_log(intptr_t handle, intptr_t log):
@@ -260,3 +284,22 @@ cpdef get_info_log(intptr_t handle, intptr_t log):
     with nogil:
         status = nvJitLinkGetInfoLog(<Handle>handle, <char*>log)
     check_status(status)
+
+
+cpdef tuple version():
+    """nvJitLinkVersion returns the current version of nvJitLink.
+
+    Returns:
+        A 2-tuple containing:
+
+        - unsigned int: The major version.
+        - unsigned int: The minor version.
+
+    .. seealso:: `nvJitLinkVersion`
+    """
+    cdef unsigned int major
+    cdef unsigned int minor
+    with nogil:
+        status = nvJitLinkVersion(&major, &minor)
+    check_status(status)
+    return (major, minor)

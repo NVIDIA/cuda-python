@@ -49,6 +49,7 @@ cdef void* __nvJitLinkGetErrorLogSize = NULL
 cdef void* __nvJitLinkGetErrorLog = NULL
 cdef void* __nvJitLinkGetInfoLogSize = NULL
 cdef void* __nvJitLinkGetInfoLog = NULL
+cdef void* __nvJitLinkVersion = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
@@ -181,6 +182,13 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
         if handle == NULL:
             handle = load_library(driver_ver)
         __nvJitLinkGetInfoLog = dlsym(handle, 'nvJitLinkGetInfoLog')
+    
+    global __nvJitLinkVersion
+    __nvJitLinkVersion = dlsym(RTLD_DEFAULT, 'nvJitLinkVersion')
+    if __nvJitLinkVersion == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvJitLinkVersion = dlsym(handle, 'nvJitLinkVersion')
 
     __py_nvjitlink_init = True
     return 0
@@ -235,6 +243,9 @@ cpdef dict _inspect_function_pointers():
     
     global __nvJitLinkGetInfoLog
     data["__nvJitLinkGetInfoLog"] = <intptr_t>__nvJitLinkGetInfoLog
+    
+    global __nvJitLinkVersion
+    data["__nvJitLinkVersion"] = <intptr_t>__nvJitLinkVersion
 
     func_ptrs = data
     return data
@@ -379,3 +390,13 @@ cdef nvJitLinkResult _nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) exc
             raise FunctionNotFoundError("function nvJitLinkGetInfoLog is not found")
     return (<nvJitLinkResult (*)(nvJitLinkHandle, char*) nogil>__nvJitLinkGetInfoLog)(
         handle, log)
+
+
+cdef nvJitLinkResult _nvJitLinkVersion(unsigned int* major, unsigned int* minor) except* nogil:
+    global __nvJitLinkVersion
+    _check_or_init_nvjitlink()
+    if __nvJitLinkVersion == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvJitLinkVersion is not found")
+    return (<nvJitLinkResult (*)(unsigned int*, unsigned int*) nogil>__nvJitLinkVersion)(
+        major, minor)

@@ -38,6 +38,7 @@ cdef void* __nvJitLinkGetErrorLogSize = NULL
 cdef void* __nvJitLinkGetErrorLog = NULL
 cdef void* __nvJitLinkGetInfoLogSize = NULL
 cdef void* __nvJitLinkGetInfoLog = NULL
+cdef void* __nvJitLinkVersion = NULL
 
 
 cdef inline list get_site_packages():
@@ -192,6 +193,12 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
             __nvJitLinkGetInfoLog = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetInfoLog')
         except:
             pass
+    
+        global __nvJitLinkVersion
+        try:
+            __nvJitLinkVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkVersion')
+        except:
+            pass
 
     __py_nvjitlink_init = True
     return 0
@@ -246,6 +253,9 @@ cpdef dict _inspect_function_pointers():
     
     global __nvJitLinkGetInfoLog
     data["__nvJitLinkGetInfoLog"] = <intptr_t>__nvJitLinkGetInfoLog
+    
+    global __nvJitLinkVersion
+    data["__nvJitLinkVersion"] = <intptr_t>__nvJitLinkVersion
 
     func_ptrs = data
     return data
@@ -390,3 +400,13 @@ cdef nvJitLinkResult _nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) exc
             raise FunctionNotFoundError("function nvJitLinkGetInfoLog is not found")
     return (<nvJitLinkResult (*)(nvJitLinkHandle, char*) nogil>__nvJitLinkGetInfoLog)(
         handle, log)
+
+
+cdef nvJitLinkResult _nvJitLinkVersion(unsigned int* major, unsigned int* minor) except* nogil:
+    global __nvJitLinkVersion
+    _check_or_init_nvjitlink()
+    if __nvJitLinkVersion == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvJitLinkVersion is not found")
+    return (<nvJitLinkResult (*)(unsigned int*, unsigned int*) nogil>__nvJitLinkVersion)(
+        major, minor)
