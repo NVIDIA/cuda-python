@@ -155,7 +155,6 @@ cdef cppclass nested_resource[T]:
 # accepts the output pointer as input to use the return value for exception propagation
 cdef int get_resource_ptr(nullable_unique_ptr[vector[ResT]] &in_out_ptr, object obj, ResT* __unused) except 1
 cdef int get_resource_ptrs(nullable_unique_ptr[ vector[PtrT*] ] &in_out_ptr, object obj, PtrT* __unused) except 1
-cdef int get_char_ptrs(nullable_unique_ptr[ vector[char*] ] &in_out_ptr, object obj) except 1
 cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, ResT* __unused) except 1
 
 cdef bint is_nested_sequence(data)

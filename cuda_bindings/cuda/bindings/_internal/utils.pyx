@@ -74,18 +74,6 @@ cdef int get_resource_ptrs(nullable_unique_ptr[ vector[PtrT*] ] &in_out_ptr, obj
     return 0
 
 
-cdef int get_char_ptrs(nullable_unique_ptr[ vector[char*] ] &in_out_ptr, object obj) except 1:
-    if cpython.PySequence_Check(obj):
-        vec = new vector[char*](len(obj))
-        in_out_ptr.reset(vec, True)
-        for i in range(len(obj)):
-            #__TODO__ is there a lifetime difference between this char* and some other ptrT*
-            deref(vec)[i] = obj[i]
-    else:
-        in_out_ptr.reset(<vector[char*]*><intptr_t>obj, False)
-    return 0
-
-
 cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, ResT* __unused) except 1:
     cdef nullable_unique_ptr[ vector[intptr_t] ] nested_ptr
     cdef nullable_unique_ptr[ vector[vector[ResT]] ] nested_res_ptr
@@ -105,8 +93,11 @@ cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, 
         for i, obj_i in enumerate(obj):
             if ResT is char:
                 obj_i_bytes = (<str?>(obj_i)).encode()
+                str_len = <size_t>(len(obj_i_bytes)) + 1  # including null termination
+                deref(nested_res_vec)[i].resize(str_len)
                 obj_i_ptr = <char*>(obj_i_bytes)
-                deref(nested_res_vec)[i].assign(obj_i_ptr, obj_i_ptr + length)
+                # cast to size_t explicitly to work around a potentially Cython bug
+                deref(nested_res_vec)[i].assign(obj_i_ptr, obj_i_ptr + <size_t>str_len)
             else:
                 deref(nested_res_vec)[i] = obj_i
             deref(nested_vec)[i] = <intptr_t>(deref(nested_res_vec)[i].data())

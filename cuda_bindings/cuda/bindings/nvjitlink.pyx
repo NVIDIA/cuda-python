@@ -7,7 +7,7 @@
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
-                       get_buffer_pointer, get_resource_ptrs, get_char_ptrs)
+                               get_buffer_pointer, get_resource_ptrs)
 
 from enum import IntEnum as _IntEnum
 from libcpp.vector cimport vector
