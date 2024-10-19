@@ -1,19 +1,23 @@
 # Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.76 to 12.6.77. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 12.6.2. Do not modify it directly.
 
 cimport cython  # NOQA
 
+from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
+                       get_buffer_pointer, get_resource_ptrs, get_char_ptrs)
+
 from enum import IntEnum as _IntEnum
+from libcpp.vector cimport vector
 
 
 ###############################################################################
 # Enum
 ###############################################################################
 
-class NvJitLinkResult(_IntEnum):
+class Result(_IntEnum):
     """See `nvJitLinkResult`."""
     SUCCESS = NVJITLINK_SUCCESS
     ERROR_UNRECOGNIZED_OPTION = NVJITLINK_ERROR_UNRECOGNIZED_OPTION
@@ -26,7 +30,7 @@ class NvJitLinkResult(_IntEnum):
     ERROR_UNRECOGNIZED_INPUT = NVJITLINK_ERROR_UNRECOGNIZED_INPUT
     ERROR_FINALIZE = NVJITLINK_ERROR_FINALIZE
 
-class NvJitLinkInputType(_IntEnum):
+class InputType(_IntEnum):
     """See `nvJitLinkInputType`."""
     INPUT_NONE = NVJITLINK_INPUT_NONE
     INPUT_CUBIN = NVJITLINK_INPUT_CUBIN
@@ -65,20 +69,26 @@ class nvJitLinkError(Exception):
 
 
 @cython.profile(False)
-cdef inline void check_status(int status) nogil:
+cdef int check_status(int status) except 1 nogil:
     if status != 0:
         with gil:
             raise nvJitLinkError(status)
+    return status
 
 
 ###############################################################################
 # Wrapper functions
 ###############################################################################
 
-cpdef create(intptr_t handle, uint32_t num_options, intptr_t options):
+cpdef intptr_t create(uint32_t num_options, options) except -1:
+    cdef list converted_options = [(<str?>(s)).encode() for s in options]
+    cdef nullable_unique_ptr[ vector[char*] ] _options_
+    get_char_ptrs(_options_, converted_options)
+    cdef Handle handle
     with nogil:
-        status = nvJitLinkCreate(<Handle*>handle, num_options, <const char**>options)
+        status = nvJitLinkCreate(&handle, num_options, <const char**>(_options_.data()))
     check_status(status)
+    return <intptr_t>handle
 
 
 cpdef destroy(intptr_t handle):
@@ -89,13 +99,13 @@ cpdef destroy(intptr_t handle):
 
 cpdef add_data(intptr_t handle, int input_type, intptr_t data, size_t size, intptr_t name):
     with nogil:
-        status = nvJitLinkAddData(<Handle>handle, <_NvJitLinkInputType>input_type, <const void*>data, size, <const char*>name)
+        status = nvJitLinkAddData(<Handle>handle, <_InputType>input_type, <const void*>data, size, <const char*>name)
     check_status(status)
 
 
 cpdef add_file(intptr_t handle, int input_type, intptr_t file_name):
     with nogil:
-        status = nvJitLinkAddFile(<Handle>handle, <_NvJitLinkInputType>input_type, <const char*>file_name)
+        status = nvJitLinkAddFile(<Handle>handle, <_InputType>input_type, <const char*>file_name)
     check_status(status)
 
 

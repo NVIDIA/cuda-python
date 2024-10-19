@@ -136,13 +136,6 @@ cdef extern from * nogil:
         void* data()
 
 
-cdef extern from "<cuComplex.h>" nogil:
-    ctypedef struct cuComplex:
-        pass
-    ctypedef struct cuDoubleComplex:
-        pass
-
-
 ctypedef fused ResT:
     int
     int32_t
@@ -150,10 +143,6 @@ ctypedef fused ResT:
 
 
 ctypedef fused PtrT:
-    float
-    double
-    cuComplex
-    cuDoubleComplex
     void
 
 
@@ -161,10 +150,12 @@ cdef cppclass nested_resource[T]:
     nullable_unique_ptr[ vector[intptr_t] ] ptrs
     nullable_unique_ptr[ vector[vector[T]] ] nested_resource_ptr
 
-cdef nullable_unique_ptr[ vector[ResT] ] get_resource_ptr_(object obj, ResT* __unused)
-cdef int get_resource_ptr(nullable_unique_ptr[vector[ResT]] &in_out_ptr, object obj, ResT* __unused) except 0
-cdef nullable_unique_ptr[ vector[PtrT*] ] get_resource_ptrs(object obj, PtrT* __unused)
-cdef nested_resource[ResT] get_nested_resource_ptr(object obj, ResT* __unused)
+
+# accepts the output pointer as input to use the return value for exception propagation
+cdef int get_resource_ptr(nullable_unique_ptr[vector[ResT]] &in_out_ptr, object obj, ResT* __unused) except 1
+cdef int get_resource_ptrs(nullable_unique_ptr[ vector[PtrT*] ] &in_out_ptr, object obj, PtrT* __unused) except 1
+cdef int get_char_ptrs(nullable_unique_ptr[ vector[char*] ] &in_out_ptr, object obj) except 1
+cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, ResT* __unused) except 1
 
 cdef bint is_nested_sequence(data)
 cdef void* get_buffer_pointer(buf, Py_ssize_t size, readonly=*) except*

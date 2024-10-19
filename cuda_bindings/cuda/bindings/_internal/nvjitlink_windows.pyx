@@ -2,18 +2,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.76 to 12.6.77. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 12.6.2. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
-from utils cimport get_nvjitlink_dso_version_suffix
+from .utils cimport get_nvjitlink_dso_version_suffix
+
 
 import os
 import site
 
 import win32api
-
-from utils import FunctionNotFoundError, NotSupportedError
 
 
 ###############################################################################
@@ -51,7 +50,7 @@ cdef load_library(const int driver_ver):
     for suffix in get_nvjitlink_dso_version_suffix(driver_ver):
         if len(suffix) == 0:
             continue
-        dll_name = f"nvjitlink64_{suffix}.dll"
+        dll_name = f"nvJitLink64_{suffix}.dll"
 
         # First check if the DLL has been loaded by 3rd parties
         try:
@@ -63,7 +62,7 @@ cdef load_library(const int driver_ver):
 
         # Next, check if DLLs are installed via pip
         for sp in get_site_packages():
-            mod_path = os.path.join(sp, "nvidia", "nvjitlink", "bin")
+            mod_path = os.path.join(sp, "nvidia", "nvJitLink", "bin")
             if not os.path.isdir(mod_path):
                 continue
             os.add_dll_directory(mod_path)
@@ -85,7 +84,7 @@ cdef load_library(const int driver_ver):
         else:
             break
     else:
-        raise RuntimeError('Failed to load nvjitlink')
+        raise RuntimeError('Failed to load nvJitLink')
 
     assert handle != 0
     return handle

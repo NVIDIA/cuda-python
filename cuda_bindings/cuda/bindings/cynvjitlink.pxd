@@ -1,19 +1,10 @@
 # Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.76 to 12.6.77. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 12.6.2. Do not modify it directly.
 
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-from libc.stdint cimport uint32_t
-=======
 from libc.stdint cimport intptr_t, uint32_t
->>>>>>> 5d60eb1 (more changes)
-=======
-from libc.stdint cimport uint32_t
->>>>>>> 8c4029f (working)
 
 
 ###############################################################################

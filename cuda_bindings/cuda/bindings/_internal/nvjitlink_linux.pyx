@@ -2,14 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.76 to 12.6.77. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 12.6.2. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
 from .utils cimport get_nvjitlink_dso_version_suffix
 
 from .utils import FunctionNotFoundError, NotSupportedError
-
 
 ###############################################################################
 # Extern
@@ -55,13 +54,13 @@ cdef void* __nvJitLinkGetInfoLog = NULL
 cdef void* load_library(const int driver_ver) except* with gil:
     cdef void* handle
     for suffix in get_nvjitlink_dso_version_suffix(driver_ver):
-        so_name = "libnvjitlink.so" + (f".{suffix}" if suffix else suffix)
+        so_name = "libnvJitLink.so" + (f".{suffix}" if suffix else suffix)
         handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
         if handle != NULL:
             break
     else:
         err_msg = dlerror()
-        raise RuntimeError(f'Failed to dlopen libnvjitlink ({err_msg.decode()})')
+        raise RuntimeError(f'Failed to dlopen libnvJitLink ({err_msg.decode()})')
     return handle
 
 

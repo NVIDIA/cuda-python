@@ -1,8 +1,8 @@
 # Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.76 to 12.6.77. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 12.6.2. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uint32_t
 
@@ -20,15 +20,15 @@ ctypedef nvJitLinkHandle Handle
 # Enum
 ###############################################################################
 
-ctypedef nvJitLinkResult _NvJitLinkResult
-ctypedef nvJitLinkInputType _NvJitLinkInputType
+ctypedef nvJitLinkResult _Result
+ctypedef nvJitLinkInputType _InputType
 
 
 ###############################################################################
 # Functions
 ###############################################################################
 
-cpdef create(intptr_t handle, uint32_t num_options, intptr_t options)
+cpdef intptr_t create(uint32_t num_options, options) except -1
 cpdef destroy(intptr_t handle)
 cpdef add_data(intptr_t handle, int input_type, intptr_t data, size_t size, intptr_t name)
 cpdef add_file(intptr_t handle, int input_type, intptr_t file_name)
