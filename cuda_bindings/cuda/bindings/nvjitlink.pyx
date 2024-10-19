@@ -47,21 +47,12 @@ class InputType(_IntEnum):
 # Error handling
 ###############################################################################
 
-cdef dict STATUS={
-    NVJITLINK_SUCCESS                   : 'NVJITLINK_SUCCESS',
-    NVJITLINK_ERROR_UNRECOGNIZED_OPTION : 'NVJITLINK_ERROR_UNRECOGNIZED_OPTION',
-    NVJITLINK_ERROR_MISSING_ARCH        : 'NVJITLINK_ERROR_MISSING_ARCH',
-    NVJITLINK_ERROR_INVALID_INPUT       : 'NVJITLINK_ERROR_INVALID_INPUT',
-    NVJITLINK_ERROR_PTX_COMPILE         : 'NVJITLINK_ERROR_PTX_COMPILE',
-    NVJITLINK_ERROR_NVVM_COMPILE        : 'NVJITLINK_ERROR_NVVM_COMPILE',
-    NVJITLINK_ERROR_INTERNAL            : 'NVJITLINK_ERROR_INTERNAL'
-}
-
 class nvJitLinkError(Exception):
 
     def __init__(self, status):
         self.status = status
-        cdef str err = STATUS[status]
+        s = Result(status)
+        cdef str err = f"{s.name} ({s.value})"
         super(nvJitLinkError, self).__init__(err)
 
     def __reduce__(self):
