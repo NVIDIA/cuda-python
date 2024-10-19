@@ -94,8 +94,10 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
         num_options (uint32_t): Number of options passed.
         options (object): Array of size ``num_options`` of option strings. It can be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of ``char*``.
+            - an :class:`int` as the pointer address to the nested sequence, or
+            - a Python sequence of :class:`int`\s, each of which is a pointer address
+              to a valid sequence of 'char', or
+            - a nested Python sequence of ``str``.
 
 
     Returns:
@@ -103,12 +105,11 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
 
     .. seealso:: `nvJitLinkCreate`
     """
-    cdef list converted_options = [(<str?>(s)).encode() for s in options]
-    cdef nullable_unique_ptr[ vector[char*] ] _options_
-    get_char_ptrs(_options_, converted_options)
+    cdef nested_resource[ char ] _options_
+    get_nested_resource_ptr[char](_options_, options, <char*>NULL)
     cdef Handle handle
     with nogil:
-        status = nvJitLinkCreate(&handle, num_options, <const char**>(_options_.data()))
+        status = nvJitLinkCreate(&handle, num_options, <const char**>(_options_.ptrs.data()))
     check_status(status)
     return <intptr_t>handle
 

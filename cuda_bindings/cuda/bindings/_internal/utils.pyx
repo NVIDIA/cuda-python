@@ -103,7 +103,12 @@ cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, 
         nested_res_ptr.reset(nested_res_vec, True)
         nested_ptr.reset(nested_vec, True)
         for i, obj_i in enumerate(obj):
-            deref(nested_res_vec)[i] = obj_i
+            if ResT is char:
+                obj_i_bytes = (<str?>(obj_i)).encode()
+                obj_i_ptr = <char*>(obj_i_bytes)
+                deref(nested_res_vec)[i].assign(obj_i_ptr, obj_i_ptr + length)
+            else:
+                deref(nested_res_vec)[i] = obj_i
             deref(nested_vec)[i] = <intptr_t>(deref(nested_res_vec)[i].data())
     elif cpython.PySequence_Check(obj):
         length = len(obj)

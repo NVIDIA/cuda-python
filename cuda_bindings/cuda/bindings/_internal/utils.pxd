@@ -140,6 +140,7 @@ ctypedef fused ResT:
     int
     int32_t
     int64_t
+    char
 
 
 ctypedef fused PtrT:
