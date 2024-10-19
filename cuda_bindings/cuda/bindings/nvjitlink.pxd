@@ -29,7 +29,6 @@ ctypedef nvJitLinkInputType _InputType
 ###############################################################################
 
 cpdef intptr_t create(uint32_t num_options, options) except -1
-cpdef destroy(intptr_t handle)
 cpdef add_data(intptr_t handle, int input_type, intptr_t data, size_t size, intptr_t name)
 cpdef add_file(intptr_t handle, int input_type, intptr_t file_name)
 cpdef complete(intptr_t handle)
