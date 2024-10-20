@@ -37,15 +37,6 @@ ctypedef enum nvJitLinkInputType "nvJitLinkInputType":
 
 
 # types
-cdef extern from *:
-    """
-    #include <driver_types.h>
-    #include <library_types.h>
-    #include <cuComplex.h>
-    """
-    ctypedef void* cudaStream_t 'cudaStream_t'
-
-
 ctypedef void* nvJitLinkHandle 'nvJitLinkHandle'
 
 
