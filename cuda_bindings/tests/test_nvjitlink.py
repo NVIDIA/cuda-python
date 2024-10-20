@@ -1,23 +1,21 @@
+# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 import pytest
+
 from cuda.bindings import nvjitlink
-
-dir(nvjitlink)
-
-def test_create_no_arch_error():
-    # nvjitlink expects at least the architecture to be specified.
-    with pytest.raises(RuntimeError, match="NVJITLINK_ERROR_MISSING_ARCH error"):
-        nvjitlink.create()
 
 
 def test_invalid_arch_error():
     # sm_XX is not a valid architecture
-    with pytest.raises(RuntimeError, match="NVJITLINK_ERROR_UNRECOGNIZED_OPTION error"):
-        nvjitlink.create("-arch=sm_XX")
+    with pytest.raises(nvjitlink.nvJitLinkError, match="ERROR_UNRECOGNIZED_OPTION"):
+        nvjitlink.create(1, ["-arch=sm_XX"])
 
 
 def test_unrecognized_option_error():
-    with pytest.raises(RuntimeError, match="NVJITLINK_ERROR_UNRECOGNIZED_OPTION error"):
-        nvjitlink.create("-fictitious_option")
+    with pytest.raises(nvjitlink.nvJitLinkError, match="ERROR_UNRECOGNIZED_OPTION"):
+        nvjitlink.create(1, ["-fictitious_option"])
 
 
 def test_invalid_option_type_error():
@@ -41,17 +39,17 @@ def test_complete_empty():
     "input_file,input_type",
     [
         ("device_functions_cubin", nvjitlink.InputType.CUBIN),
-        ("device_functions_fatbin", InputType.FATBIN),
-        ("device_functions_ptx", InputType.PTX),
-        ("device_functions_object", InputType.OBJECT),
-        ("device_functions_archive", InputType.LIBRARY),
+        ("device_functions_fatbin", nvjitlink.InputType.FATBIN),
+        ("device_functions_ptx", nvjitlink.InputType.PTX),
+        ("device_functions_object", nvjitlink.InputType.OBJECT),
+        ("device_functions_archive", nvjitlink.InputType.LIBRARY),
     ],
 )
 def test_add_file(input_file, input_type, gpu_arch_flag, request):
     filename, data = request.getfixturevalue(input_file)
 
     handle = nvjitlink.create(gpu_arch_flag)
-    nvjitlink.add_data(handle, input_type.value, data, filename)
+    nvjitlink.add_data(handle, input_type, data, filename)
     nvjitlink.destroy(handle)
 
 
@@ -62,14 +60,14 @@ def test_add_file_lto(device_functions_ltoir_object, gpu_arch_flag):
     filename, data = device_functions_ltoir_object
 
     handle = nvjitlink.create(gpu_arch_flag, "-lto")
-    nvjitlink.add_data(handle, InputType.OBJECT.value, data, filename)
+    nvjitlink.add_data(handle, nvjitlink.InputType.OBJECT, data, filename)
     nvjitlink.destroy(handle)
 
 
 def test_get_error_log(undefined_extern_cubin, gpu_arch_flag):
     handle = nvjitlink.create(gpu_arch_flag)
     filename, data = undefined_extern_cubin
-    input_type = InputType.CUBIN.value
+    input_type = nvjitlink.InputType.CUBIN
     nvjitlink.add_data(handle, input_type, data, filename)
     with pytest.raises(RuntimeError):
         nvjitlink.complete(handle)
@@ -84,7 +82,7 @@ def test_get_error_log(undefined_extern_cubin, gpu_arch_flag):
 def test_get_info_log(device_functions_cubin, gpu_arch_flag):
     handle = nvjitlink.create(gpu_arch_flag)
     filename, data = device_functions_cubin
-    input_type = InputType.CUBIN.value
+    input_type = nvjitlink.InputType.CUBIN
     nvjitlink.add_data(handle, input_type, data, filename)
     nvjitlink.complete(handle)
     info_log = nvjitlink.get_info_log(handle)
@@ -96,7 +94,7 @@ def test_get_info_log(device_functions_cubin, gpu_arch_flag):
 def test_get_linked_cubin(device_functions_cubin, gpu_arch_flag):
     handle = nvjitlink.create(gpu_arch_flag)
     filename, data = device_functions_cubin
-    input_type = InputType.CUBIN.value
+    input_type = nvjitlink.InputType.CUBIN
     nvjitlink.add_data(handle, input_type, data, filename)
     nvjitlink.complete(handle)
     cubin = nvjitlink.get_linked_cubin(handle)
@@ -111,7 +109,7 @@ def test_get_linked_cubin_link_not_complete_error(
 ):
     handle = nvjitlink.create(gpu_arch_flag)
     filename, data = device_functions_cubin
-    input_type = InputType.CUBIN.value
+    input_type = nvjitlink.InputType.CUBIN
     nvjitlink.add_data(handle, input_type, data, filename)
     with pytest.raises(RuntimeError, match="NVJITLINK_ERROR_INTERNAL error"):
         nvjitlink.get_linked_cubin(handle)
@@ -124,7 +122,7 @@ def test_get_linked_cubin_from_lto(device_functions_ltoir_object, gpu_arch_flag)
     # containing an LTOIR container, because that is what NVCC produces when
     # LTO is requested. So we need to use the OBJECT input type, and the linker
     # retrieves the LTO IR from it because we passed the -lto flag.
-    input_type = InputType.OBJECT.value
+    input_type = nvjitlink.InputType.OBJECT
     handle = nvjitlink.create(gpu_arch_flag, "-lto")
     nvjitlink.add_data(handle, input_type, data, filename)
     nvjitlink.complete(handle)
@@ -141,7 +139,7 @@ def test_get_linked_ptx_from_lto(device_functions_ltoir_object, gpu_arch_flag):
     # containing an LTOIR container, because that is what NVCC produces when
     # LTO is requested. So we need to use the OBJECT input type, and the linker
     # retrieves the LTO IR from it because we passed the -lto flag.
-    input_type = InputType.OBJECT.value
+    input_type = nvjitlink.InputType.OBJECT
     handle = nvjitlink.create(gpu_arch_flag, "-lto", "-ptx")
     nvjitlink.add_data(handle, input_type, data, filename)
     nvjitlink.complete(handle)
@@ -154,7 +152,7 @@ def test_get_linked_ptx_link_not_complete_error(
 ):
     handle = nvjitlink.create(gpu_arch_flag, "-lto", "-ptx")
     filename, data = device_functions_ltoir_object
-    input_type = InputType.OBJECT.value
+    input_type = nvjitlink.InputType.OBJECT
     nvjitlink.add_data(handle, input_type, data, filename)
     with pytest.raises(RuntimeError, match="NVJITLINK_ERROR_INTERNAL error"):
         nvjitlink.get_linked_ptx(handle)
@@ -162,5 +160,6 @@ def test_get_linked_ptx_link_not_complete_error(
 
 
 def test_package_version():
-    assert pynvjitlink.__version__ is not None
-    assert len(str(pynvjitlink.__version__)) > 0
+    ver = nvjitlink.version()
+    assert len(ver) == 2
+    assert ver >= (12, 0)
