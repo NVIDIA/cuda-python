@@ -72,6 +72,13 @@ cdef int check_status(int status) except 1 nogil:
 ###############################################################################
 
 cpdef destroy(intptr_t handle):
+    """nvJitLinkDestroy frees the memory associated with the given handle.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+
+    .. seealso:: `nvJitLinkDestroy`
+    """
     cdef Handle h = <Handle>handle
     with nogil:
         status = nvJitLinkDestroy(&h)
