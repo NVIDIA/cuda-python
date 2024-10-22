@@ -8,6 +8,7 @@ from libc.stdint cimport intptr_t
 
 from .utils cimport get_nvjitlink_dso_version_suffix
 
+from .utils import FunctionNotFoundError, NotSupportedError
 
 import os
 import site
