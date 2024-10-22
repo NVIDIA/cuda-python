@@ -33,11 +33,11 @@ cpdef add_data(intptr_t handle, int input_type, intptr_t data, size_t size, name
 cpdef add_file(intptr_t handle, int input_type, file_name)
 cpdef complete(intptr_t handle)
 cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0
-cpdef get_linked_cubin(intptr_t handle, intptr_t cubin)
+cpdef get_linked_cubin(intptr_t handle, cubin)
 cpdef size_t get_linked_ptx_size(intptr_t handle) except? 0
-cpdef get_linked_ptx(intptr_t handle, intptr_t ptx)
+cpdef get_linked_ptx(intptr_t handle, ptx)
 cpdef size_t get_error_log_size(intptr_t handle) except? 0
-cpdef get_error_log(intptr_t handle, intptr_t log)
+cpdef get_error_log(intptr_t handle, log)
 cpdef size_t get_info_log_size(intptr_t handle) except? 0
-cpdef get_info_log(intptr_t handle, intptr_t log)
+cpdef get_info_log(intptr_t handle, log)
 cpdef tuple version()

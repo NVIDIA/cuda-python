@@ -1,3 +1,7 @@
+# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 cimport cpython
 from libc.stdint cimport intptr_t
 from libcpp.utility cimport move
@@ -29,7 +33,9 @@ cdef void* get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except*:
     else:  # try buffer protocol
         try:
             status = cpython.PyObject_GetBuffer(buf, &view, flags)
-            assert view.len == size
+            # when the caller does not provide a size, it is set to -1 at generate-time by cybind
+            if size != -1:
+                assert view.len == size
             assert view.ndim == 1
         except Exception as e:
             adj = "writable " if not readonly else ""
