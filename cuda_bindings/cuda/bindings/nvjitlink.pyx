@@ -86,6 +86,23 @@ cpdef destroy(intptr_t handle):
 
 
 cpdef intptr_t create(uint32_t num_options, options) except -1:
+    """nvJitLinkCreate creates an instance of nvJitLinkHandle with the given input options, and sets the output parameter ``handle``.
+
+    Args:
+        num_options (uint32_t): Number of options passed.
+        options (object): Array of size ``num_options`` of option strings. It can be:
+
+            - an :class:`int` as the pointer address to the nested sequence, or
+            - a Python sequence of :class:`int`\s, each of which is a pointer address
+              to a valid sequence of 'char', or
+            - a nested Python sequence of ``str``.
+
+
+    Returns:
+        intptr_t: Address of nvJitLink handle.
+
+    .. seealso:: `nvJitLinkCreate`
+    """
     cdef nested_resource[ char ] _options_
     get_nested_resource_ptr[char](_options_, options, <char*>NULL)
     cdef Handle handle
@@ -96,6 +113,17 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
 
 
 cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
+    """nvJitLinkAddData adds data image to the link.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+        input_type (InputType): kind of input.
+        data (bytes): pointer to data image in memory.
+        size (size_t): size of the data.
+        name (str): name of input object.
+
+    .. seealso:: `nvJitLinkAddData`
+    """
     cdef void* _data_ = get_buffer_pointer(data, size, readonly=True)
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
@@ -107,6 +135,15 @@ cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
 
 
 cpdef add_file(intptr_t handle, int input_type, file_name):
+    """nvJitLinkAddFile reads data from file and links it in.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+        input_type (InputType): kind of input.
+        file_name (str): name of file.
+
+    .. seealso:: `nvJitLinkAddFile`
+    """
     if not isinstance(file_name, str):
         raise TypeError("file_name must be a Python str")
     cdef bytes _temp_file_name_ = (<str>file_name).encode()
@@ -117,12 +154,29 @@ cpdef add_file(intptr_t handle, int input_type, file_name):
 
 
 cpdef complete(intptr_t handle):
+    """nvJitLinkComplete does the actual link.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+
+    .. seealso:: `nvJitLinkComplete`
+    """
     with nogil:
         status = nvJitLinkComplete(<Handle>handle)
     check_status(status)
 
 
 cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0:
+    """nvJitLinkGetLinkedCubinSize gets the size of the linked cubin.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+
+    Returns:
+        size_t: Size of the linked cubin.
+
+    .. seealso:: `nvJitLinkGetLinkedCubinSize`
+    """
     cdef size_t size
     with nogil:
         status = nvJitLinkGetLinkedCubinSize(<Handle>handle, &size)
@@ -131,6 +185,14 @@ cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0:
 
 
 cpdef get_linked_cubin(intptr_t handle, cubin):
+    """nvJitLinkGetLinkedCubin gets the linked cubin.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+        cubin (bytes): The linked cubin.
+
+    .. seealso:: `nvJitLinkGetLinkedCubin`
+    """
     cdef void* _cubin_ = get_buffer_pointer(cubin, -1, readonly=False)
     with nogil:
         status = nvJitLinkGetLinkedCubin(<Handle>handle, <void*>_cubin_)
@@ -138,6 +200,16 @@ cpdef get_linked_cubin(intptr_t handle, cubin):
 
 
 cpdef size_t get_linked_ptx_size(intptr_t handle) except? 0:
+    """nvJitLinkGetLinkedPtxSize gets the size of the linked ptx.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+
+    Returns:
+        size_t: Size of the linked PTX.
+
+    .. seealso:: `nvJitLinkGetLinkedPtxSize`
+    """
     cdef size_t size
     with nogil:
         status = nvJitLinkGetLinkedPtxSize(<Handle>handle, &size)
@@ -146,6 +218,14 @@ cpdef size_t get_linked_ptx_size(intptr_t handle) except? 0:
 
 
 cpdef get_linked_ptx(intptr_t handle, ptx):
+    """nvJitLinkGetLinkedPtx gets the linked ptx.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+        ptx (bytes): The linked PTX.
+
+    .. seealso:: `nvJitLinkGetLinkedPtx`
+    """
     cdef void* _ptx_ = get_buffer_pointer(ptx, -1, readonly=False)
     with nogil:
         status = nvJitLinkGetLinkedPtx(<Handle>handle, <char*>_ptx_)
@@ -153,6 +233,16 @@ cpdef get_linked_ptx(intptr_t handle, ptx):
 
 
 cpdef size_t get_error_log_size(intptr_t handle) except? 0:
+    """nvJitLinkGetErrorLogSize gets the size of the error log.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+
+    Returns:
+        size_t: Size of the error log.
+
+    .. seealso:: `nvJitLinkGetErrorLogSize`
+    """
     cdef size_t size
     with nogil:
         status = nvJitLinkGetErrorLogSize(<Handle>handle, &size)
@@ -161,6 +251,14 @@ cpdef size_t get_error_log_size(intptr_t handle) except? 0:
 
 
 cpdef get_error_log(intptr_t handle, log):
+    """nvJitLinkGetErrorLog puts any error messages in the log.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+        log (bytes): The error log.
+
+    .. seealso:: `nvJitLinkGetErrorLog`
+    """
     cdef void* _log_ = get_buffer_pointer(log, -1, readonly=False)
     with nogil:
         status = nvJitLinkGetErrorLog(<Handle>handle, <char*>_log_)
@@ -168,6 +266,16 @@ cpdef get_error_log(intptr_t handle, log):
 
 
 cpdef size_t get_info_log_size(intptr_t handle) except? 0:
+    """nvJitLinkGetInfoLogSize gets the size of the info log.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+
+    Returns:
+        size_t: Size of the info log.
+
+    .. seealso:: `nvJitLinkGetInfoLogSize`
+    """
     cdef size_t size
     with nogil:
         status = nvJitLinkGetInfoLogSize(<Handle>handle, &size)
@@ -176,6 +284,14 @@ cpdef size_t get_info_log_size(intptr_t handle) except? 0:
 
 
 cpdef get_info_log(intptr_t handle, log):
+    """nvJitLinkGetInfoLog puts any info messages in the log.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+        log (bytes): The info log.
+
+    .. seealso:: `nvJitLinkGetInfoLog`
+    """
     cdef void* _log_ = get_buffer_pointer(log, -1, readonly=False)
     with nogil:
         status = nvJitLinkGetInfoLog(<Handle>handle, <char*>_log_)
@@ -183,6 +299,16 @@ cpdef get_info_log(intptr_t handle, log):
 
 
 cpdef tuple version():
+    """nvJitLinkVersion returns the current version of nvJitLink.
+
+    Returns:
+        A 2-tuple containing:
+
+        - unsigned int: The major version.
+        - unsigned int: The minor version.
+
+    .. seealso:: `nvJitLinkVersion`
+    """
     cdef unsigned int major
     cdef unsigned int minor
     with nogil:
