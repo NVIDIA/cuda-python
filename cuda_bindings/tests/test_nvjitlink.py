@@ -1,10 +1,16 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# Please refer to the NVIDIA end user license agreement (EULA) associated
+# with this source code for terms and conditions that govern your use of
+# this software. Any use, reproduction, disclosure, or distribution of
+# this software and related documentation outside the terms of the EULA
+# is strictly prohibited.
 
 import pytest
 import os
-from cuda.bindings import nvjitlink
+import cuda.bindings
+
+
 
 ptx_code = """
 .version 8.5
@@ -41,76 +47,81 @@ minimal_kernel = """
 ptx_bytes = ptx_code.encode('utf-8')
 minimal_kernel_bytes = minimal_kernel.encode('utf-8')
 
-
 def test_unrecognized_option_error():
-    with pytest.raises(nvjitlink.nvJitLinkError, match="ERROR_UNRECOGNIZED_OPTION"):
-        nvjitlink.create(1, ["-fictitious_option"])
+    with pytest.raises(cuda.bindings.nvjitlink.nvJitLinkError, match="ERROR_UNRECOGNIZED_OPTION"):
+        cuda.bindings.nvjitlink.create(1, ["-fictitious_option"])
 
 
 def test_invalid_arch_error():
     # sm_XX is not a valid architecture
-    with pytest.raises(nvjitlink.nvJitLinkError, match="ERROR_UNRECOGNIZED_OPTION"):
-        nvjitlink.create(1, ["-arch=sm_XX"])
+    with pytest.raises(cuda.bindings.nvjitlink.nvJitLinkError, match="ERROR_UNRECOGNIZED_OPTION"):
+        cuda.bindings.nvjitlink.create(1, ["-arch=sm_XX"])
 
 
 def test_create_and_destroy():
-    handle = nvjitlink.create(1, ["-arch=sm_53"])
+    handle = cuda.bindings.nvjitlink.create(1, ["-arch=sm_53"])
     assert handle != 0
-    nvjitlink.destroy(handle)
+    cuda.bindings.nvjitlink.destroy(handle)
 
 
 def test_complete_empty():
-    handle = nvjitlink.create(1, ["-arch=sm_90"])
-    nvjitlink.complete(handle)
-    nvjitlink.destroy(handle)
+    handle = cuda.bindings.nvjitlink.create(1, ["-arch=sm_90"])
+    cuda.bindings.nvjitlink.complete(handle)
+    cuda.bindings.nvjitlink.destroy(handle)
 
 def test_add_data():
-    handle = nvjitlink.create(1, ["-arch=sm_90"])
+    handle = cuda.bindings.nvjitlink.create(1, ["-arch=sm_90"])
     data = ptx_bytes
-    nvjitlink.add_data(handle, nvjitlink.InputType.ANY, data, len(data), "test_data")
+    cuda.bindings.nvjitlink.add_data(handle, cuda.bindings.nvjitlink.InputType.ANY, data, len(data), "test_data")
+    cuda.bindings.nvjitlink.complete(handle)
+    cuda.bindings.nvjitlink.destroy(handle)
 
 
 def test_add_file():
-    handle = nvjitlink.create(1, ["-arch=sm_90"])
+    handle = cuda.bindings.nvjitlink.create(1, ["-arch=sm_90"])
     file_path = "test_file.cubin"
     with open (file_path, "wb") as f:
         f.write(ptx_bytes)
 
-    nvjitlink.add_file(handle, nvjitlink.InputType.ANY, str(file_path))
-    nvjitlink.complete(handle)
-    nvjitlink.destroy(handle)
+    cuda.bindings.nvjitlink.add_file(handle, cuda.bindings.nvjitlink.InputType.ANY, str(file_path))
+    cuda.bindings.nvjitlink.complete(handle)
+    cuda.bindings.nvjitlink.destroy(handle)
     
     os.remove(file_path)
 
 
 def test_get_error_log():
-    handle = nvjitlink.create(1, ["-arch=sm_90"])
-    nvjitlink.complete(handle)
-    log_size = nvjitlink.get_error_log_size(handle)
-    log = nvjitlink.get_error_log(handle)
+    handle = cuda.bindings.nvjitlink.create(1, ["-arch=sm_90"])
+    cuda.bindings.nvjitlink.complete(handle)
+    log_size = cuda.bindings.nvjitlink.get_error_log_size(handle)
+    log = bytearray(log_size)
+    cuda.bindings.nvjitlink.get_error_log(handle, log)
     assert len(log) == log_size
-    nvjitlink.destroy(handle)
+    cuda.bindings.nvjitlink.destroy(handle)
 
 
 def test_get_info_log():
-    handle = nvjitlink.create(1, ["-arch=sm_90"])
-    nvjitlink.complete(handle)
-    log_size = nvjitlink.get_info_log_size(handle)
-    log = nvjitlink.get_info_log(handle)
+    handle = cuda.bindings.nvjitlink.create(1, ["-arch=sm_90"])
+    cuda.bindings.nvjitlink.complete(handle)
+    log_size = cuda.bindings.nvjitlink.get_info_log_size(handle)
+    log = bytearray(log_size)
+    cuda.bindings.nvjitlink.get_info_log(handle, log)
     assert len(log) == log_size
-    nvjitlink.destroy(handle)
+    cuda.bindings.nvjitlink.destroy(handle)
 
 
 def test_get_linked_cubin():
-    handle = nvjitlink.create(1, ["-arch=sm_90"])
-    nvjitlink.complete(handle)
-    cubin_size = nvjitlink.get_linked_cubin_size(handle)
-    cubin = nvjitlink.get_linked_cubin(handle)
+    handle = cuda.bindings.nvjitlink.create(1, ["-arch=sm_90"])
+    cuda.bindings.nvjitlink.complete(handle)
+    cubin_size = cuda.bindings.nvjitlink.get_linked_cubin_size(handle)
+    cubin = bytearray(cubin_size)
+    cuda.bindings.nvjitlink.get_linked_cubin(handle, cubin)
     assert len(cubin) == cubin_size
-    nvjitlink.destroy(handle)
+    cuda.bindings.nvjitlink.destroy(handle)
 
+#TODO add a ptx test
 
 def test_package_version():
-    ver = nvjitlink.version()
+    ver = cuda.bindings.nvjitlink.version()
     assert len(ver) == 2
     assert ver >= (12, 0)
