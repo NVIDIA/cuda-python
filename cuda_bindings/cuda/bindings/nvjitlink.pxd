@@ -29,7 +29,7 @@ ctypedef nvJitLinkInputType _InputType
 ###############################################################################
 
 cpdef intptr_t create(uint32_t num_options, options) except -1
-cpdef add_data(intptr_t handle, int input_type, intptr_t data, size_t size, name)
+cpdef add_data(intptr_t handle, int input_type, data, size_t size, name)
 cpdef add_file(intptr_t handle, int input_type, file_name)
 cpdef complete(intptr_t handle)
 cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0

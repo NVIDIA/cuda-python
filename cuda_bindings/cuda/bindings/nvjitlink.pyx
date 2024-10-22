@@ -95,13 +95,14 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
     return <intptr_t>handle
 
 
-cpdef add_data(intptr_t handle, int input_type, intptr_t data, size_t size, name):
+cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
+    cdef void* _data_ = get_buffer_pointer(data, size, readonly=True)
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
     cdef bytes _temp_name_ = (<str>name).encode()
     cdef char* _name_ = _temp_name_
     with nogil:
-        status = nvJitLinkAddData(<Handle>handle, <_InputType>input_type, <const void*>data, size, <const char*>_name_)
+        status = nvJitLinkAddData(<Handle>handle, <_InputType>input_type, <const void*>_data_, size, <const char*>_name_)
     check_status(status)
 
 
