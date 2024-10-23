@@ -52,7 +52,7 @@ cdef load_library(const int driver_ver):
     for suffix in get_nvjitlink_dso_version_suffix(driver_ver):
         if len(suffix) == 0:
             continue
-        dll_name = f"nvJitLink64_{suffix}.dll"
+        dll_name = f"nvJitLink_{suffix}0_0.dll"
 
         # First check if the DLL has been loaded by 3rd parties
         try:
