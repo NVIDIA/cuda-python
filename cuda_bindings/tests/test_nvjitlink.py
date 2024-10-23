@@ -7,7 +7,7 @@
 # is strictly prohibited.
 
 import pytest
-import os
+
 from cuda.bindings import nvjitlink
 
 
@@ -76,16 +76,13 @@ def test_add_data():
     nvjitlink.destroy(handle)
 
 
-def test_add_file():
+def test_add_file(tmp_path):
     handle = nvjitlink.create(1, ["-arch=sm_90"])
-    file_path = "test_file.cubin"
-    with open (file_path, "wb") as f:
-        f.write(ptx_kernel_bytes)
-
+    file_path = tmp_path / "test_file.cubin"
+    file_path.write_bytes(ptx_kernel_bytes)
     nvjitlink.add_file(handle, nvjitlink.InputType.ANY, str(file_path))
     nvjitlink.complete(handle)
     nvjitlink.destroy(handle)
-    os.remove(file_path)
 
 
 def test_get_error_log():
