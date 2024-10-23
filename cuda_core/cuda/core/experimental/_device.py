@@ -81,18 +81,18 @@ class Device:
 
     @property
     def device_id(self) -> int:
-        """Returns device ordinal."""
+        """Return device ordinal."""
         return self._id
 
     @property
     def pci_bus_id(self) -> str:
-        """Returns a PCI Bus Id string for this device."""
+        """Return a PCI Bus Id string for this device."""
         bus_id = handle_return(cudart.cudaDeviceGetPCIBusId(13, self._id))
         return bus_id[:12].decode()
 
     @property
     def uuid(self) -> str:
-        """Returns a UUID for the device.
+        """Return a UUID for the device.
 
         Returns 16-octets identifying the device. If the device is in
         MIG mode, returns its MIG UUID which uniquely identifies the
@@ -110,7 +110,7 @@ class Device:
 
     @property
     def name(self) -> str:
-        """Returns the device name."""
+        """Return the device name."""
         # CUDA Runtime uses up to 256 characters, use the same for consistency
         name = handle_return(cuda.cuDeviceGetName(256, self._id))
         name = name.split(b'\0')[0]
@@ -118,13 +118,13 @@ class Device:
 
     @property
     def properties(self) -> dict:
-        """Returns information about the compute-device."""
+        """Return information about the compute-device."""
         # TODO: pythonize the key names
         return handle_return(cudart.cudaGetDeviceProperties(self._id))
 
     @property
     def compute_capability(self) -> ComputeCapability:
-        """Returns a named tuple with 2 fields: major and minor."""
+        """Return a named tuple with 2 fields: major and minor."""
         major = handle_return(cudart.cudaDeviceGetAttribute(
             cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, self._id))
         minor = handle_return(cudart.cudaDeviceGetAttribute(
@@ -134,7 +134,7 @@ class Device:
     @property
     @precondition(_check_context_initialized)
     def context(self) -> Context:
-        """Returns the current :obj:`Context` associated with this device.
+        """Return the current :obj:`Context` associated with this device.
 
         Note
         ----
@@ -147,7 +147,7 @@ class Device:
 
     @property
     def memory_resource(self) -> MemoryResource:
-        """Returns :obj:`MemoryResource` associated with this device."""
+        """Return :obj:`MemoryResource` associated with this device."""
         return self._mr
 
     @memory_resource.setter
@@ -158,7 +158,7 @@ class Device:
 
     @property
     def default_stream(self) -> Stream:
-        """Returns default CUDA :obj:`Stream` associated with this device.
+        """Return default CUDA :obj:`Stream` associated with this device.
 
         Returns per-thread default stream if environment is set with
         CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM, otherwise return a legacy stream.
@@ -167,7 +167,7 @@ class Device:
         return default_stream()
 
     def __int__(self):
-        """Returns device_id."""
+        """Return device_id."""
         return self._id
 
     def __repr__(self):
