@@ -39,7 +39,7 @@ class Event:
     """Represents a record of a specific point of execution within a CUDA stream.
 
     Applications can asynchronously record events at any point in
-    the program. An event keeps a record of all previous work withinq
+    the program. An event keeps a record of all previous work within
     the last recorded stream.
 
     Events can be used to monitor device's progress, query completion
