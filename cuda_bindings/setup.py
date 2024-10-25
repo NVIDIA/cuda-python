@@ -11,6 +11,7 @@ import os
 import platform
 import sys
 import sysconfig
+import atexit
 
 from Cython import Tempita
 from Cython.Build import cythonize
@@ -19,6 +20,8 @@ from setuptools import find_packages, setup
 from setuptools.extension import Extension
 from setuptools.command.build_ext import build_ext
 import versioneer
+import tempfile
+import shutil
 
 
 # ----------------------------------------------------------------------
@@ -147,7 +150,9 @@ path_list = [os.path.join('cuda'),
              os.path.join('cuda', 'bindings'),
              os.path.join('cuda', 'bindings', '_bindings'),
              os.path.join('cuda', 'bindings', '_lib'),
-             os.path.join('cuda', 'bindings', '_lib', 'cyruntime')]
+             os.path.join('cuda', 'bindings', '_lib', 'cyruntime'),
+             os.path.join('cuda', 'bindings', '_internal'),
+            ]
 input_files = []
 for path in path_list:
     input_files += fetch_input_files(path)
@@ -182,6 +187,7 @@ if sys.platform != 'win32':
 
 # For Setup
 extensions = []
+new_extensions = []
 cmdclass = {}
 
 # ----------------------------------------------------------------------
@@ -208,6 +214,41 @@ def prep_extensions(sources):
     return exts
 
 
+# new path for the bindings from cybind
+def rename_architecture_specific_files():
+    architechture_specific_files_dir = 'cuda/bindings/_internal/'
+    if sys.platform == 'linux':
+        src_files = glob.glob(os.path.join(path, '*_linux.pyx'))
+    elif sys.platform == 'win32':
+        src_files = glob.glob(os.path.join(path, '*_windows.pyx'))
+    else:
+        raise RuntimeError(f'platform is unrecognized: {sys.platform}')
+    dst_files = []
+    for src in src_files:
+        # Set up a temporary file; it must be under the cache directory so
+        # that atomic moves within the same filesystem can be guaranteed
+        with tempfile.NamedTemporaryFile(delete=False, dir='.') as f:
+            shutil.copy2(src, f.name)
+            f_name = f.name
+        dst = src.replace('_linux', '').replace('_windows', '')
+        # atomic move with the destination guaranteed to be overwritten
+        os.replace(f_name, f"./{dst}")
+        dst_files.append(dst)
+    return dst_files
+
+
+dst_files = rename_architecture_specific_files()
+
+
+@atexit.register
+def cleanup_dst_files():
+    for dst in dst_files:
+        try:
+            os.remove(dst)
+        except FileNotFoundError:
+            pass
+
+
 def do_cythonize(extensions):
     return cythonize(
         extensions,
@@ -230,6 +271,9 @@ sources_list = [
     ["cuda/*.pyx"],
     # tests
     ["tests/*.pyx"],
+    # interal files used by generated bindings
+    ['cuda/bindings/_internal/nvjitlink.pyx'],
+    ['cuda/bindings/_internal/utils.pyx'],
 ]
 
 for sources in sources_list:
@@ -260,9 +304,9 @@ cmdclass = versioneer.get_cmdclass(cmdclass)
 setup(
     version=versioneer.get_version(),
     ext_modules=do_cythonize(extensions),
-    packages=find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "tests"]),
+    packages=find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings._internal", "tests"]),
     package_data=dict.fromkeys(
-        find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "tests"]),
+        find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings._internal", "tests"]),
         ["*.pxd", "*.pyx", "*.py", "*.h", "*.cpp"],
     ),
     cmdclass=cmdclass,
