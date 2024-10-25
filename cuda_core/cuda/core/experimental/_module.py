@@ -2,22 +2,31 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import importlib.metadata
+
 from cuda import cuda, cudart
 from cuda.core.experimental._utils import handle_return
 
 
 _backend = {
-    "new": {
-        "file": cuda.cuLibraryLoadFromFile,
-        "data": cuda.cuLibraryLoadData,
-        "kernel": cuda.cuLibraryGetKernel,
-    },
     "old": {
         "file": cuda.cuModuleLoad,
         "data": cuda.cuModuleLoadDataEx,
         "kernel": cuda.cuModuleGetFunction,
     },
 }
+_kernel_ctypes = [cuda.CUfunction]
+
+# binding availability depends on cuda-python version
+py_major_ver = int(importlib.metadata.version("cuda-python").split(".")[0])
+if py_major_ver >= 12:
+    _backend["new"] = {
+        "file": cuda.cuLibraryLoadFromFile,
+        "data": cuda.cuLibraryLoadData,
+        "kernel": cuda.cuLibraryGetKernel,
+    }
+    _kernel_ctypes.append(cuda.CUkernel)
+_kernel_ctypes = tuple(_kernel_ctypes)
 
 
 class Kernel:
@@ -29,7 +38,7 @@ class Kernel:
 
     @staticmethod
     def _from_obj(obj, mod):
-        assert isinstance(obj, (cuda.CUkernel, cuda.CUfunction))
+        assert isinstance(obj, _kernel_ctypes)
         assert isinstance(mod, ObjectCode)
         ker = Kernel.__new__(Kernel)
         ker._handle = obj
@@ -49,7 +58,10 @@ class ObjectCode:
         self._handle = None
 
         driver_ver = handle_return(cuda.cuDriverGetVersion())
-        self._loader = _backend["new"] if driver_ver >= 12000 else _backend["old"]
+        if py_major_ver >= 12 and driver_ver >= 12000:
+            self._loader = _backend["new"]
+        else:
+            self._loader = _backend["old"]
 
         if isinstance(module, str):
             if driver_ver < 12000 and jit_options is not None:
@@ -65,7 +77,7 @@ class ObjectCode:
                         # TODO: support library options
                         [], [], 0)
             else:
-                args = (module, len(jit_options), jit_options.keys(), jit_options.values())
+                args = (module, len(jit_options), list(jit_options.keys()), list(jit_options.values()))
             self._handle = handle_return(self._loader["data"](*args))
 
         self._code_type = code_type
