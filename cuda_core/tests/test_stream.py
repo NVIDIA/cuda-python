@@ -11,10 +11,6 @@ from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._device import Device
 import pytest
 
-@pytest.fixture(scope='module')
-def init_cuda():
-    Device().set_current()
-
 def test_stream_init():
     with pytest.raises(NotImplementedError):
         Stream()

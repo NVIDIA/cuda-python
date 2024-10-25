@@ -12,10 +12,6 @@ from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._utils import handle_return
 import pytest
 
-@pytest.fixture(scope='module')
-def init_cuda():
-    Device().set_current()
-
 def test_object_code_initialization():
     # Test with supported code types
     for code_type in ["cubin", "ptx", "fatbin"]:

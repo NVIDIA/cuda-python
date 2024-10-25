@@ -12,9 +12,6 @@ from cuda.core.experimental._utils import handle_return
 from cuda.core.experimental._device import Device
 import pytest
 
-@pytest.fixture(scope='module')
-def init_cuda():
-    Device().set_current()
 
 def test_is_timing_disabled():
     options = EventOptions(enable_timing=False)

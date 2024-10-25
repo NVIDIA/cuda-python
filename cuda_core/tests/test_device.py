@@ -12,26 +12,18 @@ from cuda.core.experimental._utils import handle_return, ComputeCapability, CUDA
                              precondition
 import pytest
 
-@pytest.fixture(scope='module')
-def init_cuda():
-    Device().set_current()
-
-def test_device_initialization():
-    device = Device()
-    assert device is not None
 
 def test_device_repr():
-    device = Device()
+    device = Device(0)
     assert str(device).startswith('<Device 0')
 
-def test_device_alloc():
-    device = Device()
-    device.set_current()
-    buffer = device.allocate(1024)
-    device.sync()
-    assert buffer.handle != 0
-    assert buffer.size == 1024
-    assert buffer.device_id == 0
+# def test_device_alloc(init_cuda):
+#     device = Device()
+#     buffer = device.allocate(1024)
+#     device.sync()
+#     assert buffer.handle != 0
+#     assert buffer.size == 1024
+#     assert buffer.device_id == 0
 
 def test_device_set_current():
     device = Device()

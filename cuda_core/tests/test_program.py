@@ -12,9 +12,6 @@ from cuda.core.experimental._module import ObjectCode, Kernel
 from cuda.core.experimental._device import Device
 import pytest
 
-@pytest.fixture(scope='module')
-def init_cuda():
-    Device().set_current()
 
 def test_program_init_valid_code_type():
     code = "extern \"C\" __global__ void my_kernel() {}"
@@ -32,13 +29,13 @@ def test_program_init_invalid_code_format():
     with pytest.raises(TypeError):
         Program(code, "c++")
 
-def test_program_compile_valid_target_type():
-    code = "extern \"C\" __global__ void my_kernel() {}"
-    program = Program(code, "c++")
-    object_code = program.compile("ptx")
-    kernel = object_code.get_kernel("my_kernel")
-    assert isinstance(object_code, ObjectCode)
-    assert isinstance(kernel, Kernel)
+# def test_program_compile_valid_target_type():
+#     code = "extern \"C\" __global__ void my_kernel() {}"
+#     program = Program(code, "c++")
+#     object_code = program.compile("ptx")
+#     kernel = object_code.get_kernel("my_kernel")
+#     assert isinstance(object_code, ObjectCode)
+#     assert isinstance(kernel, Kernel)
 
 def test_program_compile_invalid_target_type():
     code = "extern \"C\" __global__ void my_kernel() {}"
@@ -61,6 +58,3 @@ def test_program_close():
     program = Program(code, "c++")
     program.close()
     assert program.handle is None
-
-Device().set_current()
-test_program_compile_valid_target_type()

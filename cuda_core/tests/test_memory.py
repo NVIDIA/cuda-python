@@ -13,10 +13,6 @@ from cuda.core.experimental._utils import handle_return
 import ctypes
 import pytest
 
-@pytest.fixture(scope='module')
-def init_cuda():
-    Device().set_current()
-
 class DummyDeviceMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device

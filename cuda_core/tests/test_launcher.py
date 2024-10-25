@@ -13,10 +13,6 @@ from cuda.core.experimental._utils import handle_return
 from cuda import cuda
 import pytest
 
-@pytest.fixture(scope='module')
-def init_cuda():
-    Device().set_current()
-
 def test_launch_config_init():
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None, shmem_size=0)
     assert config.grid == (1, 1, 1)
@@ -42,45 +38,25 @@ def test_launch_config_cast_to_3_tuple():
     assert config._cast_to_3_tuple((999, 888, 777)) == (999, 888, 777)
 
 def test_launch_config_invalid_values():
-    try:
+    with pytest.raises(ValueError):
         LaunchConfig(grid=0, block=1)
-    except ValueError:
-        assert True
-    else:
-        assert False
 
-    try:
+    with pytest.raises(ValueError):
         LaunchConfig(grid=(0, 1), block=1)
-    except ValueError:
-        assert True
-    else:
-        assert False
 
-    try:
+    with pytest.raises(ValueError):
         LaunchConfig(grid=(1, 1, 1), block=0)
-    except ValueError:
-        assert True
-    else:
-        assert False
 
-    try:
+    with pytest.raises(ValueError):
         LaunchConfig(grid=(1, 1, 1), block=(0, 1))
-    except ValueError:
-        assert True
-    else:
-        assert False
 
 def test_launch_config_stream():
     stream = Device().create_stream()
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=stream, shmem_size=0)
     assert config.stream == stream
 
-    try:
+    with pytest.raises(ValueError):
         LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream="invalid_stream", shmem_size=0)
-    except ValueError:
-        assert True
-    else:
-        assert False
 
 def test_launch_config_shmem_size():
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None, shmem_size=2048)
