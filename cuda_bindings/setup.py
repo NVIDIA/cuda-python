@@ -271,8 +271,7 @@ sources_list = [
     ["cuda/*.pyx"],
     # tests
     ["tests/*.pyx"],
-
-    # interal files used by cybind generated bindings
+    # interal files used by generated bindings
     ['cuda/bindings/_internal/nvjitlink.pyx'],
     ['cuda/bindings/_internal/utils.pyx'],
 ]
