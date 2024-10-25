@@ -19,6 +19,7 @@ from cuda.core.experimental._utils import CUDAError, check_or_create_options, ha
 class LaunchConfig:
     """
     """
+    # TODO: expand LaunchConfig to include other attributes
     grid: Union[tuple, int] = None
     block: Union[tuple, int] = None
     stream: Stream = None
@@ -67,24 +68,30 @@ def launch(kernel, config, *kernel_args):
     if not isinstance(kernel, Kernel):
         raise ValueError
     config = check_or_create_options(LaunchConfig, config, "launch config")
+    if config.stream is None:
+        raise CUDAError("stream cannot be None")
+
     # TODO: can we ensure kernel_args is valid/safe to use here?
+    # TODO: merge with HelperKernelParams?
+    kernel_args = ParamHolder(kernel_args)
+    args_ptr = kernel_args.ptr
 
     driver_ver = handle_return(cuda.cuDriverGetVersion())
     if driver_ver >= 12000:
         drv_cfg = cuda.CUlaunchConfig()
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
         drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
-        if config.stream is None:
-            raise CUDAError("stream cannot be None")
         drv_cfg.hStream = config.stream._handle
         drv_cfg.sharedMemBytes = config.shmem_size
-        drv_cfg.numAttrs = 0  # FIXME
-
-        # TODO: merge with HelperKernelParams?
-        kernel_args = ParamHolder(kernel_args)
-        args_ptr = kernel_args.ptr
-
+        drv_cfg.numAttrs = 0  # TODO
         handle_return(cuda.cuLaunchKernelEx(
             drv_cfg, int(kernel._handle), args_ptr, 0))
     else:
-        raise NotImplementedError("TODO")
+        # TODO: check if config has any unsupported attrs
+        handle_return(cuda.cuLaunchKernel(
+            int(kernel._handle),
+            *config.grid,
+            *config.block,
+            config.shmem_size,
+            config.stream._handle,
+            args_ptr, 0))
