@@ -32,19 +32,18 @@ driver_ver = handle_return(cuda.cuDriverGetVersion())
 
 class Kernel:
 
-    __slots__ = ("_handle", "_module", "_backend")
+    __slots__ = ("_handle", "_module",)
 
     def __init__(self):
         raise NotImplementedError("directly constructing a Kernel instance is not supported")
 
     @staticmethod
-    def _from_obj(obj, mod, backend):
+    def _from_obj(obj, mod):
         assert isinstance(obj, _kernel_ctypes)
         assert isinstance(mod, ObjectCode)
         ker = Kernel.__new__(Kernel)
         ker._handle = obj
         ker._module = mod
-        ker._backend = backend
         return ker
 
     # TODO: implement from_handle()
@@ -52,7 +51,7 @@ class Kernel:
 
 class ObjectCode:
 
-    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_loader_backend", "_sym_map")
+    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "fatbin")
 
     def __init__(self, module, code_type, jit_options=None, *,
@@ -63,7 +62,6 @@ class ObjectCode:
 
         backend = "new" if (py_major_ver >= 12 and driver_ver >= 12000) else "old"
         self._loader = _backend[backend]
-        self._loader_backend = backend
 
         if isinstance(module, str):
             if driver_ver < 12000 and jit_options is not None:
@@ -96,6 +94,6 @@ class ObjectCode:
         except KeyError:
             name = name.encode()
         data = handle_return(self._loader["kernel"](self._handle, name))
-        return Kernel._from_obj(data, self, self._loader_backend)
+        return Kernel._from_obj(data, self)
 
     # TODO: implement from_handle()

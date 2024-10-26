@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 from dataclasses import dataclass
+import importlib.metadata
 from typing import Optional, Union
 
 import numpy as np
@@ -64,6 +65,13 @@ class LaunchConfig:
             raise ValueError
 
 
+# binding availability depends on cuda-python version
+py_major_minor = tuple(int(v) for v in (
+    importlib.metadata.version("cuda-python").split(".")[:2]))
+driver_ver = handle_return(cuda.cuDriverGetVersion())
+use_ex = (driver_ver >= 11080) and (py_major_minor >= (11, 8))
+
+
 def launch(kernel, config, *kernel_args):
     if not isinstance(kernel, Kernel):
         raise ValueError
@@ -76,11 +84,12 @@ def launch(kernel, config, *kernel_args):
     kernel_args = ParamHolder(kernel_args)
     args_ptr = kernel_args.ptr
 
-    # Note: CUkernel can still be launched via the old cuLaunchKernel. We check ._backend
-    # here not because of the CUfunction/CUkernel difference (which depends on whether the
-    # "old" or "new" module loading APIs are in use), but only as a proxy to check if
-    # both binding & driver versions support the "Ex" API, which is more feature rich.
-    if kernel._backend == "new":
+    # Note: CUkernel can still be launched via the old cuLaunchKernel and we do not care
+    # about the CUfunction/CUkernel difference (which depends on whether the "old" or
+    # "new" module loading APIs are in use). We check both binding & driver versions here
+    # mainly to see if the "Ex" API is available and if so we use it, as it's more feature
+    # rich.
+    if use_ex:
         drv_cfg = cuda.CUlaunchConfig()
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
         drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
@@ -89,7 +98,7 @@ def launch(kernel, config, *kernel_args):
         drv_cfg.numAttrs = 0  # TODO
         handle_return(cuda.cuLaunchKernelEx(
             drv_cfg, int(kernel._handle), args_ptr, 0))
-    else:  # "old" backend
+    else:
         # TODO: check if config has any unsupported attrs
         handle_return(cuda.cuLaunchKernel(
             int(kernel._handle),
