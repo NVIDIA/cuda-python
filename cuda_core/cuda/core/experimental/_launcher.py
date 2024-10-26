@@ -76,8 +76,11 @@ def launch(kernel, config, *kernel_args):
     kernel_args = ParamHolder(kernel_args)
     args_ptr = kernel_args.ptr
 
-    driver_ver = handle_return(cuda.cuDriverGetVersion())
-    if driver_ver >= 12000:
+    # Note: CUkernel can still be launched via the old cuLaunchKernel. We check ._backend
+    # here not because of the CUfunction/CUkernel difference (which depends on whether the
+    # "old" or "new" module loading APIs are in use), but only as a proxy to check if
+    # both binding & driver versions support the "Ex" API, which is more feature rich.
+    if kernel._backend == "new":
         drv_cfg = cuda.CUlaunchConfig()
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
         drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
@@ -86,7 +89,7 @@ def launch(kernel, config, *kernel_args):
         drv_cfg.numAttrs = 0  # TODO
         handle_return(cuda.cuLaunchKernelEx(
             drv_cfg, int(kernel._handle), args_ptr, 0))
-    else:
+    else:  # "old" backend
         # TODO: check if config has any unsupported attrs
         handle_return(cuda.cuLaunchKernel(
             int(kernel._handle),
