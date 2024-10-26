@@ -8,9 +8,3 @@ from cuda.core.experimental._utils import handle_return
 def init_cuda():
     device = Device()
     device.set_current()
-
-@pytest.fixture(scope="function")
-def reestablish_valid_context():
-    yield
-    device = Device()
-    device.set_current()
