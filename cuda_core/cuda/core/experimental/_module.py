@@ -15,7 +15,6 @@ _backend = {
         "kernel": cuda.cuModuleGetFunction,
     },
 }
-_kernel_ctypes = [cuda.CUfunction]
 
 # binding availability depends on cuda-python version
 py_major_ver = int(importlib.metadata.version("cuda-python").split(".")[0])
@@ -25,8 +24,10 @@ if py_major_ver >= 12:
         "data": cuda.cuLibraryLoadData,
         "kernel": cuda.cuLibraryGetKernel,
     }
-    _kernel_ctypes.append(cuda.CUkernel)
-_kernel_ctypes = tuple(_kernel_ctypes)
+    _kernel_ctypes = (cuda.CUfunction, cuda.CUkernel)
+else:
+    _kernel_ctypes = (cuda.CUfunction,)
+driver_ver = handle_return(cuda.cuDriverGetVersion())
 
 
 class Kernel:
@@ -45,6 +46,8 @@ class Kernel:
         ker._module = mod
         return ker
 
+    # TODO: implement from_handle()
+
 
 class ObjectCode:
 
@@ -57,11 +60,8 @@ class ObjectCode:
             raise ValueError
         self._handle = None
 
-        driver_ver = handle_return(cuda.cuDriverGetVersion())
-        if py_major_ver >= 12 and driver_ver >= 12000:
-            self._loader = _backend["new"]
-        else:
-            self._loader = _backend["old"]
+        backend = "new" if (py_major_ver >= 12 and driver_ver >= 12000) else "old"
+        self._loader = _backend[backend]
 
         if isinstance(module, str):
             if driver_ver < 12000 and jit_options is not None:
@@ -72,11 +72,11 @@ class ObjectCode:
             assert isinstance(module, bytes)
             if jit_options is None:
                 jit_options = {}
-            if driver_ver >= 12000:
+            if backend == "new":
                 args = (module, list(jit_options.keys()), list(jit_options.values()), len(jit_options),
                         # TODO: support library options
                         [], [], 0)
-            else:
+            else:  # "old" backend
                 args = (module, len(jit_options), list(jit_options.keys()), list(jit_options.values()))
             self._handle = handle_return(self._loader["data"](*args))
 
@@ -95,3 +95,5 @@ class ObjectCode:
             name = name.encode()
         data = handle_return(self._loader["kernel"](self._handle, name))
         return Kernel._from_obj(data, self)
+
+    # TODO: implement from_handle()
