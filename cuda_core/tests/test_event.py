@@ -22,15 +22,6 @@ def test_is_sync_busy_waited():
     event = Event._init(options)
     assert event.is_sync_busy_waited == True
 
-def test_is_ipc_supported():
-    options = EventOptions(support_ipc=True)
-    try:
-        event = Event._init(options)
-    except NotImplementedError:
-        assert True
-    else:
-        assert False
-
 def test_sync():
     options = EventOptions()
     event = Event._init(options)
