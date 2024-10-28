@@ -16,6 +16,25 @@ from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils import CUDAError, check_or_create_options, handle_return
 
 
+# TODO: revisit this treatment for py313t builds
+_inited = False
+_use_ex = None
+
+
+def _lazy_init():
+    global _inited
+    if _inited:
+        return
+
+    global _use_ex
+    # binding availability depends on cuda-python version
+    _py_major_minor = tuple(int(v) for v in (
+        importlib.metadata.version("cuda-python").split(".")[:2]))
+    _driver_ver = handle_return(cuda.cuDriverGetVersion())
+    _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
+    _inited = True
+
+
 @dataclass
 class LaunchConfig:
     """
@@ -41,6 +60,8 @@ class LaunchConfig:
         if self.shmem_size is None:
             self.shmem_size = 0
 
+        _lazy_init()
+
     def _cast_to_3_tuple(self, cfg):
         if isinstance(cfg, int):
             if cfg < 1:
@@ -65,13 +86,6 @@ class LaunchConfig:
             raise ValueError
 
 
-# binding availability depends on cuda-python version
-py_major_minor = tuple(int(v) for v in (
-    importlib.metadata.version("cuda-python").split(".")[:2]))
-driver_ver = handle_return(cuda.cuDriverGetVersion())
-use_ex = (driver_ver >= 11080) and (py_major_minor >= (11, 8))
-
-
 def launch(kernel, config, *kernel_args):
     if not isinstance(kernel, Kernel):
         raise ValueError
@@ -89,7 +103,7 @@ def launch(kernel, config, *kernel_args):
     # "new" module loading APIs are in use). We check both binding & driver versions here
     # mainly to see if the "Ex" API is available and if so we use it, as it's more feature
     # rich.
-    if use_ex:
+    if _use_ex:
         drv_cfg = cuda.CUlaunchConfig()
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
         drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block

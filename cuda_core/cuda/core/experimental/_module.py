@@ -16,18 +16,33 @@ _backend = {
     },
 }
 
-# binding availability depends on cuda-python version
-py_major_ver = int(importlib.metadata.version("cuda-python").split(".")[0])
-if py_major_ver >= 12:
-    _backend["new"] = {
-        "file": cuda.cuLibraryLoadFromFile,
-        "data": cuda.cuLibraryLoadData,
-        "kernel": cuda.cuLibraryGetKernel,
-    }
-    _kernel_ctypes = (cuda.CUfunction, cuda.CUkernel)
-else:
-    _kernel_ctypes = (cuda.CUfunction,)
-driver_ver = handle_return(cuda.cuDriverGetVersion())
+
+# TODO: revisit this treatment for py313t builds
+_inited = False
+_py_major_ver = None
+_driver_ver = None
+_kernel_ctypes = None
+
+
+def _lazy_init():
+    global _inited
+    if _inited:
+        return
+
+    global _py_major_ver, _driver_ver, _kernel_ctypes
+    # binding availability depends on cuda-python version
+    _py_major_ver = int(importlib.metadata.version("cuda-python").split(".")[0])
+    if _py_major_ver >= 12:
+        _backend["new"] = {
+            "file": cuda.cuLibraryLoadFromFile,
+            "data": cuda.cuLibraryLoadData,
+            "kernel": cuda.cuLibraryGetKernel,
+        }
+        _kernel_ctypes = (cuda.CUfunction, cuda.CUkernel)
+    else:
+        _kernel_ctypes = (cuda.CUfunction,)
+    _driver_ver = handle_return(cuda.cuDriverGetVersion())
+    _inited = True
 
 
 class Kernel:
@@ -58,13 +73,14 @@ class ObjectCode:
                  symbol_mapping=None):
         if code_type not in self._supported_code_type:
             raise ValueError
+        _lazy_init()
         self._handle = None
 
-        backend = "new" if (py_major_ver >= 12 and driver_ver >= 12000) else "old"
+        backend = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
         self._loader = _backend[backend]
 
         if isinstance(module, str):
-            if driver_ver < 12000 and jit_options is not None:
+            if _driver_ver < 12000 and jit_options is not None:
                 raise ValueError
             module = module.encode()
             self._handle = handle_return(self._loader["file"](module))
