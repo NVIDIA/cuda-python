@@ -80,7 +80,9 @@ class ObjectCode:
         self._loader = _backend[backend]
 
         if isinstance(module, str):
-            if _driver_ver < 12000 and jit_options is not None:
+            # TODO: this option is only taken by the new library APIs, but we have
+            # a bug that we can't easily support it just yet (NVIDIA/cuda-python#73).
+            if jit_options is not None:
                 raise ValueError
             module = module.encode()
             self._handle = handle_return(self._loader["file"](module))
