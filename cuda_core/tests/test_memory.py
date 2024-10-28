@@ -195,4 +195,3 @@ def test_buffer_close():
     buffer_close(DummyHostMemoryResource())
     buffer_close(DummyUnifiedMemoryResource(device))
     buffer_close(DummyPinnedMemoryResource(device))
-
