@@ -160,8 +160,11 @@ class Device:
     def default_stream(self) -> Stream:
         """Return default CUDA :obj:`Stream` associated with this device.
 
-        Returns per-thread default stream if environment is set with
-        CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM, otherwise return a legacy stream.
+        The type of default stream returned depends on if the environment
+        variable CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set.
+
+        If set, returns a per-thread default stream. Otherwise returns
+        the legacy stream.
 
         """
         return default_stream()
@@ -184,13 +187,13 @@ class Device:
 
         Parameters
         ----------
-        ctx : Context, optional
-            Optional context to push onto this device's current thread stack
+        ctx : :obj:`Context`, optional
+            Optional context to push onto this device's current thread stack.
 
         Returns
         -------
-        Union[Context, None], optional
-            Popped context
+        Union[:obj:`Context`, None], optional
+            Popped context.
 
         Examples
         --------
@@ -240,13 +243,13 @@ class Device:
 
         Parameters
         ----------
-        options : ContextOptions, optional
-            Customizable dataclass for context creation options
+        options : :obj:`ContextOptions`, optional
+            Customizable dataclass for context creation options.
 
         Returns
         -------
         :obj:`Context`
-            Newly created Context object
+            Newly created Context object.
 
         """
         raise NotImplementedError("TODO")
@@ -272,12 +275,12 @@ class Device:
         obj : Any, optional
             Any object supporting the __cuda_stream__ protocol.
         options : :obj:`StreamOptions`, optional
-            Customizable dataclass for stream creation options
+            Customizable dataclass for stream creation options.
 
         Returns
         -------
         :obj:`Stream`
-            Newly created Stream object
+            Newly created stream object.
 
         """
         return Stream._init(obj=obj, options=options)
@@ -306,7 +309,7 @@ class Device:
         Returns
         -------
         :obj:`Buffer`
-            Newly created Buffer object
+            Newly created Buffer object.
 
         """
         if stream is None:

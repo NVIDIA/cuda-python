@@ -82,7 +82,7 @@ class Event:
         return self
 
     def __del__(self):
-        """Destroys the event."""
+        """Return close(self)"""
         self.close()
 
     def close(self):
@@ -131,5 +131,5 @@ class Event:
 
     @property
     def handle(self) -> int:
-        """Return event memory address."""
+        """Return the underlying cudaEvent_t pointer address as Python int."""
         return int(self._handle)
