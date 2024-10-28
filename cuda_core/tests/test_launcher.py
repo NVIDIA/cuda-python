@@ -64,3 +64,4 @@ def test_launch_config_shmem_size():
 
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None)
     assert config.shmem_size == 0
+    

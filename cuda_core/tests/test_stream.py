@@ -84,3 +84,4 @@ def test_per_thread_default_stream():
 def test_default_stream():
     stream = default_stream()
     assert isinstance(stream, Stream)
+    

@@ -33,6 +33,7 @@ def test_device_create_stream():
     device = Device()
     stream = device.create_stream()
     assert stream is not None
+    assert stream.handle
 
 def test_pci_bus_id():
     device = Device()
@@ -64,3 +65,4 @@ def test_compute_capability():
         cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, device.device_id))
     expected_cc = ComputeCapability(major, minor)
     assert device.compute_capability == expected_cc
+    

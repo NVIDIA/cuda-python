@@ -58,3 +58,4 @@ def test_program_close():
     program = Program(code, "c++")
     program.close()
     assert program.handle is None
+    
