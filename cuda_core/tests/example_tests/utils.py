@@ -6,22 +6,21 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
+from cuda import cuda
 import gc
 import os
 import sys
 import pytest
-from cuda import cuda
 import cupy as cp
 
 class SampleTestError(Exception):
     pass
 
 def parse_python_script(filepath):
-    if filepath.endswith('.py'):
-        with open(filepath, "r", encoding='utf-8') as f:
-            script = f.read()
-    else:
+    if not filepath.endswith('.py'):
         raise ValueError(f"{filepath} not supported")
+    with open(filepath, "r", encoding='utf-8') as f:
+        script = f.read()
     return script
 
 
@@ -31,9 +30,9 @@ def run_example(samples_path, filename, env=None):
     try:
         old_argv = sys.argv
         sys.argv = [fullpath]
-        SYS_PATH_BACKUP = sys.path.copy()
+        old_sys_path = sys.path.copy()
         sys.path.append(samples_path)
-        exec(script, env if env is not None else {})
+        exec(script, env if env else {})
     except ImportError as e:
         # for samples requiring any of optional dependencies
         for m in ('cupy',):
@@ -48,7 +47,7 @@ def run_example(samples_path, filename, env=None):
             msg += str(e)
             raise SampleTestError(msg) from e
     finally:
-        sys.path = SYS_PATH_BACKUP
+        sys.path = old_sys_path
         sys.argv = old_argv
         # further reduce the memory watermark
         gc.collect()
