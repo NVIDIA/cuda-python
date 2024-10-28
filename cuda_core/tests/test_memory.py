@@ -114,7 +114,7 @@ def buffer_initialization(dummy_mr : MemoryResource):
     assert buffer.memory_resource == dummy_mr
     assert buffer.is_device_accessible == dummy_mr.is_device_accessible
     assert buffer.is_host_accessible == dummy_mr.is_host_accessible
-    dummy_mr.deallocate(buffer.handle, buffer.size)
+    buffer.close()
 
 def test_buffer_initialization():
     device = Device()
@@ -143,8 +143,8 @@ def buffer_copy_to(dummy_mr : MemoryResource, device : Device, check = False):
         for i in range(10):
             assert dst_ptr[i] == src_ptr[i]
 
-    dummy_mr.deallocate(src_buffer.handle, src_buffer.size)
-    dummy_mr.deallocate(dst_buffer.handle, dst_buffer.size)
+    dst_buffer.close()
+    src_buffer.close()
 
 def test_buffer_copy_to():
     device = Device()
@@ -172,8 +172,8 @@ def buffer_copy_from(dummy_mr : MemoryResource, device, check = False):
         for i in range(10):
             assert dst_ptr[i] == src_ptr[i]
 
-    dummy_mr.deallocate(src_buffer.handle, src_buffer.size)
-    dummy_mr.deallocate(dst_buffer.handle, dst_buffer.size)
+    dst_buffer.close()
+    src_buffer.close()
 
 def test_buffer_copy_from():
     device = Device()
