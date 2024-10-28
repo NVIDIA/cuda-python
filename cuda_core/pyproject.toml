@@ -44,7 +44,7 @@ classifiers = [
 dependencies = [
     "numpy",
     # TODO: change this once cuda-bindings is packaged, see NVIDIA/cuda-python#105
-    "cuda-python <=12.7.*",
+    "cuda-python <13",
 ]
 
 
