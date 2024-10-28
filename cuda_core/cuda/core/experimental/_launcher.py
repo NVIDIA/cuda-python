@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 from dataclasses import dataclass
+import importlib.metadata
 from typing import Optional, Union
 
 import numpy as np
@@ -15,10 +16,30 @@ from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils import CUDAError, check_or_create_options, handle_return
 
 
+# TODO: revisit this treatment for py313t builds
+_inited = False
+_use_ex = None
+
+
+def _lazy_init():
+    global _inited
+    if _inited:
+        return
+
+    global _use_ex
+    # binding availability depends on cuda-python version
+    _py_major_minor = tuple(int(v) for v in (
+        importlib.metadata.version("cuda-python").split(".")[:2]))
+    _driver_ver = handle_return(cuda.cuDriverGetVersion())
+    _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
+    _inited = True
+
+
 @dataclass
 class LaunchConfig:
     """
     """
+    # TODO: expand LaunchConfig to include other attributes
     grid: Union[tuple, int] = None
     block: Union[tuple, int] = None
     stream: Stream = None
@@ -38,6 +59,8 @@ class LaunchConfig:
                         "or support __cuda_stream__") from e
         if self.shmem_size is None:
             self.shmem_size = 0
+
+        _lazy_init()
 
     def _cast_to_3_tuple(self, cfg):
         if isinstance(cfg, int):
@@ -67,24 +90,34 @@ def launch(kernel, config, *kernel_args):
     if not isinstance(kernel, Kernel):
         raise ValueError
     config = check_or_create_options(LaunchConfig, config, "launch config")
-    # TODO: can we ensure kernel_args is valid/safe to use here?
+    if config.stream is None:
+        raise CUDAError("stream cannot be None")
 
-    driver_ver = handle_return(cuda.cuDriverGetVersion())
-    if driver_ver >= 12000:
+    # TODO: can we ensure kernel_args is valid/safe to use here?
+    # TODO: merge with HelperKernelParams?
+    kernel_args = ParamHolder(kernel_args)
+    args_ptr = kernel_args.ptr
+
+    # Note: CUkernel can still be launched via the old cuLaunchKernel and we do not care
+    # about the CUfunction/CUkernel difference (which depends on whether the "old" or
+    # "new" module loading APIs are in use). We check both binding & driver versions here
+    # mainly to see if the "Ex" API is available and if so we use it, as it's more feature
+    # rich.
+    if _use_ex:
         drv_cfg = cuda.CUlaunchConfig()
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
         drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
-        if config.stream is None:
-            raise CUDAError("stream cannot be None")
         drv_cfg.hStream = config.stream._handle
         drv_cfg.sharedMemBytes = config.shmem_size
-        drv_cfg.numAttrs = 0  # FIXME
-
-        # TODO: merge with HelperKernelParams?
-        kernel_args = ParamHolder(kernel_args)
-        args_ptr = kernel_args.ptr
-
+        drv_cfg.numAttrs = 0  # TODO
         handle_return(cuda.cuLaunchKernelEx(
             drv_cfg, int(kernel._handle), args_ptr, 0))
     else:
-        raise NotImplementedError("TODO")
+        # TODO: check if config has any unsupported attrs
+        handle_return(cuda.cuLaunchKernel(
+            int(kernel._handle),
+            *config.grid,
+            *config.block,
+            config.shmem_size,
+            config.stream._handle,
+            args_ptr, 0))
