@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -11,7 +11,6 @@ from cuda.core.experimental._event import  EventOptions, Event
 from cuda.core.experimental._utils import handle_return
 from cuda.core.experimental._device import Device
 import pytest
-
 
 def test_is_timing_disabled():
     options = EventOptions(enable_timing=False)

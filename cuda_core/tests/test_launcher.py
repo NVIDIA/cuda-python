@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -6,11 +6,11 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
+from cuda import cuda
 from cuda.core.experimental._launcher import LaunchConfig
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils import handle_return
-from cuda import cuda
 import pytest
 
 def test_launch_config_init():
@@ -64,4 +64,3 @@ def test_launch_config_shmem_size():
 
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None)
     assert config.shmem_size == 0
-    

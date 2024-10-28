@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -6,9 +6,9 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
+from cuda import cuda
 from cuda.core.experimental._memory import Buffer, MemoryResource
 from cuda.core.experimental._device import Device
-from cuda import cuda
 from cuda.core.experimental._utils import handle_return
 import ctypes
 import pytest
@@ -16,14 +16,13 @@ import pytest
 class DummyDeviceMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
-        pass
 
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(cuda.cuMemAlloc(size))
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        cuda.cuMemFree(ptr)
+        handle_return(cuda.cuMemFree(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
@@ -65,14 +64,13 @@ class DummyHostMemoryResource(MemoryResource):
 class DummyUnifiedMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
-        pass
 
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(cuda.cuMemAllocManaged(size, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        cuda.cuMemFree(ptr)
+        handle_return(cuda.cuMemFree(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
@@ -89,14 +87,13 @@ class DummyUnifiedMemoryResource(MemoryResource):
 class DummyPinnedMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
-        pass
 
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(cuda.cuMemAllocHost(size))
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        cuda.cuMemFreeHost(ptr)
+        handle_return(cuda.cuMemFreeHost(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
@@ -199,4 +196,3 @@ def test_buffer_close():
     buffer_close(DummyUnifiedMemoryResource(device))
     buffer_close(DummyPinnedMemoryResource(device))
 
-test_buffer_copy_to()

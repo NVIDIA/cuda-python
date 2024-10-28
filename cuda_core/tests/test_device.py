@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -12,18 +12,17 @@ from cuda.core.experimental._utils import handle_return, ComputeCapability, CUDA
                              precondition
 import pytest
 
-
 def test_device_repr():
     device = Device(0)
     assert str(device).startswith('<Device 0')
 
-# def test_device_alloc(init_cuda):
-#     device = Device()
-#     buffer = device.allocate(1024)
-#     device.sync()
-#     assert buffer.handle != 0
-#     assert buffer.size == 1024
-#     assert buffer.device_id == 0
+def test_device_alloc(init_cuda):
+    device = Device()
+    buffer = device.allocate(1024)
+    device.sync()
+    assert buffer.handle != 0
+    assert buffer.size == 1024
+    assert buffer.device_id == 0
 
 def test_device_set_current():
     device = Device()
@@ -65,4 +64,4 @@ def test_compute_capability():
         cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, device.device_id))
     expected_cc = ComputeCapability(major, minor)
     assert device.compute_capability == expected_cc
-    
+ 

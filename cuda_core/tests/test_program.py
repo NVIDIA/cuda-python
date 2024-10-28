@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2024 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -6,12 +6,10 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda import nvrtc
 from cuda.core.experimental._program import Program
 from cuda.core.experimental._module import ObjectCode, Kernel
 from cuda.core.experimental._device import Device
 import pytest
-
 
 def test_program_init_valid_code_type():
     code = "extern \"C\" __global__ void my_kernel() {}"
@@ -29,13 +27,13 @@ def test_program_init_invalid_code_format():
     with pytest.raises(TypeError):
         Program(code, "c++")
 
-# def test_program_compile_valid_target_type():
-#     code = "extern \"C\" __global__ void my_kernel() {}"
-#     program = Program(code, "c++")
-#     object_code = program.compile("ptx")
-#     kernel = object_code.get_kernel("my_kernel")
-#     assert isinstance(object_code, ObjectCode)
-#     assert isinstance(kernel, Kernel)
+def test_program_compile_valid_target_type():
+    code = "extern \"C\" __global__ void my_kernel() {}"
+    program = Program(code, "c++")
+    object_code = program.compile("ptx")
+    kernel = object_code.get_kernel("my_kernel")
+    assert isinstance(object_code, ObjectCode)
+    assert isinstance(kernel, Kernel)
 
 def test_program_compile_invalid_target_type():
     code = "extern \"C\" __global__ void my_kernel() {}"
@@ -58,4 +56,3 @@ def test_program_close():
     program = Program(code, "c++")
     program.close()
     assert program.handle is None
-    
