@@ -98,6 +98,11 @@ class Device:
         MIG mode, returns its MIG UUID which uniquely identifies the
         subscribed MIG compute instance.
 
+        Note
+        ----
+        MIG UUID is only returned when device is in MIG mode and the
+        driver is older than CUDA 11.4.
+
         """
         driver_ver = handle_return(cuda.cuDriverGetVersion())
         if driver_ver >= 11040:
