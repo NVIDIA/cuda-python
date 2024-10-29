@@ -14,9 +14,9 @@ class Program:
     _supported_target_type = ("ptx", "cubin", "ltoir", )
 
     def __init__(self, code, code_type):
+        self._handle = None
         if code_type not in self._supported_code_type:
             raise NotImplementedError
-        self._handle = None
 
         if code_type.lower() == "c++":
             if not isinstance(code, str):
