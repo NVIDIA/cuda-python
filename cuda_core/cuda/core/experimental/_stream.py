@@ -28,7 +28,7 @@ class StreamOptions:
         Stream does not synchronize with the NULL stream. (Default to True)
     priority : int, optional
         Stream priority where lower number represents a
-        higher priority. (Default to highest priority)
+        higher priority. (Default to lowest priority)
 
     """
     nonblocking: bool = True
