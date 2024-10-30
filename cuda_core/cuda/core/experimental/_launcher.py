@@ -37,7 +37,23 @@ def _lazy_init():
 
 @dataclass
 class LaunchConfig:
-    """
+    """Customizable launch options.
+
+    Attributes
+    ----------
+    grid : Union[tuple, int]
+        Collection of threads that will execute a kernel function.
+    block : Union[tuple, int]
+        Group of threads (Thread Block) that will execute on the same
+        multiprocessor. Threads within a thread blocks have access to
+        shared memory and can be explicitly synchronized.
+    stream : :obj:`Stream`
+        The stream establishing the stream ordering semantic of a
+        launch.
+    shmem_size : int, optional
+        Dynamic shared-memory size per thread block in bytes.
+        (Default to size 0)
+
     """
     # TODO: expand LaunchConfig to include other attributes
     grid: Union[tuple, int] = None
@@ -87,6 +103,21 @@ class LaunchConfig:
 
 
 def launch(kernel, config, *kernel_args):
+    """Launches a :obj:`Kernel` object with launch-time configuration.
+
+    Invokes a :obj:`Kernel` object with specified launch-time
+    configurations.
+
+    Parameters
+    ----------
+    config : Any
+        Launch configurations inline with options provided by
+        :obj:`LaunchConfig` dataclass.
+    *kernel_args : Any
+        Variable length argument list that is provided to the
+        launching kernel.
+
+    """
     if not isinstance(kernel, Kernel):
         raise ValueError
     config = check_or_create_options(LaunchConfig, config, "launch config")

@@ -254,7 +254,7 @@ class Device:
         Returns
         -------
         :obj:`Context`
-            Newly created Context object.
+            Newly created context object.
 
         """
         raise NotImplementedError("TODO")
@@ -314,7 +314,7 @@ class Device:
         Returns
         -------
         :obj:`Buffer`
-            Newly created Buffer object.
+            Newly created buffer object.
 
         """
         if stream is None:

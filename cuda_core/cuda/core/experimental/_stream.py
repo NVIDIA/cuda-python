@@ -235,7 +235,7 @@ class Stream:
 
     @property
     def device(self) -> Device:
-        """Return :obj:`Device` singleton associated with this stream.
+        """Return the :obj:`Device` singleton associated with this stream.
 
         Note
         ----

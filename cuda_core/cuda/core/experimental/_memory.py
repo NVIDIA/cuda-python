@@ -81,7 +81,7 @@ class Buffer:
 
     @property
     def handle(self):
-        """Return buffer handle object."""
+        """Return the buffer handle object."""
         return self._ptr
 
     @property
