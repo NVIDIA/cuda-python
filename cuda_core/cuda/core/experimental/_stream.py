@@ -14,7 +14,6 @@ from cuda import cuda, cudart
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._utils import check_or_create_options
-from cuda.core.experimental._utils import get_device_from_ctx
 from cuda.core.experimental._utils import handle_return
 
 
@@ -182,12 +181,6 @@ class Stream:
         # Stream.context, in cases where a different CUDA context is set
         # current after a stream was created.
         from cuda.core.experimental._device import Device  # avoid circular import
-        if self._device_id is None:
-            # Get the stream context first
-            if self._ctx_handle is None:
-                self._ctx_handle = handle_return(
-                    cuda.cuStreamGetCtx(self._handle))
-            self._device_id = get_device_from_ctx(self._ctx_handle)
         return Device(self._device_id)
 
     @property
@@ -197,8 +190,6 @@ class Stream:
         if self._ctx_handle is None:
             self._ctx_handle = handle_return(
                 cuda.cuStreamGetCtx(self._handle))
-        if self._device_id is None:
-            self._device_id = get_device_from_ctx(self._ctx_handle)
         return Context._from_ctx(self._ctx_handle, self._device_id)
 
     @staticmethod
