@@ -117,8 +117,8 @@ def precondition(checker: Callable[..., None], what: str = "") -> Callable:
 def get_device_from_ctx(ctx_handle) -> int:
     """Get device ID from the given ctx."""
     from cuda.core.experimental._device import Device # avoid circular import
-    prev_ctx = Device().context.handle
-    if ctx_handle != prev_ctx:
+    prev_ctx = Device().context._handle
+    if int(ctx_handle) != int(prev_ctx):
         switch_context = True
     else:
         switch_context = False
