@@ -116,7 +116,7 @@ class Device:
     @property
     def name(self) -> str:
         """Return the device name."""
-        # CUDA Runtime uses up to 256 characters, use the same for consistency
+        # Use 256 characters to be consistent with CUDA Runtime
         name = handle_return(cuda.cuDeviceGetName(256, self._id))
         name = name.split(b'\0')[0]
         return name.decode()

@@ -56,7 +56,7 @@ class Program:
         self.close()
 
     def close(self):
-        """Destroys this program."""
+        """Destroy this program."""
         if self._handle is not None:
             handle_return(nvrtc.nvrtcDestroyProgram(self._handle))
             self._handle = None

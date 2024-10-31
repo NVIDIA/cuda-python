@@ -86,7 +86,7 @@ class Event:
         self.close()
 
     def close(self):
-        """Destroys the event."""
+        """Destroy the event."""
         if self._handle:
             handle_return(cuda.cuEventDestroy(self._handle))
             self._handle = None

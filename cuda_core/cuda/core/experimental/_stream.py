@@ -127,7 +127,7 @@ class Stream:
     def close(self):
         """Destroy the stream.
 
-        Destroys the stream if we own it. Borrowed foreign stream
+        Destroy the stream if we own it. Borrowed foreign stream
         object will instead have their references released.
 
         """
