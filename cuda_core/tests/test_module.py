@@ -11,7 +11,9 @@ from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._utils import handle_return
 import pytest
+import importlib
 
+@pytest.mark.skipif(int(importlib.metadata.version("cuda-python").split(".")[0]) < 12, reason='Module loading for older drivers validate require valid module code.')
 def test_object_code_initialization():
     # Test with supported code types
     for code_type in ["cubin", "ptx", "fatbin"]:
