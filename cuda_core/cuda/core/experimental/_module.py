@@ -100,7 +100,7 @@ class ObjectCode:
             a file path string containing that module for loading.
         code_type : Any
             String of the compiled type.
-            Supported options are "ptx", "cubin" and "ltoir".
+            Supported options are "ptx", "cubin" and "fatbin".
         jit_options : Optional
             Mapping of JIT options to use during module loading.
             (Default to no options)
