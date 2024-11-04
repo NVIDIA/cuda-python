@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import threading
-from typing import Union
+from typing import Optional, Union
+import warnings
 
 from cuda import cuda, cudart
 from cuda.core.experimental._utils import handle_return, ComputeCapability, CUDAError, \

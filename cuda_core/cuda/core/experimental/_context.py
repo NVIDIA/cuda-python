@@ -4,7 +4,8 @@
 
 from dataclasses import dataclass
 
-from cuda import cuda
+from cuda import cuda, cudart
+from cuda.core.experimental._utils import handle_return
 
 
 @dataclass

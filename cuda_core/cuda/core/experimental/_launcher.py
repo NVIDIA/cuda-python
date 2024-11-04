@@ -6,9 +6,11 @@ from dataclasses import dataclass
 import importlib.metadata
 from typing import Optional, Union
 
+import numpy as np
 
-from cuda import cuda
+from cuda import cuda, cudart
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
+from cuda.core.experimental._memory import Buffer
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils import CUDAError, check_or_create_options, handle_return
