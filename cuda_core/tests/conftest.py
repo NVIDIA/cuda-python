@@ -12,14 +12,6 @@ from cuda import cuda
 from cuda.core.experimental._utils import handle_return
 import pytest
 
-# @pytest.fixture(scope="module", autouse=True)
-# def ensure_no_context():
-#     device = Device()
-#     device.set_current()
-#     with _device._tls_lock:
-#         if hasattr(_device._tls, 'devices'):
-#             del _device._tls.devices
-
 @pytest.fixture(scope="function")
 def init_cuda():
     device = Device()
