@@ -6,9 +6,8 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda.core.experimental._event import  EventOptions, Event
+from cuda.core.experimental._event import  EventOptions
 from cuda.core.experimental._device import Device
-import pytest
 
 def test_is_timing_disabled(init_cuda):
     options = EventOptions(enable_timing=False)

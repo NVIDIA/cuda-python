@@ -6,7 +6,6 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda import cuda
 import gc
 import os
 import sys

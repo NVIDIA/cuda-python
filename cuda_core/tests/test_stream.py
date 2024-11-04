@@ -7,7 +7,7 @@
 # is strictly prohibited.
 
 from cuda.core.experimental._stream import Stream, StreamOptions, LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM, default_stream
-from cuda.core.experimental._event import Event, EventOptions
+from cuda.core.experimental._event import Event
 from cuda.core.experimental._device import Device
 import pytest
 

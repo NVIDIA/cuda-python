@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import abc
 from typing import Optional, Tuple, TypeVar
-import warnings
 
 from cuda import cuda
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule

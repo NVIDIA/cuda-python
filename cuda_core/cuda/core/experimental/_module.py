@@ -4,7 +4,7 @@
 
 import importlib.metadata
 
-from cuda import cuda, cudart
+from cuda import cuda
 from cuda.core.experimental._utils import handle_return
 
 

@@ -11,7 +11,6 @@ from cuda.core.experimental._memory import Buffer, MemoryResource
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils import handle_return
 import ctypes
-import pytest
 
 class DummyDeviceMemoryResource(MemoryResource):
     def __init__(self, device):

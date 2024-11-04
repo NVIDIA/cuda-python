@@ -6,11 +6,9 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda import cuda
 from cuda.core.experimental._launcher import LaunchConfig
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._device import Device
-from cuda.core.experimental._utils import handle_return
 import pytest
 
 def test_launch_config_init(init_cuda):

@@ -8,10 +8,13 @@
 
 from cuda import cuda, cudart
 from cuda.core.experimental._device import Device
-from cuda.core.experimental._utils import handle_return, ComputeCapability, CUDAError, \
-                             precondition
-import pytest
+from cuda.core.experimental._utils import handle_return, ComputeCapability
 
+def test_device_set_current(deinit_cuda):
+    device = Device()
+    device.set_current()
+    assert handle_return(cuda.cuCtxGetCurrent()) is not None
+    
 def test_device_repr():
     device = Device(0)
     assert str(device).startswith('<Device 0')
