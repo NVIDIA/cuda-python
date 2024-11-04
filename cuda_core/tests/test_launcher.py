@@ -13,7 +13,7 @@ from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils import handle_return
 import pytest
 
-def test_launch_config_init():
+def test_launch_config_init(init_cuda):
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None, shmem_size=0)
     assert config.grid == (1, 1, 1)
     assert config.block == (1, 1, 1)
@@ -50,7 +50,7 @@ def test_launch_config_invalid_values():
     with pytest.raises(ValueError):
         LaunchConfig(grid=(1, 1, 1), block=(0, 1))
 
-def test_launch_config_stream():
+def test_launch_config_stream(init_cuda):
     stream = Device().create_stream()
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=stream, shmem_size=0)
     assert config.stream == stream

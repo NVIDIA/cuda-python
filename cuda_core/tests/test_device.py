@@ -24,11 +24,7 @@ def test_device_alloc(init_cuda):
     assert buffer.size == 1024
     assert buffer.device_id == 0
 
-def test_device_set_current():
-    device = Device()
-    device.set_current()
-
-def test_device_create_stream():
+def test_device_create_stream(init_cuda):
     device = Device()
     stream = device.create_stream()
     assert stream is not None
