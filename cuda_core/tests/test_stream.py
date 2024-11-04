@@ -71,17 +71,13 @@ def test_stream_context():
     context = stream.context
     assert context is not None
 
-def test_stream_device_with_foreign_stream():
+def test_stream_from_foreign_stream():
     device = Device()
-    other_stream = Stream._init(options=StreamOptions())
+    other_stream = device.create_stream(options=StreamOptions())
     stream = device.create_stream(obj=other_stream)
+    assert other_stream.handle == stream.handle
     device = stream.device
     assert isinstance(device, Device)
-
-def test_stream_context_with_foreign_stream():
-    device = Device()
-    other_stream = Stream._init(options=StreamOptions())
-    stream = device.create_stream(obj=other_stream)
     context = stream.context
     assert context is not None
     
