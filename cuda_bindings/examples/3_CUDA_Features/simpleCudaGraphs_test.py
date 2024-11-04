@@ -8,6 +8,7 @@
 import ctypes
 import numpy as np
 import random as rnd
+import pytest
 from cuda import cuda, cudart
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
@@ -322,6 +323,20 @@ def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, 
     checkCudaErrors(cudart.cudaStreamDestroy(stream2))
     checkCudaErrors(cudart.cudaStreamDestroy(streamForGraph))
 
+def checkKernelCompiles():
+    kernel_headers = '''\
+    #include <cooperative_groups.h>
+    '''
+    try:
+        common.KernelHelper(kernel_headers, findCudaDevice())
+    except:
+        # Filters out test from automation for two reasons
+        # 1. Headers are not found
+        # 2. Incompatible device
+        return False
+    return True
+
+@pytest.mark.skipif(not checkKernelCompiles(), reason="Automation filter against incompatible kernel")
 def main():
     size = 1 << 24 # number of elements to reduce
     maxBlocks = 512
