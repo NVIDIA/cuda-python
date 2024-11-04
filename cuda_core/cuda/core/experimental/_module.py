@@ -46,17 +46,19 @@ def _lazy_init():
 
 
 class Kernel:
-    """Represents a compiled kernel that had been loaded onto the device.
+    """Represent a compiled kernel that had been loaded onto the device.
 
     Kernel instances can execution when passed directly into a
     launch function.
+
+    Directly creating a :obj:`Kernel` is not supported, and they
+    should instead be created through a :obj:`ObjectCode` object.
 
     """
 
     __slots__ = ("_handle", "_module",)
 
     def __init__(self):
-        """Unsupported function whose creation is intended through an :obj:`ObjectCode` object."""
         raise NotImplementedError("directly constructing a Kernel instance is not supported")
 
     @staticmethod
@@ -72,10 +74,33 @@ class Kernel:
 
 
 class ObjectCode:
-    """Represents the compiled program loaded onto the device.
+    """Represent a compiled program that was loaded onto the device.
 
     This object provides a unified interface for different types of
     compiled programs that are loaded onto the device.
+
+    Loads the module library with specified module code and JIT options.
+
+    Note
+    ----
+    Usage under CUDA 11.x will only load to the current device
+    context.
+
+    Parameters
+    ----------
+    module : Union[bytes, str]
+        Either a bytes object containing the module to load, or
+        a file path string containing that module for loading.
+    code_type : Any
+        String of the compiled type.
+        Supported options are "ptx", "cubin" and "fatbin".
+    jit_options : Optional
+        Mapping of JIT options to use during module loading.
+        (Default to no options)
+    symbol_mapping : Optional
+        Keyword argument dictionary specifying how symbol names
+        should be mapped before trying to retrieve them.
+        (Default to no mappings)
 
     """
 
@@ -84,37 +109,6 @@ class ObjectCode:
 
     def __init__(self, module, code_type, jit_options=None, *,
                  symbol_mapping=None):
-        """Create and return a compiled program as an instance of an :obj:`ObjectCode`.
-
-        Loads the module library with specified module code and JIT options.
-
-        Note
-        ----
-        Usage under CUDA 11.x will only load to the current device
-        context.
-
-        Parameters
-        ----------
-        module : Union[bytes, str]
-            Either a bytes object containing the module to load, or
-            a file path string containing that module for loading.
-        code_type : Any
-            String of the compiled type.
-            Supported options are "ptx", "cubin" and "fatbin".
-        jit_options : Optional
-            Mapping of JIT options to use during module loading.
-            (Default to no options)
-        symbol_mapping : Optional
-            Keyword argument dictionary specifying how symbol names
-            should be mapped before trying to retrieve them.
-            (Default to no mappings)
-
-        Returns
-        -------
-        :obj:`ObjectCode`
-            Newly created :obj:`ObjectCode`.
-
-        """
         if code_type not in self._supported_code_type:
             raise ValueError
         _lazy_init()

@@ -110,6 +110,8 @@ def launch(kernel, config, *kernel_args):
 
     Parameters
     ----------
+    kernel : :obj:`Kernel`
+        Kernel to launch.
     config : Any
         Launch configurations inline with options provided by
         :obj:`LaunchConfig` dataclass.

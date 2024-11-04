@@ -8,11 +8,18 @@ from cuda.core.experimental._module import ObjectCode
 
 
 class Program:
-    """Represents the compilation machinery for processing programs into :obj:`ObjectCode`.
+    """Represent a compilation machinery to process programs into :obj:`ObjectCode`.
 
     This object provides a unified interface to multiple underlying
     compiler libraries. Compilation support is enabled for a wide
     range of code types and compilation types.
+
+    Parameters
+    ----------
+    code : Any
+        String of the CUDA Runtime Compilation program.
+    code_type : Any
+        String of the code type. Only "c++" is currently supported.
 
     """
 
@@ -21,21 +28,6 @@ class Program:
     _supported_target_type = ("ptx", "cubin", "ltoir", )
 
     def __init__(self, code, code_type):
-        """Create an instance of a :obj:`Program` object.
-
-        Parameters
-        ----------
-        code : Any
-            String of the CUDA Runtime Compilation program.
-        code_type : Any
-            String of the code type. Only "c++" is currently supported.
-
-        Returns
-        -------
-        :obj:`Program`
-            Newly created program object.
-
-        """
         self._handle = None
         if code_type not in self._supported_code_type:
             raise NotImplementedError

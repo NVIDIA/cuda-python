@@ -36,7 +36,7 @@ class StreamOptions:
 
 
 class Stream:
-    """Represents a queue of GPU operations that are executed in a specific order.
+    """Represent a queue of GPU operations that are executed in a specific order.
 
     Applications use streams to control the order of execution for
     GPU work. Work within a single stream are executed sequentially.
@@ -46,19 +46,17 @@ class Stream:
     Advanced users can utilize default streams for enforce complex
     implicit synchronization behaviors.
 
+    Directly creating a :obj:`Stream` is not supported due to ambiguity.
+    New streams should instead be created through a :obj:`Device`
+    object, or created directly through using an existing handle
+    using Stream.from_handle().
+
     """
 
     __slots__ = ("_handle", "_nonblocking", "_priority", "_owner", "_builtin",
                  "_device_id", "_ctx_handle")
 
     def __init__(self):
-        """Unsupported function due to ambiguity.
-
-        New streams should instead be created through a :obj:`Device`
-        object, or created directly through using an existing handle
-        using Stream.from_handle()
-
-        """
         # minimal requirements for the destructor
         self._handle = None
         self._owner = None

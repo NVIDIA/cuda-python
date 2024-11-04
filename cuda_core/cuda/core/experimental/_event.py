@@ -36,7 +36,7 @@ class EventOptions:
 
 
 class Event:
-    """Represents a record of a specific point of execution within a CUDA stream.
+    """Represent a record at a specific point of execution within a CUDA stream.
 
     Applications can asynchronously record events at any point in
     the program. An event keeps a record of all previous work within
@@ -46,15 +46,13 @@ class Event:
     of work up to event's record, and help establish dependencies
     between GPU work submissions.
 
+    Directly creating an :obj:`Event` is not supported due to ambiguity,
+    and they should instead be created through a :obj:`Stream` object.
+
     """
     __slots__ = ("_handle", "_timing_disabled", "_busy_waited")
 
     def __init__(self):
-        """Unsupported function due to ambiguity.
-
-        New events should instead be created through a :obj:`Stream` object.
-
-        """
         self._handle = None
         raise NotImplementedError(
             "directly creating an Event object can be ambiguous. Please call "

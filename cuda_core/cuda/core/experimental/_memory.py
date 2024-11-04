@@ -22,7 +22,7 @@ PyCapsule = TypeVar("PyCapsule")
 
 
 class Buffer:
-    """Represents a handle to allocated memory.
+    """Represent a handle to allocated memory.
 
     This generic object provides a unified representation for how
     different memory resources are to give access to their memory
@@ -32,24 +32,21 @@ class Buffer:
     establishing both the DLPack and the Python-level buffer
     protocols.
 
+    Parameters
+    ----------
+    ptr : Any
+        Allocated buffer handle object
+    size : Any
+        Memory size of the buffer
+    mr : :obj:`MemoryResource`, optional
+        Memory resource associated with the buffer
+
     """
 
     # TODO: handle ownership? (_mr could be None)
     __slots__ = ("_ptr", "_size", "_mr",)
 
     def __init__(self, ptr, size, mr: MemoryResource=None):
-        """Initialize a new buffer object.
-
-        Parameters
-        ----------
-        ptr : Any
-            Allocated buffer handle object
-        size : Any
-            Memory size of the buffer
-        mr : :obj:`MemoryResource`, optional
-            Memory resource associated with the buffer
-
-        """
         self._ptr = ptr
         self._size = size
         self._mr = mr

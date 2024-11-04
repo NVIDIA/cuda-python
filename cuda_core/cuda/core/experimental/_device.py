@@ -19,7 +19,7 @@ _tls_lock = threading.Lock()
 
 
 class Device:
-    """Represents a GPU and acts as an entry point for cuda.core features.
+    """Represent a GPU and act as an entry point for cuda.core features.
 
     This is a singleton object that helps ensure interoperability
     across multiple libraries imported in the process to both see
@@ -30,26 +30,23 @@ class Device:
     resource created through this device, will continue to refer to
     this device's context.
 
+    Newly returend :obj:`Device` object are is a thread-local singleton
+    for a specified device.
+
+    Note
+    ----
+    Will not initialize the GPU.
+
+    Parameters
+    ----------
+    device_id : int, optional
+        Device ordinal to return a :obj:`Device` object for.
+        Default value of `None` return the currently used device.
+
     """
     __slots__ = ("_id", "_mr", "_has_inited")
 
     def __new__(cls, device_id=None):
-        """Create and return a singleton :obj:`Device` object.
-
-        Creates and returns a thread-local singleton :obj:`Device` object
-        corresponding to a specific device.
-
-        Note
-        ----
-        Will not initialize the GPU.
-
-        Parameters
-        ----------
-        device_id : int, optional
-            Device ordinal to return a :obj:`Device` object for.
-            Default value of `None` return the currently used device.
-
-        """
         # important: creating a Device instance does not initialize the GPU!
         if device_id is None:
             device_id = handle_return(cudart.cudaGetDevice())
