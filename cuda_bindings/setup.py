@@ -258,11 +258,6 @@ cmdclass = versioneer.get_cmdclass(cmdclass)
 setup(
     version=versioneer.get_version(),
     ext_modules=do_cythonize(extensions),
-    packages=find_packages(include=["cuda", "cuda.*", "cuda.bindings", "cuda.bindings._bindings", "cuda.bindings._lib", "cuda.bindings._lib.cyruntime"]),
-    package_data=dict.fromkeys(
-        find_packages(include=["cuda", "cuda.*", "cuda.bindings", "cuda.bindings._bindings", "cuda.bindings._lib", "cuda.bindings._lib.cyruntime"]),
-        ["*.pxd", "*.pyx", "*.py", "*.h", "*.cpp"],
-    ),
     cmdclass=cmdclass,
     zip_safe=False,
 )
