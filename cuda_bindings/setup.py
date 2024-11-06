@@ -269,8 +269,6 @@ sources_list = [
     ["cuda/bindings/*.pyx"],
     # public (deprecated, to be removed)
     ["cuda/*.pyx"],
-    # tests
-    ["tests/*.pyx"],
     # interal files used by generated bindings
     ['cuda/bindings/_internal/nvjitlink.pyx'],
     ['cuda/bindings/_internal/utils.pyx'],
@@ -304,9 +302,9 @@ cmdclass = versioneer.get_cmdclass(cmdclass)
 setup(
     version=versioneer.get_version(),
     ext_modules=do_cythonize(extensions),
-    packages=find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings._internal", "tests"]),
+    packages=find_packages(include=["cuda", "cuda.*", "cuda.bindings", "cuda.bindings._bindings", "cuda.bindings._lib", "cuda.bindings._lib.cyruntime", "cuda.bindings._internal"]),
     package_data=dict.fromkeys(
-        find_packages(include=["cuda.cuda", "cuda.cuda.*", "cuda.cuda.bindings", "cuda.cuda.bindings._bindings", "cuda.cuda.bindings._lib", "cuda.cuda.bindings._lib.cyruntime", "cuda.cuda.bindings._internal", "tests"]),
+        find_packages(include=["cuda", "cuda.*", "cuda.bindings", "cuda.bindings._bindings", "cuda.bindings._lib", "cuda.bindings._lib.cyruntime", "cuda.bindings._internal"]),
         ["*.pxd", "*.pyx", "*.py", "*.h", "*.cpp"],
     ),
     cmdclass=cmdclass,
