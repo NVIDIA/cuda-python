@@ -48,8 +48,8 @@ def _lazy_init():
 class Kernel:
     """Represent a compiled kernel that had been loaded onto the device.
 
-    Kernel instances can execution when passed directly into a
-    launch function.
+    Kernel instances can execution when passed directly into the
+    :func:`~cuda.core.experimental.launch` function.
 
     Directly creating a :obj:`Kernel` is not supported, and they
     should instead be created through a :obj:`ObjectCode` object.

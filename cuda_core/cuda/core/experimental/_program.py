@@ -8,7 +8,8 @@ from cuda.core.experimental._module import ObjectCode
 
 
 class Program:
-    """Represent a compilation machinery to process programs into :obj:`ObjectCode`.
+    """Represent a compilation machinery to process programs into
+    :obj:`~cuda.core.experimental._module.ObjectCode`.
 
     This object provides a unified interface to multiple underlying
     compiler libraries. Compilation support is enabled for a wide
@@ -19,7 +20,7 @@ class Program:
     code : Any
         String of the CUDA Runtime Compilation program.
     code_type : Any
-        String of the code type. Only "c++" is currently supported.
+        String of the code type. Currently only ``"c++"`` is supported.
 
     """
 
@@ -74,7 +75,7 @@ class Program:
 
         Returns
         -------
-        :obj:`ObjectCode`
+        :obj:`~cuda.core.experimental._module.ObjectCode`
             Newly created code object.
 
         """

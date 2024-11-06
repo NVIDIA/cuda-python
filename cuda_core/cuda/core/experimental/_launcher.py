@@ -103,16 +103,14 @@ class LaunchConfig:
 
 
 def launch(kernel, config, *kernel_args):
-    """Launches a :obj:`Kernel` object with launch-time configuration.
-
-    Invokes a :obj:`Kernel` object with specified launch-time
-    configurations.
+    """Launches a :obj:`~cuda.core.experimental._module.Kernel`
+    object with launch-time configuration.
 
     Parameters
     ----------
-    kernel : :obj:`Kernel`
+    kernel : :obj:`~cuda.core.experimental._module.Kernel`
         Kernel to launch.
-    config : Any
+    config : :obj:`LaunchConfig`
         Launch configurations inline with options provided by
         :obj:`LaunchConfig` dataclass.
     *kernel_args : Any
