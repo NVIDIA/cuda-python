@@ -2,7 +2,7 @@
 
 Released on June 28, 2023
 
-## Hightlights
+## Highlights
 - Rebase to CUDA Toolkit 12.2
 - Resolve [Issue #44](https://github.com/NVIDIA/cuda-python/issues/44): nogil must be at the end of the function signature line
 - Resolve [Issue #45](https://github.com/NVIDIA/cuda-python/issues/45): Error with pyparsing when no CUDA is found

@@ -2,7 +2,7 @@
 
 Released on October 23, 2023
 
-## Hightlights
+## Highlights
 - Compatability with Cython 3
 - New API cudart.getLocalRuntimeVersion()
 - Modernize build config

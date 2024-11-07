@@ -1,15 +1,17 @@
-# ``cuda.core`` Release notes
+# `cuda.core` Release notes
 
-Released on Oct XX, 2024
+Released on Nov XX, 2024
 
 ## Hightlights
-- Initial beta 1 release
+- Initial EA1 (early access) release
 - Supports all platforms that CUDA is supported
-- Supports all CUDA 12.x drivers
-- Supports all CUDA 12.x Toolkits
+- Supports all CUDA 11.x/12.x drivers
+- Supports all CUDA 11.x/12.x Toolkits
 - Pythonic CUDA runtime and other core functionalities
 
 ## Limitations
 
-- Source code release only; Python packages coming in a future release
-- Support for CUDA 11.x coming in the next release
+- All APIs are currently *experimental* and subject to change without deprecation notice.
+  Please kindly share your feedbacks with us so that we can make `cuda.core` better!
+- Source code release only; `pip`/`conda` support is coming in a future release
+- Windows TCC mode is [not yet supported](https://github.com/NVIDIA/cuda-python/issues/206)

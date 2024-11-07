@@ -2,7 +2,7 @@
 
 Released on November 4, 2022
 
-## Hightlights
+## Highlights
 - Resolves [issue #27](https://github.com/NVIDIA/cuda-python/issues/27)
 - Update install instructions to use latest CTK
 

@@ -2,7 +2,7 @@
 
 Released on October 3, 2022
 
-## Hightlights
+## Highlights
 - Support CUDA Toolkit 11.8
 - Source builds allow for missing types and APIs
 - Resolves source builds for mobile platforms

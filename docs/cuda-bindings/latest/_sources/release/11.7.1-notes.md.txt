@@ -2,7 +2,7 @@
 
 Released on June 29, 2022
 
-## Hightlights
+## Highlights
 - Fix error propagation in CUDA Runtime bindings
 - Resolves [issue #22](https://github.com/NVIDIA/cuda-python/issues/22)
 

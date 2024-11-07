@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="CUDA Python 12.6.0 Release notes" href="12.6.0-notes.html" /><link rel="prev" title="Release Notes" href="../release.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="CUDA Python 12.6.0 Release notes" href="12.6.0-notes.html" /><link rel="prev" title="CUDA Python 12.6.2 Release notes" href="12.6.2-notes.html" />
         <link rel="canonical" href="docs/release/12.6.1-notes.html" />
 
     <!-- Generated with Sphinx 8.1.1 and Furo 2024.08.06 -->
@@ -210,6 +210,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../motivation.html">Motivation</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../release.html">Release Notes</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="12.6.2-notes.html">    12.6.2</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">    12.6.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.6.0-notes.html">    12.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.5.0-notes.html">    12.5.0</a></li>
@@ -219,6 +220,7 @@
 <li class="toctree-l2"><a class="reference internal" href="12.2.0-notes.html">    12.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.1.0-notes.html">    12.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.0.0-notes.html">    12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.5-notes.html">    11.8.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11.8.4-notes.html">    11.8.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11.8.3-notes.html">    11.8.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11.8.2-notes.html">    11.8.2</a></li>
@@ -303,8 +305,8 @@
           <section id="cuda-python-12-6-1-release-notes">
 <h1>CUDA Python 12.6.1 Release notes<a class="headerlink" href="#cuda-python-12-6-1-release-notes" title="Link to this heading">¶</a></h1>
 <p>Released on October 7, 2024</p>
-<section id="hightlights">
-<h2>Hightlights<a class="headerlink" href="#hightlights" title="Link to this heading">¶</a></h2>
+<section id="highlights">
+<h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Resolve <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/90">Issue #90</a>: Use new layout in preparation for cuda-python becoming a metapackage</p></li>
 <li><p>Resolve <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/75">Issue #75</a>: CUDA namespace cleanup</p></li>
@@ -331,6 +333,12 @@
 </section>
 <section id="limitations">
 <h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">¶</a></h2>
+<section id="know-issues">
+<h3>Know issues<a class="headerlink" href="#know-issues" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/215">Issue #215</a></p></li>
+</ul>
+</section>
 <section id="cuda-functions-not-supported-in-this-release">
 <h3>CUDA Functions Not Supported in this Release<a class="headerlink" href="#cuda-functions-not-supported-in-this-release" title="Link to this heading">¶</a></h3>
 <ul class="simple">
@@ -381,14 +389,14 @@
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../release.html">
+          <a class="prev-page" href="12.6.2-notes.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Release Notes</div>
+                <div class="title">CUDA Python 12.6.2 Release notes</div>
                 
               </div>
             </a>
@@ -423,9 +431,10 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">CUDA Python 12.6.1 Release notes</a><ul>
-<li><a class="reference internal" href="#hightlights">Hightlights</a></li>
+<li><a class="reference internal" href="#highlights">Highlights</a></li>
 <li><a class="reference internal" href="#cuda-namespace-cleanup-with-a-new-module-layout">CUDA namespace cleanup with a new module layout</a></li>
 <li><a class="reference internal" href="#limitations">Limitations</a><ul>
+<li><a class="reference internal" href="#know-issues">Know issues</a></li>
 <li><a class="reference internal" href="#cuda-functions-not-supported-in-this-release">CUDA Functions Not Supported in this Release</a></li>
 </ul>
 </li>

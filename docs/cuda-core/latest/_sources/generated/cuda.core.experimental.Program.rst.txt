@@ -6,16 +6,14 @@
 .. autoclass:: Program
 
    
-   .. automethod:: __init__
-
    
    .. rubric:: Methods
 
-   .. autosummary::
    
-      ~Program.__init__
-      ~Program.close
-      ~Program.compile
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: compile
+
    
    
 
@@ -23,9 +21,8 @@
    
    .. rubric:: Attributes
 
-   .. autosummary::
    
-      ~Program.backend
-      ~Program.handle
+   .. autoattribute:: backend
+   .. autoattribute:: handle
    
    

@@ -6,19 +6,17 @@
 .. autoclass:: Device
 
    
-   .. automethod:: __init__
-
    
    .. rubric:: Methods
 
-   .. autosummary::
    
-      ~Device.__init__
-      ~Device.allocate
-      ~Device.create_context
-      ~Device.create_stream
-      ~Device.set_current
-      ~Device.sync
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: create_context
+   .. automethod:: create_stream
+   .. automethod:: set_current
+   .. automethod:: sync
+
    
    
 
@@ -26,16 +24,15 @@
    
    .. rubric:: Attributes
 
-   .. autosummary::
    
-      ~Device.compute_capability
-      ~Device.context
-      ~Device.default_stream
-      ~Device.device_id
-      ~Device.memory_resource
-      ~Device.name
-      ~Device.pci_bus_id
-      ~Device.properties
-      ~Device.uuid
+   .. autoattribute:: compute_capability
+   .. autoattribute:: context
+   .. autoattribute:: default_stream
+   .. autoattribute:: device_id
+   .. autoattribute:: memory_resource
+   .. autoattribute:: name
+   .. autoattribute:: pci_bus_id
+   .. autoattribute:: properties
+   .. autoattribute:: uuid
    
    

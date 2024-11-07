@@ -11,6 +11,7 @@
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
     
     
@@ -213,6 +214,10 @@
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Installation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.StreamOptions.html">cuda.core.experimental.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 </ul>
 </li>
@@ -284,29 +289,44 @@
 <h2>Runtime Requirements<a class="headerlink" href="#runtime-requirements" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> is supported on all platforms that CUDA is supported. Specific
 dependencies are as follows:</p>
-<ul class="simple">
-<li><p>Driver: Linux (450.80.02 or later) Windows (456.38 or later)</p></li>
-<li><p>CUDA Toolkit 12.0 to 12.6</p></li>
-</ul>
-</section>
-<section id="installing-from-pypi">
-<h2>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Link to this heading">¶</a></h2>
-<p>Coming soon!</p>
-</section>
-<section id="installing-from-conda">
-<h2>Installing from Conda<a class="headerlink" href="#installing-from-conda" title="Link to this heading">¶</a></h2>
-<p>Coming soon!</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>CUDA 11</p></th>
+<th class="head"><p>CUDA 12</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CUDA Toolkit <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
+<td><p>11.2 - 11.8</p></td>
+<td><p>12.0 - 12.6</p></td>
+</tr>
+<tr class="row-odd"><td><p>Driver</p></td>
+<td><p>450.80.02+ (Linux), 452.39+ (Windows)</p></td>
+<td><p>525.60.13+ (Linux), 527.41+ (Windows)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </section>
 <section id="installing-from-source">
 <h2>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">¶</a></h2>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/cuda-python
-$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_core
-$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/cuda-python
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_core
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
-<p>For now <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> (<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> later) is a required dependency.</p>
+<p>For now <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> (<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> later) 11.x or 12.x is a required dependency.</p>
 </section>
 </section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Including <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code>.</p>
+</aside>
+</aside>
 
         </article>
       </div>
@@ -365,8 +385,6 @@ $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </sp
             <ul>
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#runtime-requirements">Runtime Requirements</a></li>
-<li><a class="reference internal" href="#installing-from-pypi">Installing from PyPI</a></li>
-<li><a class="reference internal" href="#installing-from-conda">Installing from Conda</a></li>
 <li><a class="reference internal" href="#installing-from-source">Installing from Source</a></li>
 </ul>
 </li>
@@ -383,5 +401,7 @@ $<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </sp
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=35a8b989"></script>
     </body>
 </html>

@@ -2,7 +2,7 @@
 
 Released on February 28, 2023
 
-## Hightlights
+## Highlights
 - Rebase to CUDA Toolkit 12.1
 - Resolve [Issue #41](https://github.com/NVIDIA/cuda-python/issues/41): Add support for Python 3.11
 - Resolve [Issue #42](https://github.com/NVIDIA/cuda-python/issues/42): Dropping Python 3.7

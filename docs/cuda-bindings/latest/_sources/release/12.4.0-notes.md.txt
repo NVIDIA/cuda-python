@@ -2,7 +2,7 @@
 
 Released on March 5, 2024
 
-## Hightlights
+## Highlights
 - Rebase to CUDA Toolkit 12.4
 - Add PyPI/Conda support for Python 12
 

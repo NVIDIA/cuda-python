@@ -2,7 +2,7 @@
 
 Released on October 19, 2023
 
-## Hightlights
+## Highlights
 - Rebase to CUDA Toolkit 12.3
 - Resolve [Issue #16](https://github.com/NVIDIA/cuda-python/issues/16): cuda.cudart.cudaRuntimeGetVersion() hard-codes the runtime version, rather than querying the runtime
     - New API cudart.getLocalRuntimeVersion()
