@@ -26,7 +26,7 @@ class Program:
 
     __slots__ = ("_handle", "_backend", )
     _supported_code_type = ("c++", )
-    _supported_target_type = ("cubin", "ptx", "ltoir") #OptiXIR also supported by nvrtc
+    _supported_target_type = ("ptx", "cubin", "ltoir")
 
     def __init__(self, code, code_type):
         self._handle = None
