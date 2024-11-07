@@ -46,6 +46,15 @@ def _lazy_init():
 
 
 class Kernel:
+    """Represent a compiled kernel that had been loaded onto the device.
+
+    Kernel instances can execution when passed directly into the
+    :func:`~cuda.core.experimental.launch` function.
+
+    Directly creating a :obj:`Kernel` is not supported, and they
+    should instead be created through a :obj:`ObjectCode` object.
+
+    """
 
     __slots__ = ("_handle", "_module",)
 
@@ -65,6 +74,35 @@ class Kernel:
 
 
 class ObjectCode:
+    """Represent a compiled program that was loaded onto the device.
+
+    This object provides a unified interface for different types of
+    compiled programs that are loaded onto the device.
+
+    Loads the module library with specified module code and JIT options.
+
+    Note
+    ----
+    Usage under CUDA 11.x will only load to the current device
+    context.
+
+    Parameters
+    ----------
+    module : Union[bytes, str]
+        Either a bytes object containing the module to load, or
+        a file path string containing that module for loading.
+    code_type : Any
+        String of the compiled type.
+        Supported options are "ptx", "cubin" and "fatbin".
+    jit_options : Optional
+        Mapping of JIT options to use during module loading.
+        (Default to no options)
+    symbol_mapping : Optional
+        Keyword argument dictionary specifying how symbol names
+        should be mapped before trying to retrieve them.
+        (Default to no mappings)
+
+    """
 
     __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "fatbin")
@@ -107,6 +145,19 @@ class ObjectCode:
         pass
 
     def get_kernel(self, name):
+        """Return the :obj:`Kernel` of a specified name from this object code.
+
+        Parameters
+        ----------
+        name : Any
+            Name of the kernel to retrieve.
+
+        Returns
+        -------
+        :obj:`Kernel`
+            Newly created kernel object.
+
+        """
         try:
             name = self._sym_map[name]
         except KeyError:

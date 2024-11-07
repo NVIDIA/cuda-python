@@ -22,6 +22,26 @@ PyCapsule = TypeVar("PyCapsule")
 
 
 class Buffer:
+    """Represent a handle to allocated memory.
+
+    This generic object provides a unified representation for how
+    different memory resources are to give access to their memory
+    allocations.
+
+    Support for data interchange mechanisms are provided by
+    establishing both the DLPack and the Python-level buffer
+    protocols.
+
+    Parameters
+    ----------
+    ptr : Any
+        Allocated buffer handle object
+    size : Any
+        Memory size of the buffer
+    mr : :obj:`MemoryResource`, optional
+        Memory resource associated with the buffer
+
+    """
 
     # TODO: handle ownership? (_mr could be None)
     __slots__ = ("_ptr", "_size", "_mr",)
@@ -32,9 +52,23 @@ class Buffer:
         self._mr = mr
 
     def __del__(self):
-        self.close(default_stream())
+        """Return close(self)."""
+        self.close()
 
     def close(self, stream=None):
+        """Deallocate this buffer asynchronously on the given stream.
+
+        This buffer is released back to their memory resource
+        asynchronously on the given stream.
+
+        Parameters
+        ----------
+        stream : Any, optional
+            The stream object with a __cuda_stream__ protocol to
+            use for asynchronous deallocation. Defaults to using
+            the default stream.
+
+        """
         if self._ptr and self._mr is not None:
             if stream is None:
                 stream = default_stream()
@@ -44,42 +78,56 @@ class Buffer:
 
     @property
     def handle(self):
+        """Return the buffer handle object."""
         return self._ptr
 
     @property
     def size(self):
+        """Return the memory size of this buffer."""
         return self._size
 
     @property
     def memory_resource(self) -> MemoryResource:
-        # Return the memory resource from which this buffer was allocated.
+        """Return the memory resource associated with this buffer."""
         return self._mr
 
     @property
     def is_device_accessible(self) -> bool:
-        # Check if this buffer can be accessed from GPUs.
+        """Return True if this buffer can be accessed by the GPU, otherwise False."""
         if self._mr is not None:
             return self._mr.is_device_accessible
         raise NotImplementedError
 
     @property
     def is_host_accessible(self) -> bool:
-        # Check if this buffer can be accessed from CPUs.
+        """Return True if this buffer can be accessed by the CPU, otherwise False."""
         if self._mr is not None:
             return self._mr.is_host_accessible
         raise NotImplementedError
 
     @property
     def device_id(self) -> int:
+        """Return the device ordinal of this buffer."""
         if self._mr is not None:
             return self._mr.device_id
         raise NotImplementedError
 
     def copy_to(self, dst: Buffer=None, *, stream) -> Buffer:
-        # Copy from this buffer to the dst buffer asynchronously on the
-        # given stream. The dst buffer is returned. If the dst is not provided,
-        # allocate one from self.memory_resource. Raise an exception if the
-        # stream is not provided.
+        """Copy from this buffer to the dst buffer asynchronously on the given stream.
+
+        Copies the data from this buffer to the provided dst buffer.
+        If the dst buffer is not provided, then a new buffer is first
+        allocated using the associated memory resource before the copy.
+
+        Parameters
+        ----------
+        dst : :obj:`Buffer`
+            Source buffer to copy data from
+        stream : Any
+            Keyword argument specifying the stream for the
+            asynchronous copy
+
+        """
         if stream is None:
             raise ValueError("stream must be provided")
         if dst is None:
@@ -93,8 +141,17 @@ class Buffer:
         return dst
 
     def copy_from(self, src: Buffer, *, stream):
-        # Copy from the src buffer to this buffer asynchronously on the
-        # given stream. Raise an exception if the stream is not provided. 
+        """Copy from the src buffer to this buffer asynchronously on the given stream.
+
+        Parameters
+        ----------
+        src : :obj:`Buffer`
+            Source buffer to copy data from
+        stream : Any
+            Keyword argument specifying the stream for the
+            asynchronous copy
+
+        """
         if stream is None:
             raise ValueError("stream must be provided")
         if src._size != self._size:
@@ -141,7 +198,7 @@ class Buffer:
         raise NotImplementedError("TODO")
 
     def __release_buffer__(self, buffer: memoryview, /):
-        # Supporting methond paired with __buffer__.
+        # Supporting method paired with __buffer__.
         raise NotImplementedError("TODO")
 
 

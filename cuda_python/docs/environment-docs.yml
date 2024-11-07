@@ -11,6 +11,7 @@ dependencies:
   - pytest
   - scipy
   - sphinx
+  - sphinx-copybutton
   - pip:
     - furo
     - myst-nb
