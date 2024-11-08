@@ -37,7 +37,7 @@ Repository = "https://github.com/NVIDIA/cuda-python"
 Documentation = "https://nvidia.github.io/cuda-python/"
 
 [tool.setuptools.packages.find]
-include = ["cuda.bindings*"]
+include = ["cuda*"]
 
 [tool.versioneer]
 VCS = "git"
