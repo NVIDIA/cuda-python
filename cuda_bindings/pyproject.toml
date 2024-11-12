@@ -36,18 +36,8 @@ dependencies = [
 Repository = "https://github.com/NVIDIA/cuda-python"
 Documentation = "https://nvidia.github.io/cuda-python/"
 
-# BETA
-# [tool.setuptools]
-# zip-safe = false
-
-# BETA
-# [tool.setuptools.packages.find]
-# where = ["cuda"]
-# include = ["cuda", "cuda.*"]
-
-# BETA
-# [tool.setuptools.package-data]
-# "*" = ["*.pxd", "*.pyx", "*.h", "*.cpp"]
+[tool.setuptools.packages.find]
+include = ["cuda*"]
 
 [tool.versioneer]
 VCS = "git"
