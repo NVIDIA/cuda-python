@@ -93,7 +93,7 @@ class ObjectCode:
         a file path string containing that module for loading.
     code_type : Any
         String of the compiled type.
-        Supported options are "ptx", "cubin" and "fatbin".
+        Supported options are "ptx", "cubin", "ltoir" and "fatbin".
     jit_options : Optional
         Mapping of JIT options to use during module loading.
         (Default to no options)
@@ -105,7 +105,7 @@ class ObjectCode:
     """
 
     __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map")
-    _supported_code_type = ("cubin", "ptx", "fatbin")
+    _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
     def __init__(self, module, code_type, jit_options=None, *,
                  symbol_mapping=None):
