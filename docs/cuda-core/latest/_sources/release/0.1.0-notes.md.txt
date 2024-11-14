@@ -1,9 +1,9 @@
 # `cuda.core` Release notes
 
-Released on Nov XX, 2024
+Released on Nov 8, 2024
 
 ## Hightlights
-- Initial EA1 (early access) release
+- Initial beta release
 - Supports all platforms that CUDA is supported
 - Supports all CUDA 11.x/12.x drivers
 - Supports all CUDA 11.x/12.x Toolkits
