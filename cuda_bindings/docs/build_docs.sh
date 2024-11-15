@@ -3,9 +3,13 @@
 set -ex
 
 # SPHINX_CUDA_BINDINGS_VER is used to create a subdir under build/html
-# (the Makefile file for sphinx-build also honors it if defined)
+# (the Makefile file for sphinx-build also honors it if defined).
+# If there's a post release (ex: .post1) we don't want it to show up in the
+# version selector or directory structure.
 if [[ -z "${SPHINX_CUDA_BINDINGS_VER}" ]]; then
-    export SPHINX_CUDA_BINDINGS_VER=$(python -c "from importlib.metadata import version; print(version('cuda-python'))" \
+    export SPHINX_CUDA_BINDINGS_VER=$(python -c "from importlib.metadata import version; \
+                                                 ver = '.'.join(str(version('cuda-python')).split('.')[:3]); \
+                                                 print(ver)" \
                                       | awk -F'+' '{print $1}')
 fi
 

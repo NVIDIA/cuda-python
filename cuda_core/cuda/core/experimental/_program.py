@@ -8,10 +8,25 @@ from cuda.core.experimental._module import ObjectCode
 
 
 class Program:
+    """Represent a compilation machinery to process programs into
+    :obj:`~cuda.core.experimental._module.ObjectCode`.
+
+    This object provides a unified interface to multiple underlying
+    compiler libraries. Compilation support is enabled for a wide
+    range of code types and compilation types.
+
+    Parameters
+    ----------
+    code : Any
+        String of the CUDA Runtime Compilation program.
+    code_type : Any
+        String of the code type. Currently only ``"c++"`` is supported.
+
+    """
 
     __slots__ = ("_handle", "_backend", )
     _supported_code_type = ("c++", )
-    _supported_target_type = ("ptx", "cubin", "ltoir", )
+    _supported_target_type = ("ptx", "cubin", "ltoir")
 
     def __init__(self, code, code_type):
         self._handle = None
@@ -30,14 +45,40 @@ class Program:
             raise NotImplementedError
 
     def __del__(self):
+        """Return close(self)."""
         self.close()
 
     def close(self):
+        """Destroy this program."""
         if self._handle is not None:
             handle_return(nvrtc.nvrtcDestroyProgram(self._handle))
             self._handle = None
 
     def compile(self, target_type, options=(), name_expressions=(), logs=None):
+        """Compile the program with a specific compilation type.
+
+        Parameters
+        ----------
+        target_type : Any
+            String of the targeted compilation type.
+            Supported options are "ptx", "cubin" and "ltoir".
+        options : Union[List, Tuple], optional
+            List of compilation options associated with the backend
+            of this :obj:`Program`. (Default to no options)
+        name_expressions : Union[List, Tuple], optional
+            List of explicit name expressions to become accessible.
+            (Default to no expressions)
+        logs : Any, optional
+            Object with a write method to receive the logs generated
+            from compilation.
+            (Default to no logs)
+
+        Returns
+        -------
+        :obj:`~cuda.core.experimental._module.ObjectCode`
+            Newly created code object.
+
+        """
         if target_type not in self._supported_target_type:
             raise NotImplementedError
 
@@ -80,8 +121,10 @@ class Program:
 
     @property
     def backend(self):
+        """Return the backend type string associated with this program."""
         return self._backend
 
     @property
     def handle(self):
+        """Return the program handle object."""
         return self._handle
