@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import os
 from typing import Optional, Tuple, TYPE_CHECKING, Union
+import weakref
 
 if TYPE_CHECKING:
     from cuda.core.experimental._device import Device
@@ -53,27 +54,25 @@ class Stream:
 
     """
 
-    __slots__ = ("_handle", "_nonblocking", "_priority", "_owner", "_builtin",
-                 "_device_id", "_ctx_handle")
+    __slots__ = ("__weakref__", "_handle", "_nonblocking", "_priority",
+                 "_owner", "_builtin", "_device_id", "_ctx_handle")
 
     def __init__(self):
-        # minimal requirements for the destructor
-        self._handle = None
-        self._owner = None
-        self._builtin = False
         raise NotImplementedError(
             "directly creating a Stream object can be ambiguous. Please either "
             "call Device.create_stream() or, if a stream pointer is already "
             "available from somewhere else, Stream.from_handle()")
 
-    @staticmethod
-    def _init(obj=None, *, options: Optional[StreamOptions]=None):
-        self = Stream.__new__(Stream)
-
-        # minimal requirements for the destructor
+    def _enable_finalize(self):
         self._handle = None
         self._owner = None
         self._builtin = False
+        weakref.finalize(self, self.close)
+
+    @staticmethod
+    def _init(obj=None, *, options: Optional[StreamOptions]=None):
+        self = Stream.__new__(Stream)
+        self._enable_finalize()
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
@@ -117,10 +116,6 @@ class Stream:
         self._device_id = int(handle_return(cuda.cuCtxGetDevice()))
         self._ctx_handle = None  # delayed
         return self
-
-    def __del__(self):
-        """Return close(self)."""
-        self.close()
 
     def close(self):
         """Destroy the stream.
@@ -295,6 +290,7 @@ class Stream:
 class _LegacyDefaultStream(Stream):
 
     def __init__(self):
+        self._enable_finalize()
         self._handle = cuda.CUstream(cuda.CU_STREAM_LEGACY)
         self._owner = None
         self._nonblocking = None  # delayed
@@ -305,6 +301,7 @@ class _LegacyDefaultStream(Stream):
 class _PerThreadDefaultStream(Stream):
 
     def __init__(self):
+        self._enable_finalize()
         self._handle = cuda.CUstream(cuda.CU_STREAM_PER_THREAD)
         self._owner = None
         self._nonblocking = None  # delayed

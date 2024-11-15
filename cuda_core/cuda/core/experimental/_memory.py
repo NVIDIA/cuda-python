@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import abc
 from typing import Optional, Tuple, TypeVar
+import weakref
 import warnings
 
 from cuda import cuda
@@ -44,16 +45,13 @@ class Buffer:
     """
 
     # TODO: handle ownership? (_mr could be None)
-    __slots__ = ("_ptr", "_size", "_mr",)
+    __slots__ = ("__weakref__", "_ptr", "_size", "_mr",)
 
     def __init__(self, ptr, size, mr: MemoryResource=None):
         self._ptr = ptr
         self._size = size
         self._mr = mr
-
-    def __del__(self):
-        """Return close(self)."""
-        self.close()
+        weakref.finalize(self, self.close)
 
     def close(self, stream=None):
         """Deallocate this buffer asynchronously on the given stream.

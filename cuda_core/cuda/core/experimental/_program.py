@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import weakref
+
 from cuda import nvrtc
 from cuda.core.experimental._utils import handle_return
 from cuda.core.experimental._module import ObjectCode
@@ -24,14 +26,16 @@ class Program:
 
     """
 
-    __slots__ = ("_handle", "_backend", )
+    __slots__ = ("__weakref__", "_handle", "_backend", )
     _supported_code_type = ("c++", )
     _supported_target_type = ("ptx", "cubin", "ltoir")
 
     def __init__(self, code, code_type):
-        self._handle = None
         if code_type not in self._supported_code_type:
             raise NotImplementedError
+
+        self._handle = None
+        weakref.finalize(self, self.close)
 
         if code_type.lower() == "c++":
             if not isinstance(code, str):
@@ -43,10 +47,6 @@ class Program:
             self._backend = "nvrtc"
         else:
             raise NotImplementedError
-
-    def __del__(self):
-        """Return close(self)."""
-        self.close()
 
     def close(self):
         """Destroy this program."""

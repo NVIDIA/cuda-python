@@ -4,6 +4,7 @@
 
 from dataclasses import dataclass
 from typing import Optional
+import weakref
 
 from cuda import cuda
 from cuda.core.experimental._utils import check_or_create_options
@@ -50,19 +51,21 @@ class Event:
     and they should instead be created through a :obj:`Stream` object.
 
     """
-    __slots__ = ("_handle", "_timing_disabled", "_busy_waited")
+    __slots__ = ("__weakref__", "_handle", "_timing_disabled", "_busy_waited")
 
     def __init__(self):
-        self._handle = None
         raise NotImplementedError(
             "directly creating an Event object can be ambiguous. Please call "
             "call Stream.record().")
 
+    def _enable_finalize(self):
+        self._handle = None
+        weakref.finalize(self, self.close)
+
     @staticmethod
     def _init(options: Optional[EventOptions]=None):
         self = Event.__new__(Event)
-        # minimal requirements for the destructor
-        self._handle = None
+        self._enable_finalize()
 
         options = check_or_create_options(EventOptions, options, "Event options")
         flags = 0x0
@@ -78,10 +81,6 @@ class Event:
             raise NotImplementedError("TODO")
         self._handle = handle_return(cuda.cuEventCreate(flags))
         return self
-
-    def __del__(self):
-        """Return close(self)"""
-        self.close()
 
     def close(self):
         """Destroy the event."""
