@@ -6,7 +6,11 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda import cuda
+try:
+    from cuda.bindings import driver
+except ImportError:
+    from cuda import cuda as driver
+
 from cuda.core.experimental import Device
 from cuda.core.experimental._memory import Buffer, MemoryResource
 from cuda.core.experimental._utils import handle_return
@@ -65,11 +69,11 @@ class DummyUnifiedMemoryResource(MemoryResource):
         self.device = device
 
     def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(cuda.cuMemAllocManaged(size, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
+        ptr = handle_return(driver.cuMemAllocManaged(size, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        handle_return(cuda.cuMemFree(ptr))
+        handle_return(driver.cuMemFree(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
@@ -88,11 +92,11 @@ class DummyPinnedMemoryResource(MemoryResource):
         self.device = device
 
     def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(cuda.cuMemAllocHost(size))
+        ptr = handle_return(driver.cuMemAllocHost(size))
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        handle_return(cuda.cuMemFreeHost(ptr))
+        handle_return(driver.cuMemFreeHost(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
