@@ -54,10 +54,11 @@ runs:
           --rm "${{ inputs.docker-image }}" \
           /bin/bash -c "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint ${{ env.REPO_DIR }}/continuous_integration/scripts/build ${{ inputs.build-type}} ${{ inputs.target-device }}"
 
-    - if: ${{ !inputs.use-container }}
-      name: Build (without container)
+    #- if: ${{ inputs.use-container == false }}
+    - name: Build (without container)
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
+        echo "inputs.use-container=${{ inputs.use-container }}"
         "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/build" "${{ inputs.build-type}}" "${{ inputs.target-device }}"
 
     - name: Display structure of the bindings artifacts folder (post build)
