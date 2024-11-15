@@ -6,9 +6,9 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda.core.experimental._stream import Stream, StreamOptions, LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM, default_stream
+from cuda.core.experimental import Device, Stream, StreamOptions
+from cuda.core.experimental._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM, default_stream
 from cuda.core.experimental._event import Event
-from cuda.core.experimental._device import Device
 import pytest
 
 def test_stream_init():

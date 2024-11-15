@@ -7,8 +7,8 @@
 # is strictly prohibited.
 
 from cuda import cuda
+from cuda.core.experimental import Device
 from cuda.core.experimental._memory import Buffer, MemoryResource
-from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils import handle_return
 import ctypes
 
