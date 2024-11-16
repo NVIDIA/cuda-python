@@ -24,11 +24,22 @@ def convert_strides_to_counts(strides, itemsize):
         np.empty((3, 4), order='F'),
     )
 )
-def test_viewable_cpu(in_arr):
+class TestViewCPU:
 
-    @viewable((0,))
-    def my_func(arr):
-        view = arr.view(-1)
+    def test_viewable_cpu(self, in_arr):
+
+        @viewable((0,))
+        def my_func(arr):
+            view = arr.view(-1)
+            self._check_view(view, in_arr)
+
+        my_func(in_arr)
+
+    def test_strided_memory_view_cpu(self, in_arr):
+        view = StridedMemoryView(in_arr, stream_ptr=-1)
+        self._check_view(view, in_arr)
+
+    def _check_view(self, view, in_arr):
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == in_arr.ctypes.data
         assert view.shape == in_arr.shape
@@ -42,8 +53,6 @@ def test_viewable_cpu(in_arr):
         assert view.device_id == 0
         assert view.device_accessible == False
         assert view.exporting_obj is in_arr
-
-    my_func(in_arr)
 
 
 def gpu_array_samples():
@@ -78,15 +87,33 @@ def gpu_array_ptr(arr):
         *gpu_array_samples(),
     )
 )
-def test_viewable_gpu(in_arr, stream):
-    # TODO: use the device fixture?
-    dev = Device()
-    dev.set_current()
-    s = dev.create_stream() if stream else None
+class TestViewGPU:
 
-    @viewable((0,))
-    def my_func(arr):
-        view = arr.view(s.handle if s else -1)
+    def test_viewable_gpu(self, in_arr, stream):
+        # TODO: use the device fixture?
+        dev = Device()
+        dev.set_current()
+        s = dev.create_stream() if stream else None
+
+        @viewable((0,))
+        def my_func(arr):
+            view = arr.view(s.handle if s else -1)
+            self._check_view(view, in_arr, dev)
+
+        my_func(in_arr)
+
+    def test_strided_memory_view_cpu(self, in_arr, stream):
+        # TODO: use the device fixture?
+        dev = Device()
+        dev.set_current()
+        s = dev.create_stream() if stream else None
+
+        view = StridedMemoryView(
+            in_arr,
+            stream_ptr=s.handle if s else -1)
+        self._check_view(view, in_arr, dev)
+
+    def _check_view(self, view, in_arr, dev):
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == gpu_array_ptr(in_arr)
         assert view.shape == in_arr.shape
@@ -100,5 +127,3 @@ def test_viewable_gpu(in_arr, stream):
         assert view.device_id == dev.device_id
         assert view.device_accessible == True
         assert view.exporting_obj is in_arr
-
-    my_func(in_arr)
