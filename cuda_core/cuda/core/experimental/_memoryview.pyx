@@ -26,7 +26,7 @@ cdef class StridedMemoryView:
     shape: tuple = None
     strides: tuple = None  # in counts, not bytes
     dtype: numpy.dtype = None
-    device_id: int = None  # -1 for CPU
+    device_id: int = None  # 0 for CPU
     device_accessible: bool = None
     readonly: bool = None
     exporting_obj: Any = None
