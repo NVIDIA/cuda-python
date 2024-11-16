@@ -1,3 +1,7 @@
+# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 try:
     import cupy as cp
 except ImportError:
@@ -30,12 +34,14 @@ class TestViewCPU:
 
         @viewable((0,))
         def my_func(arr):
+            # stream_ptr=-1 means "the consumer does not care"
             view = arr.view(-1)
             self._check_view(view, in_arr)
 
         my_func(in_arr)
 
     def test_strided_memory_view_cpu(self, in_arr):
+        # stream_ptr=-1 means "the consumer does not care"
         view = StridedMemoryView(in_arr, stream_ptr=-1)
         self._check_view(view, in_arr)
 
@@ -93,6 +99,7 @@ class TestViewGPU:
         # TODO: use the device fixture?
         dev = Device()
         dev.set_current()
+        # This is the consumer stream
         s = dev.create_stream() if stream else None
 
         @viewable((0,))
@@ -106,6 +113,7 @@ class TestViewGPU:
         # TODO: use the device fixture?
         dev = Device()
         dev.set_current()
+        # This is the consumer stream
         s = dev.create_stream() if stream else None
 
         view = StridedMemoryView(

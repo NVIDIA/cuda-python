@@ -33,6 +33,7 @@ extensions = [
 	'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
 	'sphinx.ext.napoleon',
+    'sphinx.ext.intersphinx',
 	'myst_nb',
 	'enum_tools.autoenum',
     'sphinx_copybutton',
@@ -81,3 +82,11 @@ html_static_path = ['_static']
 
 # skip cmdline prompts
 copybutton_exclude = '.linenos, .gp'
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+}
+
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True

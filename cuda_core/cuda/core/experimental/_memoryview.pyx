@@ -20,7 +20,59 @@ from cuda.core.experimental._utils import handle_return
 
 @cython.dataclasses.dataclass
 cdef class StridedMemoryView:
+    """A dataclass holding metadata of a strided dense array/tensor.
 
+    A :obj:`StridedMemoryView` instance can be created in two ways:
+
+      1. Using the :obj:`viewable` decorator (recommended)
+      2. Explicit construction, see below
+
+    This object supports both DLPack (up to v1.0) and CUDA Array Interface
+    (CAI) v3. When wrapping an arbitrary object it will try the DLPack protocol
+    first, then the CAI protocol. A :obj:`BufferError` is raised if neither is
+    supported. 
+    
+    Since either way would take a consumer stream, for DLPack it is passed to
+    ``obj.__dlpack__()`` as-is (except for :obj:`None`, see below); for CAI, a 
+    stream order will be established between the consumer stream and the
+    producer stream (from ``obj.__cuda_array_interface__()["stream"]``), as if  
+    ``cudaStreamWaitEvent`` is called by this method. 
+    
+    To opt-out of the stream ordering operation in either DLPack or CAI, 
+    please pass ``stream_ptr=-1``. Note that this deviates (on purpose) 
+    from the semantics of ``obj.__dlpack__(stream=None, ...)`` since ``cuda.core``
+    does not encourage using the (legacy) default/null stream, but is 
+    consistent with the CAI's semantics. For DLPack, ``stream=-1`` will be
+    internally passed to ``obj.__dlpack__()`` instead. 
+
+    Attributes
+    ----------
+    ptr : int
+        Pointer to the tensor buffer (as a Python `int`).
+    shape: tuple
+        Shape of the tensor.
+    strides: tuple
+        Strides of the tensor (in **counts**, not bytes).
+    dtype: numpy.dtype
+        Data type of the tensor.
+    device_id: int
+        The device ID for where the tensor is located. It is 0 for CPU tensors.
+    device_accessible: bool
+        Whether the tensor data can be accessed on the GPU.
+    readonly: bool
+        Whether the tensor data can be modified in place.
+    exporting_obj: Any
+        A reference to the original tensor object that is being viewed.
+
+    Parameters
+    ----------
+    obj : Any
+        Any objects that supports either DLPack (up to v1.0) or CUDA Array
+        Interface (v3).
+    stream_ptr: int
+        The pointer address (as Python `int`) to the **consumer** stream.
+        Stream ordering will be properly established unless ``-1`` is passed.
+    """
     # TODO: switch to use Cython's cdef typing?
     ptr: int = None
     shape: tuple = None
@@ -285,6 +337,33 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
 
 
 def viewable(tuple arg_indices):
+    """Decorator to create proxy objects to :obj:`StridedMemoryView` for the
+    specified positional arguments.
+
+    Inside the decorated function, the specified arguments becomes instances
+    of an (undocumented) proxy type, regardless of its original source. A
+    :obj:`StridedMemoryView` instance can be obtained by passing the (consumer)
+    stream pointer (as a Python `int`) to the proxies's ``view()`` method. For
+    example:
+
+    .. code-block:: python
+
+        @viewable((1,))
+        def my_func(arg0, arg1, arg2, stream: Stream):
+            # arg1 can be any object supporting DLPack or CUDA Array Interface
+            view = arg1.view(stream.handle)
+            assert isinstance(view, StridedMemoryView)
+            ...
+
+    This allows array/tensor attributes to be accessed inside the function
+    implementation, while keeping the function body array-library-agnostic (if
+    desired).
+
+    Parameters
+    ----------
+    arg_indices : tuple
+        The indices of the target positional arguments.
+    """
     def wrapped_func_with_indices(func):
         @functools.wraps(func)
         def wrapped_func(*args, **kwargs):
