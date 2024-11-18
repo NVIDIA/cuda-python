@@ -100,7 +100,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.BINDINGS_ARTIFACT_NAME }}
-        path: ${{ env.BINDINGS_ARTIFACTS_DIR }}\
+        path: ${{ env.BINDINGS_ARTIFACTS_DIR }}
     
     - name: Display structure of the core artifacts folder (post build)
       shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -112,4 +112,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.CORE_ARTIFACT_NAME }}
-        path: ${{ env.CORE_ARTIFACTS_DIR }}\
+        path: ${{ env.CORE_ARTIFACTS_DIR }}
