@@ -33,7 +33,7 @@ on:
         required: true
         type: boolean
       python-version:
-        required: false
+        required: true
         type: string
 
 jobs:

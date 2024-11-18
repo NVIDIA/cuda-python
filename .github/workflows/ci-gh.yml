@@ -5,10 +5,7 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    branches:
-      - "pull-request/[0-9]+"
-      - "main"
+  [push]
 
 jobs:
   build-and-test:
@@ -24,6 +21,8 @@ jobs:
           - release
         upload-enabled:
           - false
+        python-version:
+          - 3.12
     uses:
       ./.github/workflows/gh-build-and-test.yml
     with:
@@ -32,4 +31,5 @@ jobs:
       build-mode: ${{ matrix.build-mode }}
       build-type: ci
       upload-enabled: ${{ matrix.upload-enabled }}
+      python-version: ${{ matrix.python-version }}
     secrets: inherit

@@ -22,6 +22,9 @@ inputs:
   upload-enabled:
     required: true
     type: boolean
+  python-version:
+    required: true
+    type: string
 
 runs:
   using: composite
@@ -83,8 +86,14 @@ runs:
         sudo chown -R $(whoami) ${{ env.ARTIFACTS_DIR }}
         ls -lahR ${{ env.ARTIFACTS_DIR }}
 
-    - name: Upload build artifacts
+    - name: Upload bindings build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ env.ARTIFACTS_DIR }}
+        name: ${{ env.BINDINGS_ARTIFACT_NAME }}
+        path: ${{ env.BINDINGS_ARTIFACTS_DIR }}
+
+    - name: Upload core build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.CORE_ARTIFACT_NAME }}
+        path: ${{ env.CORE_ARTIFACTS_DIR }}
