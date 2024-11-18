@@ -5,7 +5,7 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  [push]
+  [push, pull_request, workflow_dispatch, workflow_call]
 
 jobs:
   build-and-test:
@@ -22,6 +22,7 @@ jobs:
         upload-enabled:
           - false
         python-version:
+          #TODO cover the whole python and cuda matrix
           - 3.12
     uses:
       ./.github/workflows/gh-build-and-test.yml

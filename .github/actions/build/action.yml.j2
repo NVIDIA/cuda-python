@@ -31,14 +31,6 @@ runs:
   steps:
 
 <% for package_id, package_info in packages.items() %>
-    - name: Print package info for <<package_info.repo>>
-      run: |
-        echo "Package ID: <<package_id>>"
-        echo "Repository: <<package_info.repo>>"
-        echo "Artifact Name: <<package_info.artifact_name>>"
-        echo "Git Tag: <<package_info.git_tag>>"
-        echo "Artifact Workflow: <<package_info.artifact_workflow>>"
-
     - name: Download <<package_info.repo>> (artifacts)
       uses: ./.github/actions/download-artifacts
       with:
