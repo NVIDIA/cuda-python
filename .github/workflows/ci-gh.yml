@@ -5,7 +5,10 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  [push, pull_request, workflow_dispatch, workflow_call]
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+      - "main"
 
 jobs:
   build-and-test:
