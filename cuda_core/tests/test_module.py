@@ -6,10 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda import cuda
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._module import Kernel, ObjectCode
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._module import ObjectCode
 import pytest
 import importlib
 
