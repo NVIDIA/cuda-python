@@ -51,10 +51,11 @@ def test_stream_record_invalid_event(init_cuda):
         stream.record(event="invalid_event")
 
 def test_stream_wait_event(init_cuda):
-    stream = Device().create_stream(options=StreamOptions())
-    event = Event._init()
-    stream.record(event)
-    stream.wait(event)  # Should not raise any exceptions
+    s1 = Device().create_stream()
+    s2 = Device().create_stream()
+    e1 = s1.record()
+    s2.wait(e1)  # Should not raise any exceptions
+    s2.sync()
 
 def test_stream_wait_invalid_event(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
