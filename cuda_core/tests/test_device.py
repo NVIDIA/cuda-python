@@ -7,13 +7,9 @@
 # is strictly prohibited.
 
 try:
-    from cuda.bindings import driver
+    from cuda.bindings import driver, runtime
 except ImportError:
     from cuda import cuda as driver
-
-try:
-    from cuda.bindings import runtime
-except ImportError:
     from cuda import cudart as runtime
 
 from cuda.core.experimental import Device
