@@ -5,6 +5,8 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+
+# distutils: language=c++
 from libc.string cimport (
     memset,
     memcmp
