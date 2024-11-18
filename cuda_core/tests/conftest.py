@@ -20,6 +20,9 @@ def init_cuda():
     device = Device()
     device.set_current()
     yield
+    _device_unset_current()
+
+def _device_unset_current():
     handle_return(driver.cuCtxPopCurrent())
     with _device._tls_lock:
         del _device._tls.devices
@@ -27,6 +30,4 @@ def init_cuda():
 @pytest.fixture(scope="function")
 def deinit_cuda():
     yield
-    handle_return(driver.cuCtxPopCurrent())
-    with _device._tls_lock:
-        del _device._tls.devices
+    _device_unset_current()
