@@ -6,13 +6,11 @@ from __future__ import annotations
 
 import abc
 from typing import Optional, Tuple, TypeVar
-import warnings
 
 from cuda import cuda
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
 from cuda.core.experimental._utils import handle_return
-
 
 PyCapsule = TypeVar("PyCapsule")
 
@@ -44,9 +42,13 @@ class Buffer:
     """
 
     # TODO: handle ownership? (_mr could be None)
-    __slots__ = ("_ptr", "_size", "_mr",)
+    __slots__ = (
+        "_ptr",
+        "_size",
+        "_mr",
+    )
 
-    def __init__(self, ptr, size, mr: MemoryResource=None):
+    def __init__(self, ptr, size, mr: MemoryResource = None):
         self._ptr = ptr
         self._size = size
         self._mr = mr
@@ -112,7 +114,7 @@ class Buffer:
             return self._mr.device_id
         raise NotImplementedError
 
-    def copy_to(self, dst: Buffer=None, *, stream) -> Buffer:
+    def copy_to(self, dst: Buffer = None, *, stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -136,8 +138,7 @@ class Buffer:
             dst = self._mr.allocate(self._size, stream)
         if dst._size != self._size:
             raise ValueError("buffer sizes mismatch between src and dst")
-        handle_return(
-            cuda.cuMemcpyAsync(dst._ptr, self._ptr, self._size, stream._handle))
+        handle_return(cuda.cuMemcpyAsync(dst._ptr, self._ptr, self._size, stream._handle))
         return dst
 
     def copy_from(self, src: Buffer, *, stream):
@@ -156,14 +157,16 @@ class Buffer:
             raise ValueError("stream must be provided")
         if src._size != self._size:
             raise ValueError("buffer sizes mismatch between src and dst")
-        handle_return(
-            cuda.cuMemcpyAsync(self._ptr, src._ptr, self._size, stream._handle))
+        handle_return(cuda.cuMemcpyAsync(self._ptr, src._ptr, self._size, stream._handle))
 
-    def __dlpack__(self, *,
-                   stream: Optional[int] = None,
-                   max_version: Optional[Tuple[int, int]] = None, 
-                   dl_device: Optional[Tuple[int, int]] = None, 
-                   copy: Optional[bool] = None) -> PyCapsule:
+    def __dlpack__(
+        self,
+        *,
+        stream: Optional[int] = None,
+        max_version: Optional[Tuple[int, int]] = None,
+        dl_device: Optional[Tuple[int, int]] = None,
+        copy: Optional[bool] = None,
+    ) -> PyCapsule:
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
         if dl_device is not None or copy is True:
@@ -172,10 +175,7 @@ class Buffer:
             versioned = False
         else:
             assert len(max_version) == 2
-            if max_version >= (1, 0):
-                versioned = True
-            else:
-                versioned = False
+            versioned = max_version >= (1, 0)
         capsule = make_py_capsule(self, versioned)
         return capsule
 
@@ -191,10 +191,10 @@ class Buffer:
             raise BufferError("invalid buffer")
 
     def __buffer__(self, flags: int, /) -> memoryview:
-        # Support for Python-level buffer protocol as per PEP 688. 
-        # This raises a BufferError unless: 
+        # Support for Python-level buffer protocol as per PEP 688.
+        # This raises a BufferError unless:
         #   1. Python is 3.12+
-        #   2. This Buffer object is host accessible 
+        #   2. This Buffer object is host accessible
         raise NotImplementedError("TODO")
 
     def __release_buffer__(self, buffer: memoryview, /):
@@ -203,20 +203,16 @@ class Buffer:
 
 
 class MemoryResource(abc.ABC):
-
     __slots__ = ("_handle",)
 
     @abc.abstractmethod
-    def __init__(self, *args, **kwargs):
-        ...
+    def __init__(self, *args, **kwargs): ...
 
     @abc.abstractmethod
-    def allocate(self, size, stream=None) -> Buffer:
-        ...
+    def allocate(self, size, stream=None) -> Buffer: ...
 
     @abc.abstractmethod
-    def deallocate(self, ptr, size, stream=None):
-        ...
+    def deallocate(self, ptr, size, stream=None): ...
 
     @property
     @abc.abstractmethod
@@ -241,7 +237,6 @@ class MemoryResource(abc.ABC):
 
 
 class _DefaultAsyncMempool(MemoryResource):
-
     __slots__ = ("_dev_id",)
 
     def __init__(self, dev_id):
@@ -273,7 +268,6 @@ class _DefaultAsyncMempool(MemoryResource):
 
 
 class _DefaultPinnedMemorySource(MemoryResource):
-
     def __init__(self):
         # TODO: support flags from cuMemHostAlloc?
         self._handle = None

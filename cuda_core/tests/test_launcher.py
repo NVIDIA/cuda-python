@@ -6,8 +6,10 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda.core.experimental import Device, Stream, LaunchConfig
 import pytest
+
+from cuda.core.experimental import Device, LaunchConfig, Stream
+
 
 def test_launch_config_init(init_cuda):
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None, shmem_size=0)
@@ -22,6 +24,7 @@ def test_launch_config_init(init_cuda):
     assert isinstance(config.stream, Stream)
     assert config.shmem_size == 1024
 
+
 def test_launch_config_cast_to_3_tuple():
     config = LaunchConfig(grid=1, block=1)
     assert config._cast_to_3_tuple(1) == (1, 1, 1)
@@ -32,6 +35,7 @@ def test_launch_config_cast_to_3_tuple():
     assert config._cast_to_3_tuple(999) == (999, 1, 1)
     assert config._cast_to_3_tuple((999, 888)) == (999, 888, 1)
     assert config._cast_to_3_tuple((999, 888, 777)) == (999, 888, 777)
+
 
 def test_launch_config_invalid_values():
     with pytest.raises(ValueError):
@@ -46,6 +50,7 @@ def test_launch_config_invalid_values():
     with pytest.raises(ValueError):
         LaunchConfig(grid=(1, 1, 1), block=(0, 1))
 
+
 def test_launch_config_stream(init_cuda):
     stream = Device().create_stream()
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=stream, shmem_size=0)
@@ -53,6 +58,7 @@ def test_launch_config_stream(init_cuda):
 
     with pytest.raises(ValueError):
         LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream="invalid_stream", shmem_size=0)
+
 
 def test_launch_config_shmem_size():
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None, shmem_size=2048)

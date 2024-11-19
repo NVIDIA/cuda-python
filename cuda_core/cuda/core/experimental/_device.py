@@ -3,16 +3,13 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import threading
-from typing import Optional, Union
-import warnings
+from typing import Union
 
 from cuda import cuda, cudart
-from cuda.core.experimental._utils import handle_return, ComputeCapability, CUDAError, \
-                             precondition
 from cuda.core.experimental._context import Context, ContextOptions
-from cuda.core.experimental._memory import _DefaultAsyncMempool, Buffer, MemoryResource
-from cuda.core.experimental._stream import default_stream, Stream, StreamOptions
-
+from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool
+from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
+from cuda.core.experimental._utils import ComputeCapability, CUDAError, handle_return, precondition
 
 _tls = threading.local()
 _tls_lock = threading.Lock()
@@ -44,6 +41,7 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
+
     __slots__ = ("_id", "_mr", "_has_inited")
 
     def __new__(cls, device_id=None):
@@ -54,8 +52,7 @@ class Device:
         else:
             total = handle_return(cudart.cudaGetDeviceCount())
             if not isinstance(device_id, int) or not (0 <= device_id < total):
-                raise ValueError(
-                    f"device_id must be within [0, {total}), got {device_id}")
+                raise ValueError(f"device_id must be within [0, {total}), got {device_id}")
 
         # ensure Device is singleton
         with _tls_lock:
@@ -73,8 +70,7 @@ class Device:
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
-            raise CUDAError("the device is not yet initialized, "
-                            "perhaps you forgot to call .set_current() first?")
+            raise CUDAError("the device is not yet initialized, " "perhaps you forgot to call .set_current() first?")
 
     @property
     def device_id(self) -> int:
@@ -115,7 +111,7 @@ class Device:
         """Return the device name."""
         # Use 256 characters to be consistent with CUDA Runtime
         name = handle_return(cuda.cuDeviceGetName(256, self._id))
-        name = name.split(b'\0')[0]
+        name = name.split(b"\0")[0]
         return name.decode()
 
     @property
@@ -127,10 +123,12 @@ class Device:
     @property
     def compute_capability(self) -> ComputeCapability:
         """Return a named tuple with 2 fields: major and minor."""
-        major = handle_return(cudart.cudaDeviceGetAttribute(
-            cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, self._id))
-        minor = handle_return(cudart.cudaDeviceGetAttribute(
-            cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, self._id))
+        major = handle_return(
+            cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, self._id)
+        )
+        minor = handle_return(
+            cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, self._id)
+        )
         return ComputeCapability(major, minor)
 
     @property
@@ -178,7 +176,7 @@ class Device:
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
 
-    def set_current(self, ctx: Context=None) -> Union[Context, None]:
+    def set_current(self, ctx: Context = None) -> Union[Context, None]:
         """Set device to be used for GPU executions.
 
         Initializes CUDA and sets the calling thread to a valid CUDA
@@ -212,8 +210,10 @@ class Device:
             if not isinstance(ctx, Context):
                 raise TypeError("a Context object is required")
             if ctx._id != self._id:
-                raise RuntimeError("the provided context was created on a different "
-                                  f"device {ctx._id} other than the target {self._id}")
+                raise RuntimeError(
+                    "the provided context was created on a different "
+                    f"device {ctx._id} other than the target {self._id}"
+                )
             prev_ctx = handle_return(cuda.cuCtxPopCurrent())
             handle_return(cuda.cuCtxPushCurrent(ctx._handle))
             self._has_inited = True
@@ -257,7 +257,7 @@ class Device:
         raise NotImplementedError("TODO")
 
     @precondition(_check_context_initialized)
-    def create_stream(self, obj=None, options: StreamOptions=None) -> Stream:
+    def create_stream(self, obj=None, options: StreamOptions = None) -> Stream:
         """Create a Stream object.
 
         New stream objects can be created in two different ways:

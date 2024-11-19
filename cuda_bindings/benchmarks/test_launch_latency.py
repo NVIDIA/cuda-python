@@ -5,26 +5,47 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
-import pytest
-from cuda import cuda
 import ctypes
 
-from .perf_test_utils import ASSERT_DRV, init_cuda, load_module
+import pytest
+
+from cuda import cuda
+
 from .kernels import kernel_string
+from .perf_test_utils import ASSERT_DRV
+
 
 def launch(kernel, stream, args=(), arg_types=()):
-    cuda.cuLaunchKernel(kernel,
-                        1, 1, 1,   # grid dim
-                        1, 1, 1,   # block dim
-                        0, stream, # shared mem and stream
-                        (args, arg_types), 0) # arguments
+    cuda.cuLaunchKernel(
+        kernel,
+        1,
+        1,
+        1,  # grid dim
+        1,
+        1,
+        1,  # block dim
+        0,
+        stream,  # shared mem and stream
+        (args, arg_types),
+        0,
+    )  # arguments
+
 
 def launch_packed(kernel, stream, params):
-    cuda.cuLaunchKernel(kernel,
-                        1, 1, 1,   # grid dim
-                        1, 1, 1,   # block dim
-                        0, stream, # shared mem and stream
-                        params, 0) # arguments
+    cuda.cuLaunchKernel(
+        kernel,
+        1,
+        1,
+        1,  # grid dim
+        1,
+        1,
+        1,  # block dim
+        0,
+        stream,  # shared mem and stream
+        params,
+        0,
+    )  # arguments
+
 
 # Measure launch latency with no parmaeters
 @pytest.mark.benchmark(group="launch-latency")
@@ -32,12 +53,13 @@ def test_launch_latency_empty_kernel(benchmark, init_cuda, load_module):
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'empty_kernel')
+    err, func = cuda.cuModuleGetFunction(module, b"empty_kernel")
     ASSERT_DRV(err)
 
     benchmark(launch, func, stream)
 
     cuda.cuCtxSynchronize()
+
 
 # Measure launch latency with a single parameter
 @pytest.mark.benchmark(group="launch-latency")
@@ -45,7 +67,7 @@ def test_launch_latency_small_kernel(benchmark, init_cuda, load_module):
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel")
     ASSERT_DRV(err)
 
     err, f = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_float))
@@ -55,8 +77,9 @@ def test_launch_latency_small_kernel(benchmark, init_cuda, load_module):
 
     cuda.cuCtxSynchronize()
 
-    err, = cuda.cuMemFree(f)
+    (err,) = cuda.cuMemFree(f)
     ASSERT_DRV(err)
+
 
 # Measure launch latency with many parameters using builtin parameter packing
 @pytest.mark.benchmark(group="launch-latency")
@@ -64,7 +87,7 @@ def test_launch_latency_small_kernel_512_args(benchmark, init_cuda, load_module)
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_512_args')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_512_args")
     ASSERT_DRV(err)
 
     args = []
@@ -82,15 +105,16 @@ def test_launch_latency_small_kernel_512_args(benchmark, init_cuda, load_module)
     cuda.cuCtxSynchronize()
 
     for p in args:
-        err, = cuda.cuMemFree(p)
+        (err,) = cuda.cuMemFree(p)
         ASSERT_DRV(err)
+
 
 @pytest.mark.benchmark(group="launch-latency")
 def test_launch_latency_small_kernel_512_bools(benchmark, init_cuda, load_module):
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_512_bools')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_512_bools")
     ASSERT_DRV(err)
 
     args = [True] * 512
@@ -103,12 +127,13 @@ def test_launch_latency_small_kernel_512_bools(benchmark, init_cuda, load_module
 
     cuda.cuCtxSynchronize()
 
+
 @pytest.mark.benchmark(group="launch-latency")
 def test_launch_latency_small_kernel_512_doubles(benchmark, init_cuda, load_module):
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_512_doubles')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_512_doubles")
     ASSERT_DRV(err)
 
     args = [1.2345] * 512
@@ -121,12 +146,13 @@ def test_launch_latency_small_kernel_512_doubles(benchmark, init_cuda, load_modu
 
     cuda.cuCtxSynchronize()
 
+
 @pytest.mark.benchmark(group="launch-latency")
 def test_launch_latency_small_kernel_512_ints(benchmark, init_cuda, load_module):
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_512_ints')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_512_ints")
     ASSERT_DRV(err)
 
     args = [123] * 512
@@ -139,12 +165,13 @@ def test_launch_latency_small_kernel_512_ints(benchmark, init_cuda, load_module)
 
     cuda.cuCtxSynchronize()
 
+
 @pytest.mark.benchmark(group="launch-latency")
 def test_launch_latency_small_kernel_512_bytes(benchmark, init_cuda, load_module):
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_512_chars')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_512_chars")
     ASSERT_DRV(err)
 
     args = [127] * 512
@@ -157,12 +184,13 @@ def test_launch_latency_small_kernel_512_bytes(benchmark, init_cuda, load_module
 
     cuda.cuCtxSynchronize()
 
+
 @pytest.mark.benchmark(group="launch-latency")
 def test_launch_latency_small_kernel_512_longlongs(benchmark, init_cuda, load_module):
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_512_longlongs')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_512_longlongs")
     ASSERT_DRV(err)
 
     args = [9223372036854775806] * 512
@@ -175,13 +203,14 @@ def test_launch_latency_small_kernel_512_longlongs(benchmark, init_cuda, load_mo
 
     cuda.cuCtxSynchronize()
 
+
 # Measure launch latency with many parameters using builtin parameter packing
 @pytest.mark.benchmark(group="launch-latency")
 def test_launch_latency_small_kernel_256_args(benchmark, init_cuda, load_module):
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_256_args')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_256_args")
     ASSERT_DRV(err)
 
     args = []
@@ -199,8 +228,9 @@ def test_launch_latency_small_kernel_256_args(benchmark, init_cuda, load_module)
     cuda.cuCtxSynchronize()
 
     for p in args:
-        err, = cuda.cuMemFree(p)
+        (err,) = cuda.cuMemFree(p)
         ASSERT_DRV(err)
+
 
 # Measure launch latency with many parameters using builtin parameter packing
 @pytest.mark.benchmark(group="launch-latency")
@@ -208,7 +238,7 @@ def test_launch_latency_small_kernel_16_args(benchmark, init_cuda, load_module):
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_16_args')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_16_args")
     ASSERT_DRV(err)
 
     args = []
@@ -226,8 +256,9 @@ def test_launch_latency_small_kernel_16_args(benchmark, init_cuda, load_module):
     cuda.cuCtxSynchronize()
 
     for p in args:
-        err, = cuda.cuMemFree(p)
+        (err,) = cuda.cuMemFree(p)
         ASSERT_DRV(err)
+
 
 # Measure launch latency with many parameters, excluding parameter packing
 @pytest.mark.benchmark(group="launch-latency")
@@ -235,7 +266,7 @@ def test_launch_latency_small_kernel_512_args_ctypes(benchmark, init_cuda, load_
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_512_args')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_512_args")
     ASSERT_DRV(err)
 
     vals = []
@@ -255,8 +286,9 @@ def test_launch_latency_small_kernel_512_args_ctypes(benchmark, init_cuda, load_
     cuda.cuCtxSynchronize()
 
     for p in vals:
-        err, = cuda.cuMemFree(p)
+        (err,) = cuda.cuMemFree(p)
         ASSERT_DRV(err)
+
 
 def pack_and_launch(kernel, stream, params):
     packed_params = (ctypes.c_void_p * len(params))()
@@ -265,11 +297,8 @@ def pack_and_launch(kernel, stream, params):
         ptrs[i] = ctypes.c_void_p(int(params[i]))
         packed_params[i] = ctypes.addressof(ptrs[i])
 
-    cuda.cuLaunchKernel(kernel,
-                        1, 1, 1,
-                        1, 1, 1,
-                        0, stream,
-                        packed_params, 0)
+    cuda.cuLaunchKernel(kernel, 1, 1, 1, 1, 1, 1, 0, stream, packed_params, 0)
+
 
 # Measure launch latency plus parameter packing using ctypes
 @pytest.mark.benchmark(group="launch-latency")
@@ -277,7 +306,7 @@ def test_launch_latency_small_kernel_512_args_ctypes_with_packing(benchmark, ini
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_512_args')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_512_args")
     ASSERT_DRV(err)
 
     vals = []
@@ -291,8 +320,9 @@ def test_launch_latency_small_kernel_512_args_ctypes_with_packing(benchmark, ini
     cuda.cuCtxSynchronize()
 
     for p in vals:
-        err, = cuda.cuMemFree(p)
+        (err,) = cuda.cuMemFree(p)
         ASSERT_DRV(err)
+
 
 # Measure launch latency with a single large struct parameter
 @pytest.mark.benchmark(group="launch-latency")
@@ -300,11 +330,11 @@ def test_launch_latency_small_kernel_2048B(benchmark, init_cuda, load_module):
     device, ctx, stream = init_cuda
     module = load_module(kernel_string, device)
 
-    err, func = cuda.cuModuleGetFunction(module, b'small_kernel_2048B')
+    err, func = cuda.cuModuleGetFunction(module, b"small_kernel_2048B")
     ASSERT_DRV(err)
 
     class struct_2048B(ctypes.Structure):
-        _fields_ = [('values',ctypes.c_uint8 * 2048)]
+        _fields_ = [("values", ctypes.c_uint8 * 2048)]
 
     benchmark(launch, func, stream, args=(struct_2048B(),), arg_types=(None,))
 

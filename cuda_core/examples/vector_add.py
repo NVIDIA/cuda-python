@@ -2,12 +2,9 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from cuda.core.experimental import Device
-from cuda.core.experimental import LaunchConfig, launch
-from cuda.core.experimental import Program
-
 import cupy as cp
 
+from cuda.core.experimental import Device, LaunchConfig, Program, launch
 
 # compute c = a + b
 code = """
@@ -32,8 +29,12 @@ s = dev.create_stream()
 prog = Program(code, code_type="c++")
 mod = prog.compile(
     "cubin",
-    options=("-std=c++17", "-arch=sm_" + "".join(f"{i}" for i in dev.compute_capability),),
-    name_expressions=("vector_add<float>",))
+    options=(
+        "-std=c++17",
+        "-arch=sm_" + "".join(f"{i}" for i in dev.compute_capability),
+    ),
+    name_expressions=("vector_add<float>",),
+)
 
 # run in single precision
 ker = mod.get_kernel("vector_add<float>")
@@ -58,5 +59,5 @@ launch(ker, config, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
 s.sync()
 
 # check result
-assert cp.allclose(c, a+b)
+assert cp.allclose(c, a + b)
 print("done!")

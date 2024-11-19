@@ -4,18 +4,16 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import os
-from typing import Optional, Tuple, TYPE_CHECKING, Union
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Optional, Tuple, Union
 
 if TYPE_CHECKING:
     from cuda.core.experimental._device import Device
 from cuda import cuda, cudart
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._utils import check_or_create_options
-from cuda.core.experimental._utils import get_device_from_ctx
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils import check_or_create_options, get_device_from_ctx, handle_return
 
 
 @dataclass
@@ -31,6 +29,7 @@ class StreamOptions:
         higher priority. (Default to lowest priority)
 
     """
+
     nonblocking: bool = True
     priority: Optional[int] = None
 
@@ -53,8 +52,7 @@ class Stream:
 
     """
 
-    __slots__ = ("_handle", "_nonblocking", "_priority", "_owner", "_builtin",
-                 "_device_id", "_ctx_handle")
+    __slots__ = ("_handle", "_nonblocking", "_priority", "_owner", "_builtin", "_device_id", "_ctx_handle")
 
     def __init__(self):
         # minimal requirements for the destructor
@@ -64,10 +62,11 @@ class Stream:
         raise NotImplementedError(
             "directly creating a Stream object can be ambiguous. Please either "
             "call Device.create_stream() or, if a stream pointer is already "
-            "available from somewhere else, Stream.from_handle()")
+            "available from somewhere else, Stream.from_handle()"
+        )
 
     @staticmethod
-    def _init(obj=None, *, options: Optional[StreamOptions]=None):
+    def _init(obj=None, *, options: Optional[StreamOptions] = None):
         self = Stream.__new__(Stream)
 
         # minimal requirements for the destructor
@@ -95,10 +94,7 @@ class Stream:
         nonblocking = options.nonblocking
         priority = options.priority
 
-        if nonblocking:
-            flags = cuda.CUstream_flags.CU_STREAM_NON_BLOCKING
-        else:
-            flags = cuda.CUstream_flags.CU_STREAM_DEFAULT
+        flags = cuda.CUstream_flags.CU_STREAM_NON_BLOCKING if nonblocking else cuda.CUstream_flags.CU_STREAM_DEFAULT
 
         high, low = handle_return(cudart.cudaDeviceGetStreamPriorityRange())
         if priority is not None:
@@ -107,8 +103,7 @@ class Stream:
         else:
             priority = high
 
-        self._handle = handle_return(
-            cuda.cuStreamCreateWithPriority(flags, priority))
+        self._handle = handle_return(cuda.cuStreamCreateWithPriority(flags, priority))
         self._owner = None
         self._nonblocking = nonblocking
         self._priority = priority
@@ -169,7 +164,7 @@ class Stream:
         """Synchronize the stream."""
         handle_return(cuda.cuStreamSynchronize(self._handle))
 
-    def record(self, event: Event=None, options: EventOptions=None) -> Event:
+    def record(self, event: Event = None, options: EventOptions = None) -> Event:
         """Record an event onto the stream.
 
         Creates an Event object (or reuses the given one) by
@@ -217,12 +212,11 @@ class Stream:
                     stream = Stream._init(event_or_stream)
                 except Exception as e:
                     raise ValueError(
-                        "only an Event, Stream, or object supporting "
-                        "__cuda_stream__ can be waited") from e
+                        "only an Event, Stream, or object supporting " "__cuda_stream__ can be waited"
+                    ) from e
             else:
                 stream = event_or_stream
-            event = handle_return(
-                cuda.cuEventCreate(cuda.CUevent_flags.CU_EVENT_DISABLE_TIMING))
+            event = handle_return(cuda.cuEventCreate(cuda.CUevent_flags.CU_EVENT_DISABLE_TIMING))
             handle_return(cuda.cuEventRecord(event, stream.handle))
             discard_event = True
 
@@ -243,11 +237,11 @@ class Stream:
 
         """
         from cuda.core.experimental._device import Device  # avoid circular import
+
         if self._device_id is None:
             # Get the stream context first
             if self._ctx_handle is None:
-                self._ctx_handle = handle_return(
-                    cuda.cuStreamGetCtx(self._handle))
+                self._ctx_handle = handle_return(cuda.cuStreamGetCtx(self._handle))
             self._device_id = get_device_from_ctx(self._ctx_handle)
         return Device(self._device_id)
 
@@ -255,8 +249,7 @@ class Stream:
     def context(self) -> Context:
         """Return the :obj:`Context` associated with this stream."""
         if self._ctx_handle is None:
-            self._ctx_handle = handle_return(
-                cuda.cuStreamGetCtx(self._handle))
+            self._ctx_handle = handle_return(cuda.cuStreamGetCtx(self._handle))
         if self._device_id is None:
             self._device_id = get_device_from_ctx(self._ctx_handle)
         return Context._from_ctx(self._ctx_handle, self._device_id)
@@ -285,15 +278,16 @@ class Stream:
             Newly created stream object.
 
         """
+
         class _stream_holder:
             @property
             def __cuda_stream__(self):
                 return (0, handle)
+
         return Stream._init(obj=_stream_holder())
 
 
 class _LegacyDefaultStream(Stream):
-
     def __init__(self):
         self._handle = cuda.CUstream(cuda.CU_STREAM_LEGACY)
         self._owner = None
@@ -303,7 +297,6 @@ class _LegacyDefaultStream(Stream):
 
 
 class _PerThreadDefaultStream(Stream):
-
     def __init__(self):
         self._handle = cuda.CUstream(cuda.CU_STREAM_PER_THREAD)
         self._owner = None
@@ -327,7 +320,7 @@ def default_stream():
 
     """
     # TODO: flip the default
-    use_ptds = int(os.environ.get('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', 0))
+    use_ptds = int(os.environ.get("CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM", 0))
     if use_ptds:
         return PER_THREAD_DEFAULT_STREAM
     else:

@@ -6,14 +6,16 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 import ctypes
-import numpy as np
-import sys
 import os
-from cuda import cuda, cudart
+import sys
+
+import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
 
-systemWideAtomics =  '''\
+from cuda import cuda, cudart
+
+systemWideAtomics = """\
 #define LOOP_NUM 50
 
 extern "C"
@@ -54,9 +56,10 @@ __global__ void atomicKernel(int *atom_arr) {
         atomicXor_system(&atom_arr[9], tid);
   }
 }
-'''
+"""
 
-LOOP_NUM = 50 
+LOOP_NUM = 50
+
 
 #! Compute reference data set
 #! Each element is multiplied with the number of threads / array length
@@ -70,8 +73,8 @@ def verify(testData, length):
         val += 10
 
     if val != testData[0]:
-       print(f"atomicAdd failed val = {val} testData = {testData[0]}")
-       return False
+        print(f"atomicAdd failed val = {val} testData = {testData[0]}")
+        return False
 
     val = 0
     found = False
@@ -82,7 +85,7 @@ def verify(testData, length):
             break
 
     if not found:
-        print("atomicExch failed") 
+        print("atomicExch failed")
         return False
 
     val = -(1 << 8)
@@ -136,11 +139,11 @@ def verify(testData, length):
         print("atomicCAS failed")
         return False
 
-    val = 0xff
+    val = 0xFF
 
     for i in range(length):
         # 8th element should be 1
-        val &= (2 * i + 7)
+        val &= 2 * i + 7
 
     if val != testData[7]:
         print("atomicAnd failed")
@@ -152,11 +155,11 @@ def verify(testData, length):
         print("atomicOr failed")
         return False
 
-    val = 0xff
+    val = 0xFF
 
     for i in range(length):
         # 11th element should be 0xff
-        val ^= i;
+        val ^= i
 
     if val != testData[9]:
         print("atomicXor failed")
@@ -164,8 +167,9 @@ def verify(testData, length):
 
     return True
 
+
 def main():
-    if os.name == 'nt':
+    if os.name == "nt":
         print("Atomics not supported on Windows")
         return
 
@@ -182,7 +186,7 @@ def main():
         # This sample requires being run with a default or process exclusive mode
         print("This sample requires a device in either default or process exclusive mode")
         return
-    
+
     if device_prop.major < 6:
         print("Requires a minimum CUDA compute 6.0 capability, waiving testing.")
         return
@@ -197,24 +201,35 @@ def main():
         atom_arr = ctypes.addressof(atom_arr_h)
     else:
         print("CANNOT access pageable memory")
-        atom_arr = checkCudaErrors(cudart.cudaMallocManaged(np.dtype(np.int32).itemsize * numData, cudart.cudaMemAttachGlobal))
+        atom_arr = checkCudaErrors(
+            cudart.cudaMallocManaged(np.dtype(np.int32).itemsize * numData, cudart.cudaMemAttachGlobal)
+        )
         atom_arr_h = (ctypes.c_int * numData).from_address(atom_arr)
 
     for i in range(numData):
         atom_arr_h[i] = 0
 
     # To make the AND and XOR tests generate something other than 0...
-    atom_arr_h[7] = atom_arr_h[9] = 0xff
+    atom_arr_h[7] = atom_arr_h[9] = 0xFF
 
     kernelHelper = common.KernelHelper(systemWideAtomics, dev_id)
-    _atomicKernel = kernelHelper.getFunction(b'atomicKernel')
-    kernelArgs = ((atom_arr,),
-                  (ctypes.c_void_p,))
-    checkCudaErrors(cuda.cuLaunchKernel(_atomicKernel,
-                                        numBlocks, 1, 1,                         # grid dim
-                                        numThreads, 1, 1,                        # block dim
-                                        0, cuda.CU_STREAM_LEGACY,                # shared mem and stream
-                                        kernelArgs, 0))                          # arguments
+    _atomicKernel = kernelHelper.getFunction(b"atomicKernel")
+    kernelArgs = ((atom_arr,), (ctypes.c_void_p,))
+    checkCudaErrors(
+        cuda.cuLaunchKernel(
+            _atomicKernel,
+            numBlocks,
+            1,
+            1,  # grid dim
+            numThreads,
+            1,
+            1,  # block dim
+            0,
+            cuda.CU_STREAM_LEGACY,  # shared mem and stream
+            kernelArgs,
+            0,
+        )
+    )  # arguments
     # NOTE: Python doesn't have an equivalent system atomic operations
     # atomicKernel_CPU(atom_arr_h, numBlocks * numThreads)
 
@@ -232,5 +247,6 @@ def main():
     if not testResult:
         sys.exit(-1)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

@@ -5,8 +5,10 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+from common.helper_string import checkCmdLineFlag, getCmdLineArgumentInt
+
 from cuda import cuda, cudart, nvrtc
-from common.helper_string import getCmdLineArgumentInt, checkCmdLineFlag
+
 
 def _cudaGetErrorEnum(error):
     if isinstance(error, cuda.CUresult):
@@ -17,11 +19,12 @@ def _cudaGetErrorEnum(error):
     elif isinstance(error, nvrtc.nvrtcResult):
         return nvrtc.nvrtcGetErrorString(error)[1]
     else:
-        raise RuntimeError('Unknown error type: {}'.format(error))
+        raise RuntimeError(f"Unknown error type: {error}")
+
 
 def checkCudaErrors(result):
     if result[0].value:
-        raise RuntimeError("CUDA error code={}({})".format(result[0].value, _cudaGetErrorEnum(result[0])))
+        raise RuntimeError(f"CUDA error code={result[0].value}({_cudaGetErrorEnum(result[0])})")
     if len(result) == 1:
         return None
     elif len(result) == 2:
@@ -29,12 +32,14 @@ def checkCudaErrors(result):
     else:
         return result[1:]
 
+
 def findCudaDevice():
     devID = 0
     if checkCmdLineFlag("device="):
         devID = getCmdLineArgumentInt("device=")
     checkCudaErrors(cudart.cudaSetDevice(devID))
     return devID
+
 
 def findCudaDeviceDRV():
     devID = 0
