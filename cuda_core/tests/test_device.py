@@ -6,12 +6,20 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda import cuda, cudart
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._utils import handle_return, ComputeCapability, CUDAError, \
-                             precondition
-import pytest
+try:
+    from cuda.bindings import driver, runtime
+except ImportError:
+    from cuda import cuda as driver
+    from cuda import cudart as runtime
 
+from cuda.core.experimental import Device
+from cuda.core.experimental._utils import handle_return, ComputeCapability
+
+def test_device_set_current(deinit_cuda):
+    device = Device()
+    device.set_current()
+    assert handle_return(driver.cuCtxGetCurrent()) is not None
+    
 def test_device_repr():
     device = Device(0)
     assert str(device).startswith('<Device 0')
@@ -24,11 +32,7 @@ def test_device_alloc(init_cuda):
     assert buffer.size == 1024
     assert buffer.device_id == 0
 
-def test_device_set_current():
-    device = Device()
-    device.set_current()
-
-def test_device_create_stream():
+def test_device_create_stream(init_cuda):
     device = Device()
     stream = device.create_stream()
     assert stream is not None
@@ -36,32 +40,32 @@ def test_device_create_stream():
 
 def test_pci_bus_id():
     device = Device()
-    bus_id = handle_return(cudart.cudaDeviceGetPCIBusId(13, device.device_id))
+    bus_id = handle_return(runtime.cudaDeviceGetPCIBusId(13, device.device_id))
     assert device.pci_bus_id == bus_id[:12].decode()
 
 def test_uuid():
     device = Device()
-    driver_ver = handle_return(cuda.cuDriverGetVersion())
+    driver_ver = handle_return(driver.cuDriverGetVersion())
     if driver_ver >= 11040:
-        uuid = handle_return(cuda.cuDeviceGetUuid_v2(device.device_id))
+        uuid = handle_return(driver.cuDeviceGetUuid_v2(device.device_id))
     else:
-        uuid = handle_return(cuda.cuDeviceGetUuid(device.device_id))
+        uuid = handle_return(driver.cuDeviceGetUuid(device.device_id))
     uuid = uuid.bytes.hex()
     expected_uuid = f"{uuid[:8]}-{uuid[8:12]}-{uuid[12:16]}-{uuid[16:20]}-{uuid[20:]}"
     assert device.uuid == expected_uuid
 
 def test_name():
     device = Device()
-    name = handle_return(cuda.cuDeviceGetName(128, device.device_id))
+    name = handle_return(driver.cuDeviceGetName(128, device.device_id))
     name = name.split(b'\0')[0]
     assert device.name == name.decode()
 
 def test_compute_capability():
     device = Device()
-    major = handle_return(cudart.cudaDeviceGetAttribute(
-        cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, device.device_id))
-    minor = handle_return(cudart.cudaDeviceGetAttribute(
-        cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, device.device_id))
+    major = handle_return(runtime.cudaDeviceGetAttribute(
+        runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, device.device_id))
+    minor = handle_return(runtime.cudaDeviceGetAttribute(
+        runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, device.device_id))
     expected_cc = ComputeCapability(major, minor)
     assert device.compute_capability == expected_cc
  

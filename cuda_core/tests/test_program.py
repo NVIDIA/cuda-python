@@ -6,9 +6,8 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda.core.experimental._program import Program
+from cuda.core.experimental import Program
 from cuda.core.experimental._module import ObjectCode, Kernel
-from cuda.core.experimental._device import Device
 import pytest
 
 def test_program_init_valid_code_type():
