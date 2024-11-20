@@ -3,7 +3,7 @@
 set -x
 
 make_ci_env() {
-    mamba env create -n "${CONDA_ENV}" python="${PYTHON_VERSION} -f "${REPO_DIR}/continuous_integration/environment.yml"
+    mamba env create -n "${CONDA_ENV}" python="${PYTHON_VERSION}" -f "${REPO_DIR}/continuous_integration/environment.yml"
 }
 
 make_conda_env() {
