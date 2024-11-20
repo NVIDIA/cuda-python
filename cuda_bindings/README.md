@@ -1,6 +1,6 @@
-# CUDA-Python
+# `cuda.bindings`: Low-level CUDA interfaces
 
-CUDA Python is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview](https://nvidia.github.io/cuda-python/overview.html) for the workflow and performance results.
+CUDA Python is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview](https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html) for the workflow and performance results.
 
 ## Installing
 
@@ -10,7 +10,7 @@ CUDA Python can be installed from:
 * Conda (nvidia channel)
 * Source builds
 
-There're differences in each of these options that are described further in [Installation](https://nvidia.github.io/cuda-python/install.html) documentation. Each package will guarantee minor version compatibility.
+Differences between these options are described in [Installation](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html) documentation. Each package guarantees minor version compatibility.
 
 ## Runtime Dependencies
 
@@ -31,11 +31,15 @@ Source builds work for multiple Python versions, however pre-build PyPI and Cond
 
 * Python 3.9 to 3.12
 
-## Testing
+## Testing (Cython)
 
-### Requirements
+Cython tests are located under `tests/cython`. 
 
-Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/requirements.txt).
+Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/requirements.txt).
+
+## Testing (Python)
+
+Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/requirements.txt).
 
 ### Unit-tests
 
@@ -47,6 +51,9 @@ To run unit-tests against installed builds:
 ```
 pytest tests/
 ```
+
+### Unit-tests
+
 
 ### Benchmark
 
@@ -72,14 +79,14 @@ pytest benchmark/
 
 ## Examples
 
-CUDA Samples rewriten using CUDA Python are found in `examples`.
+[CUDA Samples](https://github.com/NVIDIA/cuda-samples/tree/master) rewriten using CUDA Python are found in `examples`.
 
 Custom extra included examples:
 
-- `examples/extra/jit_program_test.py`: Demonstrates the use of the API to compile and
+* `examples/extra/jit_program_test.py`: Demonstrates the use of the API to compile and
   launch a kernel on the device. Includes device memory allocation /
   deallocation, transfers between host and device, creation and usage of
   streams, and context management.
-- `examples/extra/numba_emm_plugin.py`: Implements a Numba External Memory Management
+* `examples/extra/numba_emm_plugin.py`: Implements a Numba External Memory Management
   plugin, showing that this CUDA Python Driver API can coexist with other
   wrappers of the driver API.
