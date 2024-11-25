@@ -48,7 +48,7 @@ Responsible for validating different binding usage patterns. Unit test `test_ker
 
 To run these tests:
 * `python -m pytest tests/` against local builds
-* `pytest tests/` against installed package
+* `pytest tests/` against installed packages
 
 ### Cython Unit Tests
 
@@ -59,7 +59,7 @@ Cython tests are located under `tests/cython` and need to be built. Furthermore 
 
 To run these tests:
 * `python -m pytest tests/cython/` against local builds
-* `pytest tests/cython/` against installed package
+* `pytest tests/cython/` against installed packages
 
 ### Samples
 
@@ -77,7 +77,7 @@ In addition, extra examples are included:
 
 To run these samples:
 * `python -m pytest tests/cython/` against local builds
-* `pytest tests/cython/` against installed package
+* `pytest tests/cython/` against installed packages
 
 ### Benchmark (WIP)
 
@@ -85,4 +85,4 @@ Benchmarks were used for performance analysis during initial release of CUDA Pyt
 
 The intended way to run these benchmarks was:
 * `python -m pytest --benchmark-only benchmark/` against local builds
-* `pytest --benchmark-only benchmark/` against installed package
+* `pytest --benchmark-only benchmark/` against installed packages
