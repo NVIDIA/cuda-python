@@ -15,9 +15,9 @@ CUDA Python is currently undergoing an overhaul to improve existing and bring up
 
 CUDA-Python is structured to become a metapackage that contains a collection of subpackages. Each subpackage is versioned independently, allowing installation of each component as needed.
 
-### Subpackage: cuda.core
+### Subpackage: `cuda.core`
 
-The cuda.core package offers idiomatic, pythonic access to CUDA Runtime and other functionalities.
+The `cuda.core` package offers idiomatic, pythonic access to CUDA Runtime and other functionalities.
 
 The goals are to
 
@@ -27,9 +27,9 @@ The goals are to
 4. **ease** developer **burden of maintaining** and catching up with latest CUDA features
 5. **flatten the learning curve** for current and future generations of CUDA developers
 
-### Subpackage: cuda.bindings
+### Subpackage: `cuda.bindings`
 
-The cuda.bindings package is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python.
+The `cuda.bindings` package is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python.
 
 The list of available interfaces are:
 
