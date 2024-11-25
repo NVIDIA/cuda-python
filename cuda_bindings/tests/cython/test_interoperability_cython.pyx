@@ -6,16 +6,17 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-# TODO: update to new module once the old ones are removed, we use the
-# tests to cover backward compatibility.
-import pytest
+# distutils: language=c++
+from libc.stdlib cimport calloc, free
 import cuda.cuda as cuda
 import cuda.cudart as cudart
 import numpy as np
+import pytest
 
+# TODO: update to new module once the old ones are removed, we use the
+# tests to cover backward compatibility.
 cimport cuda.ccuda as ccuda
 cimport cuda.ccudart as ccudart
-from libc.stdlib cimport calloc, free
 
 
 def supportsMemoryPool():
