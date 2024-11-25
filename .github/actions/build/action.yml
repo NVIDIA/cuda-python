@@ -22,32 +22,13 @@ inputs:
   upload-enabled:
     required: true
     type: boolean
+  python-version:
+    required: true
+    type: string
 
 runs:
   using: composite
   steps:
-
-<% for package_id, package_info in packages.items() %>
-    - name: Download <<package_info.repo>> (artifacts)
-      uses: ./.github/actions/download-artifacts
-      with:
-        artifact-repo: "<<package_info.repo>>"
-        artifact-name: "<<package_info.artifact_name | replace_placeholder('repo', package_info.repo) | replace_placeholder('git_tag', package_info.git_tag) >>"
-        target-device: "${{ inputs.target-device }}"
-        git_sha: "<<package_info.git_tag>>"
-        host-platform: ${{ inputs.host-platform }}
-        dest-dir: ${{ env.ARTIFACTS_DIR }}
-        dependencies-workflow: <<package_info.artifact_workflow>>
-<% endfor %>
-
-<% if packages %>
-
-    - name: Display structure of downloaded artifacts
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        pwd
-        ls -lahR ${{ env.ARTIFACTS_DIR }}
-<% endif %>
 
     - if: ${{ inputs.use-container }}
       name: Build (in container)
@@ -60,14 +41,16 @@ runs:
           -e AWS_ACCESS_KEY_ID \
           -e AWS_SECRET_ACCESS_KEY \
           -e GITHUB_TOKEN \
-          -e ARTIFACTS_DIR="$ARTIFACTS_DIR" \
+          -e BINDINGS_ARTIFACTS_DIR="$BINDINGS_ARTIFACTS_DIR" \
+          -e CORE_ARTIFACTS_DIR="$CORE_ARTIFACTS_DIR" \
           -e UPLOAD_ENABLED="$UPLOAD_ENABLED" \
           -e USE_CUDA="$USE_CUDA" \
           -e REPO_DIR="$REPO_DIR" \
           -e LEGATE_CORE_BUILD_MODE="$LEGATE_CORE_BUILD_MODE" \
           -e PYTHON_VERSION="$PYTHON_VERSION" \
           -v "${{ env.REPO_DIR }}:${{ env.REPO_DIR }}" \
-          -v "${{ env.ARTIFACTS_DIR }}:${{ env.ARTIFACTS_DIR }}" \
+          -v "${{ env.BINDINGS_ARTIFACTS_DIR }}:${{ env.BINDINGS_ARTIFACTS_DIR }}" \
+          -v "${{ env.CORE_ARTIFACTS_DIR }}:${{ env.CORE_ARTIFACTS_DIR }}" \
           --rm "${{ inputs.docker-image }}" \
           /bin/bash -c "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint ${{ env.REPO_DIR }}/continuous_integration/scripts/build ${{ inputs.build-type}} ${{ inputs.target-device }}"
 
@@ -77,14 +60,26 @@ runs:
       run: |
         "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/build" "${{ inputs.build-type}}" "${{ inputs.target-device }}"
 
-    - name: Display structure of the artifacts folder (post build)
+    - name: Display structure of the bindings artifacts folder (post build)
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        sudo chown -R $(whoami) ${{ env.ARTIFACTS_DIR }}
-        ls -lahR ${{ env.ARTIFACTS_DIR }}
+        sudo chown -R $(whoami) ${{ env.BINDINGS_ARTIFACTS_DIR }}
+        ls -lahR ${{ env.BINDINGS_ARTIFACTS_DIR }}
 
-    - name: Upload build artifacts
+    - name: Upload bindings build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ env.ARTIFACTS_DIR }}
+        name: ${{ env.BINDINGS_ARTIFACT_NAME }}
+        path: ${{ env.BINDINGS_ARTIFACTS_DIR }}
+
+    - name: Display structure of the core artifacts folder (post build)
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        sudo chown -R $(whoami) ${{ env.CORE_ARTIFACTS_DIR }}
+        ls -lahR ${{ env.CORE_ARTIFACTS_DIR }}
+
+    - name: Upload core build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.CORE_ARTIFACT_NAME }}
+        path: ${{ env.CORE_ARTIFACTS_DIR }}

@@ -16,6 +16,9 @@ on:
       upload-enabled:
         type: boolean
         required: true
+      python-version:
+        type: string
+        required: true
 jobs:
   build:
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -31,4 +34,5 @@ jobs:
       dependencies-file: ""
       build-mode: ${{ inputs.build-mode }}
       upload-enabled: ${{ inputs.upload-enabled }}
+      python-version: ${{ inputs.python-version }}
     secrets: inherit

@@ -24,6 +24,9 @@ jobs:
           - release
         upload-enabled:
           - false
+        python-version:
+          #TODO cover the whole python and cuda matrix
+          - 3.12
     uses:
       ./.github/workflows/gh-build-and-test.yml
     with:
@@ -32,4 +35,5 @@ jobs:
       build-mode: ${{ matrix.build-mode }}
       build-type: ci
       upload-enabled: ${{ matrix.upload-enabled }}
+      python-version: ${{ matrix.python-version }}
     secrets: inherit

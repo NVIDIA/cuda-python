@@ -3,11 +3,13 @@
 build_ci() {
     set -xeou pipefail
 
-    cd "${REPO_DIR}"
-
     export CUDA_HOME="${CONDA_PREFIX}/targets/x86_64-linux"
     export PARALLEL_LEVEL=$(nproc --ignore 1)
 
+    cd "${REPO_DIR}/cuda_bindings"
+    python setup.py bdist_wheel
+    
+    cd "${REPO_DIR}/cuda_core"
     python setup.py bdist_wheel
 }
 
