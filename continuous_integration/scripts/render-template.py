@@ -3,6 +3,7 @@
 import argparse
 import json
 from jinja2 import Environment, FileSystemLoader
+import os
 import re
 
 # TODO: make this work for arbitrary context. ie. implement replace_using_context()
