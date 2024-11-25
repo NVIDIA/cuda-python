@@ -21,11 +21,11 @@ class DummyDeviceMemoryResource(MemoryResource):
         self.device = device
 
     def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(cuda.cuMemAlloc(size))
+        ptr = handle_return(driver.cuMemAlloc(size))
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        handle_return(cuda.cuMemFree(ptr))
+        handle_return(driver.cuMemFree(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
