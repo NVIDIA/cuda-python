@@ -72,7 +72,7 @@ def test_stream_context(init_cuda):
     context = stream.context
     assert context is not None
 
-def test_stream_from_foreign_stream():
+def test_stream_from_foreign_stream(init_cuda):
     device = Device()
     other_stream = device.create_stream(options=StreamOptions())
     stream = device.create_stream(obj=other_stream)
