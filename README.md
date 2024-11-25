@@ -21,11 +21,11 @@ The `cuda.core` package offers idiomatic, pythonic access to CUDA Runtime and ot
 
 The goals are to
 
-1. provide **idiomatic (“pythonic”)** access to CUDA Driver/Runtime
-2. focus on **developer productivity** by ensuring end-to-end CUDA development can be performed quickly and entirely in Python
-3. **avoid homegrown** Python abstractions for CUDA for new Python GPU libraries starting from scratch
-4. **ease** developer **burden of maintaining** and catching up with latest CUDA features
-5. **flatten the learning curve** for current and future generations of CUDA developers
+1. Provide **idiomatic (“pythonic”)** access to CUDA Driver/Runtime
+2. Focus on **developer productivity** by ensuring end-to-end CUDA development can be performed quickly and entirely in Python
+3. **Avoid homegrown** Python abstractions for CUDA for new Python GPU libraries starting from scratch
+4. **Ease** developer **burden of maintaining** and catching up with latest CUDA features
+5. **Flatten the learning curve** for current and future generations of CUDA developers
 
 ### Subpackage: `cuda.bindings`
 
