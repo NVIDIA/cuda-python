@@ -31,57 +31,41 @@ Source builds work for multiple Python versions, however pre-build PyPI and Cond
 
 * Python 3.9 to 3.12
 
-## Testing (Cython)
-
-Cython tests are located under `tests/cython`. 
+## Testing
 
 Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/requirements.txt).
 
-## Testing (Python)
+Multiple testing options are available:
 
-Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/requirements.txt).
+* Cython Unit Tests
+* Python Unit Tests
+* Samples
+* Benchmark
 
-### Unit-tests
+### Python Unit Tests
 
-To run unit-tests against local builds:
-```
-python -m pytest tests/
-```
-To run unit-tests against installed builds:
-```
-pytest tests/
-```
+Responsible for validating different binding usage patterns. Unit test `test_kernelParams.py` is particularly special since it demonstrates various approaches in setting up kernel launch parameters.
 
-### Unit-tests
+To run these tests:
+* `python -m pytest tests/` against local builds
+* `pytest tests/` against installed package
 
+### Cython Unit Tests
 
-### Benchmark
+Cython tests are located under `tests/cython` and need to be built. Furthermore they need CUDA Toolkit headers matching the major-minor of CUDA Python. To build them:
 
-To run unit-tests against local builds:
-```
-python -m pytest --benchmark-only benchmark/
-```
-To run unit-tests against installed builds:
-```
-pytest --benchmark-only benchmark/
-```
+1. Setup environment variable `CUDA_HOME` with the path to the CUDA Toolkit installation.
+2. Run `build_tests` script located in `test/cython` appropriate to your platform. This will both Cythonize the tests and build them.
+
+To run these tests:
+* `python -m pytest tests/cython/` against local builds
+* `pytest tests/cython/` against installed package
 
 ### Samples
 
-To run unit-tests against local builds:
-```
-python -m pytest benchmark/
-```
-To run unit-tests against installed builds:
-```
-pytest benchmark/
-```
+Various [CUDA Samples](https://github.com/NVIDIA/cuda-samples/tree/master) that were rewritten using CUDA Python can be found in `examples`.
 
-## Examples
-
-[CUDA Samples](https://github.com/NVIDIA/cuda-samples/tree/master) rewriten using CUDA Python are found in `examples`.
-
-Custom extra included examples:
+In addition, extra examples are included:
 
 * `examples/extra/jit_program_test.py`: Demonstrates the use of the API to compile and
   launch a kernel on the device. Includes device memory allocation /
@@ -90,3 +74,15 @@ Custom extra included examples:
 * `examples/extra/numba_emm_plugin.py`: Implements a Numba External Memory Management
   plugin, showing that this CUDA Python Driver API can coexist with other
   wrappers of the driver API.
+
+To run these samples:
+* `python -m pytest tests/cython/` against local builds
+* `pytest tests/cython/` against installed package
+
+### Benchmark (WIP)
+
+Benchmarks were used for performance analysis during initial release of CUDA Python. Today they need to be updated the 12.x toolkit and are work in progress.
+
+The intended way to run these benchmarks was:
+* `python -m pytest --benchmark-only benchmark/` against local builds
+* `pytest --benchmark-only benchmark/` against installed package
