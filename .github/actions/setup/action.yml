@@ -20,7 +20,7 @@ inputs:
     required: true
     type: boolean
   python-version:
-    required: false
+    required: true
     type: string
 
 runs:
@@ -57,8 +57,12 @@ runs:
           PKG_DIR="${BUILD_MODE}/${TARGET_PLATFORM}"
         fi
 
-        echo "ARTIFACT_NAME=${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ inputs.client-repo }}-python${{ inputs.python-version }}-${{ inputs.target-device }}${BUILD_MODE_STR}${WITH_TESTS_STR}-${{ github.sha }}" >> $GITHUB_ENV
-        echo "ARTIFACTS_DIR=$(realpath "$(pwd)/dist")" >> $GITHUB_ENV
+        PYTHON_VERSION_FORMATTED=$(echo '${{ inputs.python-version }}' | tr -d '.')
+
+        echo "BINDINGS_ARTIFACT_NAME=${{ inputs.host-platform }}-${{ inputs.build-type }}-cuda_bindings-python${PYTHON_VERSION_FORMATTED}-${{ inputs.target-device }}${BUILD_MODE_STR}${WITH_TESTS_STR}-${{ github.sha }}" >> $GITHUB_ENV
+        echo "BINDINGS_ARTIFACTS_DIR=$(realpath "$(pwd)/cuda_bindings/dist")" >> $GITHUB_ENV
+        echo "CORE_ARTIFACT_NAME=${{ inputs.host-platform }}-${{ inputs.build-type }}-cuda_core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.target-device }}${BUILD_MODE_STR}${WITH_TESTS_STR}-${{ github.sha }}" >> $GITHUB_ENV
+        echo "CORE_ARTIFACTS_DIR=$(realpath "$(pwd)/cuda_core/dist")" >> $GITHUB_ENV
         echo "USE_CUDA=${{ (inputs.target-device == 'cpu' && 'OFF') || 'ON' }}" >> $GITHUB_ENV
         echo "UPLOAD_ENABLED=${{ (inputs.upload-enabled  == 'true' && 'ON') || 'OFF' }}" >> $GITHUB_ENV
         echo "LEGATE_CORE_BUILD_MODE=${BUILD_MODE}" >> $GITHUB_ENV
