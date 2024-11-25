@@ -55,7 +55,7 @@ To run these tests:
 Cython tests are located in `tests/cython` and need to be built. Furthermore they need CUDA Toolkit headers matching the major-minor of CUDA Python. To build them:
 
 1. Setup environment variable `CUDA_HOME` with the path to the CUDA Toolkit installation.
-2. Run `build_tests` script located in `test/cython` appropriate to your platform. This will both Cythonize the tests and build them.
+2. Run `build_tests` script located in `test/cython` appropriate to your platform. This will both cythonize the tests and build them.
 
 To run these tests:
 * `python -m pytest tests/cython/` against local builds
