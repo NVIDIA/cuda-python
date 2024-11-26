@@ -55,7 +55,7 @@ class Event:
     def __init__(self):
         self._handle = None
         raise NotImplementedError(
-            "directly creating an Event object can be ambiguous. Please call " "call Stream.record()."
+            "directly creating an Event object can be ambiguous. Please call call Stream.record()."
         )
 
     @staticmethod

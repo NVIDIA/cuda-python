@@ -65,7 +65,7 @@ class LaunchConfig:
             try:
                 self.stream = Stream._init(self.stream)
             except Exception as e:
-                raise ValueError("stream must either be a Stream object " "or support __cuda_stream__") from e
+                raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e
         if self.shmem_size is None:
             self.shmem_size = 0
 

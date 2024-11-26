@@ -212,7 +212,7 @@ class Stream:
                     stream = Stream._init(event_or_stream)
                 except Exception as e:
                     raise ValueError(
-                        "only an Event, Stream, or object supporting " "__cuda_stream__ can be waited"
+                        "only an Event, Stream, or object supporting __cuda_stream__ can be waited"
                     ) from e
             else:
                 stream = event_or_stream

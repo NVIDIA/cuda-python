@@ -22,5 +22,4 @@ sample_files = glob.glob(samples_path + "**/*.py", recursive=True)
 @pytest.mark.parametrize("example", sample_files)
 class TestExamples:
     def test_example(self, example, deinit_cuda):
-        os.path.basename(example)
         run_example(samples_path, example)
