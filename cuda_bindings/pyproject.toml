@@ -53,6 +53,8 @@ line-length = 120
 [tool.ruff.format]
 docstring-code-format = true
 
+exclude = ["cuda/bindings/_version.py"]
+
 [tool.ruff.lint]
 select = [
     # pycodestyle Error

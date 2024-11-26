@@ -62,6 +62,8 @@ line-length = 120
 [tool.ruff.format]
 docstring-code-format = true
 
+exclude = ["cuda/core/_version.py"]
+
 [tool.ruff.lint]
 select = [
     # pycodestyle Error
@@ -88,7 +90,7 @@ ignore = [
     "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
 ]
 
-exclude = ["cuda/core/experimental/exclude/_version.py"]
+exclude = ["cuda/core/_version.py"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
