@@ -52,15 +52,7 @@ class Stream:
 
     """
 
-    __slots__ = (
-        "_handle",
-        "_nonblocking",
-        "_priority",
-        "_owner",
-        "_builtin",
-        "_device_id",
-        "_ctx_handle"
-        )
+    __slots__ = ("_handle", "_nonblocking", "_priority", "_owner", "_builtin", "_device_id", "_ctx_handle")
 
     def __init__(self):
         # minimal requirements for the destructor

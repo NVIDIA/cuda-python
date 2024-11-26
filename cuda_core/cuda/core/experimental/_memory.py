@@ -42,11 +42,7 @@ class Buffer:
     """
 
     # TODO: handle ownership? (_mr could be None)
-    __slots__ = (
-        "_ptr",
-        "_size",
-        "_mr",
-    )
+    __slots__ = ("_ptr", "_size", "_mr")
 
     def __init__(self, ptr, size, mr: MemoryResource = None):
         self._ptr = ptr

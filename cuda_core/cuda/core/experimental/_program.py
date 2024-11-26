@@ -24,10 +24,7 @@ class Program:
 
     """
 
-    __slots__ = (
-        "_handle",
-        "_backend",
-    )
+    __slots__ = ("_handle", "_backend")
     _supported_code_type = ("c++",)
     _supported_target_type = ("ptx", "cubin", "ltoir")
 
