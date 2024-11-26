@@ -106,7 +106,13 @@ class ObjectCode:
 
     """
 
-    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map")
+    __slots__ = (
+        "_handle",
+        "_code_type",
+        "_module",
+        "_loader",
+        "_sym_map"
+        )
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
     def __init__(self, module, code_type, jit_options=None, *, symbol_mapping=None):

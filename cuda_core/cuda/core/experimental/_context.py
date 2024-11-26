@@ -13,7 +13,10 @@ class ContextOptions:
 
 
 class Context:
-    __slots__ = ("_handle", "_id")
+    __slots__ = (
+        "_handle",
+        "_id"
+        )
 
     def __init__(self):
         raise NotImplementedError("TODO")

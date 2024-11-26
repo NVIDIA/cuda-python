@@ -50,7 +50,11 @@ class Event:
 
     """
 
-    __slots__ = ("_handle", "_timing_disabled", "_busy_waited")
+    __slots__ = (
+        "_handle",
+        "_timing_disabled",
+        "_busy_waited"
+        )
 
     def __init__(self):
         self._handle = None

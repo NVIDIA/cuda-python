@@ -42,7 +42,11 @@ class Device:
 
     """
 
-    __slots__ = ("_id", "_mr", "_has_inited")
+    __slots__ = (
+        "_id",
+        "_mr",
+        "_has_inited"
+        )
 
     def __new__(cls, device_id=None):
         # important: creating a Device instance does not initialize the GPU!
