@@ -3,15 +3,20 @@
 test_ci() {
     set -xeou pipefail
 
-    cd "${ARTIFACTS_DIR}"
-
     activate_conda_env;
 
+    cd "${BINDINGS_ARTIFACTS_DIR}"
     pip install *.whl
 
-    cd "${REPO_DIR}"
+    cd "${CORE_ARTIFACTS_DIR}"
+    pip install *.whl
 
-    python -m pytest
+    cd "${REPO_DIR}/cuda_python/cuda_bindings"
+    python -m pytest tests/
+
+    cd "${REPO_DIR}/cuda_python/cuda_core"
+    python -m pytest tests/
+
 }
 
 test_project() {

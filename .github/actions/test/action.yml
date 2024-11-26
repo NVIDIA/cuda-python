@@ -19,17 +19,29 @@ runs:
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: nvidia-smi
 
-    - name: Download build artifacts
+    - name: Download bindings build artifacts
       uses: actions/download-artifact@v4
       with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ env.ARTIFACTS_DIR }}
+        name: ${{ env.BINDINGS_ARTIFACT_NAME }}
+        path: ${{ env.BINDINGS_ARTIFACTS_DIR }}
 
-    - name: Display structure of downloaded artifacts
+    - name: Display structure of downloaded bindings artifacts
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         pwd
-        ls -lahR $ARTIFACTS_DIR
+        ls -lahR $BINDINGS_ARTIFACTS_DIR
+
+    - name: Download core build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.CORE_ARTIFACT_NAME }}
+        path: ${{ env.CORE_ARTIFACTS_DIR }}
+
+    - name: Display structure of downloaded core build artifacts
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        pwd
+        ls -lahR $CORE_ARTIFACTS_DIR
 
     - name: Run test / analysis
       shell: bash --noprofile --norc -xeuo pipefail {0}
