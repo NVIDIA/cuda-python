@@ -34,6 +34,7 @@ jobs:
       dependencies-file: ""
       build-mode: ${{ inputs.build-mode }}
       upload-enabled: ${{ inputs.upload-enabled }}
+      python-version: ${{ inputs.python-version }}
     secrets: inherit
 
   test:
