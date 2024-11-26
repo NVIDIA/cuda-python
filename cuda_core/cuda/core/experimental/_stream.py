@@ -59,7 +59,8 @@ class Stream:
         "_owner",
         "_builtin",
         "_device_id",
-        "_ctx_handle")
+        "_ctx_handle"
+        )
 
     def __init__(self):
         # minimal requirements for the destructor
