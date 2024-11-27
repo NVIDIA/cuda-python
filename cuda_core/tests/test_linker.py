@@ -1,8 +1,7 @@
 import pytest
 
-from cuda.core.experimental._linker import Linker, LinkerOptions
+from cuda.core.experimental import Linker, LinkerOptions, Program
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._program import Program
 
 ARCH = "sm_80"  # use sm_80 for testing the oop nvJitLink wrapper
 empty_entrypoint_kernel = "__global__ void A() {}"
