@@ -113,25 +113,11 @@ class LinkerOptions:
         Default: 1
         Acceptable value type: int
         Maps to: -split-compile-extended=<N>
-    jump_table_density : int, optional
-        When doing LTO, specify the case density percentage in switch statements, and use it as a minimal threshold to
-        determine whether jump table (brx.idx instruction) will be used to implement a switch statement. Default value
-        is 101. The percentage ranges from 0 to 101 inclusively.
-        Default: 101
-        Acceptable value type: int
-        Maps to: -jump-table-density=<N>
     no_cache : bool, optional
         Do not cache the intermediate steps of nvJitLink.
         Default: False
         Acceptable value type: bool
         Maps to: -no-cache
-    device_stack_protector : bool, optional
-        Enable stack canaries in device code. Stack canaries make it more difficult to exploit certain types of memory
-        safety bugs involving stack-local variables. The compiler uses heuristics to assess the risk of such a bug in
-        each function. Only those functions which are deemed high-risk make use of a stack canary.
-        Default: False
-        Acceptable value type: bool
-        Maps to: -device-stack-protector
     """
 
     arch: str
