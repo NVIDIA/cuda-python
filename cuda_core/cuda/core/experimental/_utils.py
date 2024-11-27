@@ -87,6 +87,13 @@ def check_or_create_options(cls, options, options_description, *, keep_none=Fals
     return options
 
 
+def _handle_boolean_option(option: bool) -> str:
+    """
+    Convert a boolean option to a string representation.
+    """
+    return str(option).lower()
+
+
 def precondition(checker: Callable[..., None], what: str = "") -> Callable:
     """
     A decorator that adds checks to ensure any preconditions are met.
