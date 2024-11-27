@@ -51,21 +51,19 @@ class Event:
 
     """
 
-    __slots__ = ("__weakref__", "_handle", "_timing_disabled", "_busy_waited")
+    __slots__ = ("__weakref__", "_finalizer", "_handle", "_timing_disabled", "_busy_waited")
 
     def __init__(self):
+        self._handle = None
         raise NotImplementedError(
             "directly creating an Event object can be ambiguous. Please call call Stream.record()."
         )
 
-    def _enable_finalize(self):
-        self._handle = None
-        weakref.finalize(self, self.close)
-
     @staticmethod
     def _init(options: Optional[EventOptions] = None):
         self = Event.__new__(Event)
-        self._enable_finalize()
+        # minimal requirements for the destructor
+        self._handle = None
 
         options = check_or_create_options(EventOptions, options, "Event options")
         flags = 0x0
@@ -80,12 +78,18 @@ class Event:
         if options.support_ipc:
             raise NotImplementedError("TODO")
         self._handle = handle_return(cuda.cuEventCreate(flags))
+        self._finalizer = weakref.finalize(self, Event._finalize, self._handle)
         return self
+
+    @staticmethod
+    def _finalize(self_handle):
+        handle_return(cuda.cuEventDestroy(self_handle))
 
     def close(self):
         """Destroy the event."""
         if self._handle:
-            handle_return(cuda.cuEventDestroy(self._handle))
+            self._finalizer.Detach()
+            Event._finalize(self._handle)
             self._handle = None
 
     @property
