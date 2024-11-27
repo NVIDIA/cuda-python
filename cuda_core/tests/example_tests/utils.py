@@ -9,16 +9,19 @@
 import gc
 import os
 import sys
-import pytest
+
 import cupy as cp
+import pytest
+
 
 class SampleTestError(Exception):
     pass
 
+
 def parse_python_script(filepath):
-    if not filepath.endswith('.py'):
+    if not filepath.endswith(".py"):
         raise ValueError(f"{filepath} not supported")
-    with open(filepath, "r", encoding='utf-8') as f:
+    with open(filepath, encoding="utf-8") as f:
         script = f.read()
     return script
 
@@ -34,17 +37,17 @@ def run_example(samples_path, filename, env=None):
         exec(script, env if env else {})
     except ImportError as e:
         # for samples requiring any of optional dependencies
-        for m in ('cupy',):
+        for m in ("cupy",):
             if f"No module named '{m}'" in str(e):
-                pytest.skip(f'{m} not installed, skipping related tests')
+                pytest.skip(f"{m} not installed, skipping related tests")
                 break
         else:
             raise
     except Exception as e:
-            msg = "\n"
-            msg += f'Got error ({filename}):\n'
-            msg += str(e)
-            raise SampleTestError(msg) from e
+        msg = "\n"
+        msg += f"Got error ({filename}):\n"
+        msg += str(e)
+        raise SampleTestError(msg) from e
     finally:
         sys.path = old_sys_path
         sys.argv = old_argv

@@ -7,12 +7,15 @@
 # is strictly prohibited.
 import ctypes
 import math
+import sys
+
 import numpy as np
-from cuda import cuda
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
 
-vectorAddDrv = '''\
+from cuda import cuda
+
+vectorAddDrv = """\
 /* Vector addition: C = A + B.
  *
  * This sample is a very basic sample that implements element by element
@@ -29,28 +32,29 @@ extern "C" __global__ void VecAdd_kernel(const float *A, const float *B, float *
     if (i < N)
         C[i] = A[i] + B[i];
 }
-'''
+"""
+
 
 def main():
     print("Vector Addition (Driver API)")
     N = 50000
-    devID = 0
     size = N * np.dtype(np.float32).itemsize
 
     # Initialize
-    checkCudaErrors(cuda.cuInit(0));
-
+    checkCudaErrors(cuda.cuInit(0))
     cuDevice = findCudaDeviceDRV()
     # Create context
     cuContext = checkCudaErrors(cuda.cuCtxCreate(0, cuDevice))
 
-    uvaSupported = checkCudaErrors(cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice))
+    uvaSupported = checkCudaErrors(
+        cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice)
+    )
     if not uvaSupported:
         print("Accessing pageable memory directly requires UVA")
         return
 
     kernelHelper = common.KernelHelper(vectorAddDrv, int(cuDevice))
-    _VecAdd_kernel = kernelHelper.getFunction(b'VecAdd_kernel')
+    _VecAdd_kernel = kernelHelper.getFunction(b"VecAdd_kernel")
 
     # Allocate input vectors h_A and h_B in host memory
     h_A = np.random.rand(size).astype(dtype=np.float32)
@@ -69,17 +73,26 @@ def main():
     if True:
         # Grid/Block configuration
         threadsPerBlock = 256
-        blocksPerGrid   = (N + threadsPerBlock - 1) / threadsPerBlock
+        blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock
 
-        kernelArgs = ((d_A, d_B, d_C, N),
-                      (None, None, None, ctypes.c_int))
+        kernelArgs = ((d_A, d_B, d_C, N), (None, None, None, ctypes.c_int))
 
         # Launch the CUDA kernel
-        checkCudaErrors(cuda.cuLaunchKernel(_VecAdd_kernel,
-                                            blocksPerGrid, 1, 1,
-                                            threadsPerBlock, 1, 1,
-                                            0, 0,
-                                            kernelArgs, 0))
+        checkCudaErrors(
+            cuda.cuLaunchKernel(
+                _VecAdd_kernel,
+                blocksPerGrid,
+                1,
+                1,
+                threadsPerBlock,
+                1,
+                1,
+                0,
+                0,
+                kernelArgs,
+                0,
+            )
+        )
     else:
         pass
 
@@ -98,9 +111,10 @@ def main():
     checkCudaErrors(cuda.cuMemFree(d_C))
 
     checkCudaErrors(cuda.cuCtxDestroy(cuContext))
-    print("{}".format("Result = PASS" if i+1 == N else "Result = FAIL"))
-    if i+1 != N:
+    print("{}".format("Result = PASS" if i + 1 == N else "Result = FAIL"))
+    if i + 1 != N:
         sys.exit(-1)
+
 
 if __name__ == "__main__":
     main()

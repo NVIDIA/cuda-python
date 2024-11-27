@@ -6,11 +6,17 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda.core.experimental._module import ObjectCode
-import pytest
 import importlib
 
-@pytest.mark.skipif(int(importlib.metadata.version("cuda-python").split(".")[0]) < 12, reason='Module loading for older drivers validate require valid module code.')
+import pytest
+
+from cuda.core.experimental._module import ObjectCode
+
+
+@pytest.mark.skipif(
+    int(importlib.metadata.version("cuda-python").split(".")[0]) < 12,
+    reason="Module loading for older drivers validate require valid module code.",
+)
 def test_object_code_initialization():
     # Test with supported code types
     for code_type in ["cubin", "ptx", "fatbin"]:
@@ -24,15 +30,19 @@ def test_object_code_initialization():
     with pytest.raises(ValueError):
         ObjectCode(b"dummy_data", "unsupported_code_type")
 
-#TODO add ObjectCode tests which provide the appropriate data for cuLibraryLoadFromFile
+
+# TODO add ObjectCode tests which provide the appropriate data for cuLibraryLoadFromFile
 def test_object_code_initialization_with_str():
     assert True
+
 
 def test_object_code_initialization_with_jit_options():
     assert True
 
+
 def test_object_code_get_kernel():
     assert True
+
 
 def test_kernel_from_obj():
     assert True

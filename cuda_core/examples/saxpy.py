@@ -4,12 +4,9 @@
 
 import sys
 
-from cuda.core.experimental import Device
-from cuda.core.experimental import LaunchConfig, launch
-from cuda.core.experimental import Program
-
 import cupy as cp
 
+from cuda.core.experimental import Device, LaunchConfig, Program, launch
 
 # compute out = a * x + y
 code = """
@@ -35,9 +32,13 @@ s = dev.create_stream()
 prog = Program(code, code_type="c++")
 mod = prog.compile(
     "cubin",
-    options=("-std=c++11", "-arch=sm_" + "".join(f"{i}" for i in dev.compute_capability),),
+    options=(
+        "-std=c++11",
+        "-arch=sm_" + "".join(f"{i}" for i in dev.compute_capability),
+    ),
     logs=sys.stdout,
-    name_expressions=("saxpy<float>", "saxpy<double>"))
+    name_expressions=("saxpy<float>", "saxpy<double>"),
+)
 
 # run in single precision
 ker = mod.get_kernel("saxpy<float>")
@@ -62,7 +63,7 @@ launch(ker, config, *ker_args)
 s.sync()
 
 # check result
-assert cp.allclose(out, a*x+y)
+assert cp.allclose(out, a * x + y)
 
 # let's repeat again, this time allocates our own out buffer instead of cupy's
 # run in double precision
@@ -77,8 +78,10 @@ y = cp.random.random(size, dtype=dtype)
 dev.sync()
 
 # prepare output
-buf = dev.allocate(size * 8,  # = dtype.itemsize
-                   stream=s)
+buf = dev.allocate(
+    size * 8,  # = dtype.itemsize
+    stream=s,
+)
 
 # prepare launch
 block = 64
@@ -92,9 +95,10 @@ s.sync()
 
 # check result
 # we wrap output buffer as a cupy array for simplicity
-out = cp.ndarray(size, dtype=dtype,
-                 memptr=cp.cuda.MemoryPointer(cp.cuda.UnownedMemory(int(buf.handle), buf.size, buf), 0))
-assert cp.allclose(out, a*x+y)
+out = cp.ndarray(
+    size, dtype=dtype, memptr=cp.cuda.MemoryPointer(cp.cuda.UnownedMemory(int(buf.handle), buf.size, buf), 0)
+)
+assert cp.allclose(out, a * x + y)
 
 # clean up resources that we allocate
 # cupy cleans up automatically the rest

@@ -6,8 +6,10 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda.core.experimental import Device, EventOptions
 import pytest
+
+from cuda.core.experimental import Device, EventOptions
+
 
 @pytest.mark.parametrize("enable_timing", [True, False, None])
 def test_timing(init_cuda, enable_timing):
@@ -15,29 +17,30 @@ def test_timing(init_cuda, enable_timing):
     stream = Device().create_stream()
     event = stream.record(options=options)
     assert event.is_timing_disabled == (not enable_timing if enable_timing is not None else True)
-    
+
 
 def test_is_sync_busy_waited(init_cuda):
     options = EventOptions(enable_timing=False, busy_waited_sync=True)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.is_sync_busy_waited == True
+    assert event.is_sync_busy_waited is True
 
     options = EventOptions(enable_timing=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.is_sync_busy_waited == False
+    assert event.is_sync_busy_waited is False
+
 
 def test_sync(init_cuda):
     options = EventOptions(enable_timing=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
     event.sync()
-    assert event.is_done == True
+    assert event.is_done is True
+
 
 def test_is_done(init_cuda):
     options = EventOptions(enable_timing=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.is_done == True
-
+    assert event.is_done is True

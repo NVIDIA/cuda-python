@@ -4,9 +4,8 @@
 
 import importlib.metadata
 
-from cuda import cuda, cudart
+from cuda import cuda
 from cuda.core.experimental._utils import handle_return
-
 
 _backend = {
     "old": {
@@ -56,7 +55,10 @@ class Kernel:
 
     """
 
-    __slots__ = ("_handle", "_module",)
+    __slots__ = (
+        "_handle",
+        "_module",
+    )
 
     def __init__(self):
         raise NotImplementedError("directly constructing a Kernel instance is not supported")
@@ -107,8 +109,7 @@ class ObjectCode:
     __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self, module, code_type, jit_options=None, *,
-                 symbol_mapping=None):
+    def __init__(self, module, code_type, jit_options=None, *, symbol_mapping=None):
         if code_type not in self._supported_code_type:
             raise ValueError
         _lazy_init()
@@ -129,9 +130,16 @@ class ObjectCode:
             if jit_options is None:
                 jit_options = {}
             if backend == "new":
-                args = (module, list(jit_options.keys()), list(jit_options.values()), len(jit_options),
-                        # TODO: support library options
-                        [], [], 0)
+                args = (
+                    module,
+                    list(jit_options.keys()),
+                    list(jit_options.values()),
+                    len(jit_options),
+                    # TODO: support library options
+                    [],
+                    [],
+                    0,
+                )
             else:  # "old" backend
                 args = (module, len(jit_options), list(jit_options.keys()), list(jit_options.values()))
             self._handle = handle_return(self._loader["data"](*args))

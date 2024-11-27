@@ -10,10 +10,11 @@ try:
 except ImportError:
     from cuda import cuda as driver
 
-from cuda.core.experimental import Device
-from cuda.core.experimental import _device
-from cuda.core.experimental._utils import handle_return
 import pytest
+
+from cuda.core.experimental import Device, _device
+from cuda.core.experimental._utils import handle_return
+
 
 @pytest.fixture(scope="function")
 def init_cuda():
@@ -22,10 +23,12 @@ def init_cuda():
     yield
     _device_unset_current()
 
+
 def _device_unset_current():
     handle_return(driver.cuCtxPopCurrent())
     with _device._tls_lock:
         del _device._tls.devices
+
 
 @pytest.fixture(scope="function")
 def deinit_cuda():

@@ -4,8 +4,7 @@
 
 from dataclasses import dataclass
 
-from cuda import cuda, cudart
-from cuda.core.experimental._utils import handle_return
+from cuda import cuda
 
 
 @dataclass
@@ -14,7 +13,6 @@ class ContextOptions:
 
 
 class Context:
-
     __slots__ = ("_handle", "_id")
 
     def __init__(self):

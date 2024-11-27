@@ -22,9 +22,7 @@ def py_func(func):
     return wrapped
 
 
-cython_test_modules = ["test_ccuda",
-                       "test_ccudart",
-                       "test_interoperability_cython"]
+cython_test_modules = ["test_ccuda", "test_ccudart", "test_interoperability_cython"]
 
 
 for mod in cython_test_modules:

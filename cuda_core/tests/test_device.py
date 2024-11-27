@@ -13,16 +13,19 @@ except ImportError:
     from cuda import cudart as runtime
 
 from cuda.core.experimental import Device
-from cuda.core.experimental._utils import handle_return, ComputeCapability
+from cuda.core.experimental._utils import ComputeCapability, handle_return
+
 
 def test_device_set_current(deinit_cuda):
     device = Device()
     device.set_current()
     assert handle_return(driver.cuCtxGetCurrent()) is not None
-    
+
+
 def test_device_repr():
     device = Device(0)
-    assert str(device).startswith('<Device 0')
+    assert str(device).startswith("<Device 0")
+
 
 def test_device_alloc(init_cuda):
     device = Device()
@@ -32,16 +35,19 @@ def test_device_alloc(init_cuda):
     assert buffer.size == 1024
     assert buffer.device_id == 0
 
+
 def test_device_create_stream(init_cuda):
     device = Device()
     stream = device.create_stream()
     assert stream is not None
     assert stream.handle
 
+
 def test_pci_bus_id():
     device = Device()
     bus_id = handle_return(runtime.cudaDeviceGetPCIBusId(13, device.device_id))
     assert device.pci_bus_id == bus_id[:12].decode()
+
 
 def test_uuid():
     device = Device()
@@ -54,18 +60,21 @@ def test_uuid():
     expected_uuid = f"{uuid[:8]}-{uuid[8:12]}-{uuid[12:16]}-{uuid[16:20]}-{uuid[20:]}"
     assert device.uuid == expected_uuid
 
+
 def test_name():
     device = Device()
     name = handle_return(driver.cuDeviceGetName(128, device.device_id))
-    name = name.split(b'\0')[0]
+    name = name.split(b"\0")[0]
     assert device.name == name.decode()
+
 
 def test_compute_capability():
     device = Device()
-    major = handle_return(runtime.cudaDeviceGetAttribute(
-        runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, device.device_id))
-    minor = handle_return(runtime.cudaDeviceGetAttribute(
-        runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, device.device_id))
+    major = handle_return(
+        runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, device.device_id)
+    )
+    minor = handle_return(
+        runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, device.device_id)
+    )
     expected_cc = ComputeCapability(major, minor)
     assert device.compute_capability == expected_cc
- 
