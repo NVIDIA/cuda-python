@@ -132,7 +132,7 @@ class Buffer:
             dst = self._mr.allocate(self._size, stream)
         if dst._size != self._size:
             raise ValueError("buffer sizes mismatch between src and dst")
-        handle_return(cuda.cuMemcpyAsync(dst._ptr, self._ptr, self._size, stream._handle))
+        handle_return(cuda.cuMemcpyAsync(dst._ptr, self._ptr, self._size, stream.handle))
         return dst
 
     def copy_from(self, src: Buffer, *, stream):
@@ -151,7 +151,7 @@ class Buffer:
             raise ValueError("stream must be provided")
         if src._size != self._size:
             raise ValueError("buffer sizes mismatch between src and dst")
-        handle_return(cuda.cuMemcpyAsync(self._ptr, src._ptr, self._size, stream._handle))
+        handle_return(cuda.cuMemcpyAsync(self._ptr, src._ptr, self._size, stream.handle))
 
     def __dlpack__(
         self,
@@ -240,13 +240,13 @@ class _DefaultAsyncMempool(MemoryResource):
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
             stream = default_stream()
-        ptr = handle_return(cuda.cuMemAllocFromPoolAsync(size, self._handle, stream._handle))
+        ptr = handle_return(cuda.cuMemAllocFromPoolAsync(size, self._handle, stream.handle))
         return Buffer(ptr, size, self)
 
     def deallocate(self, ptr, size, stream=None):
         if stream is None:
             stream = default_stream()
-        handle_return(cuda.cuMemFreeAsync(ptr, stream._handle))
+        handle_return(cuda.cuMemFreeAsync(ptr, stream.handle))
 
     @property
     def is_device_accessible(self) -> bool:
