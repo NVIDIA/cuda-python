@@ -1,3 +1,4 @@
+import weakref
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -152,9 +153,7 @@ class LinkerOptions:
     xptxas: Optional[List[str]] = None
     split_compile: Optional[int] = None
     split_compile_extended: Optional[int] = None
-    jump_table_density: Optional[int] = None
     no_cache: Optional[bool] = None
-    device_stack_protector: Optional[bool] = None
 
     def __post_init__(self):
         self.formatted_options = []
@@ -199,26 +198,25 @@ class LinkerOptions:
             self.formatted_options.append(f"-split-compile={self.split_compile}")
         if self.split_compile_extended is not None:
             self.formatted_options.append(f"-split-compile-extended={self.split_compile_extended}")
-        if self.jump_table_density is not None:
-            self.formatted_options.append(f"-jump-table-density={self.jump_table_density}")
         if self.no_cache is not None:
             self.formatted_options.append("-no-cache")
-        if self.device_stack_protector is not None:
-            self.formatted_options.append("-device-stack-protector")
 
 
 class Linker:
-    __slots__ = "_handle"
+    __slots__ = ("__weakref__", "_handle", "_options")
 
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
-        self._handle = None
         options = check_or_create_options(LinkerOptions, options, "Linker options")
         self._handle = nvjitlink.create(len(options.formatted_options), options.formatted_options)
 
-        if object_codes is not None:
-            for code in object_codes:
-                assert isinstance(code, ObjectCode)
-                self._add_code_object(code)
+        if len(object_codes) == 0:
+            raise ValueError("At least one ObjectCode object must be provided")
+
+        for code in object_codes:
+            assert isinstance(code, ObjectCode)
+            self._add_code_object(code)
+
+        weakref.finalize(self, self.close)
 
     def _add_code_object(self, object_code: ObjectCode):
         data = object_code._module
@@ -233,7 +231,7 @@ class Linker:
 
     def link(self, target_type) -> ObjectCode:
         nvjitlink.complete(self._handle)
-        if target_type not in ["cubin", "ptx"]:
+        if target_type not in ("cubin", "ptx"):
             raise ValueError(f"Unsupported target type: {target_type}")
         code = None
         if target_type == "cubin":
@@ -279,7 +277,7 @@ class Linker:
     def handle(self) -> int:
         return self._handle
 
-    def __del__(self):
+    def close(self):
         if self._handle is not None:
             nvjitlink.destroy(self._handle)
             self._handle = None
