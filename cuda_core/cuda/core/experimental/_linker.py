@@ -192,7 +192,7 @@ class Linker:
     __slots__ = ("__weakref__", "_handle", "_options")
 
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
-        options = check_or_create_options(LinkerOptions, options, "Linker options")
+        self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
         self._handle = nvjitlink.create(len(options.formatted_options), options.formatted_options)
 
         if len(object_codes) == 0:
