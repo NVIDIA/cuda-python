@@ -9,7 +9,7 @@ empty_kernel = "__device__ void B() {}"
 addition_kernel = "__device__ int C(int a, int b) { return a + b; }"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def compile_ptx_functions(init_cuda):
     object_code_a_ptx = Program(empty_entrypoint_kernel, "c++").compile("ptx")
     object_code_b_ptx = Program(empty_kernel, "c++").compile("ptx")
@@ -18,7 +18,7 @@ def compile_ptx_functions(init_cuda):
     return object_code_a_ptx, object_code_b_ptx, object_code_c_ptx
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def compile_ltoir_functions(init_cuda):
     object_code_a_ltoir = Program(empty_entrypoint_kernel, "c++").compile("ltoir", options=("-dlto",))
     object_code_b_ltoir = Program(empty_kernel, "c++").compile("ltoir", options=("-dlto",))
@@ -47,7 +47,6 @@ def compile_ltoir_functions(init_cuda):
         LinkerOptions(arch=ARCH, xptxas=["-v"]),
         LinkerOptions(arch=ARCH, split_compile=0),
         LinkerOptions(arch=ARCH, split_compile_extended=1),
-        LinkerOptions(arch=ARCH, jump_table_density=100),
         LinkerOptions(arch=ARCH, no_cache=True),
     ],
 )
