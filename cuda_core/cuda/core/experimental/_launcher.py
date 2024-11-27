@@ -2,19 +2,15 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from dataclasses import dataclass
 import importlib.metadata
+from dataclasses import dataclass
 from typing import Optional, Union
 
-import numpy as np
-
-from cuda import cuda, cudart
+from cuda import cuda
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
-from cuda.core.experimental._memory import Buffer
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils import CUDAError, check_or_create_options, handle_return
-
 
 # TODO: revisit this treatment for py313t builds
 _inited = False
@@ -28,8 +24,7 @@ def _lazy_init():
 
     global _use_ex
     # binding availability depends on cuda-python version
-    _py_major_minor = tuple(int(v) for v in (
-        importlib.metadata.version("cuda-python").split(".")[:2]))
+    _py_major_minor = tuple(int(v) for v in (importlib.metadata.version("cuda-python").split(".")[:2]))
     _driver_ver = handle_return(cuda.cuDriverGetVersion())
     _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
     _inited = True
@@ -55,6 +50,7 @@ class LaunchConfig:
         (Default to size 0)
 
     """
+
     # TODO: expand LaunchConfig to include other attributes
     grid: Union[tuple, int] = None
     block: Union[tuple, int] = None
@@ -65,14 +61,11 @@ class LaunchConfig:
         self.grid = self._cast_to_3_tuple(self.grid)
         self.block = self._cast_to_3_tuple(self.block)
         # we handle "stream=None" in the launch API
-        if self.stream is not None:
-            if not isinstance(self.stream, Stream):
-                try:
-                    self.stream = Stream._init(self.stream)
-                except Exception as e:
-                    raise ValueError(
-                        "stream must either be a Stream object "
-                        "or support __cuda_stream__") from e
+        if self.stream is not None and not isinstance(self.stream, Stream):
+            try:
+                self.stream = Stream._init(self.stream)
+            except Exception as e:
+                raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e
         if self.shmem_size is None:
             self.shmem_size = 0
 
@@ -141,14 +134,11 @@ def launch(kernel, config, *kernel_args):
         drv_cfg.hStream = config.stream._handle
         drv_cfg.sharedMemBytes = config.shmem_size
         drv_cfg.numAttrs = 0  # TODO
-        handle_return(cuda.cuLaunchKernelEx(
-            drv_cfg, int(kernel._handle), args_ptr, 0))
+        handle_return(cuda.cuLaunchKernelEx(drv_cfg, int(kernel._handle), args_ptr, 0))
     else:
         # TODO: check if config has any unsupported attrs
-        handle_return(cuda.cuLaunchKernel(
-            int(kernel._handle),
-            *config.grid,
-            *config.block,
-            config.shmem_size,
-            config.stream._handle,
-            args_ptr, 0))
+        handle_return(
+            cuda.cuLaunchKernel(
+                int(kernel._handle), *config.grid, *config.block, config.shmem_size, config.stream._handle, args_ptr, 0
+            )
+        )

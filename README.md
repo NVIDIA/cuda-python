@@ -1,76 +1,39 @@
 # CUDA-Python
 
-CUDA Python is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview](https://nvidia.github.io/cuda-python/overview.html) for the workflow and performance results.
+CUDA Python is the home for accessing NVIDIA’s CUDA platform from Python. It consists of multiple components:
 
-## Installing
+* [cuda.core](https://nvidia.github.io/cuda-python/cuda-core/latest): Pythonic access to CUDA Runtime and other core functionalities
+* [cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest): Low-level Python bindings to CUDA C APIs
+* [cuda.cooperative](https://nvidia.github.io/cccl/cuda_cooperative/): Pythonic exposure of CUB cooperative algorithms
+* [cuda.parallel](https://nvidia.github.io/cccl/cuda_parallel/): Pythonic exposure of Thrust parallel algorithms
 
-CUDA Python can be installed from:
+For access to NVIDIA Math Libraries, please refer to [nvmath-python](https://docs.nvidia.com/cuda/nvmath-python/latest).
 
-* PYPI
-* Conda (nvidia channel)
-* Source builds
+CUDA Python is currently undergoing an overhaul to improve existing and bring up new components. All of the previously available functionalities from the cuda-python package will continue to be available, please refer to the [cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest) documentation for installation guide and further detail.
 
-There're differences in each of these options that are described further in [Installation](https://nvidia.github.io/cuda-python/install.html) documentation. Each package will guarantee minor version compatibility.
+## CUDA-Python as a metapackage
 
-## Runtime Dependencies
+CUDA-Python is structured to become a metapackage that contains a collection of subpackages. Each subpackage is versioned independently, allowing installation of each component as needed.
 
-CUDA Python is supported on all platforms that CUDA is supported. Specific dependencies are as follows:
+### Subpackage: `cuda.core`
 
-* Driver: Linux (450.80.02 or later) Windows (456.38 or later)
-* CUDA Toolkit 12.0 to 12.6
+The `cuda.core` package offers idiomatic, pythonic access to CUDA Runtime and other functionalities.
 
-Only the NVRTC redistributable component is required from the CUDA Toolkit. [CUDA Toolkit Documentation](https://docs.nvidia.com/cuda/index.html) Installation Guides can be used for guidance. Note that the NVRTC component in the Toolkit can be obtained via PYPI, Conda or Local Installer.
+The goals are to
 
-### Supported Python Versions
+1. Provide **idiomatic (“pythonic”)** access to CUDA Driver/Runtime
+2. Focus on **developer productivity** by ensuring end-to-end CUDA development can be performed quickly and entirely in Python
+3. **Avoid homegrown** Python abstractions for CUDA for new Python GPU libraries starting from scratch
+4. **Ease** developer **burden of maintaining** and catching up with latest CUDA features
+5. **Flatten the learning curve** for current and future generations of CUDA developers
 
-CUDA Python follows [NEP 29](https://numpy.org/neps/nep-0029-deprecation_policy.html) for supported Python version guarantee.
+### Subpackage: `cuda.bindings`
 
-Before dropping support, an issue will be raised to look for feedback.
+The `cuda.bindings` package is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python.
 
-Source builds work for multiple Python versions, however pre-build PyPI and Conda packages are only provided for a subset:
+The list of available interfaces are:
 
-* Python 3.9 to 3.12
-
-## Testing
-
-### Requirements
-
-Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/requirements.txt).
-
-### Unit-tests
-
-You can run the included tests with:
-
-```
-python -m pytest tests/
-```
-
-### Benchmark
-
-You can run benchmark only tests with:
-
-```
-python -m pytest --benchmark-only benchmarks/
-```
-
-### Samples
-
-You can run the included tests with:
-
-```
-python -m pytest examples/
-```
-
-## Examples
-
-CUDA Samples rewriten using CUDA Python are found in `examples`.
-
-Custom extra included examples:
-
-- `examples/extra/jit_program_test.py`: Demonstrates the use of the API to compile and
-  launch a kernel on the device. Includes device memory allocation /
-  deallocation, transfers between host and device, creation and usage of
-  streams, and context management.
-- `examples/extra/numba_emm_plugin.py`: Implements a Numba External Memory Management
-  plugin, showing that this CUDA Python Driver API can coexist with other
-  wrappers of the driver API.
+* CUDA Driver
+* CUDA Runtime
+* NVRTC
+* nvJitLink

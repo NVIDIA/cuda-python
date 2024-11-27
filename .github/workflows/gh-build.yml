@@ -33,7 +33,7 @@ on:
         required: true
         type: boolean
       python-version:
-        required: false
+        required: true
         type: string
 
 jobs:
@@ -62,27 +62,6 @@ jobs:
           build-mode: ${{ inputs.build-mode }}
           upload-enabled: ${{ inputs.upload-enabled }}
           python-version: ${{ inputs.python-version }}
-
-      - name: Render templates
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          pip -q install jinja2
-
-          DEPENDENCIES_FILE=""
-
-          if [ -z "${{ inputs.dependencies-file }}" ]; then
-            DEPENDENCIES_FILE="${REPO_DIR}/continuous_integration/no_dependencies.json"
-          else
-            DEPENDENCIES_FILE="${REPO_DIR}/${{ inputs.dependencies-file }}"
-          fi
-
-          ${REPO_DIR}/continuous_integration/scripts/render-template.py .github/actions/build/action.yml.j2 "${DEPENDENCIES_FILE}" .github/actions/build/action.yml
-
-      - name: Dump templates
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          echo ${REPO_DIR}/.github/actions/build/action.yml
-          cat ${REPO_DIR}/.github/actions/build/action.yml
 
       - name: Call build action
         uses: ./.github/actions/build

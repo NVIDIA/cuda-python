@@ -6,23 +6,28 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda import cuda
-from cuda.core.experimental._memory import Buffer, MemoryResource
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._utils import handle_return
+try:
+    from cuda.bindings import driver
+except ImportError:
+    from cuda import cuda as driver
+
 import ctypes
-import pytest
+
+from cuda.core.experimental import Device
+from cuda.core.experimental._memory import Buffer, MemoryResource
+from cuda.core.experimental._utils import handle_return
+
 
 class DummyDeviceMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
 
     def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(cuda.cuMemAlloc(size))
+        ptr = handle_return(driver.cuMemAlloc(size))
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        handle_return(cuda.cuMemFree(ptr))
+        handle_return(driver.cuMemFree(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
@@ -35,7 +40,8 @@ class DummyDeviceMemoryResource(MemoryResource):
     @property
     def device_id(self) -> int:
         return 0
- 
+
+
 class DummyHostMemoryResource(MemoryResource):
     def __init__(self):
         pass
@@ -46,7 +52,7 @@ class DummyHostMemoryResource(MemoryResource):
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        #the memory is deallocated per the ctypes deallocation at garbage collection time
+        # the memory is deallocated per the ctypes deallocation at garbage collection time
         pass
 
     @property
@@ -61,16 +67,17 @@ class DummyHostMemoryResource(MemoryResource):
     def device_id(self) -> int:
         raise RuntimeError("the pinned memory resource is not bound to any GPU")
 
+
 class DummyUnifiedMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
 
     def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(cuda.cuMemAllocManaged(size, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
+        ptr = handle_return(driver.cuMemAllocManaged(size, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        handle_return(cuda.cuMemFree(ptr))
+        handle_return(driver.cuMemFree(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
@@ -84,16 +91,17 @@ class DummyUnifiedMemoryResource(MemoryResource):
     def device_id(self) -> int:
         return 0
 
+
 class DummyPinnedMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
 
     def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(cuda.cuMemAllocHost(size))
+        ptr = handle_return(driver.cuMemAllocHost(size))
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        handle_return(cuda.cuMemFreeHost(ptr))
+        handle_return(driver.cuMemFreeHost(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
@@ -107,7 +115,8 @@ class DummyPinnedMemoryResource(MemoryResource):
     def device_id(self) -> int:
         raise RuntimeError("the pinned memory resource is not bound to any GPU")
 
-def buffer_initialization(dummy_mr : MemoryResource):
+
+def buffer_initialization(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)
     assert buffer.handle != 0
     assert buffer.size == 1024
@@ -116,6 +125,7 @@ def buffer_initialization(dummy_mr : MemoryResource):
     assert buffer.is_host_accessible == dummy_mr.is_host_accessible
     buffer.close()
 
+
 def test_buffer_initialization():
     device = Device()
     device.set_current()
@@ -123,8 +133,9 @@ def test_buffer_initialization():
     buffer_initialization(DummyHostMemoryResource())
     buffer_initialization(DummyUnifiedMemoryResource(device))
     buffer_initialization(DummyPinnedMemoryResource(device))
-    
-def buffer_copy_to(dummy_mr : MemoryResource, device : Device, check = False):
+
+
+def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
     src_buffer = dummy_mr.allocate(size=1024)
     dst_buffer = dummy_mr.allocate(size=1024)
     stream = device.create_stream()
@@ -133,27 +144,29 @@ def buffer_copy_to(dummy_mr : MemoryResource, device : Device, check = False):
         src_ptr = ctypes.cast(src_buffer.handle, ctypes.POINTER(ctypes.c_byte))
         for i in range(1024):
             src_ptr[i] = ctypes.c_byte(i)
-        
+
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
 
     if check:
         dst_ptr = ctypes.cast(dst_buffer.handle, ctypes.POINTER(ctypes.c_byte))
-        
+
         for i in range(10):
             assert dst_ptr[i] == src_ptr[i]
 
     dst_buffer.close()
     src_buffer.close()
+
 
 def test_buffer_copy_to():
     device = Device()
     device.set_current()
     buffer_copy_to(DummyDeviceMemoryResource(device), device)
     buffer_copy_to(DummyUnifiedMemoryResource(device), device)
-    buffer_copy_to(DummyPinnedMemoryResource(device), device, check = True)
+    buffer_copy_to(DummyPinnedMemoryResource(device), device, check=True)
 
-def buffer_copy_from(dummy_mr : MemoryResource, device, check = False):
+
+def buffer_copy_from(dummy_mr: MemoryResource, device, check=False):
     src_buffer = dummy_mr.allocate(size=1024)
     dst_buffer = dummy_mr.allocate(size=1024)
     stream = device.create_stream()
@@ -162,31 +175,34 @@ def buffer_copy_from(dummy_mr : MemoryResource, device, check = False):
         src_ptr = ctypes.cast(src_buffer.handle, ctypes.POINTER(ctypes.c_byte))
         for i in range(1024):
             src_ptr[i] = ctypes.c_byte(i)
-        
+
     dst_buffer.copy_from(src_buffer, stream=stream)
     device.sync()
 
     if check:
         dst_ptr = ctypes.cast(dst_buffer.handle, ctypes.POINTER(ctypes.c_byte))
-        
+
         for i in range(10):
             assert dst_ptr[i] == src_ptr[i]
 
     dst_buffer.close()
     src_buffer.close()
 
+
 def test_buffer_copy_from():
     device = Device()
     device.set_current()
     buffer_copy_from(DummyDeviceMemoryResource(device), device)
     buffer_copy_from(DummyUnifiedMemoryResource(device), device)
-    buffer_copy_from(DummyPinnedMemoryResource(device), device, check = True)
+    buffer_copy_from(DummyPinnedMemoryResource(device), device, check=True)
 
-def buffer_close(dummy_mr : MemoryResource):
+
+def buffer_close(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)
     buffer.close()
     assert buffer.handle == 0
-    assert buffer.memory_resource == None
+    assert buffer.memory_resource is None
+
 
 def test_buffer_close():
     device = Device()

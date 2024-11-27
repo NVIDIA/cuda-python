@@ -6,34 +6,41 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-from cuda import cuda
-from cuda.core.experimental._event import  EventOptions, Event
-from cuda.core.experimental._utils import handle_return
-from cuda.core.experimental._device import Device
 import pytest
 
-def test_is_timing_disabled():
+from cuda.core.experimental import Device, EventOptions
+
+
+@pytest.mark.parametrize("enable_timing", [True, False, None])
+def test_timing(init_cuda, enable_timing):
+    options = EventOptions(enable_timing=enable_timing)
+    stream = Device().create_stream()
+    event = stream.record(options=options)
+    assert event.is_timing_disabled == (not enable_timing if enable_timing is not None else True)
+
+
+def test_is_sync_busy_waited(init_cuda):
+    options = EventOptions(enable_timing=False, busy_waited_sync=True)
+    stream = Device().create_stream()
+    event = stream.record(options=options)
+    assert event.is_sync_busy_waited is True
+
     options = EventOptions(enable_timing=False)
-    event = Event._init(options)
-    assert event.is_timing_disabled == True
+    stream = Device().create_stream()
+    event = stream.record(options=options)
+    assert event.is_sync_busy_waited is False
 
-def test_is_sync_busy_waited():
-    options = EventOptions(busy_waited_sync=True)
-    event = Event._init(options)
-    assert event.is_sync_busy_waited == True
 
-def test_sync():
-    options = EventOptions()
-    event = Event._init(options)
+def test_sync(init_cuda):
+    options = EventOptions(enable_timing=False)
+    stream = Device().create_stream()
+    event = stream.record(options=options)
     event.sync()
-    assert event.is_done == True
+    assert event.is_done is True
 
-def test_is_done():
-    options = EventOptions()
-    event = Event._init(options)
-    assert event.is_done == True
 
-def test_handle():
-    options = EventOptions()
-    event = Event._init(options)
-    assert isinstance(event.handle, int)
+def test_is_done(init_cuda):
+    options = EventOptions(enable_timing=False)
+    stream = Device().create_stream()
+    event = stream.record(options=options)
+    assert event.is_done is True

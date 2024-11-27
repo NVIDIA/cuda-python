@@ -5,9 +5,9 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
-kernel_string = '''\
+kernel_string = """\
 #define ITEM_PARAM(x, T) T x
-#define REP1(x, T)   , ITEM_PARAM(x, T)	
+#define REP1(x, T)   , ITEM_PARAM(x, T)
 #define REP2(x, T)   REP1(x##0, T)   REP1(x##1, T)
 #define REP4(x, T)   REP2(x##0, T)   REP2(x##1, T)
 #define REP8(x, T)   REP4(x##0, T)   REP4(x##1, T)
@@ -160,4 +160,4 @@ extern "C" __global__ void small_kernel_2048B(KernelFunctionParam<2048> param)
     // Do not touch param to prevent compiler from copying
     // the whole structure from const bank to lmem.
 }
-'''
+"""

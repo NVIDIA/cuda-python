@@ -2,14 +2,12 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import weakref
 from dataclasses import dataclass
 from typing import Optional
-import weakref
 
 from cuda import cuda
-from cuda.core.experimental._utils import check_or_create_options
-from cuda.core.experimental._utils import CUDAError
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils import CUDAError, check_or_create_options, handle_return
 
 
 @dataclass
@@ -31,6 +29,7 @@ class EventOptions:
         Note that enable_timing must be False. (Default to False)
 
     """
+
     enable_timing: Optional[bool] = False
     busy_waited_sync: Optional[bool] = False
     support_ipc: Optional[bool] = False
@@ -51,19 +50,20 @@ class Event:
     and they should instead be created through a :obj:`Stream` object.
 
     """
+
     __slots__ = ("__weakref__", "_handle", "_timing_disabled", "_busy_waited")
 
     def __init__(self):
         raise NotImplementedError(
-            "directly creating an Event object can be ambiguous. Please call "
-            "call Stream.record().")
+            "directly creating an Event object can be ambiguous. Please call call Stream.record()."
+        )
 
     def _enable_finalize(self):
         self._handle = None
         weakref.finalize(self, self.close)
 
     @staticmethod
-    def _init(options: Optional[EventOptions]=None):
+    def _init(options: Optional[EventOptions] = None):
         self = Event.__new__(Event)
         self._enable_finalize()
 
@@ -118,7 +118,7 @@ class Event:
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
-        result, = cuda.cuEventQuery(self._handle)
+        (result,) = cuda.cuEventQuery(self._handle)
         if result == cuda.CUresult.CUDA_SUCCESS:
             return True
         elif result == cuda.CUresult.CUDA_ERROR_NOT_READY:

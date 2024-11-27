@@ -2,4 +2,3 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from cuda.core.experimental._memoryview import StridedMemoryView, viewable
