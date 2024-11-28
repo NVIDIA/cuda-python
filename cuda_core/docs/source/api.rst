@@ -31,3 +31,7 @@ CUDA compilation toolchain
    :toctree: generated/
 
    Program
+
+   :template: dataclass.rst
+
+   ProgramOptions
