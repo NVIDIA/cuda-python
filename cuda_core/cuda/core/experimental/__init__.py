@@ -7,3 +7,4 @@ from cuda.core.experimental._event import EventOptions
 from cuda.core.experimental._launcher import LaunchConfig, launch
 from cuda.core.experimental._program import Program
 from cuda.core.experimental._stream import Stream, StreamOptions
+from cuda.core.experimental._system import system
