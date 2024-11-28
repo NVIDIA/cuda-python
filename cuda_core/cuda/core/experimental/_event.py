@@ -11,7 +11,7 @@ from cuda.core.experimental._utils import CUDAError, check_or_create_options, ha
 
 @dataclass
 class EventOptions:
-    """Customizable :obj:`Event` options.
+    """Customizable :obj:`~cuda.core.experimental._event.Event` options.
 
     Attributes
     ----------
@@ -45,8 +45,8 @@ class Event:
     of work up to event's record, and help establish dependencies
     between GPU work submissions.
 
-    Directly creating an :obj:`Event` is not supported due to ambiguity,
-    and they should instead be created through a :obj:`Stream` object.
+    Directly creating an :obj:`~cuda.core.experimental._event.Event` is not supported due to ambiguity,
+    and they should instead be created through a :obj:`~cuda.core.experimental._stream.Stream` object.
 
     """
 

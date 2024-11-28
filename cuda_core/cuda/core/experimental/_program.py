@@ -63,7 +63,7 @@ class Program:
             Supported options are "ptx", "cubin" and "ltoir".
         options : Union[List, Tuple], optional
             List of compilation options associated with the backend
-            of this :obj:`Program`. (Default to no options)
+            of this :obj:`~cuda.core.experimental._program.Program`. (Default to no options)
         name_expressions : Union[List, Tuple], optional
             List of explicit name expressions to become accessible.
             (Default to no expressions)
