@@ -7,7 +7,7 @@ from typing import Union
 
 from cuda import cuda, cudart
 from cuda.core.experimental._context import Context, ContextOptions
-from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool
+from cuda.core.experimental._memory import Buffer, MemoryResource, _AsyncMemoryResource, _DefaultAsyncMempool
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils import ComputeCapability, CUDAError, handle_return, precondition
 
@@ -62,7 +62,13 @@ class Device:
                 for dev_id in range(total):
                     dev = super().__new__(cls)
                     dev._id = dev_id
-                    dev._mr = _DefaultAsyncMempool(dev_id)
+                    # If the device is in TCC mode, or does not support memory pools for some other reason,
+                    # use the AsyncMemoryResource which does not use memory pools.
+                    if (handle_return(cudart.cudaGetDeviceProperties(dev_id))).memoryPoolsSupported == 0:
+                        dev._mr = _AsyncMemoryResource(dev_id)
+                    else:
+                        dev._mr = _DefaultAsyncMempool(dev_id)
+
                     dev._has_inited = False
                     _tls.devices.append(dev)
 
@@ -70,7 +76,7 @@ class Device:
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
-            raise CUDAError("the device is not yet initialized, perhaps you forgot to call .set_current() first?")
+            raise CUDAError("the device is not yet initialized, " "perhaps you forgot to call .set_current() first?")
 
     @property
     def device_id(self) -> int:

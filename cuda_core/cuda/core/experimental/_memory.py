@@ -42,7 +42,11 @@ class Buffer:
     """
 
     # TODO: handle ownership? (_mr could be None)
-    __slots__ = ("_ptr", "_size", "_mr")
+    __slots__ = (
+        "_ptr",
+        "_size",
+        "_mr",
+    )
 
     def __init__(self, ptr, size, mr: MemoryResource = None):
         self._ptr = ptr
@@ -286,3 +290,34 @@ class _DefaultPinnedMemorySource(MemoryResource):
     @property
     def device_id(self) -> int:
         raise RuntimeError("the pinned memory resource is not bound to any GPU")
+
+
+class _AsyncMemoryResource(MemoryResource):
+    __slots__ = ("_dev_id",)
+
+    def __init__(self, dev_id):
+        self._handle = None
+        self._dev_id = dev_id
+
+    def allocate(self, size, stream=None) -> Buffer:
+        if stream is None:
+            stream = default_stream()
+        ptr = handle_return(cuda.cuMemAllocAsync(size, stream._handle))
+        return Buffer(ptr, size, self)
+
+    def deallocate(self, ptr, size, stream=None):
+        if stream is None:
+            stream = default_stream()
+        handle_return(cuda.cuMemFreeAsync(ptr, stream._handle))
+
+    @property
+    def is_device_accessible(self) -> bool:
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        return False
+
+    @property
+    def device_id(self) -> int:
+        return self._dev_id
