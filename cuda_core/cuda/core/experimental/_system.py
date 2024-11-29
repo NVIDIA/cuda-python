@@ -1,7 +1,9 @@
 from typing import Tuple
+
 from cuda import cuda, cudart
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils import handle_return
+
 
 class System:
     """ Provide information about the cuda system.
@@ -12,7 +14,7 @@ class System:
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(System, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self):
