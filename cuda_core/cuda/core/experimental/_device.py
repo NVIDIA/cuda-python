@@ -76,7 +76,7 @@ class Device:
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
-            raise CUDAError("the device is not yet initialized, " "perhaps you forgot to call .set_current() first?")
+            raise CUDAError("the device is not yet initialized, perhaps you forgot to call .set_current() first?")
 
     @property
     def device_id(self) -> int:
