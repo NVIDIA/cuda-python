@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import importlib.metadata
-import weakref
 
 from cuda import cuda
 from cuda.core.experimental._utils import handle_return
@@ -107,7 +106,7 @@ class ObjectCode:
 
     """
 
-    __slots__ = ("__weakref__", "_handle", "_code_type", "_module", "_loader", "_sym_map")
+    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
     def __init__(self, module, code_type, jit_options=None, *, symbol_mapping=None):
@@ -115,7 +114,6 @@ class ObjectCode:
             raise ValueError
         _lazy_init()
         self._handle = None
-        weakref.finalize(self, self.close)
 
         backend = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
         self._loader = _backend[backend]
@@ -150,9 +148,7 @@ class ObjectCode:
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
-    def close(self):
-        # TODO: do we want to unload? Probably not..
-        pass
+    # TODO: do we want to unload in a finalizer? Probably not..
 
     def get_kernel(self, name):
         """Return the :obj:`Kernel` of a specified name from this object code.
