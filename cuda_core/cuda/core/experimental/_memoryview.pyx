@@ -340,7 +340,11 @@ def viewable(tuple arg_indices):
     """Decorator to create proxy objects to :obj:`StridedMemoryView` for the
     specified positional arguments.
 
-    Inside the decorated function, the specified arguments becomes instances
+    This allows array/tensor attributes to be accessed inside the function
+    implementation, while keeping the function body array-library-agnostic (if
+    desired).
+
+    Inside the decorated function, the specified arguments become instances
     of an (undocumented) proxy type, regardless of its original source. A
     :obj:`StridedMemoryView` instance can be obtained by passing the (consumer)
     stream pointer (as a Python `int`) to the proxies's ``view()`` method. For
@@ -354,10 +358,6 @@ def viewable(tuple arg_indices):
             view = arg1.view(stream.handle)
             assert isinstance(view, StridedMemoryView)
             ...
-
-    This allows array/tensor attributes to be accessed inside the function
-    implementation, while keeping the function body array-library-agnostic (if
-    desired).
 
     Parameters
     ----------
