@@ -7,18 +7,13 @@
 # is strictly prohibited.
 import sys
 
+
 def checkCmdLineFlag(stringRef):
-    k = 0
-    for i in sys.argv:
-        if stringRef == i and k < len(sys.argv) - 1:
-           return True
-        k += 1
-    return False
+    return any(stringRef == i and k < len(sys.argv) - 1 for i, k in enumerate(sys.argv))
+
 
 def getCmdLineArgumentInt(stringRef):
-    k = 0
-    for i in sys.argv:
+    for i, k in enumerate(sys.argv):
         if stringRef == i and k < len(sys.argv) - 1:
-           return sys.argv[k+1]
-        k += 1
+            return sys.argv[k + 1]
     return 0

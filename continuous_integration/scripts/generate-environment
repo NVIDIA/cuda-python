@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# Function to generate environment.yml
+generate_environment_yml() {
+    local python_version=$1
+    local cuda_version=$2
+    local output_path=$3
+
+    cat <<EOF > "${output_path}/environment.yml"
+name: cuda_python
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=${python_version}
+  - cython
+  - pytest
+  - numpy
+  - setuptools
+  - wheel
+  - pip
+  - cuda-version=${cuda_version}
+  - cuda-cudart-static
+  - cuda-driver-dev
+  - cuda-cudart-dev
+  - cuda-profiler-api
+  - cuda-nvrtc-dev
+  - cuda-nvcc
+  - pip:
+    - pytest-benchmark
+    - pyclibrary
+    - versioneer==0.29
+    - tomli; python_version < "3.11"
+    - pywin32; sys_platform == 'win32'
+EOF
+}

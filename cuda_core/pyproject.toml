@@ -55,3 +55,43 @@ include = ["cuda.core*"]
 [tool.setuptools.dynamic]
 version = { attr = "cuda.core._version.__version__" }
 readme = { file = ["README.md"], content-type = "text/markdown" }
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+docstring-code-format = true
+
+exclude = ["cuda/core/_version.py"]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle Error
+    "E",
+    # Pyflakes
+    "F",
+    # pycodestyle Warning
+    "W",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+
+ignore = [
+    "UP006", 
+    "UP007", 
+    "E741", # ambiguous variable name such as I
+    "B007", # rename unsued loop variable to _name 
+    "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
+]
+
+exclude = ["cuda/core/_version.py"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"setup.py" = ["F401"]

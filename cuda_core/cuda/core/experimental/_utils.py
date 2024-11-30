@@ -2,17 +2,19 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from collections import namedtuple
 import functools
+from collections import namedtuple
 from typing import Callable, Dict
 
 from cuda import cuda, cudart, nvrtc
 
 
-class CUDAError(Exception): pass
+class CUDAError(Exception):
+    pass
 
 
-class NVRTCError(CUDAError): pass
+class NVRTCError(CUDAError):
+    pass
 
 
 ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
@@ -50,7 +52,7 @@ def _check_error(error, handle=None):
             err += f", compilation log:\n\n{log.decode()}"
         raise NVRTCError(err)
     else:
-        raise RuntimeError('Unknown error type: {}'.format(error))
+        raise RuntimeError(f"Unknown error type: {error}")
 
 
 def handle_return(result, handle=None):
@@ -76,9 +78,11 @@ def check_or_create_options(cls, options, options_description, *, keep_none=Fals
         options = cls(**options)
 
     if not isinstance(options, cls):
-        raise TypeError(f"The {options_description} must be provided as an object "
-                        f"of type {cls.__name__} or as a dict with valid {options_description}. "
-                        f"The provided object is '{options}'.")
+        raise TypeError(
+            f"The {options_description} must be provided as an object "
+            f"of type {cls.__name__} or as a dict with valid {options_description}. "
+            f"The provided object is '{options}'."
+        )
 
     return options
 
@@ -88,17 +92,19 @@ def precondition(checker: Callable[..., None], what: str = "") -> Callable:
     A decorator that adds checks to ensure any preconditions are met.
 
     Args:
-        checker: The function to call to check whether the preconditions are met. It has the same signature as the wrapped
-            function with the addition of the keyword argument `what`.
+        checker: The function to call to check whether the preconditions are met. It has
+        the same signature as the wrapped function with the addition of the keyword argument `what`.
         what: A string that is passed in to `checker` to provide context information.
 
     Returns:
         Callable: A decorator that creates the wrapping.
     """
+
     def outer(wrapped_function):
         """
         A decorator that actually wraps the function for checking preconditions.
         """
+
         @functools.wraps(wrapped_function)
         def inner(*args, **kwargs):
             """
@@ -116,17 +122,15 @@ def precondition(checker: Callable[..., None], what: str = "") -> Callable:
 
 def get_device_from_ctx(ctx_handle) -> int:
     """Get device ID from the given ctx."""
-    from cuda.core.experimental._device import Device # avoid circular import
+    from cuda.core.experimental._device import Device  # avoid circular import
+
     prev_ctx = Device().context._handle
-    if int(ctx_handle) != int(prev_ctx):
-        switch_context = True
-    else:
-        switch_context = False
+    switch_context = int(ctx_handle) != int(prev_ctx)
     if switch_context:
         assert prev_ctx == handle_return(cuda.cuCtxPopCurrent())
         handle_return(cuda.cuCtxPushCurrent(ctx_handle))
     device_id = int(handle_return(cuda.cuCtxGetDevice()))
     if switch_context:
-        assert ctx_handle ==  handle_return(cuda.cuCtxPopCurrent())
+        assert ctx_handle == handle_return(cuda.cuCtxPopCurrent())
         handle_return(cuda.cuCtxPushCurrent(prev_ctx))
     return device_id

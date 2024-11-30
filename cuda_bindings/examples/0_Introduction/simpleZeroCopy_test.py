@@ -7,15 +7,17 @@
 # is strictly prohibited.
 import ctypes
 import math
-import numpy as np
 import random as rnd
 import sys
-from cuda import cuda, cudart
+
+import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors
-from common.helper_string import checkCmdLineFlag
+from common.helper_string import checkCmdLineFlag, getCmdLineArgumentInt
 
-simpleZeroCopy = '''\
+from cuda import cuda, cudart
+
+simpleZeroCopy = """\
 extern "C"
 __global__ void vectorAddGPU(float *a, float *b, float *c, int N)
 {
@@ -26,7 +28,8 @@ __global__ void vectorAddGPU(float *a, float *b, float *c, int N)
         c[idx] = a[idx] + b[idx];
     }
 }
-'''
+"""
+
 
 def main():
     idev = 0
@@ -45,16 +48,16 @@ def main():
         idev = int(getCmdLineArgumentInt("device="))
 
         if idev >= deviceCount or idev < 0:
-            print("Device number {} is invalid, will use default CUDA device 0.".format(idev))
+            print(f"Device number {idev} is invalid, will use default CUDA device 0.")
             idev = 0
 
     if checkCmdLineFlag("use_generic_memory"):
         bPinGenericMemory = True
 
     if bPinGenericMemory:
-        print("> Using Generic System Paged Memory (malloc)");
+        print("> Using Generic System Paged Memory (malloc)")
     else:
-        print("> Using CUDA Host Allocated (cudaHostAlloc)");
+        print("> Using CUDA Host Allocated (cudaHostAlloc)")
 
     checkCudaErrors(cudart.cudaSetDevice(idev))
 
@@ -62,7 +65,7 @@ def main():
     deviceProp = checkCudaErrors(cudart.cudaGetDeviceProperties(idev))
 
     if not deviceProp.canMapHostMemory:
-        print("Device {} does not support mapping CPU host memory!".format(idev))
+        print(f"Device {idev} does not support mapping CPU host memory!")
         return
 
     checkCudaErrors(cudart.cudaSetDeviceFlags(cudart.cudaDeviceMapHost))
@@ -70,7 +73,7 @@ def main():
     # Allocate mapped CPU memory
 
     nelem = 1048576
-    num_bytes = nelem*np.dtype(np.float32).itemsize
+    num_bytes = nelem * np.dtype(np.float32).itemsize
 
     if bPinGenericMemory:
         a = np.empty(nelem, dtype=np.float32)
@@ -107,21 +110,33 @@ def main():
     block.y = 1
     block.z = 1
     grid = cudart.dim3()
-    grid.x = math.ceil(nelem/float(block.x))
+    grid.x = math.ceil(nelem / float(block.x))
     grid.y = 1
     grid.z = 1
     kernelHelper = common.KernelHelper(simpleZeroCopy, idev)
-    _vectorAddGPU = kernelHelper.getFunction(b'vectorAddGPU')
-    kernelArgs = ((d_a, d_b, d_c, nelem),(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int))
-    checkCudaErrors(cuda.cuLaunchKernel(_vectorAddGPU,
-                                        grid.x, grid.y, grid.z,
-                                        block.x, block.y, block.z,
-                                        0, cuda.CU_STREAM_LEGACY,
-                                        kernelArgs, 0))
+    _vectorAddGPU = kernelHelper.getFunction(b"vectorAddGPU")
+    kernelArgs = (
+        (d_a, d_b, d_c, nelem),
+        (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int),
+    )
+    checkCudaErrors(
+        cuda.cuLaunchKernel(
+            _vectorAddGPU,
+            grid.x,
+            grid.y,
+            grid.z,
+            block.x,
+            block.y,
+            block.z,
+            0,
+            cuda.CU_STREAM_LEGACY,
+            kernelArgs,
+            0,
+        )
+    )
     checkCudaErrors(cudart.cudaDeviceSynchronize())
 
-    print("> Checking the results from vectorAddGPU() ...");
-
+    print("> Checking the results from vectorAddGPU() ...")
     # Compare the results
     errorNorm = 0.0
     refNorm = 0.0
@@ -129,8 +144,8 @@ def main():
     for n in range(nelem):
         ref = a[n] + b[n]
         diff = c[n] - ref
-        errorNorm += diff*diff
-        refNorm += ref*ref
+        errorNorm += diff * diff
+        refNorm += ref * ref
 
     errorNorm = math.sqrt(errorNorm)
     refNorm = math.sqrt(refNorm)
@@ -148,10 +163,11 @@ def main():
         checkCudaErrors(cudart.cudaFreeHost(b))
         checkCudaErrors(cudart.cudaFreeHost(c))
 
-    if errorNorm/refNorm >= 1.0e-7:
+    if errorNorm / refNorm >= 1.0e-7:
         print("FAILED")
         sys.exit(-1)
     print("PASSED")
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

@@ -7,13 +7,15 @@
 # is strictly prohibited.
 import ctypes
 import math
-import numpy as np
 import sys
-from cuda import cuda
+
+import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
 
-vectorAddMMAP = '''\
+from cuda import cuda
+
+vectorAddMMAP = """\
 /* Vector addition: C = A + B.
  *
  * This sample is a very basic sample that implements element by element
@@ -30,10 +32,12 @@ extern "C" __global__ void VecAdd_kernel(const float *A, const float *B, float *
     if (i < N)
         C[i] = A[i] + B[i];
 }
-'''
+"""
+
 
 def round_up(x, y):
-    return int((x - 1)/y + 1) * y
+    return int((x - 1) / y + 1) * y
+
 
 def getBackingDevices(cuDevice):
     num_devices = checkCudaErrors(cuda.cuDeviceGetCount())
@@ -50,16 +54,20 @@ def getBackingDevices(cuDevice):
             continue
 
         # The device needs to support virtual address management for the required apis to work
-        attributeVal = checkCudaErrors(cuda.cuDeviceGetAttribute(
-                                            cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED,
-                                            cuDevice))
+        attributeVal = checkCudaErrors(
+            cuda.cuDeviceGetAttribute(
+                cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED,
+                cuDevice,
+            )
+        )
         if attributeVal == 0:
             continue
 
         backingDevices.append(cuda.CUdevice(dev))
     return backingDevices
 
-def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align = 0):
+
+def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align=0):
     min_granularity = 0
 
     # Setup the properties common for all the chunks
@@ -74,7 +82,9 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align = 0
     # (the max of the minimum granularity of each participating device)
     for device in residentDevices:
         prop.location.id = device
-        status, granularity = cuda.cuMemGetAllocationGranularity(prop, cuda.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM)
+        status, granularity = cuda.cuMemGetAllocationGranularity(
+            prop, cuda.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
+        )
         if status != cuda.CUresult.CUDA_SUCCESS:
             return status, None, None
         if min_granularity < granularity:
@@ -84,7 +94,9 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align = 0
     # (the max of the minimum granularity of each participating device)
     for device in mappingDevices:
         prop.location.id = device
-        status, granularity = cuda.cuMemGetAllocationGranularity(prop, cuda.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM)
+        status, granularity = cuda.cuMemGetAllocationGranularity(
+            prop, cuda.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
+        )
         if status != cuda.CUresult.CUDA_SUCCESS:
             return status, None, None
         if min_granularity < granularity:
@@ -123,10 +135,10 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align = 0
         # Since we do not need to make any other mappings of this memory or export it,
         # we no longer need and can release the allocationHandle.
         # The allocation will be kept live until it is unmapped.
-        status, = cuda.cuMemMap(int(dptr) + (stripeSize * idx), stripeSize, 0, allocationHandle, 0)
-        
+        (status,) = cuda.cuMemMap(int(dptr) + (stripeSize * idx), stripeSize, 0, allocationHandle, 0)
+
         # the handle needs to be released even if the mapping failed.
-        status2, = cuda.cuMemRelease(allocationHandle)
+        (status2,) = cuda.cuMemRelease(allocationHandle)
         if status != cuda.CUresult.CUDA_SUCCESS:
             # cuMemRelease should not have failed here
             # as the handle was just allocated successfully
@@ -151,12 +163,13 @@ def simpleMallocMultiDeviceMmap(size, residentDevices, mappingDevices, align = 0
         accessDescriptors[idx].flags = cuda.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
 
     # Apply the access descriptors to the whole VA range.
-    status, = cuda.cuMemSetAccess(dptr, size, accessDescriptors, len(accessDescriptors))
+    (status,) = cuda.cuMemSetAccess(dptr, size, accessDescriptors, len(accessDescriptors))
     if status != cuda.CUresult.CUDA_SUCCESS:
         simpleFreeMultiDeviceMmap(dptr, size)
         return status, None, None
 
     return (status, dptr, allocationSize)
+
 
 def simpleFreeMultiDeviceMmap(dptr, size):
     # Unmap the mapped virtual memory region
@@ -165,7 +178,7 @@ def simpleFreeMultiDeviceMmap(dptr, size):
     # The backing stores will be freed.
     # Since the memory has been unmapped after this call, accessing the specified
     # va range will result in a fault (unitll it is remapped).
-    status = cuda.cuMemUnmap(dptr, size);
+    status = cuda.cuMemUnmap(dptr, size)
     if status[0] != cuda.CUresult.CUDA_SUCCESS:
         return status
 
@@ -178,6 +191,7 @@ def simpleFreeMultiDeviceMmap(dptr, size):
         return status
     return status
 
+
 def main():
     print("Vector Addition (Driver API)")
     N = 50000
@@ -189,12 +203,15 @@ def main():
     cuDevice = findCudaDeviceDRV()
 
     # Check that the selected device supports virtual address management
-    attributeVal = checkCudaErrors(cuda.cuDeviceGetAttribute(
-                        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED,
-                        cuDevice))
-    print("Device {} VIRTUAL ADDRESS MANAGEMENT SUPPORTED = {}.".format(cuDevice, attributeVal))
+    attributeVal = checkCudaErrors(
+        cuda.cuDeviceGetAttribute(
+            cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED,
+            cuDevice,
+        )
+    )
+    print(f"Device {cuDevice} VIRTUAL ADDRESS MANAGEMENT SUPPORTED = {attributeVal}.")
     if not attributeVal:
-        print("Device {} doesn't support VIRTUAL ADDRESS MANAGEMENT.".format(cuDevice))
+        print(f"Device {cuDevice} doesn't support VIRTUAL ADDRESS MANAGEMENT.")
         return
 
     # The vector addition happens on cuDevice, so the allocations need to be mapped there.
@@ -207,7 +224,7 @@ def main():
     cuContext = checkCudaErrors(cuda.cuCtxCreate(0, cuDevice))
 
     kernelHelper = common.KernelHelper(vectorAddMMAP, int(cuDevice))
-    _VecAdd_kernel = kernelHelper.getFunction(b'VecAdd_kernel')
+    _VecAdd_kernel = kernelHelper.getFunction(b"VecAdd_kernel")
 
     # Allocate input vectors h_A and h_B in host memory
     h_A = np.random.rand(size).astype(dtype=np.float32)
@@ -231,17 +248,26 @@ def main():
 
     # Grid/Block configuration
     threadsPerBlock = 256
-    blocksPerGrid   = (N + threadsPerBlock - 1) / threadsPerBlock
+    blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock
 
-    kernelArgs = ((d_A, d_B, d_C, N),
-                  (None, None, None, ctypes.c_int))
+    kernelArgs = ((d_A, d_B, d_C, N), (None, None, None, ctypes.c_int))
 
     # Launch the CUDA kernel
-    checkCudaErrors(cuda.cuLaunchKernel(_VecAdd_kernel,
-                                        blocksPerGrid, 1, 1,
-                                        threadsPerBlock, 1, 1,
-                                        0, 0,
-                                        kernelArgs, 0))
+    checkCudaErrors(
+        cuda.cuLaunchKernel(
+            _VecAdd_kernel,
+            blocksPerGrid,
+            1,
+            1,
+            threadsPerBlock,
+            1,
+            1,
+            0,
+            0,
+            kernelArgs,
+            0,
+        )
+    )
 
     # Copy result from device memory to host memory
     # h_C contains the result in host memory
@@ -259,9 +285,10 @@ def main():
 
     checkCudaErrors(cuda.cuCtxDestroy(cuContext))
 
-    print("{}".format("Result = PASS" if i+1 == N else "Result = FAIL"))
-    if i+1 != N:
+    print("{}".format("Result = PASS" if i + 1 == N else "Result = FAIL"))
+    if i + 1 != N:
         sys.exit(-1)
+
 
 if __name__ == "__main__":
     main()

@@ -3,24 +3,16 @@
 set -x
 
 make_ci_env() {
-    mamba env create -n "${CONDA_ENV}" -f "${REPO_DIR}/continuous_integration/environment.yml"
-}
-
-make_test_env() {
-    . conda-utils
-
-    mamba env create -n "${CONDA_ENV}" -f "${REPO_DIR}/continuous_integration/environment.yml"
-
-    activate_conda_env
-
-    pip install "${ARTIFACTS_DIR}"/*.whl
-
+    #TODO wire cuda version as a top level matrix argument
+    generate_environment_yml "${PYTHON_VERSION}" 12.6 .
+    mamba env create -n "${CONDA_ENV}" -f ./environment.yml
 }
 
 make_conda_env() {
     set -xeuo pipefail
 
     . setup-utils;
+    . generate-environment
     set_base_defs;
 
     case "$1" in

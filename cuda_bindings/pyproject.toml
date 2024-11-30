@@ -46,3 +46,60 @@ versionfile_source = "cuda/bindings/_version.py"
 versionfile_build = "cuda/bindings/_version.py"
 tag_prefix = "v"
 parentdir_prefix = "cuda-python-"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+docstring-code-format = true
+
+exclude = ["cuda/bindings/_version.py"]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle Error
+    "E",
+    # Pyflakes
+    "F",
+    # pycodestyle Warning
+    "W",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+
+ignore = [
+    "UP006", 
+    "UP007", 
+    "E741", # ambiguous variable name such as I
+    "B007", # rename unsued loop variable to _name 
+    "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
+]
+
+exclude = ["cuda/bindings/_version.py"]
+
+[tool.ruff.lint.per-file-ignores]
+"setup.py" = ["F401"]
+"__init__.py" = ["F401"]
+
+"examples/**/*" = [
+  "E722",
+  "E501" # line too long
+  ]
+
+"tests/**/*" = [
+  "E722", 
+  "UP022",
+  "E402", # module level import not at top of file
+  "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
+
+"benchmarks/**/*" = [
+  "E722", 
+  "UP022",
+  "E402", # module level import not at top of file
+  "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)

@@ -10,15 +10,16 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
+
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'cuda.core'
-copyright = '2024, NVIDIA'
-author = 'NVIDIA'
+project = "cuda.core"
+copyright = "2024, NVIDIA"
+author = "NVIDIA"
 
 # The full version, including alpha/beta/rc tags
 release = os.environ["SPHINX_CUDA_CORE_VER"]
@@ -30,17 +31,17 @@ release = os.environ["SPHINX_CUDA_CORE_VER"]
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-	'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-	'sphinx.ext.napoleon',
-    'sphinx.ext.intersphinx',
-	'myst_nb',
-	'enum_tools.autoenum',
-    'sphinx_copybutton',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
+    "myst_nb",
+    "enum_tools.autoenum",
+    "sphinx_copybutton",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -51,41 +52,41 @@ exclude_patterns = []
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_baseurl = 'docs'
-html_theme = 'furo'
-#html_theme = 'pydata_sphinx_theme'
+html_baseurl = "docs"
+html_theme = "furo"
+# html_theme = 'pydata_sphinx_theme'
 html_theme_options = {
     "light_logo": "logo-light-mode.png",
     "dark_logo": "logo-dark-mode.png",
     # For pydata_sphinx_theme:
-    #"logo": {
-	#    "image_light": "_static/logo-light-mode.png",
+    # "logo": {
+    #    "image_light": "_static/logo-light-mode.png",
     #    "image_dark": "_static/logo-dark-mode.png",
-    #},
-    #"switcher": {
+    # },
+    # "switcher": {
     #    "json_url": "https://nvidia.github.io/cuda-python/cuda-core/versions.json",
     #    "version_match": release,
-    #},
+    # },
     ## Add light/dark mode and documentation version switcher
-    #"navbar_end": [
+    # "navbar_end": [
     #    "search-button",
     #    "theme-switcher",
     #    "version-switcher",
     #    "navbar-icon-links",
-    #],
+    # ],
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # skip cmdline prompts
-copybutton_exclude = '.linenos, .gp'
+copybutton_exclude = ".linenos, .gp"
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3/', None),
-    'numpy': ('https://numpy.org/doc/stable/', None),
+    "python": ("https://docs.python.org/3/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
 
 napoleon_google_docstring = False

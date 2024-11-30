@@ -8,18 +8,18 @@
 
 # If we have subcategories of examples in the future, this file can be split along those lines
 
-from .utils import run_example
-import os
 import glob
+import os
+
 import pytest
 
-samples_path = os.path.join(
-    os.path.dirname(__file__), '..', '..', 'examples')
-sample_files = glob.glob(samples_path+'**/*.py', recursive=True)
-@pytest.mark.parametrize(
-    'example', sample_files
-)
+from .utils import run_example
+
+samples_path = os.path.join(os.path.dirname(__file__), "..", "..", "examples")
+sample_files = glob.glob(samples_path + "**/*.py", recursive=True)
+
+
+@pytest.mark.parametrize("example", sample_files)
 class TestExamples:
-    def test_example(self, example):
-        filename = os.path.basename(example)
+    def test_example(self, example, deinit_cuda):
         run_example(samples_path, example)

@@ -52,17 +52,21 @@ should be taken up by the device array creation, and the original value should
 be restored after freeing it.
 """
 
+from ctypes import c_size_t
+
 from numba import cuda
-from numba.cuda import (HostOnlyCUDAMemoryManager, GetIpcHandleMixin,
-                        MemoryPointer, MemoryInfo)
+from numba.cuda import (
+    GetIpcHandleMixin,
+    HostOnlyCUDAMemoryManager,
+    MemoryInfo,
+    MemoryPointer,
+)
 
 from cuda import cuda as cuda_driver
 
-from ctypes import c_size_t
-
-
 # Python functions for allocation, deallocation, and memory info via the NVIDIA
 # CUDA Python Driver API
+
 
 def driver_alloc(size):
     """
@@ -71,7 +75,7 @@ def driver_alloc(size):
     """
     err, ptr = cuda_driver.cuMemAlloc(size)
     if err != cuda_driver.CUresult.CUDA_SUCCESS:
-        raise RuntimeError(f'Unexpected error code {err} from cuMemAlloc')
+        raise RuntimeError(f"Unexpected error code {err} from cuMemAlloc")
     return ptr
 
 
@@ -79,9 +83,9 @@ def driver_free(ptr):
     """
     Free device memory pointed to by `ptr`.
     """
-    err, = cuda_driver.cuMemFree(ptr)
+    (err,) = cuda_driver.cuMemFree(ptr)
     if err != cuda_driver.CUresult.CUDA_SUCCESS:
-        raise RuntimeError(f'Unexpected error code {err} from cuMemFree')
+        raise RuntimeError(f"Unexpected error code {err} from cuMemFree")
 
 
 def driver_memory_info():
@@ -90,7 +94,7 @@ def driver_memory_info():
     """
     err, free, total = cuda_driver.cuMemGetInfo()
     if err != cuda_driver.CUresult.CUDA_SUCCESS:
-        raise RuntimeError(f'Unexpected error code {err} from cuMemGetInfo')
+        raise RuntimeError(f"Unexpected error code {err} from cuMemGetInfo")
     return free, total
 
 
@@ -98,6 +102,7 @@ def driver_memory_info():
 # see:
 #
 #    https://numba.readthedocs.io/en/stable/cuda/external-memory.html#numba.cuda.BaseCUDAMemoryManager
+
 
 class DriverEMMPlugin(GetIpcHandleMixin, HostOnlyCUDAMemoryManager):
     def memalloc(self, size):
@@ -152,10 +157,10 @@ def main():
     print(f"Free after freeing device array: {ctx.get_memory_info().free}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
+
     formatter = argparse.RawDescriptionHelpFormatter
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=formatter)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=formatter)
     parser.parse_args()
     main()

@@ -5,19 +5,24 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
-import pytest
 import numpy as np
+import pytest
+
 try:
     from numba import cuda
+
     skip_tests = False
 except ImportError:
     skip_tests = True
 
+
 def launch_empty(kernel, stream):
-    kernel[1,1, stream]()
+    kernel[1, 1, stream]()
+
 
 def launch(kernel, stream, arg):
-    kernel[1,1, stream](arg)
+    kernel[1, 1, stream](arg)
+
 
 # Measure launch latency with no parmaeters
 @pytest.mark.skipif(skip_tests, reason="Numba is not installed")
@@ -32,6 +37,7 @@ def test_launch_latency_empty_kernel(benchmark):
     benchmark(launch_empty, empty_kernel, stream)
 
     cuda.synchronize()
+
 
 # Measure launch latency with a single parameter
 @pytest.mark.skipif(skip_tests, reason="Numba is not installed")
