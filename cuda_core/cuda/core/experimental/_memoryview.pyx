@@ -56,7 +56,8 @@ cdef class StridedMemoryView:
     dtype: numpy.dtype
         Data type of the tensor.
     device_id: int
-        The device ID for where the tensor is located. It is 0 for CPU tensors.
+        The device ID for where the tensor is located. It is -1 for CPU tensors
+        (meaning those only accessible from the host).
     device_accessible: bool
         Whether the tensor data can be accessed on the GPU.
     readonly: bool
@@ -78,7 +79,7 @@ cdef class StridedMemoryView:
     shape: tuple = None
     strides: tuple = None  # in counts, not bytes
     dtype: numpy.dtype = None
-    device_id: int = None  # 0 for CPU
+    device_id: int = None  # -1 for CPU
     device_accessible: bool = None
     readonly: bool = None
     exporting_obj: Any = None
@@ -152,27 +153,24 @@ cdef class _StridedMemoryViewProxy:
 cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef int dldevice, device_id, i
     cdef bint device_accessible, versioned, is_readonly
+    device_accessible = False
     dldevice, device_id = obj.__dlpack_device__()
     if dldevice == _kDLCPU:
-        device_accessible = False
         assert device_id == 0
+        device_id = -1
         if stream_ptr is None:
             raise BufferError("stream=None is ambiguous with view()")
         elif stream_ptr == -1:
             stream_ptr = None
     elif dldevice == _kDLCUDA:
+        assert device_id >= 0
         device_accessible = True
         # no need to check other stream values, it's a pass-through
         if stream_ptr is None:
             raise BufferError("stream=None is ambiguous with view()")
-    elif dldevice == _kDLCUDAHost:
+    elif dldevice in (_kDLCUDAHost, _kDLCUDAManaged):
         device_accessible = True
-        assert device_id == 0
-        # just do a pass-through without any checks, as pinned memory can be
-        # accessed on both host and device
-    elif dldevice == _kDLCUDAManaged:
-        device_accessible = True
-        # just do a pass-through without any checks, as managed memory can be
+        # just do a pass-through without any checks, as pinned/managed memory can be
         # accessed on both host and device
     else:
         raise BufferError("device not supported")
