@@ -22,16 +22,15 @@ def convert_strides_to_counts(strides, itemsize):
 
 
 @pytest.mark.parametrize(
-    "in_arr,", (
+    "in_arr,",
+    (
         np.empty(3, dtype=np.int32),
         np.empty((6, 6), dtype=np.float64)[::2, ::2],
-        np.empty((3, 4), order='F'),
-    )
+        np.empty((3, 4), order="F"),
+    ),
 )
 class TestViewCPU:
-
     def test_viewable_cpu(self, in_arr):
-
         @viewable((0,))
         def my_func(arr):
             # stream_ptr=-1 means "the consumer does not care"
@@ -49,8 +48,7 @@ class TestViewCPU:
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == in_arr.ctypes.data
         assert view.shape == in_arr.shape
-        strides_in_counts = convert_strides_to_counts(
-            in_arr.strides, in_arr.dtype.itemsize)
+        strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
         if in_arr.flags.c_contiguous:
             assert view.strides is None
         else:
@@ -68,7 +66,7 @@ def gpu_array_samples():
         samples += [
             (cp.empty(3, dtype=cp.complex64), None),
             (cp.empty((6, 6), dtype=cp.float64)[::2, ::2], True),
-            (cp.empty((3, 4), order='F'), True),
+            (cp.empty((3, 4), order="F"), True),
         ]
     # Numba's device_array is the only known array container that does not
     # support DLPack (so that we get to test the CAI coverage).
@@ -88,13 +86,8 @@ def gpu_array_ptr(arr):
     assert False, f"{arr=}"
 
 
-@pytest.mark.parametrize(
-    "in_arr,stream", (
-        *gpu_array_samples(),
-    )
-)
+@pytest.mark.parametrize("in_arr,stream", (*gpu_array_samples(),))
 class TestViewGPU:
-
     def test_viewable_gpu(self, in_arr, stream):
         # TODO: use the device fixture?
         dev = Device()
@@ -116,17 +109,14 @@ class TestViewGPU:
         # This is the consumer stream
         s = dev.create_stream() if stream else None
 
-        view = StridedMemoryView(
-            in_arr,
-            stream_ptr=s.handle if s else -1)
+        view = StridedMemoryView(in_arr, stream_ptr=s.handle if s else -1)
         self._check_view(view, in_arr, dev)
 
     def _check_view(self, view, in_arr, dev):
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == gpu_array_ptr(in_arr)
         assert view.shape == in_arr.shape
-        strides_in_counts = convert_strides_to_counts(
-            in_arr.strides, in_arr.dtype.itemsize)
+        strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
         if in_arr.flags["C_CONTIGUOUS"]:
             assert view.strides in (None, strides_in_counts)
         else:
