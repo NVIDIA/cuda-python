@@ -15,6 +15,7 @@
 #
 # ################################################################################
 
+import importlib
 import string
 import sys
 
@@ -61,14 +62,19 @@ if FFI:
         }
     }
     """).substitute(func_sig=func_sig)
+    # This is cffi's way of JIT compiling & loading a CPU function. cffi builds an
+    # extension module that has the Python binding to the underlying C function.
+    # For more details, please refer to cffi's documentation.
     cpu_prog = FFI()
-    cpu_prog.set_source("_cpu_obj", cpu_code, source_extension=".cpp")
     cpu_prog.cdef(f"{func_sig};")
+    cpu_prog.set_source(
+        "_cpu_obj",
+        cpu_code,
+        source_extension=".cpp",
+        extra_compile_args=["-std=c++11"],
+    )
     cpu_prog.compile()
-    # This is cffi's way of loading a CPU function. cffi builds an extension module
-    # that has the Python binding to the underlying C function. (For more details,
-    # please refer to cffi's documentation.)
-    from _cpu_obj.lib import inplace_plus_arange_N as cpu_func
+    cpu_func = getattr(importlib.import_module("_cpu_obj.lib"), func_name)
 
 # Here is a concrete (again, very naive!) implementation on GPU:
 if cp:
