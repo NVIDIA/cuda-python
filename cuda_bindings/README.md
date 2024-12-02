@@ -1,13 +1,15 @@
 # `cuda.bindings`: Low-level CUDA interfaces
 
-CUDA Python is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview](https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html) for the workflow and performance results.
+`cuda.bindings` is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview](https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html) for the workflow and performance results.
+
+`cuda.bindings` is a subpackage of `cuda-python`.
 
 ## Installing
 
 CUDA Python can be installed from:
 
-* PYPI
-* Conda (nvidia channel)
+* PyPI
+* Conda (conda-forge/nvidia channels)
 * Source builds
 
 Differences between these options are described in [Installation](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html) documentation. Each package guarantees minor version compatibility.
@@ -30,6 +32,30 @@ Before dropping support, an issue will be raised to look for feedback.
 Source builds work for multiple Python versions, however pre-build PyPI and Conda packages are only provided for a subset:
 
 * Python 3.9 to 3.12
+
+## Developing
+
+We use `pre-commit` to manage various tools to help development and ensure consistency.
+```shell
+pip install pre-commit
+```
+
+### Code linting
+
+Run this command before checking in the code changes
+```shell
+pre-commit run -a --show-diff-on-failure
+```
+to ensure the code formatting is in line of the requirements (as listed in [`pyproject.toml`](./pyproject.toml)).
+
+### Code signing
+
+This repository implements a security check to prevent the CI system from running untrusted code. A part of the
+security check consists of checking if the git commits are signed. See
+[here](https://docs.gha-runners.nvidia.com/apps/copy-pr-bot/faqs/#why-did-i-receive-a-comment-that-my-pull-request-requires-additional-validation)
+and
+[here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
+for more details, including how to sign your commits.
 
 ## Testing
 
