@@ -182,7 +182,7 @@ cdef class ParamHolder:
         for i, arg in enumerate(kernel_args):
             if isinstance(arg, Buffer):
                 # we need the address of where the actual buffer address is stored
-                self.data_addresses[i] = <void*><intptr_t>(arg._ptr.getPtr())
+                self.data_addresses[i] = <void*><intptr_t>(arg.handle.getPtr())
                 continue
             elif isinstance(arg, int):
                 # Here's the dilemma: We want to have a fast path to pass in Python
