@@ -41,7 +41,7 @@ Utility functions
 .. autosummary::
    :toctree: generated/
 
-   viewable
+   args_viewable_as_strided_memory
 
    :template: dataclass.rst
 

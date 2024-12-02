@@ -24,7 +24,7 @@ cdef class StridedMemoryView:
 
     A :obj:`StridedMemoryView` instance can be created in two ways:
 
-      1. Using the :obj:`viewable` decorator (recommended)
+      1. Using the :obj:`args_viewable_as_strided_memory` decorator (recommended)
       2. Explicit construction, see below
 
     This object supports both DLPack (up to v1.0) and CUDA Array Interface
@@ -334,7 +334,7 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     return buf
 
 
-def viewable(tuple arg_indices):
+def args_viewable_as_strided_memory(tuple arg_indices):
     """Decorator to create proxy objects to :obj:`StridedMemoryView` for the
     specified positional arguments.
 
@@ -350,7 +350,7 @@ def viewable(tuple arg_indices):
 
     .. code-block:: python
 
-        @viewable((1,))
+        @args_viewable_as_strided_memory((1,))
         def my_func(arg0, arg1, arg2, stream: Stream):
             # arg1 can be any object supporting DLPack or CUDA Array Interface
             view = arg1.view(stream.handle)

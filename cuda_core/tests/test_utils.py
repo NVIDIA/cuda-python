@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 
 from cuda.core.experimental import Device
-from cuda.core.experimental.utils import StridedMemoryView, viewable
+from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 
 def convert_strides_to_counts(strides, itemsize):
@@ -30,8 +30,8 @@ def convert_strides_to_counts(strides, itemsize):
     ),
 )
 class TestViewCPU:
-    def test_viewable_cpu(self, in_arr):
-        @viewable((0,))
+    def test_args_viewable_as_strided_memory_cpu(self, in_arr):
+        @args_viewable_as_strided_memory((0,))
         def my_func(arr):
             # stream_ptr=-1 means "the consumer does not care"
             view = arr.view(-1)
@@ -88,14 +88,14 @@ def gpu_array_ptr(arr):
 
 @pytest.mark.parametrize("in_arr,stream", (*gpu_array_samples(),))
 class TestViewGPU:
-    def test_viewable_gpu(self, in_arr, stream):
+    def test_args_viewable_as_strided_memory_gpu(self, in_arr, stream):
         # TODO: use the device fixture?
         dev = Device()
         dev.set_current()
         # This is the consumer stream
         s = dev.create_stream() if stream else None
 
-        @viewable((0,))
+        @args_viewable_as_strided_memory((0,))
         def my_func(arr):
             view = arr.view(s.handle if s else -1)
             self._check_view(view, in_arr, dev)
