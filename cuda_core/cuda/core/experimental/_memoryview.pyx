@@ -58,7 +58,7 @@ cdef class StridedMemoryView:
     device_id: int
         The device ID for where the tensor is located. It is -1 for CPU tensors
         (meaning those only accessible from the host).
-    device_accessible: bool
+    is_device_accessible: bool
         Whether the tensor data can be accessed on the GPU.
     readonly: bool
         Whether the tensor data can be modified in place.
@@ -80,7 +80,7 @@ cdef class StridedMemoryView:
     strides: tuple = None  # in counts, not bytes
     dtype: numpy.dtype = None
     device_id: int = None  # -1 for CPU
-    device_accessible: bool = None
+    is_device_accessible: bool = None
     readonly: bool = None
     exporting_obj: Any = None
 
@@ -101,7 +101,7 @@ cdef class StridedMemoryView:
               + f"                  strides={self.strides},\n"
               + f"                  dtype={get_simple_repr(self.dtype)},\n"
               + f"                  device_id={self.device_id},\n"
-              + f"                  device_accessible={self.device_accessible},\n"
+              + f"                  is_device_accessible={self.is_device_accessible},\n"
               + f"                  readonly={self.readonly},\n"
               + f"                  exporting_obj={get_simple_repr(self.exporting_obj)})")
 
@@ -152,8 +152,8 @@ cdef class _StridedMemoryViewProxy:
 
 cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef int dldevice, device_id, i
-    cdef bint device_accessible, versioned, is_readonly
-    device_accessible = False
+    cdef bint is_device_accessible, versioned, is_readonly
+    is_device_accessible = False
     dldevice, device_id = obj.__dlpack_device__()
     if dldevice == _kDLCPU:
         assert device_id == 0
@@ -164,12 +164,12 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
             stream_ptr = None
     elif dldevice == _kDLCUDA:
         assert device_id >= 0
-        device_accessible = True
+        is_device_accessible = True
         # no need to check other stream values, it's a pass-through
         if stream_ptr is None:
             raise BufferError("stream=None is ambiguous with view()")
     elif dldevice in (_kDLCUDAHost, _kDLCUDAManaged):
-        device_accessible = True
+        is_device_accessible = True
         # just do a pass-through without any checks, as pinned/managed memory can be
         # accessed on both host and device
     else:
@@ -221,7 +221,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         buf.strides = None
     buf.dtype = dtype_dlpack_to_numpy(&dl_tensor.dtype)
     buf.device_id = device_id
-    buf.device_accessible = device_accessible
+    buf.is_device_accessible = is_device_accessible
     buf.readonly = is_readonly
     buf.exporting_obj = obj
 
@@ -311,7 +311,7 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     if buf.strides is not None:
         # convert to counts
         buf.strides = tuple(s // buf.dtype.itemsize for s in buf.strides)
-    buf.device_accessible = True
+    buf.is_device_accessible = True
     buf.device_id = handle_return(
         cuda.cuPointerGetAttribute(
             cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,

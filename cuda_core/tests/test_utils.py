@@ -55,7 +55,7 @@ class TestViewCPU:
             assert view.strides == strides_in_counts
         assert view.dtype == in_arr.dtype
         assert view.device_id == -1
-        assert view.device_accessible == False
+        assert view.is_device_accessible == False
         assert view.exporting_obj is in_arr
 
 
@@ -123,5 +123,5 @@ class TestViewGPU:
             assert view.strides == strides_in_counts
         assert view.dtype == in_arr.dtype
         assert view.device_id == dev.device_id
-        assert view.device_accessible == True
+        assert view.is_device_accessible == True
         assert view.exporting_obj is in_arr
