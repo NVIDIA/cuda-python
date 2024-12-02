@@ -36,7 +36,7 @@ class Buffer:
         Allocated buffer handle object
     size : Any
         Memory size of the buffer
-    mr : :obj:`~cuda.core.experimental._memory.MemoryResource`, optional
+    mr : :obj:`~_memory.MemoryResource`, optional
         Memory resource associated with the buffer
 
     """
@@ -119,7 +119,7 @@ class Buffer:
 
         Parameters
         ----------
-        dst : :obj:`~cuda.core.experimental._memory.Buffer`
+        dst : :obj:`~_memory.Buffer`
             Source buffer to copy data from
         stream : Any
             Keyword argument specifying the stream for the
@@ -142,7 +142,7 @@ class Buffer:
 
         Parameters
         ----------
-        src : :obj:`~cuda.core.experimental._memory.Buffer`
+        src : :obj:`~_memory.Buffer`
             Source buffer to copy data from
         stream : Any
             Keyword argument specifying the stream for the

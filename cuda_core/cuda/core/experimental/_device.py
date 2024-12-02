@@ -23,11 +23,11 @@ class Device:
     and use the same GPU device.
 
     While acting as the entry point, many other CUDA resources can be
-    allocated such as streams and buffers. Any :obj:`~cuda.core.experimental._context.Context` dependent
+    allocated such as streams and buffers. Any :obj:`~_context.Context` dependent
     resource created through this device, will continue to refer to
     this device's context.
 
-    Newly returned :obj:`~cuda.core.experimental._device.Device` objects are thread-local singletons
+    Newly returned :obj:`~_device.Device` objects are thread-local singletons
     for a specified device.
 
     Note
@@ -37,7 +37,7 @@ class Device:
     Parameters
     ----------
     device_id : int, optional
-        Device ordinal to return a :obj:`~cuda.core.experimental._device.Device` object for.
+        Device ordinal to return a :obj:`~_device.Device` object for.
         Default value of `None` return the currently used device.
 
     """
@@ -134,7 +134,7 @@ class Device:
     @property
     @precondition(_check_context_initialized)
     def context(self) -> Context:
-        """Return the current :obj:`~cuda.core.experimental._context.Context` associated with this device.
+        """Return the current :obj:`~_context.Context` associated with this device.
 
         Note
         ----
@@ -147,7 +147,7 @@ class Device:
 
     @property
     def memory_resource(self) -> MemoryResource:
-        """Return :obj:`~cuda.core.experimental._memory.MemoryResource` associated with this device."""
+        """Return :obj:`~_memory.MemoryResource` associated with this device."""
         return self._mr
 
     @memory_resource.setter
@@ -158,7 +158,7 @@ class Device:
 
     @property
     def default_stream(self) -> Stream:
-        """Return default CUDA :obj:`~cuda.core.experimental._stream.Stream` associated with this device.
+        """Return default CUDA :obj:`~_stream.Stream` associated with this device.
 
         The type of default stream returned depends on if the environment
         variable CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set.
@@ -181,18 +181,18 @@ class Device:
 
         Initializes CUDA and sets the calling thread to a valid CUDA
         context. By default the primary context is used, but optional `ctx`
-        parameter can be used to explicitly supply a :obj:`~cuda.core.experimental._context.Context` object.
+        parameter can be used to explicitly supply a :obj:`~_context.Context` object.
 
         Providing a `ctx` causes the previous set context to be popped and returned.
 
         Parameters
         ----------
-        ctx : :obj:`~cuda.core.experimental._context.Context`, optional
+        ctx : :obj:`~_context.Context`, optional
             Optional context to push onto this device's current thread stack.
 
         Returns
         -------
-        Union[:obj:`~cuda.core.experimental._context.Context`, None], optional
+        Union[:obj:`~_context.Context`, None], optional
             Popped context.
 
         Examples
@@ -237,7 +237,7 @@ class Device:
             self._has_inited = True
 
     def create_context(self, options: ContextOptions = None) -> Context:
-        """Create a new :obj:`~cuda.core.experimental._context.Context` object.
+        """Create a new :obj:`~_context.Context` object.
 
         Note
         ----
@@ -245,12 +245,12 @@ class Device:
 
         Parameters
         ----------
-        options : :obj:`~cuda.core.experimental._context.ContextOptions`, optional
+        options : :obj:`~_context.ContextOptions`, optional
             Customizable dataclass for context creation options.
 
         Returns
         -------
-        :obj:`~cuda.core.experimental._context.Context`
+        :obj:`~_context.Context`
             Newly created context object.
 
         """
@@ -276,12 +276,12 @@ class Device:
         ----------
         obj : Any, optional
             Any object supporting the __cuda_stream__ protocol.
-        options : :obj:`~cuda.core.experimental._stream.StreamOptions`, optional
+        options : :obj:`~_stream.StreamOptions`, optional
             Customizable dataclass for stream creation options.
 
         Returns
         -------
-        :obj:`~cuda.core.experimental._stream.Stream`
+        :obj:`~_stream.Stream`
             Newly created stream object.
 
         """
@@ -304,13 +304,13 @@ class Device:
         ----------
         size : int
             Number of bytes to allocate.
-        stream : :obj:`~cuda.core.experimental._stream.Stream`, optional
+        stream : :obj:`~_stream.Stream`, optional
             The stream establishing the stream ordering semantic.
             Default value of `None` uses default stream.
 
         Returns
         -------
-        :obj:`~cuda.core.experimental._memory.Buffer`
+        :obj:`~_memory.Buffer`
             Newly created buffer object.
 
         """

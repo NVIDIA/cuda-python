@@ -18,7 +18,7 @@ from cuda.core.experimental._utils import check_or_create_options, get_device_fr
 
 @dataclass
 class StreamOptions:
-    """Customizable :obj:`~cuda.core.experimental._stream.Stream` options.
+    """Customizable :obj:`~_stream.Stream` options.
 
     Attributes
     ----------
@@ -40,13 +40,13 @@ class Stream:
     Applications use streams to control the order of execution for
     GPU work. Work within a single stream are executed sequentially.
     Whereas work across multiple streams can be further controlled
-    using stream priorities and :obj:`~cuda.core.experimental._event.Event` managements.
+    using stream priorities and :obj:`~_event.Event` managements.
 
     Advanced users can utilize default streams for enforce complex
     implicit synchronization behaviors.
 
-    Directly creating a :obj:`~cuda.core.experimental._stream.Stream` is not supported due to ambiguity.
-    New streams should instead be created through a :obj:`~cuda.core.experimental._device.Device`
+    Directly creating a :obj:`~_stream.Stream` is not supported due to ambiguity.
+    New streams should instead be created through a :obj:`~_device.Device`
     object, or created directly through using an existing handle
     using Stream.from_handle().
 
@@ -172,14 +172,14 @@ class Stream:
 
         Parameters
         ----------
-        event : :obj:`~cuda.core.experimental._event.Event`, optional
+        event : :obj:`~_event.Event`, optional
             Optional event object to be reused for recording.
         options : :obj:`EventOptions`, optional
             Customizable dataclass for event creation options.
 
         Returns
         -------
-        :obj:`~cuda.core.experimental._event.Event`
+        :obj:`~_event.Event`
             Newly created event object.
 
         """
@@ -198,8 +198,8 @@ class Stream:
 
         Waiting for an event or a stream establishes a stream order.
 
-        If a :obj:`~cuda.core.experimental._stream.Stream` is provided, then wait until the stream's
-        work is completed. This is done by recording a new :obj:`~cuda.core.experimental._event.Event`
+        If a :obj:`~_stream.Stream` is provided, then wait until the stream's
+        work is completed. This is done by recording a new :obj:`~_event.Event`
         on the stream and then waiting on it.
 
         """
@@ -225,7 +225,7 @@ class Stream:
 
     @property
     def device(self) -> Device:
-        """Return the :obj:`~cuda.core.experimental._device.Device` singleton associated with this stream.
+        """Return the :obj:`~_device.Device` singleton associated with this stream.
 
         Note
         ----
@@ -245,7 +245,7 @@ class Stream:
 
     @property
     def context(self) -> Context:
-        """Return the :obj:`~cuda.core.experimental._context.Context` associated with this stream."""
+        """Return the :obj:`~_context.Context` associated with this stream."""
         if self._ctx_handle is None:
             self._ctx_handle = handle_return(cuda.cuStreamGetCtx(self._handle))
         if self._device_id is None:
@@ -254,10 +254,10 @@ class Stream:
 
     @staticmethod
     def from_handle(handle: int) -> Stream:
-        """Create a new :obj:`~cuda.core.experimental._stream.Stream` object from a foreign stream handle.
+        """Create a new :obj:`~_stream.Stream` object from a foreign stream handle.
 
         Uses a cudaStream_t pointer address represented as a Python int
-        to create a new :obj:`~cuda.core.experimental._stream.Stream` object.
+        to create a new :obj:`~_stream.Stream` object.
 
         Note
         ----
@@ -272,7 +272,7 @@ class Stream:
 
         Returns
         -------
-        :obj:`~cuda.core.experimental._stream.Stream`
+        :obj:`~_stream.Stream`
             Newly created stream object.
 
         """
@@ -308,7 +308,7 @@ PER_THREAD_DEFAULT_STREAM = _PerThreadDefaultStream()
 
 
 def default_stream():
-    """Return the default CUDA :obj:`~cuda.core.experimental._stream.Stream`.
+    """Return the default CUDA :obj:`~_stream.Stream`.
 
     The type of default stream returned depends on if the environment
     variable CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set.

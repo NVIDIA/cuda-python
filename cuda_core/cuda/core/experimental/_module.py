@@ -48,10 +48,10 @@ class Kernel:
     """Represent a compiled kernel that had been loaded onto the device.
 
     Kernel instances can execution when passed directly into the
-    :func:`~cuda.core.experimental.launch` function.
+    :func:`~launch` function.
 
-    Directly creating a :obj:`~cuda.core.experimental._module.Kernel` is not supported, and they
-    should instead be created through a :obj:`~cuda.core.experimental._module.ObjectCode` object.
+    Directly creating a :obj:`~_module.Kernel` is not supported, and they
+    should instead be created through a :obj:`~_module.ObjectCode` object.
 
     """
 
@@ -153,7 +153,7 @@ class ObjectCode:
         pass
 
     def get_kernel(self, name):
-        """Return the :obj:`~cuda.core.experimental._module.Kernel` of a specified name from this object code.
+        """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
         ----------
@@ -162,7 +162,7 @@ class ObjectCode:
 
         Returns
         -------
-        :obj:`~cuda.core.experimental._module.Kernel`
+        :obj:`~_module.Kernel`
             Newly created kernel object.
 
         """
