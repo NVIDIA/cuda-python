@@ -148,9 +148,7 @@ class ObjectCode:
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
-    def __del__(self):
-        # TODO: do we want to unload? Probably not..
-        pass
+    # TODO: do we want to unload in a finalizer? Probably not..
 
     def get_kernel(self, name):
         """Return the :obj:`Kernel` of a specified name from this object code.

@@ -131,7 +131,7 @@ def launch(kernel, config, *kernel_args):
         drv_cfg = cuda.CUlaunchConfig()
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
         drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
-        drv_cfg.hStream = config.stream._handle
+        drv_cfg.hStream = config.stream.handle
         drv_cfg.sharedMemBytes = config.shmem_size
         drv_cfg.numAttrs = 0  # TODO
         handle_return(cuda.cuLaunchKernelEx(drv_cfg, int(kernel._handle), args_ptr, 0))
