@@ -193,11 +193,49 @@ class LinkerOptions:
 
 
 class Linker:
-    __slots__ = ("__weakref__", "_handle", "_options")
+    """
+    Linker class for managing the linking of object codes with specified options.
+
+    Parameters
+    ----------
+    object_codes : ObjectCode
+        One or more ObjectCode objects to be linked.
+    options : LinkerOptions, optional
+        Options for the linker. If not provided, default options will be used.
+
+    Attributes
+    ----------
+    _options : LinkerOptions
+        The options used for the linker.
+    _handle : handle
+        The handle to the linker created by nvjitlink.
+
+    Methods
+    -------
+    _add_code_object(object_code)
+        Adds an object code to the linker.
+    close()
+        Closes the linker and releases resources.
+    """
+
+    class _MembersNeededForFinalize:
+        __slots__ = ("handle",)
+
+        def __init__(self, program_obj, handle):
+            self.handle = handle
+            weakref.finalize(program_obj, self.close)
+
+        def close(self):
+            if self.handle is not None:
+                nvjitlink.destroy(self.handle)
+                self.handle = None
+
+    __slots__ = ("__weakref__", "_mnff", "_options")
 
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
         self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
-        self._handle = nvjitlink.create(len(options.formatted_options), options.formatted_options)
+        self._mnff.handle = nvjitlink.create(len(options.formatted_options), options.formatted_options)
+        self._mnff = Linker._MembersNeededForFinalize(self, None)
 
         if len(object_codes) == 0:
             raise ValueError("At least one ObjectCode object must be provided")
@@ -212,7 +250,7 @@ class Linker:
         data = object_code._module
         assert isinstance(data, bytes)
         nvjitlink.add_data(
-            self._handle,
+            self._mnff.handle,
             self._input_type_from_code_type(object_code._code_type),
             data,
             len(data),
@@ -220,31 +258,31 @@ class Linker:
         )
 
     def link(self, target_type) -> ObjectCode:
-        nvjitlink.complete(self._handle)
+        nvjitlink.complete(self._mnff.handle)
         if target_type not in ("cubin", "ptx"):
             raise ValueError(f"Unsupported target type: {target_type}")
         code = None
         if target_type == "cubin":
-            cubin_size = nvjitlink.get_linked_cubin_size(self._handle)
+            cubin_size = nvjitlink.get_linked_cubin_size(self._mnff.handle)
             code = bytearray(cubin_size)
-            nvjitlink.get_linked_cubin(self._handle, code)
+            nvjitlink.get_linked_cubin(self._mnff.handle, code)
         else:
-            ptx_size = nvjitlink.get_linked_ptx_size(self._handle)
+            ptx_size = nvjitlink.get_linked_ptx_size(self._mnff.handle)
             code = bytearray(ptx_size)
-            nvjitlink.get_linked_ptx(self._handle, code)
+            nvjitlink.get_linked_ptx(self._mnff.handle, code)
 
         return ObjectCode(bytes(code), target_type)
 
     def get_error_log(self) -> str:
-        log_size = nvjitlink.get_error_log_size(self._handle)
+        log_size = nvjitlink.get_error_log_size(self._mnff.handle)
         log = bytearray(log_size)
-        nvjitlink.get_error_log(self._handle, log)
+        nvjitlink.get_error_log(self._mnff.handle, log)
         return log.decode()
 
     def get_info_log(self) -> str:
-        log_size = nvjitlink.get_info_log_size(self._handle)
+        log_size = nvjitlink.get_info_log_size(self._mnff.handle)
         log = bytearray(log_size)
-        nvjitlink.get_info_log(self._handle, log)
+        nvjitlink.get_info_log(self._mnff.handle, log)
         return log.decode()
 
     def _input_type_from_code_type(self, code_type: str) -> nvjitlink.InputType:
@@ -265,9 +303,7 @@ class Linker:
 
     @property
     def handle(self) -> int:
-        return self._handle
+        return self._mnff.handle
 
     def close(self):
-        if self._handle is not None:
-            nvjitlink.destroy(self._handle)
-            self._handle = None
+        self._mnff.close()
