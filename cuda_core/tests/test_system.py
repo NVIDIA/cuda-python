@@ -11,7 +11,7 @@ from cuda.core.experimental._utils import handle_return
 def test_system_singleton():
     system1 = system
     system2 = system
-    assert system1 is system2, "system is not a singleton"
+    assert id(system1) == id(system2), "system is not a singleton"
 
 def test_driver_version():
     driver_version = system.driver_version
