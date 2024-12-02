@@ -64,5 +64,5 @@ class System:
 
 system = System()
 system.__doc__ = """
-Singleton instance of the :obj:`~cuda.core.experimental._system.System` class.
+Singleton instance of the :obj:`_system.System` class.
 """
