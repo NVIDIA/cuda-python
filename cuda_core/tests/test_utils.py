@@ -55,7 +55,7 @@ class TestViewCPU:
             assert view.strides == strides_in_counts
         assert view.dtype == in_arr.dtype
         assert view.device_id == -1
-        assert view.is_device_accessible == False
+        assert view.is_device_accessible is False
         assert view.exporting_obj is in_arr
 
 
@@ -83,7 +83,7 @@ def gpu_array_ptr(arr):
         return arr.data.ptr
     if numba_cuda is not None and isinstance(arr, numba_cuda.cudadrv.devicearray.DeviceNDArray):
         return arr.device_ctypes_pointer.value
-    assert False, f"{arr=}"
+    raise NotImplementedError(f"{arr=}")
 
 
 @pytest.mark.parametrize("in_arr,stream", (*gpu_array_samples(),))
@@ -123,5 +123,5 @@ class TestViewGPU:
             assert view.strides == strides_in_counts
         assert view.dtype == in_arr.dtype
         assert view.device_id == dev.device_id
-        assert view.is_device_accessible == True
+        assert view.is_device_accessible is True
         assert view.exporting_obj is in_arr

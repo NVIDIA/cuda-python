@@ -50,7 +50,7 @@ def clean_up_cffi_files():
     yield
     files = glob.glob(os.path.join(os.getcwd(), "_cpu_obj*"))
     for f in files:
-        try:
+        try:  # noqa: SIM105
             os.remove(f)
         except FileNotFoundError:
-            pass
+            pass  # noqa: SIM105

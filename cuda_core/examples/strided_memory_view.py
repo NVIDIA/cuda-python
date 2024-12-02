@@ -12,7 +12,7 @@
 #
 # To facilitate this demo, we use cffi (https://cffi.readthedocs.io/) for the CPU
 # path, which can be easily installed from pip or conda following their instruction.
-# We also use NumPy/CuPy as the CPU/GPU array container. 
+# We also use NumPy/CuPy as the CPU/GPU array container.
 #
 # ################################################################################
 
@@ -31,11 +31,8 @@ except ImportError:
     cp = None
 import numpy as np
 
-from cuda.core.experimental import Device, Program
-from cuda.core.experimental import launch, LaunchConfig
-from cuda.core.experimental.utils import args_viewable_as_strided_memory
-from cuda.core.experimental.utils import StridedMemoryView
-
+from cuda.core.experimental import Device, LaunchConfig, Program, launch
+from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 # ################################################################################
 #
@@ -94,7 +91,8 @@ if cp:
     mod = gpu_prog.compile(
         target_type="cubin",
         # TODO: update this after NVIDIA/cuda-python#237 is merged
-        options=(f"-arch=sm_{arch}", "-std=c++11"))
+        options=(f"-arch=sm_{arch}", "-std=c++11"),
+    )
     gpu_ker = mod.get_kernel(func_name)
 
 # Now we are prepared to run the code from the user's perspective!
@@ -104,6 +102,7 @@ if cp:
 
 # Below, as a user we want to perform the said in-place operation on either CPU
 # or GPU, by calling the corresponding function implemented "elsewhere" (done above).
+
 
 @args_viewable_as_strided_memory((0,))
 def my_func(arr, work_stream):
