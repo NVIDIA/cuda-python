@@ -6,12 +6,11 @@
 #
 # This demo aims to illustrate two takeaways:
 #
-#   1. The similarity between CPU and GPU JIT-compilation for C++ sources
-#   2. How to use StridedMemoryView to interface with foreign CPU/GPU functions
-#      at low-level
+#   1. The similarity between CPU and GPU JIT-compilation with C++ sources
+#   2. How to use StridedMemoryView to interface with foreign C/C++ functions
 #
 # To facilitate this demo, we use cffi (https://cffi.readthedocs.io/) for the CPU
-# path, which can be easily installed from pip or conda following their instruction.
+# path, which can be easily installed from pip or conda following their instructions.
 # We also use NumPy/CuPy as the CPU/GPU array container.
 #
 # ################################################################################
@@ -22,12 +21,12 @@ import sys
 try:
     from cffi import FFI
 except ImportError:
-    print("cffi is not installed, the CPU example would be skipped", file=sys.stderr)
+    print("cffi is not installed, the CPU example will be skipped", file=sys.stderr)
     cffi = None
 try:
     import cupy as cp
 except ImportError:
-    print("cupy is not installed, the GPU example would be skipped", file=sys.stderr)
+    print("cupy is not installed, the GPU example will be skipped", file=sys.stderr)
     cp = None
 import numpy as np
 
@@ -55,11 +54,10 @@ func_sig = f"void {func_name}(int* data, size_t N)"
 # Here is a concrete (very naive!) implementation on CPU:
 if FFI:
     cpu_code = string.Template(r"""
-    extern "C" {
-        $func_sig {
-            for (size_t i = 0; i < N; i++) {
-                data[i] += i;
-            }
+    extern "C"
+    $func_sig {
+        for (size_t i = 0; i < N; i++) {
+            data[i] += i;
         }
     }
     """).substitute(func_sig=func_sig)
@@ -115,7 +113,7 @@ def my_func(arr, work_stream):
     size = view.shape[0]
     if view.is_device_accessible:
         block = 256
-        grid = size // 256
+        grid = (size + block - 1) // block
         config = LaunchConfig(grid=grid, block=block, stream=work_stream)
         launch(gpu_ker, config, view.ptr, np.uint64(size))
         # here we're being conservative and synchronize over our work stream,
@@ -124,7 +122,7 @@ def my_func(arr, work_stream):
         #
         #   producer_stream.wait(work_stream)
         #
-        # without an expansive synchronization.
+        # without an expensive synchronization.
         work_stream.sync()
     else:
         cpu_func(cpu_prog.cast("int*", view.ptr), size)
