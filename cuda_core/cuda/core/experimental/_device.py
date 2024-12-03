@@ -64,10 +64,10 @@ class Device:
                     dev._id = dev_id
                     # If the device is in TCC mode, or does not support memory pools for some other reason,
                     # use the SynchronousMemoryResource which does not use memory pools.
-                    if (handle_return(cudart.cudaGetDeviceProperties(dev_id))).memoryPoolsSupported == 0:
-                        dev._mr = _SynchronousMemoryResource(dev_id)
-                    else:
+                    if (handle_return(cudart.cudaGetDeviceProperties(dev_id))).memoryPoolsSupported == 1:
                         dev._mr = _DefaultAsyncMempool(dev_id)
+                    else:
+                        dev._mr = _SynchronousMemoryResource(dev_id)
 
                     dev._has_inited = False
                     _tls.devices.append(dev)
