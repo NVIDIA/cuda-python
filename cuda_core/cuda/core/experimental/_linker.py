@@ -234,8 +234,9 @@ class Linker:
 
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
         self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
-        self._mnff.handle = nvjitlink.create(len(options.formatted_options), options.formatted_options)
-        self._mnff = Linker._MembersNeededForFinalize(self, None)
+        self._mnff = Linker._MembersNeededForFinalize(
+            self, nvjitlink.create(len(options.formatted_options), options.formatted_options)
+        )
 
         if len(object_codes) == 0:
             raise ValueError("At least one ObjectCode object must be provided")
@@ -243,8 +244,6 @@ class Linker:
         for code in object_codes:
             assert isinstance(code, ObjectCode)
             self._add_code_object(code)
-
-        weakref.finalize(self, self.close)
 
     def _add_code_object(self, object_code: ObjectCode):
         data = object_code._module
@@ -257,19 +256,21 @@ class Linker:
             f"{object_code._handle}_{object_code._code_type}",
         )
 
+    _get_linked_methods = {
+        "cubin": (nvjitlink.get_linked_cubin_size, nvjitlink.get_linked_cubin),
+        "ptx": (nvjitlink.get_linked_ptx_size, nvjitlink.get_linked_ptx),
+    }
+
     def link(self, target_type) -> ObjectCode:
         nvjitlink.complete(self._mnff.handle)
-        if target_type not in ("cubin", "ptx"):
+        get_linked = self._get_linked_methods.get(target_type)
+        if get_linked is None:
             raise ValueError(f"Unsupported target type: {target_type}")
-        code = None
-        if target_type == "cubin":
-            cubin_size = nvjitlink.get_linked_cubin_size(self._mnff.handle)
-            code = bytearray(cubin_size)
-            nvjitlink.get_linked_cubin(self._mnff.handle, code)
-        else:
-            ptx_size = nvjitlink.get_linked_ptx_size(self._mnff.handle)
-            code = bytearray(ptx_size)
-            nvjitlink.get_linked_ptx(self._mnff.handle, code)
+
+        get_size, get_code = get_linked
+        size = get_size(self._mnff.handle)
+        code = bytearray(size)
+        get_code(self._mnff.handle, code)
 
         return ObjectCode(bytes(code), target_type)
 
@@ -285,21 +286,22 @@ class Linker:
         nvjitlink.get_info_log(self._mnff.handle, log)
         return log.decode()
 
+    _input_types = {
+        "ptx": nvjitlink.InputType.PTX,
+        "cubin": nvjitlink.InputType.CUBIN,
+        "fatbin": nvjitlink.InputType.FATBIN,
+        "ltoir": nvjitlink.InputType.LTOIR,
+        "object": nvjitlink.InputType.OBJECT,
+    }
+
     def _input_type_from_code_type(self, code_type: str) -> nvjitlink.InputType:
         # this list is based on the supported values for code_type in the ObjectCode class definition.
         # nvjitlink supports other options for input type
-        if code_type == "ptx":
-            return nvjitlink.InputType.PTX
-        elif code_type == "cubin":
-            return nvjitlink.InputType.CUBIN
-        elif code_type == "fatbin":
-            return nvjitlink.InputType.FATBIN
-        elif code_type == "ltoir":
-            return nvjitlink.InputType.LTOIR
-        elif code_type == "object":
-            return nvjitlink.InputType.OBJECT
-        else:
+        input_type = self._input_types.get(code_type)
+
+        if input_type is None:
             raise ValueError(f"Unknown code_type associated with ObjectCode: {code_type}")
+        return input_type
 
     @property
     def handle(self) -> int:
