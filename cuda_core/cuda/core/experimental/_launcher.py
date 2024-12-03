@@ -151,7 +151,7 @@ def launch(kernel, config, *kernel_args):
             attr = cuda.CUlaunchAttribute()
             attr.id = cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
             attr.value.clusterDim.x, attr.value.clusterDim.y, attr.value.clusterDim.z = config.cluster
-            drv_cfg.attrs.append(attr)
+            drv_cfg.attrs = [attr]  # TODO: WHAT!!
         handle_return(cuda.cuLaunchKernelEx(drv_cfg, int(kernel._handle), args_ptr, 0))
     else:
         # TODO: check if config has any unsupported attrs
