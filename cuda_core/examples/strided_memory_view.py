@@ -23,7 +23,7 @@ try:
     from cffi import FFI
 except ImportError:
     print("cffi is not installed, the CPU example will be skipped", file=sys.stderr)
-    cffi = None
+    FFI = None
 try:
     import cupy as cp
 except ImportError:
@@ -107,28 +107,33 @@ if cp:
 # Below, as a user we want to perform the said in-place operation on either CPU
 # or GPU, by calling the corresponding function implemented "elsewhere" (done above).
 
-
+# We assume the 0-th argument supports either DLPack or CUDA Array Interface (both
+# of which are supported by StridedMemoryView).
 @args_viewable_as_strided_memory((0,))
 def my_func(arr, work_stream):
-    # create a memory view over arr, assumed to be a 1D array of int32
+    # Create a memory view over arr (assumed to be a 1D array of int32). The stream
+    # ordering is taken care of, so that arr can be safely accessed on our work
+    # stream (ordered after a data stream on which arr is potentially prepared).
     view = arr.view(work_stream.handle if work_stream else -1)
     assert isinstance(view, StridedMemoryView)
     assert len(view.shape) == 1
     assert view.dtype == np.int32
 
     size = view.shape[0]
+    # DLPack also supports host arrays. We want to know if the array data is
+    # accessible from the GPU, and dispatch to the right routine accordingly.
     if view.is_device_accessible:
         block = 256
         grid = (size + block - 1) // block
         config = LaunchConfig(grid=grid, block=block, stream=work_stream)
         launch(gpu_ker, config, view.ptr, np.uint64(size))
-        # here we're being conservative and synchronize over our work stream,
-        # assuming we do not know the (producer/source) stream; if we know
-        # then we could just order the producer/consumer streams here, e.g.
+        # Here we're being conservative and synchronize over our work stream,
+        # assuming we do not know the data stream; if we know then we could
+        # just order the data stream after the work stream here, e.g.
         #
-        #   producer_stream.wait(work_stream)
+        #   data_stream.wait(work_stream)
         #
-        # without an expensive synchronization.
+        # without an expensive synchronization (with respect to the host).
         work_stream.sync()
     else:
         cpu_func(cpu_prog.cast("int*", view.ptr), size)
