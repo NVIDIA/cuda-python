@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import weakref
 from dataclasses import dataclass
 from typing import Optional
 
@@ -50,10 +51,21 @@ class Event:
 
     """
 
-    __slots__ = ("_handle", "_timing_disabled", "_busy_waited")
+    class _MembersNeededForFinalize:
+        __slots__ = ("handle",)
+
+        def __init__(self, event_obj, handle):
+            self.handle = handle
+            weakref.finalize(event_obj, self.close)
+
+        def close(self):
+            if self.handle is not None:
+                handle_return(cuda.cuEventDestroy(self.handle))
+                self.handle = None
+
+    __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
 
     def __init__(self):
-        self._handle = None
         raise NotImplementedError(
             "directly creating an Event object can be ambiguous. Please call call Stream.record()."
         )
@@ -61,8 +73,7 @@ class Event:
     @staticmethod
     def _init(options: Optional[EventOptions] = None):
         self = Event.__new__(Event)
-        # minimal requirements for the destructor
-        self._handle = None
+        self._mnff = Event._MembersNeededForFinalize(self, None)
 
         options = check_or_create_options(EventOptions, options, "Event options")
         flags = 0x0
@@ -76,18 +87,12 @@ class Event:
             self._busy_waited = True
         if options.support_ipc:
             raise NotImplementedError("TODO")
-        self._handle = handle_return(cuda.cuEventCreate(flags))
+        self._mnff.handle = handle_return(cuda.cuEventCreate(flags))
         return self
-
-    def __del__(self):
-        """Return close(self)"""
-        self.close()
 
     def close(self):
         """Destroy the event."""
-        if self._handle:
-            handle_return(cuda.cuEventDestroy(self._handle))
-            self._handle = None
+        self._mnff.close()
 
     @property
     def is_timing_disabled(self) -> bool:
@@ -114,12 +119,12 @@ class Event:
         has been completed.
 
         """
-        handle_return(cuda.cuEventSynchronize(self._handle))
+        handle_return(cuda.cuEventSynchronize(self._mnff.handle))
 
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
-        (result,) = cuda.cuEventQuery(self._handle)
+        (result,) = cuda.cuEventQuery(self._mnff.handle)
         if result == cuda.CUresult.CUDA_SUCCESS:
             return True
         elif result == cuda.CUresult.CUDA_ERROR_NOT_READY:
@@ -130,4 +135,4 @@ class Event:
     @property
     def handle(self) -> int:
         """Return the underlying cudaEvent_t pointer address as Python int."""
-        return int(self._handle)
+        return int(self._mnff.handle)
