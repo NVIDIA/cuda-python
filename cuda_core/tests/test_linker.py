@@ -4,15 +4,15 @@ from cuda.core.experimental import Linker, LinkerOptions, Program
 from cuda.core.experimental._module import ObjectCode
 
 ARCH = "sm_80"  # use sm_80 for testing the oop nvJitLink wrapper
-empty_entrypoint_kernel = "__global__ void A() {}"
-empty_kernel = "__device__ void B() {}"
+empty_kernel = "__device__ void A() {}"
+basic_kernel = "__device__ int B() { return 0; }"
 addition_kernel = "__device__ int C(int a, int b) { return a + b; }"
 
 
 @pytest.fixture(scope="function")
 def compile_ptx_functions(init_cuda):
-    object_code_a_ptx = Program(empty_entrypoint_kernel, "c++").compile("ptx")
-    object_code_b_ptx = Program(empty_kernel, "c++").compile("ptx")
+    object_code_a_ptx = Program(empty_kernel, "c++").compile("ptx")
+    object_code_b_ptx = Program(basic_kernel, "c++").compile("ptx")
     object_code_c_ptx = Program(addition_kernel, "c++").compile("ptx")
 
     return object_code_a_ptx, object_code_b_ptx, object_code_c_ptx
@@ -20,8 +20,8 @@ def compile_ptx_functions(init_cuda):
 
 @pytest.fixture(scope="function")
 def compile_ltoir_functions(init_cuda):
-    object_code_a_ltoir = Program(empty_entrypoint_kernel, "c++").compile("ltoir", options=("-dlto",))
-    object_code_b_ltoir = Program(empty_kernel, "c++").compile("ltoir", options=("-dlto",))
+    object_code_a_ltoir = Program(empty_kernel, "c++").compile("ltoir", options=("-dlto",))
+    object_code_b_ltoir = Program(basic_kernel, "c++").compile("ltoir", options=("-dlto",))
     object_code_c_ltoir = Program(addition_kernel, "c++").compile("ltoir", options=("-dlto",))
 
     return object_code_a_ltoir, object_code_b_ltoir, object_code_c_ltoir
