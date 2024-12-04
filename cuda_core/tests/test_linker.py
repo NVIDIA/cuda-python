@@ -8,6 +8,17 @@ empty_kernel = "__device__ void A() {}"
 basic_kernel = "__device__ int B() { return 0; }"
 addition_kernel = "__device__ int C(int a, int b) { return a + b; }"
 
+try:
+    from cuda.bindings import nvjitlink  # noqa F401
+    from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+except ImportError:
+    # binding is not available
+    culink_backend = True
+else:
+    if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") == 0:
+        # binding is available, but nvJitLink is not installed
+        culink_backend = True
+
 
 @pytest.fixture(scope="function")
 def compile_ptx_functions(init_cuda):
@@ -27,27 +38,36 @@ def compile_ltoir_functions(init_cuda):
     return object_code_a_ltoir, object_code_b_ltoir, object_code_c_ltoir
 
 
+culink_options = [
+    LinkerOptions(arch=ARCH),
+    LinkerOptions(arch=ARCH, max_register_count=32),
+    LinkerOptions(arch=ARCH, verbose=True),
+    LinkerOptions(arch=ARCH, optimization_level=3),
+    LinkerOptions(arch=ARCH, debug=True),
+    LinkerOptions(arch=ARCH, lineinfo=True),
+    LinkerOptions(arch=ARCH, no_cache=True),
+]
+
+
 @pytest.mark.parametrize(
     "options",
-    [
-        LinkerOptions(arch=ARCH),
-        LinkerOptions(arch=ARCH, max_register_count=32),
+    culink_options
+    if culink_backend
+    else culink_options
+    + [
         LinkerOptions(arch=ARCH, time=True),
-        LinkerOptions(arch=ARCH, verbose=True),
-        LinkerOptions(arch=ARCH, optimization_level=3),
-        LinkerOptions(arch=ARCH, debug=True),
-        LinkerOptions(arch=ARCH, lineinfo=True),
         LinkerOptions(arch=ARCH, ftz=True),
         LinkerOptions(arch=ARCH, prec_div=True),
         LinkerOptions(arch=ARCH, prec_sqrt=True),
         LinkerOptions(arch=ARCH, fma=True),
         LinkerOptions(arch=ARCH, kernels_used=["kernel1"]),
+        LinkerOptions(arch=ARCH, kernels_used=["kernel1", "kernel2"]),
         LinkerOptions(arch=ARCH, variables_used=["var1"]),
+        LinkerOptions(arch=ARCH, variables_used=["var1", "var2"]),
         LinkerOptions(arch=ARCH, optimize_unused_variables=True),
-        # LinkerOptions(arch=ARCH, xptxas=["-v"]),
-        # LinkerOptions(arch=ARCH, split_compile=0),
+        LinkerOptions(arch=ARCH, xptxas=["-v"]),
+        LinkerOptions(arch=ARCH, split_compile=0),
         LinkerOptions(arch=ARCH, split_compile_extended=1),
-        # LinkerOptions(arch=ARCH, no_cache=True),
     ],
 )
 def test_linker_init(compile_ptx_functions, options):
@@ -62,11 +82,12 @@ def test_linker_init_invalid_arch():
         Linker(options)
 
 
-# def test_linker_link_ptx(compile_ltoir_functions):
-#     options = LinkerOptions(arch=ARCH, link_time_optimization=True, ptx=True)
-#     linker = Linker(*compile_ltoir_functions, options=options)
-#     linked_code = linker.link("ptx")
-#     assert isinstance(linked_code, ObjectCode)
+@pytest.mark.skipif(culink_backend, reason="culink does not support ptx option")
+def test_linker_link_ptx(compile_ltoir_functions):
+    options = LinkerOptions(arch=ARCH, link_time_optimization=True, ptx=True)
+    linker = Linker(*compile_ltoir_functions, options=options)
+    linked_code = linker.link("ptx")
+    assert isinstance(linked_code, ObjectCode)
 
 
 def test_linker_link_cubin(compile_ptx_functions):

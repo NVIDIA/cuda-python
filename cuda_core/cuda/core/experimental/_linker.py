@@ -29,7 +29,6 @@ def _lazy_init():
     _driver_ver = handle_return(cuda.cuDriverGetVersion())
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
     try:
-        raise ImportError
         from cuda.bindings import nvjitlink
         from cuda.bindings._internal import nvjitlink as inner_nvjitlink
     except ImportError:
@@ -247,7 +246,7 @@ class LinkerOptions:
             self.formatted_options.append(f"-split-compile={self.split_compile}")
         if self.split_compile_extended is not None:
             self.formatted_options.append(f"-split-compile-extended={self.split_compile_extended}")
-        if self.no_cache is not None:
+        if self.no_cache is True:
             self.formatted_options.append("-no-cache")
 
     def _init_driver(self):
@@ -272,57 +271,46 @@ class LinkerOptions:
             self.formatted_options.append(self.max_register_count)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_MAX_REGISTERS)
         if self.time is not None:
-            self.formatted_options.append(1)  # ctypes.c_int32(1)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_WALL_TIME)
+            raise ValueError("time option is not supported by the driver API")
         if self.verbose is not None:
-            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.formatted_options.append(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_LOG_VERBOSE)
         if self.link_time_optimization is not None:
-            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.formatted_options.append(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_LTO)
         if self.ptx is not None:
-            self.formatted_options.append(1)  # ctypes.c_int32(1)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO)
+            raise ValueError("ptx option is not supported by the driver API")
         if self.optimization_level is not None:
             self.formatted_options.append(self.optimization_level)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_OPTIMIZATION_LEVEL)
         if self.debug is not None:
-            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.formatted_options.append(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_DEBUG_INFO)
         if self.lineinfo is not None:
-            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.formatted_options.append(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO)
         if self.ftz is not None:
-            self.formatted_options.append(1 if self.ftz else 0)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_FTZ)
+            raise ValueError("ftz option is deprecated in the driver API")
         if self.prec_div is not None:
-            self.formatted_options.append(1 if self.prec_div else 0)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_PREC_DIV)
+            raise ValueError("prec_div option is deprecated in the driver API")
         if self.prec_sqrt is not None:
-            self.formatted_options.append(1 if self.prec_sqrt else 0)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_PREC_SQRT)
+            raise ValueError("prec_sqrt option is deprecated in the driver API")
         if self.fma is not None:
-            self.formatted_options.append(1 if self.fma else 0)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_FMA)
+            raise ValueError("fma options is deprecated in the driver API")
         if self.kernels_used is not None:
-            for kernel in self.kernels_used:
-                self.formatted_options.append(kernel.encode())
-                self.option_keys.append(_driver.CUjit_option.CU_JIT_REFERENCED_KERNEL_NAMES)
+            raise ValueError("kernels_used is deprecated in the driver API")
         if self.variables_used is not None:
-            for variable in self.variables_used:
-                self.formatted_options.append(variable.encode())
-                self.option_keys.append(_driver.CUjit_option.CU_JIT_REFERENCED_VARIABLE_NAMES)
+            raise ValueError("variables_used is deprecated in the driver API")
         if self.optimize_unused_variables is not None:
-            self.formatted_options.append(1)  # ctypes.c_int32(1)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES)
+            raise ValueError("optimize_unused_variables is deprecated in the driver API")
         if self.xptxas is not None:
-            for opt in self.xptxas:
-                raise NotImplementedError("TODO: implement xptxas option")
+            raise ValueError("xptxas option is not supported by the driver API")
+        if self.split_compile is not None:
+            raise ValueError("split_compile option is not supported by the driver API")
         if self.split_compile_extended is not None:
-            self.formatted_options.append(self.split_compile_extended)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_MIN_CTA_PER_SM)
+            raise ValueError("split_compile_extended option is not supported by the driver API")
         if self.no_cache is not None:
-            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.formatted_options.append(_driver.CUjit_cacheMode.CU_JIT_CACHE_OPTION_NONE)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_CACHE_MODE)
 
 
