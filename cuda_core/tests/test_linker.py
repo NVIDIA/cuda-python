@@ -4,10 +4,15 @@ from cuda.core.experimental import Linker, LinkerOptions, Program
 from cuda.core.experimental._module import ObjectCode
 
 ARCH = "sm_80"  # use sm_80 for testing the oop nvJitLink wrapper
-empty_kernel = "__device__ void A() {}"
-basic_kernel = "__device__ int B() { return 0; }"
-addition_kernel = "__device__ int C(int a, int b) { return a + b; }"
+device_function_a = """
+__device__ int B();
+__device__ int C(int a, int b);
+__device__ void A() { int result = C(B(), 1);}
+"""
+device_function_b = "__device__ int B() { return 0; }"
+device_function_c = "__device__ int C(int a, int b) { return a + b; }"
 
+culink_backend = False
 try:
     from cuda.bindings import nvjitlink  # noqa F401
     from cuda.bindings._internal import nvjitlink as inner_nvjitlink
@@ -22,18 +27,18 @@ else:
 
 @pytest.fixture(scope="function")
 def compile_ptx_functions(init_cuda):
-    object_code_a_ptx = Program(empty_kernel, "c++").compile("ptx")
-    object_code_b_ptx = Program(basic_kernel, "c++").compile("ptx")
-    object_code_c_ptx = Program(addition_kernel, "c++").compile("ptx")
+    object_code_b_ptx = Program(device_function_b, "c++").compile("ptx")
+    object_code_c_ptx = Program(device_function_c, "c++").compile("ptx")
+    object_code_a_ptx = Program(device_function_a, "c++").compile("ptx")
 
     return object_code_a_ptx, object_code_b_ptx, object_code_c_ptx
 
 
 @pytest.fixture(scope="function")
 def compile_ltoir_functions(init_cuda):
-    object_code_a_ltoir = Program(empty_kernel, "c++").compile("ltoir", options=("-dlto",))
-    object_code_b_ltoir = Program(basic_kernel, "c++").compile("ltoir", options=("-dlto",))
-    object_code_c_ltoir = Program(addition_kernel, "c++").compile("ltoir", options=("-dlto",))
+    object_code_b_ltoir = Program(device_function_b, "c++").compile("ltoir", options=("-dlto",))
+    object_code_c_ltoir = Program(device_function_c, "c++").compile("ltoir", options=("-dlto",))
+    object_code_a_ltoir = Program(device_function_a, "c++").compile("ltoir", options=("-dlto",))
 
     return object_code_a_ltoir, object_code_b_ltoir, object_code_c_ltoir
 
@@ -60,8 +65,8 @@ culink_options = [
         LinkerOptions(arch=ARCH, prec_div=True),
         LinkerOptions(arch=ARCH, prec_sqrt=True),
         LinkerOptions(arch=ARCH, fma=True),
-        LinkerOptions(arch=ARCH, kernels_used=["kernel1"]),
-        LinkerOptions(arch=ARCH, kernels_used=["kernel1", "kernel2"]),
+        LinkerOptions(arch=ARCH, kernels_used=["A"]),
+        LinkerOptions(arch=ARCH, kernels_used=["C", "B"]),
         LinkerOptions(arch=ARCH, variables_used=["var1"]),
         LinkerOptions(arch=ARCH, variables_used=["var1", "var2"]),
         LinkerOptions(arch=ARCH, optimize_unused_variables=True),
@@ -83,9 +88,17 @@ def test_linker_init_invalid_arch():
 
 
 @pytest.mark.skipif(culink_backend, reason="culink does not support ptx option")
-def test_linker_link_ptx(compile_ltoir_functions):
+def test_linker_link_ptx_nvjitlink(compile_ltoir_functions):
     options = LinkerOptions(arch=ARCH, link_time_optimization=True, ptx=True)
     linker = Linker(*compile_ltoir_functions, options=options)
+    linked_code = linker.link("ptx")
+    assert isinstance(linked_code, ObjectCode)
+
+
+@pytest.mark.skipif(not culink_backend, reason="nvjitlink requires lto for ptx linking")
+def test_linker_link_ptx_culink(compile_ptx_functions):
+    options = LinkerOptions(arch=ARCH)
+    linker = Linker(*compile_ptx_functions, options=options)
     linked_code = linker.link("ptx")
     assert isinstance(linked_code, ObjectCode)
 

@@ -31,13 +31,11 @@ CUDA compilation toolchain
    :toctree: generated/
 
    Program
-<<<<<<< HEAD
    Linker
 
    :template: dataclass.rst
 
    LinkerOptions
-=======
 
 
 .. module:: cuda.core.experimental.utils
@@ -53,4 +51,3 @@ Utility functions
    :template: dataclass.rst
 
    StridedMemoryView
->>>>>>> origin/main

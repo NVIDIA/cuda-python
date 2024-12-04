@@ -309,7 +309,7 @@ class LinkerOptions:
             raise ValueError("split_compile option is not supported by the driver API")
         if self.split_compile_extended is not None:
             raise ValueError("split_compile_extended option is not supported by the driver API")
-        if self.no_cache is not None:
+        if self.no_cache is True:
             self.formatted_options.append(_driver.CUjit_cacheMode.CU_JIT_CACHE_OPTION_NONE)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_CACHE_MODE)
 
