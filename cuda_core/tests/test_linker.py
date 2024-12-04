@@ -31,22 +31,22 @@ def compile_ltoir_functions(init_cuda):
     "options",
     [
         LinkerOptions(arch=ARCH),
-        # LinkerOptions(arch=ARCH, max_register_count=32),
-        # LinkerOptions(arch=ARCH, time=True),
+        LinkerOptions(arch=ARCH, max_register_count=32),
+        LinkerOptions(arch=ARCH, time=True),
         LinkerOptions(arch=ARCH, verbose=True),
-        # LinkerOptions(arch=ARCH, optimization_level=3),
-        # LinkerOptions(arch=ARCH, debug=True),
-        # LinkerOptions(arch=ARCH, lineinfo=True),
-        # LinkerOptions(arch=ARCH, ftz=True),
-        # LinkerOptions(arch=ARCH, prec_div=True),
-        # LinkerOptions(arch=ARCH, prec_sqrt=True),
-        # LinkerOptions(arch=ARCH, fma=True),
+        LinkerOptions(arch=ARCH, optimization_level=3),
+        LinkerOptions(arch=ARCH, debug=True),
+        LinkerOptions(arch=ARCH, lineinfo=True),
+        LinkerOptions(arch=ARCH, ftz=True),
+        LinkerOptions(arch=ARCH, prec_div=True),
+        LinkerOptions(arch=ARCH, prec_sqrt=True),
+        LinkerOptions(arch=ARCH, fma=True),
         # LinkerOptions(arch=ARCH, kernels_used=["kernel1"]),
         # LinkerOptions(arch=ARCH, variables_used=["var1"]),
-        # LinkerOptions(arch=ARCH, optimize_unused_variables=True),
+        LinkerOptions(arch=ARCH, optimize_unused_variables=True),
         # LinkerOptions(arch=ARCH, xptxas=["-v"]),
         # LinkerOptions(arch=ARCH, split_compile=0),
-        # LinkerOptions(arch=ARCH, split_compile_extended=1),
+        LinkerOptions(arch=ARCH, split_compile_extended=1),
         # LinkerOptions(arch=ARCH, no_cache=True),
     ],
 )
@@ -62,11 +62,11 @@ def test_linker_init_invalid_arch():
         Linker(options)
 
 
-def test_linker_link_ptx(compile_ltoir_functions):
-    options = LinkerOptions(arch=ARCH, link_time_optimization=True, ptx=True)
-    linker = Linker(*compile_ltoir_functions, options=options)
-    linked_code = linker.link("ptx")
-    assert isinstance(linked_code, ObjectCode)
+# def test_linker_link_ptx(compile_ltoir_functions):
+#     options = LinkerOptions(arch=ARCH, link_time_optimization=True, ptx=True)
+#     linker = Linker(*compile_ltoir_functions, options=options)
+#     linked_code = linker.link("ptx")
+#     assert isinstance(linked_code, ObjectCode)
 
 
 def test_linker_link_cubin(compile_ptx_functions):

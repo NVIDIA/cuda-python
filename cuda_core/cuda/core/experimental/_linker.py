@@ -29,6 +29,7 @@ def _lazy_init():
     _driver_ver = handle_return(cuda.cuDriverGetVersion())
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
     try:
+        raise ImportError
         from cuda.bindings import nvjitlink
         from cuda.bindings._internal import nvjitlink as inner_nvjitlink
     except ImportError:
@@ -267,48 +268,66 @@ class LinkerOptions:
             arch = self.arch.split("_")[-1].upper()
             self.formatted_options.append(getattr(_driver.CUjit_target, f"CU_TARGET_COMPUTE_{arch}"))
             self.option_keys.append(_driver.CUjit_option.CU_JIT_TARGET)
-        # if self.max_register_count is not None:
-        #    self.formatted_options.append(f"-maxrregcount={self.max_register_count}")
-        # if self.time is not None:
-        #    self.formatted_options.append("-time")
+        if self.max_register_count is not None:
+            self.formatted_options.append(self.max_register_count)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_MAX_REGISTERS)
+        if self.time is not None:
+            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_WALL_TIME)
         if self.verbose is not None:
-            self.formatted_options.append(1)  # ctypes.c_int32(1))
+            self.formatted_options.append(1)  # ctypes.c_int32(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_LOG_VERBOSE)
-        # if self.link_time_optimization is not None:
-        #    self.formatted_options.append("-lto")
-        # if self.ptx is not None:
-        #    self.formatted_options.append("-ptx")
-        # if self.optimization_level is not None:
-        #    self.formatted_options.append(f"-O{self.optimization_level}")
-        # if self.debug is not None:
-        #    self.formatted_options.append("-g")
-        # if self.lineinfo is not None:
-        #    self.formatted_options.append("-lineinfo")
-        # if self.ftz is not None:
-        #    self.formatted_options.append(f"-ftz={'true' if self.ftz else 'false'}")
-        # if self.prec_div is not None:
-        #    self.formatted_options.append(f"-prec-div={'true' if self.prec_div else 'false'}")
-        # if self.prec_sqrt is not None:
-        #    self.formatted_options.append(f"-prec-sqrt={'true' if self.prec_sqrt else 'false'}")
-        # if self.fma is not None:
-        #    self.formatted_options.append(f"-fma={'true' if self.fma else 'false'}")
-        # if self.kernels_used is not None:
-        #    for kernel in self.kernels_used:
-        #        self.formatted_options.append(f"-kernels-used={kernel}")
-        # if self.variables_used is not None:
-        #    for variable in self.variables_used:
-        #        self.formatted_options.append(f"-variables-used={variable}")
-        # if self.optimize_unused_variables is not None:
-        #    self.formatted_options.append("-optimize-unused-variables")
-        # if self.xptxas is not None:
-        #    for opt in self.xptxas:
-        #        self.formatted_options.append(f"-Xptxas={opt}")
-        # if self.split_compile is not None:
-        #    self.formatted_options.append(f"-split-compile={self.split_compile}")
-        # if self.split_compile_extended is not None:
-        #    self.formatted_options.append(f"-split-compile-extended={self.split_compile_extended}")
-        # if self.no_cache is not None:
-        #    self.formatted_options.append("-no-cache")
+        if self.link_time_optimization is not None:
+            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_LTO)
+        if self.ptx is not None:
+            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO)
+        if self.optimization_level is not None:
+            self.formatted_options.append(self.optimization_level)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_OPTIMIZATION_LEVEL)
+        if self.debug is not None:
+            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_DEBUG_INFO)
+        if self.lineinfo is not None:
+            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO)
+        if self.ftz is not None:
+            self.formatted_options.append(1 if self.ftz else 0)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_FTZ)
+        if self.prec_div is not None:
+            self.formatted_options.append(1 if self.prec_div else 0)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_PREC_DIV)
+        if self.prec_sqrt is not None:
+            self.formatted_options.append(1 if self.prec_sqrt else 0)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_PREC_SQRT)
+        if self.fma is not None:
+            self.formatted_options.append(1 if self.fma else 0)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_FMA)
+        if self.kernels_used is not None:
+            for kernel in self.kernels_used:
+                self.formatted_options.append(kernel)
+                self.option_keys.append(_driver.CUjit_option.CU_JIT_REFERENCED_KERNEL_NAMES)
+        if self.variables_used is not None:
+            for variable in self.variables_used:
+                self.formatted_options.append(variable)
+                self.option_keys.append(_driver.CUjit_option.CU_JIT_REFERENCED_VARIABLE_NAMES)
+        if self.optimize_unused_variables is not None:
+            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES)
+        if self.xptxas is not None:
+            for opt in self.xptxas:
+                self.formatted_options.append(opt)
+                self.option_keys.append(_driver.CUjit_option.CU_JIT_FAST_COMPILE)
+        if self.split_compile is not None:
+            self.formatted_options.append(self.split_compile)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_THREADS_PER_BLOCK)
+        if self.split_compile_extended is not None:
+            self.formatted_options.append(self.split_compile_extended)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_MIN_CTA_PER_SM)
+        if self.no_cache is not None:
+            self.formatted_options.append(1)  # ctypes.c_int32(1)
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_CACHE_MODE)
 
 
 class Linker:
@@ -427,10 +446,7 @@ class Linker:
     def _input_type_from_code_type(self, code_type: str):
         # this list is based on the supported values for code_type in the ObjectCode class definition.
         # nvJitLink/driver support other options for input type
-        if _nvjitlink:
-            input_type = _nvjitlink_input_types.get(code_type)
-        else:
-            input_type = _driver_input_types.get(code_type)
+        input_type = _nvjitlink_input_types.get(code_type) if _nvjitlink else _driver_input_types.get(code_type)
 
         if input_type is None:
             raise ValueError(f"Unknown code_type associated with ObjectCode: {code_type}")
