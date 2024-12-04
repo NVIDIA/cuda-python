@@ -306,22 +306,18 @@ class LinkerOptions:
             self.option_keys.append(_driver.CUjit_option.CU_JIT_FMA)
         if self.kernels_used is not None:
             for kernel in self.kernels_used:
-                self.formatted_options.append(kernel)
+                self.formatted_options.append(kernel.encode())
                 self.option_keys.append(_driver.CUjit_option.CU_JIT_REFERENCED_KERNEL_NAMES)
         if self.variables_used is not None:
             for variable in self.variables_used:
-                self.formatted_options.append(variable)
+                self.formatted_options.append(variable.encode())
                 self.option_keys.append(_driver.CUjit_option.CU_JIT_REFERENCED_VARIABLE_NAMES)
         if self.optimize_unused_variables is not None:
             self.formatted_options.append(1)  # ctypes.c_int32(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES)
         if self.xptxas is not None:
             for opt in self.xptxas:
-                self.formatted_options.append(opt)
-                self.option_keys.append(_driver.CUjit_option.CU_JIT_FAST_COMPILE)
-        if self.split_compile is not None:
-            self.formatted_options.append(self.split_compile)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_THREADS_PER_BLOCK)
+                raise NotImplementedError("TODO: implement xptxas option")
         if self.split_compile_extended is not None:
             self.formatted_options.append(self.split_compile_extended)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_MIN_CTA_PER_SM)
