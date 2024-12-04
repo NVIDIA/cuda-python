@@ -4,6 +4,8 @@ from cuda.core.experimental import Linker, LinkerOptions, Program
 from cuda.core.experimental._module import ObjectCode
 
 ARCH = "sm_80"  # use sm_80 for testing the oop nvJitLink wrapper
+
+
 device_function_a = """
 __device__ int B();
 __device__ int C(int a, int b);
