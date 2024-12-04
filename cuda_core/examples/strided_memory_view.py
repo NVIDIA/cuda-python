@@ -107,6 +107,7 @@ if cp:
 # Below, as a user we want to perform the said in-place operation on either CPU
 # or GPU, by calling the corresponding function implemented "elsewhere" (done above).
 
+
 # We assume the 0-th argument supports either DLPack or CUDA Array Interface (both
 # of which are supported by StridedMemoryView).
 @args_viewable_as_strided_memory((0,))
