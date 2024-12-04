@@ -33,22 +33,20 @@ __global__ void check_cluster_info() {
 """
 
 dev = Device()
-dev.set_current()
 arch = dev.compute_capability
 if arch < (9, 0):
     print("this demo requires a Hopper GPU (since thread block cluster is a hardware feature)", file=sys.stderr)
     sys.exit(0)
 arch = "".join(f"{i}" for i in arch)
 
-# prepare program
+# prepare program & compile kernel
+dev.set_current()
 prog = Program(code, code_type="c++")
 mod = prog.compile(
     target_type="cubin",
     # TODO: update this after NVIDIA/cuda-python#237 is merged
     options=(f"-arch=sm_{arch}", "-std=c++17", f"-I{cuda_include_path}"),
 )
-
-# run in single precision
 ker = mod.get_kernel("check_cluster_info")
 
 # prepare launch config
