@@ -1,1 +1,7 @@
 cuda/_version.py export-subst
+
+* text eol=lf
+
+# we do not own any headers checked in, don't touch them
+*.h binary
+*.hpp binary
