@@ -11,10 +11,10 @@ test_ci() {
     cd "${CORE_ARTIFACTS_DIR}"
     pip install *.whl
 
-    cd "${REPO_DIR}/cuda_bindings"
+    cd "${REPO_DIR}/cuda_core"
     python -m pytest tests/
 
-    cd "${REPO_DIR}/cuda_core"
+    cd "${REPO_DIR}/cuda_bindings"
     python -m pytest tests/
 
 }
