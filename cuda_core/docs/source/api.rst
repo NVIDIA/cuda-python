@@ -31,8 +31,26 @@ CUDA compilation toolchain
    :toctree: generated/
 
    Program
+<<<<<<< HEAD
    Linker
 
    :template: dataclass.rst
 
    LinkerOptions
+=======
+
+
+.. module:: cuda.core.experimental.utils
+
+Utility functions
+-----------------
+
+.. autosummary::
+   :toctree: generated/
+
+   args_viewable_as_strided_memory
+
+   :template: dataclass.rst
+
+   StridedMemoryView
+>>>>>>> origin/main
