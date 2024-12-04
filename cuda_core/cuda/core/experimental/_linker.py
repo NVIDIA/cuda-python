@@ -2,13 +2,64 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import ctypes
 import weakref
 from dataclasses import dataclass
 from typing import List, Optional
 
-from cuda.bindings import nvjitlink
+from cuda import cuda
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import check_or_create_options
+from cuda.core.experimental._utils import check_or_create_options, handle_return
+
+# TODO: revisit this treatment for py313t builds
+_driver = None  # populated if nvJitLink cannot be used
+_driver_input_types = None  # populated if nvJitLink cannot be used
+_driver_ver = None
+_inited = False
+_nvjitlink = None  # populated if nvJitLink can be used
+_nvjitlink_input_types = None  # populated if nvJitLink cannot be used
+
+
+def _lazy_init():
+    global _inited
+    if _inited:
+        return
+
+    global _driver, _driver_input_types, _driver_ver, _nvjitlink, _nvjitlink_input_types
+    _driver_ver = handle_return(cuda.cuDriverGetVersion())
+    _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
+    try:
+        from cuda.bindings import nvjitlink
+        from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+    except ImportError:
+        # binding is not available
+        nvjitlink = None
+    else:
+        if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") == 0:
+            # binding is available, but nvJitLink is not installed
+            nvjitlink = None
+        elif _driver_ver > nvjitlink.version():
+            # TODO: nvJitLink is not new enough, warn?
+            pass
+    if nvjitlink:
+        _nvjitlink = nvjitlink
+        _nvjitlink_input_types = {
+            "ptx": _nvjitlink.InputType.PTX,
+            "cubin": _nvjitlink.InputType.CUBIN,
+            "fatbin": _nvjitlink.InputType.FATBIN,
+            "ltoir": _nvjitlink.InputType.LTOIR,
+            "object": _nvjitlink.InputType.OBJECT,
+        }
+    else:
+        from cuda import cuda as _driver
+
+        _driver_input_types = {
+            "ptx": _driver.CUjitInputType.CU_JIT_INPUT_PTX,
+            "cubin": _driver.CUjitInputType.CU_JIT_INPUT_CUBIN,
+            "fatbin": _driver.CUjitInputType.CU_JIT_INPUT_FATBINARY,
+            "object": _driver.CUjitInputType.CU_JIT_INPUT_OBJECT,
+        }
+    _inited = True
 
 
 @dataclass
@@ -146,7 +197,14 @@ class LinkerOptions:
     no_cache: Optional[bool] = None
 
     def __post_init__(self):
+        _lazy_init()
         self.formatted_options = []
+        if _nvjitlink:
+            self._init_nvjitlink()
+        else:
+            self._init_driver()
+
+    def _init_nvjitlink(self):
         if self.arch is not None:
             self.formatted_options.append(f"-arch={self.arch}")
         if self.max_register_count is not None:
@@ -191,6 +249,67 @@ class LinkerOptions:
         if self.no_cache is not None:
             self.formatted_options.append("-no-cache")
 
+    def _init_driver(self):
+        self.option_keys = []
+        # allocate 4 KiB each for info/error logs
+        size = 4194304
+        self.formatted_options.extend((bytearray(size), size, bytearray(size), size))
+        self.option_keys.extend(
+            (
+                _driver.CUjit_option.CU_JIT_INFO_LOG_BUFFER,
+                _driver.CUjit_option.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES,
+                _driver.CUjit_option.CU_JIT_ERROR_LOG_BUFFER,
+                _driver.CUjit_option.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,
+            )
+        )
+
+        if self.arch is not None:
+            arch = self.arch.split("_")[-1].upper()
+            self.formatted_options.append(getattr(_driver.CUjit_target, f"CU_TARGET_COMPUTE_{arch}"))
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_TARGET)
+        # if self.max_register_count is not None:
+        #    self.formatted_options.append(f"-maxrregcount={self.max_register_count}")
+        # if self.time is not None:
+        #    self.formatted_options.append("-time")
+        if self.verbose is not None:
+            self.formatted_options.append(1)  # ctypes.c_int32(1))
+            self.option_keys.append(_driver.CUjit_option.CU_JIT_LOG_VERBOSE)
+        # if self.link_time_optimization is not None:
+        #    self.formatted_options.append("-lto")
+        # if self.ptx is not None:
+        #    self.formatted_options.append("-ptx")
+        # if self.optimization_level is not None:
+        #    self.formatted_options.append(f"-O{self.optimization_level}")
+        # if self.debug is not None:
+        #    self.formatted_options.append("-g")
+        # if self.lineinfo is not None:
+        #    self.formatted_options.append("-lineinfo")
+        # if self.ftz is not None:
+        #    self.formatted_options.append(f"-ftz={'true' if self.ftz else 'false'}")
+        # if self.prec_div is not None:
+        #    self.formatted_options.append(f"-prec-div={'true' if self.prec_div else 'false'}")
+        # if self.prec_sqrt is not None:
+        #    self.formatted_options.append(f"-prec-sqrt={'true' if self.prec_sqrt else 'false'}")
+        # if self.fma is not None:
+        #    self.formatted_options.append(f"-fma={'true' if self.fma else 'false'}")
+        # if self.kernels_used is not None:
+        #    for kernel in self.kernels_used:
+        #        self.formatted_options.append(f"-kernels-used={kernel}")
+        # if self.variables_used is not None:
+        #    for variable in self.variables_used:
+        #        self.formatted_options.append(f"-variables-used={variable}")
+        # if self.optimize_unused_variables is not None:
+        #    self.formatted_options.append("-optimize-unused-variables")
+        # if self.xptxas is not None:
+        #    for opt in self.xptxas:
+        #        self.formatted_options.append(f"-Xptxas={opt}")
+        # if self.split_compile is not None:
+        #    self.formatted_options.append(f"-split-compile={self.split_compile}")
+        # if self.split_compile_extended is not None:
+        #    self.formatted_options.append(f"-split-compile-extended={self.split_compile_extended}")
+        # if self.no_cache is not None:
+        #    self.formatted_options.append("-no-cache")
+
 
 class Linker:
     """
@@ -202,44 +321,40 @@ class Linker:
         One or more ObjectCode objects to be linked.
     options : LinkerOptions, optional
         Options for the linker. If not provided, default options will be used.
-
-    Attributes
-    ----------
-    _options : LinkerOptions
-        The options used for the linker.
-    _handle : handle
-        The handle to the linker created by nvjitlink.
-
-    Methods
-    -------
-    _add_code_object(object_code)
-        Adds an object code to the linker.
-    close()
-        Closes the linker and releases resources.
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = ("handle",)
+        __slots__ = ("handle", "use_nvjitlink")
 
-        def __init__(self, program_obj, handle):
+        def __init__(self, program_obj, handle, use_nvjitlink):
             self.handle = handle
+            self.use_nvjitlink = use_nvjitlink
             weakref.finalize(program_obj, self.close)
 
         def close(self):
             if self.handle is not None:
-                nvjitlink.destroy(self.handle)
+                if self.use_nvjitlink:
+                    _nvjitlink.destroy(self.handle)
+                else:
+                    handle_return(_driver.cuLinkDestroy(self.handle))
                 self.handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_options")
 
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
-        self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
-        self._mnff = Linker._MembersNeededForFinalize(
-            self, nvjitlink.create(len(options.formatted_options), options.formatted_options)
-        )
-
         if len(object_codes) == 0:
             raise ValueError("At least one ObjectCode object must be provided")
+
+        self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
+        if _nvjitlink:
+            handle = _nvjitlink.create(len(options.formatted_options), options.formatted_options)
+            use_nvjitlink = True
+        else:
+            handle = handle_return(
+                _driver.cuLinkCreate(len(options.formatted_options), options.option_keys, options.formatted_options)
+            )
+            use_nvjitlink = False
+        self._mnff = Linker._MembersNeededForFinalize(self, handle, use_nvjitlink)
 
         for code in object_codes:
             assert isinstance(code, ObjectCode)
@@ -248,56 +363,74 @@ class Linker:
     def _add_code_object(self, object_code: ObjectCode):
         data = object_code._module
         assert isinstance(data, bytes)
-        nvjitlink.add_data(
-            self._mnff.handle,
-            self._input_type_from_code_type(object_code._code_type),
-            data,
-            len(data),
-            f"{object_code._handle}_{object_code._code_type}",
-        )
-
-    _get_linked_methods = {
-        "cubin": (nvjitlink.get_linked_cubin_size, nvjitlink.get_linked_cubin),
-        "ptx": (nvjitlink.get_linked_ptx_size, nvjitlink.get_linked_ptx),
-    }
+        if _nvjitlink:
+            _nvjitlink.add_data(
+                self._mnff.handle,
+                self._input_type_from_code_type(object_code._code_type),
+                data,
+                len(data),
+                f"{object_code._handle}_{object_code._code_type}",
+            )
+        else:
+            handle_return(
+                _driver.cuLinkAddData(
+                    self._mnff.handle,
+                    self._input_type_from_code_type(object_code._code_type),
+                    data,
+                    len(data),
+                    f"{object_code._handle}_{object_code._code_type}".encode(),
+                    0,
+                    None,
+                    None,
+                )
+            )
 
     def link(self, target_type) -> ObjectCode:
-        nvjitlink.complete(self._mnff.handle)
-        get_linked = self._get_linked_methods.get(target_type)
-        if get_linked is None:
+        if target_type not in ("cubin", "ptx"):
             raise ValueError(f"Unsupported target type: {target_type}")
+        if _nvjitlink:
+            _nvjitlink.complete(self._mnff.handle)
+            if target_type == "cubin":
+                get_size = _nvjitlink.get_linked_cubin_size
+                get_code = _nvjitlink.get_linked_cubin
+            else:
+                get_size = _nvjitlink.get_linked_ptx_size
+                get_code = _nvjitlink.get_linked_ptx
 
-        get_size, get_code = get_linked
-        size = get_size(self._mnff.handle)
-        code = bytearray(size)
-        get_code(self._mnff.handle, code)
+            size = get_size(self._mnff.handle)
+            code = bytearray(size)
+            get_code(self._mnff.handle, code)
+        else:
+            addr, size = handle_return(_driver.cuLinkComplete(self._mnff.handle))
+            code = (ctypes.c_char * size).from_address(addr)
 
         return ObjectCode(bytes(code), target_type)
 
     def get_error_log(self) -> str:
-        log_size = nvjitlink.get_error_log_size(self._mnff.handle)
-        log = bytearray(log_size)
-        nvjitlink.get_error_log(self._mnff.handle, log)
+        if _nvjitlink:
+            log_size = _nvjitlink.get_error_log_size(self._mnff.handle)
+            log = bytearray(log_size)
+            _nvjitlink.get_error_log(self._mnff.handle, log)
+        else:
+            log = self._options.formatted_options[2]
         return log.decode()
 
     def get_info_log(self) -> str:
-        log_size = nvjitlink.get_info_log_size(self._mnff.handle)
-        log = bytearray(log_size)
-        nvjitlink.get_info_log(self._mnff.handle, log)
+        if _nvjitlink:
+            log_size = _nvjitlink.get_info_log_size(self._mnff.handle)
+            log = bytearray(log_size)
+            _nvjitlink.get_info_log(self._mnff.handle, log)
+        else:
+            log = self._options.formatted_options[0]
         return log.decode()
 
-    _input_types = {
-        "ptx": nvjitlink.InputType.PTX,
-        "cubin": nvjitlink.InputType.CUBIN,
-        "fatbin": nvjitlink.InputType.FATBIN,
-        "ltoir": nvjitlink.InputType.LTOIR,
-        "object": nvjitlink.InputType.OBJECT,
-    }
-
-    def _input_type_from_code_type(self, code_type: str) -> nvjitlink.InputType:
+    def _input_type_from_code_type(self, code_type: str):
         # this list is based on the supported values for code_type in the ObjectCode class definition.
-        # nvjitlink supports other options for input type
-        input_type = self._input_types.get(code_type)
+        # nvJitLink/driver support other options for input type
+        if _nvjitlink:
+            input_type = _nvjitlink_input_types.get(code_type)
+        else:
+            input_type = _driver_input_types.get(code_type)
 
         if input_type is None:
             raise ValueError(f"Unknown code_type associated with ObjectCode: {code_type}")
