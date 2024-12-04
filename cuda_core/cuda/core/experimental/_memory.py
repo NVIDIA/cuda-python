@@ -303,15 +303,11 @@ class _SynchronousMemoryResource(MemoryResource):
         self._dev_id = dev_id
 
     def allocate(self, size, stream=None) -> Buffer:
-        if stream is None:
-            stream = default_stream()
-        ptr = handle_return(cuda.cuMemAlloc(size, stream._handle))
+        ptr = handle_return(cuda.cuMemAlloc(size))
         return Buffer(ptr, size, self)
 
     def deallocate(self, ptr, size, stream=None):
-        if stream is None:
-            stream = default_stream()
-        handle_return(cuda.cuMemFree(ptr, stream._handle))
+        handle_return(cuda.cuMemFree(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
