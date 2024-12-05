@@ -82,7 +82,12 @@ runs:
     - name: Set REPO_DIR and Dump environment
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        echo "REPO_DIR=$(pwd)" >> $GITHUB_ENV
+        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+          echo "REPO_DIR=$(pwd)" >> $GITHUB_ENV
+        else
+          PWD=$(pwd)
+          echo "REPO_DIR=$(cygpath -w $PWD)" >> $GITHUB_ENV
+        fi
         env
 
     - name: Set environment variables
@@ -127,9 +132,9 @@ runs:
           PKG_DIR="${BUILD_MODE}/${TARGET_PLATFORM}"
         fi
 
-        echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$(pwd)/cuda_bindings/dist")" >> $GITHUB_ENV
+        echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${{ inputs.python-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
-        echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$(pwd)/cuda_core/dist")" >> $GITHUB_ENV
+        echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
         echo "USE_CUDA=${{ (inputs.target-device == 'cpu' && 'OFF') || 'ON' }}" >> $GITHUB_ENV
         echo "UPLOAD_ENABLED=${{ (inputs.upload-enabled  == 'true' && 'ON') || 'OFF' }}" >> $GITHUB_ENV
         echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
