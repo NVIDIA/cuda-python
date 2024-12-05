@@ -24,7 +24,7 @@ runs:
       uses: pypa/cibuildwheel@v2.22.0
       env:
         CIBW_BUILD: ${{ env.CIBW_BUILD }}
-        CIBW_PROJECT_REQUIRES_PYTHON: ${{ env.CIBW_PROJECT_REQUIRES_PYTHON }}
+        #CIBW_PROJECT_REQUIRES_PYTHON: ${{ env.CIBW_PROJECT_REQUIRES_PYTHON }}
         CIBW_ARCHS_LINUX: "native"
         CIBW_REPAIR_WHEEL_COMMAND: ""  # no repair
         CIBW_BUILD_VERBOSITY: 1

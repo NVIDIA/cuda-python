@@ -26,11 +26,11 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Set up Python ${{ inputs.python-version }}
-      id: setup-python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ inputs.python-version }}
+    # - name: Set up Python ${{ inputs.python-version }}
+    #   id: setup-python
+    #   uses: actions/setup-python@v5
+    #   with:
+    #     python-version: ${{ inputs.python-version }}
 
     # - name: Set up new PowerShell (pwsh)
     #   if: ${{ startsWith(inputs.host-platform, 'win') }}
@@ -79,15 +79,9 @@ runs:
     #    toolset: 14.16
     #    vsversion: 2017
 
-    - name: Set REPO_DIR and Dump environment
+    - name: Dump environment
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-          echo "REPO_DIR=$(pwd)" >> $GITHUB_ENV
-        else
-          PWD=$(pwd)
-          echo "REPO_DIR=$(cygpath -w $PWD)" >> $GITHUB_ENV
-        fi
         env
 
     - name: Set environment variables
@@ -132,6 +126,14 @@ runs:
           PKG_DIR="${BUILD_MODE}/${TARGET_PLATFORM}"
         fi
 
+        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+          REPO_DIR=$(pwd)"
+        else
+          PWD=$(pwd)
+          REPO_DIR=$(cygpath -w $PWD)"
+        fi
+
+        echo "REPO_DIR=$REPO_DIR" >> $GITHUB_ENV
         echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${{ inputs.python-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
@@ -142,4 +144,4 @@ runs:
         echo "PKG_DIR=${PKG_DIR}" >> $GITHUB_ENV
         echo "PYTHON_VERSION=${{ inputs.python-version }}" >> $GITHUB_ENV
         echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
-        echo "CIBW_PROJECT_REQUIRES_PYTHON=\"==${{ inputs.python-version }}\"" >> $GITHUB_ENV
+        #echo "CIBW_PROJECT_REQUIRES_PYTHON=\"==${{ inputs.python-version }}\"" >> $GITHUB_ENV
