@@ -30,7 +30,7 @@ runs:
         CIBW_BUILD_VERBOSITY: 1
         # WAR: setup-python is not relocatable...
         # see https://github.com/actions/setup-python/issues/871
-        CIBW_BEFORE_BUILD_LINUX: >
+        CIBW_BEFORE_ALL_LINUX: >
           export LD_LIBRARY_PATH="$(dirname $(which python))/../lib:${LD_LIBRARY_PATH:-}"
         # # ensure Python.h & co can be found
         # CIBW_BEFORE_BUILD_WINDOWS: >
