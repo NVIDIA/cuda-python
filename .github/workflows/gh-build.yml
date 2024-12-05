@@ -49,16 +49,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      #- name: Setup
-      #  uses: ./.github/actions/setup
-      #  with:
-      #    client-repo: ${{ inputs.client-repo }}
-      #    build-type: ${{ inputs.build-type }}
-      #    target-device: "${{ inputs.target-device }}"
-      #    host-platform: ${{ inputs.host-platform }}
-      #    build-mode: ${{ inputs.build-mode }}
-      #    upload-enabled: ${{ inputs.upload-enabled }}
-      #    python-version: ${{ inputs.python-version }}
+      - name: Setup environment variables
+        uses: ./.github/actions/setup
+        with:
+          client-repo: ${{ inputs.client-repo }}
+          build-type: ${{ inputs.build-type }}
+          target-device: "${{ inputs.target-device }}"
+          host-platform: ${{ inputs.host-platform }}
+          build-mode: ${{ inputs.build-mode }}
+          upload-enabled: ${{ inputs.upload-enabled }}
+          python-version: ${{ inputs.python-version }}
 
       - name: Call build action
         uses: ./.github/actions/build
