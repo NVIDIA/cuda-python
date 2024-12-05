@@ -49,7 +49,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup environment variables
+      - name: Set up build environment
         uses: ./.github/actions/setup
         with:
           client-repo: ${{ inputs.client-repo }}

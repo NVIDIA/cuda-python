@@ -61,21 +61,22 @@ runs:
         $clPath = Join-Path $vsPath "VC\\Tools\\MSVC\\*\\bin\\Hostx64\\x64\\cl.exe"
         $clPath = (Get-ChildItem $clPath).FullName
         echo "found cl.exe: $clPath"
-        # For some reason below just doesn't work in the CI...
-        Start-Process -NoNewWindow -RedirectStandardError cl.out -FilePath "$clPath"
-        $CL_VERSION_STRING = & type cl.out
-        if (($CL_VERSION_STRING -join " ") -match "Version (\\d+\\.\\d+)\\.\\d+") {
-            $CL_VERSION = $matches[1]
-            echo "Detected cl.exe version: $CL_VERSION"
-        }
+        # # For some reason below just doesn't work in the CI...
+        # Start-Process -NoNewWindow -RedirectStandardError cl.out -FilePath "$clPath"
+        # $CL_VERSION_STRING = & type cl.out
+        # if (($CL_VERSION_STRING -join " ") -match "Version (\\d+\\.\\d+)\\.\\d+") {
+        #     $CL_VERSION = $matches[1]
+        #     echo "Detected cl.exe version: $CL_VERSION"
+        # }
 
         # Delete temporary items created by installers and such
-        Remove-Item -Recurse $ENV:TEMP\*
+        Remove-Item -Recurse "${env:TEMP}\\*"
 
     - name: Set up MSVC
       if: ${{ startsWith(inputs.host-platform, 'win') }}
       uses: ilammy/msvc-dev-cmd@v1
       with:
+        toolset: 14.16
         vsversion: 2017
 
     - name: Set REPO_DIR and Dump environment
