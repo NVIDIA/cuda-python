@@ -75,8 +75,7 @@ runs:
         fi
 
         if [[ "${{ inputs.host-platform }}" == win* ]]; then
-          ls "${PROGRAMFILES}"
-          ls "${PROGRAMFILES}\\PowerShell"
+          ls "${PROGRAMFILES}\\WindowsPowerShell"
           ls "C:\\Windows\\System32\\"
         fi
 
