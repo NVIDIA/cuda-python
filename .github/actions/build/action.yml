@@ -40,6 +40,7 @@ runs:
       with:
         package-dir: ./cuda_core/
         output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+      shell: ${{ WAR_SHELL }}
 
     #- name: Display structure of the bindings artifacts folder (post build)
     #  shell: bash --noprofile --norc -xeuo pipefail {0}
