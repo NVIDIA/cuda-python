@@ -65,5 +65,5 @@ runs:
     - name: Upload cuda.core build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+        name: cuda_core*.whl
         path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
