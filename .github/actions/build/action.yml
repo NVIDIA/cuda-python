@@ -28,6 +28,9 @@ runs:
         CIBW_ARCHS_LINUX: "native"
         CIBW_REPAIR_WHEEL_COMMAND: ""  # no repair
         CIBW_BUILD_VERBOSITY: 1
+        CIBW_BEFORE_BUILD_WINDOWS: >
+          # ensure Python.h & co can be found
+          python -c "import sysconfig; print(sysconfig.get_path('include'))" >> $env:INCLUDE
       with:
         package-dir: ./cuda_core/
         output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
