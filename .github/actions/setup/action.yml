@@ -46,6 +46,26 @@ runs:
           exit 1
         fi
 
+        if [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.host-platform }}" == linux* ]]; then
+          CIBW_BUILD='cp312-manylinux*'
+        elif [[ "${{ inputs.python-version }}" == "3.11" && "${{ inputs.host-platform }}" == linux* ]]; then
+          CIBW_BUILD='cp311-manylinux*'
+        elif [[ "${{ inputs.python-version }}" == "3.10" && "${{ inputs.host-platform }}" == linux* ]]; then
+          CIBW_BUILD='cp310-manylinux*'
+        elif [[ "${{ inputs.python-version }}" == "3.9" && "${{ inputs.host-platform }}" == linux* ]]; then
+          CIBW_BUILD='cp39-manylinux*'
+        elif [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.host-platform }}" == win* ]]; then
+          CIBW_BUILD='cp312-win*'
+        elif [[ "${{ inputs.python-version }}" == "3.11" && "${{ inputs.host-platform }}" == win* ]]; then
+          CIBW_BUILD='cp311-win*'
+        elif [[ "${{ inputs.python-version }}" == "3.10" && "${{ inputs.host-platform }}" == win* ]]; then
+          CIBW_BUILD='cp310-win*'
+        elif [[ "${{ inputs.python-version }}" == "3.9" && "${{ inputs.host-platform }}" == win* ]]; then
+          CIBW_BUILD='cp39-win*'
+        else
+          exit 1
+        fi
+
         BUILD_MODE="${{ inputs.build-mode }}"
         if [[ ("${BUILD_MODE}" == "") || ("${BUILD_MODE}" == "release") ]]; then
           # We upload release versions in the default folder.
@@ -63,3 +83,4 @@ runs:
         echo "TARGET_PLATFORM=${TARGET_PLATFORM}" >> $GITHUB_ENV
         echo "PKG_DIR=${PKG_DIR}" >> $GITHUB_ENV
         echo "PYTHON_VERSION=${{ inputs.python-version }}" >> $GITHUB_ENV
+        echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
