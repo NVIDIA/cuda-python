@@ -128,6 +128,9 @@ runs:
 
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
           REPO_DIR=$(pwd)
+          # WAR: setup-python is not relocatable...
+          # see https://github.com/actions/setup-python/issues/871
+          echo "LD_LIBRARY_PATH=/opt/hostedtoolcache/Python/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         else
           PWD=$(pwd)
           REPO_DIR=$(cygpath -w $PWD)
@@ -144,4 +147,3 @@ runs:
         echo "PKG_DIR=${PKG_DIR}" >> $GITHUB_ENV
         echo "PYTHON_VERSION=${{ inputs.python-version }}" >> $GITHUB_ENV
         echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
-        #echo "CIBW_PROJECT_REQUIRES_PYTHON=\"==${{ inputs.python-version }}\"" >> $GITHUB_ENV
