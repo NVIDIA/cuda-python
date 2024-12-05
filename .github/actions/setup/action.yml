@@ -142,3 +142,4 @@ runs:
         echo "PKG_DIR=${PKG_DIR}" >> $GITHUB_ENV
         echo "PYTHON_VERSION=${{ inputs.python-version }}" >> $GITHUB_ENV
         echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
+        echo "CIBW_PROJECT_REQUIRES_PYTHON=${{ inputs.python-version }}" >> $GITHUB_ENV
