@@ -26,7 +26,19 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Install PowerShell
+    - name: Set up Python ${{ inputs.python-version }}
+      id: setup-python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Set up MSVC
+      if: ${{ startsWith(inputs.host-platform, 'win') }}
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        vsversion: 2017
+
+    - name: Set up new PowerShell (pwsh)
       if: ${{ startsWith(inputs.host-platform, 'win') }}
       shell: powershell
       env:

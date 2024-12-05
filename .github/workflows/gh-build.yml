@@ -67,4 +67,3 @@ jobs:
           target-device: "${{ inputs.target-device }}"
           host-platform: ${{ inputs.host-platform }}
           upload-enabled: ${{ inputs.upload-enabled }}
-          python-version: ${{ inputs.python-version }}
