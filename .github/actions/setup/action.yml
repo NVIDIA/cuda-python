@@ -130,7 +130,7 @@ runs:
           REPO_DIR=$(pwd)
           # WAR: setup-python is not relocatable...
           # see https://github.com/actions/setup-python/issues/871
-          echo "LD_LIBRARY_PATH=/opt/hostedtoolcache/Python/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=/opt/hostedtoolcache/Python/lib" >> $GITHUB_ENV
         else
           PWD=$(pwd)
           REPO_DIR=$(cygpath -w $PWD)
