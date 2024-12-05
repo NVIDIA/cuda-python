@@ -1,4 +1,4 @@
-# from https://github.com/rapidsai/devcontainers/blob/branch-25.02/windows/image/installers/install-vs.ps1
+# Modified from https://github.com/rapidsai/devcontainers/blob/branch-25.02/windows/image/installers/install-vs.ps1
 
 Param(
     [Parameter(Mandatory=$true)]
@@ -9,8 +9,6 @@ Param(
     [string]
     $clVersion
 )
-
-$msvcPath = "C:\msbuild\$msvcVersion"
 
 $vsComponentsMap = @{
     "15"     = "Microsoft.VisualStudio.Component.Windows10SDK.17763"
@@ -48,6 +46,6 @@ if ($clVersion -eq "14.16") {
 
 Invoke-WebRequest -Uri "https://aka.ms/vs/$msvcVersion/release/vs_buildtools.exe" -UseBasicParsing -OutFile .\vs_buildtools.exe
 Write-Output "Installing components: $vsComponentString"
-Start-Process -NoNewWindow -PassThru -Wait -FilePath .\vs_buildtools.exe -ArgumentList "install --installWhileDownloading --installPath $msvcPath --wait --norestart --nocache --quiet $vsComponentString"
+Start-Process -NoNewWindow -PassThru -Wait -FilePath .\vs_buildtools.exe -ArgumentList "install --installWhileDownloading --wait --norestart --nocache --quiet $vsComponentString"
 
 Remove-Item .\vs_buildtools.exe
