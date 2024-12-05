@@ -28,6 +28,7 @@ runs:
   steps:
     - name: Install PowerShell
       if: ${{ startsWith(inputs.host-platform, 'win') }}
+      shell: powershell
       env:
         # doesn't seem there's an easy way to avoid hard-coding it?
         PS_MSI_URL: https://github.com/PowerShell/PowerShell/releases/download/v7.4.6/PowerShell-7.4.6-win-x64.msi
