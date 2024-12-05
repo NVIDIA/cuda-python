@@ -75,9 +75,9 @@ runs:
         fi
 
         if [[ "${{ inputs.host-platform }}" == win* ]]; then
-          ls $PROGRAMFILES
-          ls $PROGRAMFILES\PowerShell
-          ls C:\Windows\System32\
+          ls "${PROGRAMFILES}"
+          ls "${PROGRAMFILES}\\PowerShell"
+          ls "C:\\Windows\\System32\\"
         fi
 
         echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$(pwd)/cuda_bindings/dist")" >> $GITHUB_ENV
