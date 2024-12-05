@@ -42,28 +42,28 @@ runs:
         CIBW_BUILD_VERBOSITY: 1
       with:
         package-dir: ./cuda_core/
-        output-dir: ${{ env.BINDINGS_ARTIFACTS_DIR }}
+        output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
-    - name: Display structure of the bindings artifacts folder (post build)
+    #- name: Display structure of the bindings artifacts folder (post build)
+    #  shell: bash --noprofile --norc -xeuo pipefail {0}
+    #  run: |
+    #    sudo chown -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+    #    ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+    #- name: Upload bindings build artifacts
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+    #    path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+    - name: List the cuda.core artifacts directory
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        sudo chown -R $(whoami) ${{ env.BINDINGS_ARTIFACTS_DIR }}
-        ls -lahR ${{ env.BINDINGS_ARTIFACTS_DIR }}
+        sudo chown -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+        ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
-    - name: Upload bindings build artifacts
+    - name: Upload cuda.core build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.BINDINGS_ARTIFACT_NAME }}
-        path: ${{ env.BINDINGS_ARTIFACTS_DIR }}
-
-    - name: Display structure of the core artifacts folder (post build)
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        sudo chown -R $(whoami) ${{ env.CORE_ARTIFACTS_DIR }}
-        ls -lahR ${{ env.CORE_ARTIFACTS_DIR }}
-
-    - name: Upload core build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.CORE_ARTIFACT_NAME }}
-        path: ${{ env.CORE_ARTIFACTS_DIR }}
+        name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+        path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
