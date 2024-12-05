@@ -26,10 +26,17 @@ runs:
     - name: Check out the repo
       uses: actions/checkout@v4
 
+    - name: Set up Python
+      id: setup-python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
     - name: Build cuda.core wheel
       uses: pypa/cibuildwheel@v2.22.0
       env:
         CIBW_BUILD: cp312-*  # FIXME: Only build on CPython 3.12
+        CIBW_PROJECT_REQUIRES_PYTHON: ">=3.6"
         CIBW_ARCHS_LINUX: "auto"
         CIBW_REPAIR_WHEEL_COMMAND: ""  # no repair
       with:
