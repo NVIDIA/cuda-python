@@ -46,7 +46,6 @@ runs:
     - name: Install MSVC
       if: ${{ startsWith(inputs.host-platform, 'win') }}
       shell: pwsh
-      env:
       run: |
         # Download & install
         .\\continuous_integration\\scripts\\install-vs.ps1 -msvcVersion 15 -clVersion 14.16
