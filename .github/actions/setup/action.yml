@@ -127,10 +127,10 @@ runs:
         fi
 
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-          REPO_DIR=$(pwd)"
+          REPO_DIR=$(pwd)
         else
           PWD=$(pwd)
-          REPO_DIR=$(cygpath -w $PWD)"
+          REPO_DIR=$(cygpath -w $PWD)
         fi
 
         echo "REPO_DIR=$REPO_DIR" >> $GITHUB_ENV
