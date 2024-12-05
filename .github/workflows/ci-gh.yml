@@ -27,8 +27,11 @@ jobs:
         upload-enabled:
           - false
         python-version:
-          #TODO cover the whole python and cuda matrix
           - 3.12
+          - 3.11
+          - 3.10
+          - 3.9
+        # TODO cover the whole cuda matrix
     uses:
       ./.github/workflows/gh-build-and-test.yml
     with:
