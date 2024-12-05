@@ -418,6 +418,24 @@ class Linker:
             )
 
     def link(self, target_type) -> ObjectCode:
+        """
+        Links the provided object codes into a single output of the specified target type.
+
+        Parameters
+        ----------
+        target_type : str
+            The type of the target output. Must be either "cubin" or "ptx".
+
+        Returns
+        -------
+        ObjectCode
+            The linked object code of the specified target type.
+
+        Note
+        ------
+        See nvrtc compiler options documnetation to ensure the input ObjectCodes are
+        correctly compiled for linking.
+        """
         if target_type not in ("cubin", "ptx"):
             raise ValueError(f"Unsupported target type: {target_type}")
         if _nvjitlink:
