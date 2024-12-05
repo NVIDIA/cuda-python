@@ -74,6 +74,12 @@ runs:
           PKG_DIR="${BUILD_MODE}/${TARGET_PLATFORM}"
         fi
 
+        if [[ "${{ inputs.host-platform }}" == win* ]]; then
+          ls $PROGRAMFILES
+          ls $PROGRAMFILES\PowerShell
+          ls C:\Windows\System32\
+        fi
+
         echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$(pwd)/cuda_bindings/dist")" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${{ inputs.python-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$(pwd)/cuda_core/dist")" >> $GITHUB_ENV
