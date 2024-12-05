@@ -50,7 +50,12 @@ runs:
     - name: List the cuda.core artifacts directory
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        sudo chown -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+        if [[ "${{ inputs.host-platform }}" == win* ]]; then
+          export CHOWN=chown
+        else
+          export CHOWN="sudo chown"
+        fi
+        $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
         ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
     - name: Upload cuda.core build artifacts
