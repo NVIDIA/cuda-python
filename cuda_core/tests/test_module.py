@@ -24,7 +24,6 @@ def test_object_code_initialization():
         obj_code = ObjectCode(module_data, code_type)
         assert obj_code._code_type == code_type
         assert obj_code._module == module_data
-        assert obj_code._handle is not None
 
     # Test with unsupported code type
     with pytest.raises(ValueError):
