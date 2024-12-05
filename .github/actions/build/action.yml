@@ -28,6 +28,10 @@ runs:
         CIBW_ARCHS_LINUX: "native"
         CIBW_REPAIR_WHEEL_COMMAND: ""  # no repair
         CIBW_BUILD_VERBOSITY: 1
+        # WAR: setup-python is not relocatable...
+        # see https://github.com/actions/setup-python/issues/871
+        CIBW_BEFORE_BUILD_LINUX: >
+          export LD_LIBRARY_PATH="$(dirname $(which python))/../lib:${LD_LIBRARY_PATH:-}"
         # # ensure Python.h & co can be found
         # CIBW_BEFORE_BUILD_WINDOWS: >
         #   python -c "import sysconfig; print(sysconfig.get_path('include'))" >> $env:INCLUDE
