@@ -32,10 +32,14 @@ runs:
     - name: Build cuda.core wheel
       uses: pypa/cibuildwheel@v2.22.0
       env:
-        CIBW_BUILD: cp312-*  # FIXME: Only build on CPython 3.12
+        CIBW_BUILD: ${{ (inputs.python-version == '3.12' && "cp312-manylinux*") ||
+                        (inputs.python-version == '3.11' && "cp311-manylinux*") ||
+                        (inputs.python-version == '3.10' && "cp310-manylinux*") ||
+                        (inputs.python-version == '3.9' && "cp39-manylinux*") }}
         CIBW_PROJECT_REQUIRES_PYTHON: ">=3.6"
-        CIBW_ARCHS_LINUX: "auto"
+        CIBW_ARCHS_LINUX: "native"
         CIBW_REPAIR_WHEEL_COMMAND: ""  # no repair
+        CIBW_BUILD_VERBOSITY: 1
       with:
         package-dir: ./cuda_core/
         output-dir: ${{ env.BINDINGS_ARTIFACTS_DIR }}
