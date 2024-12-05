@@ -64,7 +64,10 @@ def _lazy_init():
 
 @dataclass
 class LinkerOptions:
-    """Customizable :obj:`LinkerOptions` for nvJitLink.
+    """Customizable :obj:`LinkerOptions` for nvJitLink or driver API. Some options are only available
+    whenusing the cuda.bindings.nvjitlink backend. Some options are only available when using newer
+    or older versions of cuda.
+
 
     Attributes
     ----------
@@ -350,11 +353,16 @@ class Linker:
 
         self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
         if _nvjitlink:
-            handle = _nvjitlink.create(len(options.formatted_options), options.formatted_options)
+            handle = self._exception_manager(
+                lambda: _nvjitlink.create(len(options.formatted_options), options.formatted_options)
+            )
+
             use_nvjitlink = True
         else:
-            handle = handle_return(
-                _driver.cuLinkCreate(len(options.formatted_options), options.option_keys, options.formatted_options)
+            handle = self._exception_manager(
+                lambda: handle_return(
+                    _driver.cuLinkCreate(len(options.formatted_options), options.option_keys, options.formatted_options)
+                )
             )
             use_nvjitlink = False
         self._mnff = Linker._MembersNeededForFinalize(self, handle, use_nvjitlink)
@@ -362,6 +370,27 @@ class Linker:
         for code in object_codes:
             assert isinstance(code, ObjectCode)
             self._add_code_object(code)
+
+    def _exception_manager(self, action):
+        """
+        Helper function to improve the error message of excepotions raised by the linker backend.
+
+        Parameters
+        ----------
+        action : callable
+            The action to be performed.
+
+        Returns
+        -------
+        The return value of the action.
+        """
+        try:
+            return action()
+        except Exception as e:
+            error = self.get_error_log()
+            raise RuntimeError(
+                f"Exception raised by {"nvjitlink" if _nvjitlink else "cuLink"}: {e}.\nLinker error log: {error}"
+            ) from e
 
     def _add_code_object(self, object_code: ObjectCode):
         data = object_code._module
@@ -392,7 +421,7 @@ class Linker:
         if target_type not in ("cubin", "ptx"):
             raise ValueError(f"Unsupported target type: {target_type}")
         if _nvjitlink:
-            _nvjitlink.complete(self._mnff.handle)
+            self._exception_manager(lambda: _nvjitlink.complete(self._mnff.handle))
             if target_type == "cubin":
                 get_size = _nvjitlink.get_linked_cubin_size
                 get_code = _nvjitlink.get_linked_cubin
@@ -400,11 +429,11 @@ class Linker:
                 get_size = _nvjitlink.get_linked_ptx_size
                 get_code = _nvjitlink.get_linked_ptx
 
-            size = get_size(self._mnff.handle)
+            size = self._exception_manager(lambda: get_size(self._mnff.handle))
             code = bytearray(size)
-            get_code(self._mnff.handle, code)
+            self._exception_manager(lambda: get_code(self._mnff.handle, code))
         else:
-            addr, size = handle_return(_driver.cuLinkComplete(self._mnff.handle))
+            addr, size = self._exception_manager(lambda: handle_return(_driver.cuLinkComplete(self._mnff.handle)))
             code = (ctypes.c_char * size).from_address(addr)
 
         return ObjectCode(bytes(code), target_type)

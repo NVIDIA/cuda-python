@@ -9,7 +9,7 @@ ARCH = "sm_80"  # use sm_80 for testing the oop nvJitLink wrapper
 device_function_a = """
 __device__ int B();
 __device__ int C(int a, int b);
-__device__ void A() { int result = C(B(), 1);}
+__global__ void A() { int result = C(B(), 1);}
 """
 device_function_b = "__device__ int B() { return 0; }"
 device_function_c = "__device__ int C(int a, int b) { return a + b; }"
@@ -29,9 +29,11 @@ else:
 
 @pytest.fixture(scope="function")
 def compile_ptx_functions(init_cuda):
-    object_code_b_ptx = Program(device_function_b, "c++").compile("ptx")
-    object_code_c_ptx = Program(device_function_c, "c++").compile("ptx")
-    object_code_a_ptx = Program(device_function_a, "c++").compile("ptx")
+    # Without rdc (relocatable device code) option, the generated ptx will not included any unreferenced
+    # device functions, causing the link to fail
+    object_code_b_ptx = Program(device_function_b, "c++").compile("ptx", options=("-rdc=true",))
+    object_code_c_ptx = Program(device_function_c, "c++").compile("ptx", options=("-rdc=true",))
+    object_code_a_ptx = Program(device_function_a, "c++").compile("ptx", options=("-rdc=true",))
 
     return object_code_a_ptx, object_code_b_ptx, object_code_c_ptx
 
@@ -46,7 +48,7 @@ def compile_ltoir_functions(init_cuda):
 
 
 culink_options = [
-    LinkerOptions(arch=ARCH),
+    LinkerOptions(arch=ARCH, verbose=True),
     LinkerOptions(arch=ARCH, max_register_count=32),
     LinkerOptions(arch=ARCH, verbose=True),
     LinkerOptions(arch=ARCH, optimization_level=3),
