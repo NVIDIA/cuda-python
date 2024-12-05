@@ -13,12 +13,6 @@ inputs:
   host-platform:
     required: true
     type: string
-  use-container:
-    required: true
-    type: boolean
-  docker-image:
-    type: string
-    required: true
   upload-enabled:
     required: true
     type: boolean
@@ -29,36 +23,18 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Check out the repo
+      uses: actions/checkout@v4
 
-    - if: ${{ inputs.use-container }}
-      name: Build (in container)
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-
-        docker run \
-          -e AWS_REGION \
-          -e AWS_SESSION_TOKEN \
-          -e AWS_ACCESS_KEY_ID \
-          -e AWS_SECRET_ACCESS_KEY \
-          -e GITHUB_TOKEN \
-          -e BINDINGS_ARTIFACTS_DIR="$BINDINGS_ARTIFACTS_DIR" \
-          -e CORE_ARTIFACTS_DIR="$CORE_ARTIFACTS_DIR" \
-          -e UPLOAD_ENABLED="$UPLOAD_ENABLED" \
-          -e USE_CUDA="$USE_CUDA" \
-          -e REPO_DIR="$REPO_DIR" \
-          -e LEGATE_CORE_BUILD_MODE="$LEGATE_CORE_BUILD_MODE" \
-          -e PYTHON_VERSION="$PYTHON_VERSION" \
-          -v "${{ env.REPO_DIR }}:${{ env.REPO_DIR }}" \
-          -v "${{ env.BINDINGS_ARTIFACTS_DIR }}:${{ env.BINDINGS_ARTIFACTS_DIR }}" \
-          -v "${{ env.CORE_ARTIFACTS_DIR }}:${{ env.CORE_ARTIFACTS_DIR }}" \
-          --rm "${{ inputs.docker-image }}" \
-          /bin/bash -c "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint ${{ env.REPO_DIR }}/continuous_integration/scripts/build ${{ inputs.build-type}} ${{ inputs.target-device }}"
-
-    - if: ${{ !inputs.use-container }}
-      name: Build (without container)
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/build" "${{ inputs.build-type}}" "${{ inputs.target-device }}"
+    - name: Build cuda.core wheel
+      uses: pypa/cibuildwheel@v2.22.0
+      env:
+        CIBW_BUILD: cp312-*  # FIXME: Only build on CPython 3.12
+        CIBW_ARCHS_LINUX: "auto"
+        CIBW_REPAIR_WHEEL_COMMAND: ""  # no repair
+      with:
+        package-dir: ./cuda_core/
+        output-dir: ${{ env.BINDINGS_ARTIFACTS_DIR }}
 
     - name: Display structure of the bindings artifacts folder (post build)
       shell: bash --noprofile --norc -xeuo pipefail {0}

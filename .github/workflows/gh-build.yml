@@ -16,9 +16,6 @@ on:
         required: true
         type: string
         description: One of ci / release
-      use-container:
-        required: true
-        type: boolean
       host-platform:
         required: true
         type: string
@@ -38,7 +35,7 @@ on:
 
 jobs:
   build:
-    name: Build (${{ inputs.host-platform }}, ${{ inputs.target-device }}, ${{ inputs.build-type }}, CMake build-mode=${{ inputs.build-mode }}, Python "${{ inputs.python-version }}", Use container=${{ inputs.use-container }} )
+    name: Build (${{ inputs.host-platform }}, ${{ inputs.target-device }}, ${{ inputs.build-type }}, build-mode=${{ inputs.build-mode }}, Python "${{ inputs.python-version }}")
 
     permissions:
       id-token: write # This is required for configure-aws-credentials
@@ -69,6 +66,4 @@ jobs:
           build-type: ${{ inputs.build-type }}
           target-device: "${{ inputs.target-device }}"
           host-platform: ${{ inputs.host-platform }}
-          use-container: ${{ inputs.use-container }}
-          docker-image: "condaforge/miniforge3:latest"
           upload-enabled: ${{ inputs.upload-enabled }}
