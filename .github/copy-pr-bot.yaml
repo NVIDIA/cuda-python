@@ -2,3 +2,6 @@
 # https://docs.gha-runners.nvidia.com/apps/copy-pr-bot/
 
 enabled: true
+# always require manual CI triggering, ignoring signed commits
+auto_sync_draft: false
+auto_sync_ready: false
