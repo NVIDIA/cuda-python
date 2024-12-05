@@ -18,6 +18,8 @@ jobs:
       matrix:
         host-platform:
           - linux-x64
+          - linux-aarch64
+          - win-x64
         target-device:
           - gpu
         build-mode:

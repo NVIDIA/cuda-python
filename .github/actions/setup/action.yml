@@ -35,9 +35,15 @@ runs:
     - name: Set environment variables
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        TARGET_PLATFORM='linux-64'
-        if [[ "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
+        # TODO: just align host-platform names with TARGET_PLATFORM...
+        if [[ "${{ inputs.host-platform }}" == "linux-x64" ]]; then
+          TARGET_PLATFORM='linux-64'
+        elif [[ "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
           TARGET_PLATFORM='linux-aarch64'
+        elif [[ "${{ inputs.host-platform }}" == "win-x64" ]]; then
+          TARGET_PLATFORM='win-64'
+        else
+          exit 1
         fi
 
         BUILD_MODE="${{ inputs.build-mode }}"
