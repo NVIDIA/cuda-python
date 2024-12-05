@@ -32,52 +32,52 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
 
-    - name: Set up new PowerShell (pwsh)
-      if: ${{ startsWith(inputs.host-platform, 'win') }}
-      shell: powershell
-      env:
-        # doesn't seem there's an easy way to avoid hard-coding it?
-        PS_MSI_URL: https://github.com/PowerShell/PowerShell/releases/download/v7.4.6/PowerShell-7.4.6-win-x64.msi
-      run: |
-        Invoke-WebRequest -Uri "$env:PS_MSI_URL" -OutFile "ps_installer.msi"
-        Start-Process msiexec.exe -Wait -Verbose -ArgumentList '/i "ps_installer.msi" /qn REGISTER_MANIFEST=1'
-        echo "$env:ProgramFiles\\PowerShell\\7" >> $env:GITHUB_PATH
+    # - name: Set up new PowerShell (pwsh)
+    #   if: ${{ startsWith(inputs.host-platform, 'win') }}
+    #   shell: powershell
+    #   env:
+    #     # doesn't seem there's an easy way to avoid hard-coding it?
+    #     PS_MSI_URL: https://github.com/PowerShell/PowerShell/releases/download/v7.4.6/PowerShell-7.4.6-win-x64.msi
+    #   run: |
+    #     Invoke-WebRequest -Uri "$env:PS_MSI_URL" -OutFile "ps_installer.msi"
+    #     Start-Process msiexec.exe -Wait -Verbose -ArgumentList '/i "ps_installer.msi" /qn REGISTER_MANIFEST=1'
+    #     echo "$env:ProgramFiles\\PowerShell\\7" >> $env:GITHUB_PATH
 
-    - name: Install MSVC
-      if: ${{ startsWith(inputs.host-platform, 'win') }}
-      shell: pwsh
-      run: |
-        # Download & install
-        .\\continuous_integration\\scripts\\install-vs.ps1 -msvcVersion 15 -clVersion 14.16
+    # - name: Install MSVC
+    #   if: ${{ startsWith(inputs.host-platform, 'win') }}
+    #   shell: pwsh
+    #   run: |
+    #     # Download & install
+    #     .\\continuous_integration\\scripts\\install-vs.ps1 -msvcVersion 15 -clVersion 14.16
 
-        # Verify
-        # Note: this assumes vs2017, e.g. see _find_vc2017():
-        # https://github.com/pypa/setuptools/blob/9692cde009af4651819d18a1e839d3b6e3fcd77d/setuptools/_distutils/_msvccompiler.py#L67
-        $vsPath = & "${env:ProgramFiles(x86)}\\Microsoft Visual Studio\\Installer\\vswhere.exe" `
-                  -latest `
-                  -products * `
-                  -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
-                  -property installationPath
-        $clPath = Join-Path $vsPath "VC\\Tools\\MSVC\\*\\bin\\Hostx64\\x64\\cl.exe"
-        $clPath = (Get-ChildItem $clPath).FullName
-        echo "found cl.exe: $clPath"
-        # # For some reason below just doesn't work in the CI...
-        # Start-Process -NoNewWindow -RedirectStandardError cl.out -FilePath "$clPath"
-        # $CL_VERSION_STRING = & type cl.out
-        # if (($CL_VERSION_STRING -join " ") -match "Version (\\d+\\.\\d+)\\.\\d+") {
-        #     $CL_VERSION = $matches[1]
-        #     echo "Detected cl.exe version: $CL_VERSION"
-        # }
+    #     # Verify
+    #     # Note: this assumes vs2017, e.g. see _find_vc2017():
+    #     # https://github.com/pypa/setuptools/blob/9692cde009af4651819d18a1e839d3b6e3fcd77d/setuptools/_distutils/_msvccompiler.py#L67
+    #     $vsPath = & "${env:ProgramFiles(x86)}\\Microsoft Visual Studio\\Installer\\vswhere.exe" `
+    #               -latest `
+    #               -products * `
+    #               -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+    #               -property installationPath
+    #     $clPath = Join-Path $vsPath "VC\\Tools\\MSVC\\*\\bin\\Hostx64\\x64\\cl.exe"
+    #     $clPath = (Get-ChildItem $clPath).FullName
+    #     echo "found cl.exe: $clPath"
+    #     # # For some reason below just doesn't work in the CI...
+    #     # Start-Process -NoNewWindow -RedirectStandardError cl.out -FilePath "$clPath"
+    #     # $CL_VERSION_STRING = & type cl.out
+    #     # if (($CL_VERSION_STRING -join " ") -match "Version (\\d+\\.\\d+)\\.\\d+") {
+    #     #     $CL_VERSION = $matches[1]
+    #     #     echo "Detected cl.exe version: $CL_VERSION"
+    #     # }
 
-        # Delete temporary items created by installers and such
-        Remove-Item -Recurse "${env:TEMP}\\*"
+    #     # Delete temporary items created by installers and such
+    #     Remove-Item -Recurse "${env:TEMP}\\*"
 
     - name: Set up MSVC
       if: ${{ startsWith(inputs.host-platform, 'win') }}
       uses: ilammy/msvc-dev-cmd@v1
-      with:
-        toolset: 14.16
-        vsversion: 2017
+    #  with:
+    #    toolset: 14.16
+    #    vsversion: 2017
 
     - name: Set REPO_DIR and Dump environment
       shell: bash --noprofile --norc -xeuo pipefail {0}
