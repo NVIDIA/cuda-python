@@ -60,8 +60,8 @@ runs:
         CIBW_ARCHS_LINUX: "native"
         CIBW_REPAIR_WHEEL_COMMAND: ""  # no repair
         CIBW_BUILD_VERBOSITY: 1
-        CIBW_BEFORE_BUILD_LINUX: >
-          export CUDA_PATH="$(realpath ./cuda-*)"  # TODO: use cuda-version here?
+        CIBW_ENVIRONMENT: >
+          CUDA_PATH="$(realpath ./cuda_toolkit)"
         # # ensure Python.h & co can be found
         # CIBW_BEFORE_BUILD_WINDOWS: >
         #   python -c "import sysconfig; print(sysconfig.get_path('include'))" >> $env:INCLUDE

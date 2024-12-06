@@ -93,7 +93,7 @@ runs:
     - name: Get CUDA headers
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        CUDA_PATH="cuda-${{ inputs.cuda-version }}"
+        CUDA_PATH="./cuda_toolkit"
         mkdir -p $CUDA_PATH/include
 
         git clone -b "cuda-${{ inputs.cuda-version }}" https://gitlab.com/nvidia/headers/cuda-individual/cudart.git
