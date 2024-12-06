@@ -111,27 +111,12 @@ runs:
           TARGET_PLATFORM='win-64'
         fi
 
+        PYTHON_VERSION_FORMATTED=$(echo '${{ inputs.python-version }}' | tr -d '.')
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-          if [[ "${{ inputs.python-version }}" == "3.12" ]]; then
-            CIBW_BUILD='cp312-manylinux*'
-          elif [[ "${{ inputs.python-version }}" == "3.11" ]]; then
-            CIBW_BUILD='cp311-manylinux*'
-          elif [[ "${{ inputs.python-version }}" == "3.10" ]]; then
-            CIBW_BUILD='cp310-manylinux*'
-          elif [[ "${{ inputs.python-version }}" == "3.9" ]]; then
-            CIBW_BUILD='cp39-manylinux*'
-          fi
+          CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-manylinux*"
           REPO_DIR=$(pwd)
         elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-          if [[ "${{ inputs.python-version }}" == "3.12" ]]; then
-            CIBW_BUILD='cp312-win_amd64'
-          elif [[ "${{ inputs.python-version }}" == "3.11" ]]; then
-            CIBW_BUILD='cp311-win_amd64'
-          elif [[ "${{ inputs.python-version }}" == "3.10" ]]; then
-            CIBW_BUILD='cp310-win_amd64'
-          elif [[ "${{ inputs.python-version }}" == "3.9" ]]; then
-           CIBW_BUILD='cp39-win_amd64'
-          fi
+          CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-win_amd64"
           PWD=$(pwd)
           REPO_DIR=$(cygpath -w $PWD)
         fi
@@ -147,9 +132,9 @@ runs:
         echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
         echo "REPO_DIR=$REPO_DIR" >> $GITHUB_ENV
         echo "PKG_DIR=${PKG_DIR}" >> $GITHUB_ENV
-        echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${{ inputs.python-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
+        echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-        echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${{ inputs.python-version }}-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
+        echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
         echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
         echo "UPLOAD_ENABLED=${{ (inputs.upload-enabled  == 'true' && 'ON') || 'OFF' }}" >> $GITHUB_ENV
         echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
