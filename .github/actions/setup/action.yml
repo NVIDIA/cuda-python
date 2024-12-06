@@ -138,6 +138,8 @@ runs:
         populate_cuda_path cuda_nvrtc
         populate_cuda_path cuda_profiler_api
 
+        ls -l $CUDA_PATH
+        tree $CUDA_PATH
         # Note: the headers will be copied into the cibuildwheel manylinux container,
         # so setting the CUDA_PATH env var here is meaningless.
 
@@ -151,28 +153,31 @@ runs:
           TARGET_PLATFORM='linux-aarch64'
         elif [[ "${{ inputs.host-platform }}" == "win-x64" ]]; then
           TARGET_PLATFORM='win-64'
-        else
-          exit 1
         fi
 
-        if [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.host-platform }}" == linux* ]]; then
-          CIBW_BUILD='cp312-manylinux*'
-        elif [[ "${{ inputs.python-version }}" == "3.11" && "${{ inputs.host-platform }}" == linux* ]]; then
-          CIBW_BUILD='cp311-manylinux*'
-        elif [[ "${{ inputs.python-version }}" == "3.10" && "${{ inputs.host-platform }}" == linux* ]]; then
-          CIBW_BUILD='cp310-manylinux*'
-        elif [[ "${{ inputs.python-version }}" == "3.9" && "${{ inputs.host-platform }}" == linux* ]]; then
-          CIBW_BUILD='cp39-manylinux*'
-        elif [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.host-platform }}" == win* ]]; then
-          CIBW_BUILD='cp312-win_amd64'
-        elif [[ "${{ inputs.python-version }}" == "3.11" && "${{ inputs.host-platform }}" == win* ]]; then
-          CIBW_BUILD='cp311-win_amd64'
-        elif [[ "${{ inputs.python-version }}" == "3.10" && "${{ inputs.host-platform }}" == win* ]]; then
-          CIBW_BUILD='cp310-win_amd64'
-        elif [[ "${{ inputs.python-version }}" == "3.9" && "${{ inputs.host-platform }}" == win* ]]; then
-          CIBW_BUILD='cp39-win_amd64'
-        else
-          exit 1
+        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+          if [[ "${{ inputs.python-version }}" == "3.12" ]]; then
+            CIBW_BUILD='cp312-manylinux*'
+          elif [[ "${{ inputs.python-version }}" == "3.11" ]]; then
+            CIBW_BUILD='cp311-manylinux*'
+          elif [[ "${{ inputs.python-version }}" == "3.10" ]]; then
+            CIBW_BUILD='cp310-manylinux*'
+          elif [[ "${{ inputs.python-version }}" == "3.9" ]]; then
+            CIBW_BUILD='cp39-manylinux*'
+          fi
+          REPO_DIR=$(pwd)
+        elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+          if [[ "${{ inputs.python-version }}" == "3.12" ]]; then
+            CIBW_BUILD='cp312-win_amd64'
+          elif [[ "${{ inputs.python-version }}" == "3.11" ]]; then
+            CIBW_BUILD='cp311-win_amd64'
+          elif [[ "${{ inputs.python-version }}" == "3.10" ]]; then
+            CIBW_BUILD='cp310-win_amd64'
+          elif [[ "${{ inputs.python-version }}" == "3.9" ]]; then
+           CIBW_BUILD='cp39-win_amd64'
+          fi
+          PWD=$(pwd)
+          REPO_DIR=$(cygpath -w $PWD)
         fi
 
         BUILD_MODE="${{ inputs.build-mode }}"
@@ -181,13 +186,6 @@ runs:
           PKG_DIR="${TARGET_PLATFORM}"
         else
           PKG_DIR="${BUILD_MODE}/${TARGET_PLATFORM}"
-        fi
-
-        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-          REPO_DIR=$(pwd)
-        else
-          PWD=$(pwd)
-          REPO_DIR=$(cygpath -w $PWD)
         fi
 
         echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
