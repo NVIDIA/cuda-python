@@ -50,7 +50,6 @@ def compile_ltoir_functions(init_cuda):
 culink_options = [
     LinkerOptions(arch=ARCH, verbose=True),
     LinkerOptions(arch=ARCH, max_register_count=32),
-    LinkerOptions(arch=ARCH, verbose=True),
     LinkerOptions(arch=ARCH, optimization_level=3),
     LinkerOptions(arch=ARCH, debug=True),
     LinkerOptions(arch=ARCH, lineinfo=True),
