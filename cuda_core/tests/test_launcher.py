@@ -67,6 +67,12 @@ def test_launch_config_shmem_size():
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None)
     assert config.shmem_size == 0
 
+# Example kernel function
+def kernel_function(arr):
+    # Perform a simple operation for demonstration
+    for i in range(len(arr)):
+        arr[i] += 1
+
 def test_launch_with_python_scalars(init_cuda):
     """Test launching kernel with Python scalar arguments."""
     stream = Device().create_stream()
@@ -79,10 +85,9 @@ def test_launch_with_python_scalars(init_cuda):
     )
     
     # Test various Python scalar types
-    launch(1, config, 10)  # using a mock handle
-    launch(1, config, 3.14)
-    launch(1, config, True)
-
+    launch(kernel_function, config, 10)
+    launch(kernel_function, config, 3.14)
+    launch(kernel_function, config, True)
 
 def test_launch_with_numpy_scalars(init_cuda):
     """Test launching kernel with NumPy scalar arguments."""
@@ -96,10 +101,9 @@ def test_launch_with_numpy_scalars(init_cuda):
     )
     
     # Test various NumPy scalar types
-    launch(1, config, np.int32(42))
-    launch(1, config, np.float64(3.14))
-    launch(1, config, np.bool_(True))
-
+    launch(kernel_function, config, np.int32(42))
+    launch(kernel_function, config, np.float64(3.14))
+    launch(kernel_function, config, np.bool_(True))
 
 def test_launch_with_ctypes_scalars(init_cuda):
     """Test launching kernel with ctypes scalar arguments."""
@@ -113,10 +117,9 @@ def test_launch_with_ctypes_scalars(init_cuda):
     )
     
     # Test various ctypes scalar types
-    launch(1, config, ctypes.c_int(42))
-    launch(1, config, ctypes.c_float(3.14))
-    launch(1, config, ctypes.c_bool(True))
-
+    launch(kernel_function, config, ctypes.c_int(42))
+    launch(kernel_function, config, ctypes.c_float(3.14))
+    launch(kernel_function, config, ctypes.c_bool(True))
 
 def test_launch_error_cases(init_cuda):
     """Test error cases for launch function."""
@@ -141,8 +144,7 @@ def test_launch_error_cases(init_cuda):
             stream=None,
             shmem_size=0
         )
-        launch(1, invalid_config, 10)
-
+        launch(kernel_function, invalid_config, 10)
 
 def test_launch_config_validation(init_cuda):
     """Test launch configuration validation."""
@@ -155,7 +157,7 @@ def test_launch_config_validation(init_cuda):
         stream=stream,
         shmem_size=0
     )
-    launch(1, config, 10)
+    launch(kernel_function, config, 10)
     
     # Test with alternate valid configurations
     config_alt = LaunchConfig(
@@ -164,4 +166,4 @@ def test_launch_config_validation(init_cuda):
         stream=stream,
         shmem_size=128
     )
-    launch(1, config_alt, 42)
+    launch(kernel_function, config_alt, 42)
