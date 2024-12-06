@@ -114,7 +114,7 @@ runs:
             _TEMP_DIR_=$(mktemp -d)
             unzip $1 -d $_TEMP_DIR_
             cp -r $_TEMP_DIR_/* $CUDA_PATH
-            rm -r $_TEMP_DIR_
+            rm -rf $_TEMP_DIR_
           }
         fi
         function populate_cuda_path() {

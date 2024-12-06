@@ -58,8 +58,11 @@ runs:
         CIBW_BUILD: ${{ env.CIBW_BUILD }}
         CIBW_ARCHS_LINUX: "native"
         CIBW_BUILD_VERBOSITY: 1
-        CIBW_ENVIRONMENT: >
+        CIBW_ENVIRONMENT_LINUX: >
           CUDA_PATH="$(realpath ./cuda_toolkit)"
+          PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+        CIBW_ENVIRONMENT_WINDOWS: >
+          CUDA_HOME="$(cygpath -w ./cuda_toolkit)"
           PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
         # # ensure Python.h & co can be found
         # CIBW_BEFORE_BUILD_WINDOWS: >
