@@ -111,7 +111,8 @@ runs:
         mv nvrtc/* $CUDA_PATH/include
         rmdir nvrtc
 
-        echo "CUDA_PATH=$(realpath $CUDA_PATH)" >> $GITHUB_ENV
+        # Note: the headers will be copied into the cibuildwheel manylinux container,
+        # so setting the CUDA_PATH env var here is meaningless.
 
     - name: Set environment variables
       shell: bash --noprofile --norc -xeuo pipefail {0}
