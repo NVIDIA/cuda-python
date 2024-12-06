@@ -99,20 +99,28 @@ runs:
         # The binary archives (redist) are guaranteed to be updated as part of the release posting.
         CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
         CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
-        if [[ "${{ inputs.host-platform }}" == "linux-x64" ]]; then
-          CTK_SUBDIR="linux-x86_64"
-        elif [[ "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
-          CTK_SUBDIR="linux-sbsa"
+        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+          if [[ "${{ inputs.host-platform }}" == "linux-x64" ]]; then
+            CTK_SUBDIR="linux-x86_64"
+          elif [[ "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
+            CTK_SUBDIR="linux-sbsa"
+          fi
+          function extract() {
+            tar -xvf $1 -C $CUDA_PATH --strip-components=1
+          }
         elif [[ "${{ inputs.host-platform }}" == "win-x64" ]]; then
           CTK_SUBDIR="windows-x86_64"
+          function extract() {
+            _TEMP_DIR_=$(mktemp -d)
+            unzip $1 -d $_TEMP_DIR_
+            mv $_TEMP_DIR_/*/* $CUDA_PATH
+            rmdir $_TEMP_DIR_/* $_TEMP_DIR_
+          }
         fi
         function populate_cuda_path() {
           # take the component name as a argument
           function download() {
             curl -kLSs $1 -o $2
-          }
-          function extract() {
-            tar -xvf $1 -C $CUDA_PATH --strip-components=1
           }
           CTK_COMPONENT=$1
           CTK_COMPONENT_REL_PATH="$(curl -s $CTK_JSON_URL |
