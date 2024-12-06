@@ -7,7 +7,7 @@ from typing import Union
 
 from cuda import cuda, cudart
 from cuda.core.experimental._context import Context, ContextOptions
-from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool
+from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils import ComputeCapability, CUDAError, handle_return, precondition
 
@@ -62,7 +62,17 @@ class Device:
                 for dev_id in range(total):
                     dev = super().__new__(cls)
                     dev._id = dev_id
-                    dev._mr = _DefaultAsyncMempool(dev_id)
+                    # If the device is in TCC mode, or does not support memory pools for some other reason,
+                    # use the SynchronousMemoryResource which does not use memory pools.
+                    if (
+                        handle_return(
+                            cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
+                        )
+                    ) == 1:
+                        dev._mr = _DefaultAsyncMempool(dev_id)
+                    else:
+                        dev._mr = _SynchronousMemoryResource(dev_id)
+
                     dev._has_inited = False
                     _tls.devices.append(dev)
 
