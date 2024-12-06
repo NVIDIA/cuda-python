@@ -105,21 +105,23 @@ runs:
           CTK_SUBDIR="linux-sbsa"
         elif [[ "${{ inputs.host-platform }}" == "win-x64" ]]; then
           CTK_SUBDIR="windows-x86_64"
-          apt update; apt install wget
         fi
-        function extractor() {
-            tar -xvf $1 -C $CUDA_PATH --strip-components=1
-        }
         function populate_cuda_path() {
-            # take the component name as a argument
-            CTK_COMPONENT=$1
-            CTK_COMPONENT_REL_PATH="$(curl -s $CTK_JSON_URL |
-                python -c "import sys, json; print(json.load(sys.stdin)['${CTK_COMPONENT}']['${CTK_SUBDIR}']['relative_path'])")"
-            CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
-            wget $CTK_COMPONENT_URL
-            CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
-            extractor $CTK_COMPONENT_COMPONENT_FILENAME
-            rm $CTK_COMPONENT_COMPONENT_FILENAME
+          # take the component name as a argument
+          function download() {
+            curl -kLSs $1 -o $2
+          }
+          function extract() {
+            tar -xvf $1 -C $CUDA_PATH --strip-components=1
+          }
+          CTK_COMPONENT=$1
+          CTK_COMPONENT_REL_PATH="$(curl -s $CTK_JSON_URL |
+              python -c "import sys, json; print(json.load(sys.stdin)['${CTK_COMPONENT}']['${CTK_SUBDIR}']['relative_path'])")"
+          CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
+          CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
+          download $CTK_COMPONENT_URL $CTK_COMPONENT_COMPONENT_FILENAME
+          extract $CTK_COMPONENT_COMPONENT_FILENAME
+          rm $CTK_COMPONENT_COMPONENT_FILENAME
         }
 
         # Get headers and shared libraries in place
