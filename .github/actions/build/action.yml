@@ -63,7 +63,7 @@ runs:
           PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
         CIBW_ENVIRONMENT_WINDOWS: >
           CUDA_HOME="$(cygpath -w $(realpath ./cuda_toolkit))"
-          PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+        #  PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
         # # ensure Python.h & co can be found
         # CIBW_BEFORE_BUILD_WINDOWS: >
         #   python -c "import sysconfig; print(sysconfig.get_path('include'))" >> $env:INCLUDE
