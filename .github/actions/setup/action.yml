@@ -113,7 +113,7 @@ runs:
           function extract() {
             _TEMP_DIR_=$(mktemp -d)
             unzip $1 -d $_TEMP_DIR_
-            cp -r $_TEMP_DIR_/* $CUDA_PATH
+            cp -r $_TEMP_DIR_/*/* $CUDA_PATH
             rm -rf $_TEMP_DIR_
           }
         fi
@@ -137,9 +137,8 @@ runs:
         populate_cuda_path cuda_cudart
         populate_cuda_path cuda_nvrtc
         populate_cuda_path cuda_profiler_api
-
         ls -l $CUDA_PATH
-        tree $CUDA_PATH
+
         # Note: the headers will be copied into the cibuildwheel manylinux container,
         # so setting the CUDA_PATH env var here is meaningless.
 
