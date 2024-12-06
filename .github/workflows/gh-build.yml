@@ -32,10 +32,13 @@ on:
       python-version:
         required: true
         type: string
+      cuda-version:
+        required: true
+        type: string
 
 jobs:
   build:
-    name: Build (${{ inputs.host-platform }}, ${{ inputs.target-device }}, ${{ inputs.build-type }}, build-mode=${{ inputs.build-mode }}, Python "${{ inputs.python-version }}")
+    name: Build (${{ inputs.host-platform }}, ${{ inputs.build-type }}, ${{ inputs.build-mode }}, Python "${{ inputs.python-version }}")
 
     permissions:
       id-token: write # This is required for configure-aws-credentials
@@ -59,6 +62,7 @@ jobs:
           build-mode: ${{ inputs.build-mode }}
           upload-enabled: ${{ inputs.upload-enabled }}
           python-version: ${{ inputs.python-version }}
+          cuda-version: ${{ inputs.cuda-version }}
 
       - name: Call build action
         uses: ./.github/actions/build

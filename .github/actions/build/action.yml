@@ -24,7 +24,6 @@ runs:
       uses: pypa/cibuildwheel@v2.22.0
       env:
         CIBW_BUILD: ${{ env.CIBW_BUILD }}
-        #CIBW_PROJECT_REQUIRES_PYTHON: ${{ env.CIBW_PROJECT_REQUIRES_PYTHON }}
         CIBW_ARCHS_LINUX: "native"
         CIBW_REPAIR_WHEEL_COMMAND: ""  # no repair
         CIBW_BUILD_VERBOSITY: 1
@@ -34,18 +33,6 @@ runs:
       with:
         package-dir: ./cuda_core/
         output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-    #- name: Display structure of the bindings artifacts folder (post build)
-    #  shell: bash --noprofile --norc -xeuo pipefail {0}
-    #  run: |
-    #    sudo chown -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
-    #    ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
-
-    #- name: Upload bindings build artifacts
-    #  uses: actions/upload-artifact@v4
-    #  with:
-    #    name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
-    #    path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
     - name: List the cuda.core artifacts directory
       shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -63,5 +50,38 @@ runs:
       with:
         name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
         path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+        if-no-files-found: error
+        overwrite: 'true'
+
+    - name: Build cuda.bindings wheel
+      uses: pypa/cibuildwheel@v2.22.0
+      env:
+        CIBW_BUILD: ${{ env.CIBW_BUILD }}
+        CIBW_ARCHS_LINUX: "native"
+        CIBW_REPAIR_WHEEL_COMMAND: ""  # no repair
+        CIBW_BUILD_VERBOSITY: 1
+        # # ensure Python.h & co can be found
+        # CIBW_BEFORE_BUILD_WINDOWS: >
+        #   python -c "import sysconfig; print(sysconfig.get_path('include'))" >> $env:INCLUDE
+      with:
+        package-dir: ./cuda_bindings/
+        output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+    - name: List the cuda.bindings artifacts directory
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        if [[ "${{ inputs.host-platform }}" == win* ]]; then
+          export CHOWN=chown
+        else
+          export CHOWN="sudo chown"
+        fi
+        $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+        ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+    - name: Upload cuda.bindings build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+        path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
         if-no-files-found: error
         overwrite: 'true'

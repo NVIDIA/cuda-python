@@ -19,6 +19,10 @@ on:
       python-version:
         type: string
         required: true
+      cuda-version:
+        type: string
+        required: true
+
 jobs:
   build:
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -36,5 +40,6 @@ jobs:
       build-mode: ${{ inputs.build-mode }}
       upload-enabled: ${{ inputs.upload-enabled }}
       python-version: ${{ inputs.python-version }}
+      cuda-version: ${{ inputs.cuda-version }}
       dependencies-file: ""
     secrets: inherit

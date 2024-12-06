@@ -22,6 +22,9 @@ inputs:
   python-version:
     required: true
     type: string
+  cuda-version:
+    required: true
+    type: string
 
 runs:
   using: composite
@@ -87,6 +90,29 @@ runs:
       run: |
         env
 
+    - name: Get CUDA headers
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        CUDA_PATH="cuda-${{ inputs.cuda-version }}"
+        mkdir -p $CUDA_PATH/include
+
+        git clone -b "cuda-${{ inputs.cuda-version }}" https://gitlab.com/nvidia/headers/cuda-individual/cudart.git
+        rm -rf cudart/.git
+        mv cudart/* $CUDA_PATH/include
+        rmdir cudart
+
+        git clone -b "cuda-${{ inputs.cuda-version }}" https://gitlab.com/nvidia/headers/cuda-individual/nvcc.git
+        rm -rf nvcc/.git
+        mv nvcc/* $CUDA_PATH/include
+        rmdir nvcc
+
+        git clone -b "cuda-${{ inputs.cuda-version }}" https://gitlab.com/nvidia/headers/cuda-individual/nvrtc.git
+        rm -rf nvrtc/.git
+        mv nvrtc/* $CUDA_PATH/include
+        rmdir nvrtc
+
+        echo "CUDA_PATH=$CUDA_PATH" >> $GITHUB_ENV
+
     - name: Set environment variables
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
@@ -136,10 +162,12 @@ runs:
           REPO_DIR=$(cygpath -w $PWD)
         fi
 
+        echo "PARALLEL_LEVEL=${nproc}" >> $GITHUB_ENV
         echo "REPO_DIR=$REPO_DIR" >> $GITHUB_ENV
-        echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${{ inputs.python-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+        echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${{ inputs.python-version }}-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
+        echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
         echo "USE_CUDA=${{ (inputs.target-device == 'cpu' && 'OFF') || 'ON' }}" >> $GITHUB_ENV
         echo "UPLOAD_ENABLED=${{ (inputs.upload-enabled  == 'true' && 'ON') || 'OFF' }}" >> $GITHUB_ENV
         echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
