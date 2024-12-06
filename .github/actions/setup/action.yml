@@ -162,7 +162,7 @@ runs:
           REPO_DIR=$(cygpath -w $PWD)
         fi
 
-        echo "PARALLEL_LEVEL=${nproc}" >> $GITHUB_ENV
+        echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
         echo "REPO_DIR=$REPO_DIR" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${{ inputs.python-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
