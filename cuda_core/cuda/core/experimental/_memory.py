@@ -307,6 +307,9 @@ class _SynchronousMemoryResource(MemoryResource):
         return Buffer(ptr, size, self)
 
     def deallocate(self, ptr, size, stream=None):
+        if stream is None:
+            stream = default_stream()
+        stream.sync()
         handle_return(cuda.cuMemFree(ptr))
 
     @property
