@@ -16,9 +16,6 @@ on:
         required: true
         type: string
         description: One of ci / release
-      use-container:
-        required: true
-        type: boolean
       host-platform:
         required: true
         type: string
@@ -35,10 +32,13 @@ on:
       python-version:
         required: true
         type: string
+      cuda-version:
+        required: true
+        type: string
 
 jobs:
   build:
-    name: Build (${{ inputs.host-platform }}, ${{ inputs.target-device }}, ${{ inputs.build-type }}, CMake build-mode=${{ inputs.build-mode }}, Python "${{ inputs.python-version }}", Use container=${{ inputs.use-container }} )
+    name: Build (${{ inputs.host-platform }}, ${{ inputs.build-type }}, ${{ inputs.build-mode }}, Python "${{ inputs.python-version }}")
 
     permissions:
       id-token: write # This is required for configure-aws-credentials
@@ -52,7 +52,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup
+      - name: Set up build environment
         uses: ./.github/actions/setup
         with:
           client-repo: ${{ inputs.client-repo }}
@@ -62,6 +62,7 @@ jobs:
           build-mode: ${{ inputs.build-mode }}
           upload-enabled: ${{ inputs.upload-enabled }}
           python-version: ${{ inputs.python-version }}
+          cuda-version: ${{ inputs.cuda-version }}
 
       - name: Call build action
         uses: ./.github/actions/build
@@ -69,6 +70,4 @@ jobs:
           build-type: ${{ inputs.build-type }}
           target-device: "${{ inputs.target-device }}"
           host-platform: ${{ inputs.host-platform }}
-          use-container: ${{ inputs.use-container }}
-          docker-image: "condaforge/miniforge3:latest"
           upload-enabled: ${{ inputs.upload-enabled }}
