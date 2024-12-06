@@ -90,30 +90,13 @@ runs:
       run: |
         env
 
-    - name: Get CUDA headers
+    - name: Get CUDA components
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         CUDA_PATH="./cuda_toolkit"
-        mkdir -p $CUDA_PATH/include
+        mkdir $CUDA_PATH
 
-        git clone -b "cuda-${{ inputs.cuda-version }}" https://gitlab.com/nvidia/headers/cuda-individual/cudart.git
-        rm -rf cudart/.git
-        mv cudart/* $CUDA_PATH/include
-        rmdir cudart
-
-        git clone -b "cuda-${{ inputs.cuda-version }}" https://gitlab.com/nvidia/headers/cuda-individual/nvcc.git
-        rm -rf nvcc/.git
-        mv nvcc/* $CUDA_PATH/include
-        rmdir nvcc
-
-        git clone -b "cuda-${{ inputs.cuda-version }}" https://gitlab.com/nvidia/headers/cuda-individual/nvrtc.git
-        rm -rf nvrtc/.git
-        mv nvrtc/* $CUDA_PATH/include
-        rmdir nvrtc
-
-        # cuda-profiler-api aren't updated on Gitlab...
-        # TODO: consider applying the same approach for all components? The binary archives (redist) are
-        # guaranteed to be updated as part of the release posting.
+        # The binary archives (redist) are guaranteed to be updated as part of the release posting.
         CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
         CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
         if [[ "${{ inputs.host-platform }}" == "linux-x64" ]]; then
@@ -125,18 +108,23 @@ runs:
         else
           exit 1
         fi
-        CTK_COMPONENT="cuda_profiler_api"
-        CTK_COMPONENT_REL_PATH="$(curl -s $CTK_JSON_URL |
-            python -c "import sys, json; print(json.load(sys.stdin)['${CTK_COMPONENT}']['${CTK_SUBDIR}']['relative_path'])")"
-        CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
-        wget $CTK_COMPONENT_URL
-        CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
-        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-          tar -xvf $CTK_COMPONENT_COMPONENT_FILENAME -C $CUDA_PATH --strip-components=1
-        else
-          exit 1  # FIXME
-        fi
-        rm $CTK_COMPONENT_COMPONENT_FILENAME
+        function populate_cuda_path() {
+            # take the component name as a argument
+            CTK_COMPONENT=$1
+            CTK_COMPONENT_REL_PATH="$(curl -s $CTK_JSON_URL |
+                python -c "import sys, json; print(json.load(sys.stdin)['${CTK_COMPONENT}']['${CTK_SUBDIR}']['relative_path'])")"
+            CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
+            wget $CTK_COMPONENT_URL
+            CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
+            tar -xvf $CTK_COMPONENT_COMPONENT_FILENAME -C $CUDA_PATH --strip-components=1
+            rm $CTK_COMPONENT_COMPONENT_FILENAME
+        }
+
+        # Get headers and shared libraries in place
+        populate_cuda_path cuda_nvcc
+        populate_cuda_path cuda_cudart
+        populate_cuda_path cuda_nvrtc
+        populate_cuda_path cuda_profiler_api
 
         # Note: the headers will be copied into the cibuildwheel manylinux container,
         # so setting the CUDA_PATH env var here is meaningless.
