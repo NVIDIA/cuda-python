@@ -105,9 +105,11 @@ runs:
           CTK_SUBDIR="linux-sbsa"
         elif [[ "${{ inputs.host-platform }}" == "win-x64" ]]; then
           CTK_SUBDIR="windows-x86_64"
-        else
-          exit 1
+          apt update; apt install wget
         fi
+        function extractor() {
+            tar -xvf $1 -C $CUDA_PATH --strip-components=1
+        }
         function populate_cuda_path() {
             # take the component name as a argument
             CTK_COMPONENT=$1
@@ -116,7 +118,7 @@ runs:
             CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
             wget $CTK_COMPONENT_URL
             CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
-            tar -xvf $CTK_COMPONENT_COMPONENT_FILENAME -C $CUDA_PATH --strip-components=1
+            extractor $CTK_COMPONENT_COMPONENT_FILENAME
             rm $CTK_COMPONENT_COMPONENT_FILENAME
         }
 
@@ -180,14 +182,12 @@ runs:
 
         echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
         echo "REPO_DIR=$REPO_DIR" >> $GITHUB_ENV
+        echo "PKG_DIR=${PKG_DIR}" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${{ inputs.python-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
         echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
         echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${{ inputs.python-version }}-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
         echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
-        echo "USE_CUDA=${{ (inputs.target-device == 'cpu' && 'OFF') || 'ON' }}" >> $GITHUB_ENV
         echo "UPLOAD_ENABLED=${{ (inputs.upload-enabled  == 'true' && 'ON') || 'OFF' }}" >> $GITHUB_ENV
         echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
         echo "TARGET_PLATFORM=${TARGET_PLATFORM}" >> $GITHUB_ENV
-        echo "PKG_DIR=${PKG_DIR}" >> $GITHUB_ENV
-        echo "PYTHON_VERSION=${{ inputs.python-version }}" >> $GITHUB_ENV
         echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV

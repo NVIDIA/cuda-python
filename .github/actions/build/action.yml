@@ -60,6 +60,7 @@ runs:
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: >
           CUDA_PATH="$(realpath ./cuda_toolkit)"
+          PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
         # # ensure Python.h & co can be found
         # CIBW_BEFORE_BUILD_WINDOWS: >
         #   python -c "import sysconfig; print(sysconfig.get_path('include'))" >> $env:INCLUDE
