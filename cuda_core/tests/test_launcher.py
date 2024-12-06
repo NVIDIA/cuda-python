@@ -7,9 +7,9 @@
 # is strictly prohibited.
 
 import pytest
-
-from cuda.core.experimental import Device, LaunchConfig, Stream
-
+import numpy as np
+import ctypes
+from cuda.core.experimental import Device, LaunchConfig, Stream, launch
 
 def test_launch_config_init(init_cuda):
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None, shmem_size=0)
@@ -66,3 +66,102 @@ def test_launch_config_shmem_size():
 
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None)
     assert config.shmem_size == 0
+
+def test_launch_with_python_scalars(init_cuda):
+    """Test launching kernel with Python scalar arguments."""
+    stream = Device().create_stream()
+    
+    config = LaunchConfig(
+        grid=(1, 1, 1),
+        block=(1, 1, 1),
+        stream=stream,
+        shmem_size=0
+    )
+    
+    # Test various Python scalar types
+    launch(1, config, 10)  # using a mock handle
+    launch(1, config, 3.14)
+    launch(1, config, True)
+
+
+def test_launch_with_numpy_scalars(init_cuda):
+    """Test launching kernel with NumPy scalar arguments."""
+    stream = Device().create_stream()
+    
+    config = LaunchConfig(
+        grid=(1, 1, 1),
+        block=(1, 1, 1),
+        stream=stream,
+        shmem_size=0
+    )
+    
+    # Test various NumPy scalar types
+    launch(1, config, np.int32(42))
+    launch(1, config, np.float64(3.14))
+    launch(1, config, np.bool_(True))
+
+
+def test_launch_with_ctypes_scalars(init_cuda):
+    """Test launching kernel with ctypes scalar arguments."""
+    stream = Device().create_stream()
+    
+    config = LaunchConfig(
+        grid=(1, 1, 1),
+        block=(1, 1, 1),
+        stream=stream,
+        shmem_size=0
+    )
+    
+    # Test various ctypes scalar types
+    launch(1, config, ctypes.c_int(42))
+    launch(1, config, ctypes.c_float(3.14))
+    launch(1, config, ctypes.c_bool(True))
+
+
+def test_launch_error_cases(init_cuda):
+    """Test error cases for launch function."""
+    stream = Device().create_stream()
+    
+    config = LaunchConfig(
+        grid=(1, 1, 1),
+        block=(1, 1, 1),
+        stream=stream,
+        shmem_size=0
+    )
+    
+    # Invalid kernel type
+    with pytest.raises(ValueError):
+        launch("not a kernel", config, 10)
+    
+    # None stream
+    with pytest.raises(Exception):
+        invalid_config = LaunchConfig(
+            grid=(1, 1, 1),
+            block=(1, 1, 1),
+            stream=None,
+            shmem_size=0
+        )
+        launch(1, invalid_config, 10)
+
+
+def test_launch_config_validation(init_cuda):
+    """Test launch configuration validation."""
+    stream = Device().create_stream()
+    
+    # Test with valid grid and block dimensions
+    config = LaunchConfig(
+        grid=(1, 2, 3),
+        block=(4, 5, 6),
+        stream=stream,
+        shmem_size=0
+    )
+    launch(1, config, 10)
+    
+    # Test with alternate valid configurations
+    config_alt = LaunchConfig(
+        grid=(10, 1, 1),
+        block=(256, 1, 1),
+        stream=stream,
+        shmem_size=128
+    )
+    launch(1, config_alt, 42)
