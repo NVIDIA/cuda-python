@@ -113,7 +113,7 @@ runs:
           function extract() {
             _TEMP_DIR_=$(mktemp -d)
             unzip $1 -d $_TEMP_DIR_
-            mv $_TEMP_DIR_/*/* $CUDA_PATH
+            rsync -avh --remove-source-files $_TEMP_DIR_/*/* $CUDA_PATH
             rmdir $_TEMP_DIR_/* $_TEMP_DIR_
           }
         fi
