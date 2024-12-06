@@ -18,8 +18,8 @@ jobs:
       matrix:
         host-platform:
           - linux-x64
-          #- linux-aarch64
-          #- win-x64
+          - linux-aarch64
+          - win-x64
         target-device:
           - gpu
         build-mode:
@@ -28,9 +28,9 @@ jobs:
           - false
         python-version:
           - "3.12"
-          #- "3.11"
-          #- "3.10"
-          #- "3.9"
+          - "3.11"
+          - "3.10"
+          - "3.9"
         cuda-version:
           # Note: this is for build-time only; the test-time matrix needs to be
           # defined separately.
