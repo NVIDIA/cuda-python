@@ -10,7 +10,7 @@ from cuda.core.experimental._utils import handle_return
 
 
 class System:
-    """ Provide information about the cuda system.
+    """Provide information about the cuda system.
     This class is a singleton and should not be instantiated directly.
     """
 
@@ -22,7 +22,7 @@ class System:
         return cls._instance
 
     def __init__(self):
-        if hasattr(self, '_initialized') and self._initialized:
+        if hasattr(self, "_initialized") and self._initialized:
             return
         self._initialized = True
 
@@ -65,8 +65,3 @@ class System:
         """
         total = self.num_devices
         return tuple(Device(device_id) for device_id in range(total))
-
-system = System()
-system.__doc__ = """
-Singleton instance of the :obj:`_system.System` class.
-"""

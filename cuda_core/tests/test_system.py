@@ -13,6 +13,7 @@ def test_system_singleton():
     system2 = system
     assert id(system1) == id(system2), "system is not a singleton"
 
+
 def test_driver_version():
     driver_version = system.driver_version
     print(driver_version)
@@ -20,10 +21,12 @@ def test_driver_version():
     expected_driver_version = (version // 1000, (version % 1000) // 10)
     assert driver_version == expected_driver_version, "Driver version does not match expected value"
 
+
 def test_num_devices():
     num_devices = system.num_devices
     expected_num_devices = handle_return(runtime.cudaGetDeviceCount())
     assert num_devices == expected_num_devices, "Number of devices does not match expected value"
+
 
 def test_devices():
     devices = system.devices
