@@ -31,6 +31,11 @@ CUDA compilation toolchain
    :toctree: generated/
 
    Program
+   Linker
+
+   :template: dataclass.rst
+
+   LinkerOptions
 
 
 .. module:: cuda.core.experimental.utils
