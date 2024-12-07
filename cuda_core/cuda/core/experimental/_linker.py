@@ -20,29 +20,43 @@ _nvjitlink = None  # populated if nvJitLink can be used
 _nvjitlink_input_types = None  # populated if nvJitLink cannot be used
 
 
-def _lazy_init():
-    global _inited
-    if _inited:
+# Note: this function is reused in the tests
+def _decide_nvjitlink_or_driver():
+    """Returns True if falling back to the cuLink* driver APIs."""
+    global _driver_ver, _driver, _nvjitlink
+    if _driver or _nvjitlink:
         return
 
-    global _driver, _driver_input_types, _driver_ver, _nvjitlink, _nvjitlink_input_types
     _driver_ver = handle_return(cuda.cuDriverGetVersion())
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
     try:
-        from cuda.bindings import nvjitlink
+        from cuda.bindings import nvjitlink as _nvjitlink
         from cuda.bindings._internal import nvjitlink as inner_nvjitlink
     except ImportError:
         # binding is not available
-        nvjitlink = None
+        _nvjitlink = None
     else:
         if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") == 0:
             # binding is available, but nvJitLink is not installed
-            nvjitlink = None
-        elif _driver_ver > nvjitlink.version():
+            _nvjitlink = None
+
+    if _nvjitlink is None:
+        _driver = cuda
+        return True
+    else:
+        return False
+
+
+def _lazy_init():
+    global _inited, _nvjitlink_input_types, _driver_input_types
+    if _inited:
+        return
+
+    _decide_nvjitlink_or_driver()
+    if _nvjitlink:
+        if _driver_ver > _nvjitlink.version():
             # TODO: nvJitLink is not new enough, warn?
             pass
-    if nvjitlink:
-        _nvjitlink = nvjitlink
         _nvjitlink_input_types = {
             "ptx": _nvjitlink.InputType.PTX,
             "cubin": _nvjitlink.InputType.CUBIN,
@@ -51,8 +65,6 @@ def _lazy_init():
             "object": _nvjitlink.InputType.OBJECT,
         }
     else:
-        from cuda import cuda as _driver
-
         _driver_input_types = {
             "ptx": _driver.CUjitInputType.CU_JIT_INPUT_PTX,
             "cubin": _driver.CUjitInputType.CU_JIT_INPUT_CUBIN,
