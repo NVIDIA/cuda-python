@@ -77,118 +77,92 @@ def _lazy_init():
 
 @dataclass
 class LinkerOptions:
-    """Customizable :obj:`LinkerOptions` for nvJitLink or driver API. Some options are only available
-    whenusing the cuda.bindings.nvjitlink backend. Some options are only available when using newer
-    or older versions of cuda.
+    """Customizable :obj:`Linker` options.
 
+    Since the linker would choose to use nvJitLink or the driver APIs as the linking backed,
+    not all options are applicable.
 
     Attributes
     ----------
     arch : str
-        Pass SM architecture value. Can use compute_<N> value instead if only generating PTX.
+        Pass the SM architecture value, such as ``-arch=sm_<CC>`` (for generating CUBIN) or
+        ``compute_<CC>`` (for generating PTX).
         This is a required option.
-        Acceptable value type: str
-        Maps to: -arch=sm_<N>
     max_register_count : int, optional
         Maximum register count.
-        Default: None
-        Acceptable value type: int
-        Maps to: -maxrregcount=<N>
+        Maps to: ``-maxrregcount=<N>``.
     time : bool, optional
-        Print timing information to InfoLog.
-        Default: False
-        Acceptable value type: bool
-        Maps to: -time
+        Print timing information to the info log.
+        Maps to ``-time``.
+        Default: False.
     verbose : bool, optional
-        Print verbose messages to InfoLog.
-        Default: False
-        Acceptable value type: bool
-        Maps to: -verbose
+        Print verbose messages to the info log.
+        Maps to ``-verbose``.
+        Default: False.
     link_time_optimization : bool, optional
         Perform link time optimization.
-        Default: False
-        Acceptable value type: bool
-        Maps to: -lto
+        Maps to: ``-lto``.
+        Default: False.
     ptx : bool, optional
-        Emit PTX after linking instead of CUBIN; only supported with -lto.
-        Default: False
-        Acceptable value type: bool
-        Maps to: -ptx
+        Emit PTX after linking instead of CUBIN; only supported with ``-lto``.
+        Maps to ``-ptx``.
+        Default: False.
     optimization_level : int, optional
         Set optimization level. Only 0 and 3 are accepted.
-        Default: None
-        Acceptable value type: int
-        Maps to: -O<N>
+        Maps to ``-O<N>``.
     debug : bool, optional
         Generate debug information.
-        Default: False
-        Acceptable value type: bool
-        Maps to: -g
+        Maps to ``-g``
+        Default: False.
     lineinfo : bool, optional
         Generate line information.
-        Default: False
-        Acceptable value type: bool
-        Maps to: -lineinfo
+        Maps to ``-lineinfo``.
+        Default: False.
     ftz : bool, optional
         Flush denormal values to zero.
-        Default: False
-        Acceptable value type: bool
-        Maps to: -ftz=<n>
+        Maps to ``-ftz=<n>``.
+        Default: False.
     prec_div : bool, optional
         Use precise division.
-        Default: True
-        Acceptable value type: bool
-        Maps to: -prec-div=<n>
+        Maps to ``-prec-div=<n>``.
+        Default: True.
     prec_sqrt : bool, optional
         Use precise square root.
-        Default: True
-        Acceptable value type: bool
-        Maps to: -prec-sqrt=<n>
+        Maps to ``-prec-sqrt=<n>``.
+        Default: True.
     fma : bool, optional
         Use fast multiply-add.
-        Default: True
-        Acceptable value type: bool
-        Maps to: -fma=<n>
+        Maps to ``-fma=<n>``.
+        Default: True.
     kernels_used : List[str], optional
         Pass list of kernels that are used; any not in the list can be removed. This option can be specified multiple
         times.
-        Default: None
-        Acceptable value type: list of str
-        Maps to: -kernels-used=<name>
+        Maps to ``-kernels-used=<name>``.
     variables_used : List[str], optional
-        Pass list of variables that are used; any not in the list can be removed. This option can be specified multiple
-        times.
-        Default: None
-        Acceptable value type: list of str
-        Maps to: -variables-used=<name>
+        Pass a list of variables that are used; any not in the list can be removed.
+        Maps to ``-variables-used=<name>``
     optimize_unused_variables : bool, optional
         Assume that if a variable is not referenced in device code, it can be removed.
-        Default: False
-        Acceptable value type: bool
-        Maps to: -optimize-unused-variables
+        Maps to: ``-optimize-unused-variables``
+        Default: False.
     xptxas : List[str], optional
-        Pass options to PTXAS. This option can be called multiple times.
-        Default: None
-        Acceptable value type: list of str
-        Maps to: -Xptxas=<opt>
+        Pass options to PTXAS.
+        Maps to: ``-Xptxas=<opt>``.
     split_compile : int, optional
         Split compilation maximum thread count. Use 0 to use all available processors. Value of 1 disables split
         compilation (default).
-        Default: 1
-        Acceptable value type: int
-        Maps to: -split-compile=<N>
+        Maps to ``-split-compile=<N>``.
+        Default: 1.
     split_compile_extended : int, optional
         A more aggressive form of split compilation available in LTO mode only. Accepts a maximum thread count value.
         Use 0 to use all available processors. Value of 1 disables extended split compilation (default). Note: This
         option can potentially impact performance of the compiled binary.
-        Default: 1
-        Acceptable value type: int
-        Maps to: -split-compile-extended=<N>
+        Maps to ``-split-compile-extended=<N>``.
+        Default: 1.
     no_cache : bool, optional
         Do not cache the intermediate steps of nvJitLink.
-        Default: False
-        Acceptable value type: bool
-        Maps to: -no-cache
+        Maps to ``-no-cache``.
+        Default: False.
     """
 
     arch: str
@@ -351,8 +325,11 @@ def _exception_manager(self):
 
 
 class Linker:
-    """
-    Linker class for managing the linking of object codes with specified options.
+    """Represent a linking machinery to link one or multiple object codes into
+    :obj:`~cuda.core.experimental._module.ObjectCode` with the specified options.
+
+    This object provides a unified interface to multiple underlying
+    linker libraries (such as nvJitLink or cuLink* from CUDA driver).
 
     Parameters
     ----------
@@ -442,7 +419,7 @@ class Linker:
 
         Note
         ------
-        See nvrtc compiler options documnetation to ensure the input ObjectCodes are
+        See nvrtc compiler options documnetation to ensure the input object codes are
         correctly compiled for linking.
         """
         if target_type not in ("cubin", "ptx"):
@@ -470,7 +447,8 @@ class Linker:
 
         Returns
         -------
-        The error log.
+        str
+            The error log.
         """
         if _nvjitlink:
             log_size = _nvjitlink.get_error_log_size(self._mnff.handle)
@@ -485,7 +463,8 @@ class Linker:
 
         Returns
         -------
-        The info log.
+        str
+            The info log.
         """
         if _nvjitlink:
             log_size = _nvjitlink.get_info_log_size(self._mnff.handle)
