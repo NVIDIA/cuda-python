@@ -64,4 +64,5 @@ jobs:
       build-mode: ${{ inputs.build-mode }}
       upload-enabled: ${{ inputs.upload-enabled }}
       python-version: ${{ inputs.python-version }}
+      has-built: ${{ needs.build.outputs.has-built }}
     secrets: inherit
