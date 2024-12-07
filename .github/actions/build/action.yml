@@ -16,10 +16,6 @@ inputs:
   upload-enabled:
     required: true
     type: boolean
-outputs:
-  has-built:
-    value: true  # TODO: we might need to check the job success here
-    description: whether the built stage was launched (and passed)
 
 runs:
   using: composite
