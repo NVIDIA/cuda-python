@@ -45,7 +45,8 @@ jobs:
     secrets: inherit
 
   test:
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ (github.repository_owner == 'nvidia') &&
+            !startsWith(inputs.host-platform, 'win) }}
     needs:
       - build
     uses:
@@ -54,7 +55,8 @@ jobs:
       client-repo: ${{ github.event.repository.name }}
       target-device: ${{ inputs.target-device }}
       test-options: ${{ inputs.build-type }}
-      runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') || (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu16') || (inputs.host-platform == 'mac' && 'macos-latest') }}
+      runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') ||
+                   (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu16') }}
       runner-has-gpu: ${{ inputs.host-platform == 'linux-x64' }}
       build-type: ${{ inputs.build-type }}
       host-platform: ${{ inputs.host-platform }}
