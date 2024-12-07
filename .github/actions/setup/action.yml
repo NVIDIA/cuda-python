@@ -22,34 +22,106 @@ inputs:
   python-version:
     required: true
     type: string
+  cuda-version:
+    required: true
+    type: string
 
 runs:
   using: composite
   steps:
-    - name: Set REPO_DIR and Dump environment
+    # WAR: setup-python is not relocatable...
+    # see https://github.com/actions/setup-python/issues/871
+    - name: Set up Python ${{ inputs.python-version }}
+      if: ${{ startsWith(inputs.host-platform, 'linux') }}
+      id: setup-python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Set up MSVC
+      if: ${{ startsWith(inputs.host-platform, 'win') }}
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Dump environment
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        echo "REPO_DIR=$(pwd)" >> $GITHUB_ENV
         env
+
+    - name: Get CUDA components
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        CUDA_PATH="./cuda_toolkit"
+        mkdir $CUDA_PATH
+
+        # The binary archives (redist) are guaranteed to be updated as part of the release posting.
+        CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
+        CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
+        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+          if [[ "${{ inputs.host-platform }}" == "linux-x64" ]]; then
+            CTK_SUBDIR="linux-x86_64"
+          elif [[ "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
+            CTK_SUBDIR="linux-sbsa"
+          fi
+          function extract() {
+            tar -xvf $1 -C $CUDA_PATH --strip-components=1
+          }
+        elif [[ "${{ inputs.host-platform }}" == "win-x64" ]]; then
+          CTK_SUBDIR="windows-x86_64"
+          function extract() {
+            _TEMP_DIR_=$(mktemp -d)
+            unzip $1 -d $_TEMP_DIR_
+            cp -r $_TEMP_DIR_/*/* $CUDA_PATH
+            rm -rf $_TEMP_DIR_
+          }
+        fi
+        function populate_cuda_path() {
+          # take the component name as a argument
+          function download() {
+            curl -kLSs $1 -o $2
+          }
+          CTK_COMPONENT=$1
+          CTK_COMPONENT_REL_PATH="$(curl -s $CTK_JSON_URL |
+              python -c "import sys, json; print(json.load(sys.stdin)['${CTK_COMPONENT}']['${CTK_SUBDIR}']['relative_path'])")"
+          CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
+          CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
+          download $CTK_COMPONENT_URL $CTK_COMPONENT_COMPONENT_FILENAME
+          extract $CTK_COMPONENT_COMPONENT_FILENAME
+          rm $CTK_COMPONENT_COMPONENT_FILENAME
+        }
+
+        # Get headers and shared libraries in place
+        populate_cuda_path cuda_nvcc
+        populate_cuda_path cuda_cudart
+        populate_cuda_path cuda_nvrtc
+        populate_cuda_path cuda_profiler_api
+        ls -l $CUDA_PATH
+
+        # Note: the headers will be copied into the cibuildwheel manylinux container,
+        # so setting the CUDA_PATH env var here is meaningless.
 
     - name: Set environment variables
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-
-        WITH_TESTS_STR=''
-        if [[ ("${{ inputs.upload-enabled }}" == "false") && ("${{ inputs.build-type }}" != "ci") ]]; then
-          WITH_TESTS_STR='-with_tests'
+        # TODO: just align host-platform names with TARGET_PLATFORM...
+        if [[ "${{ inputs.host-platform }}" == "linux-x64" ]]; then
+          TARGET_PLATFORM='linux-64'
+        elif [[ "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
+          TARGET_PLATFORM='linux-aarch64'
+        elif [[ "${{ inputs.host-platform }}" == "win-x64" ]]; then
+          TARGET_PLATFORM='win-64'
         fi
 
-        TARGET_PLATFORM='linux-64'
-        if [[ "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
-          TARGET_PLATFORM='linux-aarch64'
+        PYTHON_VERSION_FORMATTED=$(echo '${{ inputs.python-version }}' | tr -d '.')
+        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+          CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-manylinux*"
+          REPO_DIR=$(pwd)
+        elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+          CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-win_amd64"
+          PWD=$(pwd)
+          REPO_DIR=$(cygpath -w $PWD)
         fi
 
         BUILD_MODE="${{ inputs.build-mode }}"
-        BUILD_MODE_STR=""
-        [ -n "${BUILD_MODE}" ] && BUILD_MODE_STR="-${BUILD_MODE}"
-
         if [[ ("${BUILD_MODE}" == "") || ("${BUILD_MODE}" == "release") ]]; then
           # We upload release versions in the default folder.
           PKG_DIR="${TARGET_PLATFORM}"
@@ -57,16 +129,14 @@ runs:
           PKG_DIR="${BUILD_MODE}/${TARGET_PLATFORM}"
         fi
 
-        PYTHON_VERSION_FORMATTED=$(echo '${{ inputs.python-version }}' | tr -d '.')
-
-        echo "BINDINGS_ARTIFACT_NAME=${{ inputs.host-platform }}-${{ inputs.build-type }}-cuda_bindings-python${PYTHON_VERSION_FORMATTED}-${{ inputs.target-device }}${BUILD_MODE_STR}${WITH_TESTS_STR}-${{ github.sha }}" >> $GITHUB_ENV
-        echo "BINDINGS_ARTIFACTS_DIR=$(realpath "$(pwd)/cuda_bindings/dist")" >> $GITHUB_ENV
-        echo "CORE_ARTIFACT_NAME=${{ inputs.host-platform }}-${{ inputs.build-type }}-cuda_core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.target-device }}${BUILD_MODE_STR}${WITH_TESTS_STR}-${{ github.sha }}" >> $GITHUB_ENV
-        echo "CORE_ARTIFACTS_DIR=$(realpath "$(pwd)/cuda_core/dist")" >> $GITHUB_ENV
-        echo "USE_CUDA=${{ (inputs.target-device == 'cpu' && 'OFF') || 'ON' }}" >> $GITHUB_ENV
+        echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
+        echo "REPO_DIR=$REPO_DIR" >> $GITHUB_ENV
+        echo "PKG_DIR=${PKG_DIR}" >> $GITHUB_ENV
+        echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
+        echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+        echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ inputs.build-type }}-${{ github.sha }}" >> $GITHUB_ENV
+        echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
         echo "UPLOAD_ENABLED=${{ (inputs.upload-enabled  == 'true' && 'ON') || 'OFF' }}" >> $GITHUB_ENV
-        echo "LEGATE_CORE_BUILD_MODE=${BUILD_MODE}" >> $GITHUB_ENV
         echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
         echo "TARGET_PLATFORM=${TARGET_PLATFORM}" >> $GITHUB_ENV
-        echo "PKG_DIR=${PKG_DIR}" >> $GITHUB_ENV
-        echo "PYTHON_VERSION=${{ inputs.python-version }}" >> $GITHUB_ENV
+        echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
