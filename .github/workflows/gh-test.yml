@@ -41,7 +41,7 @@ on:
         type: string
       has-built:
         required: false
-        type: boolean
+        type: string
         description: whether the built stage was launched (and passed)
 
 jobs:
@@ -67,7 +67,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup
-        if: ${{ !inputs.has-built }}
+        if: ${{ inputs.has-built == 'true' }}
         uses: ./.github/actions/setup
         with:
           client-repo: ${{ inputs.client-repo }}
