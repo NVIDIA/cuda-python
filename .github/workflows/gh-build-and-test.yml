@@ -46,7 +46,7 @@ jobs:
 
   test:
     if: ${{ (github.repository_owner == 'nvidia') &&
-            !startsWith(inputs.host-platform, 'win) }}
+            !startsWith(inputs.host-platform, 'win') }}
     needs:
       - build
     uses:
