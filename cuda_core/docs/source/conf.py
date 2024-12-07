@@ -91,3 +91,20 @@ intersphinx_mapping = {
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
+
+
+def autodoc_process_docstring(app, what, name, obj, options, lines):
+    if name.startswith("cuda.core.experimental.system"):
+        # patch the docstring (in lines) *in-place*
+        attr = name.split(".")[-1]
+        from cuda.core.experimental._system import System
+
+        lines_new = getattr(System, attr).__doc__.split("\n")
+        n_pops = len(lines)
+        lines.extend(lines_new)
+        for _ in range(n_pops):
+            lines.pop(0)
+
+
+def setup(app):
+    app.connect("autodoc-process-docstring", autodoc_process_docstring)
