@@ -4,6 +4,7 @@
 
 import ctypes
 import weakref
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -329,6 +330,26 @@ class LinkerOptions:
             self.option_keys.append(_driver.CUjit_option.CU_JIT_CACHE_MODE)
 
 
+# This needs to be a free function not a method, as it's disallowed by contextmanager.
+@contextmanager
+def _exception_manager(self):
+    """
+    A helper function to improve the error message of exceptions raised by the linker backend.
+    """
+    try:
+        yield
+    except Exception as e:
+        error_log = ""
+        if hasattr(self, "_mnff"):
+            # our constructor could raise, in which case there's no handle available
+            error_log = self.get_error_log()
+        # Starting Python 3.11 we could also use Exception.add_note() for the same purpose, but
+        # unfortunately we are still supporting Python 3.9/3.10...
+        # Here we rely on both CUDAError and nvJitLinkError have the error string placed in .args[0].
+        e.args = (e.args[0] + (f"\nLinker error log: {error_log}" if error_log else ""), *e.args[1:])
+        raise e
+
+
 class Linker:
     """
     Linker class for managing the linking of object codes with specified options.
@@ -364,45 +385,20 @@ class Linker:
             raise ValueError("At least one ObjectCode object must be provided")
 
         self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
-        if _nvjitlink:
-            handle = self._exception_manager(
-                lambda: _nvjitlink.create(len(options.formatted_options), options.formatted_options)
-            )
-
-            use_nvjitlink = True
-        else:
-            handle = self._exception_manager(
-                lambda: handle_return(
+        with _exception_manager(self):
+            if _nvjitlink:
+                handle = _nvjitlink.create(len(options.formatted_options), options.formatted_options)
+                use_nvjitlink = True
+            else:
+                handle = handle_return(
                     _driver.cuLinkCreate(len(options.formatted_options), options.option_keys, options.formatted_options)
                 )
-            )
-            use_nvjitlink = False
+                use_nvjitlink = False
         self._mnff = Linker._MembersNeededForFinalize(self, handle, use_nvjitlink)
 
         for code in object_codes:
             assert isinstance(code, ObjectCode)
             self._add_code_object(code)
-
-    def _exception_manager(self, action):
-        """
-        Helper function to improve the error message of excepotions raised by the linker backend.
-
-        Parameters
-        ----------
-        action : callable
-            The action to be performed.
-
-        Returns
-        -------
-        The return value of the action.
-        """
-        try:
-            return action()
-        except Exception as e:
-            error = self.get_error_log()
-            raise RuntimeError(
-                f"Exception raised by {"nvjitlink" if _nvjitlink else "cuLink"}: {e}.\nLinker error log: {error}"
-            ) from e
 
     def _add_code_object(self, object_code: ObjectCode):
         data = object_code._module
@@ -450,21 +446,21 @@ class Linker:
         """
         if target_type not in ("cubin", "ptx"):
             raise ValueError(f"Unsupported target type: {target_type}")
-        if _nvjitlink:
-            self._exception_manager(lambda: _nvjitlink.complete(self._mnff.handle))
-            if target_type == "cubin":
-                get_size = _nvjitlink.get_linked_cubin_size
-                get_code = _nvjitlink.get_linked_cubin
+        with _exception_manager(self):
+            if _nvjitlink:
+                _nvjitlink.complete(self._mnff.handle)
+                if target_type == "cubin":
+                    get_size = _nvjitlink.get_linked_cubin_size
+                    get_code = _nvjitlink.get_linked_cubin
+                else:
+                    get_size = _nvjitlink.get_linked_ptx_size
+                    get_code = _nvjitlink.get_linked_ptx
+                size = get_size(self._mnff.handle)
+                code = bytearray(size)
+                get_code(self._mnff.handle, code)
             else:
-                get_size = _nvjitlink.get_linked_ptx_size
-                get_code = _nvjitlink.get_linked_ptx
-
-            size = self._exception_manager(lambda: get_size(self._mnff.handle))
-            code = bytearray(size)
-            self._exception_manager(lambda: get_code(self._mnff.handle, code))
-        else:
-            addr, size = self._exception_manager(lambda: handle_return(_driver.cuLinkComplete(self._mnff.handle)))
-            code = (ctypes.c_char * size).from_address(addr)
+                addr, size = handle_return(_driver.cuLinkComplete(self._mnff.handle))
+                code = (ctypes.c_char * size).from_address(addr)
 
         return ObjectCode(bytes(code), target_type)
 
