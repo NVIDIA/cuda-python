@@ -30,6 +30,10 @@ def init_cuda():
 
 
 def _device_unset_current():
+    ctx = handle_return(driver.cuCtxGetCurrent())
+    if int(ctx) == 0:
+        # no active context, do nothing
+        return
     handle_return(driver.cuCtxPopCurrent())
     with _device._tls_lock:
         del _device._tls.devices
