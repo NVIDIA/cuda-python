@@ -67,7 +67,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup
-        if: ${{ inputs.has-built == 'true' }}
+        if: ${{ inputs.has-built != 'true' }}
         uses: ./.github/actions/setup
         with:
           client-repo: ${{ inputs.client-repo }}
