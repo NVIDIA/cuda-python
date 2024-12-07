@@ -5,6 +5,11 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+
+import glob
+import os
+import sys
+
 try:
     from cuda.bindings import driver
 except ImportError:
@@ -34,3 +39,18 @@ def _device_unset_current():
 def deinit_cuda():
     yield
     _device_unset_current()
+
+
+# samples relying on cffi could fail as the modules cannot be imported
+sys.path.append(os.getcwd())
+
+
+@pytest.fixture(scope="session", autouse=True)
+def clean_up_cffi_files():
+    yield
+    files = glob.glob(os.path.join(os.getcwd(), "_cpu_obj*"))
+    for f in files:
+        try:  # noqa: SIM105
+            os.remove(f)
+        except FileNotFoundError:
+            pass  # noqa: SIM105

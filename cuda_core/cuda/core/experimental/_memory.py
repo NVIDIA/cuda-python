@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import abc
+import weakref
 from typing import Optional, Tuple, TypeVar
 
 from cuda import cuda
@@ -41,17 +42,28 @@ class Buffer:
 
     """
 
+    class _MembersNeededForFinalize:
+        __slots__ = ("ptr", "size", "mr")
+
+        def __init__(self, buffer_obj, ptr, size, mr):
+            self.ptr = ptr
+            self.size = size
+            self.mr = mr
+            weakref.finalize(buffer_obj, self.close)
+
+        def close(self, stream=None):
+            if self.ptr and self.mr is not None:
+                if stream is None:
+                    stream = default_stream()
+                self.mr.deallocate(self.ptr, self.size, stream)
+                self.ptr = 0
+                self.mr = None
+
     # TODO: handle ownership? (_mr could be None)
-    __slots__ = ("_ptr", "_size", "_mr")
+    __slots__ = ("__weakref__", "_mnff")
 
     def __init__(self, ptr, size, mr: MemoryResource = None):
-        self._ptr = ptr
-        self._size = size
-        self._mr = mr
-
-    def __del__(self):
-        """Return close(self)."""
-        self.close()
+        self._mnff = Buffer._MembersNeededForFinalize(self, ptr, size, mr)
 
     def close(self, stream=None):
         """Deallocate this buffer asynchronously on the given stream.
@@ -67,47 +79,42 @@ class Buffer:
             the default stream.
 
         """
-        if self._ptr and self._mr is not None:
-            if stream is None:
-                stream = default_stream()
-            self._mr.deallocate(self._ptr, self._size, stream)
-            self._ptr = 0
-            self._mr = None
+        self._mnff.close(stream)
 
     @property
     def handle(self):
         """Return the buffer handle object."""
-        return self._ptr
+        return self._mnff.ptr
 
     @property
     def size(self):
         """Return the memory size of this buffer."""
-        return self._size
+        return self._mnff.size
 
     @property
     def memory_resource(self) -> MemoryResource:
         """Return the memory resource associated with this buffer."""
-        return self._mr
+        return self._mnff.mr
 
     @property
     def is_device_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
-        if self._mr is not None:
-            return self._mr.is_device_accessible
+        if self._mnff.mr is not None:
+            return self._mnff.mr.is_device_accessible
         raise NotImplementedError
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
-        if self._mr is not None:
-            return self._mr.is_host_accessible
+        if self._mnff.mr is not None:
+            return self._mnff.mr.is_host_accessible
         raise NotImplementedError
 
     @property
     def device_id(self) -> int:
         """Return the device ordinal of this buffer."""
-        if self._mr is not None:
-            return self._mr.device_id
+        if self._mnff.mr is not None:
+            return self._mnff.mr.device_id
         raise NotImplementedError
 
     def copy_to(self, dst: Buffer = None, *, stream) -> Buffer:
@@ -129,12 +136,12 @@ class Buffer:
         if stream is None:
             raise ValueError("stream must be provided")
         if dst is None:
-            if self._mr is None:
+            if self._mnff.mr is None:
                 raise ValueError("a destination buffer must be provided")
-            dst = self._mr.allocate(self._size, stream)
-        if dst._size != self._size:
+            dst = self._mnff.mr.allocate(self._mnff.size, stream)
+        if dst._mnff.size != self._mnff.size:
             raise ValueError("buffer sizes mismatch between src and dst")
-        handle_return(cuda.cuMemcpyAsync(dst._ptr, self._ptr, self._size, stream._handle))
+        handle_return(cuda.cuMemcpyAsync(dst._mnff.ptr, self._mnff.ptr, self._mnff.size, stream.handle))
         return dst
 
     def copy_from(self, src: Buffer, *, stream):
@@ -151,9 +158,9 @@ class Buffer:
         """
         if stream is None:
             raise ValueError("stream must be provided")
-        if src._size != self._size:
+        if src._mnff.size != self._mnff.size:
             raise ValueError("buffer sizes mismatch between src and dst")
-        handle_return(cuda.cuMemcpyAsync(self._ptr, src._ptr, self._size, stream._handle))
+        handle_return(cuda.cuMemcpyAsync(self._mnff.ptr, src._mnff.ptr, self._mnff.size, stream.handle))
 
     def __dlpack__(
         self,
@@ -242,13 +249,13 @@ class _DefaultAsyncMempool(MemoryResource):
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
             stream = default_stream()
-        ptr = handle_return(cuda.cuMemAllocFromPoolAsync(size, self._handle, stream._handle))
+        ptr = handle_return(cuda.cuMemAllocFromPoolAsync(size, self._handle, stream.handle))
         return Buffer(ptr, size, self)
 
     def deallocate(self, ptr, size, stream=None):
         if stream is None:
             stream = default_stream()
-        handle_return(cuda.cuMemFreeAsync(ptr, stream._handle))
+        handle_return(cuda.cuMemFreeAsync(ptr, stream.handle))
 
     @property
     def is_device_accessible(self) -> bool:
@@ -286,3 +293,33 @@ class _DefaultPinnedMemorySource(MemoryResource):
     @property
     def device_id(self) -> int:
         raise RuntimeError("the pinned memory resource is not bound to any GPU")
+
+
+class _SynchronousMemoryResource(MemoryResource):
+    __slots__ = ("_dev_id",)
+
+    def __init__(self, dev_id):
+        self._handle = None
+        self._dev_id = dev_id
+
+    def allocate(self, size, stream=None) -> Buffer:
+        ptr = handle_return(cuda.cuMemAlloc(size))
+        return Buffer(ptr, size, self)
+
+    def deallocate(self, ptr, size, stream=None):
+        if stream is None:
+            stream = default_stream()
+        stream.sync()
+        handle_return(cuda.cuMemFree(ptr))
+
+    @property
+    def is_device_accessible(self) -> bool:
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        return False
+
+    @property
+    def device_id(self) -> int:
+        return self._dev_id
