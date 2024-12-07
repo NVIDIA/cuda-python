@@ -25,6 +25,7 @@ on:
 
 jobs:
   build:
+    name: Build wheels
     if: ${{ github.repository_owner == 'nvidia' }}
     uses:
       ./.github/workflows/gh-build.yml
@@ -45,8 +46,10 @@ jobs:
     secrets: inherit
 
   test:
+    name: Test against wheels
+    # TODO: enable testing once linux-aarch64 & win-64 GPU runners are up
     if: ${{ (github.repository_owner == 'nvidia') &&
-            !startsWith(inputs.host-platform, 'win') }}
+             startsWith(inputs.host-platform, 'linux-x64') }}
     needs:
       - build
     uses:
@@ -55,9 +58,7 @@ jobs:
       client-repo: ${{ github.event.repository.name }}
       target-device: ${{ inputs.target-device }}
       test-options: ${{ inputs.build-type }}
-      runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') ||
-                   (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu16') }}
-      runner-has-gpu: ${{ inputs.host-platform == 'linux-x64' }}
+      runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') }}
       build-type: ${{ inputs.build-type }}
       host-platform: ${{ inputs.host-platform }}
       dependencies-file: ""

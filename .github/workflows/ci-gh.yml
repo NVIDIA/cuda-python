@@ -11,8 +11,7 @@ on:
       - "main"
 
 jobs:
-  build-and-test:
-    name: Build and test (${{ matrix.host-platform }}, ${{ matrix.target-device }}, ${{ matrix.build-mode }})
+  ci:
     strategy:
       fail-fast: false
       matrix:

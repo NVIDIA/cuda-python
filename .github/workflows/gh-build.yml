@@ -42,7 +42,7 @@ on:
 
 jobs:
   build:
-    name: Build (${{ inputs.host-platform }}, ${{ inputs.build-type }}, ${{ inputs.build-mode }}, Python "${{ inputs.python-version }}")
+    name: Build (${{ inputs.host-platform }}, Python "${{ inputs.python-version }}")
 
     permissions:
       id-token: write # This is required for configure-aws-credentials

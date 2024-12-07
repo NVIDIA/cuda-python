@@ -15,10 +15,6 @@ on:
       runs-on:
         required: true
         type: string
-      runner-has-gpu:
-        required: true
-        type: boolean
-        description: "The runner has GPU(s)."
       build-type:
         required: true
         type: string
@@ -46,7 +42,7 @@ on:
 
 jobs:
   build:
-    name: Test (${{ inputs.host-platform }}, ${{ inputs.target-device }}, ${{ inputs.build-type }}, CMake build-mode=${{ inputs.build-mode }}, Python "${{ inputs.python-version }}", Use container=${{ inputs.use-container }} )
+    name: Test (${{ inputs.host-platform }}, Python "${{ inputs.python-version }}", Use container=${{ inputs.use-container }} )
 
     permissions:
       id-token: write # This is required for configure-aws-credentials
@@ -82,4 +78,3 @@ jobs:
         uses: ./.github/actions/test
         with:
           test-options: ${{ inputs.test-options }}
-          runner-has-gpu: ${{ inputs.runner-has-gpu }}
