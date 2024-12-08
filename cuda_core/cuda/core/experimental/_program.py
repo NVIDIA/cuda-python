@@ -11,7 +11,7 @@ from cuda.core.experimental._utils import handle_return
 
 class Program:
     """Represent a compilation machinery to process programs into
-    :obj:`~cuda.core.experimental._module.ObjectCode`.
+    :obj:`~_module.ObjectCode`.
 
     This object provides a unified interface to multiple underlying
     compiler libraries. Compilation support is enabled for a wide
@@ -72,7 +72,7 @@ class Program:
             Supported options are "ptx", "cubin" and "ltoir".
         options : Union[List, Tuple], optional
             List of compilation options associated with the backend
-            of this :obj:`Program`. (Default to no options)
+            of this :obj:`~_program.Program`. (Default to no options)
         name_expressions : Union[List, Tuple], optional
             List of explicit name expressions to become accessible.
             (Default to no expressions)
@@ -83,7 +83,7 @@ class Program:
 
         Returns
         -------
-        :obj:`~cuda.core.experimental._module.ObjectCode`
+        :obj:`~_module.ObjectCode`
             Newly created code object.
 
         """
