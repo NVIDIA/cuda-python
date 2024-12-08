@@ -34,7 +34,6 @@ jobs:
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
                  (inputs.host-platform == 'win-x64' && 'windows-2019') }}
                #  (inputs.host-platform == 'win-x64' && 'windows-amd64-cpu8') }}
-    secrets: inherit
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
@@ -71,7 +70,6 @@ jobs:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
     runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') }}
-    secrets: inherit
     container:
       options: -u root --security-opt seccomp=unconfined --privileged --shm-size 16g
       image: condaforge/miniforge3:latest
