@@ -119,4 +119,4 @@ jobs:
           CUDA_CORE_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_CORE_ARTIFACTS_DIR }}
           CUDA_BINDINGS_ARTIFACT_NAME: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
           CUDA_BINDINGS_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
-          PYTHON_VERSION: ${{ inputs-python-version }}
+          PYTHON_VERSION: ${{ inputs.python-version }}
