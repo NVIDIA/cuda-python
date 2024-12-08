@@ -60,6 +60,19 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           upload-enabled: ${{ inputs.upload-enabled }}
 
+      - name: Pass environment variables
+        id: pass_env
+        run: |
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+          echo "CUDA_CORE_ARTIFACTS_DIR=${CUDA_CORE_ARTIFACTS_DIR}" >> $GITHUB_OUTPUT
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=${CUDA_CORE_ARTIFACTS_DIR}" >> $GITHUB_OUTPUT
+    outputs:
+      CUDA_CORE_ARTIFACT_NAME=${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACT_NAME }}
+      CUDA_CORE_ARTIFACTS_DIR=${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACTS_DIR }}
+      CUDA_BINDINGS_ARTIFACT_NAME=${{ steps.pass_env.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
+      CUDA_BINDINGS_ARTIFACTS_DIR=${{ steps.pass_env.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
   test:
     # TODO: improve the name once a separate test matrix is defined
     name: Test (CUDA ${{ inputs.cuda-version }}, Use container=${{ inputs.use-container }})
@@ -100,3 +113,8 @@ jobs:
         uses: ./.github/actions/test
         with:
           test-options: ${{ inputs.build-type }}
+        env:
+          CUDA_CORE_ARTIFACT_NAME: ${{ needs.build.outputs.CUDA_CORE_ARTIFACT_NAME }}
+          CUDA_CORE_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_CORE_ARTIFACTS_DIR }}
+          CUDA_BINDINGS_ARTIFACT_NAME: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
+          CUDA_BINDINGS_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}

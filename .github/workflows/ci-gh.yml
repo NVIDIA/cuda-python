@@ -1,3 +1,5 @@
+name: "CI"
+
 concurrency:
   group: ${{ startsWith(github.ref_name, 'main') && format('unique-{0}', github.run_id) || format('ci-build-and-test-on-{0}-from-{1}', github.event_name, github.ref_name) }}
   cancel-in-progress: true
@@ -10,7 +12,6 @@ on:
 
 jobs:
   ci:
-    name: "CI"
     strategy:
       fail-fast: false
       matrix:
