@@ -46,7 +46,7 @@ runs:
     - name: Set up CTK cache variable
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}.tar.xz" >> $GITHUB_ENV
+        echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}.tar.gz" >> $GITHUB_ENV
 
     - name: Download CTK cache
       id: ctk-get-cache
@@ -61,7 +61,7 @@ runs:
       run: |
         CUDA_PATH="./cuda_toolkit"
         mkdir $CUDA_PATH
-        tar -xvf $CTK_CACHE_FILENAME -C $CUDA_PATH --strip-components=1
+        tar -xzvf $CTK_CACHE_FILENAME -C $CUDA_PATH --strip-components=1
         ls -l $CUDA_PATH
         if [ ! -d "$CUDA_PATH/include" ]; then
           exit 1
