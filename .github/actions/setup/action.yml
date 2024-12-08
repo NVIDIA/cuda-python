@@ -50,6 +50,7 @@ runs:
     - name: Set up CTK cache variable
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
+        echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}" >> $GITHUB_ENV
         echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}.tar.gz" >> $GITHUB_ENV
 
     - name: Download CTK cache
@@ -57,8 +58,8 @@ runs:
       uses: actions/download-artifact@v4
       continue-on-error: true
       with:
-        name: ${{ env.CTK_CACHE_FILENAME }}
-        path: .
+        name: ${{ env.CTK_CACHE_KEY }}
+        path: ./${{ env.CTK_CACHE_FILENAME }}
 
     - name: Get CUDA components
       if: ${{ steps.ctk-get-cache.outcome == 'failure' }}
@@ -123,9 +124,10 @@ runs:
     - name: Upload CTK cache
       if: ${{ steps.ctk-get-cache.outcome == 'failure' }}
       uses: actions/upload-artifact@v4
+      continue-on-error: true
       with:
-        pattern: ${{ env.CTK_CACHE_FILENAME }}
-        path: .
+        name: ${{ env.CTK_CACHE_KEY }}
+        path: ./${{ env.CTK_CACHE_FILENAME }}
         if-no-files-found: error
 
     - name: Restore CTK cache
