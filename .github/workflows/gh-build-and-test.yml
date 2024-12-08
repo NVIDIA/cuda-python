@@ -25,45 +25,80 @@ on:
 
 jobs:
   build:
-    name: Build wheels
+    name: Build (${{ inputs.host-platform }}, Python "${{ inputs.python-version }}")
     if: ${{ github.repository_owner == 'nvidia' }}
-    uses:
-      ./.github/workflows/gh-build.yml
-    with:
-      client-repo: ${{ github.event.repository.name }}
-      target-device: ${{ inputs.target-device }}
-      runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-cpu8') ||
-                   (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
-                   (inputs.host-platform == 'win-x64' && 'windows-2019') }}
-                 #  (inputs.host-platform == 'win-x64' && 'windows-amd64-cpu8') }}
-      build-type: ${{ inputs.build-type }}
-      host-platform: ${{ inputs.host-platform }}
-      build-mode: ${{ inputs.build-mode }}
-      upload-enabled: ${{ inputs.upload-enabled }}
-      python-version: ${{ inputs.python-version }}
-      cuda-version: ${{ inputs.cuda-version }}
-      dependencies-file: ""
+    permissions:
+      id-token: write # This is required for configure-aws-credentials
+      contents: read  # This is required for actions/checkout
+    runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-cpu8') ||
+                 (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
+                 (inputs.host-platform == 'win-x64' && 'windows-2019') }}
+               #  (inputs.host-platform == 'win-x64' && 'windows-amd64-cpu8') }}
     secrets: inherit
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up build environment
+        uses: ./.github/actions/setup
+        with:
+          client-repo: ${{ github.event.repository.name }}
+          build-type: ${{ inputs.build-type }}
+          target-device: "${{ inputs.target-device }}"
+          host-platform: ${{ inputs.host-platform }}
+          build-mode: ${{ inputs.build-mode }}
+          upload-enabled: ${{ inputs.upload-enabled }}
+          python-version: ${{ inputs.python-version }}
+          cuda-version: ${{ inputs.cuda-version }}
+
+      - name: Call build action
+        uses: ./.github/actions/build
+        with:
+          build-type: ${{ inputs.build-type }}
+          target-device: "${{ inputs.target-device }}"
+          host-platform: ${{ inputs.host-platform }}
+          upload-enabled: ${{ inputs.upload-enabled }}
 
   test:
-    name: Test against wheels
+    # TODO: improve the name once a separate test matrix is defined
+    name: Test (CUDA ${{ inputs.cuda-version }}, Use container=${{ inputs.use-container }})
     # TODO: enable testing once linux-aarch64 & win-64 GPU runners are up
     if: ${{ (github.repository_owner == 'nvidia') &&
              startsWith(inputs.host-platform, 'linux-x64') }}
+    permissions:
+      id-token: write # This is required for configure-aws-credentials
+      contents: read  # This is required for actions/checkout
+    runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') }}
+    secrets: inherit
+    container:
+      options: -u root --security-opt seccomp=unconfined --privileged --shm-size 16g
+      image: condaforge/miniforge3:latest
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
     needs:
       - build
-    uses:
-      ./.github/workflows/gh-test.yml
-    with:
-      client-repo: ${{ github.event.repository.name }}
-      target-device: ${{ inputs.target-device }}
-      test-options: ${{ inputs.build-type }}
-      runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') }}
-      build-type: ${{ inputs.build-type }}
-      host-platform: ${{ inputs.host-platform }}
-      dependencies-file: ""
-      build-mode: ${{ inputs.build-mode }}
-      upload-enabled: ${{ inputs.upload-enabled }}
-      python-version: ${{ inputs.python-version }}
-      has-built: ${{ needs.build.outputs.has-built }}
-    secrets: inherit
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # TODO: we probably don't need this?
+      # - name: Setup
+      #   if: ${{ inputs.has-built != 'true' }}
+      #   uses: ./.github/actions/setup
+      #   with:
+      #     client-repo: ${{ github.event.repository.name }}
+      #     build-type: ${{ inputs.build-type }}
+      #     target-device: "${{ inputs.target-device }}"
+      #     host-platform: ${{ inputs.host-platform }}
+      #     build-mode: ${{ inputs.build-mode }}
+      #     upload-enabled: ${{ inputs.upload-enabled }}
+      #     python-version: ${{ inputs.python-version }}
+
+      - name: Call test action
+        uses: ./.github/actions/test
+        with:
+          test-options: ${{ inputs.build-type }}
