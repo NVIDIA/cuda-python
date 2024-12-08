@@ -112,6 +112,7 @@ runs:
         populate_cuda_path cuda_cudart
         populate_cuda_path cuda_nvrtc
         populate_cuda_path cuda_profiler_api
+        populate_cuda_path libnvjitlink
         ls -l $CUDA_PATH
 
         # Prepare the cache
