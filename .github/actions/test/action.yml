@@ -85,6 +85,7 @@ runs:
         pip install *.whl
 
         cd "${REPO_DIR}/cuda_bindings"
+        pip install -r requirements.txt
         pytest tests/
         #pytest tests/cython
 
