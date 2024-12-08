@@ -83,6 +83,7 @@ jobs:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
     runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') }}
+    # TODO: use a different (nvidia?) container, or just run on bare image
     container:
       options: -u root --security-opt seccomp=unconfined --privileged --shm-size 16g
       image: condaforge/miniforge3:latest
@@ -118,3 +119,4 @@ jobs:
           CUDA_CORE_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_CORE_ARTIFACTS_DIR }}
           CUDA_BINDINGS_ARTIFACT_NAME: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
           CUDA_BINDINGS_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          PYTHON_VERSION: ${{ inputs-python-version }}

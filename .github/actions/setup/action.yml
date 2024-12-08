@@ -47,7 +47,21 @@ runs:
       run: |
         env
 
+    - name: Set up CTK cache variable
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}.tar.xz" >> $GITHUB_ENV
+
+    - name: Download CTK cache
+      id: ctk-get-cache
+      uses: actions/download-artifact@v4
+      continue-on-error: true
+      with:
+        name: ${{ env.CTK_CACHE_FILENAME }}
+        path: .
+
     - name: Get CUDA components
+      if: ${{ steps.ctk-get-cache.outcome == 'failure' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         CUDA_PATH="./cuda_toolkit"
@@ -90,14 +104,40 @@ runs:
         }
 
         # Get headers and shared libraries in place
+        # Note: the existing artifact would need to be manually deleted (ex: through web UI)
+        # if this list is changed, as the artifact actions do not offer any option for us to
+        # invalidate the artifact.
         populate_cuda_path cuda_nvcc
         populate_cuda_path cuda_cudart
         populate_cuda_path cuda_nvrtc
         populate_cuda_path cuda_profiler_api
         ls -l $CUDA_PATH
 
+        # Prepare the cache
+        tar cf - $CUDA_PATH | xz -z -T0 - > $CTK_CACHE_FILENAME
+
         # Note: the headers will be copied into the cibuildwheel manylinux container,
         # so setting the CUDA_PATH env var here is meaningless.
+
+    - name: Upload CTK cache
+      if: ${{ steps.ctk-get-cache.outcome == 'failure' }}
+      uses: actions/upload-artifact@v4
+      with:
+        pattern: ${{ env.CTK_CACHE_FILENAME }}
+        path: .
+        if-no-files-found: error
+
+    - name: Restore CTK cache
+      if: ${{ steps.ctk-get-cache.outcome == 'success' }}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        CUDA_PATH="./cuda_toolkit"
+        mkdir $CUDA_PATH
+        tar -xvf $CTK_CACHE_FILENAME -C $CUDA_PATH --strip-components=1
+        ls -l $CUDA_PATH
+        if [ ! -d "$CUDA_PATH/include" ]; then
+          exit 1
+        fi
 
     - name: Set environment variables
       shell: bash --noprofile --norc -xeuo pipefail {0}
