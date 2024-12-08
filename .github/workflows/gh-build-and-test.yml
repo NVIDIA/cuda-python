@@ -35,10 +35,10 @@ jobs:
                  (inputs.host-platform == 'win-x64' && 'windows-2019') }}
                #  (inputs.host-platform == 'win-x64' && 'windows-amd64-cpu8') }}
     outputs:
-      CUDA_CORE_ARTIFACT_NAME=${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACT_NAME }}
-      CUDA_CORE_ARTIFACTS_DIR=${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACTS_DIR }}
-      CUDA_BINDINGS_ARTIFACT_NAME=${{ steps.pass_env.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
-      CUDA_BINDINGS_ARTIFACTS_DIR=${{ steps.pass_env.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
+      CUDA_CORE_ARTIFACT_NAME: ${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACT_NAME }}
+      CUDA_CORE_ARTIFACTS_DIR: ${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACTS_DIR }}
+      CUDA_BINDINGS_ARTIFACT_NAME: ${{ steps.pass_env.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
+      CUDA_BINDINGS_ARTIFACTS_DIR: ${{ steps.pass_env.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
