@@ -46,8 +46,8 @@ runs:
     - name: Set up CTK cache variable
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        echo "CTK_CACHE_KEY=mini-ctk-${CTK_BUILD_VER}" >> $GITHUB_ENV
-        echo "CTK_CACHE_FILENAME=mini-ctk-${CTK_BUILD_VER}.tar.gz" >> $GITHUB_ENV
+        echo "CTK_CACHE_KEY=mini-ctk-${CTK_BUILD_VER}-${{ inputs.host-platform }}" >> $GITHUB_ENV
+        echo "CTK_CACHE_FILENAME=mini-ctk-${CTK_BUILD_VER}-${{ inputs.host-platform }}.tar.gz" >> $GITHUB_ENV
 
     - name: Download CTK cache
       id: ctk-get-cache
