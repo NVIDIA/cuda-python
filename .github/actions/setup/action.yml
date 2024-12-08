@@ -55,14 +55,14 @@ runs:
 
     - name: Download CTK cache
       id: ctk-get-cache
-      uses: actions/download-artifact@v4
+      uses: actions/cache/restore@v4
       continue-on-error: true
       with:
-        name: ${{ env.CTK_CACHE_KEY }}
-        path: ./
+        key: ${{ env.CTK_CACHE_KEY }}
+        path: ./${{ env.CTK_CACHE_FILENAME }}
 
     - name: Get CUDA components
-      if: ${{ steps.ctk-get-cache.outcome == 'failure' }}
+      if: ${{ steps.ctk-get-cache.outputs.cache-hit != 'true' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         CUDA_PATH="./cuda_toolkit"
@@ -123,16 +123,15 @@ runs:
         # so setting the CUDA_PATH env var here is meaningless.
 
     - name: Upload CTK cache
-      if: ${{ steps.ctk-get-cache.outcome == 'failure' }}
-      uses: actions/upload-artifact@v4
-      continue-on-error: true
+      if: ${{ always() &&
+              steps.ctk-get-cache.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
       with:
-        name: ${{ env.CTK_CACHE_KEY }}
+        key: ${{ env.CTK_CACHE_KEY }}
         path: ./${{ env.CTK_CACHE_FILENAME }}
-        if-no-files-found: error
 
     - name: Restore CTK cache
-      if: ${{ steps.ctk-get-cache.outcome == 'success' }}
+      if: ${{ steps.ctk-get-cache.outputs.cache-hit == 'true' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         ls -l

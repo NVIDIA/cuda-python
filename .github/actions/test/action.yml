@@ -51,11 +51,12 @@ runs:
 
     - name: Download CTK cache
       id: ctk-get-cache
-      uses: actions/download-artifact@v4
+      uses: actions/cache/restore@v4
       continue-on-error: true
       with:
-        name: ${{ env.CTK_CACHE_KEY }}
-        path: ./
+        key: ${{ env.CTK_CACHE_KEY }}
+        path: ./${{ env.CTK_CACHE_FILENAME }}
+        fail-on-cache-miss: true
 
     - name: Restore CTK cache
       shell: bash --noprofile --norc -xeuo pipefail {0}
