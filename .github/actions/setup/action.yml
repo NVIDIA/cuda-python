@@ -114,7 +114,8 @@ runs:
         ls -l $CUDA_PATH
 
         # Prepare the cache
-        tar cf - $CUDA_PATH | xz -z -T0 - > $CTK_CACHE_FILENAME
+        # Note: try to escape | and > ...
+        echo "$(tar cf - ${CUDA_PATH} | xz -z -T0 - > ${CTK_CACHE_FILENAME})"
 
         # Note: the headers will be copied into the cibuildwheel manylinux container,
         # so setting the CUDA_PATH env var here is meaningless.
