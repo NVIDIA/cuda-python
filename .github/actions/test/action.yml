@@ -60,10 +60,9 @@ runs:
     - name: Restore CTK cache
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        CUDA_PATH="./cuda_toolkit"
-        mkdir $CUDA_PATH
         ls -l
-        tar -xzvf $CTK_CACHE_FILENAME -C $CUDA_PATH --strip-components=1
+        CUDA_PATH="./cuda_toolkit"
+        tar -xzvf $CTK_CACHE_FILENAME
         ls -l $CUDA_PATH
         if [ ! -d "$CUDA_PATH/include" ]; then
           exit 1
