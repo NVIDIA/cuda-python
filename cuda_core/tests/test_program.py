@@ -8,8 +8,18 @@
 
 import pytest
 
+from cuda import cuda, nvrtc
 from cuda.core.experimental import Program
 from cuda.core.experimental._module import Kernel, ObjectCode
+
+
+@pytest.fixture
+def can_load_generated_ptx():
+    _, driver_ver = cuda.cuDriverGetVersion()
+    _, nvrtc_major, nvrtc_minor = nvrtc.nvrtcVersion()
+    if nvrtc_major * 1000 + nvrtc_minor * 10 > driver_ver:
+        return False
+    return True
 
 
 def test_program_init_valid_code_type():
@@ -31,6 +41,8 @@ def test_program_init_invalid_code_format():
         Program(code, "c++")
 
 
+# TODO: incorporate this check in Program
+@pytest.mark.xfail(not can_load_generated_ptx, reason="PTX version too new")
 def test_program_compile_valid_target_type():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
