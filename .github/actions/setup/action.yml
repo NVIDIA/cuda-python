@@ -47,7 +47,22 @@ runs:
       run: |
         env
 
+    - name: Set up CTK cache variable
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}" >> $GITHUB_ENV
+        echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}.tar.gz" >> $GITHUB_ENV
+
+    - name: Download CTK cache
+      id: ctk-get-cache
+      uses: actions/cache/restore@v4
+      continue-on-error: true
+      with:
+        key: ${{ env.CTK_CACHE_KEY }}
+        path: ./${{ env.CTK_CACHE_FILENAME }}
+
     - name: Get CUDA components
+      if: ${{ steps.ctk-get-cache.outputs.cache-hit != 'true' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         CUDA_PATH="./cuda_toolkit"
@@ -90,14 +105,42 @@ runs:
         }
 
         # Get headers and shared libraries in place
+        # Note: the existing artifact would need to be manually deleted (ex: through web UI)
+        # if this list is changed, as the artifact actions do not offer any option for us to
+        # invalidate the artifact.
         populate_cuda_path cuda_nvcc
         populate_cuda_path cuda_cudart
         populate_cuda_path cuda_nvrtc
         populate_cuda_path cuda_profiler_api
+        populate_cuda_path libnvjitlink
         ls -l $CUDA_PATH
+
+        # Prepare the cache
+        # Note: try to escape | and > ...
+        tar -czvf ${CTK_CACHE_FILENAME} ${CUDA_PATH}
 
         # Note: the headers will be copied into the cibuildwheel manylinux container,
         # so setting the CUDA_PATH env var here is meaningless.
+
+    - name: Upload CTK cache
+      if: ${{ always() &&
+              steps.ctk-get-cache.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ env.CTK_CACHE_KEY }}
+        path: ./${{ env.CTK_CACHE_FILENAME }}
+
+    - name: Restore CTK cache
+      if: ${{ steps.ctk-get-cache.outputs.cache-hit == 'true' }}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        ls -l
+        CUDA_PATH="./cuda_toolkit"
+        tar -xzvf $CTK_CACHE_FILENAME
+        ls -l $CUDA_PATH
+        if [ ! -d "$CUDA_PATH/include" ]; then
+          exit 1
+        fi
 
     - name: Set environment variables
       shell: bash --noprofile --norc -xeuo pipefail {0}
