@@ -89,4 +89,4 @@ runs:
         #pytest tests/cython
 
         cd "${REPO_DIR}/cuda_core"
-        pytest tests/
+        pytest -rxXs tests/
