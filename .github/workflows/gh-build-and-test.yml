@@ -120,3 +120,4 @@ jobs:
           CUDA_BINDINGS_ARTIFACT_NAME: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
           CUDA_BINDINGS_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
           PYTHON_VERSION: ${{ inputs.python-version }}
+          CTK_BUILD_VER: ${{ inputs.cuda-version }}
