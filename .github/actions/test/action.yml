@@ -61,14 +61,13 @@ runs:
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         ls -l
-        CUDA_PATH="./cuda_toolkit"
+        CUDA_PATH="$(pwd)/cuda_toolkit"
         tar -xzvf $CTK_CACHE_FILENAME
         ls -l $CUDA_PATH
         if [ ! -d "$CUDA_PATH/include" ]; then
           exit 1
         fi
 
-        # TODO: check if we really need these for tests?
         echo "CUDA_PATH=$CUDA_PATH" >> $GITHUB_ENV
         echo "PATH=$PATH:$CUDA_PATH/bin" >> $GITHUB_ENV
         echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_PATH/lib" >> $GITHUB_ENV
