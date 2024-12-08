@@ -18,7 +18,7 @@ except ImportError:
 import pytest
 
 from cuda.core.experimental import Device, _device
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils import CUDAError, handle_return
 
 
 @pytest.fixture(scope="function")
@@ -30,10 +30,15 @@ def init_cuda():
 
 
 def _device_unset_current():
-    ctx = handle_return(driver.cuCtxGetCurrent())
-    if int(ctx) == 0:
-        # no active context, do nothing
-        return
+    try:
+        ctx = handle_return(driver.cuCtxGetCurrent())
+    except CUDAError as e:
+        if "CUDA_ERROR_NOT_INITIALIZED" in str(e):
+            return
+    else:
+        if int(ctx) == 0:
+            # no active context, do nothing
+            return
     handle_return(driver.cuCtxPopCurrent())
     with _device._tls_lock:
         del _device._tls.devices
