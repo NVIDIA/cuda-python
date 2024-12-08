@@ -34,6 +34,7 @@ jobs:
           # Note: this is for build-time only; the test-time matrix needs to be
           # defined separately.
           - "12.6.2"
+    name: "CI"
     uses:
       ./.github/workflows/gh-build-and-test.yml
     with:
