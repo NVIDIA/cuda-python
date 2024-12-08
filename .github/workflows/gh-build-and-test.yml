@@ -75,7 +75,7 @@ jobs:
 
   test:
     # TODO: improve the name once a separate test matrix is defined
-    name: Test (CUDA ${{ inputs.cuda-version }}, Use container=${{ inputs.use-container }})
+    name: Test (CUDA ${{ inputs.cuda-version }})
     # TODO: enable testing once linux-aarch64 & win-64 GPU runners are up
     if: ${{ (github.repository_owner == 'nvidia') &&
              startsWith(inputs.host-platform, 'linux-x64') }}
@@ -121,3 +121,4 @@ jobs:
           CUDA_BINDINGS_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
           PYTHON_VERSION: ${{ inputs.python-version }}
           CTK_BUILD_VER: ${{ inputs.cuda-version }}
+          HOST_PLATFORM: ${{ inputs.host-platform }}
