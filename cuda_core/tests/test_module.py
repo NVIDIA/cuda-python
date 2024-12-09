@@ -6,13 +6,14 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-import importlib
 
 import pytest
+from conftest import can_load_generated_ptx
 
 from cuda.core.experimental import Program
 
 
+@pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
 def test_get_kernel():
     kernel = """
 extern __device__ int B();

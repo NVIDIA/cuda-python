@@ -109,13 +109,12 @@ class ObjectCode:
     __slots__ = ("_handle", "_backend_version", "_jit_options", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-
     def __init__(self, module, code_type, jit_options=None, *, symbol_mapping=None):
         if code_type not in self._supported_code_type:
             raise ValueError
         _lazy_init()
 
-        # handle is assigned during _lazy_load 
+        # handle is assigned during _lazy_load
         self._handle = None
         self._jit_options = jit_options
 
@@ -127,7 +126,7 @@ class ObjectCode:
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
     # TODO: do we want to unload in a finalizer? Probably not..
-    
+
     def _lazy_load_module(self, *args, **kwargs):
         if self._handle is not None:
             return
@@ -136,7 +135,6 @@ class ObjectCode:
             # a bug that we can't easily support it just yet (NVIDIA/cuda-python#73).
             if self._jit_options is not None:
                 raise ValueError
-            module = self._module.encode()
             self._handle = handle_return(self._loader["file"](self._module))
         else:
             assert isinstance(self._module, bytes)
@@ -154,7 +152,12 @@ class ObjectCode:
                     0,
                 )
             else:  # "old" backend
-                args = (self._module, len(self._jit_options), list(self._jit_options.keys()), list(self._jit_options.values()))
+                args = (
+                    self._module,
+                    len(self._jit_options),
+                    list(self._jit_options.keys()),
+                    list(self._jit_options.values()),
+                )
             self._handle = handle_return(self._loader["data"](*args))
 
     @precondition(_lazy_load_module)
@@ -179,6 +182,5 @@ class ObjectCode:
 
         data = handle_return(self._loader["kernel"](self._handle, name))
         return Kernel._from_obj(data, self)
-    
 
     # TODO: implement from_handle()
