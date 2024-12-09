@@ -93,15 +93,26 @@ napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 
 
+section_titles = ["Returns"]
 def autodoc_process_docstring(app, what, name, obj, options, lines):
     if name.startswith("cuda.core.experimental.system"):
-        # patch the docstring (in lines) *in-place*
+        # patch the docstring (in lines) *in-place*. Should docstrings include section titles other than "Returns", 
+        # this will need to be modified to handle them.
         attr = name.split(".")[-1]
         from cuda.core.experimental._system import System
 
         lines_new = getattr(System, attr).__doc__.split("\n")
+        formatted_lines = []
+        for line in lines_new:
+            title = line.strip()
+            if title in section_titles:
+                formatted_lines.append(line.replace(title, f".. rubric:: {title}"))
+            elif line.strip() == "-" * len(title):
+                formatted_lines.append(" " * len(title))
+            else:
+                formatted_lines.append(line)
         n_pops = len(lines)
-        lines.extend(lines_new)
+        lines.extend(formatted_lines)
         for _ in range(n_pops):
             lines.pop(0)
 
