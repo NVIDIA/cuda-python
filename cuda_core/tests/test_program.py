@@ -7,18 +7,10 @@
 # is strictly prohibited.
 
 import pytest
+from conftest import can_load_generated_ptx
 
-from cuda import cuda, nvrtc
 from cuda.core.experimental import Device, Program
 from cuda.core.experimental._module import Kernel, ObjectCode
-
-
-def can_load_generated_ptx():
-    _, driver_ver = cuda.cuDriverGetVersion()
-    _, nvrtc_major, nvrtc_minor = nvrtc.nvrtcVersion()
-    if nvrtc_major * 1000 + nvrtc_minor * 10 > driver_ver:
-        return False
-    return True
 
 
 def test_program_init_valid_code_type():
