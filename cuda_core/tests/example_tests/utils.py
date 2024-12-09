@@ -42,6 +42,9 @@ def run_example(samples_path, filename, env=None):
                 break
         else:
             raise
+    except SystemExit:
+        # for samples that early return due to any missing requirements
+        pytest.skip(f"skip {filename}")
     except Exception as e:
         msg = "\n"
         msg += f"Got error ({filename}):\n"
