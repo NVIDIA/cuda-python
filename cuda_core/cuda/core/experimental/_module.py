@@ -5,7 +5,7 @@
 import importlib.metadata
 
 from cuda import cuda
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils import handle_return, precondition
 
 _backend = {
     "old": {
@@ -127,31 +127,10 @@ class ObjectCode:
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
     # TODO: do we want to unload in a finalizer? Probably not..
-
-    def get_kernel(self, name):
-        """Return the :obj:`Kernel` of a specified name from this object code.
-
-        Parameters
-        ----------
-        name : Any
-            Name of the kernel to retrieve.
-
-        Returns
-        -------
-        :obj:`Kernel`
-            Newly created kernel object.
-
-        """
-        try:
-            name = self._sym_map[name]
-        except KeyError:
-            name = name.encode()
-
-        self._lazy_load_module()
-        data = handle_return(self._loader["kernel"](self._handle, name))
-        return Kernel._from_obj(data, self)
-
-    def _lazy_load_module(self):
+    
+    def _lazy_load_module(self, *args, **kwargs):
+        if self._handle is not None:
+            return
         if isinstance(self._module, str):
             # TODO: this option is only taken by the new library APIs, but we have
             # a bug that we can't easily support it just yet (NVIDIA/cuda-python#73).
@@ -177,5 +156,29 @@ class ObjectCode:
             else:  # "old" backend
                 args = (self._module, len(self._jit_options), list(self._jit_options.keys()), list(self._jit_options.values()))
             self._handle = handle_return(self._loader["data"](*args))
+
+    @precondition(_lazy_load_module)
+    def get_kernel(self, name):
+        """Return the :obj:`Kernel` of a specified name from this object code.
+
+        Parameters
+        ----------
+        name : Any
+            Name of the kernel to retrieve.
+
+        Returns
+        -------
+        :obj:`Kernel`
+            Newly created kernel object.
+
+        """
+        try:
+            name = self._sym_map[name]
+        except KeyError:
+            name = name.encode()
+
+        data = handle_return(self._loader["kernel"](self._handle, name))
+        return Kernel._from_obj(data, self)
+    
 
     # TODO: implement from_handle()
