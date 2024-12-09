@@ -1,4 +1,4 @@
-name: Build and test
+name: "CI"
 
 concurrency:
   group: ${{ startsWith(github.ref_name, 'main') && format('unique-{0}', github.run_id) || format('ci-build-and-test-on-{0}-from-{1}', github.event_name, github.ref_name) }}
@@ -11,8 +11,7 @@ on:
       - "main"
 
 jobs:
-  build-and-test:
-    name: Build and test (${{ matrix.host-platform }}, ${{ matrix.target-device }}, ${{ matrix.build-mode }})
+  ci:
     strategy:
       fail-fast: false
       matrix:
@@ -27,6 +26,7 @@ jobs:
         upload-enabled:
           - false
         python-version:
+          - "3.13"
           - "3.12"
           - "3.11"
           - "3.10"
@@ -35,6 +35,7 @@ jobs:
           # Note: this is for build-time only; the test-time matrix needs to be
           # defined separately.
           - "12.6.2"
+    name: "CI"
     uses:
       ./.github/workflows/gh-build-and-test.yml
     with:
