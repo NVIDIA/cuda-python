@@ -1,4 +1,4 @@
-.. module:: cuda.core.experimental
+.. currentmodule:: cuda.core.experimental
 
 ``cuda.core.experimental`` API Reference
 ========================================
