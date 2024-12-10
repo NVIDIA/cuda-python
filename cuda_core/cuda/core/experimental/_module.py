@@ -130,22 +130,24 @@ class ObjectCode:
     def _lazy_load_module(self, *args, **kwargs):
         if self._handle is not None:
             return
-        if isinstance(self._module, str):
+        jit_options = self._jit_options
+        module = self._module
+        if isinstance(module, str):
             # TODO: this option is only taken by the new library APIs, but we have
             # a bug that we can't easily support it just yet (NVIDIA/cuda-python#73).
-            if self._jit_options is not None:
+            if jit_options is not None:
                 raise ValueError
-            self._handle = handle_return(self._loader["file"](self._module))
+            self._handle = handle_return(self._loader["file"](module))
         else:
-            assert isinstance(self._module, bytes)
-            if self._jit_options is None:
-                self._jit_options = {}
+            assert isinstance(module, bytes)
+            if jit_options is None:
+                jit_options = {}
             if self._backend_version == "new":
                 args = (
-                    self._module,
-                    list(self._jit_options.keys()),
-                    list(self._jit_options.values()),
-                    len(self._jit_options),
+                    module,
+                    list(jit_options.keys()),
+                    list(jit_options.values()),
+                    len(jit_options),
                     # TODO: support library options
                     [],
                     [],
@@ -153,10 +155,10 @@ class ObjectCode:
                 )
             else:  # "old" backend
                 args = (
-                    self._module,
-                    len(self._jit_options),
-                    list(self._jit_options.keys()),
-                    list(self._jit_options.values()),
+                    module,
+                    len(jit_options),
+                    list(jit_options.keys()),
+                    list(jit_options.values()),
                 )
             self._handle = handle_return(self._loader["data"](*args))
 
