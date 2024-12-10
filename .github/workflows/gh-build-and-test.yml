@@ -1,16 +1,16 @@
 on:
   workflow_call:
     inputs:
-      host-platform:
-        type: string
-        required: true
       target-device:
         type: string
         required: true
-      build-mode:
+      build-type:
         type: string
         required: true
-      build-type:
+      host-platform:
+        type: string
+        required: true
+      build-mode:
         type: string
         required: true
       upload-enabled:
@@ -19,20 +19,106 @@ on:
       python-version:
         type: string
         required: true
+      cuda-version:
+        type: string
+        required: true
+
 jobs:
   build:
+    name: Build (${{ inputs.host-platform }}, Python "${{ inputs.python-version }}")
     if: ${{ github.repository_owner == 'nvidia' }}
-    uses:
-      ./.github/workflows/gh-build.yml
-    with:
-      client-repo: ${{ github.event.repository.name }}
-      target-device: ${{ inputs.target-device }}
-      runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-cpu16') || (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu16') || (inputs.host-platform == 'mac' && 'macos-latest') }}
-      build-type: ${{ inputs.build-type }}
-      use-container: ${{ inputs.host-platform == 'linux-x64' || inputs.host-platform == 'linux-aarch64'}}
-      host-platform: ${{ inputs.host-platform }}
-      dependencies-file: ""
-      build-mode: ${{ inputs.build-mode }}
-      upload-enabled: ${{ inputs.upload-enabled }}
-      python-version: ${{ inputs.python-version }}
-    secrets: inherit
+    permissions:
+      id-token: write # This is required for configure-aws-credentials
+      contents: read  # This is required for actions/checkout
+    runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-cpu8') ||
+                 (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
+                 (inputs.host-platform == 'win-x64' && 'windows-2019') }}
+               #  (inputs.host-platform == 'win-x64' && 'windows-amd64-cpu8') }}
+    outputs:
+      CUDA_CORE_ARTIFACT_NAME: ${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACT_NAME }}
+      CUDA_CORE_ARTIFACTS_DIR: ${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACTS_DIR }}
+      CUDA_BINDINGS_ARTIFACT_NAME: ${{ steps.pass_env.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
+      CUDA_BINDINGS_ARTIFACTS_DIR: ${{ steps.pass_env.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up build environment
+        uses: ./.github/actions/setup
+        with:
+          client-repo: ${{ github.event.repository.name }}
+          build-type: ${{ inputs.build-type }}
+          target-device: "${{ inputs.target-device }}"
+          host-platform: ${{ inputs.host-platform }}
+          build-mode: ${{ inputs.build-mode }}
+          upload-enabled: ${{ inputs.upload-enabled }}
+          python-version: ${{ inputs.python-version }}
+          cuda-version: ${{ inputs.cuda-version }}
+
+      - name: Call build action
+        uses: ./.github/actions/build
+        with:
+          build-type: ${{ inputs.build-type }}
+          target-device: "${{ inputs.target-device }}"
+          host-platform: ${{ inputs.host-platform }}
+          upload-enabled: ${{ inputs.upload-enabled }}
+
+      - name: Pass environment variables
+        id: pass_env
+        run: |
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+          echo "CUDA_CORE_ARTIFACTS_DIR=${CUDA_CORE_ARTIFACTS_DIR}" >> $GITHUB_OUTPUT
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=${CUDA_BINDINGS_ARTIFACTS_DIR}" >> $GITHUB_OUTPUT
+
+  test:
+    # TODO: improve the name once a separate test matrix is defined
+    name: Test (CUDA ${{ inputs.cuda-version }})
+    # TODO: enable testing once linux-aarch64 & win-64 GPU runners are up
+    if: ${{ (github.repository_owner == 'nvidia') &&
+             startsWith(inputs.host-platform, 'linux-x64') }}
+    permissions:
+      id-token: write # This is required for configure-aws-credentials
+      contents: read  # This is required for actions/checkout
+    runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') }}
+    # TODO: use a different (nvidia?) container, or just run on bare image
+    container:
+      options: -u root --security-opt seccomp=unconfined --privileged --shm-size 16g
+      image: condaforge/miniforge3:latest
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+    needs:
+      - build
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # TODO: we probably don't need this?
+      # - name: Setup
+      #   if: ${{ inputs.has-built != 'true' }}
+      #   uses: ./.github/actions/setup
+      #   with:
+      #     client-repo: ${{ github.event.repository.name }}
+      #     build-type: ${{ inputs.build-type }}
+      #     target-device: "${{ inputs.target-device }}"
+      #     host-platform: ${{ inputs.host-platform }}
+      #     build-mode: ${{ inputs.build-mode }}
+      #     upload-enabled: ${{ inputs.upload-enabled }}
+      #     python-version: ${{ inputs.python-version }}
+
+      - name: Call test action
+        uses: ./.github/actions/test
+        with:
+          test-options: ${{ inputs.build-type }}
+        env:
+          CUDA_CORE_ARTIFACT_NAME: ${{ needs.build.outputs.CUDA_CORE_ARTIFACT_NAME }}
+          CUDA_CORE_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_CORE_ARTIFACTS_DIR }}
+          CUDA_BINDINGS_ARTIFACT_NAME: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
+          CUDA_BINDINGS_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          PYTHON_VERSION: ${{ inputs.python-version }}
+          CTK_BUILD_VER: ${{ inputs.cuda-version }}
+          HOST_PLATFORM: ${{ inputs.host-platform }}

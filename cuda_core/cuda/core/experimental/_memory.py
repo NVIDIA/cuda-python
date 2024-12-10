@@ -293,3 +293,33 @@ class _DefaultPinnedMemorySource(MemoryResource):
     @property
     def device_id(self) -> int:
         raise RuntimeError("the pinned memory resource is not bound to any GPU")
+
+
+class _SynchronousMemoryResource(MemoryResource):
+    __slots__ = ("_dev_id",)
+
+    def __init__(self, dev_id):
+        self._handle = None
+        self._dev_id = dev_id
+
+    def allocate(self, size, stream=None) -> Buffer:
+        ptr = handle_return(cuda.cuMemAlloc(size))
+        return Buffer(ptr, size, self)
+
+    def deallocate(self, ptr, size, stream=None):
+        if stream is None:
+            stream = default_stream()
+        stream.sync()
+        handle_return(cuda.cuMemFree(ptr))
+
+    @property
+    def is_device_accessible(self) -> bool:
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        return False
+
+    @property
+    def device_id(self) -> int:
+        return self._dev_id
