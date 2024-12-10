@@ -70,4 +70,4 @@ def clean_up_cffi_files():
 def can_load_generated_ptx():
     _, driver_ver = driver.cuDriverGetVersion()
     _, nvrtc_major, nvrtc_minor = nvrtc.nvrtcVersion()
-    return not (nvrtc_major * 1000 + nvrtc_minor * 10 > driver_ver)
+    return nvrtc_major * 1000 + nvrtc_minor * 10 <= driver_ver
