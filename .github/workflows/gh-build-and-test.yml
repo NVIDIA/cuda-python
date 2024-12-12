@@ -76,9 +76,9 @@ jobs:
   test:
     # TODO: improve the name once a separate test matrix is defined
     name: Test (CUDA ${{ inputs.cuda-version }})
-    # TODO: enable testing once linux-aarch64 & win-64 GPU runners are up
+    # TODO: enable testing once win-64 GPU runners are up
     if: ${{ (github.repository_owner == 'nvidia') &&
-             startsWith(inputs.host-platform, 'linux-x64') }}
+             startsWith(inputs.host-platform, 'linux') }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
