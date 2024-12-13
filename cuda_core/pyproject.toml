@@ -20,7 +20,7 @@ authors = [
 ]
 license = {text = "NVIDIA Software License"}
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: End Users/Desktop",
@@ -36,6 +36,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: CPython",
     "Environment :: GPU :: NVIDIA CUDA",
     "Environment :: GPU :: NVIDIA CUDA :: 11",
@@ -47,6 +48,11 @@ dependencies = [
     "cuda-python <13",
 ]
 
+[project.urls]
+homepage = "https://nvidia.github.io/cuda-python/"
+documentation = "https://nvidia.github.io/cuda-python/cuda-core/"
+repository = "https://github.com/NVIDIA/cuda-python/tree/main/cuda_core"
+issues = "https://github.com/NVIDIA/cuda-python/issues/"
 
 [tool.setuptools.packages.find]
 include = ["cuda.core*"]
@@ -54,7 +60,7 @@ include = ["cuda.core*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "cuda.core._version.__version__" }
-readme = { file = ["README.md"], content-type = "text/markdown" }
+readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [tool.ruff]
 line-length = 120
