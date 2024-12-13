@@ -1,6 +1,6 @@
 # `cuda.core`: (experimental) pythonic CUDA module
 
-Currently under active developmen; see [the documentation](https://nvidia.github.io/cuda-python/cuda-core/latest/) for more details.
+Currently under active development; see [the documentation](https://nvidia.github.io/cuda-python/cuda-core/latest/) for more details.
 
 ## Installing
 
