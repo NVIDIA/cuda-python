@@ -15,6 +15,7 @@ runs:
       run: nvidia-smi
 
     - name: Check system
+      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: uname -a
 
     - name: Download bindings build artifacts
