@@ -13,12 +13,13 @@ Current device/context
 The :meth:`Device.set_current` method ensures that the calling host thread has
 an active CUDA context set to current. This CUDA context can be seen and accessed
 by other GPU libraries without any code change. For libraries built on top of
-the CUDA runtime (``cudart``), this is as if ``cudaSetDevice`` is called.
+the `CUDA runtime <https://docs.nvidia.com/cuda/cuda-runtime-api/index.html>`_,
+this is as if ``cudaSetDevice`` is called.
 
 Since CUDA contexts are per-thread constructs, in a multi-threaded program each
 host thread should call this method.
 
-Conversely, if any GPU library already set a device (or context) to current, this
+Conversely, if any GPU library already sets a device (or context) to current, this
 method ensures that the same device/context is picked up by and shared with
 ``cuda.core``.
 
@@ -34,7 +35,7 @@ exposing their own stream types.
 To address this issue, we propose the ``__cuda_stream__`` protocol (currently version
 0) as follows: For any Python objects that are meant to be interpreted as a stream, they
 should add a ``__cuda_stream__`` attribute that returns a 2-tuple: The version number
-(``0``) and the address of ``cudaStream_t``:
+(``0``) and the address of ``cudaStream_t`` (both as Python `int`):
 
 .. code-block:: python
 
