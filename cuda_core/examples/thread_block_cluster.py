@@ -35,7 +35,10 @@ __global__ void check_cluster_info() {
 dev = Device()
 arch = dev.compute_capability
 if arch < (9, 0):
-    print("this demo requires a Hopper GPU (since thread block cluster is a hardware feature)", file=sys.stderr)
+    print(
+        "this demo requires compute capability >= 9.0 (since thread block cluster is a hardware feature)",
+        file=sys.stderr,
+    )
     sys.exit(0)
 arch = "".join(f"{i}" for i in arch)
 

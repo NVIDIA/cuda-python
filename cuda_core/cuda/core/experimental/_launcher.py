@@ -72,7 +72,7 @@ class LaunchConfig:
             if not _use_ex:
                 raise CUDAError("thread block clusters require cuda.bindings & driver 11.8+")
             if Device().compute_capability < (9, 0):
-                raise CUDAError("thread block clusters are not supported below Hopper")
+                raise CUDAError("thread block clusters are not supported on devices with compute capability < 9.0")
             self.cluster = self._cast_to_3_tuple(self.cluster)
         # we handle "stream=None" in the launch API
         if self.stream is not None and not isinstance(self.stream, Stream):
