@@ -44,6 +44,12 @@ runs:
         $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
         ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
+    - name: Check cuda.core wheel
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        pip install twine
+        twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+
     - name: Upload cuda.core build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -81,6 +87,11 @@ runs:
         fi
         $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
         ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+    - name: Check cuda.bindings wheel
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
     - name: Upload cuda.bindings build artifacts
       uses: actions/upload-artifact@v4
