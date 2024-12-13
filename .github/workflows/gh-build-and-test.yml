@@ -84,12 +84,13 @@ jobs:
       contents: read  # This is required for actions/checkout
     runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') }}
-    # # TODO: use a different (nvidia?) container, or just run on bare image
-    # container:
-    #   options: -u root --security-opt seccomp=unconfined --privileged --shm-size 16g
-    #   image: condaforge/miniforge3:latest
-    #   env:
-    #     NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+    # Our self-hosted runners require a container
+    # TODO: use a different (nvidia?) container
+    container:
+      options: -u root --security-opt seccomp=unconfined --privileged --shm-size 16g
+      image: ubuntu:20.04
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
     needs:
       - build
     steps:
