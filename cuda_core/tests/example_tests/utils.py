@@ -10,7 +10,6 @@ import gc
 import os
 import sys
 
-import cupy as cp
 import pytest
 
 
@@ -43,6 +42,9 @@ def run_example(samples_path, filename, env=None):
                 break
         else:
             raise
+    except SystemExit:
+        # for samples that early return due to any missing requirements
+        pytest.skip(f"skip {filename}")
     except Exception as e:
         msg = "\n"
         msg += f"Got error ({filename}):\n"
@@ -53,4 +55,3 @@ def run_example(samples_path, filename, env=None):
         sys.argv = old_argv
         # further reduce the memory watermark
         gc.collect()
-        cp.get_default_memory_pool().free_all_blocks()

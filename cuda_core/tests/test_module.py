@@ -6,43 +6,22 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-import importlib
 
 import pytest
+from conftest import can_load_generated_ptx
 
-from cuda.core.experimental._module import ObjectCode
-
-
-@pytest.mark.skipif(
-    int(importlib.metadata.version("cuda-python").split(".")[0]) < 12,
-    reason="Module loading for older drivers validate require valid module code.",
-)
-def test_object_code_initialization():
-    # Test with supported code types
-    for code_type in ["cubin", "ptx", "fatbin"]:
-        module_data = b"dummy_data"
-        obj_code = ObjectCode(module_data, code_type)
-        assert obj_code._code_type == code_type
-        assert obj_code._module == module_data
-        assert obj_code._handle is not None
-
-    # Test with unsupported code type
-    with pytest.raises(ValueError):
-        ObjectCode(b"dummy_data", "unsupported_code_type")
+from cuda.core.experimental import Program
 
 
-# TODO add ObjectCode tests which provide the appropriate data for cuLibraryLoadFromFile
-def test_object_code_initialization_with_str():
-    assert True
-
-
-def test_object_code_initialization_with_jit_options():
-    assert True
-
-
-def test_object_code_get_kernel():
-    assert True
-
-
-def test_kernel_from_obj():
-    assert True
+@pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
+def test_get_kernel():
+    kernel = """
+extern __device__ int B();
+extern __device__ int C(int a, int b);
+__global__ void A() { int result = C(B(), 1);}
+"""
+    object_code = Program(kernel, "c++").compile("ptx", options=("-rdc=true",))
+    assert object_code._handle is None
+    kernel = object_code.get_kernel("A")
+    assert object_code._handle is not None
+    assert kernel._handle is not None

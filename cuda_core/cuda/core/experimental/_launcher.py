@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from cuda import cuda
+from cuda.core.experimental._device import Device
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
@@ -38,10 +39,14 @@ class LaunchConfig:
     ----------
     grid : Union[tuple, int]
         Collection of threads that will execute a kernel function.
+    cluster : Union[tuple, int]
+        Group of blocks (Thread Block Cluster) that will execute on the same
+        GPU Processing Cluster (GPC). Blocks within a cluster have access to
+        distributed shared memory and can be explicitly synchronized.
     block : Union[tuple, int]
         Group of threads (Thread Block) that will execute on the same
-        multiprocessor. Threads within a thread blocks have access to
-        shared memory and can be explicitly synchronized.
+        streaming multiprocessor (SM). Threads within a thread blocks have
+        access to shared memory and can be explicitly synchronized.
     stream : :obj:`~_stream.Stream`
         The stream establishing the stream ordering semantic of a
         launch.
@@ -53,13 +58,22 @@ class LaunchConfig:
 
     # TODO: expand LaunchConfig to include other attributes
     grid: Union[tuple, int] = None
+    cluster: Union[tuple, int] = None
     block: Union[tuple, int] = None
     stream: Stream = None
     shmem_size: Optional[int] = None
 
     def __post_init__(self):
+        _lazy_init()
         self.grid = self._cast_to_3_tuple(self.grid)
         self.block = self._cast_to_3_tuple(self.block)
+        # thread block clusters are supported starting H100
+        if self.cluster is not None:
+            if not _use_ex:
+                raise CUDAError("thread block clusters require cuda.bindings & driver 11.8+")
+            if Device().compute_capability < (9, 0):
+                raise CUDAError("thread block clusters are not supported on devices with compute capability < 9.0")
+            self.cluster = self._cast_to_3_tuple(self.cluster)
         # we handle "stream=None" in the launch API
         if self.stream is not None and not isinstance(self.stream, Stream):
             try:
@@ -68,8 +82,6 @@ class LaunchConfig:
                 raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e
         if self.shmem_size is None:
             self.shmem_size = 0
-
-        _lazy_init()
 
     def _cast_to_3_tuple(self, cfg):
         if isinstance(cfg, int):
@@ -131,9 +143,17 @@ def launch(kernel, config, *kernel_args):
         drv_cfg = cuda.CUlaunchConfig()
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
         drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
-        drv_cfg.hStream = config.stream._handle
+        drv_cfg.hStream = config.stream.handle
         drv_cfg.sharedMemBytes = config.shmem_size
-        drv_cfg.numAttrs = 0  # TODO
+        attrs = []  # TODO: support more attributes
+        if config.cluster:
+            attr = cuda.CUlaunchAttribute()
+            attr.id = cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+            dim = attr.value.clusterDim
+            dim.x, dim.y, dim.z = config.cluster
+            attrs.append(attr)
+        drv_cfg.numAttrs = len(attrs)
+        drv_cfg.attrs = attrs
         handle_return(cuda.cuLaunchKernelEx(drv_cfg, int(kernel._handle), args_ptr, 0))
     else:
         # TODO: check if config has any unsupported attrs

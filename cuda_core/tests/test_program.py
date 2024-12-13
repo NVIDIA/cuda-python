@@ -7,8 +7,9 @@
 # is strictly prohibited.
 
 import pytest
+from conftest import can_load_generated_ptx
 
-from cuda.core.experimental import Program
+from cuda.core.experimental import Device, Program
 from cuda.core.experimental._module import Kernel, ObjectCode
 
 
@@ -31,10 +32,14 @@ def test_program_init_invalid_code_format():
         Program(code, "c++")
 
 
+# TODO: incorporate this check in Program
+@pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
 def test_program_compile_valid_target_type():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
-    object_code = program.compile("ptx")
+    arch = "".join(str(i) for i in Device().compute_capability)
+    object_code = program.compile("ptx", options=(f"-arch=compute_{arch}",))
+    print(object_code._module.decode())
     kernel = object_code.get_kernel("my_kernel")
     assert isinstance(object_code, ObjectCode)
     assert isinstance(kernel, Kernel)
