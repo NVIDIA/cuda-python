@@ -44,9 +44,12 @@ classifiers = [
 ]
 dependencies = [
     "numpy",
-    # TODO: change this once cuda-bindings is packaged, see NVIDIA/cuda-python#105
-    "cuda-python <13",
 ]
+
+[project.optional-dependencies]
+# TODO: change this once cuda-bindings is packaged, see NVIDIA/cuda-python#105
+cu11 = ["cuda-python==11.8.*"]
+cu12 = ["cuda-python==12.*"]
 
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
@@ -56,7 +59,6 @@ issues = "https://github.com/NVIDIA/cuda-python/issues/"
 
 [tool.setuptools.packages.find]
 include = ["cuda.core*"]
-
 
 [tool.setuptools.dynamic]
 version = { attr = "cuda.core._version.__version__" }
