@@ -38,6 +38,17 @@ CUDA compilation toolchain
    LinkerOptions
 
 
+CUDA system information
+-----------------------
+
+.. autodata:: cuda.core.experimental.system.driver_version
+   :no-value:
+.. autodata:: cuda.core.experimental.system.num_devices
+   :no-value:
+.. autodata:: cuda.core.experimental.system.devices
+   :no-value:
+
+
 .. module:: cuda.core.experimental.utils
 
 Utility functions
