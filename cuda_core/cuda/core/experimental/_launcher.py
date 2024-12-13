@@ -47,7 +47,7 @@ class LaunchConfig:
         Group of threads (Thread Block) that will execute on the same
         streaming multiprocessor (SM). Threads within a thread blocks have
         access to shared memory and can be explicitly synchronized.
-    stream : :obj:`Stream`
+    stream : :obj:`~_stream.Stream`
         The stream establishing the stream ordering semantic of a
         launch.
     shmem_size : int, optional
@@ -108,16 +108,16 @@ class LaunchConfig:
 
 
 def launch(kernel, config, *kernel_args):
-    """Launches a :obj:`~cuda.core.experimental._module.Kernel`
+    """Launches a :obj:`~_module.Kernel`
     object with launch-time configuration.
 
     Parameters
     ----------
-    kernel : :obj:`~cuda.core.experimental._module.Kernel`
+    kernel : :obj:`~_module.Kernel`
         Kernel to launch.
-    config : :obj:`LaunchConfig`
+    config : :obj:`~_launcher.LaunchConfig`
         Launch configurations inline with options provided by
-        :obj:`LaunchConfig` dataclass.
+        :obj:`~_launcher.LaunchConfig` dataclass.
     *kernel_args : Any
         Variable length argument list that is provided to the
         launching kernel.
