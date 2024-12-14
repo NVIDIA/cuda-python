@@ -87,7 +87,7 @@ jobs:
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
-      options: -u root --security-opt seccomp=unconfined --privileged --shm-size 16g
+      options: -u root --security-opt seccomp=unconfined --shm-size 16g
       image: ubuntu:22.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
