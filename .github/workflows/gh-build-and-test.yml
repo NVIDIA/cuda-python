@@ -63,6 +63,7 @@ jobs:
           build-type: ${{ inputs.build-type }}
           target-device: "${{ inputs.target-device }}"
           host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ inputs.cuda-version }}
           upload-enabled: ${{ inputs.upload-enabled }}
 
       - name: Pass environment variables
@@ -116,6 +117,8 @@ jobs:
         uses: ./.github/actions/test
         with:
           test-options: ${{ inputs.build-type }}
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ inputs.cuda-version }}
         env:
           CUDA_CORE_ARTIFACT_NAME: ${{ needs.build.outputs.CUDA_CORE_ARTIFACT_NAME }}
           CUDA_CORE_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_CORE_ARTIFACTS_DIR }}

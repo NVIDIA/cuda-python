@@ -13,6 +13,9 @@ inputs:
   host-platform:
     required: true
     type: string
+  cuda-version:
+    required: true
+    type: string
   upload-enabled:
     required: true
     type: boolean
@@ -58,17 +61,26 @@ runs:
         if-no-files-found: error
         overwrite: 'true'
 
+    - name: Set up mini CTK
+      uses: ./.github/actions/fetch_ctk
+      continue-on-error: false
+      with:
+        host-platform: ${{ inputs.host-platform }}
+        cuda-version: ${{ inputs.cuda-version }}
+        fail-on-ctk-cache-miss: false
+
     - name: Build cuda.bindings wheel
       uses: pypa/cibuildwheel@v2.22.0
       env:
         CIBW_BUILD: ${{ env.CIBW_BUILD }}
         CIBW_ARCHS_LINUX: "native"
         CIBW_BUILD_VERBOSITY: 1
+        # CIBW mounts the host filesystem under /host
         CIBW_ENVIRONMENT_LINUX: >
-          CUDA_PATH="$(realpath ./cuda_toolkit)"
+          CUDA_PATH=/host/${{ env.CUDA_PATH }}
           PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
         CIBW_ENVIRONMENT_WINDOWS: >
-          CUDA_HOME="$(cygpath -w $(realpath ./cuda_toolkit))"
+          CUDA_HOME="$(cygpath -w ${{ env.CUDA_PATH }})"
         #  PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
         # # ensure Python.h & co can be found
         # CIBW_BEFORE_BUILD_WINDOWS: >

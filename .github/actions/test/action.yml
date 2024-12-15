@@ -3,6 +3,12 @@ name: test
 description: Run tests in specified project
 
 inputs:
+  host-platform:
+    required: true
+    type: string
+  cuda-version:
+    required: true
+    type: string
   test-options:
     required: true
     type: string
@@ -50,39 +56,19 @@ runs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Set up CTK cache variable
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        echo "CTK_CACHE_KEY=mini-ctk-${CTK_BUILD_VER}-${HOST_PLATFORM}" >> $GITHUB_ENV
-        echo "CTK_CACHE_FILENAME=mini-ctk-${CTK_BUILD_VER}-${HOST_PLATFORM}.tar.gz" >> $GITHUB_ENV
-
-    - name: Download CTK cache
-      id: ctk-get-cache
-      uses: actions/cache/restore@v4
-      continue-on-error: true
+    - name: Set up mini CTK
+      uses: ./.github/actions/fetch_ctk
+      continue-on-error: false
       with:
-        key: ${{ env.CTK_CACHE_KEY }}
-        path: ./${{ env.CTK_CACHE_FILENAME }}
-        fail-on-cache-miss: true
-
-    - name: Restore CTK cache
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        ls -l
-        CUDA_PATH="$(pwd)/cuda_toolkit"
-        tar -xzvf $CTK_CACHE_FILENAME
-        ls -l $CUDA_PATH
-        if [ ! -d "$CUDA_PATH/include" ]; then
-          exit 1
-        fi
-
-        echo "CUDA_PATH=$CUDA_PATH" >> $GITHUB_ENV
-        echo "PATH=$PATH:$CUDA_PATH/bin" >> $GITHUB_ENV
-        echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_PATH/lib" >> $GITHUB_ENV
+        host-platform: ${{ inputs.host-platform }}
+        cuda-version: ${{ inputs.cuda-version }}
+        fail-on-ctk-cache-miss: true
 
     - name: Run test / analysis
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
+        ls $CUDA_PATH
+
         REPO_DIR=$(pwd)
 
         cd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
