@@ -1,27 +1,33 @@
-on:
-  workflow_call:
-    inputs:
-      host-platform:
-        type: string
-        required: true
-      python-version:
-        type: string
-        required: true
-      cuda-version:
-        type: string
-        required: true
+on: workflow_call
 
 jobs:
   build:
-    name: Build (${{ inputs.host-platform }}, Python "${{ inputs.python-version }}")
+    strategy:
+      fail-fast: false
+      matrix:
+        # TODO: align host-platform names with conda convention
+        host-platform:
+          - linux-x64
+          - linux-aarch64
+          - win-x64
+        python-version:
+          - "3.13"
+          - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
+        cuda-version:
+          # Note: this is for build-time only.
+          - "12.6.2"
+    name: Build (${{ matrix.host-platform }}, Python "${{ matrix.python-version }}")
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
-    runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-cpu8') ||
-                 (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
-                 (inputs.host-platform == 'win-x64' && 'windows-2019') }}
-               #  (inputs.host-platform == 'win-x64' && 'windows-amd64-cpu8') }}
+    runs-on: ${{ (matrix.host-platform == 'linux-x64' && 'linux-amd64-cpu8') ||
+                 (matrix.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
+                 (matrix.host-platform == 'win-x64' && 'windows-2019') }}
+               #  (matrix.host-platform == 'win-x64' && 'windows-amd64-cpu8') }}
     outputs:
       CUDA_CORE_ARTIFACT_NAME: ${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACT_NAME }}
       CUDA_CORE_ARTIFACTS_DIR: ${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACTS_DIR }}
@@ -35,34 +41,34 @@ jobs:
 
       # WAR: setup-python is not relocatable...
       # see https://github.com/actions/setup-python/issues/871
-      - name: Set up Python ${{ inputs.python-version }}
-        if: ${{ startsWith(inputs.host-platform, 'linux') }}
+      - name: Set up Python ${{ matrix.python-version }}
+        if: ${{ startsWith(matrix.host-platform, 'linux') }}
         id: setup-python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
   
       - name: Set up MSVC
-        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        if: ${{ startsWith(matrix.host-platform, 'win') }}
         uses: ilammy/msvc-dev-cmd@v1
   
       - name: Set environment variables
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          PYTHON_VERSION_FORMATTED=$(echo '${{ inputs.python-version }}' | tr -d '.')
-          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+          PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
+          if [[ "${{ matrix.host-platform }}" == linux* ]]; then
             CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-manylinux*"
             REPO_DIR=$(pwd)
-          elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+          elif [[ "${{ matrix.host-platform }}" == win* ]]; then
             CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-win_amd64"
             PWD=$(pwd)
             REPO_DIR=$(cygpath -w $PWD)
           fi
   
           echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ matrix.cuda-version }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
   
@@ -84,7 +90,7 @@ jobs:
       - name: List the cuda.core artifacts directory
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+          if [[ "${{ matrix.host-platform }}" == win* ]]; then
             export CHOWN=chown
           else
             export CHOWN="sudo chown"
@@ -110,8 +116,8 @@ jobs:
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
-          host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ inputs.cuda-version }}
+          host-platform: ${{ matrix.host-platform }}
+          cuda-version: ${{ matrix.cuda-version }}
           fail-on-ctk-cache-miss: false
 
       - name: Build cuda.bindings wheel
@@ -134,7 +140,7 @@ jobs:
       - name: List the cuda.bindings artifacts directory
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+          if [[ "${{ matrix.host-platform }}" == win* ]]; then
             export CHOWN=chown
           else
             export CHOWN="sudo chown"
@@ -165,16 +171,33 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=${CUDA_BINDINGS_ARTIFACTS_DIR}" >> $GITHUB_OUTPUT
 
   test:
-    # TODO: improve the name once a separate test matrix is defined
-    name: Test (CUDA ${{ inputs.cuda-version }})
-    # TODO: enable testing once win-64 GPU runners are up
-    if: ${{ (github.repository_owner == 'nvidia') &&
-             startsWith(inputs.host-platform, 'linux') }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # TODO: align host-platform names with conda convention
+        host-platform:
+          - linux-x64
+          - linux-aarch64
+          # TODO: enable testing once win-64 GPU runners are up
+          # - win-x64
+        python-version:
+          - "3.13"
+          - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
+        cuda-version:
+          # Note: this is for test-time only.
+          - "12.6.2"
+          - "12.0.1"
+          - "11.8.0"
+    name: Test (${{ matrix.host-platform }}, CUDA ${{ matrix.cuda-version }}, Python "${{ matrix.python-version }}")
+    if: ${{ (github.repository_owner == 'nvidia') }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
-    runs-on: ${{ (inputs.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') ||
-                 (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') }}
+    runs-on: ${{ (matrix.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') ||
+                 (matrix.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
@@ -227,10 +250,10 @@ jobs:
           pwd
           ls -lahR $CUDA_CORE_ARTIFACTS_DIR
 
-      - name: Set up Python ${{ inputs.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: ${{ matrix.python-version }}
 
       # The cache action needs this
       - name: Install zstd
@@ -243,8 +266,8 @@ jobs:
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
-          host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ inputs.cuda-version }}
+          host-platform: ${{ matrix.host-platform }}
+          cuda-version: ${{ matrix.cuda-version }}
           fail-on-ctk-cache-miss: true
 
       - name: Run test / analysis
