@@ -1,20 +1,8 @@
 on:
   workflow_call:
     inputs:
-      target-device:
-        type: string
-        required: true
-      build-type:
-        type: string
-        required: true
       host-platform:
         type: string
-        required: true
-      build-mode:
-        type: string
-        required: true
-      upload-enabled:
-        type: boolean
         required: true
       python-version:
         type: string
@@ -45,28 +33,130 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up build environment
-        uses: ./.github/actions/setup
+      # WAR: setup-python is not relocatable...
+      # see https://github.com/actions/setup-python/issues/871
+      - name: Set up Python ${{ inputs.python-version }}
+        if: ${{ startsWith(inputs.host-platform, 'linux') }}
+        id: setup-python
+        uses: actions/setup-python@v5
         with:
-          client-repo: ${{ github.event.repository.name }}
-          build-type: ${{ inputs.build-type }}
-          target-device: "${{ inputs.target-device }}"
-          host-platform: ${{ inputs.host-platform }}
-          build-mode: ${{ inputs.build-mode }}
-          upload-enabled: ${{ inputs.upload-enabled }}
-          python-version: ${{ inputs.python-version }}
-          cuda-version: ${{ inputs.cuda-version }}
+          python-version: "3.12"
+  
+      - name: Set up MSVC
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        uses: ilammy/msvc-dev-cmd@v1
+  
+      - name: Set environment variables
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          PYTHON_VERSION_FORMATTED=$(echo '${{ inputs.python-version }}' | tr -d '.')
+          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+            CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-manylinux*"
+            REPO_DIR=$(pwd)
+          elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+            CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-win_amd64"
+            PWD=$(pwd)
+            REPO_DIR=$(cygpath -w $PWD)
+          fi
+  
+          echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+          echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
+  
+      - name: Dump environment
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          env
 
-      - name: Call build action
-        uses: ./.github/actions/build
+      - name: Build cuda.core wheel
+        uses: pypa/cibuildwheel@v2.22.0
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          CIBW_ARCHS_LINUX: "native"
+          CIBW_BUILD_VERBOSITY: 1
         with:
-          build-type: ${{ inputs.build-type }}
-          target-device: "${{ inputs.target-device }}"
+          package-dir: ./cuda_core/
+          output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: List the cuda.core artifacts directory
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
+          fi
+          $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: Check cuda.core wheel
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pip install twine
+          twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+
+      - name: Upload cuda.core build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+          if-no-files-found: error
+          overwrite: 'true'
+
+      - name: Set up mini CTK
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
-          upload-enabled: ${{ inputs.upload-enabled }}
+          fail-on-ctk-cache-miss: false
 
-      - name: Pass environment variables
+      - name: Build cuda.bindings wheel
+        uses: pypa/cibuildwheel@v2.22.0
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          CIBW_ARCHS_LINUX: "native"
+          CIBW_BUILD_VERBOSITY: 1
+          # CIBW mounts the host filesystem under /host
+          CIBW_ENVIRONMENT_LINUX: >
+            CUDA_PATH=/host/${{ env.CUDA_PATH }}
+            PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+          CIBW_ENVIRONMENT_WINDOWS: >
+            CUDA_HOME="$(cygpath -w ${{ env.CUDA_PATH }})"
+          #  PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+        with:
+          package-dir: ./cuda_bindings/
+          output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: List the cuda.bindings artifacts directory
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
+          fi
+          $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      # TODO: enable this after NVIDIA/cuda-python#297 is resolved
+      # - name: Check cuda.bindings wheel
+      #   shell: bash --noprofile --norc -xeuo pipefail {0}
+      #   run: |
+      #     twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+
+      - name: Upload cuda.bindings build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          if-no-files-found: error
+          overwrite: 'true'
+
+      - name: Pass environment variables to the next runner
         id: pass_env
         run: |
           echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}" >> $GITHUB_OUTPUT
@@ -95,35 +185,86 @@ jobs:
     needs:
       - build
     steps:
+      - name: Run nvidia-smi to make sure GPU is working
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: nvidia-smi
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # TODO: we probably don't need this?
-      # - name: Setup
-      #   if: ${{ inputs.has-built != 'true' }}
-      #   uses: ./.github/actions/setup
-      #   with:
-      #     client-repo: ${{ github.event.repository.name }}
-      #     build-type: ${{ inputs.build-type }}
-      #     target-device: "${{ inputs.target-device }}"
-      #     host-platform: ${{ inputs.host-platform }}
-      #     build-mode: ${{ inputs.build-mode }}
-      #     upload-enabled: ${{ inputs.upload-enabled }}
-      #     python-version: ${{ inputs.python-version }}
+      - name: Set up test environment
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          # make outputs from the previous job as env vars
+          echo "CUDA_CORE_ARTIFACT_NAME=${{ needs.build.outputs.CUDA_CORE_ARTIFACT_NAME }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACTS_DIR=${{ needs.build.outputs.CUDA_CORE_ARTIFACTS_DIR }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}" >> $GITHUB_ENV
 
-      - name: Call test action
-        uses: ./.github/actions/test
+      - name: Download bindings build artifacts
+        uses: actions/download-artifact@v4
         with:
-          test-options: ${{ inputs.build-type }}
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Display structure of downloaded bindings artifacts
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pwd
+          ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
+
+      - name: Download core build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: Display structure of downloaded core build artifacts
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pwd
+          ls -lahR $CUDA_CORE_ARTIFACTS_DIR
+
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      # The cache action needs this
+      - name: Install zstd
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          apt update
+          apt install zstd
+
+      - name: Set up mini CTK
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
-        env:
-          CUDA_CORE_ARTIFACT_NAME: ${{ needs.build.outputs.CUDA_CORE_ARTIFACT_NAME }}
-          CUDA_CORE_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_CORE_ARTIFACTS_DIR }}
-          CUDA_BINDINGS_ARTIFACT_NAME: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
-          CUDA_BINDINGS_ARTIFACTS_DIR: ${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
-          PYTHON_VERSION: ${{ inputs.python-version }}
-          CTK_BUILD_VER: ${{ inputs.cuda-version }}
-          HOST_PLATFORM: ${{ inputs.host-platform }}
+          fail-on-ctk-cache-miss: true
+
+      - name: Run test / analysis
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          ls $CUDA_PATH
+
+          REPO_DIR=$(pwd)
+
+          cd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
+          pip install *.whl
+
+          cd "${CUDA_CORE_ARTIFACTS_DIR}"
+          pip install *.whl
+
+          cd "${REPO_DIR}/cuda_bindings"
+          pip install -r requirements.txt
+          pytest -rxXs tests/
+          # TODO: enable cython tests
+          #pytest tests/cython
+
+          cd "${REPO_DIR}/cuda_core"
+          pytest -rxXs tests/
