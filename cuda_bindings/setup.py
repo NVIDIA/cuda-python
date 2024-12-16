@@ -250,13 +250,11 @@ class ParallelBuildExtensions(build_ext):
         build_ext.finalize_options(self)
 
 cmdclass = {"build_ext": ParallelBuildExtensions}
-cmdclass = versioneer.get_cmdclass(cmdclass)
 
 # ----------------------------------------------------------------------
 # Setup
 
 setup(
-    version=versioneer.get_version(),
     ext_modules=do_cythonize(extensions),
     cmdclass=cmdclass,
     zip_safe=False,
