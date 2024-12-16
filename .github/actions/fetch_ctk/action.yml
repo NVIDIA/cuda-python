@@ -100,6 +100,7 @@ runs:
         populate_cuda_path cuda_cudart
         populate_cuda_path cuda_nvrtc
         populate_cuda_path cuda_profiler_api
+        populate_cuda_path cuda_cccl
         if [[ "$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})" -ge 12 ]]; then
           populate_cuda_path libnvjitlink
         fi
