@@ -29,10 +29,7 @@ jobs:
                  (matrix.host-platform == 'win-x64' && 'windows-2019') }}
                #  (matrix.host-platform == 'win-x64' && 'windows-amd64-cpu8') }}
     outputs:
-      CUDA_CORE_ARTIFACT_NAME: ${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACT_NAME }}
-      CUDA_CORE_ARTIFACTS_DIR: ${{ steps.pass_env.outputs.CUDA_CORE_ARTIFACTS_DIR }}
-      CUDA_BINDINGS_ARTIFACT_NAME: ${{ steps.pass_env.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}
-      CUDA_BINDINGS_ARTIFACTS_DIR: ${{ steps.pass_env.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}
+      BUILD_CTK_VER: ${{ steps.pass_env.outputs.CUDA_VERSION }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
@@ -118,7 +115,6 @@ jobs:
         with:
           host-platform: ${{ matrix.host-platform }}
           cuda-version: ${{ matrix.cuda-version }}
-          fail-on-ctk-cache-miss: false
 
       - name: Build cuda.bindings wheel
         uses: pypa/cibuildwheel@v2.22.0
@@ -165,10 +161,7 @@ jobs:
       - name: Pass environment variables to the next runner
         id: pass_env
         run: |
-          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}" >> $GITHUB_OUTPUT
-          echo "CUDA_CORE_ARTIFACTS_DIR=${CUDA_CORE_ARTIFACTS_DIR}" >> $GITHUB_OUTPUT
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_NAME}" >> $GITHUB_OUTPUT
-          echo "CUDA_BINDINGS_ARTIFACTS_DIR=${CUDA_BINDINGS_ARTIFACTS_DIR}" >> $GITHUB_OUTPUT
+          echo "CUDA_VERSION=${{ matrix.cuda-version }}" >> $GITHUB_OUTPUT
 
   test:
     strategy:
@@ -217,14 +210,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up test environment
+      - name: Set environment variables
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
+          PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
+          if [[ "${{ matrix.host-platform }}" == linux* ]]; then
+            REPO_DIR=$(pwd)
+          elif [[ "${{ matrix.host-platform }}" == win* ]]; then
+            PWD=$(pwd)
+            REPO_DIR=$(cygpath -w $PWD)
+          fi
+
           # make outputs from the previous job as env vars
-          echo "CUDA_CORE_ARTIFACT_NAME=${{ needs.build.outputs.CUDA_CORE_ARTIFACT_NAME }}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACTS_DIR=${{ needs.build.outputs.CUDA_CORE_ARTIFACTS_DIR }}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACT_NAME }}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACTS_DIR=${{ needs.build.outputs.CUDA_BINDINGS_ARTIFACTS_DIR }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ needs.build.outputs.BUILD_CTK_VER }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
       - name: Download bindings build artifacts
         uses: actions/download-artifact@v4
@@ -268,7 +269,6 @@ jobs:
         with:
           host-platform: ${{ matrix.host-platform }}
           cuda-version: ${{ matrix.cuda-version }}
-          fail-on-ctk-cache-miss: true
 
       - name: Run test / analysis
         shell: bash --noprofile --norc -xeuo pipefail {0}

@@ -9,9 +9,6 @@ inputs:
   cuda-version:
     required: true
     type: string
-  fail-on-ctk-cache-miss:
-    required: true
-    type: boolean
 
 runs:
   using: composite
@@ -29,7 +26,7 @@ runs:
       with:
         key: ${{ env.CTK_CACHE_KEY }}
         path: ./${{ env.CTK_CACHE_FILENAME }}
-        fail-on-cache-miss: ${{ inputs.fail-on-ctk-cache-miss }}
+        fail-on-cache-miss: false
 
     - name: Get CUDA components
       if: ${{ steps.ctk-get-cache.outputs.cache-hit != 'true' }}
