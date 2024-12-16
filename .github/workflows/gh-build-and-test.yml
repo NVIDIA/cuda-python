@@ -192,7 +192,8 @@ jobs:
             cuda-version: "12.6.2"
             runner: H100
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }})
-    if: ${{ (github.repository_owner == 'nvidia') }}
+    # The build stage could fail but we want the CI to keep moving.
+    if: ${{ (github.repository_owner == 'nvidia') && always() }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
@@ -229,31 +230,40 @@ jobs:
             REPO_DIR=$(cygpath -w $PWD)
           fi
 
+          BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ needs.build.outputs.BUILD_CTK_VER }})"
+          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.cuda-version }})"
+          if [[ $BUILD_CUDA_MAJOR -gt $TEST_CUDA_MAJOR ]]; then
+            SKIP_CUDA_BINDINGS_TEST=1
+          else
+            SKIP_CUDA_BINDINGS_TEST=0
+          fi
+
           # make outputs from the previous job as env vars
           echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ needs.build.outputs.BUILD_CTK_VER }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+          echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
 
-      - name: Download bindings build artifacts
+      - name: Download cuda.bindings build artifacts
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
-      - name: Display structure of downloaded bindings artifacts
+      - name: Display structure of downloaded cuda.bindings artifacts
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
-      - name: Download core build artifacts
+      - name: Download cuda.core build artifacts
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
-      - name: Display structure of downloaded core build artifacts
+      - name: Display structure of downloaded cuda.core build artifacts
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pwd
@@ -271,24 +281,43 @@ jobs:
           host-platform: ${{ matrix.host-platform }}
           cuda-version: ${{ matrix.cuda-version }}
 
-      - name: Run test / analysis
+      - name: Run cuda.bindings tests
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           ls $CUDA_PATH
 
-          REPO_DIR=$(pwd)
-
-          cd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
+          pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
           pip install *.whl
+          popd
 
-          cd "${CUDA_CORE_ARTIFACTS_DIR}"
-          pip install *.whl
-
-          cd "${REPO_DIR}/cuda_bindings"
+          pushd ./cuda_bindings
           pip install -r requirements.txt
           pytest -rxXs tests/
           # TODO: enable cython tests
           #pytest tests/cython
+          popd
 
-          cd "${REPO_DIR}/cuda_core"
+      - name: Run cuda.core tests
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          if [[ $SKIP_CUDA_BINDINGS_TEST == 1 ]]; then
+            # TODO: remove this hack once cuda-python has a cp313 build
+            if [[ ${{ matrix.python-version }} == "3.13" ]]; then
+              echo "Python 3.13 + cuda-python ${{ matrix.cuda-version }} is not supported, skipping the test..."
+              exit 0
+            else
+              pip install "cuda-python==$(cut -d '.' -f 1,2 <<< ${{ matrix.cuda-version }}).*"
+            fi
+          fi
+
+          pushd "${CUDA_CORE_ARTIFACTS_DIR}"
+          pip install *.whl
+          popd
+
+          pushd ./cuda_core
+          # TODO: add requirements.txt for test deps?
+          # TODO: add cupy as an optional test dep?
+          pip install pytest
           pytest -rxXs tests/
+          popd
