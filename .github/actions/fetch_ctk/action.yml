@@ -22,11 +22,21 @@ runs:
     - name: Install dependencies
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        if (command -v curl 2>&1 >/dev/null) && (command -v zstd 2>&1 >/dev/null); then
+        dependencies=(zstd curl xz-utils)
+        dependent_exes=(zstd curl xz)
+
+        not_found=0
+        for dep in ${dependent_exes[@]}; do
+          if ! (command -v curl 2>&1 >/dev/null); then
+            not_found=1
+            break
+          fi
+        done
+        if [[ $not_found == 0 ]]; then
           echo "All dependencies are found. Do nothing."
           exit 0
         fi
-        if ! command -v sudo 2>&1 >/dev/null; then
+        if ! (command -v sudo 2>&1 >/dev/null); then
           if [[ $EUID == 0 ]]; then
             alias SUDO=""
           else
@@ -38,7 +48,7 @@ runs:
         fi
         shopt -s expand_aliases
         SUDO apt update
-        SUDO apt install -y zstd curl xz-utils
+        SUDO apt install -y ${dependencies[@]}
 
     - name: Download CTK cache
       id: ctk-get-cache
