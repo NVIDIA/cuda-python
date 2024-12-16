@@ -19,6 +19,27 @@ runs:
         echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}" >> $GITHUB_ENV
         echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}.tar.gz" >> $GITHUB_ENV
 
+    - name: Install dependencies
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        if (command -v curl 2>&1 >/dev/null) && (command -v zstd 2>&1 >/dev/null); then
+          echo "All dependencies are found. Do nothing."
+          exit 0
+        fi
+        if ! command -v sudo 2>&1 >/dev/null; then
+          if [[ $EUID == 0 ]]; then
+            alias SUDO=""
+          else
+            echo "The following oprations require root access."
+            exit 1
+          fi
+        else
+          alias SUDO="sudo"
+        fi
+        shopt -s expand_aliases
+        SUDO apt update
+        SUDO apt install -y zstd curl xz-utils
+
     - name: Download CTK cache
       id: ctk-get-cache
       uses: actions/cache/restore@v4
@@ -32,14 +53,14 @@ runs:
       if: ${{ steps.ctk-get-cache.outputs.cache-hit != 'true' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        CUDA_PATH="$(pwd)/cuda_toolkit"
+        CUDA_PATH="./cuda_toolkit"
         mkdir $CUDA_PATH
 
         # The binary archives (redist) are guaranteed to be updated as part of the release posting.
         CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
         CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-          if [[ "${{ inputs.host-platform }}" == "linux-x64" ]]; then
+          if [[ "${{ inputs.host-platform }}" == "linux-64" ]]; then
             CTK_SUBDIR="linux-x86_64"
           elif [[ "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
             CTK_SUBDIR="linux-sbsa"
@@ -47,7 +68,7 @@ runs:
           function extract() {
             tar -xvf $1 -C $CUDA_PATH --strip-components=1
           }
-        elif [[ "${{ inputs.host-platform }}" == "win-x64" ]]; then
+        elif [[ "${{ inputs.host-platform }}" == "win-64" ]]; then
           CTK_SUBDIR="windows-x86_64"
           function extract() {
             _TEMP_DIR_=$(mktemp -d)
@@ -79,15 +100,14 @@ runs:
         populate_cuda_path cuda_cudart
         populate_cuda_path cuda_nvrtc
         populate_cuda_path cuda_profiler_api
-        populate_cuda_path libnvjitlink
+        if [[ "$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})" -ge 12 ]]; then
+          populate_cuda_path libnvjitlink
+        fi
         ls -l $CUDA_PATH
 
         # Prepare the cache
         # Note: try to escape | and > ...
         tar -czvf ${CTK_CACHE_FILENAME} ${CUDA_PATH}
-
-        # Note: the headers will be copied into the cibuildwheel manylinux container,
-        # so setting the CUDA_PATH env var here is meaningless.
 
     - name: Upload CTK cache
       if: ${{ always() &&
@@ -102,13 +122,17 @@ runs:
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         ls -l
-        CUDA_PATH="$(pwd)/cuda_toolkit"
+        CUDA_PATH="./cuda_toolkit"
         tar -xzvf $CTK_CACHE_FILENAME
         ls -l $CUDA_PATH
         if [ ! -d "$CUDA_PATH/include" ]; then
           exit 1
         fi
 
+    - name: Set output environment variables
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        CUDA_PATH=$(realpath "./cuda_toolkit")
         echo "CUDA_PATH=${CUDA_PATH}" >> $GITHUB_ENV
         echo "${CUDA_PATH}/bin" >> $GITHUB_PATH
         echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}:${CUDA_PATH}/lib" >> $GITHUB_ENV

@@ -5,11 +5,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: align host-platform names with conda convention
         host-platform:
-          - linux-x64
+          - linux-64
           - linux-aarch64
-          - win-x64
+          - win-64
         python-version:
           - "3.13"
           - "3.12"
@@ -19,15 +18,15 @@ jobs:
         cuda-version:
           # Note: this is for build-time only.
           - "12.6.2"
-    name: Build (${{ matrix.host-platform }}, Python "${{ matrix.python-version }}")
+    name: Build (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }})
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
-    runs-on: ${{ (matrix.host-platform == 'linux-x64' && 'linux-amd64-cpu8') ||
+    runs-on: ${{ (matrix.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (matrix.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
-                 (matrix.host-platform == 'win-x64' && 'windows-2019') }}
-               #  (matrix.host-platform == 'win-x64' && 'windows-amd64-cpu8') }}
+                 (matrix.host-platform == 'win-64' && 'windows-2019') }}
+               #  (matrix.host-platform == 'win-64' && 'windows-amd64-cpu8') }}
     outputs:
       BUILD_CTK_VER: ${{ steps.pass_env.outputs.CUDA_VERSION }}
     steps:
@@ -166,13 +165,13 @@ jobs:
   test:
     strategy:
       fail-fast: false
+      # TODO: add driver version here
       matrix:
-        # TODO: align host-platform names with conda convention
         host-platform:
-          - linux-x64
+          - linux-64
           - linux-aarch64
           # TODO: enable testing once win-64 GPU runners are up
-          # - win-x64
+          # - win-64
         python-version:
           - "3.13"
           - "3.12"
@@ -183,14 +182,23 @@ jobs:
           # Note: this is for test-time only.
           - "12.6.2"
           - "12.0.1"
+          # FIXME: cannot run cuda.bindings 12.x with CTK 11.x
           - "11.8.0"
-    name: Test (${{ matrix.host-platform }}, CUDA ${{ matrix.cuda-version }}, Python "${{ matrix.python-version }}")
+        runner:
+          - default
+        include:
+          - host-platform: linux-64
+            python-version: "3.12"
+            cuda-version: "12.6.2"
+            runner: H100
+    name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }})
     if: ${{ (github.repository_owner == 'nvidia') }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
-    runs-on: ${{ (matrix.host-platform == 'linux-x64' && 'linux-amd64-gpu-v100-latest-1') ||
-                 (matrix.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') }}
+    runs-on: ${{ (matrix.runner == 'default' && matrix.host-platform == 'linux-64' && 'linux-amd64-gpu-v100-latest-1') ||
+                 (matrix.runner == 'default' && matrix.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') ||
+                 (matrix.runner == 'H100' && 'linux-amd64-gpu-h100-latest-1-testing') }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
@@ -255,13 +263,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      # The cache action needs this
-      - name: Install zstd
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          apt update
-          apt install zstd
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
