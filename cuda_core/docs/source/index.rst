@@ -10,6 +10,7 @@ and other functionalities.
 
    release.md
    install.md
+   interoperability.rst
    api.rst
 
 

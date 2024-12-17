@@ -23,11 +23,11 @@ class Device:
     and use the same GPU device.
 
     While acting as the entry point, many other CUDA resources can be
-    allocated such as streams and buffers. Any :obj:`Context` dependent
+    allocated such as streams and buffers. Any :obj:`~_context.Context` dependent
     resource created through this device, will continue to refer to
     this device's context.
 
-    Newly returend :obj:`Device` object are is a thread-local singleton
+    Newly returned :obj:`~_device.Device` objects are thread-local singletons
     for a specified device.
 
     Note
@@ -37,7 +37,7 @@ class Device:
     Parameters
     ----------
     device_id : int, optional
-        Device ordinal to return a :obj:`Device` object for.
+        Device ordinal to return a :obj:`~_device.Device` object for.
         Default value of `None` return the currently used device.
 
     """
@@ -144,7 +144,7 @@ class Device:
     @property
     @precondition(_check_context_initialized)
     def context(self) -> Context:
-        """Return the current :obj:`Context` associated with this device.
+        """Return the current :obj:`~_context.Context` associated with this device.
 
         Note
         ----
@@ -157,7 +157,7 @@ class Device:
 
     @property
     def memory_resource(self) -> MemoryResource:
-        """Return :obj:`MemoryResource` associated with this device."""
+        """Return :obj:`~_memory.MemoryResource` associated with this device."""
         return self._mr
 
     @memory_resource.setter
@@ -168,7 +168,7 @@ class Device:
 
     @property
     def default_stream(self) -> Stream:
-        """Return default CUDA :obj:`Stream` associated with this device.
+        """Return default CUDA :obj:`~_stream.Stream` associated with this device.
 
         The type of default stream returned depends on if the environment
         variable CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set.
@@ -191,18 +191,18 @@ class Device:
 
         Initializes CUDA and sets the calling thread to a valid CUDA
         context. By default the primary context is used, but optional `ctx`
-        parameter can be used to explicitly supply a :obj:`Context` object.
+        parameter can be used to explicitly supply a :obj:`~_context.Context` object.
 
         Providing a `ctx` causes the previous set context to be popped and returned.
 
         Parameters
         ----------
-        ctx : :obj:`Context`, optional
+        ctx : :obj:`~_context.Context`, optional
             Optional context to push onto this device's current thread stack.
 
         Returns
         -------
-        Union[:obj:`Context`, None], optional
+        Union[:obj:`~_context.Context`, None], optional
             Popped context.
 
         Examples
@@ -247,7 +247,7 @@ class Device:
             self._has_inited = True
 
     def create_context(self, options: ContextOptions = None) -> Context:
-        """Create a new :obj:`Context` object.
+        """Create a new :obj:`~_context.Context` object.
 
         Note
         ----
@@ -255,12 +255,12 @@ class Device:
 
         Parameters
         ----------
-        options : :obj:`ContextOptions`, optional
+        options : :obj:`~_context.ContextOptions`, optional
             Customizable dataclass for context creation options.
 
         Returns
         -------
-        :obj:`Context`
+        :obj:`~_context.Context`
             Newly created context object.
 
         """
@@ -286,12 +286,12 @@ class Device:
         ----------
         obj : Any, optional
             Any object supporting the __cuda_stream__ protocol.
-        options : :obj:`StreamOptions`, optional
+        options : :obj:`~_stream.StreamOptions`, optional
             Customizable dataclass for stream creation options.
 
         Returns
         -------
-        :obj:`Stream`
+        :obj:`~_stream.Stream`
             Newly created stream object.
 
         """
@@ -314,13 +314,13 @@ class Device:
         ----------
         size : int
             Number of bytes to allocate.
-        stream : :obj:`Stream`, optional
+        stream : :obj:`~_stream.Stream`, optional
             The stream establishing the stream ordering semantic.
             Default value of `None` uses default stream.
 
         Returns
         -------
-        :obj:`Buffer`
+        :obj:`~_memory.Buffer`
             Newly created buffer object.
 
         """

@@ -12,6 +12,16 @@ dependencies are as follows:
 
 [^1]: Including `cuda-python`.
 
+## Installing from PyPI
+
+`cuda.core` works with `cuda.bindings` (part of `cuda-python`) 11 or 12. For example with CUDA 12:
+```console
+$ pip install cuda-core[cu12]
+```
+and likewise use `[cu11]` for CUDA 11.
+
+Note that using `cuda.core` with NVRTC or nvJitLink installed from PyPI via `pip install` is currently
+not supported. This will be fixed in a future release.
 
 ## Installing from Source
 

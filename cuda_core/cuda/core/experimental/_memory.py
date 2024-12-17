@@ -37,7 +37,7 @@ class Buffer:
         Allocated buffer handle object
     size : Any
         Memory size of the buffer
-    mr : :obj:`MemoryResource`, optional
+    mr : :obj:`~_memory.MemoryResource`, optional
         Memory resource associated with the buffer
 
     """
@@ -126,7 +126,7 @@ class Buffer:
 
         Parameters
         ----------
-        dst : :obj:`Buffer`
+        dst : :obj:`~_memory.Buffer`
             Source buffer to copy data from
         stream : Any
             Keyword argument specifying the stream for the
@@ -149,7 +149,7 @@ class Buffer:
 
         Parameters
         ----------
-        src : :obj:`Buffer`
+        src : :obj:`~_memory.Buffer`
             Source buffer to copy data from
         stream : Any
             Keyword argument specifying the stream for the
