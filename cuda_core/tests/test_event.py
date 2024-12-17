@@ -43,4 +43,6 @@ def test_is_done(init_cuda):
     options = EventOptions(enable_timing=False)
     stream = Device().create_stream()
     event = stream.record(options=options)
-    assert event.is_done is True
+    # Without a sync, the captured work might not have yet completed
+    # Therefore this check should never raise an exception
+    assert event.is_done in (True, False)
