@@ -182,7 +182,6 @@ jobs:
           # Note: this is for test-time only.
           - "12.6.2"
           - "12.0.1"
-          # FIXME: cannot run cuda.bindings 12.x with CTK 11.x
           - "11.8.0"
         runner:
           - default
@@ -232,7 +231,7 @@ jobs:
 
           BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ needs.build.outputs.BUILD_CTK_VER }})"
           TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.cuda-version }})"
-          if [[ $BUILD_CUDA_MAJOR -gt $TEST_CUDA_MAJOR ]]; then
+          if [[ $BUILD_CUDA_MAJOR != $TEST_CUDA_MAJOR ]]; then
             SKIP_CUDA_BINDINGS_TEST=1
           else
             SKIP_CUDA_BINDINGS_TEST=0
@@ -306,18 +305,20 @@ jobs:
             if [[ ${{ matrix.python-version }} == "3.13" ]]; then
               echo "Python 3.13 + cuda-python ${{ matrix.cuda-version }} is not supported, skipping the test..."
               exit 0
-            else
-              pip install "cuda-python==$(cut -d '.' -f 1,2 <<< ${{ matrix.cuda-version }}).*"
             fi
           fi
 
+          # If build/test majors match: cuda.bindings is installed in the previous step.
+          # If mismatch: cuda.bindings is installed from PyPI.
+          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.cuda-version }})"
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
-          pip install *.whl
+          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
           popd
 
           pushd ./cuda_core
           # TODO: add requirements.txt for test deps?
-          # TODO: add cupy as an optional test dep?
           pip install pytest
+          # TODO: add CuPy to test deps (which would require cuRAND)
+          # pip install "cupy-cuda${TEST_CUDA_MAJOR}x"
           pytest -rxXs tests/
           popd
