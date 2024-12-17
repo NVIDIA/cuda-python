@@ -180,21 +180,21 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         capsule = obj.__dlpack__(
             stream=stream_ptr,
             max_version=(DLPACK_MAJOR_VERSION, DLPACK_MINOR_VERSION))
-        versioned = True
     except TypeError:
         capsule = obj.__dlpack__(
             stream=stream_ptr)
-        versioned = False
 
     cdef void* data = NULL
-    if versioned and cpython.PyCapsule_IsValid(
+    if cpython.PyCapsule_IsValid(
             capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME):
         data = cpython.PyCapsule_GetPointer(
             capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME)
-    elif not versioned and cpython.PyCapsule_IsValid(
+        versioned = True
+    elif cpython.PyCapsule_IsValid(
             capsule, DLPACK_TENSOR_UNUSED_NAME):
         data = cpython.PyCapsule_GetPointer(
             capsule, DLPACK_TENSOR_UNUSED_NAME)
+        versioned = False
     else:
         assert False
 
