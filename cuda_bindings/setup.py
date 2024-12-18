@@ -16,7 +16,6 @@ import sys
 import sysconfig
 import tempfile
 
-import versioneer
 from Cython import Tempita
 from Cython.Build import cythonize
 from pyclibrary import CParser
@@ -300,13 +299,11 @@ class ParallelBuildExtensions(build_ext):
 
 
 cmdclass = {"build_ext": ParallelBuildExtensions}
-cmdclass = versioneer.get_cmdclass(cmdclass)
 
 # ----------------------------------------------------------------------
 # Setup
 
 setup(
-    version=versioneer.get_version(),
     ext_modules=do_cythonize(extensions),
     cmdclass=cmdclass,
     zip_safe=False,
