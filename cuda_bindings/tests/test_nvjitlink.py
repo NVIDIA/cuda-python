@@ -52,6 +52,19 @@ minimal_ptx_kernel_bytes = [
 ]
 
 
+def check_nvjitlink_usable():
+    from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+
+    if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") == 0:
+        return False
+    return True
+
+
+pytestmark = pytest.mark.skipif(
+    not check_nvjitlink_usable(), reason="nvJitLink not usable, maybe not installed or too old (<12.3)"
+)
+
+
 # create a valid LTOIR input for testing
 @pytest.fixture
 def get_dummy_ltoir():
