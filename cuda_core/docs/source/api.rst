@@ -31,7 +31,35 @@ CUDA compilation toolchain
    :toctree: generated/
 
    Program
+   Linker
 
    :template: dataclass.rst
 
+   LinkerOptions
    ProgramOptions
+
+
+CUDA system information
+-----------------------
+
+.. autodata:: cuda.core.experimental.system.driver_version
+   :no-value:
+.. autodata:: cuda.core.experimental.system.num_devices
+   :no-value:
+.. autodata:: cuda.core.experimental.system.devices
+   :no-value:
+
+
+.. module:: cuda.core.experimental.utils
+
+Utility functions
+-----------------
+
+.. autosummary::
+   :toctree: generated/
+
+   args_viewable_as_strided_memory
+
+   :template: dataclass.rst
+
+   StridedMemoryView

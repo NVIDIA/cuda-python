@@ -34,6 +34,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
     "myst_nb",
     "enum_tools.autoenum",
     "sphinx_copybutton",
@@ -82,3 +83,39 @@ html_static_path = ["_static"]
 
 # skip cmdline prompts
 copybutton_exclude = ".linenos, .gp"
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+}
+
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+
+
+section_titles = ["Returns"]
+def autodoc_process_docstring(app, what, name, obj, options, lines):
+    if name.startswith("cuda.core.experimental.system"):
+        # patch the docstring (in lines) *in-place*. Should docstrings include section titles other than "Returns", 
+        # this will need to be modified to handle them.
+        attr = name.split(".")[-1]
+        from cuda.core.experimental._system import System
+
+        lines_new = getattr(System, attr).__doc__.split("\n")
+        formatted_lines = []
+        for line in lines_new:
+            title = line.strip()
+            if title in section_titles:
+                formatted_lines.append(line.replace(title, f".. rubric:: {title}"))
+            elif line.strip() == "-" * len(title):
+                formatted_lines.append(" " * len(title))
+            else:
+                formatted_lines.append(line)
+        n_pops = len(lines)
+        lines.extend(formatted_lines)
+        for _ in range(n_pops):
+            lines.pop(0)
+
+
+def setup(app):
+    app.connect("autodoc-process-docstring", autodoc_process_docstring)

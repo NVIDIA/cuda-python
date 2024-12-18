@@ -4,6 +4,7 @@
 
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
+import weakref
 
 from cuda import nvrtc
 from cuda.core.experimental._device import Device
@@ -353,7 +354,7 @@ class ProgramOptions:
 
 class Program:
     """Represent a compilation machinery to process programs into
-    :obj:`~cuda.core.experimental._module.ObjectCode`.
+    :obj:`~_module.ObjectCode`.
 
     This object provides a unified interface to multiple underlying
     compiler libraries. Compilation support is enabled for a wide
@@ -370,12 +371,25 @@ class Program:
         See :obj:`ProgramOptions` for more information.
     """
 
-    __slots__ = ("_handle", "_backend", "_options")
+    class _MembersNeededForFinalize:
+        __slots__ = ("handle",)
+
+        def __init__(self, program_obj, handle):
+            self.handle = handle
+            weakref.finalize(program_obj, self.close)
+
+        def close(self):
+            if self.handle is not None:
+                handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
+                self.handle = None
+
+    __slots__ = ("__weakref__", "_mnff", "_backend", "_options")
     _supported_code_type = ("c++",)
     _supported_target_type = ("ptx", "cubin", "ltoir")
 
     def __init__(self, code, code_type, options: ProgramOptions = None):
-        self._handle = None
+        self._mnff = Program._MembersNeededForFinalize(self, None)
+
         if code_type not in self._supported_code_type:
             raise NotImplementedError
 
@@ -383,7 +397,8 @@ class Program:
             if not isinstance(code, str):
                 raise TypeError
             # TODO: support pre-loaded headers & include names
-            self._handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
+            # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
+            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
             self._backend = "nvrtc"
         else:
             raise NotImplementedError
@@ -393,15 +408,9 @@ class Program:
         else:
             self._options = options._as_bytes()
 
-    def __del__(self):
-        """Return close(self)."""
-        self.close()
-
     def close(self):
         """Destroy this program."""
-        if self._handle is not None:
-            handle_return(nvrtc.nvrtcDestroyProgram(self._handle))
-            self._handle = None
+        self._mnff.close()
 
     def compile(self, target_type, name_expressions=(), logs=None):
         """Compile the program with a specific compilation type.
@@ -421,7 +430,7 @@ class Program:
 
         Returns
         -------
-        :obj:`~cuda.core.experimental._module.ObjectCode`
+        :obj:`~_module.ObjectCode`
             Newly created code object.
 
         """
@@ -438,22 +447,22 @@ class Program:
 
             size_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}Size")
             comp_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}")
-            size = handle_return(size_func(self._handle), handle=self._handle)
+            size = handle_return(size_func(self._mnff.handle), handle=self._mnff.handle)
             data = b" " * size
-            handle_return(comp_func(self._handle, data), handle=self._handle)
+            handle_return(comp_func(self._mnff.handle, data), handle=self._mnff.handle)
 
             symbol_mapping = {}
             if name_expressions:
                 for n in name_expressions:
                     symbol_mapping[n] = handle_return(
-                        nvrtc.nvrtcGetLoweredName(self._handle, n.encode()), handle=self._handle
+                        nvrtc.nvrtcGetLoweredName(self._mnff.handle, n.encode()), handle=self._mnff.handle
                     )
 
             if logs is not None:
-                logsize = handle_return(nvrtc.nvrtcGetProgramLogSize(self._handle), handle=self._handle)
+                logsize = handle_return(nvrtc.nvrtcGetProgramLogSize(self._mnff.handle), handle=self._mnff.handle)
                 if logsize > 1:
                     log = b" " * logsize
-                    handle_return(nvrtc.nvrtcGetProgramLog(self._handle, log), handle=self._handle)
+                    handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
                     logs.write(log.decode())
 
             # TODO: handle jit_options for ptx?
@@ -468,4 +477,4 @@ class Program:
     @property
     def handle(self):
         """Return the program handle object."""
-        return self._handle
+        return self._mnff.handle

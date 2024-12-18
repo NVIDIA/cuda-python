@@ -13,73 +13,91 @@ inputs:
   host-platform:
     required: true
     type: string
-  use-container:
-    required: true
-    type: boolean
-  docker-image:
-    type: string
-    required: true
   upload-enabled:
     required: true
     type: boolean
-  python-version:
-    required: true
-    type: string
 
 runs:
   using: composite
   steps:
+    - name: Build cuda.core wheel
+      uses: pypa/cibuildwheel@v2.22.0
+      env:
+        CIBW_BUILD: ${{ env.CIBW_BUILD }}
+        CIBW_ARCHS_LINUX: "native"
+        CIBW_BUILD_VERBOSITY: 1
+        # # ensure Python.h & co can be found
+        # CIBW_BEFORE_BUILD_WINDOWS: >
+        #   python -c "import sysconfig; print(sysconfig.get_path('include'))" >> $env:INCLUDE
+      with:
+        package-dir: ./cuda_core/
+        output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
-    - if: ${{ inputs.use-container }}
-      name: Build (in container)
+    - name: List the cuda.core artifacts directory
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
+        if [[ "${{ inputs.host-platform }}" == win* ]]; then
+          export CHOWN=chown
+        else
+          export CHOWN="sudo chown"
+        fi
+        $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+        ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
-        docker run \
-          -e AWS_REGION \
-          -e AWS_SESSION_TOKEN \
-          -e AWS_ACCESS_KEY_ID \
-          -e AWS_SECRET_ACCESS_KEY \
-          -e GITHUB_TOKEN \
-          -e BINDINGS_ARTIFACTS_DIR="$BINDINGS_ARTIFACTS_DIR" \
-          -e CORE_ARTIFACTS_DIR="$CORE_ARTIFACTS_DIR" \
-          -e UPLOAD_ENABLED="$UPLOAD_ENABLED" \
-          -e USE_CUDA="$USE_CUDA" \
-          -e REPO_DIR="$REPO_DIR" \
-          -e LEGATE_CORE_BUILD_MODE="$LEGATE_CORE_BUILD_MODE" \
-          -e PYTHON_VERSION="$PYTHON_VERSION" \
-          -v "${{ env.REPO_DIR }}:${{ env.REPO_DIR }}" \
-          -v "${{ env.BINDINGS_ARTIFACTS_DIR }}:${{ env.BINDINGS_ARTIFACTS_DIR }}" \
-          -v "${{ env.CORE_ARTIFACTS_DIR }}:${{ env.CORE_ARTIFACTS_DIR }}" \
-          --rm "${{ inputs.docker-image }}" \
-          /bin/bash -c "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint ${{ env.REPO_DIR }}/continuous_integration/scripts/build ${{ inputs.build-type}} ${{ inputs.target-device }}"
-
-    - if: ${{ !inputs.use-container }}
-      name: Build (without container)
+    - name: Check cuda.core wheel
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        "${{ env.REPO_DIR }}/continuous_integration/scripts/entrypoint" "${{ env.REPO_DIR }}/continuous_integration/scripts/build" "${{ inputs.build-type}}" "${{ inputs.target-device }}"
+        pip install twine
+        twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
-    - name: Display structure of the bindings artifacts folder (post build)
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        sudo chown -R $(whoami) ${{ env.BINDINGS_ARTIFACTS_DIR }}
-        ls -lahR ${{ env.BINDINGS_ARTIFACTS_DIR }}
-
-    - name: Upload bindings build artifacts
+    - name: Upload cuda.core build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.BINDINGS_ARTIFACT_NAME }}
-        path: ${{ env.BINDINGS_ARTIFACTS_DIR }}
+        name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+        path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+        if-no-files-found: error
+        overwrite: 'true'
 
-    - name: Display structure of the core artifacts folder (post build)
+    - name: Build cuda.bindings wheel
+      uses: pypa/cibuildwheel@v2.22.0
+      env:
+        CIBW_BUILD: ${{ env.CIBW_BUILD }}
+        CIBW_ARCHS_LINUX: "native"
+        CIBW_BUILD_VERBOSITY: 1
+        CIBW_ENVIRONMENT_LINUX: >
+          CUDA_PATH="$(realpath ./cuda_toolkit)"
+          PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+        CIBW_ENVIRONMENT_WINDOWS: >
+          CUDA_HOME="$(cygpath -w $(realpath ./cuda_toolkit))"
+        #  PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+        # # ensure Python.h & co can be found
+        # CIBW_BEFORE_BUILD_WINDOWS: >
+        #   python -c "import sysconfig; print(sysconfig.get_path('include'))" >> $env:INCLUDE
+      with:
+        package-dir: ./cuda_bindings/
+        output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+    - name: List the cuda.bindings artifacts directory
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        sudo chown -R $(whoami) ${{ env.CORE_ARTIFACTS_DIR }}
-        ls -lahR ${{ env.CORE_ARTIFACTS_DIR }}
+        if [[ "${{ inputs.host-platform }}" == win* ]]; then
+          export CHOWN=chown
+        else
+          export CHOWN="sudo chown"
+        fi
+        $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+        ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
-    - name: Upload core build artifacts
+    # TODO: enable this after NVIDIA/cuda-python#297 is resolved
+    # - name: Check cuda.bindings wheel
+    #   shell: bash --noprofile --norc -xeuo pipefail {0}
+    #   run: |
+    #     twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+
+    - name: Upload cuda.bindings build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.CORE_ARTIFACT_NAME }}
-        path: ${{ env.CORE_ARTIFACTS_DIR }}
+        name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+        path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+        if-no-files-found: error
+        overwrite: 'true'

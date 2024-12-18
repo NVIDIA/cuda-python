@@ -20,14 +20,67 @@ from cuda.core.experimental._utils import handle_return
 
 @cython.dataclasses.dataclass
 cdef class StridedMemoryView:
+    """A dataclass holding metadata of a strided dense array/tensor.
 
+    A :obj:`StridedMemoryView` instance can be created in two ways:
+
+      1. Using the :obj:`args_viewable_as_strided_memory` decorator (recommended)
+      2. Explicit construction, see below
+
+    This object supports both DLPack (up to v1.0) and CUDA Array Interface
+    (CAI) v3. When wrapping an arbitrary object it will try the DLPack protocol
+    first, then the CAI protocol. A :obj:`BufferError` is raised if neither is
+    supported. 
+    
+    Since either way would take a consumer stream, for DLPack it is passed to
+    ``obj.__dlpack__()`` as-is (except for :obj:`None`, see below); for CAI, a 
+    stream order will be established between the consumer stream and the
+    producer stream (from ``obj.__cuda_array_interface__()["stream"]``), as if  
+    ``cudaStreamWaitEvent`` is called by this method. 
+    
+    To opt-out of the stream ordering operation in either DLPack or CAI, 
+    please pass ``stream_ptr=-1``. Note that this deviates (on purpose) 
+    from the semantics of ``obj.__dlpack__(stream=None, ...)`` since ``cuda.core``
+    does not encourage using the (legacy) default/null stream, but is 
+    consistent with the CAI's semantics. For DLPack, ``stream=-1`` will be
+    internally passed to ``obj.__dlpack__()`` instead. 
+
+    Attributes
+    ----------
+    ptr : int
+        Pointer to the tensor buffer (as a Python `int`).
+    shape: tuple
+        Shape of the tensor.
+    strides: tuple
+        Strides of the tensor (in **counts**, not bytes).
+    dtype: numpy.dtype
+        Data type of the tensor.
+    device_id: int
+        The device ID for where the tensor is located. It is -1 for CPU tensors
+        (meaning those only accessible from the host).
+    is_device_accessible: bool
+        Whether the tensor data can be accessed on the GPU.
+    readonly: bool
+        Whether the tensor data can be modified in place.
+    exporting_obj: Any
+        A reference to the original tensor object that is being viewed.
+
+    Parameters
+    ----------
+    obj : Any
+        Any objects that supports either DLPack (up to v1.0) or CUDA Array
+        Interface (v3).
+    stream_ptr: int
+        The pointer address (as Python `int`) to the **consumer** stream.
+        Stream ordering will be properly established unless ``-1`` is passed.
+    """
     # TODO: switch to use Cython's cdef typing?
     ptr: int = None
     shape: tuple = None
     strides: tuple = None  # in counts, not bytes
     dtype: numpy.dtype = None
     device_id: int = None  # -1 for CPU
-    device_accessible: bool = None
+    is_device_accessible: bool = None
     readonly: bool = None
     exporting_obj: Any = None
 
@@ -48,7 +101,7 @@ cdef class StridedMemoryView:
               + f"                  strides={self.strides},\n"
               + f"                  dtype={get_simple_repr(self.dtype)},\n"
               + f"                  device_id={self.device_id},\n"
-              + f"                  device_accessible={self.device_accessible},\n"
+              + f"                  is_device_accessible={self.is_device_accessible},\n"
               + f"                  readonly={self.readonly},\n"
               + f"                  exporting_obj={get_simple_repr(self.exporting_obj)})")
 
@@ -99,28 +152,25 @@ cdef class _StridedMemoryViewProxy:
 
 cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef int dldevice, device_id, i
-    cdef bint device_accessible, versioned, is_readonly
+    cdef bint is_device_accessible, versioned, is_readonly
+    is_device_accessible = False
     dldevice, device_id = obj.__dlpack_device__()
     if dldevice == _kDLCPU:
-        device_accessible = False
         assert device_id == 0
+        device_id = -1
         if stream_ptr is None:
             raise BufferError("stream=None is ambiguous with view()")
         elif stream_ptr == -1:
             stream_ptr = None
     elif dldevice == _kDLCUDA:
-        device_accessible = True
+        assert device_id >= 0
+        is_device_accessible = True
         # no need to check other stream values, it's a pass-through
         if stream_ptr is None:
             raise BufferError("stream=None is ambiguous with view()")
-    elif dldevice == _kDLCUDAHost:
-        device_accessible = True
-        assert device_id == 0
-        # just do a pass-through without any checks, as pinned memory can be
-        # accessed on both host and device
-    elif dldevice == _kDLCUDAManaged:
-        device_accessible = True
-        # just do a pass-through without any checks, as managed memory can be
+    elif dldevice in (_kDLCUDAHost, _kDLCUDAManaged):
+        is_device_accessible = True
+        # just do a pass-through without any checks, as pinned/managed memory can be
         # accessed on both host and device
     else:
         raise BufferError("device not supported")
@@ -130,21 +180,21 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         capsule = obj.__dlpack__(
             stream=stream_ptr,
             max_version=(DLPACK_MAJOR_VERSION, DLPACK_MINOR_VERSION))
-        versioned = True
     except TypeError:
         capsule = obj.__dlpack__(
             stream=stream_ptr)
-        versioned = False
 
     cdef void* data = NULL
-    if versioned and cpython.PyCapsule_IsValid(
+    if cpython.PyCapsule_IsValid(
             capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME):
         data = cpython.PyCapsule_GetPointer(
             capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME)
-    elif not versioned and cpython.PyCapsule_IsValid(
+        versioned = True
+    elif cpython.PyCapsule_IsValid(
             capsule, DLPACK_TENSOR_UNUSED_NAME):
         data = cpython.PyCapsule_GetPointer(
             capsule, DLPACK_TENSOR_UNUSED_NAME)
+        versioned = False
     else:
         assert False
 
@@ -171,7 +221,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         buf.strides = None
     buf.dtype = dtype_dlpack_to_numpy(&dl_tensor.dtype)
     buf.device_id = device_id
-    buf.device_accessible = device_accessible
+    buf.is_device_accessible = is_device_accessible
     buf.readonly = is_readonly
     buf.exporting_obj = obj
 
@@ -261,7 +311,7 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     if buf.strides is not None:
         # convert to counts
         buf.strides = tuple(s // buf.dtype.itemsize for s in buf.strides)
-    buf.device_accessible = True
+    buf.is_device_accessible = True
     buf.device_id = handle_return(
         cuda.cuPointerGetAttribute(
             cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
@@ -284,7 +334,34 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     return buf
 
 
-def viewable(tuple arg_indices):
+def args_viewable_as_strided_memory(tuple arg_indices):
+    """Decorator to create proxy objects to :obj:`StridedMemoryView` for the
+    specified positional arguments.
+
+    This allows array/tensor attributes to be accessed inside the function
+    implementation, while keeping the function body array-library-agnostic (if
+    desired).
+
+    Inside the decorated function, the specified arguments become instances
+    of an (undocumented) proxy type, regardless of its original source. A
+    :obj:`StridedMemoryView` instance can be obtained by passing the (consumer)
+    stream pointer (as a Python `int`) to the proxies's ``view()`` method. For
+    example:
+
+    .. code-block:: python
+
+        @args_viewable_as_strided_memory((1,))
+        def my_func(arg0, arg1, arg2, stream: Stream):
+            # arg1 can be any object supporting DLPack or CUDA Array Interface
+            view = arg1.view(stream.handle)
+            assert isinstance(view, StridedMemoryView)
+            ...
+
+    Parameters
+    ----------
+    arg_indices : tuple
+        The indices of the target positional arguments.
+    """
     def wrapped_func_with_indices(func):
         @functools.wraps(func)
         def wrapped_func(*args, **kwargs):

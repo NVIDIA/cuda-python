@@ -5,7 +5,7 @@
 import importlib.metadata
 
 from cuda import cuda
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils import handle_return, precondition
 
 _backend = {
     "old": {
@@ -48,10 +48,10 @@ class Kernel:
     """Represent a compiled kernel that had been loaded onto the device.
 
     Kernel instances can execution when passed directly into the
-    :func:`~cuda.core.experimental.launch` function.
+    :func:`~launch` function.
 
-    Directly creating a :obj:`Kernel` is not supported, and they
-    should instead be created through a :obj:`ObjectCode` object.
+    Directly creating a :obj:`~_module.Kernel` is not supported, and they
+    should instead be created through a :obj:`~_module.ObjectCode` object.
 
     """
 
@@ -106,30 +106,43 @@ class ObjectCode:
 
     """
 
-    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map")
+    __slots__ = ("_handle", "_backend_version", "_jit_options", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
     def __init__(self, module, code_type, jit_options=None, *, symbol_mapping=None):
         if code_type not in self._supported_code_type:
             raise ValueError
         _lazy_init()
+
+        # handle is assigned during _lazy_load
         self._handle = None
+        self._jit_options = jit_options
 
-        backend = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
-        self._loader = _backend[backend]
+        self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
+        self._loader = _backend[self._backend_version]
 
+        self._code_type = code_type
+        self._module = module
+        self._sym_map = {} if symbol_mapping is None else symbol_mapping
+
+    # TODO: do we want to unload in a finalizer? Probably not..
+
+    def _lazy_load_module(self, *args, **kwargs):
+        if self._handle is not None:
+            return
+        jit_options = self._jit_options
+        module = self._module
         if isinstance(module, str):
             # TODO: this option is only taken by the new library APIs, but we have
             # a bug that we can't easily support it just yet (NVIDIA/cuda-python#73).
             if jit_options is not None:
                 raise ValueError
-            module = module.encode()
             self._handle = handle_return(self._loader["file"](module))
         else:
             assert isinstance(module, bytes)
             if jit_options is None:
                 jit_options = {}
-            if backend == "new":
+            if self._backend_version == "new":
                 args = (
                     module,
                     list(jit_options.keys()),
@@ -141,19 +154,17 @@ class ObjectCode:
                     0,
                 )
             else:  # "old" backend
-                args = (module, len(jit_options), list(jit_options.keys()), list(jit_options.values()))
+                args = (
+                    module,
+                    len(jit_options),
+                    list(jit_options.keys()),
+                    list(jit_options.values()),
+                )
             self._handle = handle_return(self._loader["data"](*args))
 
-        self._code_type = code_type
-        self._module = module
-        self._sym_map = {} if symbol_mapping is None else symbol_mapping
-
-    def __del__(self):
-        # TODO: do we want to unload? Probably not..
-        pass
-
+    @precondition(_lazy_load_module)
     def get_kernel(self, name):
-        """Return the :obj:`Kernel` of a specified name from this object code.
+        """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
         ----------
@@ -162,7 +173,7 @@ class ObjectCode:
 
         Returns
         -------
-        :obj:`Kernel`
+        :obj:`~_module.Kernel`
             Newly created kernel object.
 
         """
@@ -170,6 +181,7 @@ class ObjectCode:
             name = self._sym_map[name]
         except KeyError:
             name = name.encode()
+
         data = handle_return(self._loader["kernel"](self._handle, name))
         return Kernel._from_obj(data, self)
 
