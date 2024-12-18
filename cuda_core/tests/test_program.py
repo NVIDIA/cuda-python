@@ -7,6 +7,7 @@
 # is strictly prohibited.
 
 import pytest
+from conftest import can_load_generated_ptx
 
 from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._program import Program, ProgramOptions
@@ -68,6 +69,8 @@ def test_program_init_invalid_code_format():
         Program(code, "c++")
 
 
+# TODO: incorporate this check in Program
+@pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
 def test_program_compile_valid_target_type():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")

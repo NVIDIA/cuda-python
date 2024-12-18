@@ -4,7 +4,7 @@
 
 import pytest
 
-from cuda.core.experimental import Linker, LinkerOptions, Program, _linker
+from cuda.core.experimental import Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core.experimental._module import ObjectCode
 
 ARCH = "sm_80"  # use sm_80 for testing the oop nvJitLink wrapper
@@ -24,18 +24,18 @@ culink_backend = _linker._decide_nvjitlink_or_driver()
 def compile_ptx_functions(init_cuda):
     # Without -rdc (relocatable device code) option, the generated ptx will not included any unreferenced
     # device functions, causing the link to fail
-    object_code_a_ptx = Program(kernel_a, "c++").compile("ptx", options=("-rdc=true",))
-    object_code_b_ptx = Program(device_function_b, "c++").compile("ptx", options=("-rdc=true",))
-    object_code_c_ptx = Program(device_function_c, "c++").compile("ptx", options=("-rdc=true",))
+    object_code_a_ptx = Program(kernel_a, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    object_code_b_ptx = Program(device_function_b, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    object_code_c_ptx = Program(device_function_c, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
 
     return object_code_a_ptx, object_code_b_ptx, object_code_c_ptx
 
 
 @pytest.fixture(scope="function")
 def compile_ltoir_functions(init_cuda):
-    object_code_a_ltoir = Program(kernel_a, "c++").compile("ltoir", options=("-dlto",))
-    object_code_b_ltoir = Program(device_function_b, "c++").compile("ltoir", options=("-dlto",))
-    object_code_c_ltoir = Program(device_function_c, "c++").compile("ltoir", options=("-dlto",))
+    object_code_a_ltoir = Program(kernel_a, "c++", ProgramOptions(dlink_time_opt=True)).compile("ltoir")
+    object_code_b_ltoir = Program(device_function_b, "c++", ProgramOptions(dlink_time_opt=True)).compile("ltoir")
+    object_code_c_ltoir = Program(device_function_c, "c++", ProgramOptions(dlink_time_opt=True)).compile("ltoir")
 
     return object_code_a_ltoir, object_code_b_ltoir, object_code_c_ltoir
 

@@ -5,7 +5,7 @@
 import os
 import sys
 
-from cuda.core.experimental import Device, LaunchConfig, Program, launch
+from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # prepare include
 cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
@@ -44,12 +44,12 @@ arch = "".join(f"{i}" for i in arch)
 
 # prepare program & compile kernel
 dev.set_current()
-prog = Program(code, code_type="c++")
-mod = prog.compile(
-    target_type="cubin",
-    # TODO: update this after NVIDIA/cuda-python#237 is merged
-    options=(f"-arch=sm_{arch}", "-std=c++17", f"-I{cuda_include_path}"),
+prog = Program(
+    code,
+    code_type="c++",
+    options=ProgramOptions(gpu_architecture=f"sm_{arch}", std="c++17", include_paths=cuda_include_path),
 )
+mod = prog.compile(target_type="cubin")
 ker = mod.get_kernel("check_cluster_info")
 
 # prepare launch config

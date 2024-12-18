@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import weakref
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
-import weakref
 
 from cuda import nvrtc
 from cuda.core.experimental._device import Device
@@ -440,9 +440,10 @@ class Program:
         if self._backend == "nvrtc":
             if name_expressions:
                 for n in name_expressions:
-                    handle_return(nvrtc.nvrtcAddNameExpression(self._handle, n.encode()), handle=self._handle)
+                    handle_return(nvrtc.nvrtcAddNameExpression(self._mnff.handle, n.encode()), handle=self._mnff.handle)
             handle_return(
-                nvrtc.nvrtcCompileProgram(self._handle, len(self._options), self._options), handle=self._handle
+                nvrtc.nvrtcCompileProgram(self._mnff.handle, len(self._options), self._options),
+                handle=self._mnff.handle,
             )
 
             size_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}Size")
