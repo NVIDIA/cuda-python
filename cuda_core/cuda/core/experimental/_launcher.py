@@ -107,17 +107,17 @@ class LaunchConfig:
             raise ValueError
 
 
-def launch(kernel, config, *kernel_args):
+def launch(config, kernel, *kernel_args):
     """Launches a :obj:`~_module.Kernel`
     object with launch-time configuration.
 
     Parameters
     ----------
-    kernel : :obj:`~_module.Kernel`
-        Kernel to launch.
     config : :obj:`~_launcher.LaunchConfig`
         Launch configurations inline with options provided by
         :obj:`~_launcher.LaunchConfig` dataclass.
+    kernel : :obj:`~_module.Kernel`
+        Kernel to launch.
     *kernel_args : Any
         Variable length argument list that is provided to the
         launching kernel.

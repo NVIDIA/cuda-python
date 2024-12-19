@@ -59,7 +59,7 @@ block = 32
 config = LaunchConfig(grid=grid, cluster=cluster, block=block, stream=dev.default_stream)
 
 # launch kernel on the default stream
-launch(ker, config)
+launch(config, ker)
 dev.sync()
 
 print("done!")

@@ -55,7 +55,7 @@ grid = (size + block - 1) // block
 config = LaunchConfig(grid=grid, block=block, stream=s)
 
 # launch kernel on stream s
-launch(ker, config, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
+launch(config, ker, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
 s.sync()
 
 # check result
