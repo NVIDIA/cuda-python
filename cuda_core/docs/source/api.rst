@@ -36,6 +36,7 @@ CUDA compilation toolchain
    :template: dataclass.rst
 
    LinkerOptions
+   ProgramOptions
 
 
 CUDA system information
