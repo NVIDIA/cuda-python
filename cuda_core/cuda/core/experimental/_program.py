@@ -39,20 +39,27 @@ class Program:
                 self.handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_backend")
-    _supported_code_type = ("c++",)
+    _supported_code_type = ("c++", "ptx")
     _supported_target_type = ("ptx", "cubin", "ltoir")
 
     def __init__(self, code, code_type):
         self._mnff = Program._MembersNeededForFinalize(self, None)
 
+        code_type = code_type.lower()
         if code_type not in self._supported_code_type:
             raise NotImplementedError
 
-        if code_type.lower() == "c++":
+        if code_type == "c++":
             if not isinstance(code, str):
                 raise TypeError
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
+            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
+            self._backend = "nvrtc"
+
+        elif code_type == "ptx":
+            if not isinstance(code, str):
+                raise TypeError
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
             self._backend = "nvrtc"
         else:

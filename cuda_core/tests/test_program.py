@@ -38,11 +38,15 @@ def test_program_compile_valid_target_type():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
     arch = "".join(str(i) for i in Device().compute_capability)
-    object_code = program.compile("ptx", options=(f"-arch=compute_{arch}",))
-    print(object_code._module.decode())
-    kernel = object_code.get_kernel("my_kernel")
-    assert isinstance(object_code, ObjectCode)
-    assert isinstance(kernel, Kernel)
+    ptx_object_code = program.compile("ptx", options=(f"-arch=compute_{arch}",))
+    program = Program(ptx_object_code.code, "ptx")
+    cubin_object_code = program.compile("cubin", options=(f"-arch=compute_{arch}",))
+    ptx_kernel = ptx_object_code.get_kernel("my_kernel")
+    cubin_kernel = cubin_object_code.get_kernel("my_kernel")
+    assert isinstance(ptx_object_code, ObjectCode)
+    assert isinstance(cubin_object_code, ObjectCode)
+    assert isinstance(ptx_kernel, Kernel)
+    assert isinstance(cubin_kernel, Kernel)
 
 
 def test_program_compile_invalid_target_type():
