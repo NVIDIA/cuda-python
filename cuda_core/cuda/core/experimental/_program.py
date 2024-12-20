@@ -5,6 +5,7 @@
 import weakref
 
 from cuda import nvrtc
+from cuda.core.experimental._linker import Linker, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils import handle_return
 
@@ -27,7 +28,7 @@ class Program:
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = ("handle",)
+        __slots__ = "handle"
 
         def __init__(self, program_obj, handle):
             self.handle = handle
@@ -38,7 +39,7 @@ class Program:
                 handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
                 self.handle = None
 
-    __slots__ = ("__weakref__", "_mnff", "_backend")
+    __slots__ = ("__weakref__", "_mnff", "_backend", "_linker")
     _supported_code_type = ("c++", "ptx")
     _supported_target_type = ("ptx", "cubin", "ltoir")
 
@@ -60,10 +61,14 @@ class Program:
         elif code_type == "ptx":
             if not isinstance(code, str):
                 raise TypeError
-            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
-            self._backend = "nvrtc"
+            # TODO: support pre-loaded headers & include names
+            # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
+            self._linker = Linker(ObjectCode(code.encode(), code_type), options=LinkerOptions(arch="sm_89"))
+            self._backend = "linker"
         else:
             raise NotImplementedError
+
+        print(self._backend)
 
     def close(self):
         """Destroy this program."""
@@ -128,6 +133,9 @@ class Program:
             # TODO: handle jit_options for ptx?
 
             return ObjectCode(data, target_type, symbol_mapping=symbol_mapping)
+
+        if self._backend == "linker":
+            return self._linker.link(target_type)
 
     @property
     def backend(self):
