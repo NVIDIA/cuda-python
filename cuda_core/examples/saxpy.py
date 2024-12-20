@@ -59,7 +59,7 @@ config = LaunchConfig(grid=grid, block=block, stream=s)
 ker_args = (a, x.data.ptr, y.data.ptr, out.data.ptr, size)
 
 # launch kernel on stream s
-launch(ker, config, *ker_args)
+launch(config, ker, *ker_args)
 s.sync()
 
 # check result
@@ -90,7 +90,7 @@ config = LaunchConfig(grid=grid, block=block, stream=s)
 ker_args = (a, x.data.ptr, y.data.ptr, buf, size)
 
 # launch kernel on stream s
-launch(ker, config, *ker_args)
+launch(config, ker, *ker_args)
 s.sync()
 
 # check result
