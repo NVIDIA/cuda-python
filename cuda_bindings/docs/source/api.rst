@@ -9,3 +9,4 @@ CUDA Python API Reference
    module/driver
    module/runtime
    module/nvrtc
+   module/nvjitlink
