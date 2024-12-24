@@ -25,6 +25,21 @@ and likewise use `[cu11]` for CUDA 11.
 Note that using `cuda.core` with NVRTC or nvJitLink installed from PyPI via `pip install` is currently
 not supported. This will be fixed in a future release.
 
+## Installing from Conda (conda-forge)
+
+Same as above, `cuda.core` can be installed in a CUDA 11 or 12 environment. For example with CUDA 12:
+```console
+$ conda install -c conda-forge cuda-core cuda-version=12
+```
+and likewise use `cuda-version=11` for CUDA 11.
+
+Note that to use `cuda.core` with nvJitLink installed from conda-forge currently requires it to
+be separately installed:
+```console
+$ conda install -c conda-forge libnvjitlink
+```
+(can be combined with the command above). This extra step will be removed in a future release.
+
 ## Installing from Source
 
 ```console
