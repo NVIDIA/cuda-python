@@ -293,6 +293,11 @@ jobs:
           pushd ./cuda_bindings
           pip install -r requirements.txt
           pytest -rxXs tests/
+          if [[ "${{ matrix.host-platform }}" == linux* ]]; then
+            bash tests/cython/build_tests.sh
+          elif [[ "${{ matrix.host-platform }}" == win* ]]; then
+            # TODO: enable this once win-64 runners are up 
+          fi  
           pytest -rxXs tests/cython
           popd
 
