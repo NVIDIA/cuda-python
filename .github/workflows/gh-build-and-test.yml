@@ -297,6 +297,7 @@ jobs:
             bash tests/cython/build_tests.sh
           elif [[ "${{ matrix.host-platform }}" == win* ]]; then
             # TODO: enable this once win-64 runners are up 
+            exit 1
           fi  
           pytest -rxXs tests/cython
           popd
