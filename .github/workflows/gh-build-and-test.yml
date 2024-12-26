@@ -293,8 +293,7 @@ jobs:
           pushd ./cuda_bindings
           pip install -r requirements.txt
           pytest -rxXs tests/
-          # TODO: enable cython tests
-          #pytest tests/cython
+          pytest -rxXs tests/cython
           popd
 
       - name: Run cuda.core tests
