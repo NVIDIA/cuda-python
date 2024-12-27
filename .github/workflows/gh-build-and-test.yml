@@ -273,6 +273,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
         env:
+          # we use self-hosted runners on which setup-python behaves weirdly...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Set up mini CTK
@@ -283,8 +284,10 @@ jobs:
           cuda-version: ${{ matrix.cuda-version }}
 
       - name: Install dependencies
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
+          # cython tests require gcc
           apt install -y build-essential
 
       - name: Run cuda.bindings tests
