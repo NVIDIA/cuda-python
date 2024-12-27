@@ -272,6 +272,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+        env:
+          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
