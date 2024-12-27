@@ -283,7 +283,7 @@ jobs:
       - name: Install dependencies
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          sudo apt install -y build-essential
+          apt install -y build-essential
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
