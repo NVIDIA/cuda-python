@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import importlib.metadata
+from enum import Enum
+from typing import Union
 
 from cuda import cuda
 from cuda.core.experimental._utils import handle_return, precondition
@@ -44,6 +46,64 @@ def _lazy_init():
     _inited = True
 
 
+class KernelAttribute(Enum):
+    """
+    Attributes of a CUDA kernel.
+
+    Attributes
+    ----------
+    MAX_THREADS_PER_BLOCK : int
+        The maximum number of threads per block, beyond which a launch of the function would fail.
+    SHARED_SIZE_BYTES : int
+        The size in bytes of statically-allocated shared memory required by this function.
+    CONST_SIZE_BYTES : int
+        The size in bytes of user-allocated constant memory required by this function.
+    LOCAL_SIZE_BYTES : int
+        The size in bytes of local memory used by each thread of this function.
+    NUM_REGS : int
+        The number of registers used by each thread of this function.
+    PTX_VERSION : int
+        The PTX virtual architecture version for which the function was compiled.
+    BINARY_VERSION : int
+        The binary architecture version for which the function was compiled.
+    CACHE_MODE_CA : bool
+        Whether the function has been compiled with user specified option "-Xptxas --dlcm=ca" set.
+    MAX_DYNAMIC_SHARED_SIZE_BYTES : int
+        The maximum size in bytes of dynamically-allocated shared memory that can be used by this function.
+    PREFERRED_SHARED_MEMORY_CARVEOUT : int
+        The shared memory carveout preference, in percent of the total shared memory.
+    CLUSTER_SIZE_MUST_BE_SET : bool
+        Whether the kernel must launch with a valid cluster size specified.
+    REQUIRED_CLUSTER_WIDTH : int
+        The required cluster width in blocks.
+    REQUIRED_CLUSTER_HEIGHT : int
+        The required cluster height in blocks.
+    REQUIRED_CLUSTER_DEPTH : int
+        The required cluster depth in blocks.
+    NON_PORTABLE_CLUSTER_SIZE_ALLOWED : bool
+        Whether the function can be launched with non-portable cluster size.
+    CLUSTER_SCHEDULING_POLICY_PREFERENCE : int
+        The block scheduling policy of a function.
+    """
+
+    MAX_THREADS_PER_BLOCK = 0
+    SHARED_SIZE_BYTES = 1
+    CONST_SIZE_BYTES = 2
+    LOCAL_SIZE_BYTES = 3
+    NUM_REGS = 4
+    PTX_VERSION = 5
+    BINARY_VERSION = 6
+    CACHE_MODE_CA = 7
+    MAX_DYNAMIC_SHARED_SIZE_BYTES = 8
+    PREFERRED_SHARED_MEMORY_CARVEOUT = 9
+    CLUSTER_SIZE_MUST_BE_SET = 10
+    REQUIRED_CLUSTER_WIDTH = 11
+    REQUIRED_CLUSTER_HEIGHT = 12
+    REQUIRED_CLUSTER_DEPTH = 13
+    NON_PORTABLE_CLUSTER_SIZE_ALLOWED = 14
+    CLUSTER_SCHEDULING_POLICY_PREFERENCE = 15
+
+
 class Kernel:
     """Represent a compiled kernel that had been loaded onto the device.
 
@@ -55,10 +115,7 @@ class Kernel:
 
     """
 
-    __slots__ = (
-        "_handle",
-        "_module",
-    )
+    __slots__ = ("_handle", "_module")
 
     def __init__(self):
         raise NotImplementedError("directly constructing a Kernel instance is not supported")
@@ -73,6 +130,16 @@ class Kernel:
         return ker
 
     # TODO: implement from_handle()
+
+    @property
+    def attribute(self, attribute: KernelAttribute):
+        """Get an attribute of the kernel."""
+        cuda.cuFuncGetAttribute(self._handle, attribute.value)
+
+    @attribute.setter
+    def attribute(self, attribute: KernelAttribute, value: Union[int, bool]):
+        """Set an attribute of the kernel."""
+        cuda.cuFuncSetAttribute(self._handle, attribute.value, value)
 
 
 class ObjectCode:
