@@ -82,7 +82,7 @@ jobs:
           pip install *.whl
           popd
 
-      - name: Build all docs
+      - name: Build all (latest) docs
         id: build
         run: |
           pushd cuda_python/docs/
@@ -90,8 +90,24 @@ jobs:
           ls -l build
           popd
 
+          mkdir -p artifacts/docs
+          mv cuda_python/docs/build/html/* artifacts/docs/
+
       - name: Upload doc artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          path: cuda_python/docs/build/html/
+          path: artifacts/
           retention-days: 3
+
+  deploy:
+    # Only deploy the latest docs when building on main
+    if: ${{ github.ref_name == 'main' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
