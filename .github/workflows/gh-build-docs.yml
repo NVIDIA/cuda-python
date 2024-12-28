@@ -10,7 +10,7 @@ jobs:
     name: Build docs
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && always() }}
-    # WAR: Building the doc currently requires a GPU (NVIDIA/cuda-python#326)
+    # WAR: Building the doc currently requires a GPU (NVIDIA/cuda-python#326,327)
     runs-on: linux-amd64-gpu-t4-latest-1-testing
     #runs-on: ubuntu-latest
     defaults:
@@ -31,7 +31,7 @@ jobs:
           conda-remove-defaults: "true"
           python-version: 3.12
 
-      # WAR: Building the doc currently requires CTK installed (NVIDIA/cuda-python#326)
+      # WAR: Building the doc currently requires CTK installed (NVIDIA/cuda-python#326,327)
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
