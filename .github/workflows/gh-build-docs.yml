@@ -6,8 +6,8 @@ on:
         required: true
 
 jobs:
-  doc:
-    name: Build & publish docs
+  build:
+    name: Build docs
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && always() }}
     runs-on: ubuntu-latest
@@ -73,7 +73,15 @@ jobs:
           popd
 
       - name: Build all docs
+        id: build
         run: |
-          cd cuda_python/docs/
+          pushd cuda_python/docs/
           ./build_all_docs.sh latest-only
           ls -l build
+          popd
+
+      - name: Upload doc artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: cuda_python/docs/build/html/
+          retention-days: 3
