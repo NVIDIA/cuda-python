@@ -22,6 +22,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      # TODO: cache conda env to speed up the workflow once conda-incubator/setup-miniconda#267
+      # is resolved
+
       - name: Set up miniforge
         uses: conda-incubator/setup-miniconda@v3
         with:
@@ -30,6 +33,13 @@ jobs:
           miniforge-version: latest
           conda-remove-defaults: "true"
           python-version: 3.12
+
+      - name: Check conda env
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
 
       # WAR: Building the doc currently requires CTK installed (NVIDIA/cuda-python#326,327)
       - name: Set up mini CTK
