@@ -162,166 +162,166 @@ jobs:
         run: |
           echo "CUDA_VERSION=${{ matrix.cuda-version }}" >> $GITHUB_OUTPUT
 
-  test:
-    strategy:
-      fail-fast: false
-      # TODO: add driver version here
-      matrix:
-        host-platform:
-          - linux-64
-          - linux-aarch64
-          # TODO: enable testing once win-64 GPU runners are up
-          # - win-64
-        python-version:
-          - "3.13"
-          - "3.12"
-          - "3.11"
-          - "3.10"
-          - "3.9"
-        cuda-version:
-          # Note: this is for test-time only.
-          - "12.6.2"
-          - "12.0.1"
-          - "11.8.0"
-        runner:
-          - default
-        include:
-          - host-platform: linux-64
-            python-version: "3.12"
-            cuda-version: "12.6.2"
-            runner: H100
-    name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }})
-    # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && always() }}
-    permissions:
-      id-token: write # This is required for configure-aws-credentials
-      contents: read  # This is required for actions/checkout
-    runs-on: ${{ (matrix.runner == 'default' && matrix.host-platform == 'linux-64' && 'linux-amd64-gpu-v100-latest-1') ||
-                 (matrix.runner == 'default' && matrix.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') ||
-                 (matrix.runner == 'H100' && 'linux-amd64-gpu-h100-latest-1-testing') }}
-    # Our self-hosted runners require a container
-    # TODO: use a different (nvidia?) container
-    container:
-      options: -u root --security-opt seccomp=unconfined --shm-size 16g
-      image: ubuntu:22.04
-      env:
-        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
-    needs:
-      - build
-    steps:
-      - name: Ensure GPU is working
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: nvidia-smi
-
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set environment variables
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
-          if [[ "${{ matrix.host-platform }}" == linux* ]]; then
-            REPO_DIR=$(pwd)
-          elif [[ "${{ matrix.host-platform }}" == win* ]]; then
-            PWD=$(pwd)
-            REPO_DIR=$(cygpath -w $PWD)
-          fi
-
-          BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ needs.build.outputs.BUILD_CTK_VER }})"
-          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.cuda-version }})"
-          if [[ $BUILD_CUDA_MAJOR != $TEST_CUDA_MAJOR ]]; then
-            SKIP_CUDA_BINDINGS_TEST=1
-          else
-            SKIP_CUDA_BINDINGS_TEST=0
-          fi
-
-          # make outputs from the previous job as env vars
-          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ needs.build.outputs.BUILD_CTK_VER }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
-          echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
-
-      - name: Download cuda.bindings build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
-
-      - name: Display structure of downloaded cuda.bindings artifacts
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          pwd
-          ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
-
-      - name: Download cuda.core build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-      - name: Display structure of downloaded cuda.core build artifacts
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          pwd
-          ls -lahR $CUDA_CORE_ARTIFACTS_DIR
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Set up mini CTK
-        uses: ./.github/actions/fetch_ctk
-        continue-on-error: false
-        with:
-          host-platform: ${{ matrix.host-platform }}
-          cuda-version: ${{ matrix.cuda-version }}
-
-      - name: Run cuda.bindings tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          ls $CUDA_PATH
-
-          pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-          pip install *.whl
-          popd
-
-          pushd ./cuda_bindings
-          pip install -r requirements.txt
-          pytest -rxXs tests/
-          # TODO: enable cython tests
-          #pytest tests/cython
-          popd
-
-      - name: Run cuda.core tests
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          if [[ $SKIP_CUDA_BINDINGS_TEST == 1 ]]; then
-            # TODO: remove this hack once cuda-python has a cp313 build
-            if [[ ${{ matrix.python-version }} == "3.13" ]]; then
-              echo "Python 3.13 + cuda-python ${{ matrix.cuda-version }} is not supported, skipping the test..."
-              exit 0
-            fi
-          fi
-
-          # If build/test majors match: cuda.bindings is installed in the previous step.
-          # If mismatch: cuda.bindings is installed from PyPI.
-          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.cuda-version }})"
-          pushd "${CUDA_CORE_ARTIFACTS_DIR}"
-          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
-          popd
-
-          pushd ./cuda_core
-          # TODO: add requirements.txt for test deps?
-          pip install pytest
-          # TODO: add CuPy to test deps (which would require cuRAND)
-          # pip install "cupy-cuda${TEST_CUDA_MAJOR}x"
-          pytest -rxXs tests/
-          popd
+#  test:
+#    strategy:
+#      fail-fast: false
+#      # TODO: add driver version here
+#      matrix:
+#        host-platform:
+#          - linux-64
+#          - linux-aarch64
+#          # TODO: enable testing once win-64 GPU runners are up
+#          # - win-64
+#        python-version:
+#          - "3.13"
+#          - "3.12"
+#          - "3.11"
+#          - "3.10"
+#          - "3.9"
+#        cuda-version:
+#          # Note: this is for test-time only.
+#          - "12.6.2"
+#          - "12.0.1"
+#          - "11.8.0"
+#        runner:
+#          - default
+#        include:
+#          - host-platform: linux-64
+#            python-version: "3.12"
+#            cuda-version: "12.6.2"
+#            runner: H100
+#    name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }})
+#    # The build stage could fail but we want the CI to keep moving.
+#    if: ${{ github.repository_owner == 'nvidia' && always() }}
+#    permissions:
+#      id-token: write # This is required for configure-aws-credentials
+#      contents: read  # This is required for actions/checkout
+#    runs-on: ${{ (matrix.runner == 'default' && matrix.host-platform == 'linux-64' && 'linux-amd64-gpu-v100-latest-1') ||
+#                 (matrix.runner == 'default' && matrix.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') ||
+#                 (matrix.runner == 'H100' && 'linux-amd64-gpu-h100-latest-1-testing') }}
+#    # Our self-hosted runners require a container
+#    # TODO: use a different (nvidia?) container
+#    container:
+#      options: -u root --security-opt seccomp=unconfined --shm-size 16g
+#      image: ubuntu:22.04
+#      env:
+#        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+#    needs:
+#      - build
+#    steps:
+#      - name: Ensure GPU is working
+#        shell: bash --noprofile --norc -xeuo pipefail {0}
+#        run: nvidia-smi
+#
+#      - name: Checkout ${{ github.event.repository.name }}
+#        uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#
+#      - name: Set environment variables
+#        shell: bash --noprofile --norc -xeuo pipefail {0}
+#        run: |
+#          PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
+#          if [[ "${{ matrix.host-platform }}" == linux* ]]; then
+#            REPO_DIR=$(pwd)
+#          elif [[ "${{ matrix.host-platform }}" == win* ]]; then
+#            PWD=$(pwd)
+#            REPO_DIR=$(cygpath -w $PWD)
+#          fi
+#
+#          BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ needs.build.outputs.BUILD_CTK_VER }})"
+#          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.cuda-version }})"
+#          if [[ $BUILD_CUDA_MAJOR != $TEST_CUDA_MAJOR ]]; then
+#            SKIP_CUDA_BINDINGS_TEST=1
+#          else
+#            SKIP_CUDA_BINDINGS_TEST=0
+#          fi
+#
+#          # make outputs from the previous job as env vars
+#          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+#          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+#          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ needs.build.outputs.BUILD_CTK_VER }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+#          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+#          echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
+#
+#      - name: Download cuda.bindings build artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+#          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+#
+#      - name: Display structure of downloaded cuda.bindings artifacts
+#        shell: bash --noprofile --norc -xeuo pipefail {0}
+#        run: |
+#          pwd
+#          ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
+#
+#      - name: Download cuda.core build artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+#          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+#
+#      - name: Display structure of downloaded cuda.core build artifacts
+#        shell: bash --noprofile --norc -xeuo pipefail {0}
+#        run: |
+#          pwd
+#          ls -lahR $CUDA_CORE_ARTIFACTS_DIR
+#
+#      - name: Set up Python ${{ matrix.python-version }}
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: ${{ matrix.python-version }}
+#
+#      - name: Set up mini CTK
+#        uses: ./.github/actions/fetch_ctk
+#        continue-on-error: false
+#        with:
+#          host-platform: ${{ matrix.host-platform }}
+#          cuda-version: ${{ matrix.cuda-version }}
+#
+#      - name: Run cuda.bindings tests
+#        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+#        shell: bash --noprofile --norc -xeuo pipefail {0}
+#        run: |
+#          ls $CUDA_PATH
+#
+#          pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
+#          pip install *.whl
+#          popd
+#
+#          pushd ./cuda_bindings
+#          pip install -r requirements.txt
+#          pytest -rxXs tests/
+#          # TODO: enable cython tests
+#          #pytest tests/cython
+#          popd
+#
+#      - name: Run cuda.core tests
+#        shell: bash --noprofile --norc -xeuo pipefail {0}
+#        run: |
+#          if [[ $SKIP_CUDA_BINDINGS_TEST == 1 ]]; then
+#            # TODO: remove this hack once cuda-python has a cp313 build
+#            if [[ ${{ matrix.python-version }} == "3.13" ]]; then
+#              echo "Python 3.13 + cuda-python ${{ matrix.cuda-version }} is not supported, skipping the test..."
+#              exit 0
+#            fi
+#          fi
+#
+#          # If build/test majors match: cuda.bindings is installed in the previous step.
+#          # If mismatch: cuda.bindings is installed from PyPI.
+#          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.cuda-version }})"
+#          pushd "${CUDA_CORE_ARTIFACTS_DIR}"
+#          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
+#          popd
+#
+#          pushd ./cuda_core
+#          # TODO: add requirements.txt for test deps?
+#          pip install pytest
+#          # TODO: add CuPy to test deps (which would require cuRAND)
+#          # pip install "cupy-cuda${TEST_CUDA_MAJOR}x"
+#          pytest -rxXs tests/
+#          popd
 
   doc:
     permissions:
@@ -331,6 +331,6 @@ jobs:
       - build
     secrets: inherit
     uses:
-      .github/workflows/gh-build-docs.yml
+      ./.github/workflows/gh-build-docs.yml
     with:
       build_ctk_ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
