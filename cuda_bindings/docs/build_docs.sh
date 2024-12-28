@@ -4,9 +4,9 @@ set -ex
 
 build_docs() {
     if [[ "$#" == "0" ]]; then
-        LATEST_ONLY="1"
-    elif [[ "$#" == "1" && "$1" == "latest-only" ]]; then
         LATEST_ONLY="0"
+    elif [[ "$#" == "1" && "$1" == "latest-only" ]]; then
+        LATEST_ONLY="1"
     else
         echo "usage: ./build_docs.sh [latest-only]"
         exit 1
