@@ -1,0 +1,79 @@
+on:
+  workflow_call:
+    inputs:
+      - build_ctk_ver:
+        type: string
+        required: true
+
+jobs:
+  doc:
+    name: Build & publish docs
+    # The build stage could fail but we want the CI to keep moving.
+    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up miniforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: cuda-python-docs
+          environment-file: ./cuda_python/docs/environment-docs.yml
+          miniforge-version: latest
+          conda-remove-defaults: "true"
+          python-version: 3.12
+
+      - name: Set environment variables
+        run: |
+          PYTHON_VERSION_FORMATTED="312"  # see above
+          REPO_DIR=$(pwd)
+
+          # make outputs from the previous job as env vars
+          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build_ctk_ver }}-linux-64-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+
+      - name: Download cuda.bindings build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Display structure of downloaded cuda.bindings artifacts
+        run: |
+          pwd
+          ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
+
+      - name: Download cuda.core build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: Display structure of downloaded cuda.core build artifacts
+        run: |
+          pwd
+          ls -lahR $CUDA_CORE_ARTIFACTS_DIR
+
+      - name: Install all packages
+        run: |
+          pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
+          pip install *.whl
+          popd
+
+          pushd "${CUDA_CORE_ARTIFACTS_DIR}"
+          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
+          popd
+
+      - name: Build all docs
+        run: |
+          cd cuda_python/docs/
+          ./build_all_docs.sh latest-only
+          ls -l build

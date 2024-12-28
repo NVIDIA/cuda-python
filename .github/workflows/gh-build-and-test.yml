@@ -192,7 +192,7 @@ jobs:
             runner: H100
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }})
     # The build stage could fail but we want the CI to keep moving.
-    if: ${{ (github.repository_owner == 'nvidia') && always() }}
+    if: ${{ github.repository_owner == 'nvidia' && always() }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
@@ -209,7 +209,7 @@ jobs:
     needs:
       - build
     steps:
-      - name: Run nvidia-smi to make sure GPU is working
+      - name: Ensure GPU is working
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: nvidia-smi
 
@@ -322,3 +322,15 @@ jobs:
           # pip install "cupy-cuda${TEST_CUDA_MAJOR}x"
           pytest -rxXs tests/
           popd
+
+  doc:
+    permissions:
+      id-token: write # This is required for configure-aws-credentials
+      contents: read  # This is required for actions/checkout
+    needs:
+      - build
+    secrets: inherit
+    uses:
+      .github/workflows/gh-build-docs.yml
+    with:
+      build_ctk_ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
