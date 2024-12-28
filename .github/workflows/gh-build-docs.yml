@@ -93,21 +93,56 @@ jobs:
           mkdir -p artifacts/docs
           mv cuda_python/docs/build/html/* artifacts/docs/
 
+      # Note: currently this is only for manual inspection. This step will become
+      # required once we switch to use GHA for doc deployment (see the bottom).
       - name: Upload doc artifacts
         uses: actions/upload-pages-artifact@v3
         with:
           path: artifacts/
           retention-days: 3
 
-  deploy:
-    # Only deploy the latest docs when building on main
-    if: ${{ github.ref_name == 'main' }}
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      # The steps below are not executed unless when building on main.
+      - name: Configure git
+        if: ${{ github.ref_name == 'main' }}
+        run: |
+          git config --local user.email "noreply@nvidia.com"
+          git config --local user.name "cuda-python-bot"
+
+      - name: Checkout the gh-pages branch
+        if: ${{ github.ref_name == 'main' }}
+        run: |
+          git fetch origin gh-pages
+          git checkout gh-pages
+
+      - name: Move artifacts to doc root
+        if: ${{ github.ref_name == 'main' }}
+        run: |
+          mv artifacts/docs/* docs/
+          git status
+
+      - name: Commit changes
+        if: ${{ github.ref_name == 'main' }}
+        run: |
+          git add docs/
+          git status
+          git commit -m "Deploy: ${{ github.sha }}"
+        continue-on-error: true
+
+      - name: Push changes
+        if: ${{ github.ref_name == 'main' && success() }}
+        run: |
+          git push origin gh-pages
+
+  # TODO: discuss if we want to abandon branch-based doc deployment
+  # deploy:
+  #   # Only deploy the latest docs when building on main
+  #   if: ${{ github.ref_name == 'main' }}
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4
