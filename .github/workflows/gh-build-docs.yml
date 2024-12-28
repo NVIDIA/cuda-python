@@ -1,7 +1,7 @@
 on:
   workflow_call:
     inputs:
-      - build_ctk_ver:
+      build_ctk_ver:
         type: string
         required: true
 
