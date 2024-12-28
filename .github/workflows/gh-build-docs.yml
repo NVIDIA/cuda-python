@@ -11,7 +11,7 @@ jobs:
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && always() }}
     # WAR: Building the doc currently requires a GPU (NVIDIA/cuda-python#326)
-    runs-on: linux-amd64-gpu-p100-latest-1
+    runs-on: linux-amd64-gpu-t4-latest-1-testing
     #runs-on: ubuntu-latest
     defaults:
       run:
