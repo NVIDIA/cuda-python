@@ -1,7 +1,8 @@
 name: CI
 
 concurrency:
-  group: ${{ startsWith(github.ref_name, 'main') && format('unique-{0}', github.run_id) || format('ci-build-and-test-on-{0}-from-{1}', github.event_name, github.ref_name) }}
+  #group: ${{ startsWith(github.ref_name, 'main') && format('unique-{0}', github.run_id) || format('ci-build-and-test-on-{0}-from-{1}', github.event_name, github.ref_name) }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 on:
