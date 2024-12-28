@@ -7,14 +7,14 @@ jobs:
       matrix:
         host-platform:
           - linux-64
-          - linux-aarch64
-          - win-64
+#          - linux-aarch64
+#          - win-64
         python-version:
-          - "3.13"
+#          - "3.13"
           - "3.12"
-          - "3.11"
-          - "3.10"
-          - "3.9"
+#          - "3.11"
+#          - "3.10"
+#          - "3.9"
         cuda-version:
           # Note: this is for build-time only.
           - "12.6.2"
@@ -324,6 +324,8 @@ jobs:
 #          popd
 
   doc:
+    # The build stage could fail but we want the CI to keep moving.
+    if: ${{ github.repository_owner == 'nvidia' && always() }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout

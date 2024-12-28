@@ -69,7 +69,7 @@ jobs:
           popd
 
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
-          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
+          pip install *.whl
           popd
 
       - name: Build all docs
