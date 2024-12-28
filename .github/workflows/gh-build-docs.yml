@@ -117,7 +117,7 @@ jobs:
 
       # The step below is not executed unless when building on main.
       - name: Deploy doc update
-        #if: ${{ github.ref_name == 'main' && success() }}
+        if: ${{ github.ref_name == 'main' && success() }}
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: artifacts/docs/
@@ -125,4 +125,3 @@ jobs:
           target-folder: docs/
           commit-message: "Deploy latest docs: ${{ github.sha }}"
           clean: false
-          dry-run: true
