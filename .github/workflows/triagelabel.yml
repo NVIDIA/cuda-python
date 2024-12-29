@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Add or check for existing labels
         # add the triage label only if no label has been added
-        if: ${{ github.event.issue.labels[0] != null }}
+        if: ${{ github.event.issue.labels[0] == null }}
         run: gh issue edit "$NUMBER" --add-label "triage"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
