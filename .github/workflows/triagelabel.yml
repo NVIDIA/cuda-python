@@ -2,27 +2,21 @@ name: Add Triage Label
 
 on:
   issues:
-    types: [opened]
+    types:
+      - reopened
+      - opened
 
 jobs:
   triage:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-    - name: Check for existing labels
-      id: check_labels
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const labels = await github.issues.listLabelsOnIssue({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number
-          });
-          return labels.data.length > 0;
-
-    - name: Add Triage Label
-      if: steps.check_labels.outputs.result == 'false'
-      uses: actions-ecosystem/action-add-labels@v1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        labels: triage
+      - name: Add or check for existing labels
+        # add the triage label only if no label has been added
+        if: ${{ github.event.issue.labels[0] != null }}
+        run: gh issue edit "$NUMBER" --add-label "triage"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
