@@ -18,7 +18,7 @@ class ProgramOptions:
 
     Attributes
     ----------
-    gpu_architecture : str, optional
+    arch : str, optional
         Specify the name of the class of GPU architectures for which the input must be compiled.
         Valid values: compute_50, compute_52, compute_53, compute_60, compute_61, compute_62, compute_70, compute_72,
         compute_75, compute_80, compute_87, compute_89, compute_90, compute_90a, sm_50, sm_52, sm_53, sm_60, sm_61,
@@ -33,15 +33,15 @@ class ProgramOptions:
         Do extensible whole program compilation of device code.
         Default: False
         Maps to: --extensible-whole-program (-ewp)
-    device_debug : bool, optional
+    debug : bool, optional
         Generate debug information. If --dopt is not specified, then turns off all optimizations.
         Default: False
         Maps to: --device-debug (-G)
-    generate_line_info : bool, optional
+    lineinfo: bool, optional
         Generate line-number information.
         Default: False
         Maps to: --generate-line-info (-lineinfo)
-    device_optimize : bool, optional
+    device_code_optimize : bool, optional
         Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation
         for optimized device code.
         Default: None
@@ -51,7 +51,7 @@ class ProgramOptions:
         For example ["-v", "-O2"].
         Default: None
         Maps to: --ptxas-options <options> (-Xptxas)
-    maxrregcount : int, optional
+    max_register_count : int, optional
         Specify the maximum amount of registers that GPU functions can use.
         Default: None
         Maps to: --maxrregcount=<N> (-maxrregcount)
@@ -69,7 +69,7 @@ class ProgramOptions:
         approximation.
         Default: True
         Maps to: --prec-div={true|false} (-prec-div)
-    fmad : bool, optional
+    fma : bool, optional
         Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point
         multiply-add operations.
         Default: True
@@ -82,7 +82,7 @@ class ProgramOptions:
         Enables more aggressive device code vectorization in the NVVM optimizer.
         Default: False
         Maps to: --extra-device-vectorization (-extra-device-vectorization)
-    dlink_time_opt : bool, optional
+    link_time_optimization : bool, optional
         Generate intermediate code for later link-time optimization.
         Default: False
         Maps to: --dlink-time-opt (-dlto)
@@ -186,18 +186,18 @@ class ProgramOptions:
     device_w: Optional[bool] = None
     relocatable_device_code: Optional[bool] = None
     extensible_whole_program: Optional[bool] = None
-    device_debug: Optional[bool] = None
-    generate_line_info: Optional[bool] = None
-    device_optimize: Optional[bool] = None
+    debug: Optional[bool] = None
+    lineinfo: Optional[bool] = None
+    device_code_optimize: Optional[bool] = None
     ptxas_options: Optional[Union[str, List[str]]] = None
-    maxrregcount: Optional[int] = None
+    max_register_count: Optional[int] = None
     ftz: Optional[bool] = None
     prec_sqrt: Optional[bool] = None
     prec_div: Optional[bool] = None
-    fmad: Optional[bool] = None
+    fma: Optional[bool] = None
     use_fast_math: Optional[bool] = None
     extra_device_vectorization: Optional[bool] = None
-    dlink_time_opt: Optional[bool] = None
+    link_time_optimization: Optional[bool] = None
     gen_opt_lto: Optional[bool] = None
     define_macro: Optional[Union[str, Tuple[str, str], List[Union[str, Tuple[str, str]]]]] = None
     undefine_macro: Optional[Union[str, List[str]]] = None
@@ -236,12 +236,12 @@ class ProgramOptions:
             )
         if self.extensible_whole_program is not None and self.extensible_whole_program:
             self._formatted_options.append("--extensible-whole-program")
-        if self.device_debug is not None and self.device_debug:
+        if self.debug is not None and self.debug:
             self._formatted_options.append("--device-debug")
-        if self.generate_line_info is not None and self.generate_line_info:
+        if self.lineinfo is not None and self.lineinfo:
             self._formatted_options.append("--generate-line-info")
-        if self.device_optimize is not None:
-            self._formatted_options.append(f"--dopt={'on' if self.device_optimize else 'off'}")
+        if self.device_code_optimize is not None:
+            self._formatted_options.append(f"--dopt={'on' if self.device_code_optimize else 'off'}")
         if self.ptxas_options is not None:
             self._formatted_options.append("--ptxas-options")
             if isinstance(self.ptxas_options, list):
@@ -249,21 +249,21 @@ class ProgramOptions:
                     self._formatted_options.append(option)
             else:
                 self._formatted_options.append("self.ptxas_options")
-        if self.maxrregcount is not None:
-            self._formatted_options.append(f"--maxrregcount={self.maxrregcount}")
+        if self.max_register_count is not None:
+            self._formatted_options.append(f"--maxrregcount={self.max_register_count}")
         if self.ftz is not None:
             self._formatted_options.append(f"--ftz={_handle_boolean_option(self.ftz)}")
         if self.prec_sqrt is not None:
             self._formatted_options.append(f"--prec-sqrt={_handle_boolean_option(self.prec_sqrt)}")
         if self.prec_div is not None:
             self._formatted_options.append(f"--prec-div={_handle_boolean_option(self.prec_div)}")
-        if self.fmad is not None:
-            self._formatted_options.append(f"--fmad={_handle_boolean_option(self.fmad)}")
+        if self.fma is not None:
+            self._formatted_options.append(f"--fmad={_handle_boolean_option(self.fma)}")
         if self.use_fast_math is not None and self.use_fast_math:
             self._formatted_options.append("--use_fast_math")
         if self.extra_device_vectorization is not None and self.extra_device_vectorization:
             self._formatted_options.append("--extra-device-vectorization")
-        if self.dlink_time_opt is not None and self.dlink_time_opt:
+        if self.link_time_optimization is not None and self.link_time_optimization:
             self._formatted_options.append("--dlink-time-opt")
         if self.gen_opt_lto is not None and self.gen_opt_lto:
             self._formatted_options.append("--gen-opt-lto")
