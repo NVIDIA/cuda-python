@@ -1,3 +1,5 @@
+name: "CI: Build and update docs"
+
 on:
   workflow_call:
     inputs:

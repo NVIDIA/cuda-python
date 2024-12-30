@@ -1,4 +1,17 @@
-on: workflow_call
+name: "CI: Build and test"
+
+concurrency:
+  group: ${{ github.workflow }}-${{
+           github.ref_name == 'main' && format('ci-main-build-test-{0}', github.run_id) ||
+           format('ci-pr-build-test-on-{0}-against-branch-{1}', github.event_name, github.ref_name)
+         }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+      - "main"
 
 jobs:
   build:
@@ -332,6 +345,6 @@ jobs:
       - build
     secrets: inherit
     uses:
-      ./.github/workflows/gh-build-docs.yml
+      ./.github/workflows/build-docs.yml
     with:
       build_ctk_ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
