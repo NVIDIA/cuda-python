@@ -317,8 +317,6 @@ jobs:
 
           pushd ./cuda_core
           # TODO: add requirements.txt for test deps?
-          pip install pytest
-          # TODO: add CuPy to test deps (which would require cuRAND)
-          # pip install "cupy-cuda${TEST_CUDA_MAJOR}x"
+          pip install pytest "cupy-cuda${TEST_CUDA_MAJOR}x"
           pytest -rxXs tests/
           popd
