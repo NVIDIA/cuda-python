@@ -15,13 +15,9 @@ from cuda.core.experimental import Program
 
 @pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
 def test_get_kernel():
-    kernel = """
-extern __device__ int B();
-extern __device__ int C(int a, int b);
-__global__ void A() { int result = C(B(), 1);}
-"""
+    kernel = """extern "C" __global__ void ABC() { }"""
     object_code = Program(kernel, "c++").compile("ptx", options=("-rdc=true",))
     assert object_code._handle is None
-    kernel = object_code.get_kernel("A")
+    kernel = object_code.get_kernel("ABC")
     assert object_code._handle is not None
     assert kernel._handle is not None

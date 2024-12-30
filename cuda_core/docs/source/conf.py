@@ -94,9 +94,11 @@ napoleon_numpy_docstring = True
 
 
 section_titles = ["Returns"]
+
+
 def autodoc_process_docstring(app, what, name, obj, options, lines):
     if name.startswith("cuda.core.experimental.system"):
-        # patch the docstring (in lines) *in-place*. Should docstrings include section titles other than "Returns", 
+        # patch the docstring (in lines) *in-place*. Should docstrings include section titles other than "Returns",
         # this will need to be modified to handle them.
         attr = name.split(".")[-1]
         from cuda.core.experimental._system import System
