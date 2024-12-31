@@ -181,7 +181,7 @@ class ProgramOptions:
         Maps to: --minimal (-minimal)
     """
 
-    gpu_architecture: Optional[str] = None
+    arch: Optional[str] = None
     device_c: Optional[bool] = None
     device_w: Optional[bool] = None
     relocatable_device_code: Optional[bool] = None
@@ -224,8 +224,8 @@ class ProgramOptions:
 
     def __post_init__(self):
         self._formatted_options = []
-        if self.gpu_architecture is not None:
-            self._formatted_options.append(f"--gpu-architecture={self.gpu_architecture}")
+        if self.arch is not None:
+            self._formatted_options.append(f"--gpu-architecture={self.arch}")
         else:
             self._formatted_options.append(
                 "--gpu-architecture=sm_" + "".join(f"{i}" for i in Device().compute_capability)

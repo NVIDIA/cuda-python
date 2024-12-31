@@ -4,10 +4,11 @@
 
 import pytest
 
-from cuda.core.experimental import Linker, LinkerOptions, Program, ProgramOptions, _linker
+from cuda.bindings import nvjitlink
+from cuda.core.experimental import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core.experimental._module import ObjectCode
 
-ARCH = "sm_80"  # use sm_80 for testing the oop nvJitLink wrapper
+ARCH = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
 
 kernel_a = """
 extern __device__ int B();
@@ -45,6 +46,7 @@ def compile_ltoir_functions(init_cuda):
 
 
 culink_options = [
+    LinkerOptions(),
     LinkerOptions(arch=ARCH, verbose=True),
     LinkerOptions(arch=ARCH, max_register_count=32),
     LinkerOptions(arch=ARCH, optimization_level=3),
@@ -81,10 +83,10 @@ def test_linker_init(compile_ptx_functions, options):
     assert isinstance(object_code, ObjectCode)
 
 
-def test_linker_init_invalid_arch():
-    options = LinkerOptions(arch=None)
-    with pytest.raises(TypeError):
-        Linker(options)
+def test_linker_init_invalid_arch(compile_ptx_functions):
+    options = LinkerOptions(arch="99", ptx=True)
+    with pytest.raises(nvjitlink.nvJitLinkError):
+        Linker(*compile_ptx_functions, options=options)
 
 
 @pytest.mark.skipif(culink_backend, reason="culink does not support ptx option")

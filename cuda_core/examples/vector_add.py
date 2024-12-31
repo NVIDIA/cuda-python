@@ -26,7 +26,7 @@ dev.set_current()
 s = dev.create_stream()
 
 # prepare program
-program_options = ProgramOptions(std="c++17", gpu_architecture="sm_" + "".join(f"{i}" for i in dev.compute_capability))
+program_options = ProgramOptions(std="c++17", arch="sm_" + "".join(f"{i}" for i in dev.compute_capability))
 prog = Program(code, code_type="c++", options=program_options)
 mod = prog.compile("cubin", name_expressions=("vector_add<float>",))
 
