@@ -12,6 +12,8 @@ dependencies are as follows:
 
 [^1]: Including `cuda-python`.
 
+`cuda.core` supports Python 3.9 - 3.12, on Linux (x86-64, arm64) and Windows (x86-64).
+
 ## Installing from PyPI
 
 `cuda.core` works with `cuda.bindings` (part of `cuda-python`) 11 or 12. For example with CUDA 12:
