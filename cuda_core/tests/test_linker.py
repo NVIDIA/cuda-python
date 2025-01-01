@@ -85,8 +85,12 @@ def test_linker_init(compile_ptx_functions, options):
 
 def test_linker_init_invalid_arch(compile_ptx_functions):
     options = LinkerOptions(arch="99", ptx=True)
-    with pytest.raises(nvjitlink.nvJitLinkError):
-        Linker(*compile_ptx_functions, options=options)
+    if culink_backend:
+        with pytest.raises(AttributeError):
+            Linker(*compile_ptx_functions, options=options)
+    else:
+        with pytest.raises(nvjitlink.nvJitLinkError):
+            Linker(*compile_ptx_functions, options=options)
 
 
 @pytest.mark.skipif(culink_backend, reason="culink does not support ptx option")
