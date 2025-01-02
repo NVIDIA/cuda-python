@@ -339,8 +339,7 @@ jobs:
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
       id-token: write
-      pages: write
-      contents: read
+      contents: write
     needs:
       - build
     secrets: inherit
