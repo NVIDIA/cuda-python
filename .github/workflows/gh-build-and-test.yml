@@ -300,9 +300,9 @@ jobs:
       - name: Run cuda.core tests
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          if [[ $SKIP_CUDA_BINDINGS_TEST == 1 ]]; then
+          if [[ ${{ matrix.python-version }} == "3.13" ]]; then
             # TODO: remove this hack once cuda-python has a cp313 build
-            if [[ ${{ matrix.python-version }} == "3.13" ]]; then
+            if [[ $SKIP_CUDA_BINDINGS_TEST == 1 ]]; then
               echo "Python 3.13 + cuda-python ${{ matrix.cuda-version }} is not supported, skipping the test..."
               exit 0
             fi
@@ -316,9 +316,6 @@ jobs:
           popd
 
           pushd ./cuda_core
-          # TODO: add requirements.txt for test deps?
-          pip install pytest
-          # TODO: add CuPy to test deps (which would require cuRAND)
-          # pip install "cupy-cuda${TEST_CUDA_MAJOR}x"
+          pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
           pytest -rxXs tests/
           popd

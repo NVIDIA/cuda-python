@@ -1,0 +1,3 @@
+pytest
+# TODO: remove this hack once cupy has a cp313 build
+cupy-cuda11x; python_version < "3.13"
