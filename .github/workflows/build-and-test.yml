@@ -1,4 +1,17 @@
-on: workflow_call
+name: "CI: Build and test"
+
+concurrency:
+  group: ${{ github.workflow }}-${{
+           github.ref_name == 'main' && format('ci-main-build-test-{0}', github.run_id) ||
+           format('ci-pr-build-test-on-{0}-against-branch-{1}', github.event_name, github.ref_name)
+         }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+      - "main"
 
 jobs:
   build:
@@ -192,7 +205,7 @@ jobs:
             runner: H100
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }})
     # The build stage could fail but we want the CI to keep moving.
-    if: ${{ (github.repository_owner == 'nvidia') && always() }}
+    if: ${{ github.repository_owner == 'nvidia' && always() }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
@@ -209,7 +222,7 @@ jobs:
     needs:
       - build
     steps:
-      - name: Run nvidia-smi to make sure GPU is working
+      - name: Ensure GPU is working
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: nvidia-smi
 
@@ -319,3 +332,19 @@ jobs:
           pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
           pytest -rxXs tests/
           popd
+
+  doc:
+    # The build stage could fail but we want the CI to keep moving.
+    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    permissions:
+      id-token: write
+      pages: write
+      contents: read
+    needs:
+      - build
+    secrets: inherit
+    uses:
+      ./.github/workflows/build-docs.yml
+    with:
+      build_ctk_ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
