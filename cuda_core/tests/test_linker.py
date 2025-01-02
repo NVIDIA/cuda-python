@@ -4,7 +4,6 @@
 
 import pytest
 
-from cuda.bindings import nvjitlink
 from cuda.core.experimental import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core.experimental._module import ObjectCode
 
@@ -19,6 +18,8 @@ device_function_b = "__device__ int B() { return 0; }"
 device_function_c = "__device__ int C(int a, int b) { return a + b; }"
 
 culink_backend = _linker._decide_nvjitlink_or_driver()
+if not culink_backend:
+    from cuda.bindings import nvjitlink
 
 
 @pytest.fixture(scope="function")
