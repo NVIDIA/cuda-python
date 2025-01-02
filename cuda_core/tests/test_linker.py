@@ -52,7 +52,8 @@ culink_options = [
     LinkerOptions(arch=ARCH, optimization_level=3),
     LinkerOptions(arch=ARCH, debug=True),
     LinkerOptions(arch=ARCH, lineinfo=True),
-    LinkerOptions(arch=ARCH, no_cache=True),
+    LinkerOptions(arch=ARCH, no_cache=True),  # TODO: consider adding cuda 12.4 to test matrix in which case this
+    # will fail. Tracked in issue #337
 ]
 
 
@@ -78,18 +79,20 @@ culink_options = [
     ],
 )
 def test_linker_init(compile_ptx_functions, options):
+    print(culink_backend)
     linker = Linker(*compile_ptx_functions, options=options)
     object_code = linker.link("cubin")
     assert isinstance(object_code, ObjectCode)
 
 
 def test_linker_init_invalid_arch(compile_ptx_functions):
-    options = LinkerOptions(arch="99", ptx=True)
     if culink_backend:
         with pytest.raises(AttributeError):
+            options = LinkerOptions(arch="99", ptx=True)
             Linker(*compile_ptx_functions, options=options)
     else:
         with pytest.raises(nvjitlink.nvJitLinkError):
+            options = LinkerOptions(arch="99", ptx=True)
             Linker(*compile_ptx_functions, options=options)
 
 
