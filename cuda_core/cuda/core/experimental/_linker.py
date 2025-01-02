@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import ctypes
+import warnings
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -43,6 +44,12 @@ def _decide_nvjitlink_or_driver():
             _nvjitlink = None
 
     if _nvjitlink is None:
+        warnings.warn(
+            "nvJitLink is not installed or too old (<12.3). Therefore it is not usable "
+            "and the culink APIs will be used instead.",
+            stacklevel=3,
+            category=RuntimeWarning,
+        )
         _driver = cuda
         return True
     else:
@@ -81,7 +88,8 @@ class LinkerOptions:
     """Customizable :obj:`Linker` options.
 
     Since the linker would choose to use nvJitLink or the driver APIs as the linking backed,
-    not all options are applicable.
+    not all options are applicable. When the system's installed nvJitLink is too old (<12.3),
+    or not installed, the driver APIs (cuLink) will be used instead.
 
     Attributes
     ----------
