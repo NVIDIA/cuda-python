@@ -124,6 +124,7 @@ jobs:
         with:
           folder: artifacts/docs/
           git-config-name: cuda-python-bot
+          git-config-email: cuda-python-bot@users.noreply.github.com
           target-folder: docs/
           commit-message: "Deploy latest docs: ${{ github.sha }}"
           clean: false

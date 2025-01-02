@@ -334,6 +334,7 @@ jobs:
           popd
 
   doc:
+    name: Docs
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && always() }}
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
