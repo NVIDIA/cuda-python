@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
         <link rel="canonical" href="docs/generated/cuda.core.experimental._stream.Stream.html" />
 
-    <!-- Generated with Sphinx 8.1.1 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>cuda.core.experimental._stream.Stream - cuda.core 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -301,7 +301,7 @@ Whereas work across multiple streams can be further controlled
 using stream priorities and <code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code> managements.</p>
 <p>Advanced users can utilize default streams for enforce complex
 implicit synchronization behaviors.</p>
-<p>Directly creating a <a class="reference internal" href="#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> is not supported due to ambiguity.
+<p>Directly creating a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> is not supported due to ambiguity.
 New streams should instead be created through a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code>
 object, or created directly through using an existing handle
 using Stream.from_handle().</p>
@@ -322,9 +322,9 @@ object will instead have their references released.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.from_handle">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.from_handle" title="Link to this definition">¶</a></dt>
-<dd><p>Create a new <a class="reference internal" href="#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object from a foreign stream handle.</p>
+<dd><p>Create a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> object from a foreign stream handle.</p>
 <p>Uses a cudaStream_t pointer address represented as a Python int
-to create a new <a class="reference internal" href="#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
+to create a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> object.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Stream lifetime is not managed, foreign object must remain
@@ -339,7 +339,7 @@ stream object.</p>
 <dd class="field-even"><p>Newly created stream object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a></p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -377,7 +377,7 @@ recording on the stream.</p>
 <span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_or_stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><span class="pre">Event</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.wait" title="Link to this definition">¶</a></dt>
 <dd><p>Wait for a CUDA event or a CUDA stream.</p>
 <p>Waiting for an event or a stream establishes a stream order.</p>
-<p>If a <a class="reference internal" href="#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> is provided, then wait until the stream’s
+<p>If a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> is provided, then wait until the stream’s
 work is completed. This is done by recording a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code>
 on the stream and then waiting on it.</p>
 </dd></dl>

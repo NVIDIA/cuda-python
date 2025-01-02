@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="driver" href="module/driver.html" /><link rel="prev" title="CUDA Python 11.4.0 Release notes" href="release/11.4.0-notes.html" />
         <link rel="canonical" href="docs/api.html" />
 
-    <!-- Generated with Sphinx 8.1.1 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>CUDA Python API Reference - cuda.bindings 12.6.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
@@ -210,6 +210,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/12.x.y-notes.html">    12.x.y</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.2-notes.html">    12.6.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.1-notes.html">    12.6.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.0-notes.html">    12.6.0</a></li>
@@ -238,6 +239,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module/driver.html">driver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/runtime.html">runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvrtc.html">nvrtc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a></li>
 </ul>
 </li>
 </ul>
@@ -1868,6 +1870,31 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvrtc.html#supported-compile-options">Supported Compile Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.create"><code class="docutils literal notranslate"><span class="pre">create()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.destroy"><code class="docutils literal notranslate"><span class="pre">destroy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.add_data"><code class="docutils literal notranslate"><span class="pre">add_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.add_file"><code class="docutils literal notranslate"><span class="pre">add_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.complete"><code class="docutils literal notranslate"><span class="pre">complete()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_linked_cubin_size"><code class="docutils literal notranslate"><span class="pre">get_linked_cubin_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_linked_cubin"><code class="docutils literal notranslate"><span class="pre">get_linked_cubin()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_linked_ptx_size"><code class="docutils literal notranslate"><span class="pre">get_linked_ptx_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_linked_ptx"><code class="docutils literal notranslate"><span class="pre">get_linked_ptx()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_error_log_size"><code class="docutils literal notranslate"><span class="pre">get_error_log_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_error_log"><code class="docutils literal notranslate"><span class="pre">get_error_log()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_info_log_size"><code class="docutils literal notranslate"><span class="pre">get_info_log_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_info_log"><code class="docutils literal notranslate"><span class="pre">get_info_log()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.version"><code class="docutils literal notranslate"><span class="pre">version()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html#types">Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result"><code class="docutils literal notranslate"><span class="pre">Result</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
