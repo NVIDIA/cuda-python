@@ -66,6 +66,7 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [tool.ruff]
 line-length = 120
+extend = "../pyproject.toml"
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -103,3 +104,6 @@ exclude = ["cuda/core/_version.py"]
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "setup.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["cuda.core"]

@@ -44,6 +44,7 @@ version = { attr = "cuda.bindings._version.__version__" }
 
 [tool.ruff]
 line-length = 120
+extend = "../pyproject.toml"
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -98,3 +99,6 @@ exclude = ["cuda/bindings/_version.py"]
   "UP022",
   "E402", # module level import not at top of file
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
+
+[tool.ruff.lint.isort]
+known-first-party = ["cuda.parallel"]
