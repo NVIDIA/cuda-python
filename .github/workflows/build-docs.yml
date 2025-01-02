@@ -1,0 +1,129 @@
+name: "CI: Build and update docs"
+
+on:
+  workflow_call:
+    inputs:
+      build_ctk_ver:
+        type: string
+        required: true
+
+jobs:
+  build:
+    name: Build docs
+    # The build stage could fail but we want the CI to keep moving.
+    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    # WAR: Building the doc currently requires a GPU (NVIDIA/cuda-python#326,327)
+    runs-on: linux-amd64-gpu-t4-latest-1-testing
+    #runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      # WAR: Building the doc currently requires a GPU (NVIDIA/cuda-python#326,327)
+      - name: Ensure GPU is working
+        run: nvidia-smi
+
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # TODO: cache conda env to speed up the workflow once conda-incubator/setup-miniconda#267
+      # is resolved
+
+      - name: Set up miniforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: cuda-python-docs
+          environment-file: ./cuda_python/docs/environment-docs.yml
+          miniforge-version: latest
+          conda-remove-defaults: "true"
+          python-version: 3.12
+
+      - name: Check conda env
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+
+      # WAR: Building the doc currently requires CTK installed (NVIDIA/cuda-python#326,327)
+      - name: Set up mini CTK
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: linux-64
+          cuda-version: ${{ inputs.build_ctk_ver }}
+
+      - name: Set environment variables
+        run: |
+          PYTHON_VERSION_FORMATTED="312"  # see above
+          REPO_DIR=$(pwd)
+
+          # make outputs from the previous job as env vars
+          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build_ctk_ver }}-linux-64-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+
+      - name: Download cuda.bindings build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Display structure of downloaded cuda.bindings artifacts
+        run: |
+          pwd
+          ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
+
+      - name: Download cuda.core build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: Display structure of downloaded cuda.core build artifacts
+        run: |
+          pwd
+          ls -lahR $CUDA_CORE_ARTIFACTS_DIR
+
+      - name: Install all packages
+        run: |
+          pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
+          pip install *.whl
+          popd
+
+          pushd "${CUDA_CORE_ARTIFACTS_DIR}"
+          pip install *.whl
+          popd
+
+      - name: Build all (latest) docs
+        id: build
+        run: |
+          pushd cuda_python/docs/
+          ./build_all_docs.sh latest-only
+          ls -l build
+          popd
+
+          mkdir -p artifacts/docs
+          mv cuda_python/docs/build/html/* artifacts/docs/
+
+      # Note: currently this is only for manual inspection. This step will become
+      # required once we switch to use GHA for doc deployment (see the bottom).
+      - name: Upload doc artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: artifacts/
+          retention-days: 3
+
+      # The step below is not executed unless when building on main.
+      - name: Deploy doc update
+        if: ${{ github.ref_name == 'main' && success() }}
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: artifacts/docs/
+          git-config-name: cuda-python-bot
+          target-folder: docs/
+          commit-message: "Deploy latest docs: ${{ github.sha }}"
+          clean: false
