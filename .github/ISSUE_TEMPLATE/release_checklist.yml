@@ -1,0 +1,38 @@
+name: Release Checklist
+description: Release managers need to go through this check list and ensure all tasks are done
+body:
+  - type: checkboxes
+  - options: 
+    - label: Is this release for cuda-bindings / cuda-python?
+      - type: checkboxes
+      - options: 
+        - label: Push any internal updates for accommodating a new CTK release to the public (IMPORTANT: Need to wait for CTK posting!)
+        - label: Bump the version
+        - label: Follow the check list for cuda-core below for the remaining steps
+  - type: checkboxes
+  - options: 
+    - label: Is this release for cuda-core?
+      - type: checkboxes
+      - options: 
+        - label: File an internal nvbug to communicate test plan & release schedule with QA
+        - label: Ensure all pending PRs are reviewed, tested, and merged
+        - label: Bump the version
+        - label: Create a public rc tag
+        - label: Point QA to fetch public artifacts (wheels) from the GHA run ID, example: gh run download 12323257563 -p "cuda-core*" -R NVIDIA/cuda-python
+        - label: Wait for QA reports and fix any issues found
+        - label: Finalize the doc update, including release notes
+        - label: Update the docs for the new version
+        - label: Create a public release tag
+          - type: checkboxes
+          - options: 
+            - label: if any code change happens, rebuild the wheels from the new tag
+
+        - label: Upload wheels to PyPI
+        - label: Finalize the announcement update
+        - label: Send out the announcement
+          - type: checkboxes
+          - options: 
+            - lable: Internally
+            - lable: Externally (GitHub Release -> Announcement)
+        - label: Update the conda recipe & release conda packages
+        - label: Post-release QA 
