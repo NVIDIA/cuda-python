@@ -18,7 +18,7 @@ body:
     attributes:
       label: Tasks for cuda-bindings / cuda-python release
       options:
-        - label: Push any internal updates for accommodating a new CTK release to the public (**IMPORTANT**: Need to wait for CTK posting!)
+        - label: "Push any internal updates for accommodating a new CTK release to the public (**IMPORTANT**: Need to wait for CTK posting!)"
         - label: Bump the version
         - label: Follow the check list for `cuda-core` below for the remaining steps
 
@@ -38,7 +38,7 @@ body:
         - label: Ensure all pending PRs are reviewed, tested, and merged
         - label: Bump the version
         - label: Create a public rc tag
-        - label: Point QA to fetch public artifacts (wheels) from the GHA run ID, example: `gh run download 12323257563 -p "cuda-core*" -R NVIDIA/cuda-python`
+        - label: "Point QA to fetch public artifacts (wheels) from the GHA run ID, example: `gh run download 12323257563 -p "cuda-core*" -R NVIDIA/cuda-python`"
         - label: Wait for QA reports and fix any issues found
         - label: Finalize the doc update, including release notes
         - label: Update the docs for the new version
