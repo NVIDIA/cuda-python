@@ -439,7 +439,7 @@ class Program:
                 for n in name_expressions:
                     handle_return(nvrtc.nvrtcAddNameExpression(self._mnff.handle, n.encode()), handle=self._mnff.handle)
             handle_return(
-                nvrtc.nvrtcCompileProgram(self._mnff.handle, len(self._options), self._options),
+                nvrtc.nvrtcCompileProgram(self._mnff.handle, len(self._options), self._options._as_bytes()),
                 handle=self._mnff.handle,
             )
 
