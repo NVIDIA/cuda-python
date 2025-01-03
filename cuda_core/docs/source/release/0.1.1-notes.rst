@@ -1,11 +1,10 @@
-# `cuda.core` Release notes
-
 `cuda.core` 0.1.1 Release Notes
 ===============================
 
 Released on Dec 20, 2024
 
-## Hightlights
+Highlights
+----------
 
 - Add `StridedMemoryView` and `@args_viewable_as_strided_memory` that provide a concrete
   implementation of DLPack & CUDA Array Interface supports.
@@ -14,12 +13,14 @@ Released on Dec 20, 2024
   detected in the current environment.
 - Support `pip install cuda-core`. Please see the Installation Guide for further details.
 
-## New features
+New features
+------------
 
-- Add a `cuda.core.experimental.system` module for querying system- or process- wide information.
+- Add a `cuda.core.experimental.system` module for querying system- or process-wide information.
 - Add `LaunchConfig.cluster` to support thread block clusters on Hopper GPUs.
 
-## Enhancements
+Enhancements
+------------
 
 - The internal handle held by `ObjectCode` is now lazily initialized upon first touch.
 - Support TCC devices with a default synchronous memory resource to avoid the use of memory pools.
@@ -28,19 +29,21 @@ Released on Dec 20, 2024
 - Improve test coverage & documentation cross-references.
 - Enforce code formatting.
 
-## Bug fixes
+Bug fixes
+---------
 
 - Eliminate potential class destruction issues.
 - Fix circular import during handling a foreign CUDA stream.
 
-## Limitations
+Limitations
+-----------
 
 - All APIs are currently *experimental* and subject to change without deprecation notice.
-  Please kindly share your feedbacks with us so that we can make `cuda.core` better!
+  Please kindly share your feedback with us so that we can make `cuda.core` better!
 - Using `cuda.core` with NVRTC or nvJitLink installed from PyPI via `pip install` is currently
   not supported. This will be fixed in a future release.
 - Some `LinkerOptions` are only available when using a modern version of CUDA. When using CUDA <12,
-  the backend is the cuLink api which supports only a subset of the options that nvjitlink does.
+  the backend is the cuLink API which supports only a subset of the options that nvjitlink does.
   Further, some options aren't available on CUDA versions <12.6.
 - To use `cuda.core` with Python 3.13, it currently requires building `cuda-python` from source
   prior to `pip install`. This extra step will be fixed soon.
