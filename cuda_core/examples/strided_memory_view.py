@@ -91,6 +91,7 @@ if cp:
     gpu_prog = Program(gpu_code, code_type="c++")
     # To know the GPU's compute capability, we need to identify which GPU to use.
     dev = Device(0)
+    dev.set_current()
     arch = "".join(f"{i}" for i in dev.compute_capability)
     mod = gpu_prog.compile(
         target_type="cubin",
@@ -156,7 +157,6 @@ if FFI:
 
 # This takes the GPU path
 if cp:
-    dev.set_current()
     s = dev.create_stream()
     # Create input array on GPU
     arr_gpu = cp.ones(1024, dtype=cp.int32)
