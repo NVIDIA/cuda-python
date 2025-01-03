@@ -296,13 +296,6 @@ jobs:
           host-platform: ${{ matrix.host-platform }}
           cuda-version: ${{ matrix.cuda-version }}
 
-      - name: Install dependencies
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          # cython tests require gcc
-          apt install -y build-essential
-
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -317,6 +310,8 @@ jobs:
           pip install -r requirements.txt
           pytest -rxXs tests/
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
+            # cython tests require gcc
+            apt install -y build-essential
             bash tests/cython/build_tests.sh
           elif [[ "${{ matrix.host-platform }}" == win* ]]; then
             # TODO: enable this once win-64 runners are up 
