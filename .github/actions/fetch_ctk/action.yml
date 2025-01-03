@@ -85,6 +85,7 @@ runs:
             unzip $1 -d $_TEMP_DIR_
             cp -r $_TEMP_DIR_/*/* $CUDA_PATH
             rm -rf $_TEMP_DIR_
+            chmod 644 $CUDA_PATH/LICENSE
           }
         fi
         function populate_cuda_path() {
