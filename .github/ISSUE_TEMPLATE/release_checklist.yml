@@ -7,13 +7,6 @@ body:
         Please go through this checklist and ensure all tasks are completed.
 
   - type: checkboxes
-    id: release-type
-    attributes:
-      label: Release Type
-      options:
-        - label: Is this release for `cuda-bindings` / `cuda-python`?
-
-  - type: checkboxes
     id: cuda-bindings-tasks
     attributes:
       label: Tasks for cuda-bindings / cuda-python release
@@ -21,13 +14,6 @@ body:
         - label: "Push any internal updates for accommodating a new CTK release to the public (**IMPORTANT**: Need to wait for CTK posting!)"
         - label: Bump the version
         - label: Follow the check list for `cuda-core` below for the remaining steps
-
-  - type: checkboxes
-    id: cuda-core-release
-    attributes:
-      label: Is this release for `cuda-core`?
-      options:
-        - label: This is a cuda-core release
 
   - type: checkboxes
     id: cuda-core-tasks
