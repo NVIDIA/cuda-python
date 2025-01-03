@@ -1,0 +1,149 @@
+name: Fetch mini CTK
+
+description: Fetch (or create) a mini CUDA Toolkit from cache
+
+inputs:
+  host-platform:
+    required: true
+    type: string
+  cuda-version:
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Set up CTK cache variable
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}" >> $GITHUB_ENV
+        echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}.tar.gz" >> $GITHUB_ENV
+
+    - name: Install dependencies
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        dependencies=(zstd curl xz-utils)
+        dependent_exes=(zstd curl xz)
+
+        not_found=0
+        for dep in ${dependent_exes[@]}; do
+          if ! (command -v curl 2>&1 >/dev/null); then
+            not_found=1
+            break
+          fi
+        done
+        if [[ $not_found == 0 ]]; then
+          echo "All dependencies are found. Do nothing."
+          exit 0
+        fi
+        if ! (command -v sudo 2>&1 >/dev/null); then
+          if [[ $EUID == 0 ]]; then
+            alias SUDO=""
+          else
+            echo "The following oprations require root access."
+            exit 1
+          fi
+        else
+          alias SUDO="sudo"
+        fi
+        shopt -s expand_aliases
+        SUDO apt update
+        SUDO apt install -y ${dependencies[@]}
+
+    - name: Download CTK cache
+      id: ctk-get-cache
+      uses: actions/cache/restore@v4
+      continue-on-error: true
+      with:
+        key: ${{ env.CTK_CACHE_KEY }}
+        path: ./${{ env.CTK_CACHE_FILENAME }}
+        fail-on-cache-miss: false
+
+    - name: Get CUDA components
+      if: ${{ steps.ctk-get-cache.outputs.cache-hit != 'true' }}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        CUDA_PATH="./cuda_toolkit"
+        mkdir $CUDA_PATH
+
+        # The binary archives (redist) are guaranteed to be updated as part of the release posting.
+        CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
+        CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
+        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+          if [[ "${{ inputs.host-platform }}" == "linux-64" ]]; then
+            CTK_SUBDIR="linux-x86_64"
+          elif [[ "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
+            CTK_SUBDIR="linux-sbsa"
+          fi
+          function extract() {
+            tar -xvf $1 -C $CUDA_PATH --strip-components=1
+          }
+        elif [[ "${{ inputs.host-platform }}" == "win-64" ]]; then
+          CTK_SUBDIR="windows-x86_64"
+          function extract() {
+            _TEMP_DIR_=$(mktemp -d)
+            unzip $1 -d $_TEMP_DIR_
+            cp -r $_TEMP_DIR_/*/* $CUDA_PATH
+            rm -rf $_TEMP_DIR_
+          }
+        fi
+        function populate_cuda_path() {
+          # take the component name as a argument
+          function download() {
+            curl -kLSs $1 -o $2
+          }
+          CTK_COMPONENT=$1
+          CTK_COMPONENT_REL_PATH="$(curl -s $CTK_JSON_URL |
+              python -c "import sys, json; print(json.load(sys.stdin)['${CTK_COMPONENT}']['${CTK_SUBDIR}']['relative_path'])")"
+          CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
+          CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
+          download $CTK_COMPONENT_URL $CTK_COMPONENT_COMPONENT_FILENAME
+          extract $CTK_COMPONENT_COMPONENT_FILENAME
+          rm $CTK_COMPONENT_COMPONENT_FILENAME
+        }
+
+        # Get headers and shared libraries in place
+        # Note: the existing artifact would need to be manually deleted (ex: through web UI)
+        # if this list is changed, as the artifact actions do not offer any option for us to
+        # invalidate the artifact.
+        populate_cuda_path cuda_nvcc
+        populate_cuda_path cuda_cudart
+        populate_cuda_path cuda_nvrtc
+        populate_cuda_path cuda_profiler_api
+        populate_cuda_path cuda_cccl
+        if [[ "$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})" -ge 12 ]]; then
+          populate_cuda_path libnvjitlink
+        fi
+        ls -l $CUDA_PATH
+
+        # Prepare the cache
+        # Note: try to escape | and > ...
+        tar -czvf ${CTK_CACHE_FILENAME} ${CUDA_PATH}
+
+    - name: Upload CTK cache
+      if: ${{ always() &&
+              steps.ctk-get-cache.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ env.CTK_CACHE_KEY }}
+        path: ./${{ env.CTK_CACHE_FILENAME }}
+
+    - name: Restore CTK cache
+      if: ${{ steps.ctk-get-cache.outputs.cache-hit == 'true' }}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        ls -l
+        CUDA_PATH="./cuda_toolkit"
+        tar -xzvf $CTK_CACHE_FILENAME
+        ls -l $CUDA_PATH
+        if [ ! -d "$CUDA_PATH/include" ]; then
+          exit 1
+        fi
+
+    - name: Set output environment variables
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        CUDA_PATH=$(realpath "./cuda_toolkit")
+        echo "CUDA_PATH=${CUDA_PATH}" >> $GITHUB_ENV
+        echo "${CUDA_PATH}/bin" >> $GITHUB_PATH
+        echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}:${CUDA_PATH}/lib" >> $GITHUB_ENV
