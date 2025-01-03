@@ -9,7 +9,7 @@ from typing import List, Optional, Tuple, Union
 from cuda import nvrtc
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import _handle_boolean_option, handle_return
+from cuda.core.experimental._utils import _handle_boolean_option, check_or_create_options, handle_return
 
 
 @dataclass
@@ -435,8 +435,9 @@ class Program:
             if name_expressions:
                 for n in name_expressions:
                     handle_return(nvrtc.nvrtcAddNameExpression(self._mnff.handle, n.encode()), handle=self._mnff.handle)
+            options = self._options._as_bytes()
             handle_return(
-                nvrtc.nvrtcCompileProgram(self._mnff.handle, len(self._options), self._options._as_bytes()),
+                nvrtc.nvrtcCompileProgram(self._mnff.handle, len(options), options),
                 handle=self._mnff.handle,
             )
 
