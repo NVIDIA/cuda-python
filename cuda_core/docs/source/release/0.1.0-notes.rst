@@ -1,4 +1,7 @@
-# `cuda.core` v0.1.0 Release notes
+# `cuda.core` Release notes
+
+`cuda.core` 0.1.0 Release Notes
+===============================
 
 Released on Nov 8, 2024
 

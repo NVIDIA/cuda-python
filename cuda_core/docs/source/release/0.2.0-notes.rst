@@ -1,5 +1,8 @@
 # `cuda.core` Release notes
 
+`cuda.core` 0.2.0 Release Notes
+===============================
+
 Released on <TODO>, 2024
 
 ## Hightlights
