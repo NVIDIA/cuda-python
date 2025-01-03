@@ -342,10 +342,7 @@ class ProgramOptions:
 
     def _as_bytes(self):
         # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
-        result = []
-        for option in self._formatted_options:
-            result.append(option.encode())
-        return result
+        return list(o.encode() for o in self._formatted_options)
 
     def __repr__(self):
         # __TODO__ improve this
