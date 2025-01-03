@@ -158,7 +158,6 @@ jobs:
         cuda-version:
           # Note: this is for test-time only.
           - "11.8.0"
-          - "11.4.4"  # 11.4 is the first version that has a valid redist needed by the fetch_ctk action
         runner:
           - default
         include:
