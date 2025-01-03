@@ -403,10 +403,7 @@ class Program:
         else:
             raise NotImplementedError
 
-        if options is None:
-            self._options = []
-        else:
-            self._options = options._as_bytes()
+        self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
 
     def close(self):
         """Destroy this program."""
