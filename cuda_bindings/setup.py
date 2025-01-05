@@ -18,7 +18,6 @@ from pyclibrary import CParser
 from setuptools import find_packages, setup
 from setuptools.extension import Extension
 from setuptools.command.build_ext import build_ext
-import versioneer
 
 
 # ----------------------------------------------------------------------
