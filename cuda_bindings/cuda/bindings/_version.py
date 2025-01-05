@@ -6,4 +6,4 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-__version__ = "12.6.2.post1"
+__version__ = "11.8.5.post1"
