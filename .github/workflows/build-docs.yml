@@ -31,6 +31,14 @@ jobs:
       # TODO: cache conda env to speed up the workflow once conda-incubator/setup-miniconda#267
       # is resolved
 
+      - name: Install dependencies
+        uses: ./.github/actions/install_unix_deps
+        continue-on-error: false
+        with:
+          # zstd for GHA Cache
+          dependencies: "zstd"
+          dependent_exes: "zstd"
+
       - name: Set up miniforge
         uses: conda-incubator/setup-miniconda@v3
         with:

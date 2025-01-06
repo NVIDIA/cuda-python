@@ -100,35 +100,12 @@ jobs:
 
       - name: Install dependencies
         if: ${{ env.USE_CACHE == '1' }}
-        run: |
+        uses: ./.github/actions/install_unix_deps
+        continue-on-error: false
+        with:
           # For GHA Cache
-          dependencies=(zstd)
-          dependent_exes=(zstd)
-
-          not_found=0
-          for dep in ${dependent_exes[@]}; do
-            if ! (command -v curl 2>&1 >/dev/null); then
-              not_found=1
-              break
-            fi
-          done
-          if [[ $not_found == 0 ]]; then
-            echo "All dependencies are found. Do nothing."
-            exit 0
-          fi
-          if ! (command -v sudo 2>&1 >/dev/null); then
-            if [[ $EUID == 0 ]]; then
-              alias SUDO=""
-            else
-              echo "The following oprations require root access."
-              exit 1
-            fi
-          else
-            alias SUDO="sudo"
-          fi
-          shopt -s expand_aliases
-          SUDO apt update
-          SUDO apt install -y ${dependencies[@]}
+          dependencies: "zstd"
+          dependent_exes: "zstd"
 
       - name: Dump environment
         run: |
@@ -354,6 +331,14 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
 
+      - name: Install dependencies
+        uses: ./.github/actions/install_unix_deps
+        continue-on-error: false
+        with:
+          # zstd for GHA Cache, gcc for Cython tests
+          dependencies: "zstd build-essential"
+          dependent_exes: "zstd gcc"
+
       # We'll try GHA Artifacts first, and then fall back to GHA Cache
       - name: Download cuda.bindings build artifacts
         id: cuda-bindings-download
@@ -463,8 +448,6 @@ jobs:
           pip install -r requirements.txt
           pytest -rxXs tests/
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
-            # cython tests require gcc
-            apt install -y build-essential
             bash tests/cython/build_tests.sh
           elif [[ "${{ matrix.host-platform }}" == win* ]]; then
             # TODO: enable this once win-64 runners are up 
