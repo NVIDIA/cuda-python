@@ -1,5 +1,3 @@
-# Release Notes
-
 Release Notes
 =============
 

@@ -94,7 +94,7 @@ class LinkerOptions:
     Attributes
     ----------
     arch : str, optional
-        Pass the SM architecture value, such as ``-arch=sm_<CC>`` (for generating CUBIN) or
+        Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
         will be used.
     max_register_count : int, optional

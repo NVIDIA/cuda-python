@@ -1,0 +1,29 @@
+name: Backport merged pull request
+
+on:
+  pull_request_target:
+    types: [closed, labeled]
+    branches:
+      - main
+
+permissions:
+  contents: write       # so it can comment
+  pull-requests: write  # so it can create pull requests
+
+jobs:
+  backport:
+    name: Backport pull request
+    if: ${{ github.repository_owner == 'nvidia' &&
+            github.event.pull_request.merged == true
+         }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create backport pull requests
+        uses: korthout/backport-action@v3
+        with:
+          copy_assignees: true
+          copy_labels_pattern: true
+          copy_requested_reviewers: true
+          label_pattern: to-be-backported
+          target_branches: 11.8.x
