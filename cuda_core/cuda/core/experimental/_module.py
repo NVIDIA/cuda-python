@@ -58,7 +58,7 @@ class Kernel:
     __slots__ = ("_handle", "_module")
 
     def __init__(self):
-        raise NotImplementedError("directly constructing a Kernel instance is not supported")
+        raise RuntimeError("directly constructing a Kernel instance is not supported")
 
     @staticmethod
     def _from_obj(obj, mod):
@@ -81,157 +81,225 @@ class Kernel:
 
     @max_threads_per_block.setter
     def max_threads_per_block(self, value: int):
-        raise NotImplementedError("max_threads_per_block is read only")
+        raise RuntimeError("max_threads_per_block is read only")
 
     @property
     def shared_size_bytes(self):
         """Get the size in bytes of statically-allocated shared memory required by this function."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_SHARED_SIZE_BYTES)
+        return handle_return(
+            cuda.cuKernelGetAttribute(cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES, self._handle, None)
+        )
 
     @shared_size_bytes.setter
     def shared_size_bytes(self, value: int):
-        raise NotImplementedError("shared_size_bytes is read only")
+        raise RuntimeError("shared_size_bytes is read only")
 
     @property
     def const_size_bytes(self):
         """Get the size in bytes of user-allocated constant memory required by this function."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_CONST_SIZE_BYTES)
+        return handle_return(
+            cuda.cuKernelGetAttribute(cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES, self._handle, None)
+        )
 
     @const_size_bytes.setter
     def const_size_bytes(self, value: int):
-        raise NotImplementedError("const_size_bytes is read only")
+        raise RuntimeError("const_size_bytes is read only")
 
     @property
     def local_size_bytes(self):
         """Get the size in bytes of local memory used by each thread of this function."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_LOCAL_SIZE_BYTES)
+        return handle_return(
+            cuda.cuKernelGetAttribute(cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES, self._handle, None)
+        )
 
     @local_size_bytes.setter
     def local_size_bytes(self, value: int):
-        raise NotImplementedError("local_size_bytes is read only")
+        raise RuntimeError("local_size_bytes is read only")
 
     @property
     def num_regs(self):
         """Get the number of registers used by each thread of this function."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_NUM_REGS)
+        return handle_return(
+            cuda.cuKernelGetAttribute(cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NUM_REGS, self._handle, None)
+        )
 
     @num_regs.setter
     def num_regs(self, value: int):
-        raise NotImplementedError("num_regs is read only")
+        raise RuntimeError("num_regs is read only")
 
     @property
     def ptx_version(self):
         """Get the PTX virtual architecture version for which the function was compiled."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_PTX_VERSION)
+        return handle_return(
+            cuda.cuKernelGetAttribute(cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PTX_VERSION, self._handle, None)
+        )
 
     @ptx_version.setter
     def ptx_version(self, value: int):
-        raise NotImplementedError("ptx_version is read only")
+        raise RuntimeError("ptx_version is read only")
 
     @property
     def binary_version(self):
         """Get the binary architecture version for which the function was compiled."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_BINARY_VERSION)
+        return handle_return(
+            cuda.cuKernelGetAttribute(cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_BINARY_VERSION, self._handle, None)
+        )
 
     @binary_version.setter
     def binary_version(self, value: int):
-        raise NotImplementedError("binary_version is read only")
+        raise RuntimeError("binary_version is read only")
 
     @property
     def cache_mode_ca(self):
         """Get whether the function has been compiled with user specified option "-Xptxas --dlcm=ca" set."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_CACHE_MODE_CA)
+        return handle_return(
+            cuda.cuKernelGetAttribute(cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA, self._handle, None)
+        )
 
     @cache_mode_ca.setter
     def cache_mode_ca(self, value: bool):
-        raise NotImplementedError("cache_mode_ca is read only")
+        raise RuntimeError("cache_mode_ca is read only")
 
     @property
     def max_dynamic_shared_size_bytes(self):
         """Get the maximum size in bytes of dynamically-allocated shared memory that can be used by this function."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_MAX_DYNAMIC_SHARED_SIZE_BYTES)
+        return handle_return(
+            cuda.cuKernelGetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES, self._handle, None
+            )
+        )
 
     @max_dynamic_shared_size_bytes.setter
     def max_dynamic_shared_size_bytes(self, value: int):
         """Set the maximum size in bytes of dynamically-allocated shared memory that can be used by this function."""
-        cuda.cuFuncSetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_MAX_DYNAMIC_SHARED_SIZE_BYTES, value)
+        handle_return(
+            cuda.cuKernelSetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES, value, self._handle, None
+            )
+        )
 
     @property
     def preferred_shared_memory_carveout(self):
         """Get the shared memory carveout preference, in percent of the total shared memory."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_PREFERRED_SHARED_MEMORY_CARVEOUT)
+        return handle_return(
+            cuda.cuKernelGetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT, self._handle, None
+            )
+        )
 
     @preferred_shared_memory_carveout.setter
     def preferred_shared_memory_carveout(self, value: int):
         """Set the shared memory carveout preference, in percent of the total shared memory."""
-        cuda.cuFuncSetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_PREFERRED_SHARED_MEMORY_CARVEOUT, value)
+        handle_return(
+            cuda.cuKernelSetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT, value, self._handle, None
+            )
+        )
 
     @property
     def cluster_size_must_be_set(self):
         """Get whether the kernel must launch with a valid cluster size specified."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_CLUSTER_SIZE_MUST_BE_SET)
+        return handle_return(
+            cuda.cuKernelGetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET, self._handle, None
+            )
+        )
 
     @cluster_size_must_be_set.setter
     def cluster_size_must_be_set(self, value: bool):
-        """Set whether the kernel must launch with a valid cluster size specified."""
-        cuda.cuFuncSetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_CLUSTER_SIZE_MUST_BE_SET, value)
+        raise RuntimeError("cluster_size_must_be_set is read only")
 
     @property
     def required_cluster_width(self):
         """Get the required cluster width in blocks."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_REQUIRED_CLUSTER_WIDTH)
+        return handle_return(
+            cuda.cuKernelGetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH, self._handle, None
+            )
+        )
 
     @required_cluster_width.setter
     def required_cluster_width(self, value: int):
         """Set the required cluster width in blocks."""
-        cuda.cuFuncSetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_REQUIRED_CLUSTER_WIDTH, value)
+        handle_return(
+            cuda.cuKernelSetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH, value, self._handle, None
+            )
+        )
 
     @property
     def required_cluster_height(self):
         """Get the required cluster height in blocks."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_REQUIRED_CLUSTER_HEIGHT)
+        return handle_return(
+            cuda.cuKernelGetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT, self._handle, None
+            )
+        )
 
     @required_cluster_height.setter
     def required_cluster_height(self, value: int):
         """Set the required cluster height in blocks."""
-        cuda.cuFuncSetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_REQUIRED_CLUSTER_HEIGHT, value)
+        handle_return(
+            cuda.cuKernelSetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT, value, self._handle, None
+            )
+        )
 
     @property
     def required_cluster_depth(self):
         """Get the required cluster depth in blocks."""
-        return cuda.cuFuncGetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_REQUIRED_CLUSTER_DEPTH)
+        return handle_return(
+            cuda.cuKernelGetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH, self._handle, None
+            )
+        )
 
     @required_cluster_depth.setter
     def required_cluster_depth(self, value: int):
         """Set the required cluster depth in blocks."""
-        cuda.cuFuncSetAttribute(self._handle, cuda.CUfunction_attribute.CU_FUNC_REQUIRED_CLUSTER_DEPTH, value)
+        handle_return(
+            cuda.cuKernelSetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH, value, self._handle, None
+            )
+        )
 
     @property
     def non_portable_cluster_size_allowed(self):
         """Get whether the function can be launched with non-portable cluster size."""
-        return cuda.cuFuncGetAttribute(
-            self._handle, cuda.CUfunction_attribute.CU_FUNC_NON_PORTABLE_CLUSTER_SIZE_ALLOWED
+        return handle_return(
+            cuda.cuKernelGetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED, self._handle, None
+            )
         )
 
     @non_portable_cluster_size_allowed.setter
     def non_portable_cluster_size_allowed(self, value: bool):
         """Set whether the function can be launched with non-portable cluster size."""
-        cuda.cuFuncSetAttribute(
-            self._handle, cuda.CUfunction_attribute.CU_FUNC_NON_PORTABLE_CLUSTER_SIZE_ALLOWED, value
+        handle_return(
+            cuda.cuKernelSetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED, value, self._handle, None
+            )
         )
 
     @property
     def cluster_scheduling_policy_preference(self):
         """Get the block scheduling policy of a function."""
-        return cuda.cuFuncGetAttribute(
-            self._handle, cuda.CUfunction_attribute.CU_FUNC_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+        return handle_return(
+            cuda.cuKernelGetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE, self._handle, None
+            )
         )
 
     @cluster_scheduling_policy_preference.setter
     def cluster_scheduling_policy_preference(self, value: int):
         """Set the block scheduling policy of a function."""
-        cuda.cuFuncSetAttribute(
-            self._handle, cuda.CUfunction_attribute.CU_FUNC_CLUSTER_SCHEDULING_POLICY_PREFERENCE, value
+        handle_return(
+            cuda.cuKernelSetAttribute(
+                cuda.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE,
+                value,
+                self._handle,
+                None,
+            )
         )
 
 
