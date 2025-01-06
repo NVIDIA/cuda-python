@@ -42,6 +42,9 @@ jobs:
                #  (matrix.host-platform == 'win-64' && 'windows-amd64-cpu8') }}
     outputs:
       BUILD_CTK_VER: ${{ steps.pass_env.outputs.CUDA_VERSION }}
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
@@ -62,7 +65,6 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
   
       - name: Set environment variables
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
@@ -75,14 +77,60 @@ jobs:
           fi
   
           echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}"
+          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ matrix.cuda-version }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ matrix.cuda-version }}-${{ matrix.host-platform }}"
+          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
-  
+
+          # When the CI is run due to merging to main, we want it to populate GHA Cache not Artifacts,
+          # so that CI workflows running on every branch have a fallback to use.
+          if [[ "${{ github.ref_name}}" == main ]]; then
+            echo "USE_CACHE=1" >> $GITHUB_ENV
+          else
+            echo "USE_CACHE=0" >> $GITHUB_ENV
+          fi
+
+          # TODO: revert me before merging; this is to test the cache restore in the PR
+          echo "USE_CACHE=1" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        if: ${{ env.USE_CACHE == '1' }}
+        run: |
+          # For GHA Cache
+          dependencies=(zstd)
+          dependent_exes=(zstd)
+
+          not_found=0
+          for dep in ${dependent_exes[@]}; do
+            if ! (command -v curl 2>&1 >/dev/null); then
+              not_found=1
+              break
+            fi
+          done
+          if [[ $not_found == 0 ]]; then
+            echo "All dependencies are found. Do nothing."
+            exit 0
+          fi
+          if ! (command -v sudo 2>&1 >/dev/null); then
+            if [[ $EUID == 0 ]]; then
+              alias SUDO=""
+            else
+              echo "The following oprations require root access."
+              exit 1
+            fi
+          else
+            alias SUDO="sudo"
+          fi
+          shopt -s expand_aliases
+          SUDO apt update
+          SUDO apt install -y ${dependencies[@]}
+
       - name: Dump environment
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           env
 
@@ -97,7 +145,6 @@ jobs:
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: List the cuda.core artifacts directory
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           if [[ "${{ matrix.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -108,18 +155,41 @@ jobs:
           ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Check cuda.core wheel
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pip install twine
           twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
+        if: ${{ env.USE_CACHE == '0' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
           overwrite: 'true'
+
+      - name: Prepare cuda.core cache
+        if: ${{ env.USE_CACHE == '1' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{ env.USE_CACHE }}" == 1 ]]; then
+            # this file is uploaded to GHA Cache
+            tar -c -f "${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz" -C "${{ env.CUDA_CORE_ARTIFACTS_DIR }}" .
+            du -h "${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz"
+            # check if the previous runs from the same PR have populated the cache, if so need to clean it up
+            CACHE_KEY=${{ env.CUDA_CORE_ARTIFACT_NAME }}
+            if [ $(gh cache list | grep $CACHE_KEY | wc -l) == "1" ]; then
+              gh cache delete $CACHE_KEY
+            fi
+          fi
+
+      - name: Cache cuda.core build artifacts
+        if: ${{ env.USE_CACHE == '1' }}
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -146,7 +216,6 @@ jobs:
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: List the cuda.bindings artifacts directory
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           if [[ "${{ matrix.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -158,17 +227,40 @@ jobs:
 
       # TODO: enable this after NVIDIA/cuda-python#297 is resolved
       # - name: Check cuda.bindings wheel
-      #   shell: bash --noprofile --norc -xeuo pipefail {0}
       #   run: |
       #     twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
+      - name: Prepare cuda.bindings cache
+        if: ${{ env.USE_CACHE == '1' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{ env.USE_CACHE }}" == 1 ]]; then
+            # this file is uploaded to GHA Cache
+            tar -c -f "${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz" -C "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}" .
+            du -h "${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz"
+            # check if the previous runs from the same PR have populated the cache, if so need to clean it up
+            CACHE_KEY=${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+            if [ $(gh cache list | grep $CACHE_KEY | wc -l) == "1" ]; then
+              gh cache delete $CACHE_KEY
+            fi
+          fi
+
       - name: Upload cuda.bindings build artifacts
+        if: ${{ env.USE_CACHE == '0' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
           overwrite: 'true'
+
+      - name: Cache cuda.bindings build artifacts
+        if: ${{ env.USE_CACHE == '1' }}
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz
 
       - name: Pass environment variables to the next runner
         id: pass_env
@@ -205,7 +297,7 @@ jobs:
             runner: H100
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }})
     # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
@@ -221,9 +313,11 @@ jobs:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
     needs:
       - build
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Ensure GPU is working
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: nvidia-smi
 
       - name: Checkout ${{ github.event.repository.name }}
@@ -232,7 +326,6 @@ jobs:
           fetch-depth: 0
 
       - name: Set environment variables
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
@@ -251,32 +344,93 @@ jobs:
           fi
 
           # make outputs from the previous job as env vars
-          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}"
+          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ needs.build.outputs.BUILD_CTK_VER }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ needs.build.outputs.BUILD_CTK_VER }}-${{ matrix.host-platform }}"
+          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
 
+      # We'll try GHA Artifacts first, and then fall back to GHA Cache
       - name: Download cuda.bindings build artifacts
+        id: cuda-bindings-download
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
+      - name: Restore cuda.bindings cache
+        if: ${{ steps.cuda-bindings-download.outcome == 'failure' }}
+        id: cuda-bindings-cache
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz
+          restore-keys: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}
+          fail-on-cache-miss: true
+
+      - name: Report cache restore status
+        if: ${{ steps.cuda-bindings-cache.outcome != 'skipped' }}
+        run: |
+          if [[ "${{ steps.cuda-bindings-cache.outputs.cache-hit }}" == true ]]; then
+            echo "cache is found"
+          else
+            echo "cache is not found"
+            exit 1
+          fi
+          CACHE_DIR="${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          CACHE_ARCHIVE="${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz"
+          ls -l $CACHE_ARCHIVE
+          mkdir -p $CACHE_DIR
+          du -h $CACHE_ARCHIVE &&
+            tar -x -f $CACHE_ARCHIVE -C $CACHE_DIR &&
+            rm -f $CACHE_ARCHIVE || exit 1
+
       - name: Display structure of downloaded cuda.bindings artifacts
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
       - name: Download cuda.core build artifacts
+        id: cuda-core-download
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
+      - name: Restore cuda.core cache
+        if: ${{ steps.cuda-core-download.outcome == 'failure' }}
+        id: cuda-core-cache
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz
+          restore-keys: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}
+          fail-on-cache-miss: true
+
+      - name: Report cache restore status
+        if: ${{ steps.cuda-core-cache.outcome != 'skipped' }}
+        run: |
+          if [[ "${{ steps.cuda-core-cache.outputs.cache-hit }}" == true ]]; then
+            echo "cache is found"
+          else
+            echo "cache is not found"
+            exit 1
+          fi
+          CACHE_DIR="${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
+          CACHE_ARCHIVE="${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz"
+          ls -l $CACHE_ARCHIVE
+          mkdir -p $CACHE_DIR
+          du -h $CACHE_ARCHIVE &&
+            tar -x -f $CACHE_ARCHIVE -C $CACHE_DIR &&
+            rm -f $CACHE_ARCHIVE || exit 1
+
       - name: Display structure of downloaded cuda.core build artifacts
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pwd
           ls -lahR $CUDA_CORE_ARTIFACTS_DIR
@@ -298,7 +452,6 @@ jobs:
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           ls $CUDA_PATH
 
@@ -321,7 +474,6 @@ jobs:
           popd
 
       - name: Run cuda.core tests
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           if [[ ${{ matrix.python-version }} == "3.13" ]]; then
             # TODO: remove this hack once cuda-python has a cp313 build
@@ -346,7 +498,7 @@ jobs:
   doc:
     name: Docs
     # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
       id-token: write
