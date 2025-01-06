@@ -70,6 +70,8 @@ class Kernel:
         return ker
 
     # TODO: implement from_handle()
+
+    # Kernel attribute getters and setters
     @property
     def max_threads_per_block(self):
         """Get the maximum number of threads per block."""
