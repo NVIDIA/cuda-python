@@ -11,7 +11,7 @@ jobs:
   build:
     name: Build docs
     # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # WAR: Building the doc currently requires a GPU (NVIDIA/cuda-python#326,327)
     runs-on: linux-amd64-gpu-t4-latest-1-testing
     #runs-on: ubuntu-latest
@@ -61,16 +61,50 @@ jobs:
           REPO_DIR=$(pwd)
 
           # make outputs from the previous job as env vars
-          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
+          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build_ctk_ver }}-linux-64-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build_ctk_ver }}-linux-64"
+          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
+      # We'll try GHA Artifacts first, and then fall back to GHA Cache
       - name: Download cuda.bindings build artifacts
+        id: cuda-bindings-download
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Restore cuda.bindings cache
+        if: ${{ steps.cuda-bindings-download.outcome == 'failure' }}
+        id: cuda-bindings-cache
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz
+          restore-keys: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}
+          fail-on-cache-miss: true
+
+      - name: Report cache restore status
+        if: ${{ steps.cuda-bindings-cache.outcome != 'skipped' }}
+        run: |
+          if [[ "${{ steps.cuda-bindings-cache.outputs.cache-hit }}" == true ]]; then
+            echo "cache is found"
+          else
+            echo "cache is not found"
+            exit 1
+          fi
+          CACHE_DIR="${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          CACHE_ARCHIVE="${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz"
+          ls -l $CACHE_ARCHIVE
+          mkdir -p $CACHE_DIR
+          du -h $CACHE_ARCHIVE &&
+            tar -x -f $CACHE_ARCHIVE -C $CACHE_DIR &&
+            rm -f $CACHE_ARCHIVE || exit 1
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
@@ -78,10 +112,39 @@ jobs:
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
       - name: Download cuda.core build artifacts
+        id: cuda-core-download
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: Restore cuda.core cache
+        if: ${{ steps.cuda-core-download.outcome == 'failure' }}
+        id: cuda-core-cache
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz
+          restore-keys: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}
+          fail-on-cache-miss: true
+
+      - name: Report cache restore status
+        if: ${{ steps.cuda-core-cache.outcome != 'skipped' }}
+        run: |
+          if [[ "${{ steps.cuda-core-cache.outputs.cache-hit }}" == true ]]; then
+            echo "cache is found"
+          else
+            echo "cache is not found"
+            exit 1
+          fi
+          CACHE_DIR="${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
+          CACHE_ARCHIVE="${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz"
+          ls -l $CACHE_ARCHIVE
+          mkdir -p $CACHE_DIR
+          du -h $CACHE_ARCHIVE &&
+            tar -x -f $CACHE_ARCHIVE -C $CACHE_DIR &&
+            rm -f $CACHE_ARCHIVE || exit 1
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
