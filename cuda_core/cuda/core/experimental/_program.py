@@ -4,7 +4,7 @@
 
 import weakref
 
-from cuda import cuda, nvrtc
+from cuda import nvrtc
 from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils import handle_return
 
@@ -87,12 +87,6 @@ class Program:
             Newly created code object.
 
         """
-
-        driver_ver = handle_return(cuda.cuDriverGetVersion())
-        nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
-        if nvrtc_major * 1000 + nvrtc_minor * 10 < driver_ver:
-            raise RuntimeError("PTX version is more recent than the driver version")
-
         if target_type not in self._supported_target_type:
             raise NotImplementedError
 
