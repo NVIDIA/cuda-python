@@ -1,4 +1,4 @@
-`cuda.core` 0.2.0 Release Notes
+``cuda.core`` 0.2.0 Release Notes
 ===============================
 
 Released on <TODO>, 2024
@@ -6,7 +6,7 @@ Released on <TODO>, 2024
 Highlights
 ----------
 
-- Add `ProgramOptions` to facilitate the passing of runtime compile options to `Program`.
+- Add ``ProgramOptions`` to facilitate the passing of runtime compile options to ``Program``.
 
 Limitations
 -----------
@@ -16,4 +16,4 @@ Limitations
 Breaking Changes
 ----------------
 
-- The `Program.Compile` method no longer accepts an options argument. Instead, you can optionally pass an instance of `ProgramOptions` to the constructor of `Program`.
+- The ``Program.Compile`` method no longer accepts an options argument. Instead, you can optionally pass an instance of ``ProgramOptions`` to the constructor of ``Program``.
