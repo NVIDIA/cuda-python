@@ -11,7 +11,7 @@ requires = ["setuptools", "cython", "pyclibrary"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cuda-python"
+name = "cuda-bindings"
 description = "Python bindings for CUDA"
 authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
 license = {file = "LICENSE"}
