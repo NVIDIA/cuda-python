@@ -29,18 +29,11 @@ def get_saxpy_kernel(init_cuda):
     }
     """
 
-    dev = Device()
-    dev.set_current()
-    dev.create_stream()
-
     # prepare program
     prog = Program(code, code_type="c++")
     mod = prog.compile(
         "cubin",
-        options=(
-            "-std=c++11",
-            "-arch=sm_" + "".join(f"{i}" for i in dev.compute_capability),
-        ),
+        options=("-arch=sm_" + "".join(f"{i}" for i in Device().compute_capability),),
         name_expressions=("saxpy<float>", "saxpy<double>"),
     )
 
