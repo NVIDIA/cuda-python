@@ -42,6 +42,9 @@ jobs:
                #  (matrix.host-platform == 'win-64' && 'windows-amd64-cpu8') }}
     outputs:
       BUILD_CTK_VER: ${{ steps.pass_env.outputs.CUDA_VERSION }}
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
@@ -62,7 +65,6 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
   
       - name: Set environment variables
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
@@ -82,7 +84,6 @@ jobs:
           echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
   
       - name: Dump environment
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           env
 
@@ -97,7 +98,6 @@ jobs:
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: List the cuda.core artifacts directory
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           if [[ "${{ matrix.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -108,7 +108,6 @@ jobs:
           ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Check cuda.core wheel
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pip install twine
           twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
@@ -146,7 +145,6 @@ jobs:
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: List the cuda.bindings artifacts directory
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           if [[ "${{ matrix.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -158,7 +156,6 @@ jobs:
 
       # TODO: enable this after NVIDIA/cuda-python#297 is resolved
       # - name: Check cuda.bindings wheel
-      #   shell: bash --noprofile --norc -xeuo pipefail {0}
       #   run: |
       #     twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
@@ -167,6 +164,31 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          if-no-files-found: error
+          overwrite: 'true'
+
+      - name: Build and check cuda-python wheel
+        run: |
+          pushd cuda_python
+          pip wheel -v --no-deps .
+          twine check *.whl
+          popd
+
+      - name: List the cuda-python artifacts directory
+        run: |
+          if [[ "${{ matrix.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
+          fi
+          $CHOWN -R $(whoami) cuda_python/*.whl
+          ls -lahR cuda_python
+
+      - name: Upload cuda.bindings build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cuda-python-wheel
+          path: cuda_python/*.whl
           if-no-files-found: error
           overwrite: 'true'
 
@@ -221,9 +243,11 @@ jobs:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
     needs:
       - build
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Ensure GPU is working
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: nvidia-smi
 
       - name: Checkout ${{ github.event.repository.name }}
@@ -232,7 +256,6 @@ jobs:
           fetch-depth: 0
 
       - name: Set environment variables
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
@@ -257,6 +280,17 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
 
+      - name: Download cuda-python build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cuda-python-wheel
+          path: .
+
+      - name: Display structure of downloaded cuda-python artifacts
+        run: |
+          pwd
+          ls -lahR .
+
       - name: Download cuda.bindings build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -264,7 +298,6 @@ jobs:
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: Display structure of downloaded cuda.bindings artifacts
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
@@ -276,7 +309,6 @@ jobs:
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Display structure of downloaded cuda.core build artifacts
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pwd
           ls -lahR $CUDA_CORE_ARTIFACTS_DIR
@@ -295,7 +327,6 @@ jobs:
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           ls $CUDA_PATH
 
@@ -311,7 +342,6 @@ jobs:
           popd
 
       - name: Run cuda.core tests
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           if [[ ${{ matrix.python-version }} == "3.13" ]]; then
             # TODO: remove this hack once cuda-python has a cp313 build
@@ -332,6 +362,10 @@ jobs:
           pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
           pytest -rxXs tests/
           popd
+
+      - name: Ensure cuda-python installable
+        run: |
+          pip install cuda_python*.whl
 
   doc:
     name: Docs
