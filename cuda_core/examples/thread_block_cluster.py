@@ -47,7 +47,7 @@ dev.set_current()
 prog = Program(
     code,
     code_type="c++",
-    options=ProgramOptions(arch=f"sm_{arch}", std="c++17", include_paths=cuda_include_path),
+    options=ProgramOptions(arch=f"sm_{arch}", std="c++17", include_path=cuda_include_path),
 )
 mod = prog.compile(target_type="cubin")
 ker = mod.get_kernel("check_cluster_info")
