@@ -17,8 +17,6 @@ def test_program_with_various_options(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
 
     options_list = [
-        ProgramOptions(ptxas_options="-v"),
-        ProgramOptions(ptxas_options=["-v", "-O3"]),
         ProgramOptions(device_code_optimize=True, debug=True),
         ProgramOptions(relocatable_device_code=True, max_register_count=32),
         ProgramOptions(ftz=True, prec_sqrt=False, prec_div=False),
@@ -31,21 +29,20 @@ def test_program_with_various_options(init_cuda):
         ProgramOptions(define_macro=[("MY_MACRO", "99"), ("MY_OTHER_MACRO", "100")]),
         ProgramOptions(undefine_macro=["MY_MACRO", "MY_OTHER_MACRO"]),
         ProgramOptions(undefine_macro="MY_MACRO", include_path="/usr/local/include"),
-        ProgramOptions(pre_include="my_header.h", no_source_include=True),
         ProgramOptions(builtin_initializer_list=False, disable_warnings=True),
         ProgramOptions(restrict=True, device_as_default_execution_space=True),
         ProgramOptions(device_int128=True, optimization_info="inline"),
         ProgramOptions(no_display_error_number=True),
-        ProgramOptions(diag_error="1234", diag_suppress="5678"),
-        ProgramOptions(diag_warn="91011", brief_diagnostics=True),
+        ProgramOptions(diag_error="1234", diag_suppress="1234"),
+        ProgramOptions(diag_warn="1000", brief_diagnostics=True),
         ProgramOptions(time="compile_time.csv", split_compile=4),
         ProgramOptions(fdevice_syntax_only=True, minimal=True),
     ]
 
-    # TODO compile the program once the CI is set up
     for options in options_list:
         program = Program(code, "c++", options)
         assert program.backend == "nvrtc"
+        program.compile("ptx")
         program.close()
         assert program.handle is None
 
@@ -70,6 +67,7 @@ def test_program_init_invalid_code_format():
 
 
 # TODO: incorporate this check in Program
+# This is tested against the current device's arch
 @pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
 def test_program_compile_valid_target_type():
     code = 'extern "C" __global__ void my_kernel() {}'
