@@ -80,7 +80,6 @@ culink_options = [
     ],
 )
 def test_linker_init(compile_ptx_functions, options):
-    print(culink_backend)
     linker = Linker(*compile_ptx_functions, options=options)
     object_code = linker.link("cubin")
     assert isinstance(object_code, ObjectCode)
