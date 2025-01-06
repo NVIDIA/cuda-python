@@ -10,7 +10,7 @@
 import pytest
 from conftest import can_load_generated_ptx
 
-from cuda.core.experimental import Program
+from cuda.core.experimental import Device, Program
 
 
 @pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
@@ -21,3 +21,38 @@ def test_get_kernel():
     kernel = object_code.get_kernel("ABC")
     assert object_code._handle is not None
     assert kernel._handle is not None
+
+
+def test_kernel_attributes():
+    code = """
+    template<typename T>
+    __global__ void saxpy(const T a,
+                        const T* x,
+                        const T* y,
+                        T* out,
+                        size_t N) {
+        const unsigned int tid = threadIdx.x + blockIdx.x * blockDim.x;
+        for (size_t i=tid; i<N; i+=gridDim.x*blockDim.x) {
+            out[tid] = a * x[tid] + y[tid];
+        }
+    }
+    """
+
+    dev = Device()
+    dev.set_current()
+    dev.create_stream()
+
+    # prepare program
+    prog = Program(code, code_type="c++")
+    mod = prog.compile(
+        "cubin",
+        options=(
+            "-std=c++11",
+            "-arch=sm_" + "".join(f"{i}" for i in dev.compute_capability),
+        ),
+        name_expressions=("saxpy<float>", "saxpy<double>"),
+    )
+
+    # run in single precision
+    kernel = mod.get_kernel("saxpy<float>")
+    print(kernel.max_threads_per_block)
