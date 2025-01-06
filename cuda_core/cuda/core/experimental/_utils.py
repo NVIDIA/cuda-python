@@ -91,7 +91,7 @@ def _handle_boolean_option(option: bool) -> str:
     """
     Convert a boolean option to a string representation.
     """
-    return str(option).lower()
+    return "true" if bool(option) else "false"
 
 
 def precondition(checker: Callable[..., None], what: str = "") -> Callable:
