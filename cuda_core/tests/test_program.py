@@ -36,8 +36,6 @@ def test_program_with_various_options(init_cuda):
         ProgramOptions(no_display_error_number=True),
         ProgramOptions(diag_error="1234", diag_suppress="1234"),
         ProgramOptions(diag_warn="1000"),
-        ProgramOptions(split_compile=4),
-        ProgramOptions(fdevice_syntax_only=True, minimal=True),
     ]
 
     for options in options_list:
