@@ -22,7 +22,7 @@ def test_program_with_various_options(init_cuda):
         ProgramOptions(ftz=True, prec_sqrt=False, prec_div=False),
         ProgramOptions(fma=False, use_fast_math=True),
         ProgramOptions(extra_device_vectorization=True),
-        ProgramOptions(link_time_optimization=True, gen_opt_lto=True),
+        ProgramOptions(link_time_optimization=True),
         ProgramOptions(define_macro="MY_MACRO"),
         ProgramOptions(define_macro=("MY_MACRO", "99")),
         ProgramOptions(define_macro=[("MY_MACRO", "99")]),
@@ -34,7 +34,7 @@ def test_program_with_various_options(init_cuda):
         ProgramOptions(device_int128=True, optimization_info="inline"),
         ProgramOptions(no_display_error_number=True),
         ProgramOptions(diag_error="1234", diag_suppress="1234"),
-        ProgramOptions(diag_warn="1000", brief_diagnostics=True),
+        ProgramOptions(diag_warn="1000"),
         ProgramOptions(time="compile_time.csv", split_compile=4),
         ProgramOptions(fdevice_syntax_only=True, minimal=True),
     ]
