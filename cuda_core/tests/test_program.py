@@ -14,6 +14,7 @@ from cuda.core.experimental._program import Program, ProgramOptions
 
 
 # TODO handle and test options whcih are only supported on more modern CUDA versions
+# tracked in #337
 def test_program_with_various_options(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
 
