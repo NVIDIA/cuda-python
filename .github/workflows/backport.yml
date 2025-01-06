@@ -27,3 +27,4 @@ jobs:
           copy_requested_reviewers: true
           label_pattern: to-be-backported
           target_branches: 11.8.x
+          conflict_resolution: draft_commit_conflicts
