@@ -1,0 +1,44 @@
+# Copyright 2023-2025 NVIDIA Corporation.  All rights reserved.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+[build-system]
+requires = ["setuptools",]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cuda-python"
+version = "12.6.3"
+description = "CUDA Python: Performance meets Productivity"
+readme = {file = "README.md", content-type = "text/markdown"}
+authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
+license = {file = "LICENSE"}
+classifiers = [
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: End Users/Desktop",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Environment :: GPU :: NVIDIA CUDA",
+    "Environment :: GPU :: NVIDIA CUDA :: 12",
+]
+dependencies = [
+  "cuda-bindings~=12.6.3",
+]
+
+[project.urls]
+homepage = "https://nvidia.github.io/cuda-python/"
+documentation = "https://nvidia.github.io/cuda-python/"
+repository = "https://github.com/NVIDIA/cuda-python/"
+issues = "https://github.com/NVIDIA/cuda-python/issues/"
