@@ -258,13 +258,14 @@ jobs:
           pushd ./cuda_bindings
           pip install -r requirements.txt
           pytest -rxXs tests/
+          cd tests_cython
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
             # cython tests require gcc
             apt install -y build-essential
-            bash tests/cython/build_tests.sh
+            CPLUS_INCLUDE_PATH=$CUDA_HOME/include:$CPLUS_INCLUDE_PATH cythonize -3 -i test_*.pyx
           elif [[ "${{ matrix.host-platform }}" == win* ]]; then
             # TODO: enable this once win-64 runners are up 
             exit 1
           fi  
-          pytest -rxXs tests/cython
+          pytest -rxXs .
           popd
