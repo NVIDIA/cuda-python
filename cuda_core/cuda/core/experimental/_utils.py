@@ -6,7 +6,12 @@ import functools
 from collections import namedtuple
 from typing import Callable, Dict
 
-from cuda import cuda, cudart, nvrtc
+try:
+    from cuda.bindings import driver, nvrtc, runtime
+except ImportError:
+    from cuda import cuda as driver
+    from cuda import cudart as runtime
+    from cuda import nvrtc
 
 
 class CUDAError(Exception):
@@ -21,23 +26,23 @@ ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
 
 
 def _check_error(error, handle=None):
-    if isinstance(error, cuda.CUresult):
-        if error == cuda.CUresult.CUDA_SUCCESS:
+    if isinstance(error, driver.CUresult):
+        if error == driver.CUresult.CUDA_SUCCESS:
             return
-        err, name = cuda.cuGetErrorName(error)
-        if err == cuda.CUresult.CUDA_SUCCESS:
-            err, desc = cuda.cuGetErrorString(error)
-        if err == cuda.CUresult.CUDA_SUCCESS:
+        err, name = driver.cuGetErrorName(error)
+        if err == driver.CUresult.CUDA_SUCCESS:
+            err, desc = driver.cuGetErrorString(error)
+        if err == driver.CUresult.CUDA_SUCCESS:
             raise CUDAError(f"{name.decode()}: {desc.decode()}")
         else:
             raise CUDAError(f"unknown error: {error}")
-    elif isinstance(error, cudart.cudaError_t):
-        if error == cudart.cudaError_t.cudaSuccess:
+    elif isinstance(error, runtime.cudaError_t):
+        if error == runtime.cudaError_t.cudaSuccess:
             return
-        err, name = cudart.cudaGetErrorName(error)
-        if err == cudart.cudaError_t.cudaSuccess:
-            err, desc = cudart.cudaGetErrorString(error)
-        if err == cudart.cudaError_t.cudaSuccess:
+        err, name = runtime.cudaGetErrorName(error)
+        if err == runtime.cudaError_t.cudaSuccess:
+            err, desc = runtime.cudaGetErrorString(error)
+        if err == runtime.cudaError_t.cudaSuccess:
             raise CUDAError(f"{name.decode()}: {desc.decode()}")
         else:
             raise CUDAError(f"unknown error: {error}")
@@ -127,10 +132,10 @@ def get_device_from_ctx(ctx_handle) -> int:
     prev_ctx = Device().context._handle
     switch_context = int(ctx_handle) != int(prev_ctx)
     if switch_context:
-        assert prev_ctx == handle_return(cuda.cuCtxPopCurrent())
-        handle_return(cuda.cuCtxPushCurrent(ctx_handle))
-    device_id = int(handle_return(cuda.cuCtxGetDevice()))
+        assert prev_ctx == handle_return(driver.cuCtxPopCurrent())
+        handle_return(driver.cuCtxPushCurrent(ctx_handle))
+    device_id = int(handle_return(driver.cuCtxGetDevice()))
     if switch_context:
-        assert ctx_handle == handle_return(cuda.cuCtxPopCurrent())
-        handle_return(cuda.cuCtxPushCurrent(prev_ctx))
+        assert ctx_handle == handle_return(driver.cuCtxPopCurrent())
+        handle_return(driver.cuCtxPushCurrent(prev_ctx))
     return device_id
