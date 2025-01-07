@@ -220,10 +220,12 @@ def do_cythonize(extensions):
 
 sources_list = [
     # private
-    ["cuda/bindings/_bindings/*.pyx", "cuda/bindings/_bindings/loader.cpp"],
+    ["cuda/bindings/_bindings/cydriver.pyx", "cuda/bindings/_bindings/loader.cpp"],
+    ["cuda/bindings/_bindings/cynvrtc.pyx"],
     # utils
-    ["cuda/bindings/_lib/*.pyx", "cuda/bindings/_lib/param_packer.cpp"],
-    ["cuda/bindings/_lib/cyruntime/*.pyx"],
+    ["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"],
+    ["cuda/bindings/_lib/cyruntime/cyruntime.pyx"],
+    ["cuda/bindings/_lib/cyruntime/utils.pyx"],
     # public
     ["cuda/bindings/*.pyx"],
     # public (deprecated, to be removed)
