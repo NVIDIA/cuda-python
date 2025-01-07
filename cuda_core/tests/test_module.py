@@ -1,16 +1,15 @@
-# Copyright 2024 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
-
-
 import pytest
 from conftest import can_load_generated_ptx
 
+from cuda import cuda
 from cuda.core.experimental import Device, Program
+
+
+@pytest.fixture(scope="module")
+def cuda_version():
+    version = cuda.cuDriverGetVersion()
+    major_version = version // 1000
+    return major_version
 
 
 @pytest.fixture(scope="function")
@@ -66,7 +65,10 @@ def test_get_kernel():
         "cluster_size_must_be_set",
     ],
 )
-def test_read_only_kernel_attributes(get_saxpy_kernel, attr):
+def test_read_only_kernel_attributes(get_saxpy_kernel, attr, cuda_version):
+    if cuda_version < 12:
+        pytest.skip("CUDA version is less than 12, and doesn't support kernel attribute access")
+
     kernel = get_saxpy_kernel
 
     # Access the attribute to ensure it can be read
@@ -91,7 +93,10 @@ def test_read_only_kernel_attributes(get_saxpy_kernel, attr):
         ("cluster_scheduling_policy_preference", 1),
     ],
 )
-def test_read_write_kernel_attributes(get_saxpy_kernel, attr, value):
+def test_read_write_kernel_attributes(get_saxpy_kernel, attr, value, cuda_version):
+    if cuda_version < 12:
+        pytest.skip("CUDA version is less than 12, and doesn't support kernel attribute access")
+
     kernel = get_saxpy_kernel
 
     # Set the attribute
