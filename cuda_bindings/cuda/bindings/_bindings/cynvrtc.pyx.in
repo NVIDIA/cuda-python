@@ -87,9 +87,7 @@ cdef int cuPythonInit() except -1 nogil:
         if not handle:
             raise RuntimeError('Failed to LoadLibraryEx nvrtc64_120_0.dll')
     {{else}}
-    handle = NULL
-    if handle == NULL:
-        handle = dlfcn.dlopen('libnvrtc.so.12', dlfcn.RTLD_NOW)
+    handle = dlfcn.dlopen('libnvrtc.so.12', dlfcn.RTLD_NOW)
     if handle == NULL:
         with gil:
             raise RuntimeError('Failed to dlopen libnvrtc.so.12')
