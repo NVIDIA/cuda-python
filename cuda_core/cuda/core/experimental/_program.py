@@ -20,7 +20,9 @@ from cuda.core.experimental._utils import (
 
 @dataclass
 class ProgramOptions:
-    """Attributes
+    """Customizable options for configuring `Program`.
+
+    Attributes
     ----------
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
