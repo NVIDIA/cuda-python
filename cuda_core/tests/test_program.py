@@ -35,7 +35,8 @@ def test_program_with_various_options(init_cuda):
         ProgramOptions(restrict=True, device_as_default_execution_space=True),
         ProgramOptions(device_int128=True, optimization_info="inline"),
         ProgramOptions(no_display_error_number=True),
-        ProgramOptions(diag_error="1234", diag_suppress="1234"),
+        ProgramOptions(diag_error=1234, diag_suppress=1234),
+        ProgramOptions(diag_error=[1234, 1223], diag_suppress=(1234, 1223)),
         ProgramOptions(diag_warn="1000"),
     ]
 

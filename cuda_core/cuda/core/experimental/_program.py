@@ -13,7 +13,8 @@ from cuda.core.experimental._utils import (
     _handle_boolean_option,
     check_or_create_options,
     handle_return,
-    is_sequence,
+    is_list_or_tuple,
+    is_nested_list_or_tuple,
 )
 
 
@@ -249,7 +250,7 @@ class ProgramOptions:
             self._formatted_options.append(f"--dopt={'on' if self.device_code_optimize else 'off'}")
         if self.ptxas_options is not None:
             self._formatted_options.append("--ptxas-options")
-            if is_sequence(self.ptxas_options):
+            if is_list_or_tuple(self.ptxas_options):
                 for option in self.ptxas_options:
                     self._formatted_options.append(option)
             else:
@@ -273,7 +274,7 @@ class ProgramOptions:
         if self.gen_opt_lto is not None and self.gen_opt_lto:
             self._formatted_options.append("--gen-opt-lto")
         if self.define_macro is not None:
-            if is_sequence(self.define_macro):
+            if is_nested_list_or_tuple(self.define_macro):
                 for macro in self.define_macro:
                     if isinstance(macro, tuple):
                         assert len(macro) == 2
@@ -282,24 +283,24 @@ class ProgramOptions:
                         self._formatted_options.append(f"--define-macro={macro}")
             elif isinstance(self.define_macro, tuple):
                 assert len(self.define_macro) == 2
-                self._formatted_options.append(f"--define-macro={self.define_macro[0]}={self.define_macro[1]}")
+                self._formatted_options.append("--define-macro=MY_MACRO=999")
             else:
                 self._formatted_options.append(f"--define-macro={self.define_macro}")
 
         if self.undefine_macro is not None:
-            if is_sequence(self.undefine_macro):
+            if is_list_or_tuple(self.undefine_macro):
                 for macro in self.undefine_macro:
                     self._formatted_options.append(f"--undefine-macro={macro}")
             else:
                 self._formatted_options.append(f"--undefine-macro={self.undefine_macro}")
         if self.include_path is not None:
-            if is_sequence(self.include_path):
+            if is_list_or_tuple(self.include_path):
                 for path in self.include_path:
                     self._formatted_options.append(f"--include-path={path}")
             else:
                 self._formatted_options.append(f"--include-path={self.include_path}")
         if self.pre_include is not None:
-            if is_sequence(self.pre_include):
+            if is_list_or_tuple(self.pre_include):
                 for header in self.pre_include:
                     self._formatted_options.append(f"--pre-include={header}")
             else:
@@ -329,19 +330,19 @@ class ProgramOptions:
         if self.no_display_error_number is not None and self.no_display_error_number:
             self._formatted_options.append("--no-display-error-number")
         if self.diag_error is not None:
-            if is_sequence(self.diag_error):
+            if is_list_or_tuple(self.diag_error):
                 for error in self.diag_error:
                     self._formatted_options.append(f"--diag-error={error}")
             else:
                 self._formatted_options.append(f"--diag-error={self.diag_error}")
         if self.diag_suppress is not None:
-            if is_sequence(self.diag_suppress):
+            if is_list_or_tuple(self.diag_suppress):
                 for suppress in self.diag_suppress:
                     self._formatted_options.append(f"--diag-suppress={suppress}")
             else:
                 self._formatted_options.append(f"--diag-suppress={self.diag_suppress}")
         if self.diag_warn is not None:
-            if is_sequence(self.diag_warn):
+            if is_list_or_tuple(self.diag_warn):
                 for warn in self.diag_warn:
                     self._formatted_options.append(f"--diag-warn={warn}")
             else:

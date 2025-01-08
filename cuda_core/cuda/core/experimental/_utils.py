@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
-from collections import Sequence, namedtuple
+from collections import namedtuple
 from typing import Callable, Dict
 
 from cuda import cuda, cudart, nvrtc
@@ -143,15 +143,15 @@ def get_device_from_ctx(ctx_handle) -> int:
     return device_id
 
 
-def is_sequence(obj):
+def is_list_or_tuple(obj):
     """
     Check if the given object is a sequence (list or tuple).
     """
-    return isinstance(obj, Sequence)
+    return isinstance(obj, (list, tuple))
 
 
-def is_nested_sequence(obj):
+def is_nested_list_or_tuple(obj):
     """
     Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
     """
-    return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
+    return is_list_or_tuple(obj) and any(is_list_or_tuple(elem) for elem in obj)
