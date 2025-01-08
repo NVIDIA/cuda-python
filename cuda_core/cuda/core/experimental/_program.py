@@ -9,12 +9,17 @@ from typing import List, Optional, Tuple, Union
 from cuda import nvrtc
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import _handle_boolean_option, check_or_create_options, handle_return
+from cuda.core.experimental._utils import (
+    _handle_boolean_option,
+    check_or_create_options,
+    handle_return,
+    is_sequence,
+)
 
 
 @dataclass
 class ProgramOptions:
-    """Customizable :obj:`ProgramOptions` for NVRTC.
+    """Customizable options for configuring `Program`.
 
     Attributes
     ----------
@@ -147,16 +152,16 @@ class ProgramOptions:
         Disable the display of a diagnostic number for warning messages.
         Default: False
         Maps to: --no-display-error-number (-no-err-no)
-    diag_error : str, optional
-        Emit error for specified diagnostic message number(s).
+    diag_error : Union[int, List[int]], optional
+        Emit error for a specified diagnostic message number or comma separated list of numbers.
         Default: None
-        Maps to: --diag-error=<error-number>,… (-diag-error)
-    diag_suppress : str, optional
-        Suppress specified diagnostic message number(s).
+        Maps to: --diag-error=<error-number>, ... (-diag-error)
+    diag_suppress : Union[int, List[int]], optional
+        Suppress a specified diagnostic message number or comma separated list of numbers.
         Default: None
         Maps to: --diag-suppress=<error-number>,… (-diag-suppress)
-    diag_warn : str, optional
-        Emit warning for specified diagnostic message number(s).
+    diag_warn : Union[int, List[int]], optional
+        Emit warning for a specified diagnostic message number or comma separated lis of numbers.
         Default: None
         Maps to: --diag-warn=<error-number>,… (-diag-warn)
     brief_diagnostics : bool, optional
@@ -182,14 +187,12 @@ class ProgramOptions:
     """
 
     arch: Optional[str] = None
-    device_c: Optional[bool] = None
-    device_w: Optional[bool] = None
     relocatable_device_code: Optional[bool] = None
     extensible_whole_program: Optional[bool] = None
     debug: Optional[bool] = None
     lineinfo: Optional[bool] = None
     device_code_optimize: Optional[bool] = None
-    ptxas_options: Optional[Union[str, List[str]]] = None
+    ptxas_options: Optional[Union[str, List[str], Tuple[str]]] = None
     max_register_count: Optional[int] = None
     ftz: Optional[bool] = None
     prec_sqrt: Optional[bool] = None
@@ -199,10 +202,12 @@ class ProgramOptions:
     extra_device_vectorization: Optional[bool] = None
     link_time_optimization: Optional[bool] = None
     gen_opt_lto: Optional[bool] = None
-    define_macro: Optional[Union[str, Tuple[str, str], List[Union[str, Tuple[str, str]]]]] = None
-    undefine_macro: Optional[Union[str, List[str]]] = None
-    include_path: Optional[Union[str, List[str]]] = None
-    pre_include: Optional[Union[str, List[str]]] = None
+    define_macro: Optional[
+        Union[str, Tuple[str, str], List[Union[str, Tuple[str, str]]], Tuple[Union[str, Tuple[str, str]]]]
+    ] = None
+    undefine_macro: Optional[Union[str, List[str], Tuple[str]]] = None
+    include_path: Optional[Union[str, List[str], Tuple[str]]] = None
+    pre_include: Optional[Union[str, List[str], Tuple[str]]] = None
     no_source_include: Optional[bool] = None
     std: Optional[str] = None
     builtin_move_forward: Optional[bool] = None
@@ -213,9 +218,9 @@ class ProgramOptions:
     device_int128: Optional[bool] = None
     optimization_info: Optional[str] = None
     no_display_error_number: Optional[bool] = None
-    diag_error: Optional[str] = None
-    diag_suppress: Optional[str] = None
-    diag_warn: Optional[str] = None
+    diag_error: Optional[Union[int, List[int], Tuple[int]]] = None
+    diag_suppress: Optional[Union[int, List[int], Tuple[int]]] = None
+    diag_warn: Optional[Union[int, List[int], Tuple[int]]] = None
     brief_diagnostics: Optional[bool] = None
     time: Optional[str] = None
     split_compile: Optional[int] = None
@@ -244,11 +249,11 @@ class ProgramOptions:
             self._formatted_options.append(f"--dopt={'on' if self.device_code_optimize else 'off'}")
         if self.ptxas_options is not None:
             self._formatted_options.append("--ptxas-options")
-            if isinstance(self.ptxas_options, list):
+            if is_sequence(self.ptxas_options):
                 for option in self.ptxas_options:
                     self._formatted_options.append(option)
             else:
-                self._formatted_options.append("self.ptxas_options")
+                self._formatted_options.append(self.ptxas_options)
         if self.max_register_count is not None:
             self._formatted_options.append(f"--maxrregcount={self.max_register_count}")
         if self.ftz is not None:
@@ -268,7 +273,7 @@ class ProgramOptions:
         if self.gen_opt_lto is not None and self.gen_opt_lto:
             self._formatted_options.append("--gen-opt-lto")
         if self.define_macro is not None:
-            if isinstance(self.define_macro, list):
+            if is_sequence(self.define_macro):
                 for macro in self.define_macro:
                     if isinstance(macro, tuple):
                         assert len(macro) == 2
@@ -282,19 +287,19 @@ class ProgramOptions:
                 self._formatted_options.append(f"--define-macro={self.define_macro}")
 
         if self.undefine_macro is not None:
-            if isinstance(self.undefine_macro, list):
+            if is_sequence(self.undefine_macro):
                 for macro in self.undefine_macro:
                     self._formatted_options.append(f"--undefine-macro={macro}")
             else:
                 self._formatted_options.append(f"--undefine-macro={self.undefine_macro}")
         if self.include_path is not None:
-            if isinstance(self.include_path, list):
+            if is_sequence(self.include_path):
                 for path in self.include_path:
                     self._formatted_options.append(f"--include-path={path}")
             else:
                 self._formatted_options.append(f"--include-path={self.include_path}")
         if self.pre_include is not None:
-            if isinstance(self.pre_include, list):
+            if is_sequence(self.pre_include):
                 for header in self.pre_include:
                     self._formatted_options.append(f"--pre-include={header}")
             else:
@@ -324,11 +329,23 @@ class ProgramOptions:
         if self.no_display_error_number is not None and self.no_display_error_number:
             self._formatted_options.append("--no-display-error-number")
         if self.diag_error is not None:
-            self._formatted_options.append(f"--diag-error={self.diag_error}")
+            if is_sequence(self.diag_error):
+                for error in self.diag_error:
+                    self._formatted_options.append(f"--diag-error={error}")
+            else:
+                self._formatted_options.append(f"--diag-error={self.diag_error}")
         if self.diag_suppress is not None:
-            self._formatted_options.append(f"--diag-suppress={self.diag_suppress}")
+            if is_sequence(self.diag_suppress):
+                for suppress in self.diag_suppress:
+                    self._formatted_options.append(f"--diag-suppress={suppress}")
+            else:
+                self._formatted_options.append(f"--diag-suppress={self.diag_suppress}")
         if self.diag_warn is not None:
-            self._formatted_options.append(f"--diag-warn={self.diag_warn}")
+            if is_sequence(self.diag_warn):
+                for warn in self.diag_warn:
+                    self._formatted_options.append(f"--diag-warn={warn}")
+            else:
+                self._formatted_options.append(f"--diag-warn={self.diag_warn}")
         if self.brief_diagnostics is not None:
             self._formatted_options.append(f"--brief-diagnostics={_handle_boolean_option(self.brief_diagnostics)}")
         if self.time is not None:
