@@ -25,12 +25,9 @@ class ProgramOptions:
     Attributes
     ----------
     arch : str, optional
-        Specify the name of the class of GPU architectures for which the input must be compiled.
-        Valid values: compute_50, compute_52, compute_53, compute_60, compute_61, compute_62, compute_70, compute_72,
-        compute_75, compute_80, compute_87, compute_89, compute_90, compute_90a, sm_50, sm_52, sm_53, sm_60, sm_61,
-        sm_62, sm_70, sm_72, sm_75, sm_80, sm_87, sm_89, sm_90, sm_90a.
-        Default: compute_52
-        Maps to: --gpu-architecture=<arch> (-arch)
+        Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
+        ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
+        will be used.
     relocatable_device_code : bool, optional
         Enable (disable) the generation of relocatable device code.
         Default: False
