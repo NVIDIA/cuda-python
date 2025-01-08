@@ -6,8 +6,10 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 {{if 'Windows' == platform.system()}}
-import win32api
+import os
+import site
 import struct
+import win32api
 from pywintypes import error
 {{else}}
 cimport cuda.bindings._lib.dlfcn as dlfcn
@@ -44,11 +46,39 @@ cdef int cuPythonInit() except -1 nogil:
 
     # Load library
     {{if 'Windows' == platform.system()}}
-    LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
+    handle = NULL
     with gil:
+        # First check if the DLL has been loaded by 3rd parties
         try:
-            handle = win32api.LoadLibraryEx("nvrtc64_120_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+            handle = win32api.GetModuleHandle("nvrtc64_120_0.dll")
         except:
+            pass
+
+        # Try default search
+        if handle == NULL:
+            LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
+            try:
+                handle = win32api.LoadLibraryEx("nvrtc64_120_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+            except:
+                pass
+
+        # Check if DLLs are found within pip installations
+        if handle == NULL:
+            site_packages = [site.getusersitepackages()] + site.getsitepackages()
+            for sp in site_packages:
+                mod_path = os.path.join(sp, "nvidia", "cuda_nvrtc", "bin")
+                if not os.path.isdir(mod_path):
+                    continue
+                os.add_dll_directory(mod_path)
+            try:
+                handle = win32api.LoadLibraryEx(
+                    # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
+                    os.path.join(mod_path, "nvrtc64_120_0.dll"),
+                    0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+            except:
+                pass
+
+        if handle == NULL:
             raise RuntimeError('Failed to LoadLibraryEx nvrtc64_120_0.dll')
     {{else}}
     handle = NULL

@@ -32,6 +32,12 @@ dependencies = [
   "pywin32; sys_platform == 'win32'",
 ]
 
+[project.optional-dependencies]
+all = [
+    "nvidia-cuda-nvrtc-cu12",
+    "nvidia-nvjitlink-cu12>=12.3"
+]
+
 [project.urls]
 Repository = "https://github.com/NVIDIA/cuda-python"
 Documentation = "https://nvidia.github.io/cuda-python/"

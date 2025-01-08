@@ -301,19 +301,21 @@ class ParallelBuildExtensions(build_ext):
             self.parallel = nthreads
 
     def build_extension(self, ext):
-        if building_wheel:
+        if building_wheel and sys.platform == "linux":
             # Strip binaries to remove debug symbols
             extra_linker_flags = ["-Wl,--strip-all"]
 
             # Allow extensions to discover libraries at runtime
             # relative their wheels installation.
-            ldflag = "-Wl,--disable-new-dtags"
             if ext.name == "cuda.bindings._bindings.cynvrtc":
-                ldflag += f",-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
+                ldflag = f"-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
             elif ext.name == "cuda.bindings._internal.nvjitlink":
-                ldflag += f",-rpath,$ORIGIN/../../../nvidia/nvjitlink/lib"
+                ldflag = f"-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvjitlink/lib"
+            else:
+                ldflag = None
 
-            extra_linker_flags.append(ldflag)
+            if ldflag:
+                extra_linker_flags.append(ldflag)
         else:
             extra_linker_flags = []
 
