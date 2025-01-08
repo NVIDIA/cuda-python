@@ -53,7 +53,7 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             handle = None
 
-        # Try default search
+        # Else try default search
         if not handle:
             LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
             try:
@@ -61,7 +61,7 @@ cdef int cuPythonInit() except -1 nogil:
             except:
                 pass
 
-        # Check if DLLs are found within pip installations
+        # Final check if DLLs can be found within pip installations
         if not handle:
             site_packages = [site.getusersitepackages()] + site.getsitepackages()
             for sp in site_packages:
