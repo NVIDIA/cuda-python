@@ -20,9 +20,7 @@ from cuda.core.experimental._utils import (
 
 @dataclass
 class ProgramOptions:
-    """Customizable options for configuring `Program`.
-
-    Attributes
+    """Attributes
     ----------
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
@@ -31,157 +29,157 @@ class ProgramOptions:
     relocatable_device_code : bool, optional
         Enable (disable) the generation of relocatable device code.
         Default: False
-        Maps to: --relocatable-device-code={true|false} (-rdc)
+        Maps to: ``--relocatable-device-code={true|false}`` (``-rdc``)
     extensible_whole_program : bool, optional
         Do extensible whole program compilation of device code.
         Default: False
-        Maps to: --extensible-whole-program (-ewp)
+        Maps to: ``--extensible-whole-program`` (``-ewp``)
     debug : bool, optional
         Generate debug information. If --dopt is not specified, then turns off all optimizations.
         Default: False
-        Maps to: --device-debug (-G)
+        Maps to: ``--device-debug`` (``-G``)
     lineinfo: bool, optional
         Generate line-number information.
         Default: False
-        Maps to: --generate-line-info (-lineinfo)
+        Maps to: ``--generate-line-info`` (``-lineinfo``)
     device_code_optimize : bool, optional
         Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation
         for optimized device code.
         Default: None
-        Maps to: --dopt on (-dopt)
+        Maps to: ``--dopt on`` (``-dopt``)
     ptxas_options : Union[str, List[str]], optional
         Specify one or more options directly to ptxas, the PTX optimizing assembler. Options should be strings.
         For example ["-v", "-O2"].
         Default: None
-        Maps to: --ptxas-options <options> (-Xptxas)
+        Maps to: ``--ptxas-options <options>`` (``-Xptxas``)
     max_register_count : int, optional
         Specify the maximum amount of registers that GPU functions can use.
         Default: None
-        Maps to: --maxrregcount=<N> (-maxrregcount)
+        Maps to: ``--maxrregcount=<N>`` (``-maxrregcount``)
     ftz : bool, optional
         When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal
         values.
         Default: False
-        Maps to: --ftz={true|false} (-ftz)
+        Maps to: ``--ftz={true|false}`` (``-ftz``)
     prec_sqrt : bool, optional
         For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation.
         Default: True
-        Maps to: --prec-sqrt={true|false} (-prec-sqrt)
+        Maps to: ``--prec-sqrt={true|false}`` (``-prec-sqrt``)
     prec_div : bool, optional
         For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster
         approximation.
         Default: True
-        Maps to: --prec-div={true|false} (-prec-div)
+        Maps to: ``--prec-div={true|false}`` (``-prec-div``)
     fma : bool, optional
         Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point
         multiply-add operations.
         Default: True
-        Maps to: --fmad={true|false} (-fmad)
+        Maps to: ``--fmad={true|false}`` (``-fmad``)
     use_fast_math : bool, optional
         Make use of fast math operations.
         Default: False
-        Maps to: --use_fast_math (-use_fast_math)
+        Maps to: ``--use_fast_math`` (``-use_fast_math``)
     extra_device_vectorization : bool, optional
         Enables more aggressive device code vectorization in the NVVM optimizer.
         Default: False
-        Maps to: --extra-device-vectorization (-extra-device-vectorization)
+        Maps to: ``--extra-device-vectorization`` (``-extra-device-vectorization``)
     link_time_optimization : bool, optional
         Generate intermediate code for later link-time optimization.
         Default: False
-        Maps to: --dlink-time-opt (-dlto)
+        Maps to: ``--dlink-time-opt`` (``-dlto``)
     gen_opt_lto : bool, optional
         Run the optimizer passes before generating the LTO IR.
         Default: False
-        Maps to: --gen-opt-lto (-gen-opt-lto)
+        Maps to: ``--gen-opt-lto`` (``-gen-opt-lto``)
     define_macro : Union[str, Tuple[str, str], List[Union[str, Tuple[str, str]]]], optional
         Predefine a macro. Can be either a string, in which case that macro will be set to 1, a 2 element tuple of
         strings, in which case the first element is defined as the second, or a list of strings or tuples.
         Default: None
-        Maps to: --define-macro=<def> (-D)
+        Maps to: ``--define-macro=<def>`` (``-D``)
     undefine_macro : Union[str, List[str]], optional
         Cancel any previous definition of a macro, or list of macros.
         Default: None
-        Maps to: --undefine-macro=<def> (-U)
+        Maps to: ``--undefine-macro=<def>`` (``-U``)
     include_path : Union[str, List[str]], optional
         Add the directory or directories to the list of directories to be searched for headers.
         Default: None
-        Maps to: --include-path=<dir> (-I)
+        Maps to: ``--include-path=<dir>`` (``-I``)
     pre_include : Union[str, List[str]], optional
         Preinclude one or more headers during preprocessing. Can be either a string or a list of strings.
         Default: None
-        Maps to: --pre-include=<header> (-include)
+        Maps to: ``--pre-include=<header>`` (``-include``)
     no_source_include : bool, optional
         Disable the default behavior of adding the directory of each input source to the include path.
         Default: False
-        Maps to: --no-source-include (-no-source-include)
+        Maps to: ``--no-source-include`` (``-no-source-include``)
     std : str, optional
         Set language dialect to C++03, C++11, C++14, C++17 or C++20.
         Default: c++17
-        Maps to: --std={c++03|c++11|c++14|c++17|c++20} (-std)
+        Maps to: ``--std={c++03|c++11|c++14|c++17|c++20}`` (``-std``)
     builtin_move_forward : bool, optional
         Provide builtin definitions of std::move and std::forward.
         Default: True
-        Maps to: --builtin-move-forward={true|false} (-builtin-move-forward)
+        Maps to: ``--builtin-move-forward={true|false}`` (``-builtin-move-forward``)
     builtin_initializer_list : bool, optional
         Provide builtin definitions of std::initializer_list class and member functions.
         Default: True
-        Maps to: --builtin-initializer-list={true|false} (-builtin-initializer-list)
+        Maps to: ``--builtin-initializer-list={true|false}`` (``-builtin-initializer-list``)
     disable_warnings : bool, optional
         Inhibit all warning messages.
         Default: False
-        Maps to: --disable-warnings (-w)
+        Maps to: ``--disable-warnings`` (``-w``)
     restrict : bool, optional
         Programmer assertion that all kernel pointer parameters are restrict pointers.
         Default: False
-        Maps to: --restrict (-restrict)
+        Maps to: ``--restrict`` (``-restrict``)
     device_as_default_execution_space : bool, optional
         Treat entities with no execution space annotation as __device__ entities.
         Default: False
-        Maps to: --device-as-default-execution-space (-default-device)
+        Maps to: ``--device-as-default-execution-space`` (``-default-device``)
     device_int128 : bool, optional
         Allow the __int128 type in device code.
         Default: False
-        Maps to: --device-int128 (-device-int128)
+        Maps to: ``--device-int128`` (``-device-int128``)
     optimization_info : str, optional
         Provide optimization reports for the specified kind of optimization.
         Default: None
-        Maps to: --optimization-info=<kind> (-opt-info)
+        Maps to: ``--optimization-info=<kind>`` (``-opt-info``)
     no_display_error_number : bool, optional
         Disable the display of a diagnostic number for warning messages.
         Default: False
-        Maps to: --no-display-error-number (-no-err-no)
+        Maps to: ``--no-display-error-number`` (``-no-err-no``)
     diag_error : Union[int, List[int]], optional
         Emit error for a specified diagnostic message number or comma separated list of numbers.
         Default: None
-        Maps to: --diag-error=<error-number>, ... (-diag-error)
+        Maps to: ``--diag-error=<error-number>, ...`` (``-diag-error``)
     diag_suppress : Union[int, List[int]], optional
         Suppress a specified diagnostic message number or comma separated list of numbers.
         Default: None
-        Maps to: --diag-suppress=<error-number>,… (-diag-suppress)
+        Maps to: ``--diag-suppress=<error-number>,…`` (``-diag-suppress``)
     diag_warn : Union[int, List[int]], optional
         Emit warning for a specified diagnostic message number or comma separated lis of numbers.
         Default: None
-        Maps to: --diag-warn=<error-number>,… (-diag-warn)
+        Maps to: ``--diag-warn=<error-number>,…`` (``-diag-warn``)
     brief_diagnostics : bool, optional
         Disable or enable showing source line and column info in a diagnostic.
         Default: False
-        Maps to: --brief-diagnostics={true|false} (-brief-diag)
+        Maps to: ``--brief-diagnostics={true|false}`` (``-brief-diag``)
     time : str, optional
         Generate a CSV table with the time taken by each compilation phase.
         Default: None
-        Maps to: --time=<file-name> (-time)
+        Maps to: ``--time=<file-name>`` (``-time``)
     split_compile : int, optional
         Perform compiler optimizations in parallel.
         Default: 1
-        Maps to: --split-compile= <number of threads> (-split-compile)
+        Maps to: ``--split-compile= <number of threads>`` (``-split-compile``)
     fdevice_syntax_only : bool, optional
         Ends device compilation after front-end syntax checking.
         Default: False
-        Maps to: --fdevice-syntax-only (-fdevice-syntax-only)
+        Maps to: ``--fdevice-syntax-only`` (``-fdevice-syntax-only``)
     minimal : bool, optional
         Omit certain language features to reduce compile time for small programs.
         Default: False
-        Maps to: --minimal (-minimal)
+        Maps to: ``--minimal`` (``-minimal``)
     """
 
     arch: Optional[str] = None
