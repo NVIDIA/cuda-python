@@ -17,6 +17,16 @@ dependencies are as follows:
 pip install cuda-python
 ```
 
+Install all optional dependencies with:
+```{code-block} shell
+pip install cuda-python[all]
+```
+
+Where the optional dependencies are:
+
+* nvidia-cuda-nvrtc-cu12 (Provides NVRTC shared library)
+* nvidia-nvjitlink-cu12>=12.3 (Provides nvJitLink shared library)
+
 ## Installing from Conda
 
 ```{code-block} shell
