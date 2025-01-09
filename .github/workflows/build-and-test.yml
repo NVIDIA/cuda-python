@@ -198,6 +198,9 @@ jobs:
           - "12.6.2"
           - "12.0.1"
           - "11.8.0"
+        local-ctk:
+          - 1  # use mini CTK
+          - 0  # use CTK wheels
         runner:
           - default
         include:
@@ -205,7 +208,7 @@ jobs:
             python-version: "3.12"
             cuda-version: "12.6.2"
             runner: H100
-    name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }})
+    name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }}, ${{ (matrix.local-ctk == '1' && 'local CTK') || 'CTK wheels' }})
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     permissions:
@@ -214,12 +217,13 @@ jobs:
       - build
     secrets: inherit
     uses:
-      ./.github/workflows/test_local_ctk.yml
+      ./.github/workflows/test-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       python-version: ${{ matrix.python-version }}
-      build_ctk_ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
+      build-ctk-ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
       cuda-version: ${{ matrix.cuda-version }}
+      local-ctk: ${{ matrix.local-ctk}}
       runner: ${{ matrix.runner }}
 
   doc:
@@ -236,4 +240,4 @@ jobs:
     uses:
       ./.github/workflows/build-docs.yml
     with:
-      build_ctk_ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
+      build-ctk-ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
