@@ -45,13 +45,13 @@ cdef int cuPythonInit() except -1 nogil:
     with gil:
         # First check if the DLL has been loaded by 3rd parties
         try:
-            handle = win32api.LoadLibraryEx("nvrtc64_112_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+            handle = win32api.GetModuleHandle("nvrtc64_112_0.dll")
         except:
             try:
-                handle = win32api.LoadLibraryEx("nvrtc64_111_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+                handle = win32api.GetModuleHandle("nvrtc64_111_0.dll")
             except:
                 try:
-                    handle = win32api.LoadLibraryEx("nvrtc64_110_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+                    handle = win32api.GetModuleHandle("nvrtc64_110_0.dll")
                 except:
                     handle = None
 
@@ -59,9 +59,15 @@ cdef int cuPythonInit() except -1 nogil:
         if not handle:
             LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
             try:
-                handle = win32api.LoadLibraryEx("nvrtc64_120_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+                handle = win32api.LoadLibraryEx("nvrtc64_112_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
             except:
-                pass
+                try:
+                    handle = win32api.LoadLibraryEx("nvrtc64_111_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+                except:
+                    try:
+                        handle = win32api.LoadLibraryEx("nvrtc64_110_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+                    except:
+                        pass
 
         # Final check if DLLs can be found within pip installations
         if not handle:
