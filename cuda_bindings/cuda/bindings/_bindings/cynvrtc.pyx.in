@@ -6,8 +6,10 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 {{if 'Windows' == platform.system()}}
-import win32api
+import os
+import site
 import struct
+import win32api
 from pywintypes import error
 {{else}}
 cimport cuda.bindings._lib.dlfcn as dlfcn
@@ -40,18 +42,70 @@ cdef int cuPythonInit() except -1 nogil:
 
     # Load library
     {{if 'Windows' == platform.system()}}
-    LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
     with gil:
+        # First check if the DLL has been loaded by 3rd parties
         try:
-            handle = win32api.LoadLibraryEx("nvrtc64_112_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+            handle = win32api.GetModuleHandle("nvrtc64_112_0.dll")
         except:
             try:
-                handle = win32api.LoadLibraryEx("nvrtc64_111_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+                handle = win32api.GetModuleHandle("nvrtc64_111_0.dll")
             except:
                 try:
-                    handle = win32api.LoadLibraryEx("nvrtc64_110_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+                    handle = win32api.GetModuleHandle("nvrtc64_110_0.dll")
                 except:
-                    raise RuntimeError('Failed to LoadLibraryEx nvrtc64_112_0.dll, or nvrtc64_111_0.dll, or nvrtc64_110_0.dll')
+                    handle = None
+
+        # Else try default search
+        if not handle:
+            LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
+            try:
+                handle = win32api.LoadLibraryEx("nvrtc64_112_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+            except:
+                try:
+                    handle = win32api.LoadLibraryEx("nvrtc64_111_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+                except:
+                    try:
+                        handle = win32api.LoadLibraryEx("nvrtc64_110_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+                    except:
+                        pass
+
+        # Final check if DLLs can be found within pip installations
+        if not handle:
+            site_packages = [site.getusersitepackages()] + site.getsitepackages()
+            for sp in site_packages:
+                mod_path = os.path.join(sp, "nvidia", "cuda_nvrtc", "bin")
+                if not os.path.isdir(mod_path):
+                    continue
+                os.add_dll_directory(mod_path)
+            LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+            LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+            try:
+                handle = win32api.LoadLibraryEx(
+                # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
+                    os.path.join(mod_path, "nvrtc64_112_0.dll"),
+                    0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+
+                # Note: nvrtc64_120_0.dll calls into nvrtc-builtins64_*.dll which is
+                # located in the same mod_path.
+                # Update PATH environ so that the two dlls can find each other
+                os.environ["PATH"] = os.pathsep.join((os.environ.get("PATH", ""), mod_path))
+            except:
+                try:
+                    handle = win32api.LoadLibraryEx(
+                        os.path.join(mod_path, "nvrtc64_111_0.dll"),
+                        0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+                    os.environ["PATH"] = os.pathsep.join((os.environ.get("PATH", ""), mod_path))
+                except:
+                    try:
+                        handle = win32api.LoadLibraryEx(
+                            os.path.join(mod_path, "nvrtc64_110_0.dll"),
+                            0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+                        os.environ["PATH"] = os.pathsep.join((os.environ.get("PATH", ""), mod_path))
+                    except:
+                        pass
+
+        if not handle:
+            raise RuntimeError('Failed to LoadLibraryEx nvrtc64_112_0.dll, or nvrtc64_111_0.dll, or nvrtc64_110_0.dll')
     {{else}}
     handle = NULL
     if handle == NULL:
