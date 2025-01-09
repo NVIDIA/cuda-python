@@ -262,8 +262,6 @@ class ParallelBuildExtensions(build_ext):
             # relative their wheels installation.
             if ext.name == "cuda.bindings._bindings.cynvrtc":
                 ldflag = f"-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
-            elif ext.name == "cuda.bindings._internal.nvjitlink":
-                ldflag = f"-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvjitlink/lib"
             else:
                 ldflag = None
 
