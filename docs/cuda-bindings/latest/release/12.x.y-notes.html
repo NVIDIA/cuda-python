@@ -310,8 +310,26 @@
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>Added bindings for nvJitLink. It requires nvJitLink from CUDA 12.3 or above.</p></li>
+<li><p>Add bindings for nvJitLink. It requires nvJitLink from CUDA 12.3 or above.</p></li>
+<li><p>Add optional dependencies to wheels for NVRTC and nvJitLink</p></li>
+<li><p>Enable discovery and loading of shared library dependencies from wheels</p></li>
 </ul>
+</section>
+<section id="wheels-support-for-optional-dependencies">
+<h2>Wheels support for optional dependencies<a class="headerlink" href="#wheels-support-for-optional-dependencies" title="Link to this heading">¶</a></h2>
+<p>Optional dependencies are added for packages:</p>
+<ul class="simple">
+<li><p>nvidia-nvjitlink-cuXX</p></li>
+<li><p>nvidia-cuda-nvrtc-cuXX</p></li>
+</ul>
+<p>Installing these dependencies with cuda-python can be done using:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>cuda-python<span class="o">[</span>all<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="discovery-and-loading-of-shared-library-dependencies-from-wheels">
+<h2>Discovery and loading of shared library dependencies from wheels<a class="headerlink" href="#discovery-and-loading-of-shared-library-dependencies-from-wheels" title="Link to this heading">¶</a></h2>
+<p>Shared library search paths for wheel builds are now extended to check site-packages. This allows users to seamlessly use their wheel installation of the CUDA Toolkit with cuda-python.</p>
 </section>
 </section>
 
@@ -372,6 +390,8 @@
             <ul>
 <li><a class="reference internal" href="#">CUDA Python 12.X.Y Release notes</a><ul>
 <li><a class="reference internal" href="#highlights">Highlights</a></li>
+<li><a class="reference internal" href="#wheels-support-for-optional-dependencies">Wheels support for optional dependencies</a></li>
+<li><a class="reference internal" href="#discovery-and-loading-of-shared-library-dependencies-from-wheels">Discovery and loading of shared library dependencies from wheels</a></li>
 </ul>
 </li>
 </ul>
