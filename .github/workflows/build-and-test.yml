@@ -1,3 +1,4 @@
+# Note: This name is referred to in the test job, so make sure any changes are sync'd up!
 name: "CI: Build and test"
 
 concurrency:
@@ -87,26 +88,6 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
 
-          # When the CI is run due to merging to main, we want it to populate GHA Cache not Artifacts,
-          # so that CI workflows running on every branch have a fallback to use.
-          if [[ "${{ github.ref_name}}" == main ]]; then
-            echo "USE_CACHE=1" >> $GITHUB_ENV
-          else
-            echo "USE_CACHE=0" >> $GITHUB_ENV
-          fi
-
-          # TODO: revert me before merging; this is to test the cache restore in the PR
-          echo "USE_CACHE=1" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        if: ${{ env.USE_CACHE == '1' }}
-        uses: ./.github/actions/install_unix_deps
-        continue-on-error: false
-        with:
-          # For GHA Cache
-          dependencies: "zstd"
-          dependent_exes: "zstd"
-
       - name: Dump environment
         run: |
           env
@@ -137,36 +118,12 @@ jobs:
           twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
-        if: ${{ env.USE_CACHE == '0' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
           overwrite: 'true'
-
-      - name: Prepare cuda.core cache
-        if: ${{ env.USE_CACHE == '1' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [[ "${{ env.USE_CACHE }}" == 1 ]]; then
-            # this file is uploaded to GHA Cache
-            tar -c -f "${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz" -C "${{ env.CUDA_CORE_ARTIFACTS_DIR }}" .
-            du -h "${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz"
-            # check if the previous runs from the same PR have populated the cache, if so need to clean it up
-            CACHE_KEY=${{ env.CUDA_CORE_ARTIFACT_NAME }}
-            if [ $(gh cache list | grep $CACHE_KEY | wc -l) == "1" ]; then
-              gh cache delete $CACHE_KEY
-            fi
-          fi
-
-      - name: Cache cuda.core build artifacts
-        if: ${{ env.USE_CACHE == '1' }}
-        uses: actions/cache/save@v4
-        with:
-          key: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -207,37 +164,13 @@ jobs:
       #   run: |
       #     twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
-      - name: Prepare cuda.bindings cache
-        if: ${{ env.USE_CACHE == '1' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [[ "${{ env.USE_CACHE }}" == 1 ]]; then
-            # this file is uploaded to GHA Cache
-            tar -c -f "${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz" -C "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}" .
-            du -h "${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz"
-            # check if the previous runs from the same PR have populated the cache, if so need to clean it up
-            CACHE_KEY=${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
-            if [ $(gh cache list | grep $CACHE_KEY | wc -l) == "1" ]; then
-              gh cache delete $CACHE_KEY
-            fi
-          fi
-
       - name: Upload cuda.bindings build artifacts
-        if: ${{ env.USE_CACHE == '0' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
           overwrite: 'true'
-
-      - name: Cache cuda.bindings build artifacts
-        if: ${{ env.USE_CACHE == '1' }}
-        uses: actions/cache/save@v4
-        with:
-          key: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz
 
       - name: Pass environment variables to the next runner
         id: pass_env
@@ -322,6 +255,7 @@ jobs:
 
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}"
+          echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
@@ -335,45 +269,39 @@ jobs:
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
         with:
-          # zstd for GHA Cache, gcc for Cython tests
-          dependencies: "zstd build-essential"
-          dependent_exes: "zstd gcc"
+          # gcc for Cython tests, jq/wget for artifact fetching
+          dependencies: "build-essential jq wget"
+          dependent_exes: "gcc jq wget"
 
-      # We'll try GHA Artifacts first, and then fall back to GHA Cache
       - name: Download cuda.bindings build artifacts
-        id: cuda-bindings-download
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
-      - name: Restore cuda.bindings cache
-        if: ${{ steps.cuda-bindings-download.outcome == 'failure' }}
-        id: cuda-bindings-cache
-        uses: actions/cache/restore@v4
-        with:
-          key: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz
-          restore-keys: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}
-          fail-on-cache-miss: true
-
-      - name: Report cache restore status
-        if: ${{ steps.cuda-bindings-cache.outcome != 'skipped' }}
+      - name: Download cuda.bindings build artifacts from the prior branch
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[ "${{ steps.cuda-bindings-cache.outputs.cache-hit }}" == true ]]; then
-            echo "cache is found"
-          else
-            echo "cache is not found"
-            exit 1
-          fi
-          CACHE_DIR="${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
-          CACHE_ARCHIVE="${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}.tar.gz"
-          ls -l $CACHE_ARCHIVE
-          mkdir -p $CACHE_DIR
-          du -h $CACHE_ARCHIVE &&
-            tar -x -f $CACHE_ARCHIVE -C $CACHE_DIR &&
-            rm -f $CACHE_ARCHIVE || exit 1
+          # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
+          # gh is needed for artifact fetching.
+          mkdir -p -m 755 /etc/apt/keyrings \
+                && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+                && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+          && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && apt update \
+          && apt install gh -y
+
+          OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
+          OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ matrix.host-platform }}*"
+          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "CI: Build and test" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
+          ls -al $OLD_BASENAME
+          mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
@@ -381,39 +309,10 @@ jobs:
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
       - name: Download cuda.core build artifacts
-        id: cuda-core-download
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-      - name: Restore cuda.core cache
-        if: ${{ steps.cuda-core-download.outcome == 'failure' }}
-        id: cuda-core-cache
-        uses: actions/cache/restore@v4
-        with:
-          key: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz
-          restore-keys: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}
-          fail-on-cache-miss: true
-
-      - name: Report cache restore status
-        if: ${{ steps.cuda-core-cache.outcome != 'skipped' }}
-        run: |
-          if [[ "${{ steps.cuda-core-cache.outputs.cache-hit }}" == true ]]; then
-            echo "cache is found"
-          else
-            echo "cache is not found"
-            exit 1
-          fi
-          CACHE_DIR="${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
-          CACHE_ARCHIVE="${{ env.CUDA_CORE_ARTIFACT_BASENAME }}.tar.gz"
-          ls -l $CACHE_ARCHIVE
-          mkdir -p $CACHE_DIR
-          du -h $CACHE_ARCHIVE &&
-            tar -x -f $CACHE_ARCHIVE -C $CACHE_DIR &&
-            rm -f $CACHE_ARCHIVE || exit 1
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
@@ -458,16 +357,13 @@ jobs:
 
       - name: Run cuda.core tests
         run: |
-          if [[ ${{ matrix.python-version }} == "3.13" ]]; then
-            # TODO: remove this hack once cuda-python has a cp313 build
-            if [[ $SKIP_CUDA_BINDINGS_TEST == 1 ]]; then
-              echo "Python 3.13 + cuda-python ${{ matrix.cuda-version }} is not supported, skipping the test..."
-              exit 0
-            fi
-          fi
-
           # If build/test majors match: cuda.bindings is installed in the previous step.
-          # If mismatch: cuda.bindings is installed from PyPI.
+          # If mismatch: cuda.bindings is installed from the backport branch.
+          if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
+            pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
+            pip install *.whl
+            popd
+          fi
           TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.cuda-version }})"
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
           pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
