@@ -262,7 +262,7 @@ jobs:
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
             # cython tests require gcc
             apt install -y build-essential
-            CPLUS_INCLUDE_PATH="$CUDA_HOME/include:${CPLUS_INCLUDE_PATH:-}" cythonize -3 -i test_*.pyx
+            CPLUS_INCLUDE_PATH="$CUDA_HOME/include" cythonize -3 -i test_*.pyx
           elif [[ "${{ matrix.host-platform }}" == win* ]]; then
             # TODO: enable this once win-64 runners are up 
             exit 1
