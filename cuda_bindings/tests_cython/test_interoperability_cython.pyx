@@ -5,6 +5,9 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+
+# distutils: language=c++
+
 import pytest
 import cuda.cuda as cuda
 import cuda.cudart as cudart
