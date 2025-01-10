@@ -19,7 +19,6 @@ from setuptools import find_packages, setup
 from setuptools.extension import Extension
 from setuptools.command.bdist_wheel import bdist_wheel
 from setuptools.command.build_ext import build_ext
-import versioneer
 
 
 # ----------------------------------------------------------------------
@@ -281,13 +280,11 @@ cmdclass = {
 
 
 cmdclass = {"build_ext": ParallelBuildExtensions}
-cmdclass = versioneer.get_cmdclass(cmdclass)
 
 # ----------------------------------------------------------------------
 # Setup
 
 setup(
-    version=versioneer.get_version(),
     ext_modules=do_cythonize(extensions),
     cmdclass=cmdclass,
     zip_safe=False,

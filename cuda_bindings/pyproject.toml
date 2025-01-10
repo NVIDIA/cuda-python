@@ -7,7 +7,7 @@
 # is strictly prohibited.
 
 [build-system]
-requires = ["setuptools", "versioneer[toml]==0.29", "cython", "pyclibrary"]
+requires = ["setuptools", "cython", "pyclibrary"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -44,10 +44,5 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 [tool.setuptools.packages.find]
 include = ["cuda*"]
 
-[tool.versioneer]
-VCS = "git"
-style = "pep440"
-versionfile_source = "cuda/bindings/_version.py"
-versionfile_build = "cuda/bindings/_version.py"
-tag_prefix = "v"
-parentdir_prefix = "cuda-python-"
+[tool.setuptools.dynamic]
+version = { attr = "cuda.bindings._version.__version__" }
