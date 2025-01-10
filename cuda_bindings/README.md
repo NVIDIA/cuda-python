@@ -63,8 +63,8 @@ Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA
 
 Multiple testing options are available:
 
-* Cython Unit Tests
 * Python Unit Tests
+* Cython Unit Tests
 * Samples
 * Benchmark
 
