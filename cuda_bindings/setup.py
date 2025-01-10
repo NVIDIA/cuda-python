@@ -279,8 +279,6 @@ cmdclass = {
     }
 
 
-cmdclass = {"build_ext": ParallelBuildExtensions}
-
 # ----------------------------------------------------------------------
 # Setup
 
