@@ -314,8 +314,7 @@ Screenshot of Nsight Compute CLI output of CUDA Python example.
 
 ## Getting the address of underlying C objects from the low-level bindings
 
-Within the low-level object wrappers there are a number of cdef classes which effectively provide a PyObject interface to cuda types such as CUdevice, which will be used an example
-in this section. The definition is as follows:
+Within the low-level object wrappers there are a number of cdef classes which effectively provide a PyObject interface to CUDA types. For example, the CUdevice type is defined by:
 
 ```cython
 cdef class CUdevice:
