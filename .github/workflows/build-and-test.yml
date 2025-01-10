@@ -1,3 +1,4 @@
+# Note: This name is referred to in the test job, so make sure any changes are sync'd up!
 name: "CI: Build and test"
 
 concurrency:
@@ -42,6 +43,9 @@ jobs:
                #  (matrix.host-platform == 'win-64' && 'windows-amd64-cpu8') }}
     outputs:
       BUILD_CTK_VER: ${{ steps.pass_env.outputs.CUDA_VERSION }}
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
@@ -62,7 +66,6 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
   
       - name: Set environment variables
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
@@ -75,14 +78,17 @@ jobs:
           fi
   
           echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}"
+          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ matrix.cuda-version }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ matrix.cuda-version }}-${{ matrix.host-platform }}"
+          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
-  
+
       - name: Dump environment
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           env
 
@@ -97,7 +103,6 @@ jobs:
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: List the cuda.core artifacts directory
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           if [[ "${{ matrix.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -108,7 +113,6 @@ jobs:
           ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Check cuda.core wheel
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pip install twine
           twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
@@ -146,7 +150,6 @@ jobs:
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: List the cuda.bindings artifacts directory
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           if [[ "${{ matrix.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -158,7 +161,6 @@ jobs:
 
       # TODO: enable this after NVIDIA/cuda-python#297 is resolved
       # - name: Check cuda.bindings wheel
-      #   shell: bash --noprofile --norc -xeuo pipefail {0}
       #   run: |
       #     twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
@@ -205,7 +207,7 @@ jobs:
             runner: H100
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }})
     # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
@@ -221,9 +223,11 @@ jobs:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
     needs:
       - build
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Ensure GPU is working
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: nvidia-smi
 
       - name: Checkout ${{ github.event.repository.name }}
@@ -232,7 +236,6 @@ jobs:
           fetch-depth: 0
 
       - name: Set environment variables
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
@@ -251,20 +254,56 @@ jobs:
           fi
 
           # make outputs from the previous job as env vars
-          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}"
+          echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ needs.build.outputs.BUILD_CTK_VER }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ needs.build.outputs.BUILD_CTK_VER }}-${{ matrix.host-platform }}"
+          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
 
+      - name: Install dependencies
+        uses: ./.github/actions/install_unix_deps
+        continue-on-error: false
+        with:
+          # gcc for Cython tests, jq/wget for artifact fetching
+          dependencies: "build-essential jq wget"
+          dependent_exes: "gcc jq wget"
+
       - name: Download cuda.bindings build artifacts
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
+      - name: Download cuda.bindings build artifacts from the prior branch
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
+          # gh is needed for artifact fetching.
+          mkdir -p -m 755 /etc/apt/keyrings \
+                && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+                && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+          && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && apt update \
+          && apt install gh -y
+
+          OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
+          OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ matrix.host-platform }}*"
+          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "CI: Build and test" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
+          ls -al $OLD_BASENAME
+          mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
+
       - name: Display structure of downloaded cuda.bindings artifacts
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
@@ -276,7 +315,6 @@ jobs:
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Display structure of downloaded cuda.core build artifacts
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pwd
           ls -lahR $CUDA_CORE_ARTIFACTS_DIR
@@ -298,7 +336,6 @@ jobs:
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           ls $CUDA_PATH
 
@@ -310,8 +347,6 @@ jobs:
           pip install -r requirements.txt
           pytest -rxXs tests/
           if [[ "${{ matrix.host-platform }}" == linux* ]]; then
-            # cython tests require gcc
-            apt install -y build-essential
             bash tests/cython/build_tests.sh
           elif [[ "${{ matrix.host-platform }}" == win* ]]; then
             # TODO: enable this once win-64 runners are up 
@@ -321,18 +356,14 @@ jobs:
           popd
 
       - name: Run cuda.core tests
-        shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          if [[ ${{ matrix.python-version }} == "3.13" ]]; then
-            # TODO: remove this hack once cuda-python has a cp313 build
-            if [[ $SKIP_CUDA_BINDINGS_TEST == 1 ]]; then
-              echo "Python 3.13 + cuda-python ${{ matrix.cuda-version }} is not supported, skipping the test..."
-              exit 0
-            fi
-          fi
-
           # If build/test majors match: cuda.bindings is installed in the previous step.
-          # If mismatch: cuda.bindings is installed from PyPI.
+          # If mismatch: cuda.bindings is installed from the backport branch.
+          if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
+            pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
+            pip install *.whl
+            popd
+          fi
           TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.cuda-version }})"
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
           pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
@@ -346,7 +377,7 @@ jobs:
   doc:
     name: Docs
     # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
       id-token: write
