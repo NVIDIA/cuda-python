@@ -17,6 +17,7 @@ from Cython.Build import cythonize
 from pyclibrary import CParser
 from setuptools import find_packages, setup
 from setuptools.extension import Extension
+from setuptools.command.bdist_wheel import bdist_wheel
 from setuptools.command.build_ext import build_ext
 import versioneer
 
@@ -24,9 +25,7 @@ import versioneer
 # ----------------------------------------------------------------------
 # Fetch configuration options
 
-CUDA_HOME = os.environ.get("CUDA_HOME")
-if not CUDA_HOME:
-    CUDA_HOME = os.environ.get("CUDA_PATH")
+CUDA_HOME = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH", None))
 if not CUDA_HOME:
     raise RuntimeError('Environment variable CUDA_HOME or CUDA_PATH is not set')
 
@@ -236,20 +235,50 @@ for sources in sources_list:
     extensions += prep_extensions(sources)
 
 # ---------------------------------------------------------------------
-# Custom build_ext command
-# Files are build in two steps:
-# 1) Cythonized (in the do_cythonize() command)
-# 2) Compiled to .o files as part of build_ext
-# This class is solely for passing the value of nthreads to build_ext
+# Custom cmdclass extensions
+
+building_wheel = False
+
+
+class WheelsBuildExtensions(bdist_wheel):
+    def run(self):
+        global building_wheel
+        building_wheel = True
+        super().run()
+
 
 class ParallelBuildExtensions(build_ext):
     def initialize_options(self):
-        build_ext.initialize_options(self)
+        super().initialize_options()
         if nthreads > 0:
             self.parallel = nthreads
 
-    def finalize_options(self):
-        build_ext.finalize_options(self)
+    def build_extension(self, ext):
+        if building_wheel and sys.platform == "linux":
+            # Strip binaries to remove debug symbols
+            extra_linker_flags = ["-Wl,--strip-all"]
+
+            # Allow extensions to discover libraries at runtime
+            # relative their wheels installation.
+            if ext.name == "cuda.bindings._bindings.cynvrtc":
+                ldflag = f"-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
+            else:
+                ldflag = None
+
+            if ldflag:
+                extra_linker_flags.append(ldflag)
+        else:
+            extra_linker_flags = []
+
+        ext.extra_link_args += extra_linker_flags
+        super().build_extension(ext)
+
+
+cmdclass = {
+    "bdist_wheel": WheelsBuildExtensions,
+    "build_ext": ParallelBuildExtensions,
+    }
+
 
 cmdclass = {"build_ext": ParallelBuildExtensions}
 cmdclass = versioneer.get_cmdclass(cmdclass)
