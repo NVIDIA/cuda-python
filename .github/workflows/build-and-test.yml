@@ -263,6 +263,7 @@ jobs:
             # cython tests require gcc
             apt update
             apt install -y build-essential
+            ls -l $CUDA_HOME/include
             CPLUS_INCLUDE_PATH="$CUDA_HOME/include" cythonize -3 -i test_*.pyx
           elif [[ "${{ matrix.host-platform }}" == win* ]]; then
             # TODO: enable this once win-64 runners are up 
