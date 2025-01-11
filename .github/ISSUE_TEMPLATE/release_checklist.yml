@@ -12,6 +12,7 @@ body:
       label: Tasks for cuda-bindings / cuda-python release
       options:
         - label: "Push any internal updates for accommodating a new CTK release to the public (**IMPORTANT**: Need to wait for CTK posting!)"
+        - label: "If it is a major release, create a new branch to backport to and update the branch name [here](../BACKPORT_BRANCH)"
         - label: Follow the check list for `cuda-core` below for the remaining steps
 
   - type: checkboxes
