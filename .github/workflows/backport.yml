@@ -1,4 +1,4 @@
-name: Backport merged pull request
+name: "CI: Backport the merged PR"
 
 on:
   pull_request_target:
