@@ -126,15 +126,24 @@ jobs:
           mkdir -p artifacts/docs
           mv cuda_python/docs/build/html/* artifacts/docs/
 
-      # Note: currently this is only for manual inspection. This step will become
-      # required once we switch to use GHA for doc deployment (see the bottom).
+      # TODO: remove this step
       - name: Upload doc artifacts
         uses: actions/upload-pages-artifact@v3
         with:
           path: artifacts/
           retention-days: 3
 
-      # The step below is not executed unless when building on main.
+      # Note: the PR previews will be removed once merged to main (see below)
+      - uses: rossjrw/pr-preview-action@v1
+        if: ${{ github.ref_name != 'main' && success() }}
+        with:
+          source-dir: artifacts/docs/
+          preview-branch: gh-pages
+          umbrella-dir: docs/pr-preview
+          pages-base-path: docs
+          action: deploy
+
+      # The steps below are not executed unless when building on main.
       - name: Deploy doc update
         if: ${{ github.ref_name == 'main' && success() }}
         uses: JamesIves/github-pages-deploy-action@v4
@@ -145,3 +154,12 @@ jobs:
           target-folder: docs/
           commit-message: "Deploy latest docs: ${{ github.sha }}"
           clean: false
+
+      - uses: rossjrw/pr-preview-action@v1
+        if: ${{ github.ref_name == 'main' && success() }}
+        with:
+          source-dir: artifacts/docs/
+          preview-branch: gh-pages
+          umbrella-dir: docs/pr-preview
+          pages-base-path: docs
+          action: remove
