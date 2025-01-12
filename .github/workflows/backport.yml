@@ -1,4 +1,4 @@
-name: Backport merged pull request
+name: "CI: Backport the merged PR"
 
 on:
   pull_request_target:
@@ -19,6 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Load branch name
+        id: get-branch
+        run: |
+          OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
+          echo "OLD_BRANCH=${OLD_BRANCH}" >> $GITHUB_ENV
+
       - name: Create backport pull requests
         uses: korthout/backport-action@v3
         with:
@@ -26,4 +33,5 @@ jobs:
           copy_labels_pattern: true
           copy_requested_reviewers: true
           label_pattern: to-be-backported
-          target_branches: 11.8.x
+          target_branches: ${{ fromJSON(env.OLD_BRANCH) }}
+          conflict_resolution: draft_commit_conflicts

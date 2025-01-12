@@ -1,3 +1,4 @@
+# Note: This name is referred to in the test job, so make sure any changes are sync'd up!
 name: "CI: Build and test"
 
 concurrency:
@@ -77,12 +78,16 @@ jobs:
           fi
   
           echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}"
+          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ matrix.cuda-version }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ matrix.cuda-version }}-${{ matrix.host-platform }}"
+          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
-  
+
       - name: Dump environment
         run: |
           env
@@ -227,7 +232,7 @@ jobs:
             runner: H100
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }})
     # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
@@ -274,11 +279,24 @@ jobs:
           fi
 
           # make outputs from the previous job as env vars
-          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}"
+          echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ needs.build.outputs.BUILD_CTK_VER }}-${{ matrix.host-platform }}-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ needs.build.outputs.BUILD_CTK_VER }}-${{ matrix.host-platform }}"
+          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        uses: ./.github/actions/install_unix_deps
+        continue-on-error: false
+        with:
+          # gcc for Cython tests, jq/wget for artifact fetching
+          dependencies: "build-essential jq wget"
+          dependent_exes: "gcc jq wget"
 
       - name: Download cuda-python build artifacts
         uses: actions/download-artifact@v4
@@ -292,10 +310,34 @@ jobs:
           ls -lahR .
 
       - name: Download cuda.bindings build artifacts
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Download cuda.bindings build artifacts from the prior branch
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
+          # gh is needed for artifact fetching.
+          mkdir -p -m 755 /etc/apt/keyrings \
+                && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+                && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+          && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && apt update \
+          && apt install gh -y
+
+          OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
+          OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ matrix.host-platform }}*"
+          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "CI: Build and test" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
+          ls -al $OLD_BASENAME
+          mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
@@ -317,6 +359,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+        env:
+          # we use self-hosted runners on which setup-python behaves weirdly...
+          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -337,22 +382,24 @@ jobs:
           pushd ./cuda_bindings
           pip install -r requirements.txt
           pytest -rxXs tests/
-          # TODO: enable cython tests
-          #pytest tests/cython
+          if [[ "${{ matrix.host-platform }}" == linux* ]]; then
+            bash tests/cython/build_tests.sh
+          elif [[ "${{ matrix.host-platform }}" == win* ]]; then
+            # TODO: enable this once win-64 runners are up 
+            exit 1
+          fi  
+          pytest -rxXs tests/cython
           popd
 
       - name: Run cuda.core tests
         run: |
-          if [[ ${{ matrix.python-version }} == "3.13" ]]; then
-            # TODO: remove this hack once cuda-python has a cp313 build
-            if [[ $SKIP_CUDA_BINDINGS_TEST == 1 ]]; then
-              echo "Python 3.13 + cuda-python ${{ matrix.cuda-version }} is not supported, skipping the test..."
-              exit 0
-            fi
-          fi
-
           # If build/test majors match: cuda.bindings is installed in the previous step.
-          # If mismatch: cuda.bindings is installed from PyPI.
+          # If mismatch: cuda.bindings is installed from the backport branch.
+          if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
+            pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
+            pip install *.whl
+            popd
+          fi
           TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.cuda-version }})"
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
           pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
@@ -370,7 +417,7 @@ jobs:
   doc:
     name: Docs
     # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
       id-token: write
@@ -382,3 +429,15 @@ jobs:
       ./.github/workflows/build-docs.yml
     with:
       build_ctk_ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
+
+  checks:
+    name: Check job status
+    permissions:
+      checks: read
+    needs:
+      - build
+      - test
+      - doc
+    secrets: inherit
+    uses:
+      ./.github/workflows/status-check.yml
