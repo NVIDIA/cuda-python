@@ -279,3 +279,14 @@ jobs:
             pytest -rxXs tests_cython
           fi
           popd
+
+  checks:
+    name: Check job status
+    permissions:
+      checks: read
+    needs:
+      - build
+      - test
+    secrets: inherit
+    uses:
+      ./.github/workflows/status-check.yml
