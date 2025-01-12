@@ -123,7 +123,6 @@ jobs:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
-          overwrite: 'true'
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -170,9 +169,10 @@ jobs:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
-          overwrite: 'true'
 
+      # overwrite: true has a race condition among parallel jobs, so we let job 0 do the work
       - name: Build and check cuda-python wheel
+        if: ${{ strategy.job-index == 0 }}
         run: |
           pushd cuda_python
           pip wheel -v --no-deps .
@@ -180,6 +180,7 @@ jobs:
           popd
 
       - name: List the cuda-python artifacts directory
+        if: ${{ strategy.job-index == 0 }}
         run: |
           if [[ "${{ matrix.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -189,13 +190,13 @@ jobs:
           $CHOWN -R $(whoami) cuda_python/*.whl
           ls -lahR cuda_python
 
-      - name: Upload cuda.bindings build artifacts
+      - name: Upload cuda-python build artifacts
+        if: ${{ strategy.job-index == 0 }}
         uses: actions/upload-artifact@v4
         with:
           name: cuda-python-wheel
           path: cuda_python/*.whl
           if-no-files-found: error
-          overwrite: 'true'
 
       - name: Pass environment variables to the next runner
         id: pass_env
