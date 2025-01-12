@@ -241,3 +241,15 @@ jobs:
       ./.github/workflows/build-docs.yml
     with:
       build-ctk-ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
+
+  checks:
+    name: Check job status
+    permissions:
+      checks: read
+    needs:
+      - build
+      - test
+      - doc
+    secrets: inherit
+    uses:
+      ./.github/workflows/status-check.yml
