@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
+import importlib.metadata
 from collections import namedtuple
 from typing import Callable, Dict
 
@@ -134,3 +135,11 @@ def get_device_from_ctx(ctx_handle) -> int:
         assert ctx_handle == handle_return(cuda.cuCtxPopCurrent())
         handle_return(cuda.cuCtxPushCurrent(prev_ctx))
     return device_id
+
+
+def get_binding_version():
+    try:
+        major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
+    except importlib.metadata.PackageNotFoundError:
+        major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
+    return tuple(int(v) for v in major_minor)
