@@ -48,8 +48,6 @@ export CUDA_HOME=/usr/local/cuda
 
 See [Environment Variables](environment_variables.md) for a description of other builkd time environment variables.
 
-
-
 ### In-place
 
 To compile the extension in-place, run:
