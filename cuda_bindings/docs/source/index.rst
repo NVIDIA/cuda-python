@@ -10,6 +10,7 @@
    motivation.md
    release.md
    api.rst
+   tips_and_tricks.md
 
 
 Indices and tables

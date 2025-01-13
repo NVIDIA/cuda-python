@@ -312,22 +312,6 @@ maximize performance ({numref}`Figure 1`).
 Screenshot of Nsight Compute CLI output of CUDA Python example.
 ```
 
-## Getting the address of underlying C objects from the low-level bindings
-
-Within the low-level object wrappers there are a number of cdef classes which effectively provide a PyObject interface to CUDA types. For example, the CUdevice type is defined by:
-
-```cython
-cdef class CUdevice:
-    ... 
-
-    def __int__(self):
-        return <int>self._ptr[0]
-    def getPtr(self):
-        return <void_ptr>self._ptr
-```
-
-There is an important distinction between the `getPtr()` method and the behaviour of `__int__()`. If the user wants to get the address of the underlying C object, wrapped in the cdef python class, they should call `int(CUdeviceInstance)`, which returns a pointer to the object, while calling `CUdeviceInstance.getPtr()` returns the `void**` address of the pointer to the object.
-
 ## Future of CUDA Python
 
 The current bindings are built to match the C APIs as closely as possible.
