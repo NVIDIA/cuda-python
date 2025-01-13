@@ -321,7 +321,11 @@ jobs:
 
       - name: Ensure cuda-python installable
         run: |
-          pip install cuda_python*.whl
+          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
+            pip install cuda_python*.whl
+          else
+            pip install $(ls cuda_python*.whl)[all]
+          fi
 
   checks:
     name: Check job status
