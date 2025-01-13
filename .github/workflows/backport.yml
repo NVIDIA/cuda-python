@@ -1,4 +1,4 @@
-name: Backport merged pull request
+name: "CI: Backport the merged PR"
 
 on:
   pull_request_target:
@@ -33,5 +33,5 @@ jobs:
           copy_labels_pattern: true
           copy_requested_reviewers: true
           label_pattern: to-be-backported
-          target_branches: ${{ fromJSON(env.OLD_BRANCH) }}
+          target_branches: ${{ env.OLD_BRANCH }}
           conflict_resolution: draft_commit_conflicts
