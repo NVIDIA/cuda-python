@@ -39,7 +39,9 @@ if os.environ.get("PARALLEL_LEVEL") is not None:
         DeprecationWarning,
         stacklevel=1,
     )
-nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", "0") or "0")
+    nthreads = int(os.environ.get("PARALLEL_LEVEL", "0"))
+else:
+    nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", "0") or "0")
 PARSER_CACHING = os.environ.get("CUDA_PYTHON_PARSER_CACHING", False)
 PARSER_CACHING = bool(PARSER_CACHING)
 

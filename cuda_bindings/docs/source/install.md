@@ -46,11 +46,9 @@ During the build process, environment variable `CUDA_HOME` or `CUDA_PATH` are us
 export CUDA_HOME=/usr/local/cuda
 ```
 
-Some other build time environment variables are as follows:
+See [Environment Variables](environment_variables.md) for a description of other builkd time environment variables.
 
-`CUDA_PYTHON_PARSER_CACHING` : bool, toggles the caching of parsed header files during the cuda-bindings build process. If caching is enabled (`CUDA_PYTHON_PARSER_CACHING` is True), the cache path is set to ./cache_<library_name>, where <library_name> is derived from the cuda toolkit libraries used to build cuda-bindings.
 
-`CUDA_PYTHON_PARALLEL_LEVEL` (previously `PARALLEL_LEVEL`) : int, sets the number of threads used in the compilation of cython files. This is passed as the `nthreads` argument to :meth:`cython.cythonize` and as the parallel attribute for building extension modules.
 
 ### In-place
 
