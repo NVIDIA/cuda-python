@@ -273,16 +273,16 @@ class ProgramOptions:
         if self.define_macro is not None:
             if isinstance(self.define_macro, str):
                 self._formatted_options.append(f"--define-macro={self.define_macro}")
-            if is_nested_sequence(self.define_macro):
+            elif isinstance(self.define_macro, tuple):
+                assert len(self.define_macro) == 2
+                self._formatted_options.append(f"--define-macro={self.define_macro[0]}={self.define_macro[1]}")
+            elif is_nested_sequence(self.define_macro):
                 for macro in self.define_macro:
                     if isinstance(macro, tuple):
                         assert len(macro) == 2
                         self._formatted_options.append(f"--define-macro={macro[0]}={macro[1]}")
                     else:
                         self._formatted_options.append(f"--define-macro={macro}")
-            elif isinstance(self.define_macro, tuple):
-                assert len(self.define_macro) == 2
-                self._formatted_options.append("--define-macro=MY_MACRO=999")
 
         if self.undefine_macro is not None:
             if isinstance(self.undefine_macro, str):
