@@ -8,7 +8,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cuda-python"
-version = "12.6.3"
 description = "CUDA Python: Performance meets Productivity"
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
@@ -33,9 +32,7 @@ classifiers = [
     "Environment :: GPU :: NVIDIA CUDA",
     "Environment :: GPU :: NVIDIA CUDA :: 12",
 ]
-dependencies = [
-  "cuda-bindings~=12.6.3",
-]
+dynamic = ["version", "dependencies"]
 
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
