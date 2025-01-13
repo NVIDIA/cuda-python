@@ -89,7 +89,7 @@ class Stream:
         if obj is not None:
             if not hasattr(obj, "__cuda_stream__"):
                 raise ValueError
-            info = obj.__cuda_stream__
+            info = obj.__cuda_stream__()
             assert info[0] == 0
             self._mnff.handle = cuda.CUstream(info[1])
             # TODO: check if obj is created under the current context/device
@@ -132,7 +132,6 @@ class Stream:
         """
         self._mnff.close()
 
-    @property
     def __cuda_stream__(self) -> Tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
         return (0, self.handle)
@@ -279,7 +278,6 @@ class Stream:
         """
 
         class _stream_holder:
-            @property
             def __cuda_stream__(self):
                 return (0, handle)
 
