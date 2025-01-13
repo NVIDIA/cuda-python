@@ -170,7 +170,8 @@ jobs:
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
 
-      # overwrite: true has a race condition among parallel jobs, so we let job 0 do the work
+      # upload-artifact's "overwrite: true" option has a race condition among parallel
+      # jobs, so we let job 0 do the work
       - name: Build and check cuda-python wheel
         if: ${{ strategy.job-index == 0 }}
         run: |
