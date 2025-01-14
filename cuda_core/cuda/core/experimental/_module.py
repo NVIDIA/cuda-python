@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import importlib.metadata
 
 from cuda import cuda
-from cuda.core.experimental._utils import handle_return, precondition
+from cuda.core.experimental._utils import get_binding_version, handle_return, precondition
 
 _backend = {
     "old": {
@@ -30,7 +29,7 @@ def _lazy_init():
 
     global _py_major_ver, _driver_ver, _kernel_ctypes
     # binding availability depends on cuda-python version
-    _py_major_ver = int(importlib.metadata.version("cuda-python").split(".")[0])
+    _py_major_ver, _ = get_binding_version()
     if _py_major_ver >= 12:
         _backend["new"] = {
             "file": cuda.cuLibraryLoadFromFile,
