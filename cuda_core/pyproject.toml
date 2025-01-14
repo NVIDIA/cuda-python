@@ -47,9 +47,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# TODO: change this once cuda-bindings is packaged, see NVIDIA/cuda-python#105
-cu11 = ["cuda-python==11.8.*"]
-cu12 = ["cuda-python==12.*"]
+cu11 = ["cuda-bindings==11.8.*"]
+cu12 = ["cuda-bindings==12.*"]
 
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
