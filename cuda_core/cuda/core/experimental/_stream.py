@@ -89,7 +89,10 @@ class Stream:
         if obj is not None:
             if not hasattr(obj, "__cuda_stream__"):
                 raise ValueError
-            info = obj.__cuda_stream__()
+            try:
+                info = obj.__cuda_stream__()
+            except TypeError:
+                info = obj.__cuda_stream__
             assert info[0] == 0
             self._mnff.handle = cuda.CUstream(info[1])
             # TODO: check if obj is created under the current context/device
