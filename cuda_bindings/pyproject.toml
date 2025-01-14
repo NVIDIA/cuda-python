@@ -11,7 +11,7 @@ requires = ["setuptools", "cython", "pyclibrary"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cuda-python"
+name = "cuda-bindings"
 description = "Python bindings for CUDA"
 authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
 license = {file = "LICENSE"}
@@ -30,6 +30,12 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
   "pywin32; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+all = [
+    "nvidia-cuda-nvrtc-cu12",
+    "nvidia-nvjitlink-cu12>=12.3"
 ]
 
 [project.urls]

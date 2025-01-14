@@ -3,7 +3,7 @@ name: "CI: Build and update docs"
 on:
   workflow_call:
     inputs:
-      build_ctk_ver:
+      build-ctk-ver:
         type: string
         required: true
 
@@ -11,7 +11,7 @@ jobs:
   build:
     name: Build docs
     # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # WAR: Building the doc currently requires a GPU (NVIDIA/cuda-python#326,327)
     runs-on: linux-amd64-gpu-t4-latest-1-testing
     #runs-on: ubuntu-latest
@@ -53,7 +53,7 @@ jobs:
         continue-on-error: false
         with:
           host-platform: linux-64
-          cuda-version: ${{ inputs.build_ctk_ver }}
+          cuda-version: ${{ inputs.build-ctk-ver }}
 
       - name: Set environment variables
         run: |
@@ -61,10 +61,25 @@ jobs:
           REPO_DIR=$(pwd)
 
           # make outputs from the previous job as env vars
-          echo "CUDA_CORE_ARTIFACT_NAME=cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
+          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build_ctk_ver }}-linux-64-${{ github.sha }}" >> $GITHUB_ENV
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-linux-64"
+          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+
+      - name: Download cuda-python build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cuda-python-wheel
+          path: .
+
+      - name: Display structure of downloaded cuda-python artifacts
+        run: |
+          pwd
+          ls -lahR .
 
       - name: Download cuda.bindings build artifacts
         uses: actions/download-artifact@v4
@@ -97,6 +112,8 @@ jobs:
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
           pip install *.whl
           popd
+
+          pip install cuda_python*.whl
 
       - name: Build all (latest) docs
         id: build
