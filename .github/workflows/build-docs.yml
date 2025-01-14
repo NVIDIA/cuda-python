@@ -70,6 +70,17 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
+      - name: Download cuda-python build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cuda-python-wheel
+          path: .
+
+      - name: Display structure of downloaded cuda-python artifacts
+        run: |
+          pwd
+          ls -lahR .
+
       - name: Download cuda.bindings build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -101,6 +112,8 @@ jobs:
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
           pip install *.whl
           popd
+
+          pip install cuda_python*.whl
 
       - name: Build all (latest) docs
         id: build

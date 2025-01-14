@@ -55,9 +55,7 @@ minimal_ptx_kernel_bytes = [
 def check_nvjitlink_usable():
     from cuda.bindings._internal import nvjitlink as inner_nvjitlink
 
-    if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") == 0:
-        return False
-    return True
+    return inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") != 0
 
 
 pytestmark = pytest.mark.skipif(
