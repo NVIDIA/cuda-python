@@ -88,6 +88,13 @@ def check_or_create_options(cls, options, options_description, *, keep_none=Fals
     return options
 
 
+def _handle_boolean_option(option: bool) -> str:
+    """
+    Convert a boolean option to a string representation.
+    """
+    return "true" if bool(option) else "false"
+
+
 def precondition(checker: Callable[..., None], what: str = "") -> Callable:
     """
     A decorator that adds checks to ensure any preconditions are met.
@@ -143,3 +150,17 @@ def get_binding_version():
     except importlib.metadata.PackageNotFoundError:
         major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
     return tuple(int(v) for v in major_minor)
+
+
+def is_list_or_tuple(obj):
+    """
+    Check if the given object is a sequence (list or tuple).
+    """
+    return isinstance(obj, (list, tuple))
+
+
+def is_nested_list_or_tuple(obj):
+    """
+    Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
+    """
+    return is_list_or_tuple(obj) and any(is_list_or_tuple(elem) for elem in obj)

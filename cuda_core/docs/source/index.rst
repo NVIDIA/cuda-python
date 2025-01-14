@@ -8,7 +8,7 @@ and other functionalities.
    :maxdepth: 2
    :caption: Contents:
 
-   release.md
+   release.rst
    install.md
    interoperability.rst
    api.rst
