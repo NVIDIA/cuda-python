@@ -87,15 +87,11 @@ jobs:
           dependent_exes: "gcc jq wget"
 
       - name: Download cuda-python build artifacts
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
         uses: actions/download-artifact@v4
         with:
           name: cuda-python-wheel
           path: .
-
-      - name: Display structure of downloaded cuda-python artifacts
-        run: |
-          pwd
-          ls -lahR .
 
       - name: Download cuda.bindings build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
@@ -104,7 +100,7 @@ jobs:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
-      - name: Download cuda.bindings build artifacts from the prior branch
+      - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -130,6 +126,14 @@ jobs:
           ls -al $OLD_BASENAME
           mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
           mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
+
+          gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
+          mv cuda-python-wheel/*.whl .
+
+      - name: Display structure of downloaded cuda-python artifacts
+        run: |
+          pwd
+          ls -lahR .
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
