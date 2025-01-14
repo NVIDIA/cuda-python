@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
+import importlib.metadata
 from collections import namedtuple
 from collections.abc import Sequence
 from typing import Callable, Dict
@@ -156,3 +157,11 @@ def is_nested_sequence(obj):
     Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
     """
     return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
+  
+  
+def get_binding_version():
+    try:
+        major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
+    except importlib.metadata.PackageNotFoundError:
+        major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
+    return tuple(int(v) for v in major_minor)

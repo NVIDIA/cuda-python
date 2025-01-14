@@ -308,9 +308,9 @@ class ParallelBuildExtensions(build_ext):
             # Allow extensions to discover libraries at runtime
             # relative their wheels installation.
             if ext.name == "cuda.bindings._bindings.cynvrtc":
-                ldflag = f"-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
+                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
             elif ext.name == "cuda.bindings._internal.nvjitlink":
-                ldflag = f"-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvjitlink/lib"
+                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvjitlink/lib"
             else:
                 ldflag = None
 
@@ -326,7 +326,7 @@ class ParallelBuildExtensions(build_ext):
 cmdclass = {
     "bdist_wheel": WheelsBuildExtensions,
     "build_ext": ParallelBuildExtensions,
-    }
+}
 
 # ----------------------------------------------------------------------
 # Setup
