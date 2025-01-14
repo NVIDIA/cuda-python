@@ -17,4 +17,7 @@ setup(
     install_requires=[
         f"cuda-bindings~={version}",
     ],
+    extras_require={
+        "all": [f"cuda-bindings[all]~={version}"],
+    },
 )
