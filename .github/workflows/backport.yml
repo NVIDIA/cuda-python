@@ -14,7 +14,8 @@ jobs:
   backport:
     name: Backport pull request
     if: ${{ github.repository_owner == 'nvidia' &&
-            github.event.pull_request.merged == true
+            github.event.pull_request.merged == true &&
+            contains( github.event.pull_request.labels.*.name, 'to-be-backported')
          }}
     runs-on: ubuntu-latest
     steps:
@@ -32,6 +33,4 @@ jobs:
           copy_assignees: true
           copy_labels_pattern: true
           copy_requested_reviewers: true
-          label_pattern: to-be-backported
           target_branches: ${{ env.OLD_BRANCH }}
-          conflict_resolution: draft_commit_conflicts
