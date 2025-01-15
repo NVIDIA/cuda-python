@@ -53,8 +53,6 @@ def skip_version_specific_linker_options():
     except nvjitlink.nvJitLinkError as e:
         if e.status == nvjitlink.Result.ERROR_UNRECOGNIZED_OPTION:
             pytest.skip("current nvjitlink version does not support the option provided")
-    except Exception as e:
-        raise e
 
 
 culink_options = [
