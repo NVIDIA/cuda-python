@@ -1,4 +1,13 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
+ci:
+    autofix_commit_msg: |
+      [pre-commit.ci] auto code formatting
+    autofix_prs: false
+    autoupdate_branch: ''
+    autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+    autoupdate_schedule: quarterly
+    skip: []
+    submodules: false
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
