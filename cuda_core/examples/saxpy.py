@@ -6,7 +6,7 @@ import sys
 
 import cupy as cp
 
-from cuda.core.experimental import Device, LaunchConfig, Program, launch
+from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # compute out = a * x + y
 code = """
@@ -29,13 +29,11 @@ dev.set_current()
 s = dev.create_stream()
 
 # prepare program
-prog = Program(code, code_type="c++")
+arch = "".join(f"{i}" for i in dev.compute_capability)
+program_options = ProgramOptions(std="c++11", arch=f"sm_{arch}")
+prog = Program(code, code_type="c++", options=program_options)
 mod = prog.compile(
     "cubin",
-    options=(
-        "-std=c++11",
-        "-arch=sm_" + "".join(f"{i}" for i in dev.compute_capability),
-    ),
     logs=sys.stdout,
     name_expressions=("saxpy<float>", "saxpy<double>"),
 )

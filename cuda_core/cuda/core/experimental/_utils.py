@@ -5,6 +5,7 @@
 import functools
 import importlib.metadata
 from collections import namedtuple
+from collections.abc import Sequence
 from typing import Callable, Dict
 
 from cuda import cuda, cudart, nvrtc
@@ -88,6 +89,13 @@ def check_or_create_options(cls, options, options_description, *, keep_none=Fals
     return options
 
 
+def _handle_boolean_option(option: bool) -> str:
+    """
+    Convert a boolean option to a string representation.
+    """
+    return "true" if bool(option) else "false"
+
+
 def precondition(checker: Callable[..., None], what: str = "") -> Callable:
     """
     A decorator that adds checks to ensure any preconditions are met.
@@ -143,3 +151,18 @@ def get_binding_version():
     except importlib.metadata.PackageNotFoundError:
         major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
     return tuple(int(v) for v in major_minor)
+
+
+def is_sequence(obj):
+    """
+    Check if the given object is a sequence (list or tuple).
+    """
+    return isinstance(obj, Sequence)
+
+
+def is_nested_sequence(obj):
+    """
+    Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
+    """
+
+    return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
