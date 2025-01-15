@@ -208,6 +208,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html">    0.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html">    0.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html">    0.1.0</a></li>
 </ul>
@@ -314,11 +315,10 @@ CUDA types) from <code class="docutils literal notranslate"><span class="pre">cu
 exposing their own stream types.</p>
 <p>To address this issue, we propose the <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> protocol (currently version
 0) as follows: For any Python objects that are meant to be interpreted as a stream, they
-should add a <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> attribute that returns a 2-tuple: The version number
+should add a <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> method that returns a 2-tuple: The version number
 (<code class="docutils literal notranslate"><span class="pre">0</span></code>) and the address of <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> (both as Python <cite>int</cite>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyStream</span><span class="p">:</span>
 
-    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">__cuda_stream__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">)</span>
 

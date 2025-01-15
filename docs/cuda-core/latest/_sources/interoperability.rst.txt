@@ -34,14 +34,13 @@ exposing their own stream types.
 
 To address this issue, we propose the ``__cuda_stream__`` protocol (currently version
 0) as follows: For any Python objects that are meant to be interpreted as a stream, they
-should add a ``__cuda_stream__`` attribute that returns a 2-tuple: The version number
+should add a ``__cuda_stream__`` method that returns a 2-tuple: The version number
 (``0``) and the address of ``cudaStream_t`` (both as Python `int`):
 
 .. code-block:: python
 
    class MyStream:
 
-       @property
        def __cuda_stream__(self):
            return (0, self.ptr)
 
