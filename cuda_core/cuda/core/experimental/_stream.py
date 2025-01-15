@@ -90,11 +90,14 @@ class Stream:
         if obj is not None:
             try:
                 info = obj.__cuda_stream__()
+            except AttributeError as e:
+                raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' method") from e
             except TypeError:
                 info = obj.__cuda_stream__
                 warnings.simplefilter("once", DeprecationWarning)
                 warnings.warn(
                     "Implementing __cuda_stream__ as an attribute is deprecated; it must be implemented as a method",
+                    stacklevel=3,
                     category=DeprecationWarning,
                 )
 
