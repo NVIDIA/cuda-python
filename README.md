@@ -40,6 +40,6 @@ The list of available interfaces are:
 
 ## Supported Python Versions
 
-All `cuda-bindings` subpackages follows [NEP 29](https://numpy.org/neps/nep-0029-deprecation_policy.html) for supported Python version guarantee.
+All `cuda-python` subpackages follows [NEP 29](https://numpy.org/neps/nep-0029-deprecation_policy.html) for supported Python version guarantee.
 
 Before dropping support, an issue will be raised for an advanced notice.
