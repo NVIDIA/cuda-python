@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from contextlib import contextmanager, nullcontext
-
 import pytest
 
 from cuda.core.experimental import Linker, LinkerOptions, Program, _linker
@@ -20,23 +18,6 @@ device_function_b = "__device__ int B() { return 0; }"
 device_function_c = "__device__ int C(int a, int b) { return a + b; }"
 
 culink_backend = _linker._decide_nvjitlink_or_driver()
-skip_options = nullcontext
-if not culink_backend:
-    from cuda.bindings import nvjitlink
-
-    @contextmanager
-    def skip_version_specific_linker_options():
-        if culink_backend:
-            return
-        try:
-            yield
-        except nvjitlink.nvJitLinkError as e:
-            if e.status == nvjitlink.Result.ERROR_UNRECOGNIZED_OPTION:
-                pytest.skip("current nvjitlink version does not support the option provided")
-            else:
-                raise
-
-    skip_options = skip_version_specific_linker_options
 
 
 @pytest.fixture(scope="function")
@@ -91,11 +72,9 @@ culink_options = [
     ],
 )
 def test_linker_init(compile_ptx_functions, options):
-    with skip_options():
-        linker = Linker(*compile_ptx_functions, options=options)
-
-        object_code = linker.link("cubin")
-        assert isinstance(object_code, ObjectCode)
+    linker = Linker(*compile_ptx_functions, options=options)
+    object_code = linker.link("cubin")
+    assert isinstance(object_code, ObjectCode)
 
 
 def test_linker_init_invalid_arch():
