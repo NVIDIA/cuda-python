@@ -39,7 +39,6 @@ $ export CUDA_HOME=/usr/local/cuda
 
 See [Environment Variables](environment_variables.md) for a description of other build-time environment variables.
 
-
 ```{note}
 Only `cydriver`, `cyruntime` and `cynvrtc` are impacted by the header requirement.
 ```
