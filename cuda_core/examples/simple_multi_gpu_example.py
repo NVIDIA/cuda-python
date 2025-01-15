@@ -81,7 +81,6 @@ class StreamAdaptor:
     def __init__(self, obj):
         self.obj = obj
 
-    @property
     def __cuda_stream__(self):
         # Note: CuPy streams have a .ptr attribute
         return (0, self.obj.ptr)
