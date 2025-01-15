@@ -39,5 +39,5 @@ for more details, including how to sign your commits.
 ## Testing
 
 To run these tests:
-* `python -m pytest tests/` against local builds
+* `python -m pytest tests/` against editable installations
 * `pytest tests/` against installed packages
