@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 import weakref
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Tuple, Union
@@ -87,12 +88,16 @@ class Stream:
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
         if obj is not None:
-            if not hasattr(obj, "__cuda_stream__"):
-                raise ValueError
             try:
                 info = obj.__cuda_stream__()
             except TypeError:
                 info = obj.__cuda_stream__
+                warnings.simplefilter("once", DeprecationWarning)
+                warnings.warn(
+                    "Implementing __cuda_stream__ as an attribute is deprecated; it must be implemented as a method",
+                    category=DeprecationWarning,
+                )
+
             assert info[0] == 0
             self._mnff.handle = cuda.CUstream(info[1])
             # TODO: check if obj is created under the current context/device
