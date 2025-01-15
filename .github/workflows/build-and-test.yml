@@ -158,10 +158,9 @@ jobs:
           $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
-      # TODO: enable this after NVIDIA/cuda-python#297 is resolved
-      # - name: Check cuda.bindings wheel
-      #   run: |
-      #     twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+      - name: Check cuda.bindings wheel
+        run: |
+          twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
         uses: actions/upload-artifact@v4
