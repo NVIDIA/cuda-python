@@ -95,6 +95,8 @@ napoleon_numpy_docstring = True
 
 section_titles = ["Returns"]
 
+autodoc_mock_imports = ["cuda"]
+
 
 def autodoc_process_docstring(app, what, name, obj, options, lines):
     if name.startswith("cuda.core.experimental.system"):
