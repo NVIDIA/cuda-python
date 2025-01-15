@@ -122,13 +122,17 @@ jobs:
             echo "LATEST_PRIOR_RUN_ID not found!"
             exit 1
           fi
+
           gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
           ls -al $OLD_BASENAME
           mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
           mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
+          rmdir $OLD_BASENAME
 
           gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
+          ls -al cuda-python-wheel
           mv cuda-python-wheel/*.whl .
+          rmdir cuda-python-wheel
 
       - name: Display structure of downloaded cuda-python artifacts
         run: |
