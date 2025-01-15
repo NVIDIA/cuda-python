@@ -18,4 +18,5 @@ Limitations
 Breaking Changes
 ----------------
 
+- Change ``__cuda_stream__`` from attribute to method
 - The :meth:`~Program.compile` method no longer accepts the `options` argument. Instead, you can optionally pass an instance of :class:`~ProgramOptions` to the constructor of :obj:`~Program`.
