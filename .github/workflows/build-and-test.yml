@@ -34,7 +34,6 @@ jobs:
     name: Build (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }})
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
-      id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
     runs-on: ${{ (matrix.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (matrix.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
@@ -105,7 +104,7 @@ jobs:
             PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_HOME="$(cygpath -w ${{ env.CUDA_PATH }})"
-          #  PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+            PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -196,10 +195,10 @@ jobs:
           - host-platform: linux-64
             python-version: "3.12"
             cuda-version: "11.8.0"
+            local-ctk: 0
             runner: H100
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }}, ${{ (matrix.local-ctk == '1' && 'local CTK') || 'CTK wheels' }})
-    # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && always() }}
+    if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
       id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
