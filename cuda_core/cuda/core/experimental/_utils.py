@@ -157,8 +157,8 @@ def is_nested_sequence(obj):
     Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
     """
     return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
-  
-  
+
+
 def get_binding_version():
     try:
         major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
