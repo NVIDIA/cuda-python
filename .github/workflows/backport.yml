@@ -34,4 +34,3 @@ jobs:
           copy_requested_reviewers: true
           label_pattern: to-be-backported
           target_branches: ${{ env.OLD_BRANCH }}
-          conflict_resolution: draft_commit_conflicts
