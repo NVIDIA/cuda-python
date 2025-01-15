@@ -11,7 +11,7 @@
    release.md
    environment_variables.md
    api.rst
-   tips_and_tricks.md
+   tips_and_tricks.rst
 
 
 Indices and tables
