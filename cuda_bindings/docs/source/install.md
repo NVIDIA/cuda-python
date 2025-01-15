@@ -46,7 +46,7 @@ During the build process, environment variable `CUDA_HOME` or `CUDA_PATH` are us
 export CUDA_HOME=/usr/local/cuda
 ```
 
-See [Environment Variables](environment_variables.md) for a description of other builkd time environment variables.
+See [Environment Variables](environment_variables.md) for a description of other build-time environment variables.
 
 ### In-place
 
