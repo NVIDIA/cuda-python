@@ -15,6 +15,7 @@ import shutil
 import sys
 import sysconfig
 import tempfile
+from warnings import warn
 
 from Cython import Tempita
 from Cython.Build import cythonize
@@ -32,7 +33,15 @@ if not CUDA_HOME:
     raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
 
 CUDA_HOME = CUDA_HOME.split(os.pathsep)
-nthreads = int(os.environ.get("PARALLEL_LEVEL", "0") or "0")
+if os.environ.get("PARALLEL_LEVEL") is not None:
+    warn(
+        "Environment variable PARALLEL_LEVEL is deprecated. Use CUDA_PYTHON_PARALLEL_LEVEL instead",
+        DeprecationWarning,
+        stacklevel=1,
+    )
+    nthreads = int(os.environ.get("PARALLEL_LEVEL", "0"))
+else:
+    nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", "0") or "0")
 PARSER_CACHING = os.environ.get("CUDA_PYTHON_PARSER_CACHING", False)
 PARSER_CACHING = bool(PARSER_CACHING)
 
@@ -80,7 +89,7 @@ found_functions = []
 found_values = []
 
 include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
-print(f'Parsing headers in "{include_path_list}" (Caching {PARSER_CACHING})')
+print(f'Parsing headers in "{include_path_list}" (Caching = {PARSER_CACHING})')
 for library, header_list in header_dict.items():
     header_paths = []
     for header in header_list:
