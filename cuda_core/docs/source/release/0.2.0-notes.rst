@@ -5,3 +5,4 @@ Breaking changes
 ----------------
 
 - Change ``__cuda_stream__`` from attribute to method
+- The positional arguments to :meth:`~cuda.core.experimental._launcher.launch` are swapped, so the signature is now ``launch(config, kernel, *kernel_args)``
