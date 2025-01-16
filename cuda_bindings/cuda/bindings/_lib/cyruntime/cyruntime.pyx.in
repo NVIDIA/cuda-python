@@ -4639,7 +4639,7 @@ cdef cudaError_t _cudaGraphExecGetFlags(cudaGraphExec_t graphExec, unsigned long
     err = m_global.lazyInitContextState()
     if err != cudaSuccess:
         return err
-    err = <cudaError_t>cydriver._cuGraphExecGetFlags(<cydriver.CUgraphExec>graphExec, flags)
+    err = <cudaError_t>cydriver._cuGraphExecGetFlags(<cydriver.CUgraphExec>graphExec, <cydriver.cuuint64_t *>flags)
     if err != cudaSuccess:
         _setLastError(err)
     return err
