@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import importlib.metadata
 from dataclasses import dataclass
 from typing import Optional, Union
 
@@ -11,7 +10,7 @@ from cuda.core.experimental._device import Device
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
-from cuda.core.experimental._utils import CUDAError, check_or_create_options, handle_return
+from cuda.core.experimental._utils import CUDAError, check_or_create_options, get_binding_version, handle_return
 
 # TODO: revisit this treatment for py313t builds
 _inited = False
@@ -25,7 +24,7 @@ def _lazy_init():
 
     global _use_ex
     # binding availability depends on cuda-python version
-    _py_major_minor = tuple(int(v) for v in (importlib.metadata.version("cuda-python").split(".")[:2]))
+    _py_major_minor = get_binding_version()
     _driver_ver = handle_return(cuda.cuDriverGetVersion())
     _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
     _inited = True

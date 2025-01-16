@@ -42,8 +42,9 @@ dtype = cp.float32
 
 # prepare input/output
 size = 50000
-a = cp.random.random(size, dtype=dtype)
-b = cp.random.random(size, dtype=dtype)
+rng = cp.random.default_rng()
+a = rng.random(size, dtype=dtype)
+b = rng.random(size, dtype=dtype)
 c = cp.empty_like(a)
 
 # cupy runs on a different stream from s, so sync before accessing
