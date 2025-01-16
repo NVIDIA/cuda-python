@@ -3,14 +3,13 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
-from cuda import cuda
-from cuda.core.experimental._utils import get_binding_version, handle_return, precondition
+from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
     "old": {
-        "file": cuda.cuModuleLoad,
-        "data": cuda.cuModuleLoadDataEx,
-        "kernel": cuda.cuModuleGetFunction,
+        "file": driver.cuModuleLoad,
+        "data": driver.cuModuleLoadDataEx,
+        "kernel": driver.cuModuleGetFunction,
     },
 }
 
@@ -32,14 +31,14 @@ def _lazy_init():
     _py_major_ver, _ = get_binding_version()
     if _py_major_ver >= 12:
         _backend["new"] = {
-            "file": cuda.cuLibraryLoadFromFile,
-            "data": cuda.cuLibraryLoadData,
-            "kernel": cuda.cuLibraryGetKernel,
+            "file": driver.cuLibraryLoadFromFile,
+            "data": driver.cuLibraryLoadData,
+            "kernel": driver.cuLibraryGetKernel,
         }
-        _kernel_ctypes = (cuda.CUfunction, cuda.CUkernel)
+        _kernel_ctypes = (driver.CUfunction, driver.CUkernel)
     else:
-        _kernel_ctypes = (cuda.CUfunction,)
-    _driver_ver = handle_return(cuda.cuDriverGetVersion())
+        _kernel_ctypes = (driver.CUfunction,)
+    _driver_ver = handle_return(driver.cuDriverGetVersion())
     _inited = True
 
 
