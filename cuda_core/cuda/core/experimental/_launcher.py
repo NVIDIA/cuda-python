@@ -9,7 +9,7 @@ from cuda.core.experimental._device import Device
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
-from cuda.core.experimental._utils import CUDAError, check_or_create_options, cuda, get_binding_version, handle_return
+from cuda.core.experimental._utils import CUDAError, check_or_create_options, driver, get_binding_version, handle_return
 
 # TODO: revisit this treatment for py313t builds
 _inited = False
@@ -24,7 +24,7 @@ def _lazy_init():
     global _use_ex
     # binding availability depends on cuda-python version
     _py_major_minor = get_binding_version()
-    _driver_ver = handle_return(cuda.cuDriverGetVersion())
+    _driver_ver = handle_return(driver.cuDriverGetVersion())
     _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
     _inited = True
 
@@ -138,25 +138,25 @@ def launch(kernel, config, *kernel_args):
     # mainly to see if the "Ex" API is available and if so we use it, as it's more feature
     # rich.
     if _use_ex:
-        drv_cfg = cuda.CUlaunchConfig()
+        drv_cfg = driver.CUlaunchConfig()
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
         drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
         drv_cfg.hStream = config.stream.handle
         drv_cfg.sharedMemBytes = config.shmem_size
         attrs = []  # TODO: support more attributes
         if config.cluster:
-            attr = cuda.CUlaunchAttribute()
-            attr.id = cuda.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+            attr = driver.CUlaunchAttribute()
+            attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
             dim = attr.value.clusterDim
             dim.x, dim.y, dim.z = config.cluster
             attrs.append(attr)
         drv_cfg.numAttrs = len(attrs)
         drv_cfg.attrs = attrs
-        handle_return(cuda.cuLaunchKernelEx(drv_cfg, int(kernel._handle), args_ptr, 0))
+        handle_return(driver.cuLaunchKernelEx(drv_cfg, int(kernel._handle), args_ptr, 0))
     else:
         # TODO: check if config has any unsupported attrs
         handle_return(
-            cuda.cuLaunchKernel(
+            driver.cuLaunchKernel(
                 int(kernel._handle), *config.grid, *config.block, config.shmem_size, config.stream._handle, args_ptr, 0
             )
         )

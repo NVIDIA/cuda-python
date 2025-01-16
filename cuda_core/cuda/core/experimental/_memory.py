@@ -10,7 +10,7 @@ from typing import Optional, Tuple, TypeVar
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
-from cuda.core.experimental._utils import cuda, handle_return
+from cuda.core.experimental._utils import driver, handle_return
 
 PyCapsule = TypeVar("PyCapsule")
 
@@ -140,7 +140,7 @@ class Buffer:
             dst = self._mnff.mr.allocate(self._mnff.size, stream)
         if dst._mnff.size != self._mnff.size:
             raise ValueError("buffer sizes mismatch between src and dst")
-        handle_return(cuda.cuMemcpyAsync(dst._mnff.ptr, self._mnff.ptr, self._mnff.size, stream.handle))
+        handle_return(driver.cuMemcpyAsync(dst._mnff.ptr, self._mnff.ptr, self._mnff.size, stream.handle))
         return dst
 
     def copy_from(self, src: Buffer, *, stream):
@@ -159,7 +159,7 @@ class Buffer:
             raise ValueError("stream must be provided")
         if src._mnff.size != self._mnff.size:
             raise ValueError("buffer sizes mismatch between src and dst")
-        handle_return(cuda.cuMemcpyAsync(self._mnff.ptr, src._mnff.ptr, self._mnff.size, stream.handle))
+        handle_return(driver.cuMemcpyAsync(self._mnff.ptr, src._mnff.ptr, self._mnff.size, stream.handle))
 
     def __dlpack__(
         self,
@@ -242,19 +242,19 @@ class _DefaultAsyncMempool(MemoryResource):
     __slots__ = ("_dev_id",)
 
     def __init__(self, dev_id):
-        self._handle = handle_return(cuda.cuDeviceGetMemPool(dev_id))
+        self._handle = handle_return(driver.cuDeviceGetMemPool(dev_id))
         self._dev_id = dev_id
 
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
             stream = default_stream()
-        ptr = handle_return(cuda.cuMemAllocFromPoolAsync(size, self._handle, stream.handle))
+        ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, self._handle, stream.handle))
         return Buffer(ptr, size, self)
 
     def deallocate(self, ptr, size, stream=None):
         if stream is None:
             stream = default_stream()
-        handle_return(cuda.cuMemFreeAsync(ptr, stream.handle))
+        handle_return(driver.cuMemFreeAsync(ptr, stream.handle))
 
     @property
     def is_device_accessible(self) -> bool:
@@ -275,11 +275,11 @@ class _DefaultPinnedMemorySource(MemoryResource):
         self._handle = None
 
     def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(cuda.cuMemAllocHost(size))
+        ptr = handle_return(driver.cuMemAllocHost(size))
         return Buffer(ptr, size, self)
 
     def deallocate(self, ptr, size, stream=None):
-        handle_return(cuda.cuMemFreeHost(ptr))
+        handle_return(driver.cuMemFreeHost(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
@@ -302,14 +302,14 @@ class _SynchronousMemoryResource(MemoryResource):
         self._dev_id = dev_id
 
     def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(cuda.cuMemAlloc(size))
+        ptr = handle_return(driver.cuMemAlloc(size))
         return Buffer(ptr, size, self)
 
     def deallocate(self, ptr, size, stream=None):
         if stream is None:
             stream = default_stream()
         stream.sync()
-        handle_return(cuda.cuMemFree(ptr))
+        handle_return(driver.cuMemFree(ptr))
 
     @property
     def is_device_accessible(self) -> bool:

@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass
 
-from cuda.core.experimental._utils import cuda
+from cuda.core.experimental._utils import driver
 
 
 @dataclass
@@ -20,7 +20,7 @@ class Context:
 
     @staticmethod
     def _from_ctx(obj, dev_id):
-        assert isinstance(obj, cuda.CUcontext)
+        assert isinstance(obj, driver.CUcontext)
         ctx = Context.__new__(Context)
         ctx._handle = obj
         ctx._id = dev_id

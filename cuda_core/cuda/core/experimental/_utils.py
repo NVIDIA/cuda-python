@@ -14,9 +14,6 @@ except ImportError:
     from cuda.core.experimental._utils import cudart as runtime
     from cuda.core.experimental._utils import nvrtc
 
-cuda = driver
-cudart = runtime
-
 
 class CUDAError(Exception):
     pass

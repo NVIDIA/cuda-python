@@ -8,7 +8,7 @@ from typing import Union
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
-from cuda.core.experimental._utils import ComputeCapability, CUDAError, cuda, cudart, handle_return, precondition
+from cuda.core.experimental._utils import ComputeCapability, CUDAError, driver, handle_return, precondition, runtime
 
 _tls = threading.local()
 _tls_lock = threading.Lock()
@@ -46,17 +46,17 @@ class Device:
     def __new__(cls, device_id=None):
         # important: creating a Device instance does not initialize the GPU!
         if device_id is None:
-            device_id = handle_return(cudart.cudaGetDevice())
+            device_id = handle_return(runtime.cudaGetDevice())
             assert isinstance(device_id, int), f"{device_id=}"
         else:
-            total = handle_return(cudart.cudaGetDeviceCount())
+            total = handle_return(runtime.cudaGetDeviceCount())
             if not isinstance(device_id, int) or not (0 <= device_id < total):
                 raise ValueError(f"device_id must be within [0, {total}), got {device_id}")
 
         # ensure Device is singleton
         with _tls_lock:
             if not hasattr(_tls, "devices"):
-                total = handle_return(cudart.cudaGetDeviceCount())
+                total = handle_return(runtime.cudaGetDeviceCount())
                 _tls.devices = []
                 for dev_id in range(total):
                     dev = super().__new__(cls)
@@ -65,7 +65,7 @@ class Device:
                     # use the SynchronousMemoryResource which does not use memory pools.
                     if (
                         handle_return(
-                            cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
+                            runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
                         )
                     ) == 1:
                         dev._mr = _DefaultAsyncMempool(dev_id)
@@ -89,7 +89,7 @@ class Device:
     @property
     def pci_bus_id(self) -> str:
         """Return a PCI Bus Id string for this device."""
-        bus_id = handle_return(cudart.cudaDeviceGetPCIBusId(13, self._id))
+        bus_id = handle_return(runtime.cudaDeviceGetPCIBusId(13, self._id))
         return bus_id[:12].decode()
 
     @property
@@ -106,11 +106,11 @@ class Device:
         driver is older than CUDA 11.4.
 
         """
-        driver_ver = handle_return(cuda.cuDriverGetVersion())
+        driver_ver = handle_return(driver.cuDriverGetVersion())
         if driver_ver >= 11040:
-            uuid = handle_return(cuda.cuDeviceGetUuid_v2(self._id))
+            uuid = handle_return(driver.cuDeviceGetUuid_v2(self._id))
         else:
-            uuid = handle_return(cuda.cuDeviceGetUuid(self._id))
+            uuid = handle_return(driver.cuDeviceGetUuid(self._id))
         uuid = uuid.bytes.hex()
         # 8-4-4-4-12
         return f"{uuid[:8]}-{uuid[8:12]}-{uuid[12:16]}-{uuid[16:20]}-{uuid[20:]}"
@@ -119,7 +119,7 @@ class Device:
     def name(self) -> str:
         """Return the device name."""
         # Use 256 characters to be consistent with CUDA Runtime
-        name = handle_return(cuda.cuDeviceGetName(256, self._id))
+        name = handle_return(driver.cuDeviceGetName(256, self._id))
         name = name.split(b"\0")[0]
         return name.decode()
 
@@ -127,16 +127,16 @@ class Device:
     def properties(self) -> dict:
         """Return information about the compute-device."""
         # TODO: pythonize the key names
-        return handle_return(cudart.cudaGetDeviceProperties(self._id))
+        return handle_return(runtime.cudaGetDeviceProperties(self._id))
 
     @property
     def compute_capability(self) -> ComputeCapability:
         """Return a named tuple with 2 fields: major and minor."""
         major = handle_return(
-            cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, self._id)
+            runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, self._id)
         )
         minor = handle_return(
-            cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, self._id)
+            runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, self._id)
         )
         return ComputeCapability(major, minor)
 
@@ -150,7 +150,7 @@ class Device:
         Device must be initialized.
 
         """
-        ctx = handle_return(cuda.cuCtxGetCurrent())
+        ctx = handle_return(driver.cuCtxGetCurrent())
         assert int(ctx) != 0
         return Context._from_ctx(ctx, self._id)
 
@@ -223,23 +223,23 @@ class Device:
                     "the provided context was created on a different "
                     f"device {ctx._id} other than the target {self._id}"
                 )
-            prev_ctx = handle_return(cuda.cuCtxPopCurrent())
-            handle_return(cuda.cuCtxPushCurrent(ctx._handle))
+            prev_ctx = handle_return(driver.cuCtxPopCurrent())
+            handle_return(driver.cuCtxPushCurrent(ctx._handle))
             self._has_inited = True
             if int(prev_ctx) != 0:
                 return Context._from_ctx(prev_ctx, self._id)
         else:
-            ctx = handle_return(cuda.cuCtxGetCurrent())
+            ctx = handle_return(driver.cuCtxGetCurrent())
             if int(ctx) == 0:
                 # use primary ctx
-                ctx = handle_return(cuda.cuDevicePrimaryCtxRetain(self._id))
-                handle_return(cuda.cuCtxPushCurrent(ctx))
+                ctx = handle_return(driver.cuDevicePrimaryCtxRetain(self._id))
+                handle_return(driver.cuCtxPushCurrent(ctx))
             else:
-                ctx_id = handle_return(cuda.cuCtxGetDevice())
+                ctx_id = handle_return(driver.cuCtxGetDevice())
                 if ctx_id != self._id:
                     # use primary ctx
-                    ctx = handle_return(cuda.cuDevicePrimaryCtxRetain(self._id))
-                    handle_return(cuda.cuCtxPushCurrent(ctx))
+                    ctx = handle_return(driver.cuDevicePrimaryCtxRetain(self._id))
+                    handle_return(driver.cuCtxPushCurrent(ctx))
                 else:
                     # no-op, a valid context already exists and is set current
                     pass
@@ -336,4 +336,4 @@ class Device:
         Device must be initialized.
 
         """
-        handle_return(cudart.cudaDeviceSynchronize())
+        handle_return(runtime.cudaDeviceSynchronize())

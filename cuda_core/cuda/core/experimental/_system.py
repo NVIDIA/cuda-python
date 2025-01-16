@@ -5,7 +5,7 @@
 from typing import Tuple
 
 from cuda.core.experimental._device import Device
-from cuda.core.experimental._utils import cuda, cudart, handle_return
+from cuda.core.experimental._utils import driver, handle_return, runtime
 
 
 class System:
@@ -35,7 +35,7 @@ class System:
         tuple of int
             A 2-tuple of (major, minor) version numbers.
         """
-        version = handle_return(cuda.cuDriverGetVersion())
+        version = handle_return(driver.cuDriverGetVersion())
         major = version // 1000
         minor = (version % 1000) // 10
         return (major, minor)
@@ -50,7 +50,7 @@ class System:
         int
             The number of available GPU devices.
         """
-        return handle_return(cudart.cudaGetDeviceCount())
+        return handle_return(runtime.cudaGetDeviceCount())
 
     @property
     def devices(self) -> tuple:

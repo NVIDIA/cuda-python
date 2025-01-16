@@ -9,10 +9,9 @@ from ._dlpack cimport *
 import functools
 from typing import Any, Optional
 
-from cuda.core.experimental._utils import cuda
 import numpy
 
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils import handle_return, driver
 
 
 # TODO(leofang): support NumPy structured dtypes
@@ -313,8 +312,8 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
         buf.strides = tuple(s // buf.dtype.itemsize for s in buf.strides)
     buf.is_device_accessible = True
     buf.device_id = handle_return(
-        cuda.cuPointerGetAttribute(
-            cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
+        driver.cuPointerGetAttribute(
+            driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
             buf.ptr))
 
     cdef intptr_t producer_s, consumer_s
@@ -325,11 +324,11 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
         assert producer_s > 0
         # establish stream order
         if producer_s != consumer_s:
-            e = handle_return(cuda.cuEventCreate(
-                cuda.CUevent_flags.CU_EVENT_DISABLE_TIMING))
-            handle_return(cuda.cuEventRecord(e, producer_s))
-            handle_return(cuda.cuStreamWaitEvent(consumer_s, e, 0))
-            handle_return(cuda.cuEventDestroy(e))
+            e = handle_return(driver.cuEventCreate(
+                driver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
+            handle_return(driver.cuEventRecord(e, producer_s))
+            handle_return(driver.cuStreamWaitEvent(consumer_s, e, 0))
+            handle_return(driver.cuEventDestroy(e))
 
     return buf
 
