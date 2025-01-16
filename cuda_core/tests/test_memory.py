@@ -9,7 +9,7 @@
 try:
     from cuda.bindings import driver
 except ImportError:
-    from cuda import cuda as driver
+    from cuda.core.experimental._utils import cuda as driver
 
 import ctypes
 

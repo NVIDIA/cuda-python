@@ -6,8 +6,7 @@ import weakref
 from dataclasses import dataclass
 from typing import Optional
 
-from cuda import cuda
-from cuda.core.experimental._utils import CUDAError, check_or_create_options, handle_return
+from cuda.core.experimental._utils import CUDAError, check_or_create_options, cuda, handle_return
 
 
 @dataclass

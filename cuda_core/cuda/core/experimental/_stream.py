@@ -12,10 +12,9 @@ from typing import TYPE_CHECKING, Optional, Tuple, Union
 
 if TYPE_CHECKING:
     from cuda.core.experimental._device import Device
-from cuda import cuda, cudart
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._utils import check_or_create_options, get_device_from_ctx, handle_return
+from cuda.core.experimental._utils import check_or_create_options, cuda, cudart, get_device_from_ctx, handle_return
 
 
 @dataclass

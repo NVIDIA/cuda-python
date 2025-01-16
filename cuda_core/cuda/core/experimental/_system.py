@@ -4,9 +4,8 @@
 
 from typing import Tuple
 
-from cuda import cuda, cudart
 from cuda.core.experimental._device import Device
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils import cuda, cudart, handle_return
 
 
 class System:

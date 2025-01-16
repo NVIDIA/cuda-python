@@ -8,10 +8,9 @@ import abc
 import weakref
 from typing import Optional, Tuple, TypeVar
 
-from cuda import cuda
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils import cuda, handle_return
 
 PyCapsule = TypeVar("PyCapsule")
 

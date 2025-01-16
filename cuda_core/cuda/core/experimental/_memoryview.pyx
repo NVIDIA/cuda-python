@@ -9,7 +9,7 @@ from ._dlpack cimport *
 import functools
 from typing import Any, Optional
 
-from cuda import cuda
+from cuda.core.experimental._utils import cuda
 import numpy
 
 from cuda.core.experimental._utils import handle_return

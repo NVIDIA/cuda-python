@@ -5,11 +5,10 @@
 import threading
 from typing import Union
 
-from cuda import cuda, cudart
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
-from cuda.core.experimental._utils import ComputeCapability, CUDAError, handle_return, precondition
+from cuda.core.experimental._utils import ComputeCapability, CUDAError, cuda, cudart, handle_return, precondition
 
 _tls = threading.local()
 _tls_lock = threading.Lock()

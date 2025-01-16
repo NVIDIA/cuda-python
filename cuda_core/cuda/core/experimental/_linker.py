@@ -9,9 +9,8 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import List, Optional
 
-from cuda import cuda
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import check_or_create_options, handle_return
+from cuda.core.experimental._utils import check_or_create_options, cuda, handle_return
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used

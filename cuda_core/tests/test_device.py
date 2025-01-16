@@ -9,8 +9,8 @@
 try:
     from cuda.bindings import driver, runtime
 except ImportError:
-    from cuda import cuda as driver
-    from cuda import cudart as runtime
+    from cuda.core.experimental._utils import cuda as driver
+    from cuda.core.experimental._utils import cudart as runtime
 
 from cuda.core.experimental import Device
 from cuda.core.experimental._utils import ComputeCapability, handle_return

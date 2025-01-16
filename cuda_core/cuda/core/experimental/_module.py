@@ -3,8 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
-from cuda import cuda
-from cuda.core.experimental._utils import get_binding_version, handle_return, precondition
+from cuda.core.experimental._utils import cuda, get_binding_version, handle_return, precondition
 
 _backend = {
     "old": {

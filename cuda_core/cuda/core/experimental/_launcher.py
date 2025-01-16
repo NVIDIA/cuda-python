@@ -5,12 +5,11 @@
 from dataclasses import dataclass
 from typing import Optional, Union
 
-from cuda import cuda
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
-from cuda.core.experimental._utils import CUDAError, check_or_create_options, get_binding_version, handle_return
+from cuda.core.experimental._utils import CUDAError, check_or_create_options, cuda, get_binding_version, handle_return
 
 # TODO: revisit this treatment for py313t builds
 _inited = False
