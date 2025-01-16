@@ -151,6 +151,8 @@ jobs:
 
       - name: Get PR number
         run: |
+          echo '${{ steps.get_pr_data.outputs.result }}'
+          echo '${{ fromJson(steps.get_pr_data.outputs.result).number }}'
           PR_NUMBER="${{ fromJson(steps.get_pr_data.outputs.result).number }}"
           echo "PR_NUMBER=${PR_NUMBER}" >> $GITHUB_ENV
 
