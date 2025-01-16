@@ -50,7 +50,6 @@ jobs:
       # WAR: Building the doc currently requires CTK installed (NVIDIA/cuda-python#326,327)
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
-        continue-on-error: false
         with:
           host-platform: linux-64
           cuda-version: ${{ inputs.build-ctk-ver }}
@@ -126,22 +125,29 @@ jobs:
           mkdir -p artifacts/docs
           mv cuda_python/docs/build/html/* artifacts/docs/
 
-      # Note: currently this is only for manual inspection. This step will become
-      # required once we switch to use GHA for doc deployment (see the bottom).
+          # create an empty folder for removal use
+          mkdir -p artifacts/empty_docs
+
+      # TODO: Consider removing this step?
       - name: Upload doc artifacts
         uses: actions/upload-pages-artifact@v3
         with:
           path: artifacts/
           retention-days: 3
 
-      # The step below is not executed unless when building on main.
+      - name: Deploy or clean up doc preview
+        uses: ./.github/actions/doc_preview
+        with:
+          source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
+                              'artifacts/empty_docs' }}
+
       - name: Deploy doc update
-        if: ${{ github.ref_name == 'main' && success() }}
+        if: ${{ github.ref_name == 'main' }}
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: artifacts/docs/
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
+          folder: artifacts/docs/
           target-folder: docs/
           commit-message: "Deploy latest docs: ${{ github.sha }}"
           clean: false
