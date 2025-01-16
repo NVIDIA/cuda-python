@@ -10,9 +10,9 @@ from typing import Callable, Dict
 try:
     from cuda.bindings import driver, nvrtc, runtime
 except ImportError:
-    from cuda.core.experimental._utils import cuda as driver
-    from cuda.core.experimental._utils import cudart as runtime
-    from cuda.core.experimental._utils import nvrtc
+    from cuda import cuda as driver
+    from cuda import cudart as runtime
+    from cuda import nvrtc
 
 
 class CUDAError(Exception):
