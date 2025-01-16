@@ -95,6 +95,10 @@ napoleon_numpy_docstring = True
 
 section_titles = ["Returns"]
 
+autodoc_mock_imports = ["cuda"]
+from cuda.core.experimental._linker import LinkerOptions  # noqa: F401, E402
+from cuda.core.experimental._module import ObjectCode  # noqa: F401, E402
+
 
 def autodoc_process_docstring(app, what, name, obj, options, lines):
     if name.startswith("cuda.core.experimental.system"):
