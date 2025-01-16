@@ -37,3 +37,9 @@ The list of available interfaces are:
 * CUDA Runtime
 * NVRTC
 * nvJitLink
+
+## Supported Python Versions
+
+All `cuda-python` subpackages follows CPython [End-Of-Life](https://devguide.python.org/versions/) schedule for supported Python version guarantee.
+
+Before dropping support there will be an issue raised as a notice.
