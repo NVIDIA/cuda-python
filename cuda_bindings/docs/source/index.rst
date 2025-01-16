@@ -9,6 +9,7 @@
    overview.md
    motivation.md
    release.md
+   environment_variables.md
    api.rst
 
 
