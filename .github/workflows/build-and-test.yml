@@ -263,6 +263,7 @@ jobs:
     permissions:
       id-token: write
       contents: write
+      pull-requests: write
     needs:
       - build
     secrets: inherit

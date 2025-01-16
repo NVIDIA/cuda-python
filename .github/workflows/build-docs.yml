@@ -126,40 +126,30 @@ jobs:
           mkdir -p artifacts/docs
           mv cuda_python/docs/build/html/* artifacts/docs/
 
-      # TODO: remove this step
+          # create an empty folder for removal use
+          mkdir -p artifacts/empty_docs
+
+      # TODO: Consider removing this step?
       - name: Upload doc artifacts
         uses: actions/upload-pages-artifact@v3
         with:
           path: artifacts/
           retention-days: 3
 
-      # Note: the PR previews will be removed once merged to main (see below)
-      - uses: rossjrw/pr-preview-action@v1
-        if: ${{ github.ref_name != 'main' && success() }}
+      - name: Deploy or clean up doc preview
+        uses: ./.github/actions/doc_preview
+        continue-on-error: false
         with:
-          source-dir: artifacts/docs/
-          preview-branch: gh-pages
-          umbrella-dir: docs/pr-preview
-          pages-base-path: docs
-          action: deploy
+          source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
+                              'artifacts/empty_docs' }}
 
-      # The steps below are not executed unless when building on main.
       - name: Deploy doc update
-        if: ${{ github.ref_name == 'main' && success() }}
+        if: ${{ github.ref_name == 'main' }}
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: artifacts/docs/
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
+          folder: artifacts/docs/
           target-folder: docs/
           commit-message: "Deploy latest docs: ${{ github.sha }}"
           clean: false
-
-      - uses: rossjrw/pr-preview-action@v1
-        if: ${{ github.ref_name == 'main' && success() }}
-        with:
-          source-dir: artifacts/docs/
-          preview-branch: gh-pages
-          umbrella-dir: docs/pr-preview
-          pages-base-path: docs
-          action: remove
