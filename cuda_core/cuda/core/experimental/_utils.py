@@ -5,6 +5,7 @@
 import functools
 import importlib.metadata
 from collections import namedtuple
+from collections.abc import Sequence
 from typing import Callable, Dict
 
 from cuda import cuda, cudart, nvrtc
@@ -88,6 +89,13 @@ def check_or_create_options(cls, options, options_description, *, keep_none=Fals
     return options
 
 
+def _handle_boolean_option(option: bool) -> str:
+    """
+    Convert a boolean option to a string representation.
+    """
+    return "true" if bool(option) else "false"
+
+
 def precondition(checker: Callable[..., None], what: str = "") -> Callable:
     """
     A decorator that adds checks to ensure any preconditions are met.
@@ -135,6 +143,20 @@ def get_device_from_ctx(ctx_handle) -> int:
         assert ctx_handle == handle_return(cuda.cuCtxPopCurrent())
         handle_return(cuda.cuCtxPushCurrent(prev_ctx))
     return device_id
+
+
+def is_sequence(obj):
+    """
+    Check if the given object is a sequence (list or tuple).
+    """
+    return isinstance(obj, Sequence)
+
+
+def is_nested_sequence(obj):
+    """
+    Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
+    """
+    return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
 
 
 def get_binding_version():
