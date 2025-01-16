@@ -13,8 +13,8 @@ import sys
 try:
     from cuda.bindings import driver, nvrtc
 except ImportError:
-    from cuda.core.experimental._utils import cuda as driver
-    from cuda.core.experimental._utils import nvrtc
+    from cuda import cuda as driver
+    from cuda import nvrtc
 import pytest
 
 from cuda.core.experimental import Device, _device
