@@ -4,9 +4,8 @@
 
 import weakref
 
-from cuda import nvrtc
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils import handle_return, nvrtc
 
 
 class Program:
