@@ -1,4 +1,6 @@
-name: Preview docs built from PRs
+name: Preview or clean up docs built from PRs
+
+# A re-implementation based on the logic of https://github.com/rossjrw/pr-preview-action/blob/41a957c44a456a34718e9bcf825363194db5e6d5/README.md, due to limitations illustrated in NVIDIA/cuda-python#380.
 
 inputs:
   source-folder:

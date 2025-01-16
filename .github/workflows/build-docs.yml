@@ -50,7 +50,6 @@ jobs:
       # WAR: Building the doc currently requires CTK installed (NVIDIA/cuda-python#326,327)
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
-        continue-on-error: false
         with:
           host-platform: linux-64
           cuda-version: ${{ inputs.build-ctk-ver }}
@@ -138,7 +137,6 @@ jobs:
 
       - name: Deploy or clean up doc preview
         uses: ./.github/actions/doc_preview
-        continue-on-error: false
         with:
           source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
                               'artifacts/empty_docs' }}
