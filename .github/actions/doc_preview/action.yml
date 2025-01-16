@@ -17,6 +17,7 @@ runs:
     
     - name: Extract PR number from info
       if: ${{ github.ref_name != 'main' }}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         PR_NUMBER="${{ fromJSON(steps.get-pr-info.outputs.pr-info).number }}"
         if [[ "$PR_NUMBER" == "" ]]; then
@@ -66,6 +67,7 @@ runs:
     
     - name: Extract PR number from data
       if: ${{ github.ref_name == 'main' }}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         PR_NUMBER="${{ fromJSON(steps.get-pr-data.outputs.result).number }}"
         if [[ "$PR_NUMBER" == "" ]]; then
