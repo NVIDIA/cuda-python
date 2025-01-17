@@ -9,10 +9,10 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import List, Optional
 
-from cuda import cuda
+
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import check_or_create_options, handle_return
+from cuda.core.experimental._utils import check_or_create_options, driver, handle_return
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used
@@ -30,7 +30,7 @@ def _decide_nvjitlink_or_driver():
     if _driver or _nvjitlink:
         return
 
-    _driver_ver = handle_return(cuda.cuDriverGetVersion())
+    _driver_ver = handle_return(driver.cuDriverGetVersion())
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
     try:
         from cuda.bindings import nvjitlink as _nvjitlink
@@ -50,7 +50,7 @@ def _decide_nvjitlink_or_driver():
             stacklevel=3,
             category=RuntimeWarning,
         )
-        _driver = cuda
+        _driver = driver
         return True
     else:
         return False

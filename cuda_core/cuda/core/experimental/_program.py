@@ -6,7 +6,7 @@ import weakref
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
 
-from cuda import nvrtc
+
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils import (
@@ -15,6 +15,7 @@ from cuda.core.experimental._utils import (
     handle_return,
     is_nested_sequence,
     is_sequence,
+    nvrtc
 )
 
 
