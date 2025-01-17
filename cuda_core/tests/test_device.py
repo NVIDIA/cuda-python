@@ -11,6 +11,7 @@ try:
 except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
+import pytest
 
 from cuda.core.experimental import Device
 from cuda.core.experimental._utils import ComputeCapability, handle_return
@@ -86,92 +87,112 @@ def test_device_property_values():
     assert device.properties.uuid.hex() == device.uuid.replace("-", "")
 
 
-def test_device_property_types():
+cuda_base_properties = [
+    ("name", str),
+    ("uuid", bytes),
+    ("total_global_mem", int),
+    ("shared_mem_per_block", int),
+    ("regs_per_block", int),
+    ("warp_size", int),
+    ("mem_pitch", int),
+    ("max_threads_per_block", int),
+    ("max_threads_dim", tuple),
+    ("max_grid_size", tuple),
+    ("clock_rate", int),
+    ("total_const_mem", int),
+    ("major", int),
+    ("minor", int),
+    ("texture_alignment", int),
+    ("texture_pitch_alignment", int),
+    ("device_overlap", int),
+    ("multi_processor_count", int),
+    ("kernel_exec_timeout_enabled", int),
+    ("integrated", int),
+    ("can_map_host_memory", int),
+    ("compute_mode", int),
+    ("max_texture_1d", int),
+    ("max_texture_1d_mipmap", int),
+    ("max_texture_1d_linear", int),
+    ("max_texture_2d", tuple),
+    ("max_texture_2d_mipmap", tuple),
+    ("max_texture_2d_linear", tuple),
+    ("max_texture_2d_gather", tuple),
+    ("max_texture_3d", tuple),
+    ("max_texture_3d_alt", tuple),
+    ("max_texture_cubemap", int),
+    ("max_texture_1d_layered", tuple),
+    ("max_texture_2d_layered", tuple),
+    ("max_texture_cubemap_layered", tuple),
+    ("max_surface_1d", int),
+    ("max_surface_2d", tuple),
+    ("max_surface_3d", tuple),
+    ("max_surface_1d_layered", tuple),
+    ("max_surface_2d_layered", tuple),
+    ("max_surface_cubemap", int),
+    ("max_surface_cubemap_layered", tuple),
+    ("surface_alignment", int),
+    ("concurrent_kernels", int),
+    ("ecc_enabled", int),
+    ("pci_bus_id", int),
+    ("pci_device_id", int),
+    ("pci_domain_id", int),
+    ("tcc_driver", int),
+    ("async_engine_count", int),
+    ("unified_addressing", int),
+    ("memory_clock_rate", int),
+    ("memory_bus_width", int),
+    ("l2_cache_size", int),
+    ("persisting_l2_cache_max_size", int),
+    ("max_threads_per_multi_processor", int),
+    ("stream_priorities_supported", int),
+    ("global_l1_cache_supported", int),
+    ("local_l1_cache_supported", int),
+    ("shared_mem_per_multiprocessor", int),
+    ("regs_per_multiprocessor", int),
+    ("managed_memory", int),
+    ("is_multi_gpu_board", int),
+    ("multi_gpu_board_group_id", int),
+    ("single_to_double_precision_perf_ratio", int),
+    ("pageable_memory_access", int),
+    ("concurrent_managed_access", int),
+    ("compute_preemption_supported", int),
+    ("can_use_host_pointer_for_registered_mem", int),
+    ("cooperative_launch", int),
+    ("cooperative_multi_device_launch", int),
+    ("pageable_memory_access_uses_host_page_tables", int),
+    ("direct_managed_mem_access_from_host", int),
+    ("access_policy_max_window_size", int),
+    ("reserved_shared_mem_per_block", int),
+    ("host_register_supported", int),
+    ("sparse_cuda_array_supported", int),
+    ("host_register_read_only_supported", int),
+    ("timeline_semaphore_interop_supported", int),
+    ("memory_pools_supported", int),
+    ("gpu_direct_rdma_supported", int),
+    ("gpu_direct_rdma_flush_writes_options", int),
+    ("gpu_direct_rdma_writes_ordering", int),
+    ("memory_pool_supported_handle_types", int),
+    ("deferred_mapping_cuda_array_supported", int),
+    ("ipc_event_supported", int),
+    ("unified_function_pointers", int),
+]
+
+cuda_12_properties = [
+    ("host_native_atomic_supported", int),
+    ("luid", bytes),
+    ("luid_device_node_mask", int),
+    ("max_blocks_per_multi_processor", int),
+    ("shared_mem_per_block_optin", int),
+    ("cluster_launch", int),
+]
+
+
+driver_ver = handle_return(driver.cuDriverGetVersion())
+if driver_ver >= 12000:
+    cuda_base_properties += cuda_12_properties
+
+
+@pytest.mark.parametrize("property_name, expected_type", cuda_base_properties)
+def test_device_property_types(property_name, expected_type):
     device = Device()
-    assert isinstance(device.properties.name, str)
-    assert isinstance(device.properties.uuid, bytes)
-    assert isinstance(device.properties.total_global_mem, int)
-    assert isinstance(device.properties.shared_mem_per_block, int)
-    assert isinstance(device.properties.regs_per_block, int)
-    assert isinstance(device.properties.warp_size, int)
-    assert isinstance(device.properties.mem_pitch, int)
-    assert isinstance(device.properties.max_threads_per_block, int)
-    assert isinstance(device.properties.max_threads_dim, tuple)
-    assert isinstance(device.properties.max_grid_size, tuple)
-    assert isinstance(device.properties.clock_rate, int)
-    assert isinstance(device.properties.total_const_mem, int)
-    assert isinstance(device.properties.major, int)
-    assert isinstance(device.properties.minor, int)
-    assert isinstance(device.properties.texture_alignment, int)
-    assert isinstance(device.properties.texture_pitch_alignment, int)
-    assert isinstance(device.properties.device_overlap, int)
-    assert isinstance(device.properties.multi_processor_count, int)
-    assert isinstance(device.properties.kernel_exec_timeout_enabled, int)
-    assert isinstance(device.properties.integrated, int)
-    assert isinstance(device.properties.can_map_host_memory, int)
-    assert isinstance(device.properties.compute_mode, int)
-    assert isinstance(device.properties.max_texture_1d, int)
-    assert isinstance(device.properties.max_texture_1d_mipmap, int)
-    assert isinstance(device.properties.max_texture_1d_linear, int)
-    assert isinstance(device.properties.max_texture_2d, tuple)
-    assert isinstance(device.properties.max_texture_2d_mipmap, tuple)
-    assert isinstance(device.properties.max_texture_2d_linear, tuple)
-    assert isinstance(device.properties.max_texture_2d_gather, tuple)
-    assert isinstance(device.properties.max_texture_3d, tuple)
-    assert isinstance(device.properties.max_texture_3d_alt, tuple)
-    assert isinstance(device.properties.max_texture_cubemap, int)
-    assert isinstance(device.properties.max_texture_1d_layered, tuple)
-    assert isinstance(device.properties.max_texture_2d_layered, tuple)
-    assert isinstance(device.properties.max_texture_cubemap_layered, tuple)
-    assert isinstance(device.properties.max_surface_1d, int)
-    assert isinstance(device.properties.max_surface_2d, tuple)
-    assert isinstance(device.properties.max_surface_3d, tuple)
-    assert isinstance(device.properties.max_surface_1d_layered, tuple)
-    assert isinstance(device.properties.max_surface_2d_layered, tuple)
-    assert isinstance(device.properties.max_surface_cubemap, int)
-    assert isinstance(device.properties.max_surface_cubemap_layered, tuple)
-    assert isinstance(device.properties.surface_alignment, int)
-    assert isinstance(device.properties.concurrent_kernels, int)
-    assert isinstance(device.properties.ecc_enabled, int)
-    assert isinstance(device.properties.pci_bus_id, int)
-    assert isinstance(device.properties.pci_device_id, int)
-    assert isinstance(device.properties.pci_domain_id, int)
-    assert isinstance(device.properties.tcc_driver, int)
-    assert isinstance(device.properties.async_engine_count, int)
-    assert isinstance(device.properties.unified_addressing, int)
-    assert isinstance(device.properties.memory_clock_rate, int)
-    assert isinstance(device.properties.memory_bus_width, int)
-    assert isinstance(device.properties.l2_cache_size, int)
-    assert isinstance(device.properties.persisting_l2_cache_max_size, int)
-    assert isinstance(device.properties.max_threads_per_multi_processor, int)
-    assert isinstance(device.properties.stream_priorities_supported, int)
-    assert isinstance(device.properties.global_l1_cache_supported, int)
-    assert isinstance(device.properties.local_l1_cache_supported, int)
-    assert isinstance(device.properties.shared_mem_per_multiprocessor, int)
-    assert isinstance(device.properties.regs_per_multiprocessor, int)
-    assert isinstance(device.properties.managed_memory, int)
-    assert isinstance(device.properties.is_multi_gpu_board, int)
-    assert isinstance(device.properties.multi_gpu_board_group_id, int)
-    assert isinstance(device.properties.single_to_double_precision_perf_ratio, int)
-    assert isinstance(device.properties.pageable_memory_access, int)
-    assert isinstance(device.properties.concurrent_managed_access, int)
-    assert isinstance(device.properties.compute_preemption_supported, int)
-    assert isinstance(device.properties.can_use_host_pointer_for_registered_mem, int)
-    assert isinstance(device.properties.cooperative_launch, int)
-    assert isinstance(device.properties.cooperative_multi_device_launch, int)
-    assert isinstance(device.properties.pageable_memory_access_uses_host_page_tables, int)
-    assert isinstance(device.properties.direct_managed_mem_access_from_host, int)
-    assert isinstance(device.properties.access_policy_max_window_size, int)
-    assert isinstance(device.properties.reserved_shared_mem_per_block, int)
-    assert isinstance(device.properties.host_register_supported, int)
-    assert isinstance(device.properties.sparse_cuda_array_supported, int)
-    assert isinstance(device.properties.host_register_read_only_supported, int)
-    assert isinstance(device.properties.timeline_semaphore_interop_supported, int)
-    assert isinstance(device.properties.memory_pools_supported, int)
-    assert isinstance(device.properties.gpu_direct_rdma_supported, int)
-    assert isinstance(device.properties.gpu_direct_rdma_flush_writes_options, int)
-    assert isinstance(device.properties.gpu_direct_rdma_writes_ordering, int)
-    assert isinstance(device.properties.memory_pool_supported_handle_types, int)
-    assert isinstance(device.properties.deferred_mapping_cuda_array_supported, int)
-    assert isinstance(device.properties.ipc_event_supported, int)
-    assert isinstance(device.properties.unified_function_pointers, int)
+    assert isinstance(getattr(device.properties, property_name), expected_type)

@@ -43,6 +43,8 @@ class DeviceProperties:
         Maximum size of each dimension of a grid.
     clock_rate : int
         Clock frequency in kilohertz.
+    cluster_launch : int
+        Indicates device supports cluster launch
     total_const_mem : int
         Total amount of constant memory available on the device in bytes.
     major : int
@@ -174,6 +176,8 @@ class DeviceProperties:
     cooperative_multi_device_launch : int
         1 if the device supports launching cooperative kernels via cudaLaunchCooperativeKernelMultiDevice, and 0
         otherwise.
+    sharedMemPerBlockOptin : int
+        The per device maximum shared memory per block usable by special opt in
     pageable_memory_access_uses_host_page_tables : int
         1 if the device accesses pageable memory via the host's page tables, and 0 otherwise.
     direct_managed_mem_access_from_host : int
@@ -207,6 +211,14 @@ class DeviceProperties:
         1 if the device supports IPC Events, and 0 otherwise.
     unified_function_pointers : int
         1 if the device supports unified pointers, and 0 otherwise.
+    host_native_atomic_supported : int
+        1 if the link between the device and the host supports native atomic operations.
+    luid : bytes
+        8-byte locally unique identifier. Value is undefined on TCC and non-Windows platforms.
+    luid_device_node_mask : int
+        LUID device node mask. Value is undefined on TCC and non-Windows platforms.
+    max_blocks_per_multi_processor : int
+        Maximum number of resident blocks per multiprocessor.
     """
 
     def _init(device_id):
@@ -225,6 +237,7 @@ class DeviceProperties:
         self.max_threads_dim = tuple(prop.maxThreadsDim)
         self.max_grid_size = tuple(prop.maxGridSize)
         self.clock_rate = prop.clockRate
+        self.cluster_launch = prop.clusterLaunch
         self.total_const_mem = prop.totalConstMem
         self.major = prop.major
         self.minor = prop.minor
@@ -285,6 +298,7 @@ class DeviceProperties:
         self.can_use_host_pointer_for_registered_mem = prop.canUseHostPointerForRegisteredMem
         self.cooperative_launch = prop.cooperativeLaunch
         self.cooperative_multi_device_launch = prop.cooperativeMultiDeviceLaunch
+        self.shared_mem_per_block_optin = prop.sharedMemPerBlockOptin
         self.pageable_memory_access_uses_host_page_tables = prop.pageableMemoryAccessUsesHostPageTables
         self.direct_managed_mem_access_from_host = prop.directManagedMemAccessFromHost
         self.access_policy_max_window_size = prop.accessPolicyMaxWindowSize
@@ -301,6 +315,10 @@ class DeviceProperties:
         self.deferred_mapping_cuda_array_supported = prop.deferredMappingCudaArraySupported
         self.ipc_event_supported = prop.ipcEventSupported
         self.unified_function_pointers = prop.unifiedFunctionPointers
+        self.host_native_atomic_supported = prop.hostNativeAtomicSupported
+        self.luid = prop.luid
+        self.luid_device_node_mask = prop.luidDeviceNodeMask
+        self.max_blocks_per_multi_processor = prop.maxBlocksPerMultiProcessor
         return self
 
     def __init__(self, device_id):
