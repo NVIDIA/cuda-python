@@ -5,16 +5,16 @@
 from __future__ import annotations
 
 import os
+import warnings
 import weakref
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Tuple, Union
 
 if TYPE_CHECKING:
     from cuda.core.experimental._device import Device
-from cuda import cuda, cudart
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._utils import check_or_create_options, get_device_from_ctx, handle_return
+from cuda.core.experimental._utils import check_or_create_options, driver, get_device_from_ctx, handle_return, runtime
 
 
 @dataclass
@@ -65,7 +65,7 @@ class Stream:
         def close(self):
             if self.owner is None:
                 if self.handle and not self.builtin:
-                    handle_return(cuda.cuStreamDestroy(self.handle))
+                    handle_return(driver.cuStreamDestroy(self.handle))
             else:
                 self.owner = None
             self.handle = None
@@ -87,11 +87,21 @@ class Stream:
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
         if obj is not None:
-            if not hasattr(obj, "__cuda_stream__"):
-                raise ValueError
-            info = obj.__cuda_stream__
+            try:
+                info = obj.__cuda_stream__()
+            except AttributeError as e:
+                raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' method") from e
+            except TypeError:
+                info = obj.__cuda_stream__
+                warnings.simplefilter("once", DeprecationWarning)
+                warnings.warn(
+                    "Implementing __cuda_stream__ as an attribute is deprecated; it must be implemented as a method",
+                    stacklevel=3,
+                    category=DeprecationWarning,
+                )
+
             assert info[0] == 0
-            self._mnff.handle = cuda.CUstream(info[1])
+            self._mnff.handle = driver.CUstream(info[1])
             # TODO: check if obj is created under the current context/device
             self._mnff.owner = obj
             self._nonblocking = None  # delayed
@@ -104,22 +114,22 @@ class Stream:
         nonblocking = options.nonblocking
         priority = options.priority
 
-        flags = cuda.CUstream_flags.CU_STREAM_NON_BLOCKING if nonblocking else cuda.CUstream_flags.CU_STREAM_DEFAULT
+        flags = driver.CUstream_flags.CU_STREAM_NON_BLOCKING if nonblocking else driver.CUstream_flags.CU_STREAM_DEFAULT
 
-        high, low = handle_return(cudart.cudaDeviceGetStreamPriorityRange())
+        high, low = handle_return(runtime.cudaDeviceGetStreamPriorityRange())
         if priority is not None:
             if not (low <= priority <= high):
                 raise ValueError(f"{priority=} is out of range {[low, high]}")
         else:
             priority = high
 
-        self._mnff.handle = handle_return(cuda.cuStreamCreateWithPriority(flags, priority))
+        self._mnff.handle = handle_return(driver.cuStreamCreateWithPriority(flags, priority))
         self._mnff.owner = None
         self._nonblocking = nonblocking
         self._priority = priority
         # don't defer this because we will have to pay a cost for context
         # switch later
-        self._device_id = int(handle_return(cuda.cuCtxGetDevice()))
+        self._device_id = int(handle_return(driver.cuCtxGetDevice()))
         self._ctx_handle = None  # delayed
         return self
 
@@ -132,7 +142,6 @@ class Stream:
         """
         self._mnff.close()
 
-    @property
     def __cuda_stream__(self) -> Tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
         return (0, self.handle)
@@ -146,8 +155,8 @@ class Stream:
     def is_nonblocking(self) -> bool:
         """Return True if this is a nonblocking stream, otherwise False."""
         if self._nonblocking is None:
-            flag = handle_return(cuda.cuStreamGetFlags(self._mnff.handle))
-            if flag == cuda.CUstream_flags.CU_STREAM_NON_BLOCKING:
+            flag = handle_return(driver.cuStreamGetFlags(self._mnff.handle))
+            if flag == driver.CUstream_flags.CU_STREAM_NON_BLOCKING:
                 self._nonblocking = True
             else:
                 self._nonblocking = False
@@ -157,13 +166,13 @@ class Stream:
     def priority(self) -> int:
         """Return the stream priority."""
         if self._priority is None:
-            prio = handle_return(cuda.cuStreamGetPriority(self._mnff.handle))
+            prio = handle_return(driver.cuStreamGetPriority(self._mnff.handle))
             self._priority = prio
         return self._priority
 
     def sync(self):
         """Synchronize the stream."""
-        handle_return(cuda.cuStreamSynchronize(self._mnff.handle))
+        handle_return(driver.cuStreamSynchronize(self._mnff.handle))
 
     def record(self, event: Event = None, options: EventOptions = None) -> Event:
         """Record an event onto the stream.
@@ -191,7 +200,7 @@ class Stream:
             event = Event._init(options)
         elif not isinstance(event, Event):
             raise TypeError("record only takes an Event object")
-        handle_return(cuda.cuEventRecord(event.handle, self._mnff.handle))
+        handle_return(driver.cuEventRecord(event.handle, self._mnff.handle))
         return event
 
     def wait(self, event_or_stream: Union[Event, Stream]):
@@ -215,14 +224,14 @@ class Stream:
                     raise ValueError("only an Event, Stream, or object supporting __cuda_stream__ can be waited") from e
             else:
                 stream = event_or_stream
-            event = handle_return(cuda.cuEventCreate(cuda.CUevent_flags.CU_EVENT_DISABLE_TIMING))
-            handle_return(cuda.cuEventRecord(event, stream.handle))
+            event = handle_return(driver.cuEventCreate(driver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
+            handle_return(driver.cuEventRecord(event, stream.handle))
             discard_event = True
 
         # TODO: support flags other than 0?
-        handle_return(cuda.cuStreamWaitEvent(self._mnff.handle, event, 0))
+        handle_return(driver.cuStreamWaitEvent(self._mnff.handle, event, 0))
         if discard_event:
-            handle_return(cuda.cuEventDestroy(event))
+            handle_return(driver.cuEventDestroy(event))
 
     @property
     def device(self) -> Device:
@@ -240,7 +249,7 @@ class Stream:
         if self._device_id is None:
             # Get the stream context first
             if self._ctx_handle is None:
-                self._ctx_handle = handle_return(cuda.cuStreamGetCtx(self._mnff.handle))
+                self._ctx_handle = handle_return(driver.cuStreamGetCtx(self._mnff.handle))
             self._device_id = get_device_from_ctx(self._ctx_handle)
         return Device(self._device_id)
 
@@ -248,7 +257,7 @@ class Stream:
     def context(self) -> Context:
         """Return the :obj:`~_context.Context` associated with this stream."""
         if self._ctx_handle is None:
-            self._ctx_handle = handle_return(cuda.cuStreamGetCtx(self._mnff.handle))
+            self._ctx_handle = handle_return(driver.cuStreamGetCtx(self._mnff.handle))
         if self._device_id is None:
             self._device_id = get_device_from_ctx(self._ctx_handle)
         return Context._from_ctx(self._ctx_handle, self._device_id)
@@ -279,7 +288,6 @@ class Stream:
         """
 
         class _stream_holder:
-            @property
             def __cuda_stream__(self):
                 return (0, handle)
 
@@ -288,14 +296,14 @@ class Stream:
 
 class _LegacyDefaultStream(Stream):
     def __init__(self):
-        self._mnff = Stream._MembersNeededForFinalize(self, cuda.CUstream(cuda.CU_STREAM_LEGACY), None, True)
+        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_LEGACY), None, True)
         self._nonblocking = None  # delayed
         self._priority = None  # delayed
 
 
 class _PerThreadDefaultStream(Stream):
     def __init__(self):
-        self._mnff = Stream._MembersNeededForFinalize(self, cuda.CUstream(cuda.CU_STREAM_PER_THREAD), None, True)
+        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_PER_THREAD), None, True)
         self._nonblocking = None  # delayed
         self._priority = None  # delayed
 

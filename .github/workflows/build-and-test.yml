@@ -35,7 +35,6 @@ jobs:
     name: Build (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }})
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
-      id-token: write # This is required for configure-aws-credentials
       contents: read  # This is required for actions/checkout
     runs-on: ${{ (matrix.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (matrix.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
@@ -77,7 +76,7 @@ jobs:
             REPO_DIR=$(cygpath -w $PWD)
           fi
   
-          echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}"
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
@@ -140,10 +139,10 @@ jobs:
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
-            PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+            CUDA_BINDINGS_PARALLEL_LEVEL=${{ env.CUDA_BINDINGS_PARALLEL_LEVEL }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_HOME="$(cygpath -w ${{ env.CUDA_PATH }})"
-          #  PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+            CUDA_BINDINGS_PARALLEL_LEVEL=${{ env.CUDA_BINDINGS_PARALLEL_LEVEL }}
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -158,10 +157,9 @@ jobs:
           $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
-      # TODO: enable this after NVIDIA/cuda-python#297 is resolved
-      # - name: Check cuda.bindings wheel
-      #   run: |
-      #     twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+      - name: Check cuda.bindings wheel
+        run: |
+          twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
         uses: actions/upload-artifact@v4
@@ -230,14 +228,18 @@ jobs:
           - 0  # use CTK wheels
         runner:
           - default
+        exclude:
+          # To test this combo would require nontrivial installation steps.
+          - cuda-version: "12.0.1"
+            local-ctk: 0
         include:
           - host-platform: linux-64
             python-version: "3.12"
             cuda-version: "12.6.2"
+            local-ctk: 1
             runner: H100
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }}, ${{ (matrix.local-ctk == '1' && 'local CTK') || 'CTK wheels' }})
-    # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
+    if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
@@ -255,12 +257,12 @@ jobs:
 
   doc:
     name: Docs
-    # The build stage could fail but we want the CI to keep moving.
-    if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
+    if: ${{ github.repository_owner == 'nvidia' }}
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
       id-token: write
       contents: write
+      pull-requests: write
     needs:
       - build
     secrets: inherit
