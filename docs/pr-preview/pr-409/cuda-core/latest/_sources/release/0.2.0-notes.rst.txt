@@ -1,0 +1,14 @@
+``cuda.core`` v0.2.0 Release notes
+==================================
+
+Highlights
+----------
+
+- :class:`DeviceProperties` class added to provide pythonic access to device properties
+
+
+Breaking changes
+----------------
+
+- Change ``__cuda_stream__`` from attribute to method
+- Device.properties now provides an instance of :class:`DeviceProperties` instead of a dictionary. 
