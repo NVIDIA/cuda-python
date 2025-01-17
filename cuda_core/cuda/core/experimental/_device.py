@@ -28,6 +28,8 @@ class DeviceProperties:
         Total amount of global memory available on the device in bytes.
     shared_mem_per_block : int
         Maximum amount of shared memory available to a thread block in bytes.
+    shared_mem_per_block_optin : int
+        Maximum shared memory per block usable by special opt in
     regs_per_block : int
         Maximum number of 32-bit registers available to a thread block.
     warp_size : int
@@ -43,8 +45,8 @@ class DeviceProperties:
         Maximum size of each dimension of a grid.
     clock_rate : int
         Clock frequency in kilohertz.
-    cluster_launch : int
-        Indicates device supports cluster launch
+    cluster_launch : bool
+        Indicates device supports cluster launch.
     total_const_mem : int
         Total amount of constant memory available on the device in bytes.
     major : int
@@ -56,17 +58,25 @@ class DeviceProperties:
         offset applied to texture fetches.
     texture_pitch_alignment : int
         Pitch alignment requirement for 2D texture references that are bound to pitched memory.
+    device_overlap : bool
+        1 if the device can concurrently copy memory between host and device while executing a kernel, or 0 if not.
     multi_processor_count : int
         Number of multiprocessors on the device.
-    integrated : int
+    kernel_exec_timeout_enabled : bool
+        1 if there is a run time limit for kernels executed on the device, or 0 if not.
+    integrated : bool
         1 if the device is an integrated (motherboard) GPU and 0 if it is a discrete (card) component.
-    can_map_host_memory : int
+    can_map_host_memory : bool
         1 if the device can map host memory into the CUDA address space for use with
         cudaHostAlloc()/cudaHostGetDevicePointer(), or 0 if not.
+    compute_mode : int
+        Compute mode that the device is currently in.
     max_texture_1d : int
         Maximum 1D texture size.
     max_texture_1d_mipmap : int
         Maximum 1D mipmapped texture size.
+    max_texture_1d_linear : int
+        Maximum 1D texture size for textures bound to linear memory.
     max_texture_2d : tuple
         Maximum 2D texture dimensions.
     max_texture_2d_mipmap : tuple
@@ -103,10 +113,10 @@ class DeviceProperties:
         Maximum cubemap layered surface dimensions.
     surface_alignment : int
         Alignment requirements for surfaces.
-    concurrent_kernels : int
+    concurrent_kernels : bool
         1 if the device supports executing multiple kernels within the same context simultaneously, or 0 if
         not.
-    ecc_enabled : int
+    ecc_enabled : bool
         1 if the device has ECC support turned on, or 0 if not.
     pci_bus_id : int
         PCI bus identifier of the device.
@@ -114,14 +124,16 @@ class DeviceProperties:
         PCI device (sometimes called slot) identifier of the device.
     pci_domain_id : int
         PCI domain identifier of the device.
-    tcc_driver : int
+    tcc_driver : bool
         1 if the device is using a TCC driver or 0 if not.
     async_engine_count : int
         1 when the device can concurrently copy memory between host and device while executing a kernel.
         It is 2 when the device can concurrently copy memory between host and device in both directions
         and execute a kernel at the same time. It is 0 if neither of these is supported.
-    unified_addressing : int
+    unified_addressing : bool
         1 if the device shares a unified address space with the host and 0 otherwise.
+    memory_clock_rate : int
+        Peak memory clock frequency in kilohertz.
     memory_bus_width : int
         Memory bus width in bits.
     l2_cache_size : int
@@ -130,11 +142,11 @@ class DeviceProperties:
         L2 cache's maximum persisting lines size in bytes.
     max_threads_per_multi_processor : int
         Number of maximum resident threads per multiprocessor.
-    stream_priorities_supported : int
+    stream_priorities_supported : bool
         1 if the device supports stream priorities, or 0 if it is not supported.
-    global_l1_cache_supported : int
+    global_l1_cache_supported : bool
         1 if the device supports caching of globals in L1 cache, or 0 if it is not supported.
-    local_l1_cache_supported : int
+    local_l1_cache_supported : bool
         1 if the device supports caching of locals in L1 cache, or 0 if it is not supported.
     shared_mem_per_multiprocessor : int
         Maximum amount of shared memory available to a multiprocessor in bytes; this amount is shared by all
@@ -142,46 +154,50 @@ class DeviceProperties:
     regs_per_multiprocessor : int
         Maximum number of 32-bit registers available to a multiprocessor; this number is shared by all thread
         blocks simultaneously resident on a multiprocessor.
-    managed_memory : int
+    managed_memory : bool
         1 if the device supports allocating managed memory on this system, or 0 if it is not supported.
-    is_multi_gpu_board : int
+    is_multi_gpu_board : bool
         1 if the device is on a multi-GPU board (e.g. Gemini cards), and 0 if not.
     multi_gpu_board_group_id : int
         Unique identifier for a group of devices associated with the same board. Devices on the same
         multi-GPU board will share the same identifier.
-    pageable_memory_access : int
+    single_to_double_precision_perf_ratio : int
+        Ratio of single precision performance (in floating-point operations per second) to double precision
+        performance.
+    pageable_memory_access : bool
         1 if the device supports coherently accessing pageable memory without calling cudaHostRegister on it,
         and 0 otherwise.
-    concurrent_managed_access : int
+    concurrent_managed_access : bool
         1 if the device can coherently access managed memory concurrently with the CPU, and 0 otherwise.
-    compute_preemption_supported : int
+    compute_preemption_supported : bool
         1 if the device supports Compute Preemption, and 0 otherwise.
-    can_use_host_pointer_for_registered_mem : int
+    can_use_host_pointer_for_registered_mem : bool
         1 if the device can access host registered memory at the same virtual address as the CPU, and 0 otherwise.
-    cooperative_launch : int
+    cooperative_launch : bool
         1 if the device supports launching cooperative kernels via cudaLaunchCooperativeKernel, and 0 otherwise.
-    sharedMemPerBlockOptin : int
-        The per device maximum shared memory per block usable by special opt in
-    pageable_memory_access_uses_host_page_tables : int
+    cooperative_multi_device_launch : bool
+        1 if the device supports launching cooperative kernels via cudaLaunchCooperativeKernelMultiDevice, and 0
+        otherwise.
+    pageable_memory_access_uses_host_page_tables : bool
         1 if the device accesses pageable memory via the host's page tables, and 0 otherwise.
-    direct_managed_mem_access_from_host : int
+    direct_managed_mem_access_from_host : bool
         1 if the host can directly access managed memory on the device without migration, and 0 otherwise.
     access_policy_max_window_size : int
         Maximum value of cudaAccessPolicyWindow::num_bytes.
     reserved_shared_mem_per_block : int
         Shared memory reserved by CUDA driver per block in bytes.
-    host_register_supported : int
+    host_register_supported : bool
         1 if the device supports host memory registration via cudaHostRegister, and 0 otherwise.
-    sparse_cuda_array_supported : int
+    sparse_cuda_array_supported : bool
         1 if the device supports sparse CUDA arrays and sparse CUDA mipmapped arrays, 0 otherwise.
-    host_register_read_only_supported : int
+    host_register_read_only_supported : bool
         1 if the device supports using the cudaHostRegister flag cudaHostRegisterReadOnly to register memory
         that must be mapped as read-only to the GPU.
-    timeline_semaphore_interop_supported : int
+    timeline_semaphore_interop_supported : bool
         1 if external timeline semaphore interop is supported on the device, 0 otherwise.
-    memory_pools_supported : int
+    memory_pools_supported : bool
         1 if the device supports using the cudaMallocAsync and cudaMemPool family of APIs, 0 otherwise.
-    gpu_direct_rdma_supported : int
+    gpu_direct_rdma_supported : bool
         1 if the device supports GPUDirect RDMA APIs, 0 otherwise.
     gpu_direct_rdma_flush_writes_options : int
         Bitmask to be interpreted according to the cudaFlushGPUDirectRDMAWritesOptions enum.
@@ -189,13 +205,13 @@ class DeviceProperties:
         See the cudaGPUDirectRDMAWritesOrdering enum for numerical values.
     memory_pool_supported_handle_types : int
         Bitmask of handle types supported with mempool-based IPC.
-    deferred_mapping_cuda_array_supported : int
+    deferred_mapping_cuda_array_supported : bool
         1 if the device supports deferred mapping CUDA arrays and CUDA mipmapped arrays.
-    ipc_event_supported : int
+    ipc_event_supported : bool
         1 if the device supports IPC Events, and 0 otherwise.
-    unified_function_pointers : int
+    unified_function_pointers : bool
         1 if the device supports unified pointers, and 0 otherwise.
-    host_native_atomic_supported : int
+    host_native_atomic_supported : bool
         1 if the link between the device and the host supports native atomic operations.
     luid : bytes
         8-byte locally unique identifier. Value is undefined on TCC and non-Windows platforms.
@@ -214,23 +230,29 @@ class DeviceProperties:
         self.uuid = prop.uuid.bytes
         self.total_global_mem = prop.totalGlobalMem
         self.shared_mem_per_block = prop.sharedMemPerBlock
+        self.shared_mem_per_block_optin = prop.sharedMemPerBlockOptin
         self.regs_per_block = prop.regsPerBlock
         self.warp_size = prop.warpSize
         self.mem_pitch = prop.memPitch
         self.max_threads_per_block = prop.maxThreadsPerBlock
         self.max_threads_dim = tuple(prop.maxThreadsDim)
         self.max_grid_size = tuple(prop.maxGridSize)
-        self.cluster_launch = prop.clusterLaunch
+        self.clock_rate = prop.clockRate
+        self.cluster_launch = bool(prop.clusterLaunch)
         self.total_const_mem = prop.totalConstMem
         self.major = prop.major
         self.minor = prop.minor
         self.texture_alignment = prop.textureAlignment
         self.texture_pitch_alignment = prop.texturePitchAlignment
+        self.device_overlap = bool(prop.deviceOverlap)
         self.multi_processor_count = prop.multiProcessorCount
-        self.integrated = prop.integrated
-        self.can_map_host_memory = prop.canMapHostMemory
+        self.kernel_exec_timeout_enabled = bool(prop.kernelExecTimeoutEnabled)
+        self.integrated = bool(prop.integrated)
+        self.can_map_host_memory = bool(prop.canMapHostMemory)
+        self.compute_mode = prop.computeMode
         self.max_texture_1d = prop.maxTexture1D
         self.max_texture_1d_mipmap = prop.maxTexture1DMipmap
+        self.max_texture_1d_linear = prop.maxTexture1DLinear
         self.max_texture_2d = tuple(prop.maxTexture2D)
         self.max_texture_2d_mipmap = tuple(prop.maxTexture2DMipmap)
         self.max_texture_2d_linear = tuple(prop.maxTexture2DLinear)
@@ -249,49 +271,51 @@ class DeviceProperties:
         self.max_surface_cubemap = prop.maxSurfaceCubemap
         self.max_surface_cubemap_layered = tuple(prop.maxSurfaceCubemapLayered)
         self.surface_alignment = prop.surfaceAlignment
-        self.concurrent_kernels = prop.concurrentKernels
-        self.ecc_enabled = prop.ECCEnabled
+        self.concurrent_kernels = bool(prop.concurrentKernels)
+        self.ecc_enabled = bool(prop.ECCEnabled)
         self.pci_bus_id = prop.pciBusID
         self.pci_device_id = prop.pciDeviceID
         self.pci_domain_id = prop.pciDomainID
-        self.tcc_driver = prop.tccDriver
+        self.tcc_driver = bool(prop.tccDriver)
         self.async_engine_count = prop.asyncEngineCount
-        self.unified_addressing = prop.unifiedAddressing
+        self.unified_addressing = bool(prop.unifiedAddressing)
+        self.memory_clock_rate = prop.memoryClockRate
         self.memory_bus_width = prop.memoryBusWidth
         self.l2_cache_size = prop.l2CacheSize
         self.persisting_l2_cache_max_size = prop.persistingL2CacheMaxSize
         self.max_threads_per_multi_processor = prop.maxThreadsPerMultiProcessor
-        self.stream_priorities_supported = prop.streamPrioritiesSupported
-        self.global_l1_cache_supported = prop.globalL1CacheSupported
-        self.local_l1_cache_supported = prop.localL1CacheSupported
+        self.stream_priorities_supported = bool(prop.streamPrioritiesSupported)
+        self.global_l1_cache_supported = bool(prop.globalL1CacheSupported)
+        self.local_l1_cache_supported = bool(prop.localL1CacheSupported)
         self.shared_mem_per_multiprocessor = prop.sharedMemPerMultiprocessor
         self.regs_per_multiprocessor = prop.regsPerMultiprocessor
-        self.managed_memory = prop.managedMemory
-        self.is_multi_gpu_board = prop.isMultiGpuBoard
+        self.managed_memory = bool(prop.managedMemory)
+        self.is_multi_gpu_board = bool(prop.isMultiGpuBoard)
         self.multi_gpu_board_group_id = prop.multiGpuBoardGroupID
-        self.pageable_memory_access = prop.pageableMemoryAccess
-        self.concurrent_managed_access = prop.concurrentManagedAccess
-        self.compute_preemption_supported = prop.computePreemptionSupported
-        self.can_use_host_pointer_for_registered_mem = prop.canUseHostPointerForRegisteredMem
-        self.cooperative_launch = prop.cooperativeLaunch
-        self.shared_mem_per_block_optin = prop.sharedMemPerBlockOptin
-        self.pageable_memory_access_uses_host_page_tables = prop.pageableMemoryAccessUsesHostPageTables
-        self.direct_managed_mem_access_from_host = prop.directManagedMemAccessFromHost
+        self.single_to_double_precision_perf_ratio = prop.singleToDoublePrecisionPerfRatio
+        self.pageable_memory_access = bool(prop.pageableMemoryAccess)
+        self.concurrent_managed_access = bool(prop.concurrentManagedAccess)
+        self.compute_preemption_supported = bool(prop.computePreemptionSupported)
+        self.can_use_host_pointer_for_registered_mem = bool(prop.canUseHostPointerForRegisteredMem)
+        self.cooperative_launch = bool(prop.cooperativeLaunch)
+        self.cooperative_multi_device_launch = bool(prop.cooperativeMultiDeviceLaunch)
+        self.pageable_memory_access_uses_host_page_tables = bool(prop.pageableMemoryAccessUsesHostPageTables)
+        self.direct_managed_mem_access_from_host = bool(prop.directManagedMemAccessFromHost)
         self.access_policy_max_window_size = prop.accessPolicyMaxWindowSize
         self.reserved_shared_mem_per_block = prop.reservedSharedMemPerBlock
-        self.host_register_supported = prop.hostRegisterSupported
-        self.sparse_cuda_array_supported = prop.sparseCudaArraySupported
-        self.host_register_read_only_supported = prop.hostRegisterReadOnlySupported
-        self.timeline_semaphore_interop_supported = prop.timelineSemaphoreInteropSupported
-        self.memory_pools_supported = prop.memoryPoolsSupported
-        self.gpu_direct_rdma_supported = prop.gpuDirectRDMASupported
+        self.host_register_supported = bool(prop.hostRegisterSupported)
+        self.sparse_cuda_array_supported = bool(prop.sparseCudaArraySupported)
+        self.host_register_read_only_supported = bool(prop.hostRegisterReadOnlySupported)
+        self.timeline_semaphore_interop_supported = bool(prop.timelineSemaphoreInteropSupported)
+        self.memory_pools_supported = bool(prop.memoryPoolsSupported)
+        self.gpu_direct_rdma_supported = bool(prop.gpuDirectRDMASupported)
         self.gpu_direct_rdma_flush_writes_options = prop.gpuDirectRDMAFlushWritesOptions
         self.gpu_direct_rdma_writes_ordering = prop.gpuDirectRDMAWritesOrdering
         self.memory_pool_supported_handle_types = prop.memoryPoolSupportedHandleTypes
-        self.deferred_mapping_cuda_array_supported = prop.deferredMappingCudaArraySupported
-        self.ipc_event_supported = prop.ipcEventSupported
-        self.unified_function_pointers = prop.unifiedFunctionPointers
-        self.host_native_atomic_supported = prop.hostNativeAtomicSupported
+        self.deferred_mapping_cuda_array_supported = bool(prop.deferredMappingCudaArraySupported)
+        self.ipc_event_supported = bool(prop.ipcEventSupported)
+        self.unified_function_pointers = bool(prop.unifiedFunctionPointers)
+        self.host_native_atomic_supported = bool(prop.hostNativeAtomicSupported)
         self.luid = prop.luid
         self.luid_device_node_mask = prop.luidDeviceNodeMask
         self.max_blocks_per_multi_processor = prop.maxBlocksPerMultiProcessor
