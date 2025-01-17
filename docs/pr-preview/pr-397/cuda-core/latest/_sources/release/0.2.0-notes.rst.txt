@@ -1,7 +1,0 @@
-``cuda.core`` v0.2.0 Release notes
-==================================
-
-Breaking changes
-----------------
-
-- Change ``__cuda_stream__`` from attribute to method
