@@ -56,25 +56,17 @@ class DeviceProperties:
         offset applied to texture fetches.
     texture_pitch_alignment : int
         Pitch alignment requirement for 2D texture references that are bound to pitched memory.
-    device_overlap : int
-        1 if the device can concurrently copy memory between host and device while executing a kernel, or 0 if not.
     multi_processor_count : int
         Number of multiprocessors on the device.
-    kernel_exec_timeout_enabled : int
-        1 if there is a run time limit for kernels executed on the device, or 0 if not.
     integrated : int
         1 if the device is an integrated (motherboard) GPU and 0 if it is a discrete (card) component.
     can_map_host_memory : int
         1 if the device can map host memory into the CUDA address space for use with
         cudaHostAlloc()/cudaHostGetDevicePointer(), or 0 if not.
-    compute_mode : int
-        Compute mode that the device is currently in.
     max_texture_1d : int
         Maximum 1D texture size.
     max_texture_1d_mipmap : int
         Maximum 1D mipmapped texture size.
-    max_texture_1d_linear : int
-        Maximum 1D texture size for textures bound to linear memory.
     max_texture_2d : tuple
         Maximum 2D texture dimensions.
     max_texture_2d_mipmap : tuple
@@ -130,8 +122,6 @@ class DeviceProperties:
         and execute a kernel at the same time. It is 0 if neither of these is supported.
     unified_addressing : int
         1 if the device shares a unified address space with the host and 0 otherwise.
-    memory_clock_rate : int
-        Peak memory clock frequency in kilohertz.
     memory_bus_width : int
         Memory bus width in bits.
     l2_cache_size : int
@@ -159,9 +149,6 @@ class DeviceProperties:
     multi_gpu_board_group_id : int
         Unique identifier for a group of devices associated with the same board. Devices on the same
         multi-GPU board will share the same identifier.
-    single_to_double_precision_perf_ratio : int
-        Ratio of single precision performance (in floating-point operations per second) to double precision
-        performance.
     pageable_memory_access : int
         1 if the device supports coherently accessing pageable memory without calling cudaHostRegister on it,
         and 0 otherwise.
@@ -173,9 +160,6 @@ class DeviceProperties:
         1 if the device can access host registered memory at the same virtual address as the CPU, and 0 otherwise.
     cooperative_launch : int
         1 if the device supports launching cooperative kernels via cudaLaunchCooperativeKernel, and 0 otherwise.
-    cooperative_multi_device_launch : int
-        1 if the device supports launching cooperative kernels via cudaLaunchCooperativeKernelMultiDevice, and 0
-        otherwise.
     sharedMemPerBlockOptin : int
         The per device maximum shared memory per block usable by special opt in
     pageable_memory_access_uses_host_page_tables : int
@@ -236,22 +220,17 @@ class DeviceProperties:
         self.max_threads_per_block = prop.maxThreadsPerBlock
         self.max_threads_dim = tuple(prop.maxThreadsDim)
         self.max_grid_size = tuple(prop.maxGridSize)
-        self.clock_rate = prop.clockRate
         self.cluster_launch = prop.clusterLaunch
         self.total_const_mem = prop.totalConstMem
         self.major = prop.major
         self.minor = prop.minor
         self.texture_alignment = prop.textureAlignment
         self.texture_pitch_alignment = prop.texturePitchAlignment
-        self.device_overlap = prop.deviceOverlap
         self.multi_processor_count = prop.multiProcessorCount
-        self.kernel_exec_timeout_enabled = prop.kernelExecTimeoutEnabled
         self.integrated = prop.integrated
         self.can_map_host_memory = prop.canMapHostMemory
-        self.compute_mode = prop.computeMode
         self.max_texture_1d = prop.maxTexture1D
         self.max_texture_1d_mipmap = prop.maxTexture1DMipmap
-        self.max_texture_1d_linear = prop.maxTexture1DLinear
         self.max_texture_2d = tuple(prop.maxTexture2D)
         self.max_texture_2d_mipmap = tuple(prop.maxTexture2DMipmap)
         self.max_texture_2d_linear = tuple(prop.maxTexture2DLinear)
@@ -278,7 +257,6 @@ class DeviceProperties:
         self.tcc_driver = prop.tccDriver
         self.async_engine_count = prop.asyncEngineCount
         self.unified_addressing = prop.unifiedAddressing
-        self.memory_clock_rate = prop.memoryClockRate
         self.memory_bus_width = prop.memoryBusWidth
         self.l2_cache_size = prop.l2CacheSize
         self.persisting_l2_cache_max_size = prop.persistingL2CacheMaxSize
@@ -291,13 +269,11 @@ class DeviceProperties:
         self.managed_memory = prop.managedMemory
         self.is_multi_gpu_board = prop.isMultiGpuBoard
         self.multi_gpu_board_group_id = prop.multiGpuBoardGroupID
-        self.single_to_double_precision_perf_ratio = prop.singleToDoublePrecisionPerfRatio
         self.pageable_memory_access = prop.pageableMemoryAccess
         self.concurrent_managed_access = prop.concurrentManagedAccess
         self.compute_preemption_supported = prop.computePreemptionSupported
         self.can_use_host_pointer_for_registered_mem = prop.canUseHostPointerForRegisteredMem
         self.cooperative_launch = prop.cooperativeLaunch
-        self.cooperative_multi_device_launch = prop.cooperativeMultiDeviceLaunch
         self.shared_mem_per_block_optin = prop.sharedMemPerBlockOptin
         self.pageable_memory_access_uses_host_page_tables = prop.pageableMemoryAccessUsesHostPageTables
         self.direct_managed_mem_access_from_host = prop.directManagedMemAccessFromHost
