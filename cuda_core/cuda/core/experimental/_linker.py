@@ -9,7 +9,6 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import List, Optional
 
-
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils import check_or_create_options, driver, handle_return
