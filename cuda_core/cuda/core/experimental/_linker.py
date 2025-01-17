@@ -31,7 +31,6 @@ def _decide_nvjitlink_or_driver():
     _driver_ver = handle_return(driver.cuDriverGetVersion())
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
     try:
-        raise ImportError
         from cuda.bindings import nvjitlink as _nvjitlink
         from cuda.bindings._internal import nvjitlink as inner_nvjitlink
     except ImportError:

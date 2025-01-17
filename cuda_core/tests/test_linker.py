@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from contextlib import contextmanager, nullcontext
 
 import pytest
 
@@ -20,23 +19,6 @@ device_function_b = "__device__ int B() { return 0; }"
 device_function_c = "__device__ int C(int a, int b) { return a + b; }"
 
 culink_backend = _linker._decide_nvjitlink_or_driver()
-skip_options = nullcontext
-if not culink_backend:
-    from cuda.bindings import nvjitlink
-
-    @contextmanager
-    def skip_version_specific_linker_options():
-        if culink_backend:
-            return
-        try:
-            yield
-        except nvjitlink.nvJitLinkError as e:
-            if e.status == nvjitlink.Result.ERROR_UNRECOGNIZED_OPTION:
-                pytest.skip("current nvjitlink version does not support the option provided")
-            else:
-                raise
-
-    skip_options = skip_version_specific_linker_options
 
 
 @pytest.fixture(scope="function")
@@ -65,37 +47,41 @@ culink_options = [
     LinkerOptions(arch=ARCH, optimization_level=3),
     LinkerOptions(arch=ARCH, debug=True),
     LinkerOptions(arch=ARCH, lineinfo=True),
-    LinkerOptions(arch=ARCH, no_cache=True),
 ]
 
+nvjitlink_base_options = [
+    LinkerOptions(arch=ARCH, time=True),
+    LinkerOptions(arch=ARCH, ftz=True),
+    LinkerOptions(arch=ARCH, prec_div=True),
+    LinkerOptions(arch=ARCH, prec_sqrt=True),
+    LinkerOptions(arch=ARCH, fma=True),
+    LinkerOptions(arch=ARCH, kernels_used=["A"]),
+    LinkerOptions(arch=ARCH, kernels_used=["C", "B"]),
+    LinkerOptions(arch=ARCH, variables_used=["var1"]),
+    LinkerOptions(arch=ARCH, variables_used=["var1", "var2"]),
+    LinkerOptions(arch=ARCH, optimize_unused_variables=True),
+    LinkerOptions(arch=ARCH, xptxas=["-v"]),
+    LinkerOptions(arch=ARCH, split_compile=0),
+    LinkerOptions(arch=ARCH, split_compile_extended=1),
+]
 
-@pytest.mark.parametrize(
-    "options",
-    culink_options
-    if culink_backend
-    else culink_options
-    + [
-        LinkerOptions(arch=ARCH, time=True),
-        LinkerOptions(arch=ARCH, ftz=True),
-        LinkerOptions(arch=ARCH, prec_div=True),
-        LinkerOptions(arch=ARCH, prec_sqrt=True),
-        LinkerOptions(arch=ARCH, fma=True),
-        LinkerOptions(arch=ARCH, kernels_used=["A"]),
-        LinkerOptions(arch=ARCH, kernels_used=["C", "B"]),
-        LinkerOptions(arch=ARCH, variables_used=["var1"]),
-        LinkerOptions(arch=ARCH, variables_used=["var1", "var2"]),
-        LinkerOptions(arch=ARCH, optimize_unused_variables=True),
-        LinkerOptions(arch=ARCH, xptxas=["-v"]),
-        LinkerOptions(arch=ARCH, split_compile=0),
-        LinkerOptions(arch=ARCH, split_compile_extended=1),
-    ],
-)
+nvjitlink_125_options = [LinkerOptions(arch=ARCH, no_cache=True)]
+
+options = culink_options
+if not culink_backend:
+    from cuda.bindings import nvjitlink
+
+    version = nvjitlink.version()
+    options += nvjitlink_base_options
+    if version >= (12, 5):
+        options += nvjitlink_125_options
+
+
+@pytest.mark.parametrize("options", options)
 def test_linker_init(compile_ptx_functions, options):
-    with skip_options():
-        linker = Linker(*compile_ptx_functions, options=options)
-
-        object_code = linker.link("cubin")
-        assert isinstance(object_code, ObjectCode)
+    linker = Linker(*compile_ptx_functions, options=options)
+    object_code = linker.link("cubin")
+    assert isinstance(object_code, ObjectCode)
 
 
 def test_linker_init_invalid_arch():
