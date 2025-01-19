@@ -49,7 +49,9 @@ runs:
         message: |
           Doc Preview CI
           :---:
-          | <p></p> :rocket: View preview at <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}/ <br><br>
+          | <p></p> :rocket: View preview at <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}/ <br>
+          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}/cuda-core/ <br>
+          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}/cuda-bindings/ <br><br>
           | <h6><br> Preview will be ready when the GitHub Pages deployment is complete. <br><br></h6>
     
     # The steps below are executed only when building on main.
