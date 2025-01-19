@@ -114,6 +114,10 @@ jobs:
 
           pip install cuda_python*.whl
 
+      # This step sets the PR_NUMBER env var.
+      - name: Get PR number
+        uses: ./.github/actions/get_pr_number
+
       - name: Build all (latest) docs
         id: build
         run: |
@@ -140,6 +144,7 @@ jobs:
         with:
           source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
                               'artifacts/empty_docs' }}
+          pr-number: ${{ env.PR_NUMBER }}
 
       - name: Deploy doc update
         if: ${{ github.ref_name == 'main' }}
