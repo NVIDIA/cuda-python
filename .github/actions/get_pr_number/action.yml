@@ -5,47 +5,48 @@ description: Get the PR number without relying on the pull_request* event trigge
 runs:
   using: composite
   steps:
-    # The steps below are executed only when testing in a PR.
-    - name: Get PR info
+    - name: Get PR info (non-main branch)
       if: ${{ github.ref_name != 'main' }}
       uses: nv-gha-runners/get-pr-info@main
       id: get-pr-info
-    
-    - name: Extract PR number from info
+
+    - name: Extract PR number (non-main branch)
       if: ${{ github.ref_name != 'main' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
+        trap 'echo "Error at line $LINENO"; exit 1' ERR
         PR_NUMBER="${{ fromJSON(steps.get-pr-info.outputs.pr-info).number }}"
-        if [[ "$PR_NUMBER" == "" ]]; then
-          echo "cannot extract PR number"
+        if [[ -z "$PR_NUMBER" ]]; then
+          echo "Cannot extract PR number for ref: ${{ github.ref_name }}"
           exit 1
-        else
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
         fi
-    
-    # The steps below are executed only when building on main.
-    - name: Get PR data
+        echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+
+    - name: Get PR data (main branch)
       if: ${{ github.ref_name == 'main' }}
       uses: actions/github-script@v7
       id: get-pr-data
       with:
         script: |
-          return (
-            await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              commit_sha: context.sha,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
-          ).data[0];
-    
-    - name: Extract PR number from data
+          const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+            commit_sha: context.sha,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          if (!prs.data.length) {
+            core.setFailed("No PR associated with this commit on 'main'.");
+          } else {
+            return prs.data[0];
+          }
+
+    - name: Extract PR number (main branch)
       if: ${{ github.ref_name == 'main' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
+        trap 'echo "Error at line $LINENO"; exit 1' ERR
         PR_NUMBER="${{ fromJSON(steps.get-pr-data.outputs.result).number }}"
-        if [[ "$PR_NUMBER" == "" ]]; then
-          echo "cannot extract PR number"
+        if [[ -z "$PR_NUMBER" ]]; then
+          echo "No associated PR found for the commit in 'main'."
           exit 1
-        else
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
         fi
+        echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
