@@ -6,29 +6,15 @@ inputs:
   source-folder:
     required: true
     type: string
+  pr-number:
+    required: true
+    type: string
 
 runs:
   using: composite
   steps:
     # The steps below are executed only when testing in a PR.
-    # Note: the PR previews will be removed once merged to main (see below)
-    - name: Get PR info
-      if: ${{ github.ref_name != 'main' }}
-      uses: nv-gha-runners/get-pr-info@main
-      id: get-pr-info
-    
-    - name: Extract PR number from info
-      if: ${{ github.ref_name != 'main' }}
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        PR_NUMBER="${{ fromJSON(steps.get-pr-info.outputs.pr-info).number }}"
-        if [[ "$PR_NUMBER" == "" ]]; then
-          echo "cannot extract PR number"
-          exit 1
-        else
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-        fi
-    
+    # Note: the PR previews will be removed once merged to main (see below) 
     - name: Deploy doc preview
       if: ${{ github.ref_name != 'main' }}
       uses: JamesIves/github-pages-deploy-action@v4
@@ -36,51 +22,25 @@ runs:
         git-config-name: cuda-python-bot
         git-config-email: cuda-python-bot@users.noreply.github.com
         folder: ${{ inputs.source-folder }}
-        target-folder: docs/pr-preview/pr-${{ env.PR_NUMBER }}/
-        commit-message: "Deploy doc preview for PR ${{ env.PR_NUMBER }} (${{ github.sha }})"
+        target-folder: docs/pr-preview/pr-${{ inputs.pr-number }}/
+        commit-message: "Deploy doc preview for PR ${{ inputs.pr-number }} (${{ github.sha }})"
     
     - name: Leave a comment after deployment
       if: ${{ github.ref_name != 'main' }}
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         header: pr-preview
-        number: ${{ env.PR_NUMBER }}
+        number: ${{ inputs.pr-number }}
         skip_unchanged: true
         message: |
           Doc Preview CI
           :---:
-          | <p></p> :rocket: View preview at <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}/ <br>
-          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}/cuda-core/ <br>
-          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ env.PR_NUMBER }}/cuda-bindings/ <br><br>
+          | <p></p> :rocket: View preview at <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/ <br>
+          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/cuda-core/ <br>
+          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/cuda-bindings/ <br><br>
           | <h6><br> Preview will be ready when the GitHub Pages deployment is complete. <br><br></h6>
     
-    # The steps below are executed only when building on main.
-    - name: Get PR data
-      if: ${{ github.ref_name == 'main' }}
-      uses: actions/github-script@v7
-      id: get-pr-data
-      with:
-        script: |
-          return (
-            await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              commit_sha: context.sha,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
-          ).data[0];
-    
-    - name: Extract PR number from data
-      if: ${{ github.ref_name == 'main' }}
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        PR_NUMBER="${{ fromJSON(steps.get-pr-data.outputs.result).number }}"
-        if [[ "$PR_NUMBER" == "" ]]; then
-          echo "cannot extract PR number"
-          exit 1
-        else
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-        fi
-    
+    # The steps below are executed only when building on main.    
     - name: Remove doc preview
       if: ${{ github.ref_name == 'main' }}
       uses: JamesIves/github-pages-deploy-action@v4
@@ -88,15 +48,15 @@ runs:
         git-config-name: cuda-python-bot
         git-config-email: cuda-python-bot@users.noreply.github.com
         folder: ${{ inputs.source-folder }}
-        target-folder: docs/pr-preview/pr-${{ env.PR_NUMBER }}/
-        commit-message: "Clean up doc preview for PR ${{ env.PR_NUMBER }} (${{ github.sha }})"
+        target-folder: docs/pr-preview/pr-${{ inputs.pr-number }}/
+        commit-message: "Clean up doc preview for PR ${{ inputs.pr-number }} (${{ github.sha }})"
     
     - name: Leave a comment after removal
       if: ${{ github.ref_name == 'main' }}
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         header: pr-preview
-        number: ${{ env.PR_NUMBER }}
+        number: ${{ inputs.pr-number }}
         hide_and_recreate: true
         hide_classify: "OUTDATED"
         message: |
