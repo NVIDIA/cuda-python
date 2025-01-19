@@ -9,6 +9,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import List, Optional
 
+from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils import check_or_create_options, driver, handle_return
 
@@ -91,10 +92,10 @@ class LinkerOptions:
 
     Attributes
     ----------
-    arch : str
-        Pass the SM architecture value, such as ``-arch=sm_<CC>`` (for generating CUBIN) or
-        ``compute_<CC>`` (for generating PTX).
-        This is a required option.
+    arch : str, optional
+        Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
+        ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
+        will be used.
     max_register_count : int, optional
         Maximum register count.
         Maps to: ``-maxrregcount=<N>``.
@@ -172,7 +173,7 @@ class LinkerOptions:
         Default: False.
     """
 
-    arch: str
+    arch: Optional[str] = None
     max_register_count: Optional[int] = None
     time: Optional[bool] = None
     verbose: Optional[bool] = None
@@ -204,6 +205,8 @@ class LinkerOptions:
     def _init_nvjitlink(self):
         if self.arch is not None:
             self.formatted_options.append(f"-arch={self.arch}")
+        else:
+            self.formatted_options.append("-arch=sm_" + "".join(f"{i}" for i in Device().compute_capability))
         if self.max_register_count is not None:
             self.formatted_options.append(f"-maxrregcount={self.max_register_count}")
         if self.time is not None:
