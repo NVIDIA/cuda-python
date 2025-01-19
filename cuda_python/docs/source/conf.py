@@ -71,6 +71,8 @@ html_theme_options = {
     #    "navbar-icon-links",
     # ],
 }
+if os.environ.get("CI"):
+    html_theme_options["announcement"] = "<em>Warning</em>: This documentation is only a preview for the pull request!"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
