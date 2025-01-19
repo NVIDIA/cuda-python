@@ -1,0 +1,51 @@
+name: Get the PR number
+
+description: Get the PR number without relying on the pull_request* event triggers.
+
+runs:
+  using: composite
+  steps:
+    # The steps below are executed only when testing in a PR.
+    - name: Get PR info
+      if: ${{ github.ref_name != 'main' }}
+      uses: nv-gha-runners/get-pr-info@main
+      id: get-pr-info
+    
+    - name: Extract PR number from info
+      if: ${{ github.ref_name != 'main' }}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        PR_NUMBER="${{ fromJSON(steps.get-pr-info.outputs.pr-info).number }}"
+        if [[ "$PR_NUMBER" == "" ]]; then
+          echo "cannot extract PR number"
+          exit 1
+        else
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+        fi
+    
+    # The steps below are executed only when building on main.
+    - name: Get PR data
+      if: ${{ github.ref_name == 'main' }}
+      uses: actions/github-script@v7
+      id: get-pr-data
+      with:
+        script: |
+          return (
+            await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              commit_sha: context.sha,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+          ).data[0];
+    
+    - name: Extract PR number from data
+      if: ${{ github.ref_name == 'main' }}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        PR_NUMBER="${{ fromJSON(steps.get-pr-data.outputs.result).number }}"
+        if [[ "$PR_NUMBER" == "" ]]; then
+          echo "cannot extract PR number"
+          exit 1
+        else
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+        fi
