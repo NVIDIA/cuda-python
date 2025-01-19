@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -403,6 +403,8 @@ class Program:
     def __init__(self, code, code_type, options: ProgramOptions = None):
         self._mnff = Program._MembersNeededForFinalize(self, None)
 
+        self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
+
         if code_type not in self._supported_code_type:
             raise NotImplementedError
 
@@ -415,8 +417,6 @@ class Program:
             self._backend = "nvrtc"
         else:
             raise NotImplementedError
-
-        self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
 
     def close(self):
         """Destroy this program."""
