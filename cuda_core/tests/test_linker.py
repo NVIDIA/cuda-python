@@ -52,8 +52,7 @@ culink_options = [
     LinkerOptions(arch=ARCH, max_register_count=32),
     LinkerOptions(arch=ARCH, optimization_level=3),
     LinkerOptions(arch=ARCH, debug=True),
-    LinkerOptions(arch=ARCH, lineinfo=True),
-    LinkerOptions(arch=ARCH, no_cache=True),  # TODO: consider adding cuda 12.4 to test matrix in which case this
+    LinkerOptions(arch=ARCH, lineinfo=True),  # TODO: consider adding cuda 12.4 to test matrix in which case this
     # will fail. Tracked in issue #337
 ]
 
@@ -65,6 +64,11 @@ culink_options = [
     else culink_options
     + [
         LinkerOptions(arch=ARCH, time=True),
+        LinkerOptions(arch=ARCH, optimize_unused_variables=True),
+        LinkerOptions(arch=ARCH, xptxas=["-v"]),
+        LinkerOptions(arch=ARCH, split_compile=0),
+        LinkerOptions(arch=ARCH, split_compile_extended=1),
+        # The following options are supported by nvjitlink and deprecated by culink
         LinkerOptions(arch=ARCH, ftz=True),
         LinkerOptions(arch=ARCH, prec_div=True),
         LinkerOptions(arch=ARCH, prec_sqrt=True),
@@ -73,10 +77,6 @@ culink_options = [
         LinkerOptions(arch=ARCH, kernels_used=["C", "B"]),
         LinkerOptions(arch=ARCH, variables_used=["var1"]),
         LinkerOptions(arch=ARCH, variables_used=["var1", "var2"]),
-        LinkerOptions(arch=ARCH, optimize_unused_variables=True),
-        LinkerOptions(arch=ARCH, xptxas=["-v"]),
-        LinkerOptions(arch=ARCH, split_compile=0),
-        LinkerOptions(arch=ARCH, split_compile_extended=1),
     ],
 )
 def test_linker_init(compile_ptx_functions, options):
