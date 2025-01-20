@@ -6,7 +6,7 @@ import sys
 
 import cupy as cp
 
-from cuda.core.experimental import Device, LaunchConfig, Program, launch
+from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # compute out = a * x + y
 code = """
@@ -29,13 +29,11 @@ dev.set_current()
 s = dev.create_stream()
 
 # prepare program
-prog = Program(code, code_type="c++")
+arch = "".join(f"{i}" for i in dev.compute_capability)
+program_options = ProgramOptions(std="c++11", arch=f"sm_{arch}")
+prog = Program(code, code_type="c++", options=program_options)
 mod = prog.compile(
     "cubin",
-    options=(
-        "-std=c++11",
-        "-arch=sm_" + "".join(f"{i}" for i in dev.compute_capability),
-    ),
     logs=sys.stdout,
     name_expressions=("saxpy<float>", "saxpy<double>"),
 )
@@ -47,8 +45,9 @@ dtype = cp.float32
 # prepare input/output
 size = cp.uint64(64)
 a = dtype(10)
-x = cp.random.random(size, dtype=dtype)
-y = cp.random.random(size, dtype=dtype)
+rng = cp.random.default_rng()
+x = rng.random(size, dtype=dtype)
+y = rng.random(size, dtype=dtype)
 out = cp.empty_like(x)
 dev.sync()  # cupy runs on a different stream from s, so sync before accessing
 
@@ -73,8 +72,8 @@ dtype = cp.float64
 # prepare input
 size = cp.uint64(128)
 a = dtype(42)
-x = cp.random.random(size, dtype=dtype)
-y = cp.random.random(size, dtype=dtype)
+x = rng.random(size, dtype=dtype)
+y = rng.random(size, dtype=dtype)
 dev.sync()
 
 # prepare output

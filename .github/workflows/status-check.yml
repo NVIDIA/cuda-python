@@ -1,0 +1,16 @@
+name: "CI: Summary"
+
+on:
+  workflow_call:
+
+jobs:
+  checks:
+    name: Check job status
+    runs-on: ubuntu-latest
+    steps:
+      - name: GitHub Checks
+        uses: poseidon/wait-for-status-checks@v0.6.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          match_pattern: "CI*"
+          ignore_pattern: ".*Check job status.*"  # ignore self

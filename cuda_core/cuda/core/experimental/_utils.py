@@ -3,10 +3,17 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
+import importlib.metadata
 from collections import namedtuple
+from collections.abc import Sequence
 from typing import Callable, Dict
 
-from cuda import cuda, cudart, nvrtc
+try:
+    from cuda.bindings import driver, nvrtc, runtime
+except ImportError:
+    from cuda import cuda as driver
+    from cuda import cudart as runtime
+    from cuda import nvrtc
 
 
 class CUDAError(Exception):
@@ -21,23 +28,23 @@ ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
 
 
 def _check_error(error, handle=None):
-    if isinstance(error, cuda.CUresult):
-        if error == cuda.CUresult.CUDA_SUCCESS:
+    if isinstance(error, driver.CUresult):
+        if error == driver.CUresult.CUDA_SUCCESS:
             return
-        err, name = cuda.cuGetErrorName(error)
-        if err == cuda.CUresult.CUDA_SUCCESS:
-            err, desc = cuda.cuGetErrorString(error)
-        if err == cuda.CUresult.CUDA_SUCCESS:
+        err, name = driver.cuGetErrorName(error)
+        if err == driver.CUresult.CUDA_SUCCESS:
+            err, desc = driver.cuGetErrorString(error)
+        if err == driver.CUresult.CUDA_SUCCESS:
             raise CUDAError(f"{name.decode()}: {desc.decode()}")
         else:
             raise CUDAError(f"unknown error: {error}")
-    elif isinstance(error, cudart.cudaError_t):
-        if error == cudart.cudaError_t.cudaSuccess:
+    elif isinstance(error, runtime.cudaError_t):
+        if error == runtime.cudaError_t.cudaSuccess:
             return
-        err, name = cudart.cudaGetErrorName(error)
-        if err == cudart.cudaError_t.cudaSuccess:
-            err, desc = cudart.cudaGetErrorString(error)
-        if err == cudart.cudaError_t.cudaSuccess:
+        err, name = runtime.cudaGetErrorName(error)
+        if err == runtime.cudaError_t.cudaSuccess:
+            err, desc = runtime.cudaGetErrorString(error)
+        if err == runtime.cudaError_t.cudaSuccess:
             raise CUDAError(f"{name.decode()}: {desc.decode()}")
         else:
             raise CUDAError(f"unknown error: {error}")
@@ -87,6 +94,13 @@ def check_or_create_options(cls, options, options_description, *, keep_none=Fals
     return options
 
 
+def _handle_boolean_option(option: bool) -> str:
+    """
+    Convert a boolean option to a string representation.
+    """
+    return "true" if bool(option) else "false"
+
+
 def precondition(checker: Callable[..., None], what: str = "") -> Callable:
     """
     A decorator that adds checks to ensure any preconditions are met.
@@ -127,10 +141,32 @@ def get_device_from_ctx(ctx_handle) -> int:
     prev_ctx = Device().context._handle
     switch_context = int(ctx_handle) != int(prev_ctx)
     if switch_context:
-        assert prev_ctx == handle_return(cuda.cuCtxPopCurrent())
-        handle_return(cuda.cuCtxPushCurrent(ctx_handle))
-    device_id = int(handle_return(cuda.cuCtxGetDevice()))
+        assert prev_ctx == handle_return(driver.cuCtxPopCurrent())
+        handle_return(driver.cuCtxPushCurrent(ctx_handle))
+    device_id = int(handle_return(driver.cuCtxGetDevice()))
     if switch_context:
-        assert ctx_handle == handle_return(cuda.cuCtxPopCurrent())
-        handle_return(cuda.cuCtxPushCurrent(prev_ctx))
+        assert ctx_handle == handle_return(driver.cuCtxPopCurrent())
+        handle_return(driver.cuCtxPushCurrent(prev_ctx))
     return device_id
+
+
+def is_sequence(obj):
+    """
+    Check if the given object is a sequence (list or tuple).
+    """
+    return isinstance(obj, Sequence)
+
+
+def is_nested_sequence(obj):
+    """
+    Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
+    """
+    return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
+
+
+def get_binding_version():
+    try:
+        major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
+    except importlib.metadata.PackageNotFoundError:
+        major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
+    return tuple(int(v) for v in major_minor)

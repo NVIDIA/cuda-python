@@ -1,0 +1,65 @@
+name: Preview or clean up docs built from PRs
+
+# A re-implementation based on the logic of https://github.com/rossjrw/pr-preview-action/blob/41a957c44a456a34718e9bcf825363194db5e6d5/README.md, due to limitations illustrated in NVIDIA/cuda-python#380.
+
+inputs:
+  source-folder:
+    required: true
+    type: string
+  pr-number:
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    # The steps below are executed only when testing in a PR.
+    # Note: the PR previews will be removed once merged to main (see below) 
+    - name: Deploy doc preview
+      if: ${{ github.ref_name != 'main' }}
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        git-config-name: cuda-python-bot
+        git-config-email: cuda-python-bot@users.noreply.github.com
+        folder: ${{ inputs.source-folder }}
+        target-folder: docs/pr-preview/pr-${{ inputs.pr-number }}/
+        commit-message: "Deploy doc preview for PR ${{ inputs.pr-number }} (${{ github.sha }})"
+    
+    - name: Leave a comment after deployment
+      if: ${{ github.ref_name != 'main' }}
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: pr-preview
+        number: ${{ inputs.pr-number }}
+        skip_unchanged: true
+        message: |
+          Doc Preview CI
+          :---:
+          | <p></p> :rocket: View preview at <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/ <br>
+          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/cuda-core/ <br>
+          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/cuda-bindings/ <br><br>
+          | <h6><br> Preview will be ready when the GitHub Pages deployment is complete. <br><br></h6>
+    
+    # The steps below are executed only when building on main.    
+    - name: Remove doc preview
+      if: ${{ github.ref_name == 'main' }}
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        git-config-name: cuda-python-bot
+        git-config-email: cuda-python-bot@users.noreply.github.com
+        folder: ${{ inputs.source-folder }}
+        target-folder: docs/pr-preview/pr-${{ inputs.pr-number }}/
+        commit-message: "Clean up doc preview for PR ${{ inputs.pr-number }} (${{ github.sha }})"
+    
+    - name: Leave a comment after removal
+      if: ${{ github.ref_name == 'main' }}
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: pr-preview
+        number: ${{ inputs.pr-number }}
+        hide_and_recreate: true
+        hide_classify: "OUTDATED"
+        message: |
+          Doc Preview CI
+          :---:
+          Preview removed because the pull request was closed or merged.

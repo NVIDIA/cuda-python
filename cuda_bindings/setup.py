@@ -15,25 +15,33 @@ import shutil
 import sys
 import sysconfig
 import tempfile
+from warnings import warn
 
 from Cython import Tempita
 from Cython.Build import cythonize
 from pyclibrary import CParser
 from setuptools import find_packages, setup
+from setuptools.command.bdist_wheel import bdist_wheel
 from setuptools.command.build_ext import build_ext
 from setuptools.extension import Extension
 
 # ----------------------------------------------------------------------
 # Fetch configuration options
 
-CUDA_HOME = os.environ.get("CUDA_HOME")
-if not CUDA_HOME:
-    CUDA_HOME = os.environ.get("CUDA_PATH")
+CUDA_HOME = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH", None))
 if not CUDA_HOME:
     raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
 
 CUDA_HOME = CUDA_HOME.split(os.pathsep)
-nthreads = int(os.environ.get("PARALLEL_LEVEL", "0") or "0")
+if os.environ.get("PARALLEL_LEVEL") is not None:
+    warn(
+        "Environment variable PARALLEL_LEVEL is deprecated. Use CUDA_PYTHON_PARALLEL_LEVEL instead",
+        DeprecationWarning,
+        stacklevel=1,
+    )
+    nthreads = int(os.environ.get("PARALLEL_LEVEL", "0"))
+else:
+    nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", "0") or "0")
 PARSER_CACHING = os.environ.get("CUDA_PYTHON_PARSER_CACHING", False)
 PARSER_CACHING = bool(PARSER_CACHING)
 
@@ -81,7 +89,7 @@ found_functions = []
 found_values = []
 
 include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
-print(f'Parsing headers in "{include_path_list}" (Caching {PARSER_CACHING})')
+print(f'Parsing headers in "{include_path_list}" (Caching = {PARSER_CACHING})')
 for library, header_list in header_dict.items():
     header_paths = []
     for header in header_list:
@@ -264,10 +272,12 @@ def do_cythonize(extensions):
 
 sources_list = [
     # private
-    ["cuda/bindings/_bindings/*.pyx", "cuda/bindings/_bindings/loader.cpp"],
+    ["cuda/bindings/_bindings/cydriver.pyx", "cuda/bindings/_bindings/loader.cpp"],
+    ["cuda/bindings/_bindings/cynvrtc.pyx"],
     # utils
-    ["cuda/bindings/_lib/*.pyx", "cuda/bindings/_lib/param_packer.cpp"],
-    ["cuda/bindings/_lib/cyruntime/*.pyx"],
+    ["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"],
+    ["cuda/bindings/_lib/cyruntime/cyruntime.pyx"],
+    ["cuda/bindings/_lib/cyruntime/utils.pyx"],
     # public
     ["cuda/bindings/*.pyx"],
     # public (deprecated, to be removed)
@@ -281,24 +291,51 @@ for sources in sources_list:
     extensions += prep_extensions(sources)
 
 # ---------------------------------------------------------------------
-# Custom build_ext command
-# Files are build in two steps:
-# 1) Cythonized (in the do_cythonize() command)
-# 2) Compiled to .o files as part of build_ext
-# This class is solely for passing the value of nthreads to build_ext
+# Custom cmdclass extensions
+
+building_wheel = False
+
+
+class WheelsBuildExtensions(bdist_wheel):
+    def run(self):
+        global building_wheel
+        building_wheel = True
+        super().run()
 
 
 class ParallelBuildExtensions(build_ext):
     def initialize_options(self):
-        build_ext.initialize_options(self)
+        super().initialize_options()
         if nthreads > 0:
             self.parallel = nthreads
 
-    def finalize_options(self):
-        build_ext.finalize_options(self)
+    def build_extension(self, ext):
+        if building_wheel and sys.platform == "linux":
+            # Strip binaries to remove debug symbols
+            extra_linker_flags = ["-Wl,--strip-all"]
+
+            # Allow extensions to discover libraries at runtime
+            # relative their wheels installation.
+            if ext.name == "cuda.bindings._bindings.cynvrtc":
+                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
+            elif ext.name == "cuda.bindings._internal.nvjitlink":
+                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvjitlink/lib"
+            else:
+                ldflag = None
+
+            if ldflag:
+                extra_linker_flags.append(ldflag)
+        else:
+            extra_linker_flags = []
+
+        ext.extra_link_args += extra_linker_flags
+        super().build_extension(ext)
 
 
-cmdclass = {"build_ext": ParallelBuildExtensions}
+cmdclass = {
+    "bdist_wheel": WheelsBuildExtensions,
+    "build_ext": ParallelBuildExtensions,
+}
 
 # ----------------------------------------------------------------------
 # Setup

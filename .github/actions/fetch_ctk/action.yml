@@ -20,35 +20,11 @@ runs:
         echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}.tar.gz" >> $GITHUB_ENV
 
     - name: Install dependencies
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        dependencies=(zstd curl xz-utils)
-        dependent_exes=(zstd curl xz)
-
-        not_found=0
-        for dep in ${dependent_exes[@]}; do
-          if ! (command -v curl 2>&1 >/dev/null); then
-            not_found=1
-            break
-          fi
-        done
-        if [[ $not_found == 0 ]]; then
-          echo "All dependencies are found. Do nothing."
-          exit 0
-        fi
-        if ! (command -v sudo 2>&1 >/dev/null); then
-          if [[ $EUID == 0 ]]; then
-            alias SUDO=""
-          else
-            echo "The following oprations require root access."
-            exit 1
-          fi
-        else
-          alias SUDO="sudo"
-        fi
-        shopt -s expand_aliases
-        SUDO apt update
-        SUDO apt install -y ${dependencies[@]}
+      uses: ./.github/actions/install_unix_deps
+      continue-on-error: false
+      with:
+        dependencies: "zstd curl xz-utils"
+        dependent_exes: "zstd curl xz"
 
     - name: Download CTK cache
       id: ctk-get-cache
@@ -145,5 +121,6 @@ runs:
       run: |
         CUDA_PATH=$(realpath "./cuda_toolkit")
         echo "CUDA_PATH=${CUDA_PATH}" >> $GITHUB_ENV
+        echo "CUDA_HOME=${CUDA_PATH}" >> $GITHUB_ENV
         echo "${CUDA_PATH}/bin" >> $GITHUB_PATH
         echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}:${CUDA_PATH}/lib" >> $GITHUB_ENV
