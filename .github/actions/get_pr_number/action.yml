@@ -21,6 +21,7 @@ runs:
           exit 1
         fi
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+        echo "BUILD_PREVIEW=1" >> $GITHUB_ENV
 
     - name: Get PR data (main branch)
       if: ${{ github.ref_name == 'main' }}
@@ -50,3 +51,4 @@ runs:
           exit 1
         fi
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+        echo "BUILD_LATEST=1" >> $GITHUB_ENV
