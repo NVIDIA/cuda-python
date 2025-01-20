@@ -384,8 +384,6 @@ class Program:
         elif code_type == "ptx":
             if not isinstance(code, str):
                 raise TypeError
-            # TODO: support pre-loaded headers & include names
-            # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
             self._linker = Linker(
                 ObjectCode(code.encode(), code_type), options=self._translate_program_options(options)
             )
