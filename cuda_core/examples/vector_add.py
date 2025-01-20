@@ -4,7 +4,7 @@
 
 import cupy as cp
 
-from cuda.core.experimental import Device, LaunchConfig, Program, launch
+from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # compute c = a + b
 code = """
@@ -26,15 +26,10 @@ dev.set_current()
 s = dev.create_stream()
 
 # prepare program
-prog = Program(code, code_type="c++")
-mod = prog.compile(
-    "cubin",
-    options=(
-        "-std=c++17",
-        "-arch=sm_" + "".join(f"{i}" for i in dev.compute_capability),
-    ),
-    name_expressions=("vector_add<float>",),
-)
+arch = "".join(f"{i}" for i in dev.compute_capability)
+program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
+prog = Program(code, code_type="c++", options=program_options)
+mod = prog.compile("cubin", name_expressions=("vector_add<float>",))
 
 # run in single precision
 ker = mod.get_kernel("vector_add<float>")
