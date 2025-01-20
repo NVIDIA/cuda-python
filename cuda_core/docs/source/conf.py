@@ -75,10 +75,6 @@ html_theme_options = {
     #    "navbar-icon-links",
     # ],
 }
-if os.environ.get("CI"):
-    PR_NUMBER = f"{os.environ['PR_NUMBER']}"
-    PR_TEXT = f'<a href="https://github.com/NVIDIA/cuda-python/pull/{PR_NUMBER}">PR {PR_NUMBER}</a>'
-    html_theme_options["announcement"] = f"<em>Warning</em>: This documentation is only a preview for {PR_TEXT}!"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -98,6 +94,8 @@ napoleon_numpy_docstring = True
 
 
 section_titles = ["Returns"]
+
+autodoc_mock_imports = ["cuda"]
 
 
 def autodoc_process_docstring(app, what, name, obj, options, lines):
