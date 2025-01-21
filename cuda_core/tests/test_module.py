@@ -10,15 +10,21 @@
 import pytest
 from conftest import can_load_generated_ptx
 
-from cuda import cuda
-from cuda.core.experimental import Device, Program, ProgramOptions
+try:
+    from cuda.bindings import driver
+except ImportError:
+    from cuda import cuda as driver
+
+from cuda.core.experimental import Program, ProgramOptions
+from cuda.core.experimental._utils import handle_return
 
 
 @pytest.fixture(scope="module")
 def cuda_version():
-    version = cuda.cuDriverGetVersion()
+    version = handle_return(driver.cuDriverGetVersion())
     major_version = version // 1000
-    return major_version
+    minor_version = (version % 1000) // 10
+    return major_version, minor_version
 
 
 @pytest.fixture(scope="function")
@@ -41,7 +47,6 @@ def get_saxpy_kernel(init_cuda):
     prog = Program(code, code_type="c++")
     mod = prog.compile(
         "cubin",
-        options=("-arch=sm_" + "".join(f"{i}" for i in Device().compute_capability),),
         name_expressions=("saxpy<float>", "saxpy<double>"),
     )
 
@@ -59,7 +64,6 @@ def test_get_kernel():
     assert kernel._handle is not None
 
 
-@pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
 @pytest.mark.parametrize(
     "attr",
     [
@@ -75,7 +79,7 @@ def test_get_kernel():
     ],
 )
 def test_read_only_kernel_attributes(get_saxpy_kernel, attr, cuda_version):
-    if cuda_version < 12:
+    if cuda_version[0] < 12:
         pytest.skip("CUDA version is less than 12, and doesn't support kernel attribute access")
 
     kernel = get_saxpy_kernel
@@ -85,11 +89,10 @@ def test_read_only_kernel_attributes(get_saxpy_kernel, attr, cuda_version):
     assert value is not None
 
     # Attempt to set the attribute and ensure it raises an exception
-    with pytest.raises(RuntimeError):
+    with pytest.raises(AttributeError):
         setattr(kernel, attr, value)
 
 
-@pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
 @pytest.mark.parametrize(
     "attr, value",
     [
@@ -103,7 +106,7 @@ def test_read_only_kernel_attributes(get_saxpy_kernel, attr, cuda_version):
     ],
 )
 def test_read_write_kernel_attributes(get_saxpy_kernel, attr, value, cuda_version):
-    if cuda_version < 12:
+    if cuda_version[0] < 12:
         pytest.skip("CUDA version is less than 12, and doesn't support kernel attribute access")
 
     kernel = get_saxpy_kernel
