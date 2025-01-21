@@ -11,9 +11,10 @@ import pytest
 from conftest import can_load_generated_ptx
 
 try:
-    from cuda.bindings import driver
+    from cuda.bindings import driver, runtime
 except ImportError:
     from cuda import cuda as driver
+    from cuda import cudart as runtime
 
 from cuda.core.experimental import Program, ProgramOptions
 from cuda.core.experimental._utils import handle_return
@@ -22,8 +23,10 @@ from cuda.core.experimental._utils import handle_return
 @pytest.fixture(scope="module")
 def cuda_version():
     version = handle_return(driver.cuDriverGetVersion())
+    version = handle_return(runtime.cudaRuntimeGetVersion())
     major_version = version // 1000
     minor_version = (version % 1000) // 10
+    print(version)
     return major_version, minor_version
 
 
@@ -55,7 +58,7 @@ def get_saxpy_kernel(init_cuda):
 
 
 @pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
-def test_get_kernel():
+def test_get_kernel(init_cuda):
     kernel = """extern "C" __global__ void ABC() { }"""
     object_code = Program(kernel, "c++", options=ProgramOptions(relocatable_device_code=True)).compile("ptx")
     assert object_code._handle is None
