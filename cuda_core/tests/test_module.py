@@ -11,9 +11,8 @@ import pytest
 from conftest import can_load_generated_ptx
 
 try:
-    from cuda.bindings import driver, runtime
+    from cuda.bindings import runtime
 except ImportError:
-    from cuda import cuda as driver
     from cuda import cudart as runtime
 
 from cuda.core.experimental import Program, ProgramOptions
@@ -22,7 +21,9 @@ from cuda.core.experimental._utils import handle_return
 
 @pytest.fixture(scope="module")
 def cuda_version():
-    version = handle_return(driver.cuDriverGetVersion())
+    # WAR this is a workaround for the fact that checking the runtime version using the cuGetDriverVersion
+    # doesnt actually return the driver version buyt rather the latest cuda whcih is supported by the installed drive3r.
+
     version = handle_return(runtime.cudaRuntimeGetVersion())
     major_version = version // 1000
     minor_version = (version % 1000) // 10
