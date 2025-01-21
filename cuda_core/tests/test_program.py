@@ -67,7 +67,6 @@ def test_program_init_invalid_code_format():
         Program(code, "c++")
 
 
-# TODO: incorporate this check in Program
 # This is tested against the current device's arch
 @pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
 def test_program_compile_valid_target_type():
