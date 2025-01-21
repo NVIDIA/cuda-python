@@ -47,42 +47,39 @@ def compile_ltoir_functions(init_cuda):
     return object_code_a_ltoir, object_code_b_ltoir, object_code_c_ltoir
 
 
-culink_options = [
-    LinkerOptions(),
-    LinkerOptions(arch=ARCH, verbose=True),
-    LinkerOptions(arch=ARCH, max_register_count=32),
-    LinkerOptions(arch=ARCH, optimization_level=3),
-    LinkerOptions(arch=ARCH, debug=True),
-    LinkerOptions(arch=ARCH, lineinfo=True),
-    LinkerOptions(arch=ARCH, no_cache=True),  
-]
+options = []
 
-nvjitlink_base_options = [
-    LinkerOptions(arch=ARCH, time=True),
-    LinkerOptions(arch=ARCH, ftz=True),
-    LinkerOptions(arch=ARCH, prec_div=True),
-    LinkerOptions(arch=ARCH, prec_sqrt=True),
-    LinkerOptions(arch=ARCH, fma=True),
-    LinkerOptions(arch=ARCH, kernels_used=["A"]),
-    LinkerOptions(arch=ARCH, kernels_used=["C", "B"]),
-    LinkerOptions(arch=ARCH, variables_used=["var1"]),
-    LinkerOptions(arch=ARCH, variables_used=["var1", "var2"]),
-    LinkerOptions(arch=ARCH, optimize_unused_variables=True),
-    LinkerOptions(arch=ARCH, xptxas=["-v"]),
-    LinkerOptions(arch=ARCH, split_compile=0),
-    LinkerOptions(arch=ARCH, split_compile_extended=1),
-]
-
-nvjitlink_125_options = [LinkerOptions(arch=ARCH, no_cache=True)]
-
-options = culink_options
-if not culink_backend:
+if culink_backend:
+    options += [
+        LinkerOptions(),
+        LinkerOptions(arch=ARCH, verbose=True),
+        LinkerOptions(arch=ARCH, max_register_count=32),
+        LinkerOptions(arch=ARCH, optimization_level=3),
+        LinkerOptions(arch=ARCH, debug=True),
+        LinkerOptions(arch=ARCH, lineinfo=True),
+        LinkerOptions(arch=ARCH, no_cache=True),
+    ]
+else:
     from cuda.bindings import nvjitlink
 
     version = nvjitlink.version()
-    options += nvjitlink_base_options
+    options += [
+        LinkerOptions(arch=ARCH, time=True),
+        LinkerOptions(arch=ARCH, ftz=True),
+        LinkerOptions(arch=ARCH, prec_div=True),
+        LinkerOptions(arch=ARCH, prec_sqrt=True),
+        LinkerOptions(arch=ARCH, fma=True),
+        LinkerOptions(arch=ARCH, kernels_used=["A"]),
+        LinkerOptions(arch=ARCH, kernels_used=["C", "B"]),
+        LinkerOptions(arch=ARCH, variables_used=["var1"]),
+        LinkerOptions(arch=ARCH, variables_used=["var1", "var2"]),
+        LinkerOptions(arch=ARCH, optimize_unused_variables=True),
+        LinkerOptions(arch=ARCH, xptxas=["-v"]),
+        LinkerOptions(arch=ARCH, split_compile=0),
+        LinkerOptions(arch=ARCH, split_compile_extended=1),
+    ]
     if version >= (12, 5):
-        options += nvjitlink_125_options
+        options += [LinkerOptions(arch=ARCH, no_cache=True)]
 
 
 @pytest.mark.parametrize("options", options)
