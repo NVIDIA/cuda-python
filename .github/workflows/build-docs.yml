@@ -10,12 +10,12 @@ on:
         description: "Component(s) to build docs for"
         required: true
         default: "all"
-        type: choice
-        options:
-          - cuda-core
-          - cuda-bindings
-          - cuda-python
-          - all
+        type: string
+        # below are the acceptable options:
+        #   - cuda-core
+        #   - cuda-bindings
+        #   - cuda-python
+        #   - all
       git-tag:
         description: "Target git tag to build docs for"
         required: true
