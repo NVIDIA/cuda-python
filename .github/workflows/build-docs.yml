@@ -3,7 +3,7 @@ name: "CI: Build and update docs"
 on:
   workflow_call:
     inputs:
-      build_ctk_ver:
+      build-ctk-ver:
         type: string
         required: true
 
@@ -50,10 +50,9 @@ jobs:
       # WAR: Building the doc currently requires CTK installed (NVIDIA/cuda-python#326,327)
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
-        continue-on-error: false
         with:
           host-platform: linux-64
-          cuda-version: ${{ inputs.build_ctk_ver }}
+          cuda-version: ${{ inputs.build-ctk-ver }}
 
       - name: Set environment variables
         run: |
@@ -65,10 +64,21 @@ jobs:
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build_ctk_ver }}-linux-64"
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-linux-64"
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+
+      - name: Download cuda-python build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cuda-python-wheel
+          path: .
+
+      - name: Display structure of downloaded cuda-python artifacts
+        run: |
+          pwd
+          ls -lahR .
 
       - name: Download cuda.bindings build artifacts
         uses: actions/download-artifact@v4
@@ -102,6 +112,12 @@ jobs:
           pip install *.whl
           popd
 
+          pip install cuda_python*.whl
+
+      # This step sets the PR_NUMBER env var.
+      - name: Get PR number
+        uses: ./.github/actions/get_pr_number
+
       - name: Build all (latest) docs
         id: build
         run: |
@@ -113,22 +129,30 @@ jobs:
           mkdir -p artifacts/docs
           mv cuda_python/docs/build/html/* artifacts/docs/
 
-      # Note: currently this is only for manual inspection. This step will become
-      # required once we switch to use GHA for doc deployment (see the bottom).
+          # create an empty folder for removal use
+          mkdir -p artifacts/empty_docs
+
+      # TODO: Consider removing this step?
       - name: Upload doc artifacts
         uses: actions/upload-pages-artifact@v3
         with:
           path: artifacts/
           retention-days: 3
 
-      # The step below is not executed unless when building on main.
+      - name: Deploy or clean up doc preview
+        uses: ./.github/actions/doc_preview
+        with:
+          source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
+                              'artifacts/empty_docs' }}
+          pr-number: ${{ env.PR_NUMBER }}
+
       - name: Deploy doc update
-        if: ${{ github.ref_name == 'main' && success() }}
+        if: ${{ github.ref_name == 'main' }}
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: artifacts/docs/
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
+          folder: artifacts/docs/
           target-folder: docs/
           commit-message: "Deploy latest docs: ${{ github.sha }}"
           clean: false

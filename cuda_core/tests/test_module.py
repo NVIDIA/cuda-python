@@ -11,7 +11,7 @@ import pytest
 from conftest import can_load_generated_ptx
 
 from cuda import cuda
-from cuda.core.experimental import Device, Program
+from cuda.core.experimental import Device, Program, ProgramOptions
 
 
 @pytest.fixture(scope="module")
@@ -52,7 +52,7 @@ def get_saxpy_kernel(init_cuda):
 @pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
 def test_get_kernel():
     kernel = """extern "C" __global__ void ABC() { }"""
-    object_code = Program(kernel, "c++").compile("ptx", options=("-rdc=true",))
+    object_code = Program(kernel, "c++", options=ProgramOptions(relocatable_device_code=True)).compile("ptx")
     assert object_code._handle is None
     kernel = object_code.get_kernel("ABC")
     assert object_code._handle is not None

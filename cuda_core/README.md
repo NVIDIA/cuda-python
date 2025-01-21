@@ -4,7 +4,7 @@ Currently under active development; see [the documentation](https://nvidia.githu
 
 ## Installing
 
-TO build from source, just do:
+To build from source, just do:
 ```shell
 $ git clone https://github.com/NVIDIA/cuda-python
 $ cd cuda-python/cuda_core  # move to the directory where this README locates
@@ -39,5 +39,5 @@ for more details, including how to sign your commits.
 ## Testing
 
 To run these tests:
-* `python -m pytest tests/` against local builds
+* `python -m pytest tests/` against editable installations
 * `pytest tests/` against installed packages
