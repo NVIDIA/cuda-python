@@ -336,6 +336,8 @@ class Kernel:
             self._attributes = KernelAttributes._init(self._handle)
         return self._attributes
 
+    # TODO: implement from_handle()
+
 
 class ObjectCode:
     """Represent a compiled program that was loaded onto the device.
