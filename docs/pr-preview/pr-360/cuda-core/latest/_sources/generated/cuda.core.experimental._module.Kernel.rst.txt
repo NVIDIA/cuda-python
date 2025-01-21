@@ -20,21 +20,6 @@
    .. rubric:: Attributes
 
    
-   .. autoattribute:: binary_version
-   .. autoattribute:: cache_mode_ca
-   .. autoattribute:: cluster_scheduling_policy_preference
-   .. autoattribute:: cluster_size_must_be_set
-   .. autoattribute:: const_size_bytes
-   .. autoattribute:: local_size_bytes
-   .. autoattribute:: max_dynamic_shared_size_bytes
-   .. autoattribute:: max_threads_per_block
-   .. autoattribute:: non_portable_cluster_size_allowed
-   .. autoattribute:: num_regs
-   .. autoattribute:: preferred_shared_memory_carveout
-   .. autoattribute:: ptx_version
-   .. autoattribute:: required_cluster_depth
-   .. autoattribute:: required_cluster_height
-   .. autoattribute:: required_cluster_width
-   .. autoattribute:: shared_size_bytes
+   .. autoattribute:: attributes
    
    

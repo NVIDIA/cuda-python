@@ -313,109 +313,9 @@ should instead be created through a <code class="xref py py-obj docutils literal
 
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.binary_version">
-<span class="sig-name descname"><span class="pre">binary_version</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.binary_version" title="Link to this definition">¶</a></dt>
-<dd><p>Get the binary architecture version for which the function was compiled.
-This attribute is read-only.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.cache_mode_ca">
-<span class="sig-name descname"><span class="pre">cache_mode_ca</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.cache_mode_ca" title="Link to this definition">¶</a></dt>
-<dd><p>Get whether the function has been compiled with user specified option “-Xptxas –dlcm=ca” set.
-This attribute is read-only.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.cluster_scheduling_policy_preference">
-<span class="sig-name descname"><span class="pre">cluster_scheduling_policy_preference</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.cluster_scheduling_policy_preference" title="Link to this definition">¶</a></dt>
-<dd><p>Get or set the block scheduling policy of a function.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.cluster_size_must_be_set">
-<span class="sig-name descname"><span class="pre">cluster_size_must_be_set</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.cluster_size_must_be_set" title="Link to this definition">¶</a></dt>
-<dd><p>Get whether the kernel must launch with a valid cluster size specified.
-This attribute is read-only.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.const_size_bytes">
-<span class="sig-name descname"><span class="pre">const_size_bytes</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.const_size_bytes" title="Link to this definition">¶</a></dt>
-<dd><p>Get the size in bytes of user-allocated constant memory required by this function.
-This attribute is read-only.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.local_size_bytes">
-<span class="sig-name descname"><span class="pre">local_size_bytes</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.local_size_bytes" title="Link to this definition">¶</a></dt>
-<dd><p>Get the size in bytes of local memory used by each thread of this function.
-This attribute is read-only.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.max_dynamic_shared_size_bytes">
-<span class="sig-name descname"><span class="pre">max_dynamic_shared_size_bytes</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.max_dynamic_shared_size_bytes" title="Link to this definition">¶</a></dt>
-<dd><p>Get or set the maximum size in bytes of dynamically-allocated shared memory that can be used
-by this function.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.max_threads_per_block">
-<span class="sig-name descname"><span class="pre">max_threads_per_block</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.max_threads_per_block" title="Link to this definition">¶</a></dt>
-<dd><p>Get the maximum number of threads per block.
-This attribute is read-only.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.non_portable_cluster_size_allowed">
-<span class="sig-name descname"><span class="pre">non_portable_cluster_size_allowed</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.non_portable_cluster_size_allowed" title="Link to this definition">¶</a></dt>
-<dd><p>Get or set whether the function can be launched with non-portable cluster size.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.num_regs">
-<span class="sig-name descname"><span class="pre">num_regs</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.num_regs" title="Link to this definition">¶</a></dt>
-<dd><p>Get the number of registers used by each thread of this function.
-This attribute is read-only.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.preferred_shared_memory_carveout">
-<span class="sig-name descname"><span class="pre">preferred_shared_memory_carveout</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.preferred_shared_memory_carveout" title="Link to this definition">¶</a></dt>
-<dd><p>Get or set the shared memory carveout preference, in percent of the total shared memory.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.ptx_version">
-<span class="sig-name descname"><span class="pre">ptx_version</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.ptx_version" title="Link to this definition">¶</a></dt>
-<dd><p>Get the PTX virtual architecture version for which the function was compiled.
-This attribute is read-only.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.required_cluster_depth">
-<span class="sig-name descname"><span class="pre">required_cluster_depth</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.required_cluster_depth" title="Link to this definition">¶</a></dt>
-<dd><p>Get or set the required cluster depth in blocks.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.required_cluster_height">
-<span class="sig-name descname"><span class="pre">required_cluster_height</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.required_cluster_height" title="Link to this definition">¶</a></dt>
-<dd><p>Get or set the required cluster height in blocks.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.required_cluster_width">
-<span class="sig-name descname"><span class="pre">required_cluster_width</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.required_cluster_width" title="Link to this definition">¶</a></dt>
-<dd><p>Get or set the required cluster width in blocks.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.shared_size_bytes">
-<span class="sig-name descname"><span class="pre">shared_size_bytes</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.shared_size_bytes" title="Link to this definition">¶</a></dt>
-<dd><p>Get the size in bytes of statically-allocated shared memory required by this function.
-This attribute is read-only.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.attributes">
+<span class="sig-name descname"><span class="pre">attributes</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.attributes" title="Link to this definition">¶</a></dt>
+<dd><p>Get the read-only attributes of this kernel.</p>
 </dd></dl>
 
 </dd></dl>
@@ -462,22 +362,7 @@ This attribute is read-only.</p>
 <li><a class="reference internal" href="#">cuda.core.experimental._module.Kernel</a><ul>
 <li><a class="reference internal" href="#cuda.core.experimental._module.Kernel"><code class="docutils literal notranslate"><span class="pre">Kernel</span></code></a><ul>
 <li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.__init__"><code class="docutils literal notranslate"><span class="pre">Kernel.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.binary_version"><code class="docutils literal notranslate"><span class="pre">Kernel.binary_version</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.cache_mode_ca"><code class="docutils literal notranslate"><span class="pre">Kernel.cache_mode_ca</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.cluster_scheduling_policy_preference"><code class="docutils literal notranslate"><span class="pre">Kernel.cluster_scheduling_policy_preference</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.cluster_size_must_be_set"><code class="docutils literal notranslate"><span class="pre">Kernel.cluster_size_must_be_set</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.const_size_bytes"><code class="docutils literal notranslate"><span class="pre">Kernel.const_size_bytes</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.local_size_bytes"><code class="docutils literal notranslate"><span class="pre">Kernel.local_size_bytes</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.max_dynamic_shared_size_bytes"><code class="docutils literal notranslate"><span class="pre">Kernel.max_dynamic_shared_size_bytes</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.max_threads_per_block"><code class="docutils literal notranslate"><span class="pre">Kernel.max_threads_per_block</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.non_portable_cluster_size_allowed"><code class="docutils literal notranslate"><span class="pre">Kernel.non_portable_cluster_size_allowed</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.num_regs"><code class="docutils literal notranslate"><span class="pre">Kernel.num_regs</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.preferred_shared_memory_carveout"><code class="docutils literal notranslate"><span class="pre">Kernel.preferred_shared_memory_carveout</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.ptx_version"><code class="docutils literal notranslate"><span class="pre">Kernel.ptx_version</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.required_cluster_depth"><code class="docutils literal notranslate"><span class="pre">Kernel.required_cluster_depth</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.required_cluster_height"><code class="docutils literal notranslate"><span class="pre">Kernel.required_cluster_height</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.required_cluster_width"><code class="docutils literal notranslate"><span class="pre">Kernel.required_cluster_width</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.shared_size_bytes"><code class="docutils literal notranslate"><span class="pre">Kernel.shared_size_bytes</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.attributes"><code class="docutils literal notranslate"><span class="pre">Kernel.attributes</span></code></a></li>
 </ul>
 </li>
 </ul>
