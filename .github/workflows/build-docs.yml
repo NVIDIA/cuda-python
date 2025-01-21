@@ -153,6 +153,10 @@ jobs:
         run: |
           pushd cuda_python/docs/
           ./build_all_docs.sh $DOC_ACTION
+          if [[ -z "$DOC_ACTION" ]]; then
+            # At release time, we don't want to update the latest docs
+            rm -rf build/html/latest
+          fi
           ls -l build
           popd
           mv cuda_python/docs/build/html/* artifacts/docs/
@@ -165,8 +169,11 @@ jobs:
           COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
           pushd ${COMPONENT}/docs/
           ./build_docs.sh $DOC_ACTION
+          if [[ -z "$DOC_ACTION" ]]; then
+            # At release time, we don't want to update the latest docs
+            rm -rf build/html/latest
+          fi
           ls -l build
-          rm -rf build/html/latest
           popd
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/
 
