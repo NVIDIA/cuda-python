@@ -1,4 +1,4 @@
-name: CI: Upload git archive
+name: "CI: Upload git archive"
 
 on:
   workflow_call:
