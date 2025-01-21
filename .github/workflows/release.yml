@@ -25,6 +25,13 @@ on:
       build-ctk-ver:
         type: string
         required: true
+      wheel-dst:
+        description: "Which wheel index to publish to?"
+        required: true
+        type: choice
+        options:
+          - testpypi
+          - pypi
       #print_tags:
       #  description: 'True to print to STDOUT'
       #  required: true
@@ -38,11 +45,6 @@ jobs:
   check-tag:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Check if draft exists for the tag
         env:
           GH_TOKEN: ${{ github.token }}
@@ -103,3 +105,37 @@ jobs:
       ./.github/workflows/release-upload.yml
     with:
       git-tag: ${{ inputs.git-tag }}
+
+  publish-wheels:
+    name: Publish wheels
+    runs-on: ubuntu-latest
+    needs:
+      - check-tag
+    environment:
+      name: ${{ inputs.wheel-dst }}
+      url: https://${{ (inputs.wheel-dst == 'testpypi' && 'test.') || '' }}pypi.org/p/${{ inputs.component }}/
+    permissions:
+      id-token: write
+    steps:
+      - name: Download component wheels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download ${{ inputs.run-id }} -p "${{ inputs.component }}*" -R ${{ github.repository }}
+          mkdir dist
+          for p in "${{ inputs.component }}*"; do
+            mv ${p}/*.whl dist/
+          done
+          rmdir "${{ inputs.component }}*"
+
+      - name: Publish package distributions to PyPI
+        if: ${{ inputs.wheel-dst == 'pypi' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Publish package distributions to TestPyPI
+        if: ${{ inputs.wheel-dst == 'testpypi' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  # TODO: add another job to make the release leave the draft state?
