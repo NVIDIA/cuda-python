@@ -418,7 +418,9 @@ class Program:
             supported_archs = handle_return(nvrtc.nvrtcGetSupportedArchs())
 
             if options is not None:
-                arch_not_supported = options.arch is not None and options.arch not in supported_archs
+                arch_not_supported = (
+                    options.arch is not None and int(options.arch.split("_")[-1]) not in supported_archs
+                )
                 default_arch_not_supported = (
                     options.arch is None
                     and 10 * Device().compute_capability[0] + Device().compute_capability[1] not in supported_archs
