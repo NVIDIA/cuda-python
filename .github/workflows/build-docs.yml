@@ -8,7 +8,7 @@ on:
         required: true
       component:
         description: "Component(s) to build docs for"
-        required: true
+        required: false
         default: "all"
         type: string
         # below are the acceptable options:
@@ -18,12 +18,12 @@ on:
         #   - all
       git-tag:
         description: "Target git tag to build docs for"
-        required: true
+        required: false
         default: ""
         type: string
       is-release:
         description: "Are we building release docs?"
-        required: true
+        required: false
         default: false
         type: boolean
 
