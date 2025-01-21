@@ -1,0 +1,59 @@
+name: CI: Upload git archive
+
+on:
+  workflow_call:
+    inputs:
+      git-tag:
+        type: string
+        required: true
+
+concurrency:
+  # Concurrency group that uses the workflow name and PR number if available
+  # or commit SHA as a fallback. If a new build is triggered under that
+  # concurrency group while a previous build is running it will be canceled.
+  # Repeated pushes to a PR will cancel all previous builds, while multiple
+  # merges to main will not cancel.
+  group: ${{ github.workflow }}-${{ github.ref_name || github.sha }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  # create source archive and upload it to the published release
+  # URL to the archive: https://github.com/NVIDIA/<repo>/releases/download/<tag>/<repo>-<tag>.tar.gz
+  upload:
+    if: ${{ !github.event.repository.fork }}
+    runs-on: ubuntu-latest
+    env:
+      ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ inputs.git-tag }}
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Create Release Directory
+        run: mkdir -p release
+
+      - name: Archive Source
+        run: >
+          git archive
+          --format=tar.gz
+          --prefix="${{ env.ARCHIVE_NAME }}/"
+          --output="release/${{ env.ARCHIVE_NAME }}.tar.gz"
+          ${{ inputs.git-tag }}
+
+      - name: Compute Checksum
+        run: >
+          sha256sum "release/${{ env.ARCHIVE_NAME }}.tar.gz"
+          | awk '{print $1}'
+          > "release/${{ env.ARCHIVE_NAME }}.tar.gz.sha256sum"
+
+      - name: Upload Archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release upload
+          ${{ inputs.git-tag }}
+          release/*
+          --clobber "${{ github.ref_name }}"
+          --repo "${{ github.repository }}"
