@@ -42,32 +42,17 @@ def _lazy_init():
     _inited = True
 
 
-class Kernel:
-    """Represent a compiled kernel that had been loaded onto the device.
-
-    Kernel instances can execution when passed directly into the
-    :func:`~launch` function.
-
-    Directly creating a :obj:`~_module.Kernel` is not supported, and they
-    should instead be created through a :obj:`~_module.ObjectCode` object.
-
-    """
-
-    __slots__ = ("_handle", "_module")
-
+class KernelAttributes:
     def __init__(self):
-        raise RuntimeError("directly constructing a Kernel instance is not supported")
+        raise RuntimeError("KernelAttributes should not be instantiated directly")
 
-    @staticmethod
-    def _from_obj(obj, mod):
-        assert isinstance(obj, _kernel_ctypes)
-        assert isinstance(mod, ObjectCode)
-        ker = Kernel.__new__(Kernel)
-        ker._handle = obj
-        ker._module = mod
-        return ker
+    slots = "_handle"
 
-    # Kernel attribute getters and setters
+    def _init(handle):
+        self = KernelAttributes.__new__(KernelAttributes)
+        self._handle = handle
+        return self
+
     @property
     def max_threads_per_block(self):
         """Get the maximum number of threads per block.
@@ -316,6 +301,40 @@ class Kernel:
                 None,
             )
         )
+
+
+class Kernel:
+    """Represent a compiled kernel that had been loaded onto the device.
+
+    Kernel instances can execution when passed directly into the
+    :func:`~launch` function.
+
+    Directly creating a :obj:`~_module.Kernel` is not supported, and they
+    should instead be created through a :obj:`~_module.ObjectCode` object.
+
+    """
+
+    __slots__ = ("_handle", "_module", "_attributes")
+
+    def __init__(self):
+        raise RuntimeError("directly constructing a Kernel instance is not supported")
+
+    @staticmethod
+    def _from_obj(obj, mod):
+        assert isinstance(obj, _kernel_ctypes)
+        assert isinstance(mod, ObjectCode)
+        ker = Kernel.__new__(Kernel)
+        ker._handle = obj
+        ker._module = mod
+        ker._attributes = None
+        return ker
+
+    @property
+    def attributes(self):
+        """Get the read-only attributes of this kernel."""
+        if self._attributes is None:
+            self._attributes = KernelAttributes._init(self._handle)
+        return self._attributes
 
 
 class ObjectCode:

@@ -27,7 +27,6 @@ def cuda_version():
     version = handle_return(runtime.cudaRuntimeGetVersion())
     major_version = version // 1000
     minor_version = (version % 1000) // 10
-    print(version)
     return major_version, minor_version
 
 
@@ -89,12 +88,12 @@ def test_read_only_kernel_attributes(get_saxpy_kernel, attr, cuda_version):
     kernel = get_saxpy_kernel
 
     # Access the attribute to ensure it can be read
-    value = getattr(kernel, attr)
+    value = getattr(kernel.attributes, attr)
     assert value is not None
 
     # Attempt to set the attribute and ensure it raises an exception
     with pytest.raises(AttributeError):
-        setattr(kernel, attr, value)
+        setattr(kernel.attributes, attr, value)
 
 
 @pytest.mark.parametrize(
@@ -116,7 +115,7 @@ def test_read_write_kernel_attributes(get_saxpy_kernel, attr, value, cuda_versio
     kernel = get_saxpy_kernel
 
     # Set the attribute
-    setattr(kernel, attr, value)
+    setattr(kernel.attributes, attr, value)
 
     # Ensure the attribute was set correctly
-    assert getattr(kernel, attr) == value
+    assert getattr(kernel.attributes, attr) == value
