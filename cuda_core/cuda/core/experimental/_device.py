@@ -14,314 +14,1019 @@ _tls = threading.local()
 _tls_lock = threading.Lock()
 
 
+# ruff: noqa
 class DeviceProperties:
     """
-    Represents the properties of a CUDA device.
+    A class to query various attributes of a CUDA device.
 
-    Attributes
-    ----------
-    name : str
-        ASCII string identifying the device.
-    uuid : cudaUUID_t
-        16-byte unique identifier.
-    total_global_mem : int
-        Total amount of global memory available on the device in bytes.
-    shared_mem_per_block : int
-        Maximum amount of shared memory available to a thread block in bytes.
-    regs_per_block : int
-        Maximum number of 32-bit registers available to a thread block.
-    warp_size : int
-        Warp size in threads.
-    mem_pitch : int
-        Maximum pitch in bytes allowed by the memory copy functions that involve memory regions allocated through
-        cudaMallocPitch().
-    max_threads_per_block : int
-        Maximum number of threads per block.
-    max_threads_dim : tuple
-        Maximum size of each dimension of a block.
-    max_grid_size : tuple
-        Maximum size of each dimension of a grid.
-    clock_rate : int
-        Clock frequency in kilohertz.
-    cluster_launch : bool
-        Indicates whether or not the device supports cluster launch.
-    total_const_mem : int
-        Total amount of constant memory available on the device in bytes.
-    major : int
-        Major revision number defining the device's compute capability.
-    minor : int
-        Minor revision number defining the device's compute capability.
-    texture_alignment : int
-        Alignment requirement; texture base addresses that are aligned to textureAlignment bytes do not need an
-        offset applied to texture fetches.
-    texture_pitch_alignment : int
-        Pitch alignment requirement for 2D texture references that are bound to pitched memory.
-    device_overlap : bool
-        Indicates whether or not the device can concurrently copy memory between host and device while executing
-        a kernel.
-    multi_processor_count : int
-        Number of multiprocessors on the device.
-    kernel_exec_timeout_enabled : bool
-        Indicates whether or not there is a run time limit for kernels executed on the device.
-    integrated : bool
-        Indicates whether or not the device is an integrated (motherboard) GPU.
-    can_map_host_memory : bool
-        Indicates whether or not the device can map host memory into the CUDA address space for use with
-        cudaHostAlloc()/cudaHostGetDevicePointer().
-    compute_mode : int
-        Compute mode that the device is currently in.
-    max_texture_1d : int
-        Maximum 1D texture size.
-    max_texture_1d_mipmap : int
-        Maximum 1D mipmapped texture size.
-    max_texture_1d_linear : int
-        Maximum 1D texture size for textures bound to linear memory.
-    max_texture_2d : tuple
-        Maximum 2D texture dimensions.
-    max_texture_2d_mipmap : tuple
-        Maximum 2D mipmapped texture dimensions.
-    max_texture_2d_linear : tuple
-        Maximum 2D texture dimensions for 2D textures bound to pitch linear memory.
-    max_texture_2d_gather : tuple
-        Maximum 2D texture dimensions if texture gather operations have to be performed.
-    max_texture_3d : tuple
-        Maximum 3D texture dimensions.
-    max_texture_3d_alt : tuple
-        Maximum alternate 3D texture dimensions.
-    max_texture_cubemap : int
-        Maximum cubemap texture width or height.
-    max_texture_1d_layered : tuple
-        Maximum 1D layered texture dimensions.
-    max_texture_2d_layered : tuple
-        Maximum 2D layered texture dimensions.
-    max_texture_cubemap_layered : tuple
-        Maximum cubemap layered texture dimensions.
-    max_surface_1d : int
-        Maximum 1D surface size.
-    max_surface_2d : tuple
-        Maximum 2D surface dimensions.
-    max_surface_3d : tuple
-        Maximum 3D surface dimensions.
-    max_surface_1d_layered : tuple
-        Maximum 1D layered surface dimensions.
-    max_surface_2d_layered : tuple
-        Maximum 2D layered surface dimensions.
-    max_surface_cubemap : int
-        Maximum cubemap surface width or height.
-    max_surface_cubemap_layered : tuple
-        Maximum cubemap layered surface dimensions.
-    surface_alignment : int
-        Alignment requirements for surfaces.
-    concurrent_kernels : bool
-        Indicates whether or not the device supports executing multiple kernels within the same context
-        simultaneously.
-    ecc_enabled : bool
-        Indicates whether or not the device has ECC support turned on.
-    pci_bus_id : int
-        PCI bus identifier of the device.
-    pci_device_id : int
-        PCI device (sometimes called slot) identifier of the device.
-    pci_domain_id : int
-        PCI domain identifier of the device.
-    tcc_driver : bool
-        Indicates whether or not the device is using a TCC driver.
-    async_engine_count : int
-        1 when the device can concurrently copy memory between host and device while executing a kernel.
-        It is 2 when the device can concurrently copy memory between host and device in both directions
-        and execute a kernel at the same time. It is 0 if neither of these is supported.
-    unified_addressing : bool
-        Indicates whether or not the device shares a unified address space with the host.
-    memory_clock_rate : int
-        Peak memory clock frequency in kilohertz.
-    memory_bus_width : int
-        Memory bus width in bits.
-    l2_cache_size : int
-        L2 cache size in bytes.
-    persisting_l2_cache_max_size : int
-        L2 cache's maximum persisting lines size in bytes.
-    max_threads_per_multi_processor : int
-        Number of maximum resident threads per multiprocessor.
-    stream_priorities_supported : bool
-        Indicates whether or not the device supports stream priorities.
-    global_l1_cache_supported : bool
-        Indicates whether or not the device supports caching of globals in L1 cache.
-    local_l1_cache_supported : bool
-        Indicates whether or not the device supports caching of locals in L1 cache.
-    shared_mem_per_multiprocessor : int
-        Maximum amount of shared memory available to a multiprocessor in bytes; this amount is shared by all
-        thread blocks simultaneously resident on a multiprocessor.
-    regs_per_multiprocessor : int
-        Maximum number of 32-bit registers available to a multiprocessor; this number is shared by all thread
-        blocks simultaneously resident on a multiprocessor.
-    managed_memory : bool
-        Indicates whether or not the device supports allocating managed memory on this system.
-    is_multi_gpu_board : bool
-        Indicates whether or not the device is on a multi-GPU board (e.g. Gemini cards).
-    multi_gpu_board_group_id : int
-        Unique identifier for a group of devices associated with the same board. Devices on the same
-        multi-GPU board will share the same identifier.
-    single_to_double_precision_perf_ratio : int
-        Ratio of single precision performance (in floating-point operations per second) to double precision
-        performance.
-    pageable_memory_access : bool
-        Indicates whether or not the device supports coherently accessing pageable memory without calling
-        cudaHostRegister on it.
-    concurrent_managed_access : bool
-        Indicates whether or not the device can coherently access managed memory concurrently with the CPU.
-    compute_preemption_supported : bool
-        Indicates whether or not the device supports Compute Preemption.
-    can_use_host_pointer_for_registered_mem : bool
-        Indicates whether or not the device can access host registered memory at the same virtual address as
-        the CPU.
-    cooperative_launch : bool
-        Indicates whether or not the device supports launching cooperative kernels via
-        cudaLaunchCooperativeKernel.
-    cooperative_multi_device_launch : bool
-        Indicates whether or not the device supports launching cooperative kernels via
-        cudaLaunchCooperativeKernelMultiDevice.
-    pageable_memory_access_uses_host_page_tables : bool
-        Indicates whether or not the device accesses pageable memory via the host's page tables.
-    direct_managed_mem_access_from_host : bool
-        Indicates whether or not the host can directly access managed memory on the device without migration.
-    access_policy_max_window_size : int
-        Maximum value of cudaAccessPolicyWindow::num_bytes.
-    reserved_shared_mem_per_block : int
-        Shared memory reserved by CUDA driver per block in bytes.
-    host_register_supported : bool
-        Indicates whether or not the device supports host memory registration via cudaHostRegister.
-    sparse_cuda_array_supported : bool
-        Indicates whether or not the device supports sparse CUDA arrays and sparse CUDA mipmapped arrays.
-    host_register_read_only_supported : bool
-        Indicates whether or not the device supports using the cudaHostRegister flag cudaHostRegisterReadOnly
-        to register memory
-        that must be mapped as read-only to the GPU.
-    timeline_semaphore_interop_supported : bool
-        Indicates whether or not external timeline semaphore interop is supported on the device.
-    memory_pools_supported : bool
-        Indicates whether or not the device supports using the cudaMallocAsync and cudaMemPool family of APIs.
-    gpu_direct_rdma_supported : bool
-        Indicates whether or not the device supports GPUDirect RDMA APIs.
-    gpu_direct_rdma_flush_writes_options : int
-        Bitmask to be interpreted according to the cudaFlushGPUDirectRDMAWritesOptions enum.
-    gpu_direct_rdma_writes_ordering : int
-        See the cudaGPUDirectRDMAWritesOrdering enum for numerical values.
-    memory_pool_supported_handle_types : int
-        Bitmask of handle types supported with mempool-based IPC.
-    deferred_mapping_cuda_array_supported : bool
-        Indicates whether or not the device supports deferred mapping CUDA arrays and CUDA mipmapped arrays.
-    ipc_event_supported : bool
-        Indicates whether or not the device supports IPC Events.
-    unified_function_pointers : bool
-        Indicates whether or not the device supports unified pointers.
-    host_native_atomic_supported : bool
-        Indicates whether or not the link between the device and the host supports native atomic operations.
-    luid : bytes
-        8-byte locally unique identifier. Value is undefined on TCC and non-Windows platforms.
-    luid_device_node_mask : int
-        LUID device node mask. Value is undefined on TCC and non-Windows platforms.
-    max_blocks_per_multi_processor : int
-        Maximum number of resident blocks per multiprocessor.
+    Attributes are read-only and provide information about the device.
+
+    Attributes:
+        max_threads_per_block (int): Maximum number of threads per block.
+        max_block_dim_x (int): Maximum x-dimension of a block.
+        max_block_dim_y (int): Maximum y-dimension of a block.
+        max_block_dim_z (int): Maximum z-dimension of a block.
+        max_grid_dim_x (int): Maximum x-dimension of a grid.
+        max_grid_dim_y (int): Maximum y-dimension of a grid.
+        max_grid_dim_z (int): Maximum z-dimension of a grid.
+        max_shared_memory_per_block (int): Maximum amount of shared memory available to a thread block in bytes.
+        total_constant_memory (int): Memory available on device for __constant__ variables in a CUDA C kernel in bytes.
+        warp_size (int): Warp size in threads.
+        max_pitch (int): Maximum pitch in bytes allowed by the memory copy functions that involve memory regions allocated through cuMemAllocPitch().
+        maximum_texture1d_width (int): Maximum 1D texture width.
+        maximum_texture1d_linear_width (int): Maximum width for a 1D texture bound to linear memory.
+        maximum_texture1d_mipmapped_width (int): Maximum mipmapped 1D texture width.
+        maximum_texture2d_width (int): Maximum 2D texture width.
+        maximum_texture2d_height (int): Maximum 2D texture height.
+        maximum_texture2d_linear_width (int): Maximum width for a 2D texture bound to linear memory.
+        maximum_texture2d_linear_height (int): Maximum height for a 2D texture bound to linear memory.
+        maximum_texture2d_linear_pitch (int): Maximum pitch in bytes for a 2D texture bound to linear memory.
+        maximum_texture2d_mipmapped_width (int): Maximum mipmapped 2D texture width.
+        maximum_texture2d_mipmapped_height (int): Maximum mipmapped 2D texture height.
+        maximum_texture3d_width (int): Maximum 3D texture width.
+        maximum_texture3d_height (int): Maximum 3D texture height.
+        maximum_texture3d_depth (int): Maximum 3D texture depth.
+        maximum_texture3d_width_alternate (int): Alternate maximum 3D texture width, 0 if no alternate maximum 3D texture size is supported.
+        maximum_texture3d_height_alternate (int): Alternate maximum 3D texture height, 0 if no alternate maximum 3D texture size is supported.
+        maximum_texture3d_depth_alternate (int): Alternate maximum 3D texture depth, 0 if no alternate maximum 3D texture size is supported.
+        maximum_texturecubemap_width (int): Maximum cubemap texture width or height.
+        maximum_texture1d_layered_width (int): Maximum 1D layered texture width.
+        maximum_texture1d_layered_layers (int): Maximum layers in a 1D layered texture.
+        maximum_texture2d_layered_width (int): Maximum 2D layered texture width.
+        maximum_texture2d_layered_height (int): Maximum 2D layered texture height.
+        maximum_texture2d_layered_layers (int): Maximum layers in a 2D layered texture.
+        maximum_texturecubemap_layered_width (int): Maximum cubemap layered texture width or height.
+        maximum_texturecubemap_layered_layers (int): Maximum layers in a cubemap layered texture.
+        maximum_surface1d_width (int): Maximum 1D surface width.
+        maximum_surface2d_width (int): Maximum 2D surface width.
+        maximum_surface2d_height (int): Maximum 2D surface height.
+        maximum_surface3d_width (int): Maximum 3D surface width.
+        maximum_surface3d_height (int): Maximum 3D surface height.
+        maximum_surface3d_depth (int): Maximum 3D surface depth.
+        maximum_surface1d_layered_width (int): Maximum 1D layered surface width.
+        maximum_surface1d_layered_layers (int): Maximum layers in a 1D layered surface.
+        maximum_surface2d_layered_width (int): Maximum 2D layered surface width.
+        maximum_surface2d_layered_height (int): Maximum 2D layered surface height.
+        maximum_surface2d_layered_layers (int): Maximum layers in a 2D layered surface.
+        maximum_surfacecubemap_width (int): Maximum cubemap surface width.
+        maximum_surfacecubemap_layered_width (int): Maximum cubemap layered surface width.
+        maximum_surfacecubemap_layered_layers (int): Maximum layers in a cubemap layered surface.
+        max_registers_per_block (int): Maximum number of 32-bit registers available to a thread block.
+        clock_rate (int): The typical clock frequency in kilohertz.
+        texture_alignment (int): Alignment requirement; texture base addresses aligned to textureAlign bytes do not need an offset applied to texture fetches.
+        texture_pitch_alignment (int): Pitch alignment requirement for 2D texture references bound to pitched memory.
+        gpu_overlap (bool): True if the device can concurrently copy memory between host and device while executing a kernel, False if not.
+        multiprocessor_count (int): Number of multiprocessors on the device.
+        kernel_exec_timeout (bool): True if there is a run time limit for kernels executed on the device, False if not.
+        integrated (bool): True if the device is integrated with the memory subsystem, False if not.
+        can_map_host_memory (bool): True if the device can map host memory into the CUDA address space, False if not.
+        compute_mode (int): Compute mode that device is currently in.
+        concurrent_kernels (bool): True if the device supports executing multiple kernels within the same context simultaneously, False if not.
+        ecc_enabled (bool): True if error correction is enabled on the device, False if error correction is disabled or not supported by the device.
+        pci_bus_id (int): PCI bus identifier of the device.
+        pci_device_id (int): PCI device (also known as slot) identifier of the device.
+        pci_domain_id (int): PCI domain identifier of the device.
+        tcc_driver (bool): True if the device is using a TCC driver, False if not.
+        memory_clock_rate (int): Peak memory clock frequency in kilohertz.
+        global_memory_bus_width (int): Global memory bus width in bits.
+        l2_cache_size (int): Size of L2 cache in bytes, 0 if the device doesn't have L2 cache.
+        max_threads_per_multiprocessor (int): Maximum resident threads per multiprocessor.
+        unified_addressing (bool): True if the device shares a unified address space with the host, False if not.
+        compute_capability_major (int): Major compute capability version number.
+        compute_capability_minor (int): Minor compute capability version number.
+        global_l1_cache_supported (bool): True if device supports caching globals in L1 cache, False if caching globals in L1 cache is not supported by the device.
+        local_l1_cache_supported (bool): True if device supports caching locals in L1 cache, False if caching locals in L1 cache is not supported by the device.
+        max_shared_memory_per_multiprocessor (int): Maximum amount of shared memory available to a multiprocessor in bytes.
+        max_registers_per_multiprocessor (int): Maximum number of 32-bit registers available to a multiprocessor.
+        managed_memory (bool): True if device supports allocating managed memory on this system, False if allocating managed memory is not supported by the device on this system.
+        multi_gpu_board (bool): True if device is on a multi-GPU board, False if not.
+        multi_gpu_board_group_id (int): Unique identifier for a group of devices associated with the same board.
+        host_native_atomic_supported (bool): True if Link between the device and the host supports native atomic operations, False if not.
+        single_to_double_precision_perf_ratio (int): Ratio of single precision performance (in floating-point operations per second) to double precision performance.
+        pageable_memory_access (bool): True if device supports coherently accessing pageable memory without calling cudaHostRegister on it, False if not.
+        concurrent_managed_access (bool): True if device can coherently access managed memory concurrently with the CPU, False if not.
+        compute_preemption_supported (bool): True if device supports Compute Preemption, False if not.
+        can_use_host_pointer_for_registered_mem (bool): True if device can access host registered memory at the same virtual address as the CPU, False if not.
+        max_shared_memory_per_block_optin (int): The maximum per block shared memory size supported on this device.
+        pageable_memory_access_uses_host_page_tables (bool): True if device accesses pageable memory via the host's page tables, False if not.
+        direct_managed_mem_access_from_host (bool): True if the host can directly access managed memory on the device without migration, False if not.
+        virtual_memory_management_supported (bool): True if device supports virtual memory management APIs like cuMemAddressReserve, cuMemCreate, cuMemMap and related APIs, False if not.
+        handle_type_posix_file_descriptor_supported (bool): True if device supports exporting memory to a posix file descriptor with cuMemExportToShareableHandle, False if not.
+        handle_type_win32_handle_supported (bool): True if device supports exporting memory to a Win32 NT handle with cuMemExportToShareableHandle, False if not.
+        handle_type_win32_kmt_handle_supported (bool): True if device supports exporting memory to a Win32 KMT handle with cuMemExportToShareableHandle, False if not.
+        max_blocks_per_multiprocessor (int): Maximum number of thread blocks that can reside on a multiprocessor.
+        generic_compression_supported (bool): True if device supports compressible memory allocation via cuMemCreate, False if not.
+        max_persisting_l2_cache_size (int): Maximum L2 persisting lines capacity setting in bytes.
+        max_access_policy_window_size (int): Maximum value of CUaccessPolicyWindow::num_bytes.
+        gpu_direct_rdma_with_cuda_vmm_supported (bool): True if device supports specifying the GPUDirect RDMA flag with cuMemCreate, False if not.
+        reserved_shared_memory_per_block (int): Amount of shared memory per block reserved by CUDA driver in bytes.
+        sparse_cuda_array_supported (bool): True if device supports sparse CUDA arrays and sparse CUDA mipmapped arrays, False if not.
+        read_only_host_register_supported (bool): True if device supports using the cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU, False if not.
+        memory_pools_supported (bool): True if device supports using the cuMemAllocAsync and cuMemPool family of APIs, False if not.
+        gpu_direct_rdma_supported (bool): True if device supports GPUDirect RDMA APIs, False if not.
+        gpu_direct_rdma_flush_writes_options (int): The returned attribute shall be interpreted as a bitmask, where the individual bits are described by the CUflushGPUDirectRDMAWritesOptions enum.
+        gpu_direct_rdma_writes_ordering (int): GPUDirect RDMA writes to the device do not need to be flushed for consumers within the scope indicated by the returned attribute.
+        mempool_supported_handle_types (int): Bitmask of handle types supported with mempool based IPC.
+        deferred_mapping_cuda_array_supported (bool): True if device supports deferred mapping CUDA arrays and CUDA mipmapped arrays, False if not.
+        numa_config (int): NUMA configuration of a device.
+        numa_id (int): NUMA node ID of the GPU memory.
+        multicast_supported (bool): True if device supports switch multicast and reduction operations, False if not.
     """
 
-    def _init(device_id):
+    def __init__(self):
+        raise RuntimeError("DeviceProperties should not be instantiated directly")
+
+    slots = "_handle"
+
+    def _init(handle):
         self = DeviceProperties.__new__(DeviceProperties)
-
-        prop = handle_return(runtime.cudaGetDeviceProperties(device_id))
-
-        self.name = prop.name.decode("utf-8")
-        self.uuid = prop.uuid.bytes
-        self.total_global_mem = prop.totalGlobalMem
-        self.shared_mem_per_block = prop.sharedMemPerBlock
-        self.regs_per_block = prop.regsPerBlock
-        self.warp_size = prop.warpSize
-        self.mem_pitch = prop.memPitch
-        self.max_threads_per_block = prop.maxThreadsPerBlock
-        self.max_threads_dim = tuple(prop.maxThreadsDim)
-        self.max_grid_size = tuple(prop.maxGridSize)
-        self.clock_rate = prop.clockRate
-        self.cluster_launch = bool(prop.clusterLaunch)
-        self.total_const_mem = prop.totalConstMem
-        self.major = prop.major
-        self.minor = prop.minor
-        self.texture_alignment = prop.textureAlignment
-        self.texture_pitch_alignment = prop.texturePitchAlignment
-        self.device_overlap = bool(prop.deviceOverlap)
-        self.multi_processor_count = prop.multiProcessorCount
-        self.kernel_exec_timeout_enabled = bool(prop.kernelExecTimeoutEnabled)
-        self.integrated = bool(prop.integrated)
-        self.can_map_host_memory = bool(prop.canMapHostMemory)
-        self.compute_mode = prop.computeMode
-        self.max_texture_1d = prop.maxTexture1D
-        self.max_texture_1d_mipmap = prop.maxTexture1DMipmap
-        self.max_texture_2d = tuple(prop.maxTexture2D)
-        self.max_texture_2d_mipmap = tuple(prop.maxTexture2DMipmap)
-        self.max_texture_2d_linear = tuple(prop.maxTexture2DLinear)
-        self.max_texture_2d_gather = tuple(prop.maxTexture2DGather)
-        self.max_texture_3d = tuple(prop.maxTexture3D)
-        self.max_texture_3d_alt = tuple(prop.maxTexture3DAlt)
-        self.max_texture_cubemap = prop.maxTextureCubemap
-        self.max_texture_1d_layered = tuple(prop.maxTexture1DLayered)
-        self.max_texture_2d_layered = tuple(prop.maxTexture2DLayered)
-        self.max_texture_cubemap_layered = tuple(prop.maxTextureCubemapLayered)
-        self.max_surface_1d = prop.maxSurface1D
-        self.max_surface_2d = tuple(prop.maxSurface2D)
-        self.max_surface_3d = tuple(prop.maxSurface3D)
-        self.max_surface_1d_layered = tuple(prop.maxSurface1DLayered)
-        self.max_surface_2d_layered = tuple(prop.maxSurface2DLayered)
-        self.max_surface_cubemap = prop.maxSurfaceCubemap
-        self.max_surface_cubemap_layered = tuple(prop.maxSurfaceCubemapLayered)
-        self.surface_alignment = prop.surfaceAlignment
-        self.concurrent_kernels = bool(prop.concurrentKernels)
-        self.ecc_enabled = bool(prop.ECCEnabled)
-        self.pci_bus_id = prop.pciBusID
-        self.pci_device_id = prop.pciDeviceID
-        self.pci_domain_id = prop.pciDomainID
-        self.tcc_driver = bool(prop.tccDriver)
-        self.async_engine_count = prop.asyncEngineCount
-        self.unified_addressing = bool(prop.unifiedAddressing)
-        self.memory_clock_rate = prop.memoryClockRate
-        self.memory_bus_width = prop.memoryBusWidth
-        self.l2_cache_size = prop.l2CacheSize
-        self.persisting_l2_cache_max_size = prop.persistingL2CacheMaxSize
-        self.max_threads_per_multi_processor = prop.maxThreadsPerMultiProcessor
-        self.stream_priorities_supported = bool(prop.streamPrioritiesSupported)
-        self.global_l1_cache_supported = bool(prop.globalL1CacheSupported)
-        self.local_l1_cache_supported = bool(prop.localL1CacheSupported)
-        self.shared_mem_per_multiprocessor = prop.sharedMemPerMultiprocessor
-        self.regs_per_multiprocessor = prop.regsPerMultiprocessor
-        self.managed_memory = bool(prop.managedMemory)
-        self.is_multi_gpu_board = bool(prop.isMultiGpuBoard)
-        self.multi_gpu_board_group_id = prop.multiGpuBoardGroupID
-        self.pageable_memory_access = bool(prop.pageableMemoryAccess)
-        self.concurrent_managed_access = bool(prop.concurrentManagedAccess)
-        self.compute_preemption_supported = bool(prop.computePreemptionSupported)
-        self.can_use_host_pointer_for_registered_mem = bool(prop.canUseHostPointerForRegisteredMem)
-        self.cooperative_launch = bool(prop.cooperativeLaunch)
-        self.cooperative_multi_device_launch = bool(prop.cooperativeMultiDeviceLaunch)
-        self.pageable_memory_access_uses_host_page_tables = bool(prop.pageableMemoryAccessUsesHostPageTables)
-        self.direct_managed_mem_access_from_host = bool(prop.directManagedMemAccessFromHost)
-        self.access_policy_max_window_size = prop.accessPolicyMaxWindowSize
-        self.reserved_shared_mem_per_block = prop.reservedSharedMemPerBlock
-        self.host_register_supported = bool(prop.hostRegisterSupported)
-        self.sparse_cuda_array_supported = bool(prop.sparseCudaArraySupported)
-        self.host_register_read_only_supported = bool(prop.hostRegisterReadOnlySupported)
-        self.timeline_semaphore_interop_supported = bool(prop.timelineSemaphoreInteropSupported)
-        self.memory_pools_supported = bool(prop.memoryPoolsSupported)
-        self.gpu_direct_rdma_supported = bool(prop.gpuDirectRDMASupported)
-        self.gpu_direct_rdma_flush_writes_options = prop.gpuDirectRDMAFlushWritesOptions
-        self.gpu_direct_rdma_writes_ordering = prop.gpuDirectRDMAWritesOrdering
-        self.memory_pool_supported_handle_types = prop.memoryPoolSupportedHandleTypes
-        self.deferred_mapping_cuda_array_supported = bool(prop.deferredMappingCudaArraySupported)
-        self.ipc_event_supported = bool(prop.ipcEventSupported)
-        self.unified_function_pointers = bool(prop.unifiedFunctionPointers)
-        self.host_native_atomic_supported = bool(prop.hostNativeAtomicSupported)
-        self.luid = prop.luid
-        self.luid_device_node_mask = prop.luidDeviceNodeMask
-        self.max_blocks_per_multi_processor = prop.maxBlocksPerMultiProcessor
+        self._handle = handle
         return self
 
-    def __init__(self, device_id):
-        raise RuntimeError("DeviceProperties should not be instantiated directly")
+    @property
+    def max_threads_per_block(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK, self._handle
+            )
+        )
+
+    @property
+    def max_block_dim_x(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X, self._handle)
+        )
+
+    @property
+    def max_block_dim_y(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y, self._handle)
+        )
+
+    @property
+    def max_block_dim_z(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Z, self._handle)
+        )
+
+    @property
+    def max_grid_dim_x(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_X, self._handle)
+        )
+
+    @property
+    def max_grid_dim_y(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y, self._handle)
+        )
+
+    @property
+    def max_grid_dim_z(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z, self._handle)
+        )
+
+    @property
+    def max_shared_memory_per_block(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK, self._handle
+            )
+        )
+
+    @property
+    def total_constant_memory(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TOTAL_CONSTANT_MEMORY, self._handle
+            )
+        )
+
+    @property
+    def warp_size(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_WARP_SIZE, self._handle)
+        )
+
+    @property
+    def max_pitch(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_PITCH, self._handle)
+        )
+
+    @property
+    def maximum_texture1d_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture1d_linear_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LINEAR_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture1d_mipmapped_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_MIPMAPPED_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture2d_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture2d_height(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_HEIGHT, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture2d_linear_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture2d_linear_height(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_HEIGHT, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture2d_linear_pitch(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LINEAR_PITCH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture2d_mipmapped_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture2d_mipmapped_height(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_MIPMAPPED_HEIGHT, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture3d_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture3d_height(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture3d_depth(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture3d_width_alternate(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH_ALTERNATE, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture3d_height_alternate(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT_ALTERNATE, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture3d_depth_alternate(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH_ALTERNATE, self._handle
+            )
+        )
+
+    @property
+    def maximum_texturecubemap_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture1d_layered_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture1d_layered_layers(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_LAYERED_LAYERS, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture2d_layered_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture2d_layered_height(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT, self._handle
+            )
+        )
+
+    @property
+    def maximum_texture2d_layered_layers(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS, self._handle
+            )
+        )
+
+    @property
+    def maximum_texturecubemap_layered_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_texturecubemap_layered_layers(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURECUBEMAP_LAYERED_LAYERS, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface1d_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface2d_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface2d_height(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_HEIGHT, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface3d_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface3d_height(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_HEIGHT, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface3d_depth(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE3D_DEPTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface1d_layered_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface1d_layered_layers(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE1D_LAYERED_LAYERS, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface2d_layered_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface2d_layered_height(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_HEIGHT, self._handle
+            )
+        )
+
+    @property
+    def maximum_surface2d_layered_layers(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACE2D_LAYERED_LAYERS, self._handle
+            )
+        )
+
+    @property
+    def maximum_surfacecubemap_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_surfacecubemap_layered_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def maximum_surfacecubemap_layered_layers(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_SURFACECUBEMAP_LAYERED_LAYERS, self._handle
+            )
+        )
+
+    @property
+    def max_registers_per_block(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK, self._handle
+            )
+        )
+
+    @property
+    def clock_rate(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CLOCK_RATE, self._handle)
+        )
+
+    @property
+    def texture_alignment(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT, self._handle)
+        )
+
+    @property
+    def texture_pitch_alignment(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT, self._handle
+            )
+        )
+
+    @property
+    def gpu_overlap(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_OVERLAP, self._handle)
+            )
+        )
+
+    @property
+    def multiprocessor_count(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT, self._handle
+            )
+        )
+
+    @property
+    def kernel_exec_timeout(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT, self._handle
+                )
+            )
+        )
+
+    @property
+    def integrated(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_INTEGRATED, self._handle)
+            )
+        )
+
+    @property
+    def can_map_host_memory(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_MAP_HOST_MEMORY, self._handle
+                )
+            )
+        )
+
+    @property
+    def compute_mode(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_MODE, self._handle)
+        )
+
+    @property
+    def concurrent_kernels(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS, self._handle
+                )
+            )
+        )
+
+    @property
+    def ecc_enabled(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ECC_ENABLED, self._handle)
+            )
+        )
+
+    @property
+    def pci_bus_id(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_PCI_BUS_ID, self._handle)
+        )
+
+    @property
+    def pci_device_id(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_PCI_DEVICE_ID, self._handle)
+        )
+
+    @property
+    def pci_domain_id(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_PCI_DOMAIN_ID, self._handle)
+        )
+
+    @property
+    def tcc_driver(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TCC_DRIVER, self._handle)
+            )
+        )
+
+    @property
+    def memory_clock_rate(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE, self._handle)
+        )
+
+    @property
+    def global_memory_bus_width(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH, self._handle
+            )
+        )
+
+    @property
+    def l2_cache_size(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_L2_CACHE_SIZE, self._handle)
+        )
+
+    @property
+    def max_threads_per_multiprocessor(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_MULTIPROCESSOR, self._handle
+            )
+        )
+
+    @property
+    def unified_addressing(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, self._handle
+                )
+            )
+        )
+
+    @property
+    def compute_capability_major(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, self._handle
+            )
+        )
+
+    @property
+    def compute_capability_minor(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, self._handle
+            )
+        )
+
+    @property
+    def global_l1_cache_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GLOBAL_L1_CACHE_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def local_l1_cache_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOCAL_L1_CACHE_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def max_shared_memory_per_multiprocessor(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR, self._handle
+            )
+        )
+
+    @property
+    def max_registers_per_multiprocessor(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_MULTIPROCESSOR, self._handle
+            )
+        )
+
+    @property
+    def managed_memory(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MANAGED_MEMORY, self._handle)
+            )
+        )
+
+    @property
+    def multi_gpu_board(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTI_GPU_BOARD, self._handle)
+            )
+        )
+
+    @property
+    def multi_gpu_board_group_id(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTI_GPU_BOARD_GROUP_ID, self._handle
+            )
+        )
+
+    @property
+    def host_native_atomic_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NATIVE_ATOMIC_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def single_to_double_precision_perf_ratio(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SINGLE_TO_DOUBLE_PRECISION_PERF_RATIO, self._handle
+            )
+        )
+
+    @property
+    def pageable_memory_access(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS, self._handle
+                )
+            )
+        )
+
+    @property
+    def concurrent_managed_access(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS, self._handle
+                )
+            )
+        )
+
+    @property
+    def compute_preemption_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_PREEMPTION_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def can_use_host_pointer_for_registered_mem(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_HOST_POINTER_FOR_REGISTERED_MEM, self._handle
+                )
+            )
+        )
+
+    @property
+    def max_shared_memory_per_block_optin(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN, self._handle
+            )
+        )
+
+    @property
+    def pageable_memory_access_uses_host_page_tables(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES,
+                    self._handle,
+                )
+            )
+        )
+
+    @property
+    def direct_managed_mem_access_from_host(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DIRECT_MANAGED_MEM_ACCESS_FROM_HOST, self._handle
+                )
+            )
+        )
+
+    @property
+    def virtual_memory_management_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def handle_type_posix_file_descriptor_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR_SUPPORTED,
+                    self._handle,
+                )
+            )
+        )
+
+    @property
+    def handle_type_win32_handle_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_WIN32_HANDLE_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def handle_type_win32_kmt_handle_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_WIN32_KMT_HANDLE_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def max_blocks_per_multiprocessor(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_BLOCKS_PER_MULTIPROCESSOR, self._handle
+            )
+        )
+
+    @property
+    def generic_compression_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def max_persisting_l2_cache_size(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_PERSISTING_L2_CACHE_SIZE, self._handle
+            )
+        )
+
+    @property
+    def max_access_policy_window_size(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_ACCESS_POLICY_WINDOW_SIZE, self._handle
+            )
+        )
+
+    @property
+    def gpu_direct_rdma_with_cuda_vmm_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_CUDA_VMM_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def reserved_shared_memory_per_block(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_RESERVED_SHARED_MEMORY_PER_BLOCK, self._handle
+            )
+        )
+
+    @property
+    def sparse_cuda_array_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SPARSE_CUDA_ARRAY_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def read_only_host_register_supported(self):
+        return bool(handle_return(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_READ_ONLY)))
+
+    @property
+    def memory_pools_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def gpu_direct_rdma_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def gpu_direct_rdma_flush_writes_options(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_FLUSH_WRITES_OPTIONS, self._handle
+            )
+        )
+
+    @property
+    def gpu_direct_rdma_writes_ordering(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING, self._handle
+            )
+        )
+
+    @property
+    def mempool_supported_handle_types(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES, self._handle
+            )
+        )
+
+    @property
+    def deferred_mapping_cuda_array_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DEFERRED_MAPPING_CUDA_ARRAY_SUPPORTED, self._handle
+                )
+            )
+        )
+
+    @property
+    def numa_config(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_NUMA_CONFIG, self._handle)
+        )
+
+    @property
+    def numa_id(self):
+        return handle_return(
+            driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_NUMA_ID, self._handle)
+        )
+
+    @property
+    def multicast_supported(self):
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED, self._handle
+                )
+            )
+        )
+
+
+# ruff: enable
 
 
 class Device:
