@@ -1,0 +1,5 @@
+enum-tools[sphinx]
+furo
+myst_nb
+sphinx
+sphinx-copybutton
