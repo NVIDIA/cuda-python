@@ -4,10 +4,10 @@
 
 import pytest
 
-from cuda.core.experimental import Linker, LinkerOptions, Program, _linker
+from cuda.core.experimental import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core.experimental._module import ObjectCode
 
-ARCH = "sm_80"  # use sm_80 for testing the oop nvJitLink wrapper
+ARCH = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
 
 kernel_a = """
 extern __device__ int B();
@@ -18,35 +18,43 @@ device_function_b = "__device__ int B() { return 0; }"
 device_function_c = "__device__ int C(int a, int b) { return a + b; }"
 
 culink_backend = _linker._decide_nvjitlink_or_driver()
+if not culink_backend:
+    from cuda.bindings import nvjitlink
 
 
 @pytest.fixture(scope="function")
 def compile_ptx_functions(init_cuda):
     # Without -rdc (relocatable device code) option, the generated ptx will not included any unreferenced
     # device functions, causing the link to fail
-    object_code_a_ptx = Program(kernel_a, "c++").compile("ptx", options=("-rdc=true",))
-    object_code_b_ptx = Program(device_function_b, "c++").compile("ptx", options=("-rdc=true",))
-    object_code_c_ptx = Program(device_function_c, "c++").compile("ptx", options=("-rdc=true",))
+    object_code_a_ptx = Program(kernel_a, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    object_code_b_ptx = Program(device_function_b, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    object_code_c_ptx = Program(device_function_c, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
 
     return object_code_a_ptx, object_code_b_ptx, object_code_c_ptx
 
 
 @pytest.fixture(scope="function")
 def compile_ltoir_functions(init_cuda):
-    object_code_a_ltoir = Program(kernel_a, "c++").compile("ltoir", options=("-dlto",))
-    object_code_b_ltoir = Program(device_function_b, "c++").compile("ltoir", options=("-dlto",))
-    object_code_c_ltoir = Program(device_function_c, "c++").compile("ltoir", options=("-dlto",))
+    object_code_a_ltoir = Program(kernel_a, "c++", ProgramOptions(link_time_optimization=True)).compile("ltoir")
+    object_code_b_ltoir = Program(device_function_b, "c++", ProgramOptions(link_time_optimization=True)).compile(
+        "ltoir"
+    )
+    object_code_c_ltoir = Program(device_function_c, "c++", ProgramOptions(link_time_optimization=True)).compile(
+        "ltoir"
+    )
 
     return object_code_a_ltoir, object_code_b_ltoir, object_code_c_ltoir
 
 
 culink_options = [
+    LinkerOptions(),
     LinkerOptions(arch=ARCH, verbose=True),
     LinkerOptions(arch=ARCH, max_register_count=32),
     LinkerOptions(arch=ARCH, optimization_level=3),
     LinkerOptions(arch=ARCH, debug=True),
     LinkerOptions(arch=ARCH, lineinfo=True),
-    LinkerOptions(arch=ARCH, no_cache=True),
+    LinkerOptions(arch=ARCH, no_cache=True),  # TODO: consider adding cuda 12.4 to test matrix in which case this
+    # will fail. Tracked in issue #337
 ]
 
 
@@ -77,10 +85,11 @@ def test_linker_init(compile_ptx_functions, options):
     assert isinstance(object_code, ObjectCode)
 
 
-def test_linker_init_invalid_arch():
-    options = LinkerOptions(arch=None)
-    with pytest.raises(TypeError):
-        Linker(options)
+def test_linker_init_invalid_arch(compile_ptx_functions):
+    err = AttributeError if culink_backend else nvjitlink.nvJitLinkError
+    with pytest.raises(err):
+        options = LinkerOptions(arch="99", ptx=True)
+        Linker(*compile_ptx_functions, options=options)
 
 
 @pytest.mark.skipif(culink_backend, reason="culink does not support ptx option")
