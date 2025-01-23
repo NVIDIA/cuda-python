@@ -5,6 +5,8 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+#
+# This code was automatically generated with version 12.8.0. Do not modify it directly.
 cimport cuda.bindings._bindings.cynvrtc as cynvrtc
 
 {{if 'nvrtcGetErrorString' in found_functions}}
@@ -131,4 +133,34 @@ cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expr
 
 cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     return cynvrtc._nvrtcGetLoweredName(prog, name_expression, lowered_name)
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSize' in found_functions}}
+
+cdef nvrtcResult nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    return cynvrtc._nvrtcGetPCHHeapSize(ret)
+{{endif}}
+
+{{if 'nvrtcSetPCHHeapSize' in found_functions}}
+
+cdef nvrtcResult nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    return cynvrtc._nvrtcSetPCHHeapSize(size)
+{{endif}}
+
+{{if 'nvrtcGetPCHCreateStatus' in found_functions}}
+
+cdef nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    return cynvrtc._nvrtcGetPCHCreateStatus(prog)
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
+
+cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    return cynvrtc._nvrtcGetPCHHeapSizeRequired(prog, size)
+{{endif}}
+
+{{if 'nvrtcSetFlowCallback' in found_functions}}
+
+cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    return cynvrtc._nvrtcSetFlowCallback(prog, callback, payload)
 {{endif}}
