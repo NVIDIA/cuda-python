@@ -50,19 +50,17 @@ def compile_ltoir_functions(init_cuda):
 options = []
 
 if culink_backend:
-    options += [
+    options = [
         LinkerOptions(),
         LinkerOptions(arch=ARCH, verbose=True),
         LinkerOptions(arch=ARCH, max_register_count=32),
         LinkerOptions(arch=ARCH, optimization_level=3),
         LinkerOptions(arch=ARCH, debug=True),
         LinkerOptions(arch=ARCH, lineinfo=True),
-        LinkerOptions(arch=ARCH, no_cache=True),
     ]
 else:
     from cuda.bindings import nvjitlink
 
-    version = nvjitlink.version()
     options += [
         LinkerOptions(arch=ARCH, time=True),
         LinkerOptions(arch=ARCH, ftz=True),
@@ -78,6 +76,7 @@ else:
         LinkerOptions(arch=ARCH, split_compile=0),
         LinkerOptions(arch=ARCH, split_compile_extended=1),
     ]
+    version = nvjitlink.version()
     if version >= (12, 5):
         options += [LinkerOptions(arch=ARCH, no_cache=True)]
 
