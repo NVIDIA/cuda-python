@@ -12,7 +12,4 @@ There is an important distinction between the ``getPtr()`` method and the behavi
 Getting and setting attributes of extension types
 =================================================
 
-While the bindings outwardly presents the attributes of extension types in a Pythonic way, they can't always be interacted
-with in a Pythonic style. Often the getters/setters (__getitem__(), __setitem__()) are actually a translation step to convert values between
-Python and C. For example, in some cases, attempting to modify an attribute in place, will lead to unexpected behavior due to the constraints
-of the underlying implementation. For this reason, users should use the getters and setters directly when interacting with extension types.
+While the bindings outwardly presents the attributes of extension types in a Pythonic way, they can't always be interacted with in a Pythonic style. Often the getters/setters (__getitem__(), __setitem__()) are actually a translation step to convert values between Python and C. For example, in some cases, attempting to modify an attribute in place, will lead to unexpected behavior due to the constraints of the underlying implementation. For this reason, users should use the getters and setters directly when interacting with extension types.
