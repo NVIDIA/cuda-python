@@ -47,18 +47,15 @@ def compile_ltoir_functions(init_cuda):
     return object_code_a_ltoir, object_code_b_ltoir, object_code_c_ltoir
 
 
-options = []
-
-if culink_backend:
-    options = [
-        LinkerOptions(),
-        LinkerOptions(arch=ARCH, verbose=True),
-        LinkerOptions(arch=ARCH, max_register_count=32),
-        LinkerOptions(arch=ARCH, optimization_level=3),
-        LinkerOptions(arch=ARCH, debug=True),
-        LinkerOptions(arch=ARCH, lineinfo=True),
-    ]
-else:
+options = [
+    LinkerOptions(),
+    LinkerOptions(arch=ARCH, verbose=True),
+    LinkerOptions(arch=ARCH, max_register_count=32),
+    LinkerOptions(arch=ARCH, optimization_level=3),
+    LinkerOptions(arch=ARCH, debug=True),
+    LinkerOptions(arch=ARCH, lineinfo=True),
+]
+if not culink_backend:
     from cuda.bindings import nvjitlink
 
     options += [
