@@ -284,6 +284,7 @@ sources_list = [
     ["cuda/*.pyx"],
     # interal files used by generated bindings
     ["cuda/bindings/_internal/nvjitlink.pyx"],
+    ["cuda/bindings/_internal/nvvm.pyx"],
     ["cuda/bindings/_internal/utils.pyx"],
 ]
 
@@ -320,6 +321,8 @@ class ParallelBuildExtensions(build_ext):
                 ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
             elif ext.name == "cuda.bindings._internal.nvjitlink":
                 ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvjitlink/lib"
+            elif ext.name == "cuda.bindings._internal.nvvm":
+                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvvm/lib"
             else:
                 ldflag = None
 
