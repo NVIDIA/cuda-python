@@ -101,6 +101,7 @@ jobs:
           name: cuda-python-wheel
           path: .
           run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-python artifacts
         run: |
@@ -113,6 +114,7 @@ jobs:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
@@ -125,6 +127,7 @@ jobs:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
