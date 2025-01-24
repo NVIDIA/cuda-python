@@ -87,7 +87,7 @@ jobs:
 
           if [[ ${{ inputs.is-release }} == "true" ]]; then
             FILE_HASH="*"
-            COMMIT_HASH="${{ inputs.git-tag }}
+            COMMIT_HASH="${{ inputs.git-tag }}"
           else
             FILE_HASH="${{ github.sha }}"
             COMMIT_HASH="${{ github.sha }}"
