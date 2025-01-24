@@ -85,14 +85,23 @@ jobs:
           PYTHON_VERSION_FORMATTED="312"  # see above
           REPO_DIR=$(pwd)
 
+          if [[ ${{ inputs.is-release }} == "true" ]]; then
+            FILE_HASH="*"
+            COMMIT_HASH="${{ inputs.git-tag }}
+          else
+            FILE_HASH="${{ github.sha }}"
+            COMMIT_HASH="${{ github.sha }}"
+          fi
+
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
+          echo "COMMIT_HASH=${COMMIT_HASH}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${COMMIT_HASH}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
           CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-linux-64"
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${COMMIT_HASH}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
@@ -211,5 +220,5 @@ jobs:
           git-config-email: cuda-python-bot@users.noreply.github.com
           folder: artifacts/docs/
           target-folder: docs/
-          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ github.sha }}"
+          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.COMMIT_HASH }}"
           clean: false
