@@ -1,0 +1,141 @@
+name: "CI: Release"
+
+description: Manually-triggered release workflow. Must have a release note in the draft state and the release commit tagged.
+
+on:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: "Component to release"
+        required: true
+        type: choice
+        options:
+          - cuda-core
+          - cuda-bindings
+          - cuda-python
+          - all
+      git-tag:
+        description: "The release git tag"
+        required: true
+        type: string
+      run-id:
+        description: "The GHA run ID that generated validated artifacts"
+        required: true
+        type: string
+      build-ctk-ver:
+        type: string
+        required: true
+      wheel-dst:
+        description: "Which wheel index to publish to?"
+        required: true
+        type: choice
+        options:
+          - testpypi
+          - pypi
+      #print_tags:
+      #  description: 'True to print to STDOUT'
+      #  required: true
+      #  type: boolean
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+jobs:
+  check-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if draft exists for the tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tags=
+          for i in $(gh release list -R ${{ github.repository }} --json tagName --jq '.[]| .tagName'); do
+            tags+=( $i )
+          done
+          is_draft=
+          for i in $(gh release list -R ${{ github.repository }} --json isDraft --jq '.[]| .isDraft'); do
+            is_draft+=( $i )
+          done
+
+          found=0
+          for idx in ${!tags[@]}; do
+            if [[ "${tags[$idx]}" == "${{ inputs.git-tag }}" ]]; then
+              echo "found ${{ inputs.git-tag }}"
+              found=1
+              if [[ "${is_draft[$idx]}" != "true" ]]; then
+                echo "the release note is not in draft state"
+                exit 1
+              fi
+              break
+            fi
+          done
+          if [[ "$found" == 0 ]]; then
+            echo "the release is not yet tagged"
+            exit 1
+          fi
+
+  doc:
+    name: Build release docs
+    if: ${{ github.repository_owner == 'nvidia' }}
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    needs:
+      - check-tag
+    secrets: inherit
+    uses:
+      ./.github/workflows/build-docs.yml
+    with:
+      build-ctk-ver: ${{ inputs.build-ctk-ver }}
+      component: ${{ inputs.component }}
+      git-tag: ${{ inputs.git-tag }}
+      is-release: true
+
+  upload-archive:
+    name: Upload source archive
+    permissions:
+      contents: write
+    needs:
+      - check-tag
+    secrets: inherit
+    uses:
+      ./.github/workflows/release-upload.yml
+    with:
+      git-tag: ${{ inputs.git-tag }}
+
+  publish-wheels:
+    name: Publish wheels
+    runs-on: ubuntu-latest
+    needs:
+      - check-tag
+    environment:
+      name: ${{ inputs.wheel-dst }}
+      url: https://${{ (inputs.wheel-dst == 'testpypi' && 'test.') || '' }}pypi.org/p/${{ inputs.component }}/
+    permissions:
+      id-token: write
+    steps:
+      - name: Download component wheels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download ${{ inputs.run-id }} -p "${{ inputs.component }}*" -R ${{ github.repository }}
+          mkdir dist
+          for p in "${{ inputs.component }}*"; do
+            mv ${p}/*.whl dist/
+          done
+          rmdir "${{ inputs.component }}*"
+
+      - name: Publish package distributions to PyPI
+        if: ${{ inputs.wheel-dst == 'pypi' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Publish package distributions to TestPyPI
+        if: ${{ inputs.wheel-dst == 'testpypi' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  # TODO: add another job to make the release leave the draft state?
