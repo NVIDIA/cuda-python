@@ -12,6 +12,7 @@
    environment_variables.md
    api.rst
    tips_and_tricks.rst
+   support.rst
 
 
 Indices and tables
