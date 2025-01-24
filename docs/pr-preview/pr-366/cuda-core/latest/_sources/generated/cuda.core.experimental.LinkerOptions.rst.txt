@@ -1,6 +1,0 @@
-﻿cuda.core.experimental.LinkerOptions
-====================================
-
-.. currentmodule:: cuda.core.experimental
-
-.. autoclass:: LinkerOptions
