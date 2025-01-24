@@ -435,6 +435,51 @@ cdef class HelperCUjit_option:
         return <void_ptr>self._cptr
 {{endif}}
 
+{{if 'cudaJitOption' in found_types}}
+
+cdef class HelperCudaJitOption:
+    def __cinit__(self, attr, init_value):
+        self._attr = attr.value
+        if self._attr in ({{if 'cudaJitMaxRegisters' in found_values}}cyruntime.cudaJitOption.cudaJitMaxRegisters,{{endif}}
+                          {{if 'cudaJitThreadsPerBlock' in found_values}}cyruntime.cudaJitOption.cudaJitThreadsPerBlock,{{endif}}
+                          {{if 'cudaJitInfoLogBufferSizeBytes' in found_values}}cyruntime.cudaJitOption.cudaJitInfoLogBufferSizeBytes,{{endif}}
+                          {{if 'cudaJitErrorLogBufferSizeBytes' in found_values}}cyruntime.cudaJitOption.cudaJitErrorLogBufferSizeBytes,{{endif}}
+                          {{if 'cudaJitOptimizationLevel' in found_values}}cyruntime.cudaJitOption.cudaJitOptimizationLevel,{{endif}}
+                          {{if 'cudaJitMinCtaPerSm' in found_values}}cyruntime.cudaJitOption.cudaJitMinCtaPerSm,{{endif}}):
+            self._uint = init_value
+            self._cptr = <void*><void_ptr>self._uint
+        elif self._attr in ({{if 'cudaJitWallTime' in found_values}}cyruntime.cudaJitOption.cudaJitWallTime,{{endif}}):
+            self._float = init_value
+            self._cptr = <void*><void_ptr>self._float
+        elif self._attr in ({{if 'cudaJitInfoLogBuffer' in found_values}}cyruntime.cudaJitOption.cudaJitInfoLogBuffer,{{endif}}
+                            {{if 'cudaJitErrorLogBuffer' in found_values}}cyruntime.cudaJitOption.cudaJitErrorLogBuffer{{endif}}):
+            self._charstar = init_value
+            self._cptr = <void*><void_ptr>self._charstar
+        elif self._attr in ({{if 'cudaJitFallbackStrategy' in found_values}}cyruntime.cudaJitOption.cudaJitFallbackStrategy,{{endif}}):
+            self._fallback = init_value.value
+            self._cptr = <void*><void_ptr>self._fallback
+        elif self._attr in ({{if 'cudaJitGenerateDebugInfo' in found_values}}cyruntime.cudaJitOption.cudaJitGenerateDebugInfo,{{endif}}
+                            {{if 'cudaJitLogVerbose' in found_values}}cyruntime.cudaJitOption.cudaJitLogVerbose,{{endif}}
+                            {{if 'cudaJitGenerateLineInfo' in found_values}}cyruntime.cudaJitOption.cudaJitGenerateLineInfo,{{endif}}
+                            {{if 'cudaJitPositionIndependentCode' in found_values}}cyruntime.cudaJitOption.cudaJitPositionIndependentCode,{{endif}}
+                            {{if 'cudaJitMaxThreadsPerBlock' in found_values}}cyruntime.cudaJitOption.cudaJitMaxThreadsPerBlock,{{endif}}
+                            {{if 'cudaJitOverrideDirectiveValues' in found_values}}cyruntime.cudaJitOption.cudaJitOverrideDirectiveValues,{{endif}}):
+            self._int = init_value
+            self._cptr = <void*><void_ptr>self._int
+        elif self._attr in ({{if 'cudaJitCacheMode' in found_values}}cyruntime.cudaJitOption.cudaJitCacheMode,{{endif}}):
+            self._cacheMode = init_value.value
+            self._cptr = <void*><void_ptr>self._cacheMode
+        else:
+            raise TypeError('Unsupported attribute: {}'.format(attr.name))
+
+    def __dealloc__(self):
+        pass
+
+    @property
+    def cptr(self):
+        return <void_ptr>self._cptr
+{{endif}}
+
 {{if 'CUlibraryOption_enum' in found_types}}
 
 cdef class HelperCUlibraryOption:
@@ -448,6 +493,33 @@ cdef class HelperCUlibraryOption:
         {{endif}}
         {{if 'CU_LIBRARY_BINARY_IS_PRESERVED' in found_values}}
         elif self._attr in (cydriver.CUlibraryOption_enum.CU_LIBRARY_BINARY_IS_PRESERVED,):
+            self._uint = init_value
+            self._cptr = <void*><void_ptr>self._uint
+        {{endif}}
+        else:
+            raise TypeError('Unsupported attribute: {}'.format(attr.name))
+
+    def __dealloc__(self):
+        pass
+
+    @property
+    def cptr(self):
+        return <void_ptr>self._cptr
+{{endif}}
+
+{{if 'cudaLibraryOption' in found_types}}
+
+cdef class HelperCudaLibraryOption:
+    def __cinit__(self, attr, init_value):
+        self._attr = attr.value
+        if False:
+            pass
+        {{if 'cudaLibraryHostUniversalFunctionAndDataTable' in found_values}}
+        elif self._attr in (cyruntime.cudaLibraryOption.cudaLibraryHostUniversalFunctionAndDataTable,):
+            self._cptr = <void*><void_ptr>init_value.getPtr()
+        {{endif}}
+        {{if 'cudaLibraryBinaryIsPreserved' in found_values}}
+        elif self._attr in (cyruntime.cudaLibraryOption.cudaLibraryBinaryIsPreserved,):
             self._uint = init_value
             self._cptr = <void*><void_ptr>self._uint
         {{endif}}

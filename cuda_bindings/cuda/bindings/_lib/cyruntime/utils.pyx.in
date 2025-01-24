@@ -710,6 +710,9 @@ cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChanne
                     cudaChannelFormatKind.cudaChannelFormatKindSignedBlockCompressed6H,):
         if (d[0].x != 16) or (d[0].y != 16) or (d[0].z != 16) or (d[0].w != 0):
             return cudaErrorInvalidChannelDescriptor
+    elif d[0].f in (cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102,):
+        if (d[0].x != 10) or (d[0].y != 10) or (d[0].z != 10) or (d[0].w != 2):
+            return cudaErrorInvalidChannelDescriptor
     else:
         return cudaErrorInvalidChannelDescriptor
 
@@ -719,7 +722,8 @@ cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChanne
     if (((d[0].y != 0) and (d[0].y != d[0].x)) or
         ((d[0].z != 0) and (d[0].z != d[0].y)) or
         ((d[0].w != 0) and (d[0].w != d[0].z))):
-        return cudaErrorInvalidChannelDescriptor
+        if d[0].f != cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102:
+            return cudaErrorInvalidChannelDescriptor
     if case_desc(d, 8, 0, 0, 0, cudaChannelFormatKind.cudaChannelFormatKindSigned):
         numberOfChannels[0] = 1
         format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_SIGNED_INT8
@@ -861,6 +865,9 @@ cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChanne
     elif case_desc(d, 8, 8, 8, 8, cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7SRGB):
         numberOfChannels[0] = 4
         format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_BC7_UNORM_SRGB
+    elif case_desc(d, 10, 10, 10, 2, cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102):
+        numberOfChannels[0] = 4
+        format[0] = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT_101010_2
     else:
         return cudaErrorInvalidChannelDescriptor
 
@@ -1046,7 +1053,8 @@ cdef cudaError_t bytesPerElement(size_t *bytes, int numberOfChannels, cydriver.C
     elif format in (cydriver.CU_AD_FORMAT_SNORM_INT8X4,
                     cydriver.CU_AD_FORMAT_UNORM_INT8X4,
                     cydriver.CU_AD_FORMAT_SNORM_INT16X2,
-                    cydriver.CU_AD_FORMAT_UNORM_INT16X2):
+                    cydriver.CU_AD_FORMAT_UNORM_INT16X2,
+                    cydriver.CU_AD_FORMAT_UNORM_INT_101010_2):
         bytes[0] = 4
         return cudaSuccess
     elif format in (cydriver.CU_AD_FORMAT_SNORM_INT16X4,
@@ -1178,6 +1186,8 @@ cdef cudaError_t getChannelFormatDescFromDriverDesc(
     elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_BC7_UNORM_SRGB:
         pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedBlockCompressed7SRGB
         channel_size = 8
+    elif pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UNORM_INT_101010_2:
+        pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102
     else:
         return cudaErrorInvalidChannelDescriptor
 
@@ -1187,14 +1197,20 @@ cdef cudaError_t getChannelFormatDescFromDriverDesc(
     pRuntimeDesc[0].z = 0
     pRuntimeDesc[0].w = 0
 
-    if pDriverDesc[0].NumChannels >= 4:
-        pRuntimeDesc[0].w = channel_size
-    if pDriverDesc[0].NumChannels >= 3:
-        pRuntimeDesc[0].z = channel_size
-    if pDriverDesc[0].NumChannels >= 2:
-        pRuntimeDesc[0].y = channel_size
-    if pDriverDesc[0].NumChannels >= 1:
-        pRuntimeDesc[0].x = channel_size
+    if pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UNORM_INT_101010_2 and pDriverDesc[0].NumChannels == 4:
+        pRuntimeDesc[0].w = 2
+        pRuntimeDesc[0].z = 10
+        pRuntimeDesc[0].y = 10
+        pRuntimeDesc[0].x = 10
+    else:
+        if pDriverDesc[0].NumChannels >= 4:
+            pRuntimeDesc[0].w = channel_size
+        if pDriverDesc[0].NumChannels >= 3:
+            pRuntimeDesc[0].z = channel_size
+        if pDriverDesc[0].NumChannels >= 2:
+            pRuntimeDesc[0].y = channel_size
+        if pDriverDesc[0].NumChannels >= 1:
+            pRuntimeDesc[0].x = channel_size
 
     if pDriverDesc[0].NumChannels not in (4, 3, 2, 1):
         return cudaErrorInvalidChannelDescriptor
@@ -1230,7 +1246,8 @@ cdef cudaError_t getArrayBlockExtent(cudaExtent *blockExtent, cydriver.CUarray_f
                   cydriver.CU_AD_FORMAT_SNORM_INT16X2,
                   cydriver.CU_AD_FORMAT_UNORM_INT16X2,
                   cydriver.CU_AD_FORMAT_SNORM_INT16X4,
-                  cydriver.CU_AD_FORMAT_UNORM_INT16X4):
+                  cydriver.CU_AD_FORMAT_UNORM_INT16X4,
+                  cydriver.CU_AD_FORMAT_UNORM_INT_101010_2):
         blockExtent[0].width = 1
         blockExtent[0].height = 1
         blockExtent[0].depth = 1
@@ -2840,6 +2857,12 @@ cdef cudaError_t getDriverEglFrame(cydriver.CUeglFrame *cuEglFrame, cudaEglFrame
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUYV_422
     elif eglFrame.eglColorFormat == cudaEglColorFormatUYVY422:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_422
+    elif eglFrame.eglColorFormat == cudaEglColorFormatUYVY709:
+        cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_709
+    elif eglFrame.eglColorFormat == cudaEglColorFormatUYVY709_ER:
+        cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_709_ER
+    elif eglFrame.eglColorFormat == cudaEglColorFormatUYVY2020:
+        cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_2020
     elif eglFrame.eglColorFormat == cudaEglColorFormatARGB:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_ARGB
     elif eglFrame.eglColorFormat == cudaEglColorFormatRGBA:
@@ -3194,6 +3217,12 @@ cdef cudaError_t getRuntimeEglFrame(cudaEglFrame *eglFrame, cydriver.CUeglFrame 
         eglFrame[0].eglColorFormat = cudaEglColorFormatYUYV422
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_422:
         eglFrame[0].eglColorFormat = cudaEglColorFormatUYVY422
+    elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_709:
+        eglFrame[0].eglColorFormat = cudaEglColorFormatUYVY709
+    elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_709_ER:
+        eglFrame[0].eglColorFormat = cudaEglColorFormatUYVY709_ER
+    elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_2020:
+        eglFrame[0].eglColorFormat = cudaEglColorFormatUYVY2020
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_ARGB:
         eglFrame[0].eglColorFormat = cudaEglColorFormatARGB
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_RGBA:
