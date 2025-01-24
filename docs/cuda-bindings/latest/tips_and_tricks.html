@@ -317,6 +317,25 @@
 <p>All CUDA C types are exposed to Python as Python classes. For example, the <a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUstream</span></code></a> type is exposed as a class with methods <a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUstream.getPtr" title="cuda.bindings.driver.CUstream.getPtr"><code class="xref py py-meth docutils literal notranslate"><span class="pre">getPtr()</span></code></a> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">__int__()</span></code> implemented.</p>
 <p>There is an important distinction between the <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> method and the behaviour of <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. If you need to get the pointer address <em>of</em> the underlying <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> C object wrapped in the Python class, you can do so by calling <code class="docutils literal notranslate"><span class="pre">int(instance_of_CUstream)</span></code>, which returns the address as a Python <cite>int</cite>, while calling <code class="docutils literal notranslate"><span class="pre">instance_of_CUstream.getPtr()</span></code> returns the pointer <em>to</em> the <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> C object (that is, <code class="docutils literal notranslate"><span class="pre">&amp;CUstream</span></code>) as a Python <cite>int</cite>.</p>
 </section>
+<section id="getting-and-setting-attributes-of-extension-types">
+<h2>Getting and setting attributes of extension types<a class="headerlink" href="#getting-and-setting-attributes-of-extension-types" title="Link to this heading">¶</a></h2>
+<p>While the bindings outwardly present the attributes of extension types in a pythonic way, they can’t always be interacted with in a Pythonic style. Often the getters/setters (__getitem__(), __setitem__()) are actually a translation step to convert values between Python and C. For example, in some cases, attempting to modify an attribute in place, will lead to unexpected behavior due to the design of the underlying implementation. For this reason, users should use the getters and setters directly when interacting with extension types.</p>
+<p>An example of this is the <code class="xref py py-class docutils literal notranslate"><span class="pre">CULaunchConfig</span></code> type.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">CUlaunchConfig</span><span class="p">()</span>
+
+<span class="n">cfg</span><span class="o">.</span><span class="n">numAttrs</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">attr</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">CUlaunchAttribute</span><span class="p">()</span>
+
+<span class="o">...</span>
+
+<span class="c1"># This works. We are passing the new attribute to the setter</span>
+<span class="n">drv_cfg</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+
+<span class="c1"># This does not work. We are only modifying the returned attribute in place</span>
+<span class="n">drv_cfg</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 
         </article>
@@ -368,6 +387,7 @@
             <ul>
 <li><a class="reference internal" href="#">Tips and Tricks</a><ul>
 <li><a class="reference internal" href="#getting-the-address-of-underlying-c-objects-from-the-low-level-bindings">Getting the address of underlying C objects from the low-level bindings</a></li>
+<li><a class="reference internal" href="#getting-and-setting-attributes-of-extension-types">Getting and setting attributes of extension types</a></li>
 </ul>
 </li>
 </ul>
