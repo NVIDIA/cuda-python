@@ -1,0 +1,20 @@
+﻿cuda.core.experimental.\_module.Kernel
+======================================
+
+.. currentmodule:: cuda.core.experimental._module
+
+.. autoclass:: Kernel
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   
