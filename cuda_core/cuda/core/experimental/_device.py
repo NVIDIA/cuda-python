@@ -947,7 +947,13 @@ class DeviceProperties:
 
     @property
     def read_only_host_register_supported(self):
-        return bool(handle_return(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_READ_ONLY)))
+        return bool(
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_READ_ONLY_HOST_REGISTER_SUPPORTED, self._handle
+                )
+            )
+        )
 
     @property
     def memory_pools_supported(self):
