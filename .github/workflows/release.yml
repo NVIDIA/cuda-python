@@ -32,10 +32,6 @@ on:
         options:
           - testpypi
           - pypi
-      #print_tags:
-      #  description: 'True to print to STDOUT'
-      #  required: true
-      #  type: boolean
 
 defaults:
   run:
@@ -92,6 +88,7 @@ jobs:
       build-ctk-ver: ${{ inputs.build-ctk-ver }}
       component: ${{ inputs.component }}
       git-tag: ${{ inputs.git-tag }}
+      run-id: ${{ inputs.run-id }}
       is-release: true
 
   upload-archive:

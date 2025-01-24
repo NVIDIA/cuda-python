@@ -21,6 +21,11 @@ on:
         required: false
         default: ""
         type: string
+      run-id:
+        description: "The GHA run ID that generated validated artifacts"
+        required: false
+        default: ${{ github.run_id }}
+        type: string
       is-release:
         description: "Are we building release docs?"
         required: false
@@ -95,6 +100,7 @@ jobs:
         with:
           name: cuda-python-wheel
           path: .
+          run-id: ${{ inputs.run-id }}
 
       - name: Display structure of downloaded cuda-python artifacts
         run: |
@@ -106,6 +112,7 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id }}
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
@@ -117,6 +124,7 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id }}
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
