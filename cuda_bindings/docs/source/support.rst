@@ -2,6 +2,7 @@
 ================================
 
 The ``cuda.bindings`` module has the following support policy:
+
 1. The module shares the same ``major.minor`` version with the CUDA Toolkit. The patch version (the
    third number in the version string), however, is reserved to reflect Python-only changes and
    is out of sync with the Toolkit patch version.
