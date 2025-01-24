@@ -7,6 +7,7 @@
 # is strictly prohibited.
 import ctypes
 import math
+import platform
 import random as rnd
 import sys
 
@@ -200,6 +201,10 @@ def streamOrderedAllocationPostSync(dev, nelem, a, b, c):
 
 
 def main():
+    if platform.system() == "Darwin":
+        print("streamOrderedAllocation is not supported on Mac OSX - waiving sample")
+        return
+
     cuda.cuInit(0)
     if checkCmdLineFlag("help"):
         print("Usage:  streamOrderedAllocation [OPTION]\n")

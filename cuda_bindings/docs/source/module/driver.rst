@@ -75,6 +75,15 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS_st
 .. autoclass:: cuda.bindings.driver.CUDA_EVENT_WAIT_NODE_PARAMS_st
 .. autoclass:: cuda.bindings.driver.CUgraphNodeParams_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointLockArgs_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointRestoreArgs_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointUnlockArgs_st
+.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes_st
+.. autoclass:: cuda.bindings.driver.CUoffset3D_st
+.. autoclass:: cuda.bindings.driver.CUextent3D_st
+.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperand_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_st
 .. autoclass:: cuda.bindings.driver.CUeglFrame_st
 .. autoclass:: cuda.bindings.driver.CUipcMem_flags
 
@@ -720,6 +729,24 @@ Data types used by CUDA driver
 
 
         3 channel 10-bit YUV planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_YUV444_8bit_SemiPlanar
+
+
+        3 channel 8-bit YUV semi-planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_YUV444_16bit_SemiPlanar
+
+
+        3 channel 16-bit YUV semi-planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UNORM_INT_101010_2
+
+
+        4 channel unorm R10G10B10A2 RGB format
 
 
     .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_MAX
@@ -1610,6 +1637,36 @@ Data types used by CUDA driver
         Device supports CIG with D3D12.
 
 
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_ALGORITHM_MASK
+
+
+        The returned valued shall be interpreted as a bitmask, where the individual bits are described by the :py:obj:`~.CUmemDecompressAlgorithm` enum.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_MAXIMUM_LENGTH
+
+
+        The returned valued is the maximum length in bytes of a single decompress operation that is allowed.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_DEVICE_ID
+
+
+        The combined 16-bit PCI device ID and 16-bit PCI vendor ID.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_SUBSYSTEM_ID
+
+
+        The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_MULTINODE_IPC_SUPPORTED
+
+
+        Device supports HOST_NUMA location IPC between nodes in a multi-node system.
+
+
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX
 
 .. autoclass:: cuda.bindings.driver.CUpointer_attribute
@@ -1732,6 +1789,12 @@ Data types used by CUDA driver
 
 
         A process-wide unique id corresponding to the physical allocation the pointer belongs to
+
+
+    .. autoattribute:: cuda.bindings.driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_HW_DECOMPRESS_CAPABLE
+
+
+        Returns in `*data` a boolean that indicates whether the pointer points to memory that is capable to be used for hardware accelerated decompression.
 
 .. autoclass:: cuda.bindings.driver.CUfunction_attribute
 
@@ -2511,10 +2574,46 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_90
 
 
-        Compute device class 9.0. Compute device class 9.0. with accelerated features.
+        Compute device class 9.0.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_100
+
+
+        Compute device class 10.0.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_101
+
+
+        Compute device class 10.1.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_120
+
+
+        Compute device class 12.0. Compute device class 9.0. with accelerated features.
 
 
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_90A
+
+
+        Compute device class 10.0. with accelerated features.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_100A
+
+
+        Compute device class 10.1 with accelerated features.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_101A
+
+
+        Compute device class 12.0. with accelerated features.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_120A
 
 .. autoclass:: cuda.bindings.driver.CUjit_fallback
 
@@ -2724,7 +2823,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUlimit.CU_LIMIT_CIG_SHMEM_FALLBACK_ENABLED
 
 
-        When set to a non-zero value, CUDA will fail to launch a kernel on a CIG context, instead of using the fallback path, if the kernel uses more shared memory than available
+        When set to zero, CUDA will fail to launch a kernel on a CIG context, instead of using the fallback path, if the kernel uses more shared memory than available
 
 
     .. autoattribute:: cuda.bindings.driver.CUlimit.CU_LIMIT_MAX
@@ -2778,13 +2877,19 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_IF
 
 
-        Conditional 'if' Node. Body executed once if condition value is non-zero.
+        Conditional 'if/else' Node. Body[0] executed if condition is non-zero. If `size` == 2, an optional ELSE graph is created and this is executed if the condition is zero.
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_WHILE
 
 
         Conditional 'while' Node. Body executed repeatedly while condition value is non-zero.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_SWITCH
+
+
+        Conditional 'switch' Node. Body[n] is executed once, where 'n' is the value of the condition. If the condition does not match a body index, no body is launched.
 
 .. autoclass:: cuda.bindings.driver.CUgraphNodeType
 
@@ -2943,6 +3048,12 @@ Data types used by CUDA driver
 
         Instantiation for device launch failed due to the nodes belonging to different contexts
 
+
+    .. autoattribute:: cuda.bindings.driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED
+
+
+        One or more conditional handles are not associated with conditional nodes
+
 .. autoclass:: cuda.bindings.driver.CUsynchronizationPolicy
 
     .. autoattribute:: cuda.bindings.driver.CUsynchronizationPolicy.CU_SYNC_POLICY_AUTO
@@ -3056,6 +3167,16 @@ Data types used by CUDA driver
 
 
         Valid for streams, graph nodes, launches. See :py:obj:`~.CUlaunchAttributeValue.memSyncDomain`.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION
+
+
+        Valid for graph nodes, launches. Set :py:obj:`~.CUlaunchAttributeValue.preferredClusterDim` to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with :py:obj:`~.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible. 
+
+         Each type of cluster will have its enumeration / coordinate setup as if the grid consists solely of its type of cluster. For example, if the preferred substitute cluster dimensions double the regular cluster dimensions, there might be simultaneously a regular cluster indexed at (1,0,0), and a preferred cluster indexed at (1,0,0). In this example, the preferred substitute cluster (1,0,0) replaces regular clusters (2,0,0) and (3,0,0) and groups their blocks. 
+
+         This attribute will only take effect when a regular cluster dimension has been specified. The preferred substitute cluster dimension must be an integer multiple greater than zero of the regular cluster dimension and must divide the grid. It must also be no more than `maxBlocksPerCluster`, if it is set in the kernel's `__launch_bounds__`. Otherwise it must be less than the maximum value the driver can support. Otherwise, setting this attribute to a value physically unable to fit on any particular device is permitted.
 
 
     .. autoattribute:: cuda.bindings.driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT
@@ -3411,6 +3532,12 @@ Data types used by CUDA driver
         This indicates that the code to be compiled by the PTX JIT contains unsupported call to cudaDeviceSynchronize.
 
 
+    .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_CONTAINED
+
+
+        This indicates that an exception occurred on the device that is now contained by the GPU's error containment capability. Common causes are - a. Certain types of invalid accesses of peer GPU memory over nvlink b. Certain classes of hardware errors This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
+
+
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_SOURCE
 
 
@@ -3585,6 +3712,12 @@ Data types used by CUDA driver
         This error indicates that the number of blocks launched per grid for a kernel that was launched via either :py:obj:`~.cuLaunchCooperativeKernel` or :py:obj:`~.cuLaunchCooperativeKernelMultiDevice` exceeds the maximum number of blocks as allowed by :py:obj:`~.cuOccupancyMaxActiveBlocksPerMultiprocessor` or :py:obj:`~.cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags` times the number of multiprocessors as specified by the device attribute :py:obj:`~.CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT`.
 
 
+    .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_TENSOR_MEMORY_LEAK
+
+
+        An exception occurred on the device while exiting a kernel using tensor memory: the tensor memory was not completely deallocated. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
+
+
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_NOT_PERMITTED
 
 
@@ -3757,6 +3890,12 @@ Data types used by CUDA driver
 
 
         This error indicates one or more resources are insufficient or non-applicable for the operation.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_KEY_ROTATION
+
+
+        This error indicates that an error happened during the key rotation sequence.
 
 
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_UNKNOWN
@@ -4046,6 +4185,15 @@ Data types used by CUDA driver
 
     .. autoattribute:: cuda.bindings.driver.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_TFLOAT32_FTZ
 
+
+    .. autoattribute:: cuda.bindings.driver.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_16U4_ALIGN8B
+
+
+    .. autoattribute:: cuda.bindings.driver.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_16U4_ALIGN16B
+
+
+    .. autoattribute:: cuda.bindings.driver.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_16U6_ALIGN16B
+
 .. autoclass:: cuda.bindings.driver.CUtensorMapInterleave
 
     .. autoattribute:: cuda.bindings.driver.CUtensorMapInterleave.CU_TENSOR_MAP_INTERLEAVE_NONE
@@ -4069,6 +4217,15 @@ Data types used by CUDA driver
 
     .. autoattribute:: cuda.bindings.driver.CUtensorMapSwizzle.CU_TENSOR_MAP_SWIZZLE_128B
 
+
+    .. autoattribute:: cuda.bindings.driver.CUtensorMapSwizzle.CU_TENSOR_MAP_SWIZZLE_128B_ATOM_32B
+
+
+    .. autoattribute:: cuda.bindings.driver.CUtensorMapSwizzle.CU_TENSOR_MAP_SWIZZLE_128B_ATOM_32B_FLIP_8B
+
+
+    .. autoattribute:: cuda.bindings.driver.CUtensorMapSwizzle.CU_TENSOR_MAP_SWIZZLE_128B_ATOM_64B
+
 .. autoclass:: cuda.bindings.driver.CUtensorMapL2promotion
 
     .. autoattribute:: cuda.bindings.driver.CUtensorMapL2promotion.CU_TENSOR_MAP_L2_PROMOTION_NONE
@@ -4088,6 +4245,13 @@ Data types used by CUDA driver
 
 
     .. autoattribute:: cuda.bindings.driver.CUtensorMapFloatOOBfill.CU_TENSOR_MAP_FLOAT_OOB_FILL_NAN_REQUEST_ZERO_FMA
+
+.. autoclass:: cuda.bindings.driver.CUtensorMapIm2ColWideMode
+
+    .. autoattribute:: cuda.bindings.driver.CUtensorMapIm2ColWideMode.CU_TENSOR_MAP_IM2COL_WIDE_MODE_W
+
+
+    .. autoattribute:: cuda.bindings.driver.CUtensorMapIm2ColWideMode.CU_TENSOR_MAP_IM2COL_WIDE_MODE_W128
 
 .. autoclass:: cuda.bindings.driver.CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS
 
@@ -4337,6 +4501,13 @@ Data types used by CUDA driver
 
 
     .. autoattribute:: cuda.bindings.driver.CUmemRangeHandleType.CU_MEM_RANGE_HANDLE_TYPE_MAX
+
+.. autoclass:: cuda.bindings.driver.CUmemRangeFlags
+
+    .. autoattribute:: cuda.bindings.driver.CUmemRangeFlags.CU_MEM_RANGE_FLAG_DMA_BUF_MAPPING_TYPE_PCIE
+
+
+        Indicates that DMA_BUF handle should be mapped via PCIe BAR1
 
 .. autoclass:: cuda.bindings.driver.CUarraySparseSubresourceType
 
@@ -4711,6 +4882,85 @@ Data types used by CUDA driver
 
 
         The GPU is a NUMA node, CU_DEVICE_ATTRIBUTE_NUMA_ID contains its NUMA ID
+
+.. autoclass:: cuda.bindings.driver.CUprocessState
+
+    .. autoattribute:: cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_RUNNING
+
+
+        Default process state
+
+
+    .. autoattribute:: cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_LOCKED
+
+
+        CUDA API locks are taken so further CUDA API calls will block
+
+
+    .. autoattribute:: cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_CHECKPOINTED
+
+
+        Application memory contents have been checkpointed and underlying allocations and device handles have been released
+
+
+    .. autoattribute:: cuda.bindings.driver.CUprocessState.CU_PROCESS_STATE_FAILED
+
+
+        Application entered an uncorrectable error during the checkpoint/restore process
+
+.. autoclass:: cuda.bindings.driver.CUmemcpyFlags
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpyFlags.CU_MEMCPY_FLAG_DEFAULT
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpyFlags.CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE
+
+
+        Hint to the driver to try and overlap the copy with compute work on the SMs.
+
+.. autoclass:: cuda.bindings.driver.CUmemcpySrcAccessOrder
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_INVALID
+
+
+        Default invalid.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_STREAM
+
+
+        Indicates that access to the source pointer must be in stream order.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL
+
+
+        Indicates that access to the source pointer can be out of stream order and all accesses must be complete before the API call returns. This flag is suited for ephemeral sources (ex., stack variables) when it's known that no prior operations in the stream can be accessing the memory and also that the lifetime of the memory is limited to the scope that the source variable was declared in. Specifying this flag allows the driver to optimize the copy and removes the need for the user to synchronize the stream after the API call.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_ANY
+
+
+        Indicates that access to the source pointer can be out of stream order and the accesses can happen even after the API call returns. This flag is suited for host pointers allocated outside CUDA (ex., via malloc) when it's known that no prior operations in the stream can be accessing the memory. Specifying this flag allows the driver to optimize the copy on certain platforms.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_MAX
+
+.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperandType
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_POINTER
+
+
+        Memcpy operand is a valid pointer.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_ARRAY
+
+
+        Memcpy operand is a CUarray.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_MAX
 
 .. autoclass:: cuda.bindings.driver.CUeglFrameType
 
@@ -5424,6 +5674,24 @@ Data types used by CUDA driver
         Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width = Y width, U/V height = Y height.
 
 
+    .. autoattribute:: cuda.bindings.driver.CUeglColorFormat.CU_EGL_COLOR_FORMAT_UYVY_709
+
+
+        Y, U, V in one surface, interleaved as UYVY in one channel.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUeglColorFormat.CU_EGL_COLOR_FORMAT_UYVY_709_ER
+
+
+        Extended Range Y, U, V in one surface, interleaved as UYVY in one channel.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUeglColorFormat.CU_EGL_COLOR_FORMAT_UYVY_2020
+
+
+        Y, U, V in one surface, interleaved as UYVY in one channel.
+
+
     .. autoattribute:: cuda.bindings.driver.CUeglColorFormat.CU_EGL_COLOR_FORMAT_MAX
 
 .. autoclass:: cuda.bindings.driver.CUdeviceptr_v2
@@ -5487,6 +5755,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUDA_HOST_NODE_PARAMS_v1
 .. autoclass:: cuda.bindings.driver.CUDA_HOST_NODE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUDA_HOST_NODE_PARAMS_v2
+.. autoclass:: cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUgraphEdgeData
 .. autoclass:: cuda.bindings.driver.CUDA_GRAPH_INSTANTIATE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUlaunchMemSyncDomainMap
@@ -5578,12 +5847,30 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUDA_EVENT_WAIT_NODE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUgraphNodeParams
+.. autoclass:: cuda.bindings.driver.CUcheckpointLockArgs
+.. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs
+.. autoclass:: cuda.bindings.driver.CUcheckpointRestoreArgs
+.. autoclass:: cuda.bindings.driver.CUcheckpointUnlockArgs
+.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes_v1
+.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes
+.. autoclass:: cuda.bindings.driver.CUoffset3D_v1
+.. autoclass:: cuda.bindings.driver.CUoffset3D
+.. autoclass:: cuda.bindings.driver.CUextent3D_v1
+.. autoclass:: cuda.bindings.driver.CUextent3D
+.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperand_v1
+.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperand
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_v1
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP
 .. autoclass:: cuda.bindings.driver.CUeglFrame_v1
 .. autoclass:: cuda.bindings.driver.CUeglFrame
 .. autoclass:: cuda.bindings.driver.CUeglStreamConnection
 .. autoattribute:: cuda.bindings.driver.CUDA_VERSION
 
     CUDA API version number
+
+.. autoattribute:: cuda.bindings.driver.CU_UUID_HAS_BEEN_DEFINED
+
+    CUDA UUID types
 
 .. autoattribute:: cuda.bindings.driver.CU_IPC_HANDLE_SIZE
 
@@ -5614,6 +5901,7 @@ Data types used by CUDA driver
     See details of the \link_sync_behavior
 
 .. autoattribute:: cuda.bindings.driver.CU_COMPUTE_ACCELERATED_TARGET_BASE
+.. autoattribute:: cuda.bindings.driver.CUDA_CB
 .. autoattribute:: cuda.bindings.driver.CU_GRAPH_COND_ASSIGN_DEFAULT
 
     Conditional node handle flags Default value is applied when graph is launched.
@@ -5637,6 +5925,7 @@ Data types used by CUDA driver
 .. autoattribute:: cuda.bindings.driver.CU_KERNEL_NODE_ATTRIBUTE_PRIORITY
 .. autoattribute:: cuda.bindings.driver.CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP
 .. autoattribute:: cuda.bindings.driver.CU_KERNEL_NODE_ATTRIBUTE_MEM_SYNC_DOMAIN
+.. autoattribute:: cuda.bindings.driver.CU_KERNEL_NODE_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION
 .. autoattribute:: cuda.bindings.driver.CU_KERNEL_NODE_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE
 .. autoattribute:: cuda.bindings.driver.CU_KERNEL_NODE_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
 .. autoattribute:: cuda.bindings.driver.CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW
@@ -5703,6 +5992,14 @@ Data types used by CUDA driver
 .. autoattribute:: cuda.bindings.driver.CU_MEM_CREATE_USAGE_TILE_POOL
 
     This flag if set indicates that the memory will be used as a tile pool.
+
+.. autoattribute:: cuda.bindings.driver.CU_MEM_CREATE_USAGE_HW_DECOMPRESS
+
+    This flag, if set, indicates that the memory will be used as a buffer for hardware accelerated decompression.
+
+.. autoattribute:: cuda.bindings.driver.CU_MEM_POOL_CREATE_USAGE_HW_DECOMPRESS
+
+    This flag, if set, indicates that the memory will be used as a buffer for hardware accelerated decompression.
 
 .. autoattribute:: cuda.bindings.driver.CUDA_COOPERATIVE_LAUNCH_MULTI_DEVICE_NO_PRE_LAUNCH_SYNC
 
@@ -5974,6 +6271,27 @@ Memory Management
 
 This section describes the memory management functions of the low-level CUDA driver application programming interface.
 
+.. autoclass:: cuda.bindings.driver.CUmemDecompressParams_st
+.. autoclass:: cuda.bindings.driver.CUmemDecompressAlgorithm
+
+    .. autoattribute:: cuda.bindings.driver.CUmemDecompressAlgorithm.CU_MEM_DECOMPRESS_UNSUPPORTED
+
+
+        Decompression is unsupported.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemDecompressAlgorithm.CU_MEM_DECOMPRESS_ALGORITHM_DEFLATE
+
+
+        Deflate is supported.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemDecompressAlgorithm.CU_MEM_DECOMPRESS_ALGORITHM_SNAPPY
+
+
+        Snappy is supported.
+
+.. autoclass:: cuda.bindings.driver.CUmemDecompressParams
 .. autofunction:: cuda.bindings.driver.cuMemGetInfo
 .. autofunction:: cuda.bindings.driver.cuMemAlloc
 .. autofunction:: cuda.bindings.driver.cuMemAllocPitch
@@ -6020,6 +6338,8 @@ This section describes the memory management functions of the low-level CUDA dri
 .. autofunction:: cuda.bindings.driver.cuMemcpy2DAsync
 .. autofunction:: cuda.bindings.driver.cuMemcpy3DAsync
 .. autofunction:: cuda.bindings.driver.cuMemcpy3DPeerAsync
+.. autofunction:: cuda.bindings.driver.cuMemcpyBatchAsync
+.. autofunction:: cuda.bindings.driver.cuMemcpy3DBatchAsync
 .. autofunction:: cuda.bindings.driver.cuMemsetD8
 .. autofunction:: cuda.bindings.driver.cuMemsetD16
 .. autofunction:: cuda.bindings.driver.cuMemsetD32
@@ -6046,6 +6366,7 @@ This section describes the memory management functions of the low-level CUDA dri
 .. autofunction:: cuda.bindings.driver.cuMipmappedArrayGetLevel
 .. autofunction:: cuda.bindings.driver.cuMipmappedArrayDestroy
 .. autofunction:: cuda.bindings.driver.cuMemGetHandleForAddressRange
+.. autofunction:: cuda.bindings.driver.cuMemBatchDecompressAsync
 
 Virtual Memory Management
 -------------------------
@@ -6234,6 +6555,7 @@ This section describes the stream management functions of the low-level CUDA dri
 .. autofunction:: cuda.bindings.driver.cuStreamCreate
 .. autofunction:: cuda.bindings.driver.cuStreamCreateWithPriority
 .. autofunction:: cuda.bindings.driver.cuStreamGetPriority
+.. autofunction:: cuda.bindings.driver.cuStreamGetDevice
 .. autofunction:: cuda.bindings.driver.cuStreamGetFlags
 .. autofunction:: cuda.bindings.driver.cuStreamGetId
 .. autofunction:: cuda.bindings.driver.cuStreamGetCtx
@@ -6269,6 +6591,7 @@ This section describes the event management functions of the low-level CUDA driv
 .. autofunction:: cuda.bindings.driver.cuEventSynchronize
 .. autofunction:: cuda.bindings.driver.cuEventDestroy
 .. autofunction:: cuda.bindings.driver.cuEventElapsedTime
+.. autofunction:: cuda.bindings.driver.cuEventElapsedTime_v2
 
 External Resource Interoperability
 ----------------------------------
@@ -6482,6 +6805,7 @@ This section describes the tensor map object management functions of the low-lev
 
 .. autofunction:: cuda.bindings.driver.cuTensorMapEncodeTiled
 .. autofunction:: cuda.bindings.driver.cuTensorMapEncodeIm2col
+.. autofunction:: cuda.bindings.driver.cuTensorMapEncodeIm2colWide
 .. autofunction:: cuda.bindings.driver.cuTensorMapReplaceAddress
 
 Peer Context Memory Access
@@ -6702,6 +7026,8 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
         Streaming multiprocessors related information
 
 .. autoclass:: cuda.bindings.driver.CUdevResourceDesc
+.. autoclass:: cuda.bindings.driver.CUdevSmResource
+.. autofunction:: cuda.bindings.driver._CONCAT_OUTER
 .. autofunction:: cuda.bindings.driver.cuGreenCtxCreate
 .. autofunction:: cuda.bindings.driver.cuGreenCtxDestroy
 .. autofunction:: cuda.bindings.driver.cuCtxFromGreenCtx
@@ -6716,6 +7042,36 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 .. autofunction:: cuda.bindings.driver.cuGreenCtxStreamCreate
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_VERSION
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_EXTERNAL_BYTES
+.. autoattribute:: cuda.bindings.driver._CONCAT_INNER
+.. autoattribute:: cuda.bindings.driver._CONCAT_OUTER
+
+CUDA Checkpointing
+------------------
+
+CUDA API versioning support
+
+
+
+
+
+
+
+This sections describes the checkpoint and restore functions of the low-level CUDA driver application programming interface.
+
+
+
+The CUDA checkpoint and restore API's provide a way to save and restore GPU state for full process checkpoints when used with CPU side process checkpointing solutions. They can also be used to pause GPU work and suspend a CUDA process to allow other applications to make use of GPU resources.
+
+
+
+Checkpoint and restore capabilities are currently restricted to Linux.
+
+.. autofunction:: cuda.bindings.driver.cuCheckpointProcessGetRestoreThreadId
+.. autofunction:: cuda.bindings.driver.cuCheckpointProcessGetState
+.. autofunction:: cuda.bindings.driver.cuCheckpointProcessLock
+.. autofunction:: cuda.bindings.driver.cuCheckpointProcessCheckpoint
+.. autofunction:: cuda.bindings.driver.cuCheckpointProcessRestore
+.. autofunction:: cuda.bindings.driver.cuCheckpointProcessUnlock
 
 EGL Interoperability
 --------------------

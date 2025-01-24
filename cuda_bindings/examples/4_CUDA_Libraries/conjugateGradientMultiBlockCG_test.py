@@ -7,6 +7,7 @@
 # is strictly prohibited.
 import ctypes
 import math
+import platform
 import sys
 from random import random
 
@@ -204,6 +205,18 @@ def main():
     print(f"Starting [{sSDKname}]...\n")
     # WAIVE: Due to bug in NVRTC
     return
+
+    if platform.system() == "Darwin":
+        print("conjugateGradientMultiBlockCG is not supported on Mac OSX - waiving sample")
+        return
+
+    if platform.machine() == "armv7l":
+        print("conjugateGradientMultiBlockCG is not supported on ARMv7 - waiving sample")
+        return
+
+    if platform.machine() == "qnx":
+        print("conjugateGradientMultiBlockCG is not supported on QNX - waiving sample")
+        return
 
     # This will pick the best possible CUDA capable device
     devID = findCudaDevice()

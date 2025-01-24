@@ -5,6 +5,8 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+#
+# This code was automatically generated with version 12.8.0. Do not modify it directly.
 from cuda.bindings.cynvrtc cimport *
 
 {{if 'nvrtcGetErrorString' in found_functions}}
@@ -110,5 +112,30 @@ cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_exp
 {{if 'nvrtcGetLoweredName' in found_functions}}
 
 cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSize' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil
+{{endif}}
+
+{{if 'nvrtcSetPCHHeapSize' in found_functions}}
+
+cdef nvrtcResult _nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil
+{{endif}}
+
+{{if 'nvrtcGetPCHCreateStatus' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil
+{{endif}}
+
+{{if 'nvrtcSetFlowCallback' in found_functions}}
+
+cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
