@@ -9,6 +9,12 @@ All CUDA C types are exposed to Python as Python classes. For example, the :clas
 There is an important distinction between the ``getPtr()`` method and the behaviour of ``__int__()``. If you need to get the pointer address *of* the underlying ``CUstream`` C object wrapped in the Python class, you can do so by calling ``int(instance_of_CUstream)``, which returns the address as a Python `int`, while calling ``instance_of_CUstream.getPtr()`` returns the pointer *to* the ``CUstream`` C object (that is, ``&CUstream``) as a Python `int`.
 
 
+Lifetime management of the CUDA objects
+=======================================
+
+All of the Python classes do not manage the lifetime of the underlying CUDA C objects. It is the user's responsibility to use the appropriate APIs to explicitly destruct the objects following the CUDA Programming Guide.
+
+
 Getting and setting attributes of extension types
 =================================================
 
@@ -30,4 +36,3 @@ An example of this is the :class:`~cuda.bindings.driver.CULaunchConfig` type.
 
     # This does not work. We are only modifying the returned attribute in place
     drv_cfg.attrs.append(attr)
-
