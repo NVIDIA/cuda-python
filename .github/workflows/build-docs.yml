@@ -213,7 +213,13 @@ jobs:
           fi
           ls -l build
           popd
-          mv ${COMPONENT}/docs/build/html/* artifacts/docs/
+          if [[ "${{ inputs.component }}" != "cuda-python" ]]; then
+            TARGET="${{ inputs.component }}"
+            mkdir -p artifacts/docs/${TARGET}
+          else
+            TARGET=""
+          fi
+          mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
       # TODO: Consider removing this step?
       - name: Upload doc artifacts
