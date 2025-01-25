@@ -129,6 +129,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          merge-multiple: true
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
@@ -150,6 +151,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          merge-multiple: true
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
