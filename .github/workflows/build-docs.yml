@@ -85,14 +85,23 @@ jobs:
           PYTHON_VERSION_FORMATTED="312"  # see above
           REPO_DIR=$(pwd)
 
+          if [[ ${{ inputs.is-release }} == "true" ]]; then
+            FILE_HASH="*"
+            COMMIT_HASH="${{ inputs.git-tag }}"
+          else
+            FILE_HASH="${{ github.sha }}"
+            COMMIT_HASH="${{ github.sha }}"
+          fi
+
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
+          echo "COMMIT_HASH=${COMMIT_HASH}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
           CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-linux-64"
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
@@ -101,6 +110,7 @@ jobs:
           name: cuda-python-wheel
           path: .
           run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-python artifacts
         run: |
@@ -108,11 +118,21 @@ jobs:
           ls -lahR .
 
       - name: Download cuda.bindings build artifacts
+        if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Download cuda.bindings build artifacts
+        if: ${{ inputs.is-release }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          merge-multiple: true
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
@@ -120,11 +140,21 @@ jobs:
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
       - name: Download cuda.core build artifacts
+        if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: Download cuda.core build artifacts
+        if: ${{ inputs.is-release }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          merge-multiple: true
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
@@ -156,12 +186,12 @@ jobs:
 
       - name: Build all docs
         if: ${{ inputs.component == 'all' }}
-        env:
-          DOC_ACTION: ${{ (inputs.is-release && '') || 'latest-only' }}
         run: |
           pushd cuda_python/docs/
-          ./build_all_docs.sh $DOC_ACTION
-          if [[ -z "$DOC_ACTION" ]]; then
+          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+            ./build_all_docs.sh latest-only
+          else
+            ./build_all_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
           fi
@@ -171,19 +201,25 @@ jobs:
 
       - name: Build component docs
         if: ${{ inputs.component != 'all' }}
-        env:
-          DOC_ACTION: ${{ (inputs.is-release && '') || 'latest-only' }}
         run: |
           COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
           pushd ${COMPONENT}/docs/
-          ./build_docs.sh $DOC_ACTION
-          if [[ -z "$DOC_ACTION" ]]; then
+          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+            ./build_docs.sh latest-only
+          else
+            ./build_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
           fi
           ls -l build
           popd
-          mv ${COMPONENT}/docs/build/html/* artifacts/docs/
+          if [[ "${{ inputs.component }}" != "cuda-python" ]]; then
+            TARGET="${{ inputs.component }}"
+            mkdir -p artifacts/docs/${TARGET}
+          else
+            TARGET=""
+          fi
+          mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
       # TODO: Consider removing this step?
       - name: Upload doc artifacts
@@ -208,5 +244,5 @@ jobs:
           git-config-email: cuda-python-bot@users.noreply.github.com
           folder: artifacts/docs/
           target-folder: docs/
-          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ github.sha }}"
+          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.COMMIT_HASH }}"
           clean: false

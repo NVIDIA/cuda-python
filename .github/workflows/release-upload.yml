@@ -56,7 +56,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: >
           gh release upload
-          ${{ inputs.git-tag }}
-          release/*
-          --clobber "${{ github.ref_name }}"
+          --clobber "${{ inputs.git-tag }}"
           --repo "${{ github.repository }}"
+          release/*
