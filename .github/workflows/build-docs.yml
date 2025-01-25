@@ -118,9 +118,17 @@ jobs:
           ls -lahR .
 
       - name: Download cuda.bindings build artifacts
+        if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Download cuda.bindings build artifacts
+        if: ${{ inputs.is-release }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
@@ -131,9 +139,17 @@ jobs:
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
       - name: Download cuda.core build artifacts
+        if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: Download cuda.core build artifacts
+        if: ${{ inputs.is-release }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
