@@ -5,6 +5,7 @@ Released on January 24, 2025.
 
 ## Highlights
 
+- Support Python 3.13
 - Add bindings for nvJitLink (requires nvJitLink from CUDA 12.3 or above)
 - Add optional dependencies on CUDA NVRTC and nvJitLink wheels
 - Enable discovery and loading of shared libraries from CUDA wheels

@@ -5,6 +5,7 @@ Released on January 24, 2025.
 
 ## Highlights
 
+- Support Python 3.13
 - Add an optional dependency on the CUDA NVRTC wheel
 - Enable discovery and loading of shared libraries from CUDA wheels
 - `cuda-python` is now a meta package, currently depending only on `cuda-bindings` ([see RFC](https://github.com/NVIDIA/cuda-python/issues/105))
