@@ -120,10 +120,11 @@ jobs:
         run: |
           gh run download ${{ inputs.run-id }} -p "${{ inputs.component }}*" -R ${{ github.repository }}
           mkdir dist
-          for p in "${{ inputs.component }}*"; do
+          for p in ${{ inputs.component }}*
+          do
             mv ${p}/*.whl dist/
           done
-          rmdir "${{ inputs.component }}*"
+          rmdir ${{ inputs.component }}*
 
       - name: Publish package distributions to PyPI
         if: ${{ inputs.wheel-dst == 'pypi' }}
