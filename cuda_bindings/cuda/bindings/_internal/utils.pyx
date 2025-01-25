@@ -134,3 +134,10 @@ cdef tuple get_nvjitlink_dso_version_suffix(int driver_ver):
         return ('12', '')
     else:
         raise NotSupportedError('only CUDA 12 driver is supported')
+
+
+cdef tuple get_nvvm_dso_version_suffix(int driver_ver):
+    if 12000 <= driver_ver < 13000:
+        return ('12', '')
+    else:
+        raise NotSupportedError('only CUDA 12 driver is supported')
