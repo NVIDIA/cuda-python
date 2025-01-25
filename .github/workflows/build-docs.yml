@@ -186,12 +186,12 @@ jobs:
 
       - name: Build all docs
         if: ${{ inputs.component == 'all' }}
-        env:
-          DOC_ACTION: ${{ (inputs.is-release && '') || 'latest-only' }}
         run: |
           pushd cuda_python/docs/
-          ./build_all_docs.sh $DOC_ACTION
-          if [[ -z "$DOC_ACTION" ]]; then
+          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+            ./build_all_docs.sh latest-only
+          else
+            ./build_all_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
           fi
@@ -201,13 +201,13 @@ jobs:
 
       - name: Build component docs
         if: ${{ inputs.component != 'all' }}
-        env:
-          DOC_ACTION: ${{ (inputs.is-release && '') || 'latest-only' }}
         run: |
           COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
           pushd ${COMPONENT}/docs/
-          ./build_docs.sh $DOC_ACTION
-          if [[ -z "$DOC_ACTION" ]]; then
+          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+            ./build_docs.sh latest-only
+          else
+            ./build_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
           fi
