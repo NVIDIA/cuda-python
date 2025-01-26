@@ -40,6 +40,7 @@ cdef void* __nvvmVersion = NULL
 cdef void* __nvvmIRVersion = NULL
 cdef void* __nvvmCreateProgram = NULL
 cdef void* __nvvmDestroyProgram = NULL
+cdef void* __nvvmAddModuleToProgram = NULL
 cdef void* __nvvmCompileProgram = NULL
 
 
@@ -111,6 +112,13 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             handle = load_library(driver_ver)
         __nvvmDestroyProgram = dlsym(handle, 'nvvmDestroyProgram')
 
+    global __nvvmAddModuleToProgram
+    __nvvmAddModuleToProgram = dlsym(RTLD_DEFAULT, 'nvvmAddModuleToProgram')
+    if __nvvmAddModuleToProgram == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvvmAddModuleToProgram = dlsym(handle, 'nvvmAddModuleToProgram')
+
     global __nvvmCompileProgram
     __nvvmCompileProgram = dlsym(RTLD_DEFAULT, 'nvvmCompileProgram')
     if __nvvmCompileProgram == NULL:
@@ -144,6 +152,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvvmDestroyProgram
     data["__nvvmDestroyProgram"] = <intptr_t>__nvvmDestroyProgram
+
+    global __nvvmAddModuleToProgram
+    data["__nvvmAddModuleToProgram"] = <intptr_t>__nvvmAddModuleToProgram
 
     global __nvvmCompileProgram
     data["__nvvmCompileProgram"] = <intptr_t>__nvvmCompileProgram
@@ -201,6 +212,16 @@ cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except* nogil:
             raise FunctionNotFoundError("function nvvmDestroyProgram is not found")
     return (<nvvmResult (*)(nvvmProgram*) nogil>__nvvmDestroyProgram)(
         prog)
+
+
+cdef nvvmResult _nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except* nogil:
+    global __nvvmAddModuleToProgram
+    _check_or_init_nvvm()
+    if __nvvmAddModuleToProgram == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmAddModuleToProgram is not found")
+    return (<nvvmResult (*)(nvvmProgram, const char*, size_t, const char*) nogil>__nvvmAddModuleToProgram)(
+        prog, buffer, size, name)
 
 
 cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil:

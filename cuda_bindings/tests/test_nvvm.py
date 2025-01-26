@@ -26,6 +26,15 @@ def test_create_and_destroy():
     nvvm.destroy_program(prog)
 
 
+def test_add_module_to_program():
+    prog = nvvm.create_program()
+    try:
+        with pytest.raises(nvvm.nvvmError, match=r"^ERROR_INVALID_INPUT \(4\)$"):
+            nvvm.add_module_to_program(prog, [], 0, "SomeName")
+    finally:
+        nvvm.destroy_program(prog)
+
+
 def test_compile_program():
     prog = nvvm.create_program()
     try:
