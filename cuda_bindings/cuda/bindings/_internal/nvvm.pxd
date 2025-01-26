@@ -13,3 +13,4 @@ from ..cynvvm cimport *
 
 cdef nvvmResult _nvvmVersion(int* major, int* minor) except* nogil
 cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except* nogil
+cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except* nogil

@@ -35,3 +35,4 @@ ctypedef void* nvvmProgram 'nvvmProgram'
 
 cdef nvvmResult nvvmVersion(int* major, int* minor) except* nogil
 cdef nvvmResult nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except* nogil
+cdef nvvmResult nvvmCreateProgram(nvvmProgram* prog) except* nogil

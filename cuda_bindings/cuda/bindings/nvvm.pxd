@@ -29,3 +29,4 @@ ctypedef nvvmResult _Result
 
 cpdef tuple version()
 cpdef tuple ir_version()
+cpdef intptr_t create_program() except? 0

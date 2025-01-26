@@ -109,3 +109,18 @@ cpdef tuple ir_version():
         status = nvvmIRVersion(&major_ir, &minor_ir, &major_dbg, &minor_dbg)
     check_status(status)
     return (major_ir, minor_ir, major_dbg, minor_dbg)
+
+
+cpdef intptr_t create_program() except? 0:
+    """Create a program, and set the value of its handle to ``*prog``.
+
+    Returns:
+        intptr_t: NVVM program.
+
+    .. seealso:: `nvvmCreateProgram`
+    """
+    cdef Program prog
+    with nogil:
+        status = nvvmCreateProgram(&prog)
+    check_status(status)
+    return <intptr_t>prog

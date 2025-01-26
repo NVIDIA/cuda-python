@@ -28,6 +28,7 @@ cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __nvvmVersion = NULL
 cdef void* __nvvmIRVersion = NULL
+cdef void* __nvvmCreateProgram = NULL
 
 
 cdef inline list get_site_packages():
@@ -117,6 +118,12 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         except:
             pass
 
+        global __nvvmCreateProgram
+        try:
+            __nvvmCreateProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmCreateProgram')
+        except:
+            pass
+
     __py_nvvm_init = True
     return 0
 
@@ -137,6 +144,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvvmIRVersion
     data["__nvvmIRVersion"] = <intptr_t>__nvvmIRVersion
+
+    global __nvvmCreateProgram
+    data["__nvvmCreateProgram"] = <intptr_t>__nvvmCreateProgram
 
     func_ptrs = data
     return data
@@ -171,3 +181,13 @@ cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* m
             raise FunctionNotFoundError("function nvvmIRVersion is not found")
     return (<nvvmResult (*)(int*, int*, int*, int*) nogil>__nvvmIRVersion)(
         majorIR, minorIR, majorDbg, minorDbg)
+
+
+cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except* nogil:
+    global __nvvmCreateProgram
+    _check_or_init_nvvm()
+    if __nvvmCreateProgram == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmCreateProgram is not found")
+    return (<nvvmResult (*)(nvvmProgram*) nogil>__nvvmCreateProgram)(
+        prog)
