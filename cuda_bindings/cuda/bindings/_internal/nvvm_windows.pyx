@@ -30,6 +30,7 @@ cdef void* __nvvmVersion = NULL
 cdef void* __nvvmIRVersion = NULL
 cdef void* __nvvmCreateProgram = NULL
 cdef void* __nvvmDestroyProgram = NULL
+cdef void* __nvvmCompileProgram = NULL
 
 
 cdef inline list get_site_packages():
@@ -131,6 +132,12 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         except:
             pass
 
+        global __nvvmCompileProgram
+        try:
+            __nvvmCompileProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmCompileProgram')
+        except:
+            pass
+
     __py_nvvm_init = True
     return 0
 
@@ -157,6 +164,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvvmDestroyProgram
     data["__nvvmDestroyProgram"] = <intptr_t>__nvvmDestroyProgram
+
+    global __nvvmCompileProgram
+    data["__nvvmCompileProgram"] = <intptr_t>__nvvmCompileProgram
 
     func_ptrs = data
     return data
@@ -211,3 +221,13 @@ cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except* nogil:
             raise FunctionNotFoundError("function nvvmDestroyProgram is not found")
     return (<nvvmResult (*)(nvvmProgram*) nogil>__nvvmDestroyProgram)(
         prog)
+
+
+cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil:
+    global __nvvmCompileProgram
+    _check_or_init_nvvm()
+    if __nvvmCompileProgram == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmCompileProgram is not found")
+    return (<nvvmResult (*)(nvvmProgram, int, const char**) nogil>__nvvmCompileProgram)(
+        prog, numOptions, options)

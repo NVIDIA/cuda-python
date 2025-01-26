@@ -30,3 +30,4 @@ ctypedef nvvmResult _Result
 cpdef tuple version()
 cpdef tuple ir_version()
 cpdef intptr_t create_program() except? 0
+cpdef compile_program(intptr_t prog, int num_options, options)

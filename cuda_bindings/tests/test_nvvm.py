@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import pytest
 
 from cuda.bindings import nvvm
 
@@ -23,3 +24,12 @@ def test_create_and_destroy():
     assert isinstance(prog, int)
     assert prog != 0
     nvvm.destroy_program(prog)
+
+
+def test_compile_program():
+    prog = nvvm.create_program()
+    try:
+        with pytest.raises(nvvm.nvvmError, match=r"^ERROR_NO_MODULE_IN_PROGRAM \(8\)$"):
+            nvvm.compile_program(prog, 0, [])
+    finally:
+        nvvm.destroy_program(prog)

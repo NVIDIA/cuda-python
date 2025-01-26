@@ -25,3 +25,7 @@ cdef nvvmResult nvvmCreateProgram(nvvmProgram* prog) except* nogil:
 
 cdef nvvmResult nvvmDestroyProgram(nvvmProgram* prog) except* nogil:
     return _nvvm._nvvmDestroyProgram(prog)
+
+
+cdef nvvmResult nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil:
+    return _nvvm._nvvmCompileProgram(prog, numOptions, options)

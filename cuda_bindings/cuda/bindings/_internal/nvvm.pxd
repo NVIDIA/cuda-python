@@ -15,3 +15,4 @@ cdef nvvmResult _nvvmVersion(int* major, int* minor) except* nogil
 cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except* nogil
 cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except* nogil
 cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except* nogil
+cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil
