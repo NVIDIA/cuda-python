@@ -156,6 +156,34 @@ cpdef add_module_to_program(intptr_t prog, buffer, size_t size, name):
     check_status(status)
 
 
+cpdef lazy_add_module_to_program(intptr_t prog, buffer, size_t size, name):
+    """Add a module level NVVM IR to a program.
+
+    Args:
+        prog (intptr_t): NVVM program.
+        buffer (object): NVVM IR module in the bitcode representation. It can be:
+
+            - an :class:`int` as the pointer address to the nested sequence, or
+            - a Python sequence of :class:`int`\s, each of which is a pointer address
+              to a valid sequence of 'char', or
+            - a nested Python sequence of ``str``.
+
+        size (size_t): Size of the NVVM IR module.
+        name (str): Name of the NVVM IR module. If NULL, "<unnamed>" is used as the name.
+
+    .. seealso:: `nvvmLazyAddModuleToProgram`
+    """
+    cdef nested_resource[ char ] _buffer_
+    get_nested_resource_ptr[char](_buffer_, buffer, <char*>NULL)
+    if not isinstance(name, str):
+        raise TypeError("name must be a Python str")
+    cdef bytes _temp_name_ = (<str>name).encode()
+    cdef char* _name_ = _temp_name_
+    with nogil:
+        status = nvvmLazyAddModuleToProgram(<Program>prog, <const char*>(_buffer_.ptrs.data()), size, <const char*>_name_)
+    check_status(status)
+
+
 cpdef compile_program(intptr_t prog, int num_options, options):
     """Compile the NVVM program.
 

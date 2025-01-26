@@ -31,6 +31,10 @@ cdef nvvmResult nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, siz
     return _nvvm._nvvmAddModuleToProgram(prog, buffer, size, name)
 
 
+cdef nvvmResult nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except* nogil:
+    return _nvvm._nvvmLazyAddModuleToProgram(prog, buffer, size, name)
+
+
 cdef nvvmResult nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil:
     return _nvvm._nvvmCompileProgram(prog, numOptions, options)
 

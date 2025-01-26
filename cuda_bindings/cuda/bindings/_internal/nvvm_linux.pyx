@@ -41,6 +41,7 @@ cdef void* __nvvmIRVersion = NULL
 cdef void* __nvvmCreateProgram = NULL
 cdef void* __nvvmDestroyProgram = NULL
 cdef void* __nvvmAddModuleToProgram = NULL
+cdef void* __nvvmLazyAddModuleToProgram = NULL
 cdef void* __nvvmCompileProgram = NULL
 cdef void* __nvvmVerifyProgram = NULL
 
@@ -120,6 +121,13 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             handle = load_library(driver_ver)
         __nvvmAddModuleToProgram = dlsym(handle, 'nvvmAddModuleToProgram')
 
+    global __nvvmLazyAddModuleToProgram
+    __nvvmLazyAddModuleToProgram = dlsym(RTLD_DEFAULT, 'nvvmLazyAddModuleToProgram')
+    if __nvvmLazyAddModuleToProgram == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvvmLazyAddModuleToProgram = dlsym(handle, 'nvvmLazyAddModuleToProgram')
+
     global __nvvmCompileProgram
     __nvvmCompileProgram = dlsym(RTLD_DEFAULT, 'nvvmCompileProgram')
     if __nvvmCompileProgram == NULL:
@@ -163,6 +171,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvvmAddModuleToProgram
     data["__nvvmAddModuleToProgram"] = <intptr_t>__nvvmAddModuleToProgram
+
+    global __nvvmLazyAddModuleToProgram
+    data["__nvvmLazyAddModuleToProgram"] = <intptr_t>__nvvmLazyAddModuleToProgram
 
     global __nvvmCompileProgram
     data["__nvvmCompileProgram"] = <intptr_t>__nvvmCompileProgram
@@ -232,6 +243,16 @@ cdef nvvmResult _nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, si
         with gil:
             raise FunctionNotFoundError("function nvvmAddModuleToProgram is not found")
     return (<nvvmResult (*)(nvvmProgram, const char*, size_t, const char*) nogil>__nvvmAddModuleToProgram)(
+        prog, buffer, size, name)
+
+
+cdef nvvmResult _nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except* nogil:
+    global __nvvmLazyAddModuleToProgram
+    _check_or_init_nvvm()
+    if __nvvmLazyAddModuleToProgram == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmLazyAddModuleToProgram is not found")
+    return (<nvvmResult (*)(nvvmProgram, const char*, size_t, const char*) nogil>__nvvmLazyAddModuleToProgram)(
         prog, buffer, size, name)
 
 

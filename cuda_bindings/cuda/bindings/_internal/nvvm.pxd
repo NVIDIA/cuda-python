@@ -16,5 +16,6 @@ cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* m
 cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except* nogil
 cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except* nogil
 cdef nvvmResult _nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except* nogil
+cdef nvvmResult _nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except* nogil
 cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil
 cdef nvvmResult _nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil
