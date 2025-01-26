@@ -33,3 +33,7 @@ cdef nvvmResult nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, siz
 
 cdef nvvmResult nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil:
     return _nvvm._nvvmCompileProgram(prog, numOptions, options)
+
+
+cdef nvvmResult nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil:
+    return _nvvm._nvvmVerifyProgram(prog, numOptions, options)

@@ -42,6 +42,7 @@ cdef void* __nvvmCreateProgram = NULL
 cdef void* __nvvmDestroyProgram = NULL
 cdef void* __nvvmAddModuleToProgram = NULL
 cdef void* __nvvmCompileProgram = NULL
+cdef void* __nvvmVerifyProgram = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
@@ -126,6 +127,13 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             handle = load_library(driver_ver)
         __nvvmCompileProgram = dlsym(handle, 'nvvmCompileProgram')
 
+    global __nvvmVerifyProgram
+    __nvvmVerifyProgram = dlsym(RTLD_DEFAULT, 'nvvmVerifyProgram')
+    if __nvvmVerifyProgram == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvvmVerifyProgram = dlsym(handle, 'nvvmVerifyProgram')
+
     __py_nvvm_init = True
     return 0
 
@@ -158,6 +166,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvvmCompileProgram
     data["__nvvmCompileProgram"] = <intptr_t>__nvvmCompileProgram
+
+    global __nvvmVerifyProgram
+    data["__nvvmVerifyProgram"] = <intptr_t>__nvvmVerifyProgram
 
     func_ptrs = data
     return data
@@ -231,4 +242,14 @@ cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char
         with gil:
             raise FunctionNotFoundError("function nvvmCompileProgram is not found")
     return (<nvvmResult (*)(nvvmProgram, int, const char**) nogil>__nvvmCompileProgram)(
+        prog, numOptions, options)
+
+
+cdef nvvmResult _nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil:
+    global __nvvmVerifyProgram
+    _check_or_init_nvvm()
+    if __nvvmVerifyProgram == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmVerifyProgram is not found")
+    return (<nvvmResult (*)(nvvmProgram, int, const char**) nogil>__nvvmVerifyProgram)(
         prog, numOptions, options)

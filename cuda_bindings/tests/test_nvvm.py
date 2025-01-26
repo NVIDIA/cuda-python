@@ -42,3 +42,12 @@ def test_compile_program():
             nvvm.compile_program(prog, 0, [])
     finally:
         nvvm.destroy_program(prog)
+
+
+def test_verify_program():
+    prog = nvvm.create_program()
+    try:
+        with pytest.raises(nvvm.nvvmError, match=r"^ERROR_NO_MODULE_IN_PROGRAM \(8\)$"):
+            nvvm.verify_program(prog, 0, [])
+    finally:
+        nvvm.destroy_program(prog)

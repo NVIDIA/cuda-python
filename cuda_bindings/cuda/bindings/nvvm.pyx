@@ -177,3 +177,26 @@ cpdef compile_program(intptr_t prog, int num_options, options):
     with nogil:
         status = nvvmCompileProgram(<Program>prog, num_options, <const char**>(_options_.ptrs.data()))
     check_status(status)
+
+
+cpdef verify_program(intptr_t prog, int num_options, options):
+    """Verify the NVVM program.
+
+    Args:
+        prog (intptr_t): NVVM program.
+        num_options (int): Number of compiler ``options`` passed.
+        options (object): Compiler options in the form of C string array. It can be:
+
+            - an :class:`int` as the pointer address to the nested sequence, or
+            - a Python sequence of :class:`int`\s, each of which is a pointer address
+              to a valid sequence of 'char', or
+            - a nested Python sequence of ``str``.
+
+
+    .. seealso:: `nvvmVerifyProgram`
+    """
+    cdef nested_resource[ char ] _options_
+    get_nested_resource_ptr[char](_options_, options, <char*>NULL)
+    with nogil:
+        status = nvvmVerifyProgram(<Program>prog, num_options, <const char**>(_options_.ptrs.data()))
+    check_status(status)

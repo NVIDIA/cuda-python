@@ -39,3 +39,4 @@ cdef nvvmResult nvvmCreateProgram(nvvmProgram* prog) except* nogil
 cdef nvvmResult nvvmDestroyProgram(nvvmProgram* prog) except* nogil
 cdef nvvmResult nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except* nogil
 cdef nvvmResult nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil
+cdef nvvmResult nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil
