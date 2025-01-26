@@ -9,4 +9,10 @@ from cuda.bindings import nvvm
 def test_nvvm_version():
     ver = nvvm.version()
     assert len(ver) == 2
-    assert ver >= (12, 0)
+    assert ver >= (2, 0)
+
+
+def test_nvvm_ir_version():
+    ver = nvvm.ir_version()
+    assert len(ver) == 4
+    assert ver >= (2, 0, 3, 1)
