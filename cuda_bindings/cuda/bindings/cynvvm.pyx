@@ -21,3 +21,7 @@ cdef nvvmResult nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* mi
 
 cdef nvvmResult nvvmCreateProgram(nvvmProgram* prog) except* nogil:
     return _nvvm._nvvmCreateProgram(prog)
+
+
+cdef nvvmResult nvvmDestroyProgram(nvvmProgram* prog) except* nogil:
+    return _nvvm._nvvmDestroyProgram(prog)

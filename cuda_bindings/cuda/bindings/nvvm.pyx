@@ -55,18 +55,18 @@ cdef int check_status(int status) except 1 nogil:
 # Wrapper functions
 ###############################################################################
 
-## cpdef destroy(intptr_t handle):
-##     """nvvmDestroy frees the memory associated with the given handle.
-## 
-##     Args:
-##         handle (intptr_t): nvvm handle.
-## 
-##     .. seealso:: `nvvmDestroy`
-##     """
-##     cdef Handle h = <Handle>handle
-##     with nogil:
-##         status = nvvmDestroy(&h)
-##     check_status(status)
+cpdef destroy_program(intptr_t prog):
+    """Destroy a program.
+
+    Args:
+        prog (intptr_t): nvvm prog.
+
+    .. seealso:: `nvvmDestroyProgram`
+    """
+    cdef Program p = <Program>prog
+    with nogil:
+        status = nvvmDestroyProgram(&p)
+    check_status(status)
 
 
 cpdef tuple version():

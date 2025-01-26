@@ -22,3 +22,4 @@ def test_create_and_destroy():
     prog = nvvm.create_program()
     assert isinstance(prog, int)
     assert prog != 0
+    nvvm.destroy_program(prog)

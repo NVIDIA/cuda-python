@@ -39,6 +39,7 @@ cdef void* __cuDriverGetVersion = NULL
 cdef void* __nvvmVersion = NULL
 cdef void* __nvvmIRVersion = NULL
 cdef void* __nvvmCreateProgram = NULL
+cdef void* __nvvmDestroyProgram = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
@@ -102,6 +103,13 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             handle = load_library(driver_ver)
         __nvvmCreateProgram = dlsym(handle, 'nvvmCreateProgram')
 
+    global __nvvmDestroyProgram
+    __nvvmDestroyProgram = dlsym(RTLD_DEFAULT, 'nvvmDestroyProgram')
+    if __nvvmDestroyProgram == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvvmDestroyProgram = dlsym(handle, 'nvvmDestroyProgram')
+
     __py_nvvm_init = True
     return 0
 
@@ -125,6 +133,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvvmCreateProgram
     data["__nvvmCreateProgram"] = <intptr_t>__nvvmCreateProgram
+
+    global __nvvmDestroyProgram
+    data["__nvvmDestroyProgram"] = <intptr_t>__nvvmDestroyProgram
 
     func_ptrs = data
     return data
@@ -168,4 +179,14 @@ cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except* nogil:
         with gil:
             raise FunctionNotFoundError("function nvvmCreateProgram is not found")
     return (<nvvmResult (*)(nvvmProgram*) nogil>__nvvmCreateProgram)(
+        prog)
+
+
+cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except* nogil:
+    global __nvvmDestroyProgram
+    _check_or_init_nvvm()
+    if __nvvmDestroyProgram == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmDestroyProgram is not found")
+    return (<nvvmResult (*)(nvvmProgram*) nogil>__nvvmDestroyProgram)(
         prog)
