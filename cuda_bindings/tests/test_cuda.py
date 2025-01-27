@@ -943,3 +943,8 @@ def test_conditional():
 
     assert len(params.conditional.phGraph_out) == 1
     assert int(params.conditional.phGraph_out[0]) != 0
+
+
+def test_CUmemDecompressParams_st():
+    desc = cuda.CUmemDecompressParams_st()
+    assert int(desc.dstActBytes) == 0
