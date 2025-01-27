@@ -47,5 +47,13 @@ cdef nvvmResult nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRe
     return _nvvm._nvvmGetCompiledResultSize(prog, bufferSizeRet)
 
 
+cdef nvvmResult nvvmGetCompiledResult(nvvmProgram prog, char* buffer) except* nogil:
+    return _nvvm._nvvmGetCompiledResult(prog, buffer)
+
+
 cdef nvvmResult nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except* nogil:
     return _nvvm._nvvmGetProgramLogSize(prog, bufferSizeRet)
+
+
+cdef nvvmResult nvvmGetProgramLog(nvvmProgram prog, char* buffer) except* nogil:
+    return _nvvm._nvvmGetProgramLog(prog, buffer)

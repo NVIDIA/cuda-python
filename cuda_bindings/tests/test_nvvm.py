@@ -21,9 +21,11 @@ def test_nvvm_ir_version():
 
 def test_create_and_destroy():
     prog = nvvm.create_program()
-    assert isinstance(prog, int)
-    assert prog != 0
-    nvvm.destroy_program(prog)
+    try:
+        assert isinstance(prog, int)
+        assert prog != 0
+    finally:
+        nvvm.destroy_program(prog)
 
 
 def test_add_module_to_program():
@@ -62,19 +64,25 @@ def test_verify_program():
         nvvm.destroy_program(prog)
 
 
-def test_get_compiled_result_size():
+def test_get_compiled_result():
     prog = nvvm.create_program()
     try:
-        size = nvvm.get_compiled_result_size(prog)
-        assert size == 1
+        result_size = nvvm.get_compiled_result_size(prog)
+        assert result_size == 1
+        buffer = bytearray(result_size)
+        nvvm.get_compiled_result(prog, buffer)
+        assert buffer == b"\x00"
     finally:
         nvvm.destroy_program(prog)
 
 
-def test_get_program_log_size():
+def test_get_program_log():
     prog = nvvm.create_program()
     try:
-        size = nvvm.get_program_log_size(prog)
-        assert size == 1
+        log_size = nvvm.get_program_log_size(prog)
+        assert log_size == 1
+        buffer = bytearray(log_size)
+        nvvm.get_program_log(prog, buffer)
+        assert buffer == b"\x00"
     finally:
         nvvm.destroy_program(prog)

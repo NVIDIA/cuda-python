@@ -6,7 +6,8 @@
 
 cimport cython  # NOQA
 
-from ._internal.utils cimport get_nested_resource_ptr, nested_resource
+from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
+                               nested_resource)
 
 from enum import IntEnum as _IntEnum
 
@@ -248,6 +249,21 @@ cpdef size_t get_compiled_result_size(intptr_t prog) except? 0:
     return buffer_size_ret
 
 
+cpdef get_compiled_result(intptr_t prog, buffer):
+    """Get the compiled result.
+
+    Args:
+        prog (intptr_t): NVVM program.
+        buffer (bytes): Compiled result.
+
+    .. seealso:: `nvvmGetCompiledResult`
+    """
+    cdef void* _buffer_ = get_buffer_pointer(buffer, -1, readonly=False)
+    with nogil:
+        status = nvvmGetCompiledResult(<Program>prog, <char*>_buffer_)
+    check_status(status)
+
+
 cpdef size_t get_program_log_size(intptr_t prog) except? 0:
     """Get the Size of Compiler/Verifier Message.
 
@@ -264,3 +280,18 @@ cpdef size_t get_program_log_size(intptr_t prog) except? 0:
         status = nvvmGetProgramLogSize(<Program>prog, &buffer_size_ret)
     check_status(status)
     return buffer_size_ret
+
+
+cpdef get_program_log(intptr_t prog, buffer):
+    """Get the Compiler/Verifier Message.
+
+    Args:
+        prog (intptr_t): NVVM program.
+        buffer (bytes): Compilation/Verification log.
+
+    .. seealso:: `nvvmGetProgramLog`
+    """
+    cdef void* _buffer_ = get_buffer_pointer(buffer, -1, readonly=False)
+    with nogil:
+        status = nvvmGetProgramLog(<Program>prog, <char*>_buffer_)
+    check_status(status)
