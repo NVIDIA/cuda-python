@@ -41,3 +41,11 @@ cdef nvvmResult nvvmCompileProgram(nvvmProgram prog, int numOptions, const char*
 
 cdef nvvmResult nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil:
     return _nvvm._nvvmVerifyProgram(prog, numOptions, options)
+
+
+cdef nvvmResult nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except* nogil:
+    return _nvvm._nvvmGetCompiledResultSize(prog, bufferSizeRet)
+
+
+cdef nvvmResult nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except* nogil:
+    return _nvvm._nvvmGetProgramLogSize(prog, bufferSizeRet)

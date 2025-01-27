@@ -228,3 +228,39 @@ cpdef verify_program(intptr_t prog, int num_options, options):
     with nogil:
         status = nvvmVerifyProgram(<Program>prog, num_options, <const char**>(_options_.ptrs.data()))
     check_status(status)
+
+
+cpdef size_t get_compiled_result_size(intptr_t prog) except? 0:
+    """Get the size of the compiled result.
+
+    Args:
+        prog (intptr_t): NVVM program.
+
+    Returns:
+        size_t: Size of the compiled result (including the trailing NULL).
+
+    .. seealso:: `nvvmGetCompiledResultSize`
+    """
+    cdef size_t buffer_size_ret
+    with nogil:
+        status = nvvmGetCompiledResultSize(<Program>prog, &buffer_size_ret)
+    check_status(status)
+    return buffer_size_ret
+
+
+cpdef size_t get_program_log_size(intptr_t prog) except? 0:
+    """Get the Size of Compiler/Verifier Message.
+
+    Args:
+        prog (intptr_t): NVVM program.
+
+    Returns:
+        size_t: Size of the compilation/verification log (including the trailing NULL).
+
+    .. seealso:: `nvvmGetProgramLogSize`
+    """
+    cdef size_t buffer_size_ret
+    with nogil:
+        status = nvvmGetProgramLogSize(<Program>prog, &buffer_size_ret)
+    check_status(status)
+    return buffer_size_ret

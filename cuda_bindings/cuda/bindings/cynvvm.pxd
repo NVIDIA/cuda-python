@@ -41,3 +41,5 @@ cdef nvvmResult nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, siz
 cdef nvvmResult nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except* nogil
 cdef nvvmResult nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil
 cdef nvvmResult nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil
+cdef nvvmResult nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except* nogil
+cdef nvvmResult nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except* nogil

@@ -60,3 +60,21 @@ def test_verify_program():
             nvvm.verify_program(prog, 0, [])
     finally:
         nvvm.destroy_program(prog)
+
+
+def test_get_compiled_result_size():
+    prog = nvvm.create_program()
+    try:
+        size = nvvm.get_compiled_result_size(prog)
+        assert size == 1
+    finally:
+        nvvm.destroy_program(prog)
+
+
+def test_get_program_log_size():
+    prog = nvvm.create_program()
+    try:
+        size = nvvm.get_program_log_size(prog)
+        assert size == 1
+    finally:
+        nvvm.destroy_program(prog)

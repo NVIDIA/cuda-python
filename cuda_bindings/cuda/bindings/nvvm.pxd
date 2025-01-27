@@ -34,3 +34,5 @@ cpdef add_module_to_program(intptr_t prog, buffer, size_t size, name)
 cpdef lazy_add_module_to_program(intptr_t prog, buffer, size_t size, name)
 cpdef compile_program(intptr_t prog, int num_options, options)
 cpdef verify_program(intptr_t prog, int num_options, options)
+cpdef size_t get_compiled_result_size(intptr_t prog) except? 0
+cpdef size_t get_program_log_size(intptr_t prog) except? 0

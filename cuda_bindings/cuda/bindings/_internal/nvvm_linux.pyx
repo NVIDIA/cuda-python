@@ -44,6 +44,8 @@ cdef void* __nvvmAddModuleToProgram = NULL
 cdef void* __nvvmLazyAddModuleToProgram = NULL
 cdef void* __nvvmCompileProgram = NULL
 cdef void* __nvvmVerifyProgram = NULL
+cdef void* __nvvmGetCompiledResultSize = NULL
+cdef void* __nvvmGetProgramLogSize = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
@@ -142,6 +144,20 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             handle = load_library(driver_ver)
         __nvvmVerifyProgram = dlsym(handle, 'nvvmVerifyProgram')
 
+    global __nvvmGetCompiledResultSize
+    __nvvmGetCompiledResultSize = dlsym(RTLD_DEFAULT, 'nvvmGetCompiledResultSize')
+    if __nvvmGetCompiledResultSize == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvvmGetCompiledResultSize = dlsym(handle, 'nvvmGetCompiledResultSize')
+
+    global __nvvmGetProgramLogSize
+    __nvvmGetProgramLogSize = dlsym(RTLD_DEFAULT, 'nvvmGetProgramLogSize')
+    if __nvvmGetProgramLogSize == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvvmGetProgramLogSize = dlsym(handle, 'nvvmGetProgramLogSize')
+
     __py_nvvm_init = True
     return 0
 
@@ -180,6 +196,12 @@ cpdef dict _inspect_function_pointers():
 
     global __nvvmVerifyProgram
     data["__nvvmVerifyProgram"] = <intptr_t>__nvvmVerifyProgram
+
+    global __nvvmGetCompiledResultSize
+    data["__nvvmGetCompiledResultSize"] = <intptr_t>__nvvmGetCompiledResultSize
+
+    global __nvvmGetProgramLogSize
+    data["__nvvmGetProgramLogSize"] = <intptr_t>__nvvmGetProgramLogSize
 
     func_ptrs = data
     return data
@@ -274,3 +296,23 @@ cdef nvvmResult _nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char*
             raise FunctionNotFoundError("function nvvmVerifyProgram is not found")
     return (<nvvmResult (*)(nvvmProgram, int, const char**) nogil>__nvvmVerifyProgram)(
         prog, numOptions, options)
+
+
+cdef nvvmResult _nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except* nogil:
+    global __nvvmGetCompiledResultSize
+    _check_or_init_nvvm()
+    if __nvvmGetCompiledResultSize == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmGetCompiledResultSize is not found")
+    return (<nvvmResult (*)(nvvmProgram, size_t*) nogil>__nvvmGetCompiledResultSize)(
+        prog, bufferSizeRet)
+
+
+cdef nvvmResult _nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except* nogil:
+    global __nvvmGetProgramLogSize
+    _check_or_init_nvvm()
+    if __nvvmGetProgramLogSize == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmGetProgramLogSize is not found")
+    return (<nvvmResult (*)(nvvmProgram, size_t*) nogil>__nvvmGetProgramLogSize)(
+        prog, bufferSizeRet)
