@@ -5,6 +5,8 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+import platform
+
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
@@ -58,6 +60,10 @@ NUM_THREADS = 256
 
 def main():
     print("CUDA Clock sample")
+
+    if platform.machine() == "armv7l":
+        print("clock_nvrtc is not supported on ARMv7 - waiving sample")
+        return
 
     timer = np.empty(NUM_BLOCKS * 2, dtype="int64")
     hinput = np.empty(NUM_THREADS * 2, dtype="float32")

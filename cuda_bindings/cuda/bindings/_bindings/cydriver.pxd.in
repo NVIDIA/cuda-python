@@ -5,6 +5,8 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+#
+# This code was automatically generated with version 12.8.0. Do not modify it directly.
 from cuda.bindings.cydriver cimport *
 
 {{if 'cuGetErrorString' in found_functions}}
@@ -672,6 +674,16 @@ cdef CUresult _cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D* pCopy, CUstream hStream) 
 cdef CUresult _cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER* pCopy, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuMemcpyBatchAsync' in found_functions}}
+
+cdef CUresult _cuMemcpyBatchAsync(CUdeviceptr* dsts, CUdeviceptr* srcs, size_t* sizes, size_t count, CUmemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, size_t* failIdx, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuMemcpy3DBatchAsync' in found_functions}}
+
+cdef CUresult _cuMemcpy3DBatchAsync(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* opList, size_t* failIdx, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuMemsetD8_v2' in found_functions}}
 
 cdef CUresult _cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_t N) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -800,6 +812,11 @@ cdef CUresult _cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) except 
 {{if 'cuMemGetHandleForAddressRange' in found_functions}}
 
 cdef CUresult _cuMemGetHandleForAddressRange(void* handle, CUdeviceptr dptr, size_t size, CUmemRangeHandleType handleType, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuMemBatchDecompressAsync' in found_functions}}
+
+cdef CUresult _cuMemBatchDecompressAsync(CUmemDecompressParams* paramsArray, size_t count, unsigned int flags, size_t* errorIndex, CUstream stream) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuMemAddressReserve' in found_functions}}
@@ -1032,6 +1049,11 @@ cdef CUresult _cuStreamCreateWithPriority(CUstream* phStream, unsigned int flags
 cdef CUresult _cuStreamGetPriority(CUstream hStream, int* priority) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuStreamGetDevice' in found_functions}}
+
+cdef CUresult _cuStreamGetDevice(CUstream hStream, CUdevice* device) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuStreamGetFlags' in found_functions}}
 
 cdef CUresult _cuStreamGetFlags(CUstream hStream, unsigned int* flags) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -1175,6 +1197,11 @@ cdef CUresult _cuEventDestroy_v2(CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND no
 {{if 'cuEventElapsedTime' in found_functions}}
 
 cdef CUresult _cuEventElapsedTime(float* pMilliseconds, CUevent hStart, CUevent hEnd) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuEventElapsedTime_v2' in found_functions}}
+
+cdef CUresult _cuEventElapsedTime_v2(float* pMilliseconds, CUevent hStart, CUevent hEnd) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuImportExternalMemory' in found_functions}}
@@ -2032,6 +2059,11 @@ cdef CUresult _cuTensorMapEncodeTiled(CUtensorMap* tensorMap, CUtensorMapDataTyp
 cdef CUresult _cuTensorMapEncodeIm2col(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, const int* pixelBoxLowerCorner, const int* pixelBoxUpperCorner, cuuint32_t channelsPerPixel, cuuint32_t pixelsPerColumn, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuTensorMapEncodeIm2colWide' in found_functions}}
+
+cdef CUresult _cuTensorMapEncodeIm2colWide(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, int pixelBoxLowerCornerWidth, int pixelBoxUpperCornerWidth, cuuint32_t channelsPerPixel, cuuint32_t pixelsPerColumn, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapIm2ColWideMode mode, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuTensorMapReplaceAddress' in found_functions}}
 
 cdef CUresult _cuTensorMapReplaceAddress(CUtensorMap* tensorMap, void* globalAddress) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -2180,6 +2212,36 @@ cdef CUresult _cuStreamGetGreenCtx(CUstream hStream, CUgreenCtx* phCtx) except ?
 {{if 'cuGreenCtxStreamCreate' in found_functions}}
 
 cdef CUresult _cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, unsigned int flags, int priority) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessGetRestoreThreadId(int pid, int* tid) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCheckpointProcessGetState' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessGetState(int pid, CUprocessState* state) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCheckpointProcessLock' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessLock(int pid, CUcheckpointLockArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCheckpointProcessCheckpoint' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCheckpointProcessRestore' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCheckpointProcessUnlock' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessUnlock(int pid, CUcheckpointUnlockArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuProfilerStart' in found_functions}}

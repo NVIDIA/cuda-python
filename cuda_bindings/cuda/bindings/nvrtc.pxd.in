@@ -5,6 +5,8 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+#
+# This code was automatically generated with version 12.8.0. Do not modify it directly.
 cimport cuda.bindings.cynvrtc as cynvrtc
 cimport cuda.bindings._lib.utils as utils
 
@@ -21,6 +23,6 @@ cdef class nvrtcProgram:
         Get memory address of class instance
 
     """
-    cdef cynvrtc.nvrtcProgram  __val
-    cdef cynvrtc.nvrtcProgram* _ptr
+    cdef cynvrtc.nvrtcProgram  _pvt_val
+    cdef cynvrtc.nvrtcProgram* _pvt_ptr
 {{endif}}
