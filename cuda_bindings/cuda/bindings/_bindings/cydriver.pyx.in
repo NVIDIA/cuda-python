@@ -5,9 +5,13 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+#
+# This code was automatically generated with version 12.8.0. Do not modify it directly.
 {{if 'Windows' == platform.system()}}
-import win32api
+import os
+import site
 import struct
+import win32api
 from pywintypes import error
 {{else}}
 cimport cuda.bindings._lib.dlfcn as dlfcn
@@ -149,6 +153,8 @@ cdef bint __cuPythonInit = False
 {{if 'cuMemcpy2DAsync_v2' in found_functions}}cdef void *__cuMemcpy2DAsync_v2 = NULL{{endif}}
 {{if 'cuMemcpy3DAsync_v2' in found_functions}}cdef void *__cuMemcpy3DAsync_v2 = NULL{{endif}}
 {{if 'cuMemcpy3DPeerAsync' in found_functions}}cdef void *__cuMemcpy3DPeerAsync = NULL{{endif}}
+{{if 'cuMemcpyBatchAsync' in found_functions}}cdef void *__cuMemcpyBatchAsync = NULL{{endif}}
+{{if 'cuMemcpy3DBatchAsync' in found_functions}}cdef void *__cuMemcpy3DBatchAsync = NULL{{endif}}
 {{if 'cuMemsetD8_v2' in found_functions}}cdef void *__cuMemsetD8_v2 = NULL{{endif}}
 {{if 'cuMemsetD16_v2' in found_functions}}cdef void *__cuMemsetD16_v2 = NULL{{endif}}
 {{if 'cuMemsetD32_v2' in found_functions}}cdef void *__cuMemsetD32_v2 = NULL{{endif}}
@@ -175,6 +181,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuMipmappedArrayGetLevel' in found_functions}}cdef void *__cuMipmappedArrayGetLevel = NULL{{endif}}
 {{if 'cuMipmappedArrayDestroy' in found_functions}}cdef void *__cuMipmappedArrayDestroy = NULL{{endif}}
 {{if 'cuMemGetHandleForAddressRange' in found_functions}}cdef void *__cuMemGetHandleForAddressRange = NULL{{endif}}
+{{if 'cuMemBatchDecompressAsync' in found_functions}}cdef void *__cuMemBatchDecompressAsync = NULL{{endif}}
 {{if 'cuMemAddressReserve' in found_functions}}cdef void *__cuMemAddressReserve = NULL{{endif}}
 {{if 'cuMemAddressFree' in found_functions}}cdef void *__cuMemAddressFree = NULL{{endif}}
 {{if 'cuMemCreate' in found_functions}}cdef void *__cuMemCreate = NULL{{endif}}
@@ -221,6 +228,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuStreamCreate' in found_functions}}cdef void *__cuStreamCreate = NULL{{endif}}
 {{if 'cuStreamCreateWithPriority' in found_functions}}cdef void *__cuStreamCreateWithPriority = NULL{{endif}}
 {{if 'cuStreamGetPriority' in found_functions}}cdef void *__cuStreamGetPriority = NULL{{endif}}
+{{if 'cuStreamGetDevice' in found_functions}}cdef void *__cuStreamGetDevice = NULL{{endif}}
 {{if 'cuStreamGetFlags' in found_functions}}cdef void *__cuStreamGetFlags = NULL{{endif}}
 {{if 'cuStreamGetId' in found_functions}}cdef void *__cuStreamGetId = NULL{{endif}}
 {{if 'cuStreamGetCtx' in found_functions}}cdef void *__cuStreamGetCtx = NULL{{endif}}
@@ -250,6 +258,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuEventSynchronize' in found_functions}}cdef void *__cuEventSynchronize = NULL{{endif}}
 {{if 'cuEventDestroy_v2' in found_functions}}cdef void *__cuEventDestroy_v2 = NULL{{endif}}
 {{if 'cuEventElapsedTime' in found_functions}}cdef void *__cuEventElapsedTime = NULL{{endif}}
+{{if 'cuEventElapsedTime_v2' in found_functions}}cdef void *__cuEventElapsedTime_v2 = NULL{{endif}}
 {{if 'cuImportExternalMemory' in found_functions}}cdef void *__cuImportExternalMemory = NULL{{endif}}
 {{if 'cuExternalMemoryGetMappedBuffer' in found_functions}}cdef void *__cuExternalMemoryGetMappedBuffer = NULL{{endif}}
 {{if 'cuExternalMemoryGetMappedMipmappedArray' in found_functions}}cdef void *__cuExternalMemoryGetMappedMipmappedArray = NULL{{endif}}
@@ -421,6 +430,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuSurfObjectGetResourceDesc' in found_functions}}cdef void *__cuSurfObjectGetResourceDesc = NULL{{endif}}
 {{if 'cuTensorMapEncodeTiled' in found_functions}}cdef void *__cuTensorMapEncodeTiled = NULL{{endif}}
 {{if 'cuTensorMapEncodeIm2col' in found_functions}}cdef void *__cuTensorMapEncodeIm2col = NULL{{endif}}
+{{if 'cuTensorMapEncodeIm2colWide' in found_functions}}cdef void *__cuTensorMapEncodeIm2colWide = NULL{{endif}}
 {{if 'cuTensorMapReplaceAddress' in found_functions}}cdef void *__cuTensorMapReplaceAddress = NULL{{endif}}
 {{if 'cuDeviceCanAccessPeer' in found_functions}}cdef void *__cuDeviceCanAccessPeer = NULL{{endif}}
 {{if 'cuCtxEnablePeerAccess' in found_functions}}cdef void *__cuCtxEnablePeerAccess = NULL{{endif}}
@@ -451,6 +461,12 @@ cdef bint __cuPythonInit = False
 {{if 'cuGreenCtxWaitEvent' in found_functions}}cdef void *__cuGreenCtxWaitEvent = NULL{{endif}}
 {{if 'cuStreamGetGreenCtx' in found_functions}}cdef void *__cuStreamGetGreenCtx = NULL{{endif}}
 {{if 'cuGreenCtxStreamCreate' in found_functions}}cdef void *__cuGreenCtxStreamCreate = NULL{{endif}}
+{{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}cdef void *__cuCheckpointProcessGetRestoreThreadId = NULL{{endif}}
+{{if 'cuCheckpointProcessGetState' in found_functions}}cdef void *__cuCheckpointProcessGetState = NULL{{endif}}
+{{if 'cuCheckpointProcessLock' in found_functions}}cdef void *__cuCheckpointProcessLock = NULL{{endif}}
+{{if 'cuCheckpointProcessCheckpoint' in found_functions}}cdef void *__cuCheckpointProcessCheckpoint = NULL{{endif}}
+{{if 'cuCheckpointProcessRestore' in found_functions}}cdef void *__cuCheckpointProcessRestore = NULL{{endif}}
+{{if 'cuCheckpointProcessUnlock' in found_functions}}cdef void *__cuCheckpointProcessUnlock = NULL{{endif}}
 {{if 'cuProfilerStart' in found_functions}}cdef void *__cuProfilerStart = NULL{{endif}}
 {{if 'cuProfilerStop' in found_functions}}cdef void *__cuProfilerStop = NULL{{endif}}
 {{if True}}cdef void *__cuGraphicsEGLRegisterImage = NULL{{endif}}
@@ -622,6 +638,14 @@ cdef int cuPythonInit() except -1 nogil:
             global __cuMemcpy3DPeerAsync
             cuGetProcAddress('cuMemcpy3DPeerAsync', &__cuMemcpy3DPeerAsync, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
             {{endif}}
+            {{if 'cuMemcpyBatchAsync' in found_functions}}
+            global __cuMemcpyBatchAsync
+            cuGetProcAddress('cuMemcpyBatchAsync', &__cuMemcpyBatchAsync, 12080, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
+            {{endif}}
+            {{if 'cuMemcpy3DBatchAsync' in found_functions}}
+            global __cuMemcpy3DBatchAsync
+            cuGetProcAddress('cuMemcpy3DBatchAsync', &__cuMemcpy3DBatchAsync, 12080, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
+            {{endif}}
             {{if 'cuMemsetD8_v2' in found_functions}}
             global __cuMemsetD8_v2
             cuGetProcAddress('cuMemsetD8', &__cuMemsetD8_v2, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
@@ -670,6 +694,10 @@ cdef int cuPythonInit() except -1 nogil:
             global __cuMemsetD2D32Async
             cuGetProcAddress('cuMemsetD2D32Async', &__cuMemsetD2D32Async, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
             {{endif}}
+            {{if 'cuMemBatchDecompressAsync' in found_functions}}
+            global __cuMemBatchDecompressAsync
+            cuGetProcAddress('cuMemBatchDecompressAsync', &__cuMemBatchDecompressAsync, 12060, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
+            {{endif}}
             {{if 'cuMemMapArrayAsync' in found_functions}}
             global __cuMemMapArrayAsync
             cuGetProcAddress('cuMemMapArrayAsync', &__cuMemMapArrayAsync, 11010, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
@@ -697,6 +725,10 @@ cdef int cuPythonInit() except -1 nogil:
             {{if 'cuStreamGetPriority' in found_functions}}
             global __cuStreamGetPriority
             cuGetProcAddress('cuStreamGetPriority', &__cuStreamGetPriority, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
+            {{endif}}
+            {{if 'cuStreamGetDevice' in found_functions}}
+            global __cuStreamGetDevice
+            cuGetProcAddress('cuStreamGetDevice', &__cuStreamGetDevice, 12080, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
             {{endif}}
             {{if 'cuStreamGetFlags' in found_functions}}
             global __cuStreamGetFlags
@@ -949,6 +981,14 @@ cdef int cuPythonInit() except -1 nogil:
             global __cuMemcpy3DPeerAsync
             cuGetProcAddress('cuMemcpy3DPeerAsync', &__cuMemcpy3DPeerAsync, 4000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
+            {{if 'cuMemcpyBatchAsync' in found_functions}}
+            global __cuMemcpyBatchAsync
+            cuGetProcAddress('cuMemcpyBatchAsync', &__cuMemcpyBatchAsync, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuMemcpy3DBatchAsync' in found_functions}}
+            global __cuMemcpy3DBatchAsync
+            cuGetProcAddress('cuMemcpy3DBatchAsync', &__cuMemcpy3DBatchAsync, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
             {{if 'cuMemsetD8_v2' in found_functions}}
             global __cuMemsetD8_v2
             cuGetProcAddress('cuMemsetD8', &__cuMemsetD8_v2, 3020, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -997,6 +1037,10 @@ cdef int cuPythonInit() except -1 nogil:
             global __cuMemsetD2D32Async
             cuGetProcAddress('cuMemsetD2D32Async', &__cuMemsetD2D32Async, 3020, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
+            {{if 'cuMemBatchDecompressAsync' in found_functions}}
+            global __cuMemBatchDecompressAsync
+            cuGetProcAddress('cuMemBatchDecompressAsync', &__cuMemBatchDecompressAsync, 12060, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
             {{if 'cuMemMapArrayAsync' in found_functions}}
             global __cuMemMapArrayAsync
             cuGetProcAddress('cuMemMapArrayAsync', &__cuMemMapArrayAsync, 11010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -1024,6 +1068,10 @@ cdef int cuPythonInit() except -1 nogil:
             {{if 'cuStreamGetPriority' in found_functions}}
             global __cuStreamGetPriority
             cuGetProcAddress('cuStreamGetPriority', &__cuStreamGetPriority, 5050, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuStreamGetDevice' in found_functions}}
+            global __cuStreamGetDevice
+            cuGetProcAddress('cuStreamGetDevice', &__cuStreamGetDevice, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
             {{if 'cuStreamGetFlags' in found_functions}}
             global __cuStreamGetFlags
@@ -1854,6 +1902,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuEventElapsedTime
         cuGetProcAddress('cuEventElapsedTime', &__cuEventElapsedTime, 2000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuEventElapsedTime_v2' in found_functions}}
+        global __cuEventElapsedTime_v2
+        cuGetProcAddress('cuEventElapsedTime', &__cuEventElapsedTime_v2, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuImportExternalMemory' in found_functions}}
         global __cuImportExternalMemory
         cuGetProcAddress('cuImportExternalMemory', &__cuImportExternalMemory, 10000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -2482,6 +2534,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuTensorMapEncodeIm2col
         cuGetProcAddress('cuTensorMapEncodeIm2col', &__cuTensorMapEncodeIm2col, 12000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
+        {{if 'cuTensorMapEncodeIm2colWide' in found_functions}}
+        global __cuTensorMapEncodeIm2colWide
+        cuGetProcAddress('cuTensorMapEncodeIm2colWide', &__cuTensorMapEncodeIm2colWide, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
         {{if 'cuTensorMapReplaceAddress' in found_functions}}
         global __cuTensorMapReplaceAddress
         cuGetProcAddress('cuTensorMapReplaceAddress', &__cuTensorMapReplaceAddress, 12000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
@@ -2593,6 +2649,30 @@ cdef int cuPythonInit() except -1 nogil:
         {{if 'cuGreenCtxStreamCreate' in found_functions}}
         global __cuGreenCtxStreamCreate
         cuGetProcAddress('cuGreenCtxStreamCreate', &__cuGreenCtxStreamCreate, 12050, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
+        global __cuCheckpointProcessGetRestoreThreadId
+        cuGetProcAddress('cuCheckpointProcessGetRestoreThreadId', &__cuCheckpointProcessGetRestoreThreadId, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCheckpointProcessGetState' in found_functions}}
+        global __cuCheckpointProcessGetState
+        cuGetProcAddress('cuCheckpointProcessGetState', &__cuCheckpointProcessGetState, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCheckpointProcessLock' in found_functions}}
+        global __cuCheckpointProcessLock
+        cuGetProcAddress('cuCheckpointProcessLock', &__cuCheckpointProcessLock, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCheckpointProcessCheckpoint' in found_functions}}
+        global __cuCheckpointProcessCheckpoint
+        cuGetProcAddress('cuCheckpointProcessCheckpoint', &__cuCheckpointProcessCheckpoint, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCheckpointProcessRestore' in found_functions}}
+        global __cuCheckpointProcessRestore
+        cuGetProcAddress('cuCheckpointProcessRestore', &__cuCheckpointProcessRestore, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuCheckpointProcessUnlock' in found_functions}}
+        global __cuCheckpointProcessUnlock
+        cuGetProcAddress('cuCheckpointProcessUnlock', &__cuCheckpointProcessUnlock, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
         {{if 'cuProfilerStart' in found_functions}}
         global __cuProfilerStart
@@ -2854,6 +2934,20 @@ cdef int cuPythonInit() except -1 nogil:
             except:
                 pass
             {{endif}}
+            {{if 'cuMemcpyBatchAsync' in found_functions}}
+            try:
+                global __cuMemcpyBatchAsync
+                __cuMemcpyBatchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyBatchAsync_ptsz')
+            except:
+                pass
+            {{endif}}
+            {{if 'cuMemcpy3DBatchAsync' in found_functions}}
+            try:
+                global __cuMemcpy3DBatchAsync
+                __cuMemcpy3DBatchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DBatchAsync_ptsz')
+            except:
+                pass
+            {{endif}}
             {{if 'cuMemsetD8_v2' in found_functions}}
             try:
                 global __cuMemsetD8_v2
@@ -2938,6 +3032,13 @@ cdef int cuPythonInit() except -1 nogil:
             except:
                 pass
             {{endif}}
+            {{if 'cuMemBatchDecompressAsync' in found_functions}}
+            try:
+                global __cuMemBatchDecompressAsync
+                __cuMemBatchDecompressAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemBatchDecompressAsync_ptsz')
+            except:
+                pass
+            {{endif}}
             {{if 'cuMemMapArrayAsync' in found_functions}}
             try:
                 global __cuMemMapArrayAsync
@@ -2984,6 +3085,13 @@ cdef int cuPythonInit() except -1 nogil:
             try:
                 global __cuStreamGetPriority
                 __cuStreamGetPriority = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetPriority_ptsz')
+            except:
+                pass
+            {{endif}}
+            {{if 'cuStreamGetDevice' in found_functions}}
+            try:
+                global __cuStreamGetDevice
+                __cuStreamGetDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetDevice_ptsz')
             except:
                 pass
             {{endif}}
@@ -3424,6 +3532,20 @@ cdef int cuPythonInit() except -1 nogil:
             except:
                 pass
             {{endif}}
+            {{if 'cuMemcpyBatchAsync' in found_functions}}
+            try:
+                global __cuMemcpyBatchAsync
+                __cuMemcpyBatchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyBatchAsync')
+            except:
+                pass
+            {{endif}}
+            {{if 'cuMemcpy3DBatchAsync' in found_functions}}
+            try:
+                global __cuMemcpy3DBatchAsync
+                __cuMemcpy3DBatchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DBatchAsync')
+            except:
+                pass
+            {{endif}}
             {{if 'cuMemsetD8_v2' in found_functions}}
             try:
                 global __cuMemsetD8_v2
@@ -3508,6 +3630,13 @@ cdef int cuPythonInit() except -1 nogil:
             except:
                 pass
             {{endif}}
+            {{if 'cuMemBatchDecompressAsync' in found_functions}}
+            try:
+                global __cuMemBatchDecompressAsync
+                __cuMemBatchDecompressAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemBatchDecompressAsync')
+            except:
+                pass
+            {{endif}}
             {{if 'cuMemMapArrayAsync' in found_functions}}
             try:
                 global __cuMemMapArrayAsync
@@ -3554,6 +3683,13 @@ cdef int cuPythonInit() except -1 nogil:
             try:
                 global __cuStreamGetPriority
                 __cuStreamGetPriority = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetPriority')
+            except:
+                pass
+            {{endif}}
+            {{if 'cuStreamGetDevice' in found_functions}}
+            try:
+                global __cuStreamGetDevice
+                __cuStreamGetDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetDevice')
             except:
                 pass
             {{endif}}
@@ -5007,6 +5143,13 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuEventElapsedTime_v2' in found_functions}}
+        try:
+            global __cuEventElapsedTime_v2
+            __cuEventElapsedTime_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventElapsedTime_v2')
+        except:
+            pass
+        {{endif}}
         {{if 'cuImportExternalMemory' in found_functions}}
         try:
             global __cuImportExternalMemory
@@ -6106,6 +6249,13 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuTensorMapEncodeIm2colWide' in found_functions}}
+        try:
+            global __cuTensorMapEncodeIm2colWide
+            __cuTensorMapEncodeIm2colWide = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTensorMapEncodeIm2colWide')
+        except:
+            pass
+        {{endif}}
         {{if 'cuTensorMapReplaceAddress' in found_functions}}
         try:
             global __cuTensorMapReplaceAddress
@@ -6299,6 +6449,48 @@ cdef int cuPythonInit() except -1 nogil:
         try:
             global __cuGreenCtxStreamCreate
             __cuGreenCtxStreamCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGreenCtxStreamCreate')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
+        try:
+            global __cuCheckpointProcessGetRestoreThreadId
+            __cuCheckpointProcessGetRestoreThreadId = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessGetRestoreThreadId')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCheckpointProcessGetState' in found_functions}}
+        try:
+            global __cuCheckpointProcessGetState
+            __cuCheckpointProcessGetState = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessGetState')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCheckpointProcessLock' in found_functions}}
+        try:
+            global __cuCheckpointProcessLock
+            __cuCheckpointProcessLock = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessLock')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCheckpointProcessCheckpoint' in found_functions}}
+        try:
+            global __cuCheckpointProcessCheckpoint
+            __cuCheckpointProcessCheckpoint = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessCheckpoint')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCheckpointProcessRestore' in found_functions}}
+        try:
+            global __cuCheckpointProcessRestore
+            __cuCheckpointProcessRestore = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessRestore')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuCheckpointProcessUnlock' in found_functions}}
+        try:
+            global __cuCheckpointProcessUnlock
+            __cuCheckpointProcessUnlock = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessUnlock')
         except:
             pass
         {{endif}}
@@ -6550,6 +6742,14 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuMemcpy3DPeerAsync
         __cuMemcpy3DPeerAsync = dlfcn.dlsym(handle, 'cuMemcpy3DPeerAsync_ptsz')
         {{endif}}
+        {{if 'cuMemcpyBatchAsync' in found_functions}}
+        global __cuMemcpyBatchAsync
+        __cuMemcpyBatchAsync = dlfcn.dlsym(handle, 'cuMemcpyBatchAsync_ptsz')
+        {{endif}}
+        {{if 'cuMemcpy3DBatchAsync' in found_functions}}
+        global __cuMemcpy3DBatchAsync
+        __cuMemcpy3DBatchAsync = dlfcn.dlsym(handle, 'cuMemcpy3DBatchAsync_ptsz')
+        {{endif}}
         {{if 'cuMemsetD8_v2' in found_functions}}
         global __cuMemsetD8_v2
         __cuMemsetD8_v2 = dlfcn.dlsym(handle, 'cuMemsetD8_v2_ptds')
@@ -6598,6 +6798,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuMemsetD2D32Async
         __cuMemsetD2D32Async = dlfcn.dlsym(handle, 'cuMemsetD2D32Async_ptsz')
         {{endif}}
+        {{if 'cuMemBatchDecompressAsync' in found_functions}}
+        global __cuMemBatchDecompressAsync
+        __cuMemBatchDecompressAsync = dlfcn.dlsym(handle, 'cuMemBatchDecompressAsync_ptsz')
+        {{endif}}
         {{if 'cuMemMapArrayAsync' in found_functions}}
         global __cuMemMapArrayAsync
         __cuMemMapArrayAsync = dlfcn.dlsym(handle, 'cuMemMapArrayAsync_ptsz')
@@ -6625,6 +6829,10 @@ cdef int cuPythonInit() except -1 nogil:
         {{if 'cuStreamGetPriority' in found_functions}}
         global __cuStreamGetPriority
         __cuStreamGetPriority = dlfcn.dlsym(handle, 'cuStreamGetPriority_ptsz')
+        {{endif}}
+        {{if 'cuStreamGetDevice' in found_functions}}
+        global __cuStreamGetDevice
+        __cuStreamGetDevice = dlfcn.dlsym(handle, 'cuStreamGetDevice_ptsz')
         {{endif}}
         {{if 'cuStreamGetFlags' in found_functions}}
         global __cuStreamGetFlags
@@ -6877,6 +7085,14 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuMemcpy3DPeerAsync
         __cuMemcpy3DPeerAsync = dlfcn.dlsym(handle, 'cuMemcpy3DPeerAsync')
         {{endif}}
+        {{if 'cuMemcpyBatchAsync' in found_functions}}
+        global __cuMemcpyBatchAsync
+        __cuMemcpyBatchAsync = dlfcn.dlsym(handle, 'cuMemcpyBatchAsync')
+        {{endif}}
+        {{if 'cuMemcpy3DBatchAsync' in found_functions}}
+        global __cuMemcpy3DBatchAsync
+        __cuMemcpy3DBatchAsync = dlfcn.dlsym(handle, 'cuMemcpy3DBatchAsync')
+        {{endif}}
         {{if 'cuMemsetD8_v2' in found_functions}}
         global __cuMemsetD8_v2
         __cuMemsetD8_v2 = dlfcn.dlsym(handle, 'cuMemsetD8_v2')
@@ -6925,6 +7141,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __cuMemsetD2D32Async
         __cuMemsetD2D32Async = dlfcn.dlsym(handle, 'cuMemsetD2D32Async')
         {{endif}}
+        {{if 'cuMemBatchDecompressAsync' in found_functions}}
+        global __cuMemBatchDecompressAsync
+        __cuMemBatchDecompressAsync = dlfcn.dlsym(handle, 'cuMemBatchDecompressAsync')
+        {{endif}}
         {{if 'cuMemMapArrayAsync' in found_functions}}
         global __cuMemMapArrayAsync
         __cuMemMapArrayAsync = dlfcn.dlsym(handle, 'cuMemMapArrayAsync')
@@ -6952,6 +7172,10 @@ cdef int cuPythonInit() except -1 nogil:
         {{if 'cuStreamGetPriority' in found_functions}}
         global __cuStreamGetPriority
         __cuStreamGetPriority = dlfcn.dlsym(handle, 'cuStreamGetPriority')
+        {{endif}}
+        {{if 'cuStreamGetDevice' in found_functions}}
+        global __cuStreamGetDevice
+        __cuStreamGetDevice = dlfcn.dlsym(handle, 'cuStreamGetDevice')
         {{endif}}
         {{if 'cuStreamGetFlags' in found_functions}}
         global __cuStreamGetFlags
@@ -7782,6 +8006,10 @@ cdef int cuPythonInit() except -1 nogil:
     global __cuEventElapsedTime
     __cuEventElapsedTime = dlfcn.dlsym(handle, 'cuEventElapsedTime')
     {{endif}}
+    {{if 'cuEventElapsedTime_v2' in found_functions}}
+    global __cuEventElapsedTime_v2
+    __cuEventElapsedTime_v2 = dlfcn.dlsym(handle, 'cuEventElapsedTime_v2')
+    {{endif}}
     {{if 'cuImportExternalMemory' in found_functions}}
     global __cuImportExternalMemory
     __cuImportExternalMemory = dlfcn.dlsym(handle, 'cuImportExternalMemory')
@@ -8410,6 +8638,10 @@ cdef int cuPythonInit() except -1 nogil:
     global __cuTensorMapEncodeIm2col
     __cuTensorMapEncodeIm2col = dlfcn.dlsym(handle, 'cuTensorMapEncodeIm2col')
     {{endif}}
+    {{if 'cuTensorMapEncodeIm2colWide' in found_functions}}
+    global __cuTensorMapEncodeIm2colWide
+    __cuTensorMapEncodeIm2colWide = dlfcn.dlsym(handle, 'cuTensorMapEncodeIm2colWide')
+    {{endif}}
     {{if 'cuTensorMapReplaceAddress' in found_functions}}
     global __cuTensorMapReplaceAddress
     __cuTensorMapReplaceAddress = dlfcn.dlsym(handle, 'cuTensorMapReplaceAddress')
@@ -8521,6 +8753,30 @@ cdef int cuPythonInit() except -1 nogil:
     {{if 'cuGreenCtxStreamCreate' in found_functions}}
     global __cuGreenCtxStreamCreate
     __cuGreenCtxStreamCreate = dlfcn.dlsym(handle, 'cuGreenCtxStreamCreate')
+    {{endif}}
+    {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
+    global __cuCheckpointProcessGetRestoreThreadId
+    __cuCheckpointProcessGetRestoreThreadId = dlfcn.dlsym(handle, 'cuCheckpointProcessGetRestoreThreadId')
+    {{endif}}
+    {{if 'cuCheckpointProcessGetState' in found_functions}}
+    global __cuCheckpointProcessGetState
+    __cuCheckpointProcessGetState = dlfcn.dlsym(handle, 'cuCheckpointProcessGetState')
+    {{endif}}
+    {{if 'cuCheckpointProcessLock' in found_functions}}
+    global __cuCheckpointProcessLock
+    __cuCheckpointProcessLock = dlfcn.dlsym(handle, 'cuCheckpointProcessLock')
+    {{endif}}
+    {{if 'cuCheckpointProcessCheckpoint' in found_functions}}
+    global __cuCheckpointProcessCheckpoint
+    __cuCheckpointProcessCheckpoint = dlfcn.dlsym(handle, 'cuCheckpointProcessCheckpoint')
+    {{endif}}
+    {{if 'cuCheckpointProcessRestore' in found_functions}}
+    global __cuCheckpointProcessRestore
+    __cuCheckpointProcessRestore = dlfcn.dlsym(handle, 'cuCheckpointProcessRestore')
+    {{endif}}
+    {{if 'cuCheckpointProcessUnlock' in found_functions}}
+    global __cuCheckpointProcessUnlock
+    __cuCheckpointProcessUnlock = dlfcn.dlsym(handle, 'cuCheckpointProcessUnlock')
     {{endif}}
     {{if 'cuProfilerStart' in found_functions}}
     global __cuProfilerStart
@@ -10204,6 +10460,30 @@ cdef CUresult _cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER* pCopy, CUstream hSt
     return err
 {{endif}}
 
+{{if 'cuMemcpyBatchAsync' in found_functions}}
+
+cdef CUresult _cuMemcpyBatchAsync(CUdeviceptr* dsts, CUdeviceptr* srcs, size_t* sizes, size_t count, CUmemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, size_t* failIdx, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMemcpyBatchAsync
+    cuPythonInit()
+    if __cuMemcpyBatchAsync == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMemcpyBatchAsync" not found')
+    err = (<CUresult (*)(CUdeviceptr*, CUdeviceptr*, size_t*, size_t, CUmemcpyAttributes*, size_t*, size_t, size_t*, CUstream) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMemcpyBatchAsync)(dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, failIdx, hStream)
+    return err
+{{endif}}
+
+{{if 'cuMemcpy3DBatchAsync' in found_functions}}
+
+cdef CUresult _cuMemcpy3DBatchAsync(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* opList, size_t* failIdx, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMemcpy3DBatchAsync
+    cuPythonInit()
+    if __cuMemcpy3DBatchAsync == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMemcpy3DBatchAsync" not found')
+    err = (<CUresult (*)(size_t, CUDA_MEMCPY3D_BATCH_OP*, size_t*, unsigned long long, CUstream) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMemcpy3DBatchAsync)(numOps, opList, failIdx, flags, hStream)
+    return err
+{{endif}}
+
 {{if 'cuMemsetD8_v2' in found_functions}}
 
 cdef CUresult _cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_t N) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -10513,6 +10793,18 @@ cdef CUresult _cuMemGetHandleForAddressRange(void* handle, CUdeviceptr dptr, siz
         with gil:
             raise RuntimeError('Function "cuMemGetHandleForAddressRange" not found')
     err = (<CUresult (*)(void*, CUdeviceptr, size_t, CUmemRangeHandleType, unsigned long long) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMemGetHandleForAddressRange)(handle, dptr, size, handleType, flags)
+    return err
+{{endif}}
+
+{{if 'cuMemBatchDecompressAsync' in found_functions}}
+
+cdef CUresult _cuMemBatchDecompressAsync(CUmemDecompressParams* paramsArray, size_t count, unsigned int flags, size_t* errorIndex, CUstream stream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMemBatchDecompressAsync
+    cuPythonInit()
+    if __cuMemBatchDecompressAsync == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMemBatchDecompressAsync" not found')
+    err = (<CUresult (*)(CUmemDecompressParams*, size_t, unsigned int, size_t*, CUstream) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMemBatchDecompressAsync)(paramsArray, count, flags, errorIndex, stream)
     return err
 {{endif}}
 
@@ -11068,6 +11360,18 @@ cdef CUresult _cuStreamGetPriority(CUstream hStream, int* priority) except ?CUDA
     return err
 {{endif}}
 
+{{if 'cuStreamGetDevice' in found_functions}}
+
+cdef CUresult _cuStreamGetDevice(CUstream hStream, CUdevice* device) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamGetDevice
+    cuPythonInit()
+    if __cuStreamGetDevice == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamGetDevice" not found')
+    err = (<CUresult (*)(CUstream, CUdevice*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuStreamGetDevice)(hStream, device)
+    return err
+{{endif}}
+
 {{if 'cuStreamGetFlags' in found_functions}}
 
 cdef CUresult _cuStreamGetFlags(CUstream hStream, unsigned int* flags) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -11413,6 +11717,18 @@ cdef CUresult _cuEventElapsedTime(float* pMilliseconds, CUevent hStart, CUevent 
         with gil:
             raise RuntimeError('Function "cuEventElapsedTime" not found')
     err = (<CUresult (*)(float*, CUevent, CUevent) except ?CUDA_ERROR_NOT_FOUND nogil> __cuEventElapsedTime)(pMilliseconds, hStart, hEnd)
+    return err
+{{endif}}
+
+{{if 'cuEventElapsedTime_v2' in found_functions}}
+
+cdef CUresult _cuEventElapsedTime_v2(float* pMilliseconds, CUevent hStart, CUevent hEnd) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuEventElapsedTime_v2
+    cuPythonInit()
+    if __cuEventElapsedTime_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuEventElapsedTime_v2" not found')
+    err = (<CUresult (*)(float*, CUevent, CUevent) except ?CUDA_ERROR_NOT_FOUND nogil> __cuEventElapsedTime_v2)(pMilliseconds, hStart, hEnd)
     return err
 {{endif}}
 
@@ -13468,6 +13784,18 @@ cdef CUresult _cuTensorMapEncodeIm2col(CUtensorMap* tensorMap, CUtensorMapDataTy
     return err
 {{endif}}
 
+{{if 'cuTensorMapEncodeIm2colWide' in found_functions}}
+
+cdef CUresult _cuTensorMapEncodeIm2colWide(CUtensorMap* tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void* globalAddress, const cuuint64_t* globalDim, const cuuint64_t* globalStrides, int pixelBoxLowerCornerWidth, int pixelBoxUpperCornerWidth, cuuint32_t channelsPerPixel, cuuint32_t pixelsPerColumn, const cuuint32_t* elementStrides, CUtensorMapInterleave interleave, CUtensorMapIm2ColWideMode mode, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuTensorMapEncodeIm2colWide
+    cuPythonInit()
+    if __cuTensorMapEncodeIm2colWide == NULL:
+        with gil:
+            raise RuntimeError('Function "cuTensorMapEncodeIm2colWide" not found')
+    err = (<CUresult (*)(CUtensorMap*, CUtensorMapDataType, cuuint32_t, void*, const cuuint64_t*, const cuuint64_t*, int, int, cuuint32_t, cuuint32_t, const cuuint32_t*, CUtensorMapInterleave, CUtensorMapIm2ColWideMode, CUtensorMapSwizzle, CUtensorMapL2promotion, CUtensorMapFloatOOBfill) except ?CUDA_ERROR_NOT_FOUND nogil> __cuTensorMapEncodeIm2colWide)(tensorMap, tensorDataType, tensorRank, globalAddress, globalDim, globalStrides, pixelBoxLowerCornerWidth, pixelBoxUpperCornerWidth, channelsPerPixel, pixelsPerColumn, elementStrides, interleave, mode, swizzle, l2Promotion, oobFill)
+    return err
+{{endif}}
+
 {{if 'cuTensorMapReplaceAddress' in found_functions}}
 
 cdef CUresult _cuTensorMapReplaceAddress(CUtensorMap* tensorMap, void* globalAddress) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -13825,6 +14153,78 @@ cdef CUresult _cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, u
         with gil:
             raise RuntimeError('Function "cuGreenCtxStreamCreate" not found')
     err = (<CUresult (*)(CUstream*, CUgreenCtx, unsigned int, int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuGreenCtxStreamCreate)(phStream, greenCtx, flags, priority)
+    return err
+{{endif}}
+
+{{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessGetRestoreThreadId(int pid, int* tid) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCheckpointProcessGetRestoreThreadId
+    cuPythonInit()
+    if __cuCheckpointProcessGetRestoreThreadId == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCheckpointProcessGetRestoreThreadId" not found')
+    err = (<CUresult (*)(int, int*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCheckpointProcessGetRestoreThreadId)(pid, tid)
+    return err
+{{endif}}
+
+{{if 'cuCheckpointProcessGetState' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessGetState(int pid, CUprocessState* state) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCheckpointProcessGetState
+    cuPythonInit()
+    if __cuCheckpointProcessGetState == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCheckpointProcessGetState" not found')
+    err = (<CUresult (*)(int, CUprocessState*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCheckpointProcessGetState)(pid, state)
+    return err
+{{endif}}
+
+{{if 'cuCheckpointProcessLock' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessLock(int pid, CUcheckpointLockArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCheckpointProcessLock
+    cuPythonInit()
+    if __cuCheckpointProcessLock == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCheckpointProcessLock" not found')
+    err = (<CUresult (*)(int, CUcheckpointLockArgs*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCheckpointProcessLock)(pid, args)
+    return err
+{{endif}}
+
+{{if 'cuCheckpointProcessCheckpoint' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCheckpointProcessCheckpoint
+    cuPythonInit()
+    if __cuCheckpointProcessCheckpoint == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCheckpointProcessCheckpoint" not found')
+    err = (<CUresult (*)(int, CUcheckpointCheckpointArgs*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCheckpointProcessCheckpoint)(pid, args)
+    return err
+{{endif}}
+
+{{if 'cuCheckpointProcessRestore' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCheckpointProcessRestore
+    cuPythonInit()
+    if __cuCheckpointProcessRestore == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCheckpointProcessRestore" not found')
+    err = (<CUresult (*)(int, CUcheckpointRestoreArgs*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCheckpointProcessRestore)(pid, args)
+    return err
+{{endif}}
+
+{{if 'cuCheckpointProcessUnlock' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessUnlock(int pid, CUcheckpointUnlockArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCheckpointProcessUnlock
+    cuPythonInit()
+    if __cuCheckpointProcessUnlock == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCheckpointProcessUnlock" not found')
+    err = (<CUresult (*)(int, CUcheckpointUnlockArgs*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCheckpointProcessUnlock)(pid, args)
     return err
 {{endif}}
 
