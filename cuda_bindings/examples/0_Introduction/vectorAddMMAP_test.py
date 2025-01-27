@@ -7,6 +7,7 @@
 # is strictly prohibited.
 import ctypes
 import math
+import platform
 import sys
 
 import numpy as np
@@ -194,6 +195,23 @@ def simpleFreeMultiDeviceMmap(dptr, size):
 
 def main():
     print("Vector Addition (Driver API)")
+
+    if platform.system() == "Darwin":
+        print("vectorAddMMAP is not supported on Mac OSX - waiving sample")
+        return
+
+    if platform.machine() == "armv7l":
+        print("vectorAddMMAP is not supported on ARMv7 - waiving sample")
+        return
+
+    if platform.machine() == "aarch64":
+        print("vectorAddMMAP is not supported on aarch64 - waiving sample")
+        return
+
+    if platform.machine() == "sbsa":
+        print("vectorAddMMAP is not supported on sbsa - waiving sample")
+        return
+
     N = 50000
     size = N * np.dtype(np.float32).itemsize
 
