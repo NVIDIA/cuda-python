@@ -83,10 +83,39 @@ replace = {
 }
 
 found_types = []
-found_structs = {}
-found_unions = {}
 found_functions = []
 found_values = []
+found_struct = []
+struct_list = {}
+
+
+class Struct:
+    def __init__(self, name, members):
+        self._name = name
+        self._member_names = []
+        self._member_types = []
+        for var_name, var_type, _ in members:
+            var_type = var_type[0]
+            var_type = var_type.removeprefix("struct ")
+            var_type = var_type.removeprefix("union ")
+
+            self._member_names += [var_name]
+            self._member_types += [var_type]
+
+    def discoverMembers(self, memberDict, prefix):
+        discovered = []
+        for memberName, memberType in zip(self._member_names, self._member_types):
+            if memberName:
+                discovered += [".".join([prefix, memberName])]
+            if memberType in memberDict:
+                discovered += memberDict[memberType].discoverMembers(
+                    memberDict, discovered[-1] if memberName else prefix
+                )
+        return discovered
+
+    def __repr__(self):
+        return f"{self._name}: {self._member_names} with types {self._member_types}"
+
 
 include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
 print(f'Parsing headers in "{include_path_list}" (Caching = {PARSER_CACHING})')
@@ -113,26 +142,27 @@ for library, header_list in header_dict.items():
     # Combine types with others since they sometimes get tangled
     found_types += {key for key in parser.defs["types"]}
     found_types += {key for key in parser.defs["structs"]}
-    found_structs.update(parser.defs["structs"])
     found_types += {key for key in parser.defs["unions"]}
-    found_unions.update(parser.defs["unions"])
     found_types += {key for key in parser.defs["enums"]}
     found_functions += {key for key in parser.defs["functions"]}
     found_values += {key for key in parser.defs["values"]}
 
+    for key, value in parser.defs["structs"].items():
+        struct_list[key] = Struct(key, value["members"])
+    for key, value in parser.defs["unions"].items():
+        struct_list[key] = Struct(key, value["members"])
+
+    for key, value in struct_list.items():
+        if key.startswith("anon_union") or key.startswith("anon_struct"):
+            continue
+
+        found_struct += [key]
+        discovered = value.discoverMembers(struct_list, key)
+        if discovered:
+            found_struct += discovered
+
 if len(found_functions) == 0:
     raise RuntimeError(f'Parser found no functions. Is CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
-
-
-# Unwrap struct and union members
-def unwrapMembers(found_dict):
-    for key in found_dict:
-        members = [var for var, _, _ in found_dict[key]["members"]]
-        found_dict[key]["members"] = members
-
-
-unwrapMembers(found_structs)
-unwrapMembers(found_unions)
 
 # ----------------------------------------------------------------------
 # Generate
@@ -282,7 +312,7 @@ sources_list = [
     ["cuda/bindings/*.pyx"],
     # public (deprecated, to be removed)
     ["cuda/*.pyx"],
-    # interal files used by generated bindings
+    # internal files used by generated bindings
     ["cuda/bindings/_internal/nvjitlink.pyx"],
     ["cuda/bindings/_internal/nvvm.pyx"],
     ["cuda/bindings/_internal/utils.pyx"],
