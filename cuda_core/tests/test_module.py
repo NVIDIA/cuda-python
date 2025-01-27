@@ -68,20 +68,27 @@ def test_get_kernel(init_cuda):
 
 
 @pytest.mark.parametrize(
-    "attr",
+    "attr, expected_type",
     [
-        "max_threads_per_block",
-        "shared_size_bytes",
-        "const_size_bytes",
-        "local_size_bytes",
-        "num_regs",
-        "ptx_version",
-        "binary_version",
-        "cache_mode_ca",
-        "cluster_size_must_be_set",
+        ("max_threads_per_block", int),
+        ("shared_size_bytes", int),
+        ("const_size_bytes", int),
+        ("local_size_bytes", int),
+        ("num_regs", int),
+        ("ptx_version", int),
+        ("binary_version", int),
+        ("cache_mode_ca", bool),
+        ("cluster_size_must_be_set", bool),
+        ("max_dynamic_shared_size_bytes", int),
+        ("preferred_shared_memory_carveout", int),
+        ("required_cluster_width", int),
+        ("required_cluster_height", int),
+        ("required_cluster_depth", int),
+        ("non_portable_cluster_size_allowed", bool),
+        ("cluster_scheduling_policy_preference", int),
     ],
 )
-def test_read_only_kernel_attributes(get_saxpy_kernel, attr, cuda_version):
+def test_read_only_kernel_attributes(get_saxpy_kernel, attr, expected_type, cuda_version):
     if cuda_version[0] < 12:
         pytest.skip("CUDA version is less than 12, and doesn't support kernel attribute access")
 
@@ -90,32 +97,8 @@ def test_read_only_kernel_attributes(get_saxpy_kernel, attr, cuda_version):
     # Access the attribute to ensure it can be read
     value = getattr(kernel.attributes, attr)
     assert value is not None
+    assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
 
     # Attempt to set the attribute and ensure it raises an exception
     with pytest.raises(AttributeError):
         setattr(kernel.attributes, attr, value)
-
-
-@pytest.mark.parametrize(
-    "attr, value",
-    [
-        ("max_dynamic_shared_size_bytes", 4096),
-        ("preferred_shared_memory_carveout", 50),
-        ("required_cluster_width", 2),
-        ("required_cluster_height", 2),
-        ("required_cluster_depth", 2),
-        ("non_portable_cluster_size_allowed", True),
-        ("cluster_scheduling_policy_preference", 1),
-    ],
-)
-def test_read_write_kernel_attributes(get_saxpy_kernel, attr, value, cuda_version):
-    if cuda_version[0] < 12:
-        pytest.skip("CUDA version is less than 12, and doesn't support kernel attribute access")
-
-    kernel = get_saxpy_kernel
-
-    # Set the attribute
-    setattr(kernel.attributes, attr, value)
-
-    # Ensure the attribute was set correctly
-    assert getattr(kernel.attributes, attr) == value
