@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.6.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 12.8.0. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -28,6 +28,7 @@ class Result(_IntEnum):
     ERROR_INVALID_OPTION = NVVM_ERROR_INVALID_OPTION
     ERROR_NO_MODULE_IN_PROGRAM = NVVM_ERROR_NO_MODULE_IN_PROGRAM
     ERROR_COMPILATION = NVVM_ERROR_COMPILATION
+    ERROR_CANCELLED = NVVM_ERROR_CANCELLED
 
 
 ###############################################################################
