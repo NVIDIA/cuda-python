@@ -7,6 +7,7 @@
 # is strictly prohibited.
 cimport cuda.bindings.driver as driver
 cimport cuda.bindings.cydriver as cydriver
+cimport cuda.bindings.cyruntime as cyruntime
 from libcpp.vector cimport vector
 
 cdef class HelperKernelParams:
@@ -88,11 +89,34 @@ cdef class HelperCUjit_option:
     cdef vector[char*] _charstarstar # list of names
     cdef InputVoidPtrPtrHelper _voidstarstar # list of addresses
 {{endif}}
+{{if 'cudaJitOption' in found_types}}
+
+cdef class HelperCudaJitOption:
+    cdef void* _cptr
+    cdef cyruntime.cudaJitOption _attr
+
+    # Return values
+    cdef unsigned int _uint
+    cdef float _float
+    cdef char* _charstar
+    cdef cyruntime.cudaJit_Fallback _fallback
+    cdef int _int
+    cdef cyruntime.cudaJit_CacheMode _cacheMode
+{{endif}}
 {{if 'CUlibraryOption_enum' in found_types}}
 
 cdef class HelperCUlibraryOption:
     cdef void* _cptr
     cdef cydriver.CUlibraryOption_enum _attr
+
+    # Return values
+    cdef unsigned int _uint
+{{endif}}
+{{if 'cudaLibraryOption' in found_types}}
+
+cdef class HelperCudaLibraryOption:
+    cdef void* _cptr
+    cdef cyruntime.cudaLibraryOption _attr
 
     # Return values
     cdef unsigned int _uint
@@ -107,7 +131,9 @@ cdef class HelperCUmemAllocationHandleType:
     cdef int _int
     cdef void* _handle
     cdef unsigned int _d3dkmt_handle
+    {{if 'CUmemFabricHandle' in found_types}}
     cdef driver.CUmemFabricHandle _mem_fabric_handle
+    {{endif}}
 {{endif}}
 
 cdef class InputVoidPtrPtrHelper:
