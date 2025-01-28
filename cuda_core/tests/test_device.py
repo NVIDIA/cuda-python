@@ -198,3 +198,11 @@ cuda_base_properties = [
 def test_device_property_types(property_name, expected_type):
     device = Device()
     assert isinstance(getattr(device.properties, property_name), expected_type)
+
+
+def test_device_properties_complete():
+    device = Device()
+    live_props = set(attr for attr in dir(device.properties) if not attr.startswith("_"))
+    tab_props = set(attr for attr, _ in cuda_base_properties)
+    assert len(tab_props) == len(cuda_base_properties)  # Ensure no duplicates.
+    assert tab_props == live_props  # Ensure exact match.
