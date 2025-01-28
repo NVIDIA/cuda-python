@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-
 import pytest
 
 from cuda.core.experimental import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
@@ -56,8 +55,6 @@ options = [
     LinkerOptions(arch=ARCH, lineinfo=True),
 ]
 if not culink_backend:
-    from cuda.bindings import nvjitlink
-
     options += [
         LinkerOptions(arch=ARCH, time=True),
         LinkerOptions(arch=ARCH, ftz=True),
