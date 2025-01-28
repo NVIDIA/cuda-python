@@ -436,7 +436,9 @@ class Linker:
             raise ValueError(f"Unsupported target type: {target_type}")
         with _exception_manager(self):
             if _nvjitlink:
+                # print('completing')
                 _nvjitlink.complete(self._mnff.handle)
+                # print('done completing')
                 if target_type == "cubin":
                     get_size = _nvjitlink.get_linked_cubin_size
                     get_code = _nvjitlink.get_linked_cubin
