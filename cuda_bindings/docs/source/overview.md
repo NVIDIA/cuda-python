@@ -1,29 +1,24 @@
 # Overview
 
-<p style="font-size: 14px; color: grey; text-align: right;">by <a
-href="https://developer.nvidia.com/blog/author/mnicely/">Matthew Nicely</a></p>
-
 Python plays a key role within the science, engineering, data analytics, and
 deep learning application ecosystem. NVIDIA has long been committed to helping
 the Python ecosystem leverage the accelerated massively parallel performance of
-GPUs to deliver standardized libraries, tools, and applications. Today, we’re
+GPUs to deliver standardized libraries, tools, and applications. Today, we're
 introducing another step towards simplification of the developer experience with
 improved Python code portability and compatibility.
 
 Our goal is to help unify the Python CUDA ecosystem with a single standard set
-of low-level interfaces, providing full coverage of and access to the CUDA host
+of low-level interfaces, providing full coverage and access to the CUDA host
 APIs from Python. We want to provide an ecosystem foundation to allow
 interoperability among different accelerated libraries. Most importantly, it
 should be easy for Python developers to use NVIDIA GPUs.
 
-## CUDA Python workflow
+## `cuda.bindings` workflow
 
 Because Python is an interpreted language, you need a way to compile the device
 code into
 [PTX](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html) and
-then extract the function to be called at a later point in the application. It’s
-not important for understanding CUDA Python, but Parallel Thread Execution (PTX)
-is a low-level virtual machine and instruction set architecture (ISA). You
+then extract the function to be called at a later point in the application. You
 construct your device code in the form of a string and compile it with
 [NVRTC](http://docs.nvidia.com/cuda/nvrtc/index.html), a runtime compilation
 library for CUDA C++. Using the NVIDIA [Driver
@@ -35,19 +30,20 @@ overview, jump into a commonly used example for parallel programming:
 
 The first thing to do is import the [Driver
 API](https://docs.nvidia.com/cuda/cuda-driver-api/index.html) and
-[NVRTC](https://docs.nvidia.com/cuda/nvrtc/index.html) modules from the CUDA
-Python package. In this example, you copy data from the host to device. You need
-[NumPy](https://numpy.org/doc/stable/contents.html) to store data on the host.
+[NVRTC](https://docs.nvidia.com/cuda/nvrtc/index.html) modules from the `cuda.bindings`
+package. Next, we consider how to store host data and pass it to the device. Different
+approaches can be used to accomplish this and are described in [Preparing kernel
+arguments](https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html#preparing-kernel-arguments).
+In this example, we will use NumPy to store host data and pass it to the device, so let's
+import this dependency as well.
 
 ```python
 from cuda.bindings import driver, nvrtc
 import numpy as np
 ```
 
-Error checking is a fundamental best practice in code development and a code
-example is provided.
-In a future release, this may automatically raise exceptions using a Python
-object model.
+Error checking is a fundamental best practice when working with low-level interfaces.
+The following code snippet lets us validate each API call and raise exceptions in case of error.
 
 ```python
 def _cudaGetErrorEnum(error):
@@ -70,7 +66,7 @@ def checkCudaErrors(result):
         return result[1:]
 ```
 
-It’s common practice to write CUDA kernels near the top of a translation unit,
+It's common practice to write CUDA kernels near the top of a translation unit,
 so write it next. The entire kernel is wrapped in triple quotes to form a
 string. The string is compiled later using NVRTC. This is the only part of CUDA
 Python that requires some understanding of CUDA C++. For more information, see
@@ -97,7 +93,7 @@ Go ahead and compile the kernel into PTX. Remember that this is executed at runt
 
 In the following code example, the Driver API is initialized so that the NVIDIA driver
 and GPU are accessible. Next, the GPU is queried for their compute capability. Finally,
-the program is compiled to target our local compute capability architecture with FMAD enabled.
+the program is compiled to target our local compute capability architecture with FMAD disabled.
 
 ```python
 # Initialize CUDA Driver API
@@ -171,9 +167,9 @@ more overlap between compute and data movement, use the asynchronous function
 `cuMemcpyHtoDAsync`. It returns control to the CPU immediately following command
 execution.
 
-Python doesn’t have a natural concept of pointers, yet `cuMemcpyHtoDAsync` expects
-`void*`. Therefore, `XX.ctypes.data` retrieves the pointer value associated with
-XX.
+Python doesn't have a natural concept of pointers, yet `cuMemcpyHtoDAsync` expects
+`void*`. This is where we leverage NumPy's data types to retrieve each host data pointer
+by calling `XX.ctypes.data` for the associated XX.
 
 ```python
 dXclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
@@ -193,20 +189,23 @@ checkCudaErrors(driver.cuMemcpyHtoDAsync(
 With data prep and resources allocation finished, the kernel is ready to be
 launched. To pass the location of the data on the device to the kernel execution
 configuration, you must retrieve the device pointer. In the following code
-example, `int(dXclass)` retries the pointer value of `dXclass`, which is
-`CUdeviceptr`, and assigns a memory size to store this value using `np.array`.
-
-Like `cuMemcpyHtoDAsync`, `cuLaunchKernel` expects `void**` in the argument list. In
-the earlier code example, it creates `void**` by grabbing the `void*` value of each
-individual argument and placing them into its own contiguous memory.
+example, we call `int(XXclass)` to retrieve the device pointer value for the
+associated XXclass as a Python `int` and wrap it in a `np.array` type.
 
 ```python
-# The following code example is not intuitive 
-# Subject to change in a future release
 dX = np.array([int(dXclass)], dtype=np.uint64)
 dY = np.array([int(dYclass)], dtype=np.uint64)
 dOut = np.array([int(dOutclass)], dtype=np.uint64)
+```
 
+The launch API `cuLaunchKernel` also expects a pointer input for the argument list
+but this time it's of type `void**`. What this means is that our argument list needs to
+be a contiguous array of `void*` elements, where each element is the pointer to a kernel
+argument. Since we already prepared each of our arguments into a `np.array` type, the
+construction of our final contiguous array is done by retrieving the `XX.ctypes.data`
+of each kernel argument.
+
+```{code-cell} python
 args = [a, dX, dY, dOut, n]
 args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 ```
@@ -236,7 +235,7 @@ checkCudaErrors(driver.cuStreamSynchronize(stream))
 
 The `cuLaunchKernel` function takes the compiled module kernel and execution
 configuration parameters. The device code is launched in the same stream as the
-data transfers. That ensures that the kernel’s compute is performed only after
+data transfers. That ensures that the kernel's compute is performed only after
 the data has finished transfer, as all API calls and kernel launches within a
 stream are serialized. After the call to transfer data back to the host is
 executed, `cuStreamSynchronize` is used to halt CPU execution until all operations
@@ -291,22 +290,236 @@ nsys profile -s none -t cuda --stats=true <executable>
   - 1080ms
 ```
 
-CUDA Python is also compatible with [NVIDIA Nsight
+`cuda.bindings` is also compatible with [NVIDIA Nsight
 Compute](https://developer.nvidia.com/nsight-compute), which is an
 interactive kernel profiler for CUDA applications. It allows you to have
-detailed insights into kernel performance. This is useful when you’re trying to
+detailed insights into kernel performance. This is useful when you're trying to
 maximize performance ({numref}`Figure 1`).
 
-```{figure} _static/images/Nsigth-Compute-CLI-625x473.png
+```{figure} _static/images/Nsight-Compute-CLI-625x473.png
 :name: Figure 1
 
-Screenshot of Nsight Compute CLI output of CUDA Python example.
+Screenshot of Nsight Compute CLI output of `cuda.bindings` example.
 ```
 
-## Future of CUDA Python
+## Preparing kernel arguments
 
-The current bindings are built to match the C APIs as closely as possible.
+The `cuLaunchKernel` API bindings retain low-level CUDA argument preparation requirements:
 
-The next goal is to build a higher-level "object oriented" API on top of
-current CUDA Python bindings and provide an overall more Pythonic experience.
-One such example would be to raise exceptions on errors.
+* Each kernel argument is a `void*` (i.e. pointer to the argument)
+* `kernelParams` is a `void**` (i.e. pointer to a list of kernel arguments)
+* `kernelParams` arguments are in contiguous memory
+
+These requirements can be met with two different approaches, using either NumPy or ctypes.
+
+### Using NumPy
+
+NumPy [Array objects](https://numpy.org/doc/stable/reference/arrays.html) can be used to fulfill each of these conditions directly.
+
+Let's use the following kernel definition as an example:
+```python
+kernel_string = """\
+struct testStruct {
+    int value;
+};
+
+extern "C" __global__
+void testkernel(int i, int *pi,
+                float f, float *pf,
+                struct testStruct s, struct testStruct *ps)
+{
+    *pi = i;
+    *pf = f;
+    ps->value = s.value;
+}
+"""
+```
+
+The first step is to create array objects with types corresponding to your kernel arguments.
+NumPy's user guide for [Kernel arguments](https://docs.cupy.dev/en/stable/user_guide/kernel.html#kernel-arguments) describes how primitive Numpy types correspond to kernel types,
+as well as how custom user types can be made.
+
+For this example we have:
+* `int` is `np.uint32`
+* `float` is `np.float32`
+* `int*` and `float*` is `np.uint64`
+* `testStruct` is a custom user type `np.dtype([("value", np.int32)])`
+
+Note how both of the pointers are `np.uint64` since the pointers values are always a representation of an address space.
+
+Putting it all together:
+```python
+# Define a custom type
+testStruct = np.dtype([("value", np.int32)])
+
+# Allocate host memory
+pInt_host = checkCudaErrors(cudart.cudaHostAlloc(np.dtype(np.int32).itemsize, cudart.cudaHostAllocMapped))
+pFloat_host = checkCudaErrors(cudart.cudaHostAlloc(np.dtype(np.float32).itemsize, cudart.cudaHostAllocMapped))
+pStruct_host = checkCudaErrors(cudart.cudaHostAlloc(testStruct.itemsize, cudart.cudaHostAllocMapped))
+
+# Collect all input kernel arguments into a single tuple for further processing
+kernelValues = (
+    np.array(1, dtype=np.uint32),
+    np.array([pInt_host], dtype=np.uint64),
+    np.array(123.456, dtype=np.float32),
+    np.array([pFloat_host], dtype=np.uint64),
+    np.array([5], testStruct),
+    np.array([pStruct_host], dtype=np.uint64),
+)
+```
+
+The final step is to construct a `kernelParams` argument that fulfills all of the launch API conditions. This is made easy because each array object comes
+with a [ctypes](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.ctypes.html#numpy.ndarray.ctypes) data attribute that returns the underlying `void*` pointer value.
+
+By having the final array object contain all pointers, we fulfill the contiguous array requirement:
+
+```python
+kernelParams = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.uint64)
+```
+
+The launch API supports [Buffer Protocol](https://docs.python.org/3/c-api/buffer.html) objects, therefore we can pass the array object directly.
+
+```python
+checkCudaErrors(cuda.cuLaunchKernel(
+    kernel,
+    1, 1, 1,  # grid dim
+    1, 1, 1,  # block dim
+    0, stream,  # shared mem and stream
+    kernelParams=kernelParams,
+    extra=0,
+))
+```
+
+### Using ctypes
+
+The [ctypes](https://docs.python.org/3/library/ctypes.html) approach relaxes the parameter preparation requirement by delegating the contiguous memory requirement to the API launch call.
+
+Let's use the following kernel definition as an example:
+```python
+kernel_string = """\
+struct testStruct {
+    int value;
+};
+
+extern "C" __global__
+void testkernel(int i, int *pi,
+                float f, float *pf,
+                struct testStruct s, struct testStruct *ps)
+{
+    *pi = i;
+    *pf = f;
+    ps->value = s.value;
+}
+"""
+```
+
+The ctypes approach treats the `kernelParams` argument as a pair of two tuples: `kernel_values` and `kernel_types`.
+
+* `kernel_values` contain Python values to be used as an input to your kernel
+* `kernel_types` contain the data types that your kernel_values should be converted into
+
+The ctypes [Fundamental data types](https://docs.python.org/3/library/ctypes.html#fundamental-data-types) documentation describes the compatibility between different Python types and C types.
+Furthermore, [custom data types](https://docs.python.org/3/library/ctypes.html#calling-functions-with-your-own-custom-data-types) can be used to support kernels with custom types.
+
+For this example the result becomes:
+
+```python
+# Define a custom type
+class testStruct(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_int)]
+
+# Allocate host memory
+pInt_host = checkCudaErrors(cudart.cudaHostAlloc(ctypes.sizeof(ctypes.c_int), cudart.cudaHostAllocMapped))
+pFloat_host = checkCudaErrors(cudart.cudaHostAlloc(ctypes.sizeof(ctypes.c_float), cudart.cudaHostAllocMapped))
+pStruct_host = checkCudaErrors(cudart.cudaHostAlloc(ctypes.sizeof(testStruct), cudart.cudaHostAllocMapped))
+
+# Collect all input kernel arguments into a single tuple for further processing
+kernelValues = (
+    1,
+    pInt_host,
+    123.456,
+    pFloat_host,
+    testStruct(5),
+    pStruct_host,
+)
+kernelTypes = (
+    ctypes.c_int,
+    ctypes.c_void_p,
+    ctypes.c_float,
+    ctypes.c_void_p,
+    None,
+    ctypes.c_void_p,
+)
+```
+
+Values that are assigned a `None` type has a special meaning:
+
+1. The value supports a callable `getPtr` that returns the pointer address of the underlining C object address (e.g. all CUDA C types that are exposed to Python as Python classes)
+2. The value is an instance of `ctypes.Structure`
+3. The value is an `Enum`
+
+In each of these three cases, the API call will fetch the underlining pointer value and construct a contiguous array with other kernel parameters.
+
+With the setup complete, the kernel can be launched:
+
+```python
+checkCudaErrors(cuda.cuLaunchKernel(
+    kernel,
+    1, 1, 1,  # grid dim
+    1, 1, 1,  # block dim
+    0, stream,  # shared mem and stream
+    kernelParams=(kernelValues, kernelTypes),
+    extra=0,
+))
+```
+
+### CUDA objects
+
+Certain CUDA kernels use native CUDA types as their parameters such as `cudaTextureObject_t`. These types require special handling since they're neither a primative ctype nor a custom user type. Since `cuda.bindings` exposes each of them as Python clases, they they each implement `getPtr()` and `__int__()`. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under [Tips and Tricks](https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#).
+
+For this example, lets use the `transformKernel` from [examples/0_Introduction/simpleCubemapTexture_test.py](https://github.com/NVIDIA/cuda-python/blob/73fa3c035c1111fa8e82b8ba24ed0e33eb65e6c8/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py):
+
+```python
+simpleCubemapTexture = """\
+extern "C"
+__global__ void transformKernel(float *g_odata, int width, cudaTextureObject_t tex)
+{
+    ...
+}
+"""
+
+def main():
+    ...
+    d_data = checkCudaErrors(cudart.cudaMalloc(size))
+    width = 64
+    tex = checkCudaErrors(cudart.cudaCreateTextureObject(texRes, texDescr, None))
+    ...
+```
+
+For NumPy, we can convert these CUDA types by leveraging the `__int__()` call to fetch the adress of the underlining `cudaTextureObject_t` C object and wrapping it in a NumPy object array of type `np.uint64`:
+
+```python
+kernelValues = (
+    np.array([d_data], dtype=np.uint64),
+    np.array(width, dtype=np.uint32),
+    np.array([int(tex)], dtype=np.uint64),
+)
+kernelArgs = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.uint64)
+```
+
+For ctypes, we leverage the special handling of `None` type since each Python class already implements `getPtr()`:
+
+```python
+kernelValues = (
+    d_data,
+    width,
+    tex,
+)
+kernelTypes = (
+    ctypes.c_void_p,
+    ctypes.c_int,
+    None,
+)
+kernelArgs = (kernelValues, kernelTypes)
+```
+
