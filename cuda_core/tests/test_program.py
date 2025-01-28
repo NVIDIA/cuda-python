@@ -47,7 +47,7 @@ def test_cpp_program_with_various_options(init_cuda, options):
     assert program.handle is None
 
 
-culink_options = [
+options = [
     ProgramOptions(max_register_count=32),
     ProgramOptions(debug=True),
     ProgramOptions(lineinfo=True),
@@ -56,15 +56,15 @@ culink_options = [
     ProgramOptions(prec_sqrt=True),
     ProgramOptions(fma=True),
 ]
-nvjitlink_options = [
-    ProgramOptions(time=True),
-    ProgramOptions(split_compile=True),
-]
+if not _linker._decide_nvjitlink_or_driver():
+    print("Using nvjitlink as the backend because decide() returned false")
+    options += [
+        ProgramOptions(time=True),
+        ProgramOptions(split_compile=True),
+    ]
 
 
-@pytest.mark.parametrize(
-    "options", culink_options if _linker._decide_nvjitlink_or_driver() else culink_options + nvjitlink_options
-)
+@pytest.mark.parametrize("options", options)
 def test_ptx_program_with_various_options(init_cuda, options):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")

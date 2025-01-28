@@ -23,11 +23,11 @@ _nvjitlink_input_types = None  # populated if nvJitLink cannot be used
 
 
 # Note: this function is reused in the tests
-def _decide_nvjitlink_or_driver():
+def _decide_nvjitlink_or_driver() -> bool:
     """Returns True if falling back to the cuLink* driver APIs."""
     global _driver_ver, _driver, _nvjitlink
     if _driver or _nvjitlink:
-        return
+        return _driver is not None
 
     _driver_ver = handle_return(driver.cuDriverGetVersion())
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
