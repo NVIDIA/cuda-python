@@ -1,0 +1,6 @@
+﻿cuda.core.experimental.Device
+=============================
+
+.. currentmodule:: cuda.core.experimental
+
+.. autodata:: Device

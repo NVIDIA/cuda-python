@@ -1,0 +1,6 @@
+﻿cuda.core.experimental.\_event.Event
+====================================
+
+.. currentmodule:: cuda.core.experimental._event
+
+.. autodata:: Event
