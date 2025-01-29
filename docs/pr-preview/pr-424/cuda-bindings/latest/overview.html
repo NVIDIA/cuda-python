@@ -348,41 +348,33 @@ API</a> and
 <a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC</a> modules from the CUDA
 Python package. In this example, you copy data from the host to device. You need
 <a class="reference external" href="https://numpy.org/doc/stable/contents.html">NumPy</a> to store data on the host.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from cuda.bindings import driver, nvrtc
-import numpy as np
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.bindings</span><span class="w"> </span><span class="kn">import</span> <span class="n">driver</span><span class="p">,</span> <span class="n">nvrtc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>Error checking is a fundamental best practice in code development and a code
 example is provided.
 In a future release, this may automatically raise exceptions using a Python
 object model.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>def _cudaGetErrorEnum(error):
-    if isinstance(error, driver.CUresult):
-        err, name = driver.cuGetErrorName(error)
-        return name if err == driver.CUresult.CUDA_SUCCESS else &quot;&lt;unknown&gt;&quot;
-    elif isinstance(error, nvrtc.nvrtcResult):
-        return nvrtc.nvrtcGetErrorString(error)[1]
-    else:
-        raise RuntimeError(&#39;Unknown error type: {}&#39;.format(error))
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_cudaGetErrorEnum</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">driver</span><span class="o">.</span><span class="n">CUresult</span><span class="p">):</span>
+        <span class="n">err</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">cuGetErrorName</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="n">driver</span><span class="o">.</span><span class="n">CUresult</span><span class="o">.</span><span class="n">CUDA_SUCCESS</span> <span class="k">else</span> <span class="s2">&quot;&lt;unknown&gt;&quot;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcResult</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetErrorString</span><span class="p">(</span><span class="n">error</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Unknown error type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
 
-def checkCudaErrors(result):
-    if result[0].value:
-        raise RuntimeError(&quot;CUDA error code={}({})&quot;.format(result[0].value, _cudaGetErrorEnum(result[0])))
-    if len(result) == 1:
-        return None
-    elif len(result) == 2:
-        return result[1]
-    else:
-        return result[1:]
+<span class="k">def</span><span class="w"> </span><span class="nf">checkCudaErrors</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CUDA error code=</span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">_cudaGetErrorEnum</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>It’s common practice to write CUDA kernels near the top of a translation unit,
 so write it next. The entire kernel is wrapped in triple quotes to form a
@@ -390,21 +382,17 @@ string. The string is compiled later using NVRTC. This is the only part of CUDA
 Python that requires some understanding of CUDA C++. For more information, see
 <a class="reference external" href="https://developer.nvidia.com/blog/even-easier-introduction-cuda/">An Even Easier Introduction to
 CUDA</a>.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>saxpy = &quot;&quot;&quot;\
-extern &quot;C&quot; __global__
-void saxpy(float a, float *x, float *y, float *out, size_t n)
-{
- size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
- if (tid &lt; n) {
-   out[tid] = a * x[tid] + y[tid];
- }
-}
-&quot;&quot;&quot;
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">saxpy</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">extern &quot;C&quot; __global__</span>
+<span class="s2">void saxpy(float a, float *x, float *y, float *out, size_t n)</span>
+<span class="s2">{</span>
+<span class="s2"> size_t tid = blockIdx.x * blockDim.x + threadIdx.x;</span>
+<span class="s2"> if (tid &lt; n) {</span>
+<span class="s2">   out[tid] = a * x[tid] + y[tid];</span>
+<span class="s2"> }</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>Go ahead and compile the kernel into PTX. Remember that this is executed at runtime using NVRTC. There are three basic steps to NVRTC:</p>
 <ul class="simple">
@@ -415,80 +403,64 @@ void saxpy(float a, float *x, float *y, float *out, size_t n)
 <p>In the following code example, the Driver API is initialized so that the NVIDIA driver
 and GPU are accessible. Next, the GPU is queried for their compute capability. Finally,
 the program is compiled to target our local compute capability architecture with FMAD enabled.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Initialize CUDA Driver API
-checkCudaErrors(driver.cuInit(0))
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize CUDA Driver API</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuInit</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
-# Retrieve handle for device 0
-cuDevice = checkCudaErrors(driver.cuDeviceGet(0))
+<span class="c1"># Retrieve handle for device 0</span>
+<span class="n">cuDevice</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGet</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
-# Derive target architecture for device 0
-major = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice))
-minor = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice))
-arch_arg = bytes(f&#39;--gpu-architecture=compute_{major}{minor}&#39;, &#39;ascii&#39;)
+<span class="c1"># Derive target architecture for device 0</span>
+<span class="n">major</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">CUdevice_attribute</span><span class="o">.</span><span class="n">CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
+<span class="n">minor</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">CUdevice_attribute</span><span class="o">.</span><span class="n">CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
+<span class="n">arch_arg</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--gpu-architecture=compute_</span><span class="si">{</span><span class="n">major</span><span class="si">}{</span><span class="n">minor</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
 
-# Create program
-prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(saxpy), b&quot;saxpy.cu&quot;, 0, [], []))
+<span class="c1"># Create program</span>
+<span class="n">prog</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCreateProgram</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">saxpy</span><span class="p">),</span> <span class="sa">b</span><span class="s2">&quot;saxpy.cu&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]))</span>
 
-# Compile program
-opts = [b&quot;--fmad=false&quot;, arch_arg]
-checkCudaErrors(nvrtc.nvrtcCompileProgram(prog, 2, opts))
+<span class="c1"># Compile program</span>
+<span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;--fmad=false&quot;</span><span class="p">,</span> <span class="n">arch_arg</span><span class="p">]</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCompileProgram</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">opts</span><span class="p">))</span>
 
-# Get PTX from compilation
-ptxSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
-ptx = b&quot; &quot; * ptxSize
-checkCudaErrors(nvrtc.nvrtcGetPTX(prog, ptx))
+<span class="c1"># Get PTX from compilation</span>
+<span class="n">ptxSize</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetPTXSize</span><span class="p">(</span><span class="n">prog</span><span class="p">))</span>
+<span class="n">ptx</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">ptxSize</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetPTX</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="n">ptx</span><span class="p">))</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>Before you can use the PTX or do any work on the GPU, you must create a CUDA
 context. CUDA contexts are analogous to host processes for the device. In the
 following code example, a handle for compute device 0 is passed to
 <code class="docutils literal notranslate"><span class="pre">cuCtxCreate</span></code> to designate that GPU for context creation.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Create context
-context = checkCudaErrors(driver.cuCtxCreate(0, cuDevice))
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create context</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuCtxCreate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>With a CUDA context created on device 0, load the PTX generated earlier into a
 module. A module is analogous to dynamically loaded libraries for the device.
 After loading into the module, extract a specific kernel with
 <code class="docutils literal notranslate"><span class="pre">cuModuleGetFunction</span></code>. It is not uncommon for multiple kernels to reside in PTX.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Load PTX as module data and retrieve function
-ptx = np.char.array(ptx)
-# Note: Incompatible --gpu-architecture would be detected here
-module = checkCudaErrors(driver.cuModuleLoadData(ptx.ctypes.data))
-kernel = checkCudaErrors(driver.cuModuleGetFunction(module, b&quot;saxpy&quot;))
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load PTX as module data and retrieve function</span>
+<span class="n">ptx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ptx</span><span class="p">)</span>
+<span class="c1"># Note: Incompatible --gpu-architecture would be detected here</span>
+<span class="n">module</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleLoadData</span><span class="p">(</span><span class="n">ptx</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+<span class="n">kernel</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleGetFunction</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;saxpy&quot;</span><span class="p">))</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>Next, get all your data prepared and transferred to the GPU. For increased
 application performance, you can input data on the device to eliminate data
 transfers. For completeness, this example shows how you would transfer data to
 and from the device.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>NUM_THREADS = 512  # Threads per block
-NUM_BLOCKS = 32768  # Blocks per grid
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NUM_THREADS</span> <span class="o">=</span> <span class="mi">512</span>  <span class="c1"># Threads per block</span>
+<span class="n">NUM_BLOCKS</span> <span class="o">=</span> <span class="mi">32768</span>  <span class="c1"># Blocks per grid</span>
 
-a = np.array([2.0], dtype=np.float32)
-n = np.array(NUM_THREADS * NUM_BLOCKS, dtype=np.uint32)
-bufferSize = n * a.itemsize
+<span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">NUM_THREADS</span> <span class="o">*</span> <span class="n">NUM_BLOCKS</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+<span class="n">bufferSize</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">a</span><span class="o">.</span><span class="n">itemsize</span>
 
-hX = np.random.rand(n).astype(dtype=np.float32)
-hY = np.random.rand(n).astype(dtype=np.float32)
-hOut = np.zeros(n).astype(dtype=np.float32)
+<span class="n">hX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">hY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">hOut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>With the input data <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>, and <code class="docutils literal notranslate"><span class="pre">y</span></code> created for the SAXPY transform device,
 resources must be allocated to store the data using <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code>. To allow for
@@ -498,23 +470,19 @@ execution.</p>
 <p>Python doesn’t have a natural concept of pointers, yet <code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoDAsync</span></code> expects
 <code class="docutils literal notranslate"><span class="pre">void*</span></code>. Therefore, <code class="docutils literal notranslate"><span class="pre">XX.ctypes.data</span></code> retrieves the pointer value associated with
 XX.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dXclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
-dYclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
-dOutclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dXclass</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemAlloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">))</span>
+<span class="n">dYclass</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemAlloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">))</span>
+<span class="n">dOutclass</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemAlloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">))</span>
 
-stream = checkCudaErrors(driver.cuStreamCreate(0))
+<span class="n">stream</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuStreamCreate</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
-checkCudaErrors(driver.cuMemcpyHtoDAsync(
-   dXclass, hX.ctypes.data, bufferSize, stream
-))
-checkCudaErrors(driver.cuMemcpyHtoDAsync(
-   dYclass, hY.ctypes.data, bufferSize, stream
-))
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemcpyHtoDAsync</span><span class="p">(</span>
+   <span class="n">dXclass</span><span class="p">,</span> <span class="n">hX</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="n">stream</span>
+<span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemcpyHtoDAsync</span><span class="p">(</span>
+   <span class="n">dYclass</span><span class="p">,</span> <span class="n">hY</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="n">stream</span>
+<span class="p">))</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>With data prep and resources allocation finished, the kernel is ready to be
 launched. To pass the location of the data on the device to the kernel execution
@@ -524,44 +492,36 @@ example, <code class="docutils literal notranslate"><span class="pre">int(dXclas
 <p>Like <code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoDAsync</span></code>, <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> expects <code class="docutils literal notranslate"><span class="pre">void**</span></code> in the argument list. In
 the earlier code example, it creates <code class="docutils literal notranslate"><span class="pre">void**</span></code> by grabbing the <code class="docutils literal notranslate"><span class="pre">void*</span></code> value of each
 individual argument and placing them into its own contiguous memory.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># The following code example is not intuitive 
-# Subject to change in a future release
-dX = np.array([int(dXclass)], dtype=np.uint64)
-dY = np.array([int(dYclass)], dtype=np.uint64)
-dOut = np.array([int(dOutclass)], dtype=np.uint64)
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following code example is not intuitive </span>
+<span class="c1"># Subject to change in a future release</span>
+<span class="n">dX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">dXclass</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+<span class="n">dY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">dYclass</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+<span class="n">dOut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">dOutclass</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
 
-args = [a, dX, dY, dOut, n]
-args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
+<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">dY</span><span class="p">,</span> <span class="n">dOut</span><span class="p">,</span> <span class="n">n</span><span class="p">]</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>Now the kernel can be launched:</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>checkCudaErrors(driver.cuLaunchKernel(
-   kernel,
-   NUM_BLOCKS,  # grid x dim
-   1,  # grid y dim
-   1,  # grid z dim
-   NUM_THREADS,  # block x dim
-   1,  # block y dim
-   1,  # block z dim
-   0,  # dynamic shared memory
-   stream,  # stream
-   args.ctypes.data,  # kernel arguments
-   0,  # extra (ignore)
-))
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuLaunchKernel</span><span class="p">(</span>
+   <span class="n">kernel</span><span class="p">,</span>
+   <span class="n">NUM_BLOCKS</span><span class="p">,</span>  <span class="c1"># grid x dim</span>
+   <span class="mi">1</span><span class="p">,</span>  <span class="c1"># grid y dim</span>
+   <span class="mi">1</span><span class="p">,</span>  <span class="c1"># grid z dim</span>
+   <span class="n">NUM_THREADS</span><span class="p">,</span>  <span class="c1"># block x dim</span>
+   <span class="mi">1</span><span class="p">,</span>  <span class="c1"># block y dim</span>
+   <span class="mi">1</span><span class="p">,</span>  <span class="c1"># block z dim</span>
+   <span class="mi">0</span><span class="p">,</span>  <span class="c1"># dynamic shared memory</span>
+   <span class="n">stream</span><span class="p">,</span>  <span class="c1"># stream</span>
+   <span class="n">args</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>  <span class="c1"># kernel arguments</span>
+   <span class="mi">0</span><span class="p">,</span>  <span class="c1"># extra (ignore)</span>
+<span class="p">))</span>
 
-checkCudaErrors(driver.cuMemcpyDtoHAsync(
-   hOut.ctypes.data, dOutclass, bufferSize, stream
-))
-checkCudaErrors(driver.cuStreamSynchronize(stream))
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemcpyDtoHAsync</span><span class="p">(</span>
+   <span class="n">hOut</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dOutclass</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="n">stream</span>
+<span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> function takes the compiled module kernel and execution
 configuration parameters. The device code is launched in the same stream as the
@@ -570,29 +530,21 @@ the data has finished transfer, as all API calls and kernel launches within a
 stream are serialized. After the call to transfer data back to the host is
 executed, <code class="docutils literal notranslate"><span class="pre">cuStreamSynchronize</span></code> is used to halt CPU execution until all operations
 in the designated stream are finished.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Assert values are same after running kernel
-hZ = a * hX + hY
-if not np.allclose(hOut, hZ):
-   raise ValueError(&quot;Error outside tolerance for host-device vectors&quot;)
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assert values are same after running kernel</span>
+<span class="n">hZ</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">hX</span> <span class="o">+</span> <span class="n">hY</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">hOut</span><span class="p">,</span> <span class="n">hZ</span><span class="p">):</span>
+   <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error outside tolerance for host-device vectors&quot;</span><span class="p">)</span>
 </pre></div>
-</div>
-</div>
 </div>
 <p>Perform verification of the data to ensure correctness and finish the code with
 memory clean up.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>checkCudaErrors(driver.cuStreamDestroy(stream))
-checkCudaErrors(driver.cuMemFree(dXclass))
-checkCudaErrors(driver.cuMemFree(dYclass))
-checkCudaErrors(driver.cuMemFree(dOutclass))
-checkCudaErrors(driver.cuModuleUnload(module))
-checkCudaErrors(driver.cuCtxDestroy(context))
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuStreamDestroy</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemFree</span><span class="p">(</span><span class="n">dXclass</span><span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemFree</span><span class="p">(</span><span class="n">dYclass</span><span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemFree</span><span class="p">(</span><span class="n">dOutclass</span><span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleUnload</span><span class="p">(</span><span class="n">module</span><span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuCtxDestroy</span><span class="p">(</span><span class="n">context</span><span class="p">))</span>
 </pre></div>
-</div>
-</div>
 </div>
 </section>
 <section id="performance">
