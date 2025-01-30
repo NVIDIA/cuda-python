@@ -297,13 +297,13 @@
         <article role="main" id="furo-main-content">
           <section id="cuda-core-experimental-programoptions">
 <h1>cuda.core.experimental.ProgramOptions<a class="headerlink" href="#cuda-core-experimental-programoptions" title="Link to this heading">¶</a></h1>
-<dl class="py data">
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">ProgramOptions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.core.experimental._program.ProgramOptions'&gt;</span></em><a class="headerlink" href="#cuda.core.experimental.ProgramOptions" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">ProgramOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relocatable_device_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extensible_whole_program</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineinfo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_code_optimize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptxas_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_register_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_sqrt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_div</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_fast_math</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_device_vectorization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_time_optimization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_opt_lto</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">define_macro</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undefine_macro</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_include</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_source_include</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">builtin_move_forward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">builtin_initializer_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_warnings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restrict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_as_default_execution_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_int128</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_display_error_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_suppress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_warn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">brief_diagnostics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_compile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdevice_syntax_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions" title="Link to this definition">¶</a></dt>
 <dd><p>Customizable options for configuring <cite>Program</cite>.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.arch">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#cuda.core.experimental.arch" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.arch">
+<span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.arch" title="Link to this definition">¶</a></dt>
 <dd><p>Pass the SM architecture value, such as <code class="docutils literal notranslate"><span class="pre">sm_&lt;CC&gt;</span></code> (for generating CUBIN) or
 <code class="docutils literal notranslate"><span class="pre">compute_&lt;CC&gt;</span></code> (for generating PTX). If not provided, the current device’s architecture
 will be used.</p>
@@ -315,8 +315,8 @@ will be used.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.relocatable_device_code">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">relocatable_device_code</span></span><a class="headerlink" href="#cuda.core.experimental.relocatable_device_code" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.relocatable_device_code">
+<span class="sig-name descname"><span class="pre">relocatable_device_code</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.relocatable_device_code" title="Link to this definition">¶</a></dt>
 <dd><p>Enable (disable) the generation of relocatable device code.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--relocatable-device-code={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-rdc</span></code>)</p>
@@ -328,8 +328,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--relocata
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.extensible_whole_program">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">extensible_whole_program</span></span><a class="headerlink" href="#cuda.core.experimental.extensible_whole_program" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.extensible_whole_program">
+<span class="sig-name descname"><span class="pre">extensible_whole_program</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.extensible_whole_program" title="Link to this definition">¶</a></dt>
 <dd><p>Do extensible whole program compilation of device code.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--extensible-whole-program</span></code> (<code class="docutils literal notranslate"><span class="pre">-ewp</span></code>)</p>
@@ -341,8 +341,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--extensib
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.debug">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">debug</span></span><a class="headerlink" href="#cuda.core.experimental.debug" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.debug" title="Link to this definition">¶</a></dt>
 <dd><p>Generate debug information. If –dopt is not specified, then turns off all optimizations.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--device-debug</span></code> (<code class="docutils literal notranslate"><span class="pre">-G</span></code>)</p>
@@ -354,8 +354,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--device-d
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.lineinfo">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">lineinfo</span></span><a class="headerlink" href="#cuda.core.experimental.lineinfo" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.lineinfo">
+<span class="sig-name descname"><span class="pre">lineinfo</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.lineinfo" title="Link to this definition">¶</a></dt>
 <dd><p>Generate line-number information.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--generate-line-info</span></code> (<code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>)</p>
@@ -367,8 +367,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--generate
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.device_code_optimize">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">device_code_optimize</span></span><a class="headerlink" href="#cuda.core.experimental.device_code_optimize" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.device_code_optimize">
+<span class="sig-name descname"><span class="pre">device_code_optimize</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.device_code_optimize" title="Link to this definition">¶</a></dt>
 <dd><p>Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation
 for optimized device code.
 Default: None
@@ -381,8 +381,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--dopt</sp
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.ptxas_options">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">ptxas_options</span></span><a class="headerlink" href="#cuda.core.experimental.ptxas_options" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.ptxas_options">
+<span class="sig-name descname"><span class="pre">ptxas_options</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.ptxas_options" title="Link to this definition">¶</a></dt>
 <dd><p>Specify one or more options directly to ptxas, the PTX optimizing assembler. Options should be strings.
 For example [“-v”, “-O2”].
 Default: None
@@ -395,8 +395,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--ptxas-op
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.max_register_count">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">max_register_count</span></span><a class="headerlink" href="#cuda.core.experimental.max_register_count" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.max_register_count">
+<span class="sig-name descname"><span class="pre">max_register_count</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.max_register_count" title="Link to this definition">¶</a></dt>
 <dd><p>Specify the maximum amount of registers that GPU functions can use.
 Default: None
 Maps to: <code class="docutils literal notranslate"><span class="pre">--maxrregcount=&lt;N&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-maxrregcount</span></code>)</p>
@@ -408,8 +408,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--maxrregc
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.ftz">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">ftz</span></span><a class="headerlink" href="#cuda.core.experimental.ftz" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.ftz">
+<span class="sig-name descname"><span class="pre">ftz</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.ftz" title="Link to this definition">¶</a></dt>
 <dd><p>When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal
 values.
 Default: False
@@ -422,8 +422,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--ftz={tru
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.prec_sqrt">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">prec_sqrt</span></span><a class="headerlink" href="#cuda.core.experimental.prec_sqrt" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.prec_sqrt">
+<span class="sig-name descname"><span class="pre">prec_sqrt</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.prec_sqrt" title="Link to this definition">¶</a></dt>
 <dd><p>For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation.
 Default: True
 Maps to: <code class="docutils literal notranslate"><span class="pre">--prec-sqrt={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-sqrt</span></code>)</p>
@@ -435,8 +435,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--prec-sqr
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.prec_div">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">prec_div</span></span><a class="headerlink" href="#cuda.core.experimental.prec_div" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.prec_div">
+<span class="sig-name descname"><span class="pre">prec_div</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.prec_div" title="Link to this definition">¶</a></dt>
 <dd><p>For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster
 approximation.
 Default: True
@@ -449,8 +449,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--prec-div
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.fma">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">fma</span></span><a class="headerlink" href="#cuda.core.experimental.fma" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.fma">
+<span class="sig-name descname"><span class="pre">fma</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.fma" title="Link to this definition">¶</a></dt>
 <dd><p>Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point
 multiply-add operations.
 Default: True
@@ -463,8 +463,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--fmad={tr
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.use_fast_math">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">use_fast_math</span></span><a class="headerlink" href="#cuda.core.experimental.use_fast_math" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.use_fast_math">
+<span class="sig-name descname"><span class="pre">use_fast_math</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.use_fast_math" title="Link to this definition">¶</a></dt>
 <dd><p>Make use of fast math operations.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> (<code class="docutils literal notranslate"><span class="pre">-use_fast_math</span></code>)</p>
@@ -476,8 +476,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--use_fast
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.extra_device_vectorization">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">extra_device_vectorization</span></span><a class="headerlink" href="#cuda.core.experimental.extra_device_vectorization" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.extra_device_vectorization">
+<span class="sig-name descname"><span class="pre">extra_device_vectorization</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.extra_device_vectorization" title="Link to this definition">¶</a></dt>
 <dd><p>Enables more aggressive device code vectorization in the NVVM optimizer.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--extra-device-vectorization</span></code> (<code class="docutils literal notranslate"><span class="pre">-extra-device-vectorization</span></code>)</p>
@@ -489,8 +489,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--extra-de
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.link_time_optimization">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">link_time_optimization</span></span><a class="headerlink" href="#cuda.core.experimental.link_time_optimization" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.link_time_optimization">
+<span class="sig-name descname"><span class="pre">link_time_optimization</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.link_time_optimization" title="Link to this definition">¶</a></dt>
 <dd><p>Generate intermediate code for later link-time optimization.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--dlink-time-opt</span></code> (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>)</p>
@@ -502,8 +502,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--dlink-ti
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.gen_opt_lto">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">gen_opt_lto</span></span><a class="headerlink" href="#cuda.core.experimental.gen_opt_lto" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.gen_opt_lto">
+<span class="sig-name descname"><span class="pre">gen_opt_lto</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.gen_opt_lto" title="Link to this definition">¶</a></dt>
 <dd><p>Run the optimizer passes before generating the LTO IR.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--gen-opt-lto</span></code> (<code class="docutils literal notranslate"><span class="pre">-gen-opt-lto</span></code>)</p>
@@ -515,8 +515,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--gen-opt-
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.define_macro">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">define_macro</span></span><a class="headerlink" href="#cuda.core.experimental.define_macro" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.define_macro">
+<span class="sig-name descname"><span class="pre">define_macro</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.define_macro" title="Link to this definition">¶</a></dt>
 <dd><p>Predefine a macro. Can be either a string, in which case that macro will be set to 1, a 2 element tuple of
 strings, in which case the first element is defined as the second, or a list of strings or tuples.
 Default: None
@@ -529,8 +529,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--define-m
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.undefine_macro">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">undefine_macro</span></span><a class="headerlink" href="#cuda.core.experimental.undefine_macro" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.undefine_macro">
+<span class="sig-name descname"><span class="pre">undefine_macro</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.undefine_macro" title="Link to this definition">¶</a></dt>
 <dd><p>Cancel any previous definition of a macro, or list of macros.
 Default: None
 Maps to: <code class="docutils literal notranslate"><span class="pre">--undefine-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-U</span></code>)</p>
@@ -542,8 +542,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--undefine
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.include_path">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">include_path</span></span><a class="headerlink" href="#cuda.core.experimental.include_path" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.include_path">
+<span class="sig-name descname"><span class="pre">include_path</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.include_path" title="Link to this definition">¶</a></dt>
 <dd><p>Add the directory or directories to the list of directories to be searched for headers.
 Default: None
 Maps to: <code class="docutils literal notranslate"><span class="pre">--include-path=&lt;dir&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-I</span></code>)</p>
@@ -555,8 +555,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--include-
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.pre_include">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">pre_include</span></span><a class="headerlink" href="#cuda.core.experimental.pre_include" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.pre_include">
+<span class="sig-name descname"><span class="pre">pre_include</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.pre_include" title="Link to this definition">¶</a></dt>
 <dd><p>Preinclude one or more headers during preprocessing. Can be either a string or a list of strings.
 Default: None
 Maps to: <code class="docutils literal notranslate"><span class="pre">--pre-include=&lt;header&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-include</span></code>)</p>
@@ -568,8 +568,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--pre-incl
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.no_source_include">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">no_source_include</span></span><a class="headerlink" href="#cuda.core.experimental.no_source_include" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.no_source_include">
+<span class="sig-name descname"><span class="pre">no_source_include</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.no_source_include" title="Link to this definition">¶</a></dt>
 <dd><p>Disable the default behavior of adding the directory of each input source to the include path.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--no-source-include</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-source-include</span></code>)</p>
@@ -581,8 +581,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--no-sourc
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.std">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">std</span></span><a class="headerlink" href="#cuda.core.experimental.std" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.std">
+<span class="sig-name descname"><span class="pre">std</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.std" title="Link to this definition">¶</a></dt>
 <dd><p>Set language dialect to C++03, C++11, C++14, C++17 or C++20.
 Default: c++17
 Maps to: <code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20}</span></code> (<code class="docutils literal notranslate"><span class="pre">-std</span></code>)</p>
@@ -594,8 +594,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--std={c++
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.builtin_move_forward">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">builtin_move_forward</span></span><a class="headerlink" href="#cuda.core.experimental.builtin_move_forward" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.builtin_move_forward">
+<span class="sig-name descname"><span class="pre">builtin_move_forward</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.builtin_move_forward" title="Link to this definition">¶</a></dt>
 <dd><p>Provide builtin definitions of std::move and std::forward.
 Default: True
 Maps to: <code class="docutils literal notranslate"><span class="pre">--builtin-move-forward={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-move-forward</span></code>)</p>
@@ -607,8 +607,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--builtin-
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.builtin_initializer_list">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">builtin_initializer_list</span></span><a class="headerlink" href="#cuda.core.experimental.builtin_initializer_list" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.builtin_initializer_list">
+<span class="sig-name descname"><span class="pre">builtin_initializer_list</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.builtin_initializer_list" title="Link to this definition">¶</a></dt>
 <dd><p>Provide builtin definitions of std::initializer_list class and member functions.
 Default: True
 Maps to: <code class="docutils literal notranslate"><span class="pre">--builtin-initializer-list={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-initializer-list</span></code>)</p>
@@ -620,8 +620,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--builtin-
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.disable_warnings">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">disable_warnings</span></span><a class="headerlink" href="#cuda.core.experimental.disable_warnings" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.disable_warnings">
+<span class="sig-name descname"><span class="pre">disable_warnings</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.disable_warnings" title="Link to this definition">¶</a></dt>
 <dd><p>Inhibit all warning messages.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--disable-warnings</span></code> (<code class="docutils literal notranslate"><span class="pre">-w</span></code>)</p>
@@ -633,8 +633,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--disable-
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.restrict">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">restrict</span></span><a class="headerlink" href="#cuda.core.experimental.restrict" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.restrict">
+<span class="sig-name descname"><span class="pre">restrict</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.restrict" title="Link to this definition">¶</a></dt>
 <dd><p>Programmer assertion that all kernel pointer parameters are restrict pointers.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--restrict</span></code> (<code class="docutils literal notranslate"><span class="pre">-restrict</span></code>)</p>
@@ -646,8 +646,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--restrict
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.device_as_default_execution_space">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">device_as_default_execution_space</span></span><a class="headerlink" href="#cuda.core.experimental.device_as_default_execution_space" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.device_as_default_execution_space">
+<span class="sig-name descname"><span class="pre">device_as_default_execution_space</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.device_as_default_execution_space" title="Link to this definition">¶</a></dt>
 <dd><p>Treat entities with no execution space annotation as __device__ entities.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--device-as-default-execution-space</span></code> (<code class="docutils literal notranslate"><span class="pre">-default-device</span></code>)</p>
@@ -659,8 +659,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--device-a
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.device_int128">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">device_int128</span></span><a class="headerlink" href="#cuda.core.experimental.device_int128" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.device_int128">
+<span class="sig-name descname"><span class="pre">device_int128</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.device_int128" title="Link to this definition">¶</a></dt>
 <dd><p>Allow the __int128 type in device code.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--device-int128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-int128</span></code>)</p>
@@ -672,8 +672,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--device-i
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.optimization_info">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">optimization_info</span></span><a class="headerlink" href="#cuda.core.experimental.optimization_info" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.optimization_info">
+<span class="sig-name descname"><span class="pre">optimization_info</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.optimization_info" title="Link to this definition">¶</a></dt>
 <dd><p>Provide optimization reports for the specified kind of optimization.
 Default: None
 Maps to: <code class="docutils literal notranslate"><span class="pre">--optimization-info=&lt;kind&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-opt-info</span></code>)</p>
@@ -685,8 +685,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--optimiza
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.no_display_error_number">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">no_display_error_number</span></span><a class="headerlink" href="#cuda.core.experimental.no_display_error_number" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.no_display_error_number">
+<span class="sig-name descname"><span class="pre">no_display_error_number</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.no_display_error_number" title="Link to this definition">¶</a></dt>
 <dd><p>Disable the display of a diagnostic number for warning messages.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--no-display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-err-no</span></code>)</p>
@@ -698,8 +698,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--no-displ
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.diag_error">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">diag_error</span></span><a class="headerlink" href="#cuda.core.experimental.diag_error" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.diag_error">
+<span class="sig-name descname"><span class="pre">diag_error</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.diag_error" title="Link to this definition">¶</a></dt>
 <dd><p>Emit error for a specified diagnostic message number or comma separated list of numbers.
 Default: None
 Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-error=&lt;error-number&gt;,</span> <span class="pre">...</span></code> (<code class="docutils literal notranslate"><span class="pre">-diag-error</span></code>)</p>
@@ -711,8 +711,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-err
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.diag_suppress">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">diag_suppress</span></span><a class="headerlink" href="#cuda.core.experimental.diag_suppress" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.diag_suppress">
+<span class="sig-name descname"><span class="pre">diag_suppress</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.diag_suppress" title="Link to this definition">¶</a></dt>
 <dd><p>Suppress a specified diagnostic message number or comma separated list of numbers.
 Default: None
 Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-suppress=&lt;error-number&gt;,…</span></code> (<code class="docutils literal notranslate"><span class="pre">-diag-suppress</span></code>)</p>
@@ -724,8 +724,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-sup
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.diag_warn">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">diag_warn</span></span><a class="headerlink" href="#cuda.core.experimental.diag_warn" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.diag_warn">
+<span class="sig-name descname"><span class="pre">diag_warn</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.diag_warn" title="Link to this definition">¶</a></dt>
 <dd><p>Emit warning for a specified diagnostic message number or comma separated lis of numbers.
 Default: None
 Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-warn=&lt;error-number&gt;,…</span></code> (<code class="docutils literal notranslate"><span class="pre">-diag-warn</span></code>)</p>
@@ -737,8 +737,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-war
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.brief_diagnostics">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">brief_diagnostics</span></span><a class="headerlink" href="#cuda.core.experimental.brief_diagnostics" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.brief_diagnostics">
+<span class="sig-name descname"><span class="pre">brief_diagnostics</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.brief_diagnostics" title="Link to this definition">¶</a></dt>
 <dd><p>Disable or enable showing source line and column info in a diagnostic.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--brief-diagnostics={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-brief-diag</span></code>)</p>
@@ -750,8 +750,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--brief-di
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.time">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">time</span></span><a class="headerlink" href="#cuda.core.experimental.time" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.time">
+<span class="sig-name descname"><span class="pre">time</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.time" title="Link to this definition">¶</a></dt>
 <dd><p>Generate a CSV table with the time taken by each compilation phase.
 Default: None
 Maps to: <code class="docutils literal notranslate"><span class="pre">--time=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-time</span></code>)</p>
@@ -763,8 +763,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--time=&lt
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.split_compile">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">split_compile</span></span><a class="headerlink" href="#cuda.core.experimental.split_compile" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.split_compile">
+<span class="sig-name descname"><span class="pre">split_compile</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.split_compile" title="Link to this definition">¶</a></dt>
 <dd><p>Perform compiler optimizations in parallel.
 Default: 1
 Maps to: <code class="docutils literal notranslate"><span class="pre">--split-compile=</span> <span class="pre">&lt;number</span> <span class="pre">of</span> <span class="pre">threads&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-split-compile</span></code>)</p>
@@ -776,8 +776,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--split-co
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.fdevice_syntax_only">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">fdevice_syntax_only</span></span><a class="headerlink" href="#cuda.core.experimental.fdevice_syntax_only" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.fdevice_syntax_only">
+<span class="sig-name descname"><span class="pre">fdevice_syntax_only</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.fdevice_syntax_only" title="Link to this definition">¶</a></dt>
 <dd><p>Ends device compilation after front-end syntax checking.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--fdevice-syntax-only</span></code> (<code class="docutils literal notranslate"><span class="pre">-fdevice-syntax-only</span></code>)</p>
@@ -789,8 +789,8 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--fdevice-
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.minimal">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">minimal</span></span><a class="headerlink" href="#cuda.core.experimental.minimal" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.minimal">
+<span class="sig-name descname"><span class="pre">minimal</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.minimal" title="Link to this definition">¶</a></dt>
 <dd><p>Omit certain language features to reduce compile time for small programs.
 Default: False
 Maps to: <code class="docutils literal notranslate"><span class="pre">--minimal</span></code> (<code class="docutils literal notranslate"><span class="pre">-minimal</span></code>)</p>
@@ -862,44 +862,44 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--minimal<
             <ul>
 <li><a class="reference internal" href="#">cuda.core.experimental.ProgramOptions</a><ul>
 <li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions"><code class="docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.arch"><code class="docutils literal notranslate"><span class="pre">arch</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.relocatable_device_code"><code class="docutils literal notranslate"><span class="pre">relocatable_device_code</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.extensible_whole_program"><code class="docutils literal notranslate"><span class="pre">extensible_whole_program</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.debug"><code class="docutils literal notranslate"><span class="pre">debug</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.lineinfo"><code class="docutils literal notranslate"><span class="pre">lineinfo</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.device_code_optimize"><code class="docutils literal notranslate"><span class="pre">device_code_optimize</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.ptxas_options"><code class="docutils literal notranslate"><span class="pre">ptxas_options</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.max_register_count"><code class="docutils literal notranslate"><span class="pre">max_register_count</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.ftz"><code class="docutils literal notranslate"><span class="pre">ftz</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.prec_sqrt"><code class="docutils literal notranslate"><span class="pre">prec_sqrt</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.prec_div"><code class="docutils literal notranslate"><span class="pre">prec_div</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.fma"><code class="docutils literal notranslate"><span class="pre">fma</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.use_fast_math"><code class="docutils literal notranslate"><span class="pre">use_fast_math</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.extra_device_vectorization"><code class="docutils literal notranslate"><span class="pre">extra_device_vectorization</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.link_time_optimization"><code class="docutils literal notranslate"><span class="pre">link_time_optimization</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.gen_opt_lto"><code class="docutils literal notranslate"><span class="pre">gen_opt_lto</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.define_macro"><code class="docutils literal notranslate"><span class="pre">define_macro</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.undefine_macro"><code class="docutils literal notranslate"><span class="pre">undefine_macro</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.include_path"><code class="docutils literal notranslate"><span class="pre">include_path</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.pre_include"><code class="docutils literal notranslate"><span class="pre">pre_include</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.no_source_include"><code class="docutils literal notranslate"><span class="pre">no_source_include</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.std"><code class="docutils literal notranslate"><span class="pre">std</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.builtin_move_forward"><code class="docutils literal notranslate"><span class="pre">builtin_move_forward</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.builtin_initializer_list"><code class="docutils literal notranslate"><span class="pre">builtin_initializer_list</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.disable_warnings"><code class="docutils literal notranslate"><span class="pre">disable_warnings</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.restrict"><code class="docutils literal notranslate"><span class="pre">restrict</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.device_as_default_execution_space"><code class="docutils literal notranslate"><span class="pre">device_as_default_execution_space</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.device_int128"><code class="docutils literal notranslate"><span class="pre">device_int128</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.optimization_info"><code class="docutils literal notranslate"><span class="pre">optimization_info</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.no_display_error_number"><code class="docutils literal notranslate"><span class="pre">no_display_error_number</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.diag_error"><code class="docutils literal notranslate"><span class="pre">diag_error</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.diag_suppress"><code class="docutils literal notranslate"><span class="pre">diag_suppress</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.diag_warn"><code class="docutils literal notranslate"><span class="pre">diag_warn</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.brief_diagnostics"><code class="docutils literal notranslate"><span class="pre">brief_diagnostics</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.time"><code class="docutils literal notranslate"><span class="pre">time</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.split_compile"><code class="docutils literal notranslate"><span class="pre">split_compile</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.fdevice_syntax_only"><code class="docutils literal notranslate"><span class="pre">fdevice_syntax_only</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.minimal"><code class="docutils literal notranslate"><span class="pre">minimal</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.arch"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.arch</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.relocatable_device_code"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.relocatable_device_code</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.extensible_whole_program"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.extensible_whole_program</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.debug"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.debug</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.lineinfo"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.lineinfo</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.device_code_optimize"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.device_code_optimize</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.ptxas_options"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.ptxas_options</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.max_register_count"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.max_register_count</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.ftz"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.ftz</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.prec_sqrt"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.prec_sqrt</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.prec_div"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.prec_div</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.fma"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.fma</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.use_fast_math"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.use_fast_math</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.extra_device_vectorization"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.extra_device_vectorization</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.link_time_optimization"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.link_time_optimization</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.gen_opt_lto"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.gen_opt_lto</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.define_macro"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.define_macro</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.undefine_macro"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.undefine_macro</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.include_path"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.include_path</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.pre_include"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.pre_include</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.no_source_include"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.no_source_include</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.std"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.std</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.builtin_move_forward"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.builtin_move_forward</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.builtin_initializer_list"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.builtin_initializer_list</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.disable_warnings"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.disable_warnings</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.restrict"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.restrict</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.device_as_default_execution_space"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.device_as_default_execution_space</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.device_int128"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.device_int128</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.optimization_info"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.optimization_info</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.no_display_error_number"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.no_display_error_number</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.diag_error"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.diag_error</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.diag_suppress"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.diag_suppress</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.diag_warn"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.diag_warn</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.brief_diagnostics"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.brief_diagnostics</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.time"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.time</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.split_compile"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.split_compile</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.fdevice_syntax_only"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.fdevice_syntax_only</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ProgramOptions.minimal"><code class="docutils literal notranslate"><span class="pre">ProgramOptions.minimal</span></code></a></li>
 </ul>
 </li>
 </ul>

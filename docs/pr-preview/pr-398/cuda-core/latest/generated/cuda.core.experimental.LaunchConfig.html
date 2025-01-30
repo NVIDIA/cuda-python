@@ -297,13 +297,13 @@
         <article role="main" id="furo-main-content">
           <section id="cuda-core-experimental-launchconfig">
 <h1>cuda.core.experimental.LaunchConfig<a class="headerlink" href="#cuda-core-experimental-launchconfig" title="Link to this heading">¶</a></h1>
-<dl class="py data">
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">LaunchConfig</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.core.experimental._launcher.LaunchConfig'&gt;</span></em><a class="headerlink" href="#cuda.core.experimental.LaunchConfig" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">LaunchConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shmem_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig" title="Link to this definition">¶</a></dt>
 <dd><p>Customizable launch options.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.grid">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">grid</span></span><a class="headerlink" href="#cuda.core.experimental.grid" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig.grid">
+<span class="sig-name descname"><span class="pre">grid</span></span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig.grid" title="Link to this definition">¶</a></dt>
 <dd><p>Collection of threads that will execute a kernel function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -313,8 +313,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.cluster">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">cluster</span></span><a class="headerlink" href="#cuda.core.experimental.cluster" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig.cluster">
+<span class="sig-name descname"><span class="pre">cluster</span></span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig.cluster" title="Link to this definition">¶</a></dt>
 <dd><p>Group of blocks (Thread Block Cluster) that will execute on the same
 GPU Processing Cluster (GPC). Blocks within a cluster have access to
 distributed shared memory and can be explicitly synchronized.</p>
@@ -326,8 +326,8 @@ distributed shared memory and can be explicitly synchronized.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.block">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">block</span></span><a class="headerlink" href="#cuda.core.experimental.block" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig.block">
+<span class="sig-name descname"><span class="pre">block</span></span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig.block" title="Link to this definition">¶</a></dt>
 <dd><p>Group of threads (Thread Block) that will execute on the same
 streaming multiprocessor (SM). Threads within a thread blocks have
 access to shared memory and can be explicitly synchronized.</p>
@@ -339,8 +339,8 @@ access to shared memory and can be explicitly synchronized.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.stream">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">stream</span></span><a class="headerlink" href="#cuda.core.experimental.stream" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig.stream">
+<span class="sig-name descname"><span class="pre">stream</span></span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig.stream" title="Link to this definition">¶</a></dt>
 <dd><p>The stream establishing the stream ordering semantic of a
 launch.</p>
 <dl class="field-list simple">
@@ -351,8 +351,8 @@ launch.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.shmem_size">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">shmem_size</span></span><a class="headerlink" href="#cuda.core.experimental.shmem_size" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig.shmem_size">
+<span class="sig-name descname"><span class="pre">shmem_size</span></span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig.shmem_size" title="Link to this definition">¶</a></dt>
 <dd><p>Dynamic shared-memory size per thread block in bytes.
 (Default to size 0)</p>
 <dl class="field-list simple">
@@ -423,11 +423,11 @@ launch.</p>
             <ul>
 <li><a class="reference internal" href="#">cuda.core.experimental.LaunchConfig</a><ul>
 <li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig"><code class="docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.grid"><code class="docutils literal notranslate"><span class="pre">grid</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.cluster"><code class="docutils literal notranslate"><span class="pre">cluster</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.block"><code class="docutils literal notranslate"><span class="pre">block</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.stream"><code class="docutils literal notranslate"><span class="pre">stream</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.shmem_size"><code class="docutils literal notranslate"><span class="pre">shmem_size</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig.grid"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.grid</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig.cluster"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.cluster</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig.block"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.block</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig.stream"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.stream</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig.shmem_size"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.shmem_size</span></code></a></li>
 </ul>
 </li>
 </ul>

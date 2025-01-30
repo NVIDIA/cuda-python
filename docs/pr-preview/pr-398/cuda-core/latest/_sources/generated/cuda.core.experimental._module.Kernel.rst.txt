@@ -3,4 +3,18 @@
 
 .. currentmodule:: cuda.core.experimental._module
 
-.. autodata:: Kernel
+.. autoclass:: Kernel
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   

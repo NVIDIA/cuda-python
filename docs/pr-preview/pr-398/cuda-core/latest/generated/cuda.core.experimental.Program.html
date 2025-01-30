@@ -297,9 +297,9 @@
         <article role="main" id="furo-main-content">
           <section id="cuda-core-experimental-program">
 <h1>cuda.core.experimental.Program<a class="headerlink" href="#cuda-core-experimental-program" title="Link to this heading">¶</a></h1>
-<dl class="py data">
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental.Program">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Program</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.core.experimental._program.Program'&gt;</span></em><a class="headerlink" href="#cuda.core.experimental.Program" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions" title="cuda.core.experimental._program.ProgramOptions"><span class="pre">ProgramOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Program" title="Link to this definition">¶</a></dt>
 <dd><p>Represent a compilation machinery to process programs into
 <a class="reference internal" href="cuda.core.experimental._module.ObjectCode.html#cuda.core.experimental._module.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>.</p>
 <p>This object provides a unified interface to multiple underlying
@@ -310,11 +310,61 @@ range of code types and compilation types.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>code</strong> (<em>Any</em>) – String of the CUDA Runtime Compilation program.</p></li>
 <li><p><strong>code_type</strong> (<em>Any</em>) – String of the code type. Currently only <code class="docutils literal notranslate"><span class="pre">&quot;c++&quot;</span></code> is supported.</p></li>
-<li><p><strong>options</strong> (<em>ProgramOptions</em><em>, </em><em>optional</em>) – A ProgramOptions object to customize the compilation process.
+<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions" title="cuda.core.experimental.ProgramOptions"><em>ProgramOptions</em></a><em>, </em><em>optional</em>) – A ProgramOptions object to customize the compilation process.
 See <a class="reference internal" href="cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions" title="cuda.core.experimental.ProgramOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a> for more information.</p></li>
 </ul>
 </dd>
 </dl>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Program.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions" title="cuda.core.experimental._program.ProgramOptions"><span class="pre">ProgramOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Program.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Program.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Program.close" title="Link to this definition">¶</a></dt>
+<dd><p>Destroy this program.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Program.compile">
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_expressions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Program.compile" title="Link to this definition">¶</a></dt>
+<dd><p>Compile the program with a specific compilation type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_type</strong> (<em>Any</em>) – String of the targeted compilation type.
+Supported options are “ptx”, “cubin” and “ltoir”.</p></li>
+<li><p><strong>name_expressions</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>Tuple</em><em>]</em><em>, </em><em>optional</em>) – List of explicit name expressions to become accessible.
+(Default to no expressions)</p></li>
+<li><p><strong>logs</strong> (<em>Any</em><em>, </em><em>optional</em>) – Object with a write method to receive the logs generated
+from compilation.
+(Default to no logs)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Newly created code object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._module.ObjectCode.html#cuda.core.experimental._module.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Program.backend">
+<span class="sig-name descname"><span class="pre">backend</span></span><a class="headerlink" href="#cuda.core.experimental.Program.backend" title="Link to this definition">¶</a></dt>
+<dd><p>Return the backend type string associated with this program.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Program.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.experimental.Program.handle" title="Link to this definition">¶</a></dt>
+<dd><p>Return the program handle object.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -375,7 +425,14 @@ See <a class="reference internal" href="cuda.core.experimental.ProgramOptions.ht
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">cuda.core.experimental.Program</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.Program"><code class="docutils literal notranslate"><span class="pre">Program</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Program"><code class="docutils literal notranslate"><span class="pre">Program</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.Program.__init__"><code class="docutils literal notranslate"><span class="pre">Program.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Program.close"><code class="docutils literal notranslate"><span class="pre">Program.close()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Program.compile"><code class="docutils literal notranslate"><span class="pre">Program.compile()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Program.backend"><code class="docutils literal notranslate"><span class="pre">Program.backend</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Program.handle"><code class="docutils literal notranslate"><span class="pre">Program.handle</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

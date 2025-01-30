@@ -3,4 +3,32 @@
 
 .. currentmodule:: cuda.core.experimental._stream
 
-.. autodata:: Stream
+.. autoclass:: Stream
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: from_handle
+   .. automethod:: record
+   .. automethod:: sync
+   .. automethod:: wait
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: context
+   .. autoattribute:: device
+   .. autoattribute:: handle
+   .. autoattribute:: is_nonblocking
+   .. autoattribute:: priority
+   
+   

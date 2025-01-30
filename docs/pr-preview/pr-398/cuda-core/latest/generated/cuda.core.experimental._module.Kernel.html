@@ -297,10 +297,21 @@
         <article role="main" id="furo-main-content">
           <section id="cuda-core-experimental-module-kernel">
 <h1>cuda.core.experimental._module.Kernel<a class="headerlink" href="#cuda-core-experimental-module-kernel" title="Link to this heading">¶</a></h1>
-<dl class="py data">
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._module.</span></span><span class="sig-name descname"><span class="pre">Kernel</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._module.</span></span><span class="sig-name descname"><span class="pre">Kernel</span></span><a class="headerlink" href="#cuda.core.experimental._module.Kernel" title="Link to this definition">¶</a></dt>
+<dd><p>Represent a compiled kernel that had been loaded onto the device.</p>
+<p>Kernel instances can execution when passed directly into the
+<code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code> function.</p>
+<p>Directly creating a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code> is not supported, and they
+should instead be created through a <code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code> object.</p>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._module.Kernel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.Kernel.__init__" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
 
 </section>
 
@@ -342,7 +353,10 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">cuda.core.experimental._module.Kernel</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel"><code class="docutils literal notranslate"><span class="pre">Kernel</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel"><code class="docutils literal notranslate"><span class="pre">Kernel</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental._module.Kernel.__init__"><code class="docutils literal notranslate"><span class="pre">Kernel.__init__()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

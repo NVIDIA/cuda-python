@@ -3,4 +3,27 @@
 
 .. currentmodule:: cuda.core.experimental
 
-.. autodata:: Linker
+.. autoclass:: Linker
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: get_error_log
+   .. automethod:: get_info_log
+   .. automethod:: link
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: handle
+   
+   

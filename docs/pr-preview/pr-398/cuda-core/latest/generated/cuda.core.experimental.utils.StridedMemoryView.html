@@ -297,13 +297,11 @@
         <article role="main" id="furo-main-content">
           <section id="cuda-core-experimental-utils-stridedmemoryview">
 <h1>cuda.core.experimental.utils.StridedMemoryView<a class="headerlink" href="#cuda-core-experimental-utils-stridedmemoryview" title="Link to this heading">¶</a></h1>
-<dl class="py data">
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental.utils.StridedMemoryView">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.utils.</span></span><span class="sig-name descname"><span class="pre">StridedMemoryView</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.core.experimental._memoryview.StridedMemoryView'&gt;</span></em><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView" title="Link to this definition">¶</a></dt>
-<dd><p>StridedMemoryView(obj=None, stream_ptr=None)
-A dataclass holding metadata of a strided dense array/tensor.</p>
-<blockquote>
-<div><p>A <a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView" title="cuda.core.experimental.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> instance can be created in two ways:</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.utils.</span></span><span class="sig-name descname"><span class="pre">StridedMemoryView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_ptr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView" title="Link to this definition">¶</a></dt>
+<dd><p>A dataclass holding metadata of a strided dense array/tensor.</p>
+<p>A <a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView" title="cuda.core.experimental.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> instance can be created in two ways:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p>Using the <a class="reference internal" href="cuda.core.experimental.utils.args_viewable_as_strided_memory.html#cuda.core.experimental.utils.args_viewable_as_strided_memory" title="cuda.core.experimental.utils.args_viewable_as_strided_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">args_viewable_as_strided_memory</span></code></a> decorator (recommended)</p></li>
@@ -325,34 +323,105 @@ from the semantics of <code class="docutils literal notranslate"><span class="pr
 does not encourage using the (legacy) default/null stream, but is
 consistent with the CAI’s semantics. For DLPack, <code class="docutils literal notranslate"><span class="pre">stream=-1</span></code> will be
 internally passed to <code class="docutils literal notranslate"><span class="pre">obj.__dlpack__()</span></code> instead.</p>
-<dl class="simple">
-<dt>ptr<span class="classifier">int</span></dt><dd><p>Pointer to the tensor buffer (as a Python <cite>int</cite>).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.utils.StridedMemoryView.ptr">
+<span class="sig-name descname"><span class="pre">ptr</span></span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView.ptr" title="Link to this definition">¶</a></dt>
+<dd><p>Pointer to the tensor buffer (as a Python <cite>int</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
 </dd>
-<dt>shape<span class="classifier">tuple</span></dt><dd><p>Shape of the tensor.</p>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.utils.StridedMemoryView.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView.shape" title="Link to this definition">¶</a></dt>
+<dd><p>Shape of the tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
 </dd>
-<dt>strides<span class="classifier">tuple</span></dt><dd><p>Strides of the tensor (in <strong>counts</strong>, not bytes).</p>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.utils.StridedMemoryView.strides">
+<span class="sig-name descname"><span class="pre">strides</span></span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView.strides" title="Link to this definition">¶</a></dt>
+<dd><p>Strides of the tensor (in <strong>counts</strong>, not bytes).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
 </dd>
-<dt>dtype: numpy.dtype</dt><dd><p>Data type of the tensor.</p>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.utils.StridedMemoryView.dtype">
+<span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView.dtype" title="Link to this definition">¶</a></dt>
+<dd><p>Data type of the tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.2)">numpy.dtype</a></p>
 </dd>
-<dt>device_id<span class="classifier">int</span></dt><dd><p>The device ID for where the tensor is located. It is -1 for CPU tensors
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.utils.StridedMemoryView.device_id">
+<span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView.device_id" title="Link to this definition">¶</a></dt>
+<dd><p>The device ID for where the tensor is located. It is -1 for CPU tensors
 (meaning those only accessible from the host).</p>
-</dd>
-<dt>is_device_accessible<span class="classifier">bool</span></dt><dd><p>Whether the tensor data can be accessed on the GPU.</p>
-</dd>
-<dt>readonly: bool</dt><dd><p>Whether the tensor data can be modified in place.</p>
-</dd>
-<dt>exporting_obj<span class="classifier">Any</span></dt><dd><p>A reference to the original tensor object that is being viewed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
 </dd>
 </dl>
-<dl class="simple">
-<dt>obj<span class="classifier">Any</span></dt><dd><p>Any objects that supports either DLPack (up to v1.0) or CUDA Array
-Interface (v3).</p>
-</dd>
-<dt>stream_ptr: int</dt><dd><p>The pointer address (as Python <cite>int</cite>) to the <strong>consumer</strong> stream.
-Stream ordering will be properly established unless <code class="docutils literal notranslate"><span class="pre">-1</span></code> is passed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.utils.StridedMemoryView.is_device_accessible">
+<span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView.is_device_accessible" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the tensor data can be accessed on the GPU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
 </dd>
 </dl>
-</div></blockquote>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.utils.StridedMemoryView.readonly">
+<span class="sig-name descname"><span class="pre">readonly</span></span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView.readonly" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the tensor data can be modified in place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.utils.StridedMemoryView.exporting_obj">
+<span class="sig-name descname"><span class="pre">exporting_obj</span></span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView.exporting_obj" title="Link to this definition">¶</a></dt>
+<dd><p>A reference to the original tensor object that is being viewed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<em>Any</em>) – Any objects that supports either DLPack (up to v1.0) or CUDA Array
+Interface (v3).</p></li>
+<li><p><strong>stream_ptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The pointer address (as Python <cite>int</cite>) to the <strong>consumer</strong> stream.
+Stream ordering will be properly established unless <code class="docutils literal notranslate"><span class="pre">-1</span></code> is passed.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -405,7 +474,17 @@ Stream ordering will be properly established unless <code class="docutils litera
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">cuda.core.experimental.utils.StridedMemoryView</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView.ptr"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.ptr</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView.shape"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.shape</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView.strides"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.strides</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView.dtype"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.dtype</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView.device_id"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.device_id</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.is_device_accessible</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView.readonly"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.readonly</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView.exporting_obj"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.exporting_obj</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

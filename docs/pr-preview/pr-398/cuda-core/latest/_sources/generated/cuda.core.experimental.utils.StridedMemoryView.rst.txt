@@ -3,4 +3,4 @@
 
 .. currentmodule:: cuda.core.experimental.utils
 
-.. autodata:: StridedMemoryView
+.. autoclass:: StridedMemoryView
