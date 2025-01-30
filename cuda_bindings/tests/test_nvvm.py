@@ -6,6 +6,22 @@ import pytest
 
 from cuda.bindings import nvvm
 
+MINIMAL_NVVMIR = b"""\
+target datalayout = "e-p:64:64:64-i64:64:64:64-i128:128:128:128-v16:16:16:16-v32:32:32:32-n16:32:64"
+target triple = "nvptx64-nvidia-cuda"
+
+define void @kernel() {
+entry:
+  ret void
+}
+
+!nvvm.annotations = !{!0}
+!0 = !{void ()* @kernel, !"kernel", i32 1}
+
+!nvvmir.version = !{!1}
+!1 = !{i32 2, i32 0, i32 3, i32 1}
+"""
+
 
 def test_nvvm_version():
     ver = nvvm.version()
@@ -88,5 +104,23 @@ def test_get_program_log():
         buffer = bytearray(log_size)
         nvvm.get_program_log(prog, buffer)
         assert buffer == b"\x00"
+    finally:
+        nvvm.destroy_program(prog)
+
+
+def test_with_minimal_nnvm_ir():
+    prog = nvvm.create_program()
+    try:
+        nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
+        nvvm.compile_program(prog, 0, [])
+        log_size = nvvm.get_program_log_size(prog)
+        assert log_size == 1
+        buffer = bytearray(log_size)
+        nvvm.get_program_log(prog, buffer)
+        assert buffer == b"\x00"
+        result_size = nvvm.get_compiled_result_size(prog)
+        buffer = bytearray(result_size)
+        nvvm.get_compiled_result(prog, buffer)
+        assert ".visible .entry kernel()" in buffer.decode("utf-8")
     finally:
         nvvm.destroy_program(prog)
