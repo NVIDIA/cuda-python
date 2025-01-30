@@ -18,46 +18,28 @@ Traceback (most recent call last):
     raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
 nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
 ------------------
-# Initialize CUDA Driver API
-checkCudaErrors(driver.cuInit(0))
-
-# Retrieve handle for device 0
-cuDevice = checkCudaErrors(driver.cuDeviceGet(0))
-
-# Derive target architecture for device 0
-major = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice))
-minor = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice))
-arch_arg = bytes(f'--gpu-architecture=compute_{major}{minor}', 'ascii')
-
-# Create program
-prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(saxpy), b"saxpy.cu", 0, [], []))
-
-# Compile program
-opts = [b"--fmad=false", arch_arg]
-checkCudaErrors(nvrtc.nvrtcCompileProgram(prog, 2, opts))
-
-# Get PTX from compilation
-ptxSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
-ptx = b" " * ptxSize
-checkCudaErrors(nvrtc.nvrtcGetPTX(prog, ptx))
+# Load PTX as module data and retrieve function
+ptx = np.char.array(ptx)
+# Note: Incompatible --gpu-architecture would be detected here
+module = checkCudaErrors(driver.cuModuleLoadData(ptx.ctypes.data))
+kernel = checkCudaErrors(driver.cuModuleGetFunction(module, b"saxpy"))
 ------------------
 
 
 [0;31m---------------------------------------------------------------------------[0m
 [0;31mRuntimeError[0m                              Traceback (most recent call last)
-Cell [0;32mIn[4], line 2[0m
-[1;32m      1[0m [38;5;66;03m# Initialize CUDA Driver API[39;00m
-[0;32m----> 2[0m checkCudaErrors([43mdriver[49m[38;5;241;43m.[39;49m[43mcuInit[49m[43m([49m[38;5;241;43m0[39;49m[43m)[49m)
-[1;32m      4[0m [38;5;66;03m# Retrieve handle for device 0[39;00m
-[1;32m      5[0m cuDevice [38;5;241m=[39m checkCudaErrors(driver[38;5;241m.[39mcuDeviceGet([38;5;241m0[39m))
+Cell [0;32mIn[6], line 4[0m
+[1;32m      2[0m ptx [38;5;241m=[39m np[38;5;241m.[39mchar[38;5;241m.[39marray(ptx)
+[1;32m      3[0m [38;5;66;03m# Note: Incompatible --gpu-architecture would be detected here[39;00m
+[0;32m----> 4[0m module [38;5;241m=[39m [43mcheckCudaErrors[49m[43m([49m[43mdriver[49m[38;5;241;43m.[39;49m[43mcuModuleLoadData[49m[43m([49m[43mptx[49m[38;5;241;43m.[39;49m[43mctypes[49m[38;5;241;43m.[39;49m[43mdata[49m[43m)[49m[43m)[49m
+[1;32m      5[0m kernel [38;5;241m=[39m checkCudaErrors(driver[38;5;241m.[39mcuModuleGetFunction(module, [38;5;124mb[39m[38;5;124m"[39m[38;5;124msaxpy[39m[38;5;124m"[39m))
 
-File [0;32m~/miniconda3/envs/cuda-python-docs/lib/python3.12/site-packages/cuda/bindings/driver.pyx:15991[0m, in [0;36mcuda.bindings.driver.cuInit[0;34m()[0m
+Cell [0;32mIn[2], line 12[0m, in [0;36mcheckCudaErrors[0;34m(result)[0m
+[1;32m     10[0m [38;5;28;01mdef[39;00m[38;5;250m [39m[38;5;21mcheckCudaErrors[39m(result):
+[1;32m     11[0m     [38;5;28;01mif[39;00m result[[38;5;241m0[39m][38;5;241m.[39mvalue:
+[0;32m---> 12[0m         [38;5;28;01mraise[39;00m [38;5;167;01mRuntimeError[39;00m([38;5;124m"[39m[38;5;124mCUDA error code=[39m[38;5;132;01m{}[39;00m[38;5;124m([39m[38;5;132;01m{}[39;00m[38;5;124m)[39m[38;5;124m"[39m[38;5;241m.[39mformat(result[[38;5;241m0[39m][38;5;241m.[39mvalue, _cudaGetErrorEnum(result[[38;5;241m0[39m])))
+[1;32m     13[0m     [38;5;28;01mif[39;00m [38;5;28mlen[39m(result) [38;5;241m==[39m [38;5;241m1[39m:
+[1;32m     14[0m         [38;5;28;01mreturn[39;00m [38;5;28;01mNone[39;00m
 
-File [0;32m~/miniconda3/envs/cuda-python-docs/lib/python3.12/site-packages/cuda/bindings/cydriver.pyx:17[0m, in [0;36mcuda.bindings.cydriver.cuInit[0;34m()[0m
-
-File [0;32m~/miniconda3/envs/cuda-python-docs/lib/python3.12/site-packages/cuda/bindings/_bindings/cydriver.pyx:2684[0m, in [0;36mcuda.bindings._bindings.cydriver._cuInit[0;34m()[0m
-
-File [0;32m~/miniconda3/envs/cuda-python-docs/lib/python3.12/site-packages/cuda/bindings/_bindings/cydriver.pyx:490[0m, in [0;36mcuda.bindings._bindings.cydriver.cuPythonInit[0;34m()[0m
-
-[0;31mRuntimeError[0m: Failed to dlopen libcuda.so.1
+[0;31mRuntimeError[0m: CUDA error code=222(b'CUDA_ERROR_UNSUPPORTED_PTX_VERSION')
 

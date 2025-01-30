@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/module/nvrtc.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>nvrtc - cuda.bindings 12.6.3 documentation</title>
+        <title>nvrtc - cuda.bindings 12.8.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -157,7 +157,11 @@
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
-
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/398">PR 398</a>! 
+  </aside>
+</div>
 
 <div class="page">
   <header class="mobile-header">
@@ -168,7 +172,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">cuda.bindings 12.6.3 documentation</div></a>
+      <a href="../index.html"><div class="brand">cuda.bindings 12.8.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -196,7 +200,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">cuda.bindings 12.6.3 documentation</span>
+  <span class="sidebar-brand-text">cuda.bindings 12.8.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -206,35 +210,36 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.8.0-notes.html">12.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.2-notes.html">12.6.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.1-notes.html">12.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.0-notes.html">12.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.5.0-notes.html">12.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.4.0-notes.html">12.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.3.0-notes.html">12.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.2.1-notes.html">12.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.2.0-notes.html">12.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.1.0-notes.html">12.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.0.0-notes.html">12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.6-notes.html">11.8.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.5-notes.html">11.8.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.4-notes.html">11.8.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.3-notes.html">11.8.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.2-notes.html">11.8.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.1-notes.html">11.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.0-notes.html">11.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.7.1-notes.html">11.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.7.0-notes.html">11.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.6.1-notes.html">11.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.6.0-notes.html">11.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.5.0-notes.html">11.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.4.0-notes.html">11.4.0</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../motivation.html">Motivation</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.x.y-notes.html">    12.x.y</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.6.2-notes.html">    12.6.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.6.1-notes.html">    12.6.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.6.0-notes.html">    12.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.5.0-notes.html">    12.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.4.0-notes.html">    12.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.3.0-notes.html">    12.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.2.1-notes.html">    12.2.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.2.0-notes.html">    12.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.1.0-notes.html">    12.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.0.0-notes.html">    12.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.8.5-notes.html">    11.8.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.8.4-notes.html">    11.8.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.8.3-notes.html">    11.8.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.8.2-notes.html">    11.8.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.8.1-notes.html">    11.8.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.8.0-notes.html">    11.8.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.7.1-notes.html">    11.7.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.7.0-notes.html">    11.7.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.6.1-notes.html">    11.6.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.6.0-notes.html">    11.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.5.0-notes.html">    11.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/11.4.0-notes.html">    11.4.0</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html">CUDA Python API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of CUDA Python API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="driver.html">driver</a></li>
@@ -244,6 +249,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
 </ul>
 
 </div>
@@ -379,6 +385,26 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED">
 <span class="sig-name descname"><span class="pre">NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_PCH_CREATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_CANCELLED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -577,6 +603,7 @@ here.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_COMPILATION</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></code></a></p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_CANCELLED</span></code></a></p></li>
 </ul>
 </p>
 </dd>
@@ -828,7 +855,7 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>Optix</strong> (<em>bytes</em>) – IR Compiled result.</p></li>
+<li><p><strong>optixir</strong> (<em>bytes</em>) – Optix IR Compiled result.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -971,274 +998,513 @@ expression.</p></li>
 </div>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcSetFlowCallback">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcSetFlowCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcSetFlowCallback" title="Link to this definition">¶</a></dt>
+<dd><p>nvrtcSetFlowCallback registers a callback function that the compiler will invoke at different points during a call to nvrtcCompileProgram, and the callback function can decide whether to cancel compilation by returning specific values.</p>
+<p>The callback function must satisfy the following constraints:</p>
+<ol class="arabic simple">
+<li><p>Its signature should be:</p></li>
+</ol>
+<p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
+<p>When invoking the callback, the compiler will always pass <cite>payload</cite> to
+param1 so that the callback may make decisions based on <cite>payload</cite> .
+It’ll always pass NULL to param2 for now which is reserved for future
+extensions.</p>
+<p>(2) It must return 1 to cancel compilation or 0 to continue. Other
+return values are reserved for future use.</p>
+<p>(3) It must return consistent values. Once it returns 1 at one point,
+it must return 1 in all following invocations during the current
+nvrtcCompileProgram call in progress.</p>
+<ol class="arabic simple" start="4">
+<li><p>It must be thread-safe.</p></li>
+<li><p>It must not invoke any nvrtc/libnvvm/ptx APIs.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
+<li><p><strong>callback</strong> (<em>Any</em>) – the callback that issues cancellation signal.</p></li>
+<li><p><strong>payload</strong> (<em>Any</em>) – to be passed as a parameter when invoking the callback.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="precompiled-header-pch-cuda-12-8">
+<h2>Precompiled header (PCH) (CUDA 12.8+)<a class="headerlink" href="#precompiled-header-pch-cuda-12-8" title="Link to this heading">¶</a></h2>
+<p>NVRTC defines the following function related to PCH. Also see PCH related flags passed to nvrtcCompileProgram.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPCHHeapSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPCHHeapSize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSize" title="Link to this definition">¶</a></dt>
+<dd><p>retrieve the current size of the PCH Heap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>ret</strong> (<em>int</em>) – pointer to location where the size of the PCH Heap will be stored</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcSetPCHHeapSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcSetPCHHeapSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcSetPCHHeapSize" title="Link to this definition">¶</a></dt>
+<dd><p>set the size of the PCH Heap.</p>
+<p>The requested size may be rounded up to a platform dependent alignment
+(e.g. page size). If the PCH Heap has already been allocated, the heap
+memory will be freed and a new PCH Heap will be allocated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>size_t</em>) – requested size of the PCH Heap, in bytes</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPCHCreateStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus" title="Link to this definition">¶</a></dt>
+<dd><p>returns the PCH creation status.</p>
+<p>NVRTC_SUCCESS indicates that the PCH was successfully created.
+NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED indicates that no PCH creation was
+attempted, either because PCH functionality was not requested during
+the preceding nvrtcCompileProgram call, or automatic PCH processing was
+requested, and compiler chose not to create a PCH file.
+NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED indicates that a PCH file could
+potentially have been created, but the compiler ran out space in the
+PCH heap. In this scenario, the
+<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired" title="cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPCHHeapSizeRequired()</span></code></a> can be used to query the
+required heap size, the heap can be reallocated for this size with
+<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcSetPCHHeapSize" title="cuda.bindings.nvrtc.nvrtcSetPCHHeapSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcSetPCHHeapSize()</span></code></a> and PCH creation may be reattempted
+again invoking <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a> with a new NVRTC
+program instance. NVRTC_ERROR_PCH_CREATE indicates that an error
+condition prevented the PCH file from being created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPCHHeapSizeRequired</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired" title="Link to this definition">¶</a></dt>
+<dd><p>retrieve the required size of the PCH heap required to compile the given program.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a> The size retrieved using this function is only valid if <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus" title="cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPCHCreateStatus()</span></code></a> returned NVRTC_SUCCESS or NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</p></li>
+</ul>
+</li>
+<li><p><strong>size</strong> (<em>int</em>) – pointer to location where the required size of the PCH Heap will be
+stored</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="supported-compile-options">
 <h2>Supported Compile Options<a class="headerlink" href="#supported-compile-options" title="Link to this heading">¶</a></h2>
 <p>NVRTC supports the compile options below. Option names with two preceding dashs (<code class="docutils literal notranslate"><span class="pre">--</span></code>) are long option names and option names with one preceding dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<code class="docutils literal notranslate"><span class="pre">=</span></code>) is used to separate the compile option argument from the compile option name, e.g., <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture=compute_60&quot;</span></code>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture&quot;</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;compute_60&quot;</span></code>. Single-character short option names, such as <code class="docutils literal notranslate"><span class="pre">-D</span></code>, <code class="docutils literal notranslate"><span class="pre">-U</span></code>, and <code class="docutils literal notranslate"><span class="pre">-I</span></code>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <code class="docutils literal notranslate"><span class="pre">&quot;-D=&lt;def&gt;&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;-D&lt;def&gt;&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;-D</span> <span class="pre">&lt;def&gt;&quot;</span></code> are all supported.</p>
 <p>The valid compiler options are:</p>
-<ul>
+<ul class="simple">
 <li><p>Compilation targets</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">--gpu-architecture=&lt;arch&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-arch</span></code>)</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">--gpu-architecture=&lt;arch&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-arch</span></code>)</p></li>
+</ul>
+</li>
+</ul>
 <p>Specify the name of the class of GPU architectures for which the input must be compiled.</p>
 <ul class="simple">
-<li><p>Valid <code class="docutils literal notranslate"><span class="pre">&lt;arch&gt;</span></code>s:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_50</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_52</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_53</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_60</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_61</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_62</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_70</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_72</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_75</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_80</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_87</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_89</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_90</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">compute_90a</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_50</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_52</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_53</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_60</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_61</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_62</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_70</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_72</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_75</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_80</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_87</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_89</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_90</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sm_90a</span></code></p></li>
-</ul>
-</li>
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">compute_52</span></code></p></li>
-</ul>
-</li>
-</ul>
-</li>
 <li><p>Separate compilation / whole-program compilation</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">--device-c</span></code> (<code class="docutils literal notranslate"><span class="pre">-dc</span></code>)</p>
-<p>Generate relocatable code that can be linked with other relocatable device code. It is equivalent to –relocatable-device-code=true.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--device-w</span></code> (<code class="docutils literal notranslate"><span class="pre">-dw</span></code>)</p>
-<p>Generate non-relocatable code. It is equivalent to <code class="docutils literal notranslate"><span class="pre">--relocatable-device-code=false</span></code>.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--relocatable-device-code={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-rdc</span></code>)</p>
-<p>Enable (disable) the generation of relocatable device code.</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--extensible-whole-program</span></code> (<code class="docutils literal notranslate"><span class="pre">-ewp</span></code>)</p>
-<p>Do extensible whole program compilation of device code.</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-c</span></code> (<code class="docutils literal notranslate"><span class="pre">-dc</span></code>)</p></li>
 </ul>
 </li>
 </ul>
-</li>
-<li><p>Debugging support</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">--device-debug</span></code> (<code class="docutils literal notranslate"><span class="pre">-G</span></code>)</p>
-<p>Generate debug information. If –dopt is not specified, then turns off all optimizations.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--generate-line-info</span></code> (<code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>)</p>
-<p>Generate line-number information.</p>
-</li>
-</ul>
-</li>
-<li><p>Code generation</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">--dopt</span></code> on (<code class="docutils literal notranslate"><span class="pre">-dopt</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--dopt=on</span></code></p>
-<p>Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation for optimized device code (currently, only line number information). When ‘-G’ is not specified, ‘-dopt=on’ is implicit.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options</span></code> &lt;options&gt; (<code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options=&lt;options&gt;</span></code></p>
-<p>Specify options directly to ptxas, the PTX optimizing assembler.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--maxrregcount=&lt;N&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-maxrregcount</span></code>)</p>
-<p>Specify the maximum amount of registers that GPU functions can use. Until a function-specific limit, a higher value will generally increase the performance of individual GPU threads that execute this function. However, because thread registers are allocated from a global register pool on each GPU, a higher value of this option will also reduce the maximum thread block size, thereby reducing the amount of thread parallelism. Hence, a good maxrregcount value is the result of a trade-off. If this option is not specified, then no maximum is assumed. Value less than the minimum registers required by ABI will be bumped up by the compiler to ABI minimum limit.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--ftz={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-ftz</span></code>)</p>
-<p>When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal values. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--ftz=true</span></code>.</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--prec-sqrt={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-sqrt</span></code>)</p>
-<p>For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--prec-sqrt=false</span></code>.</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--prec-div={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-div</span></code>)</p>
-<p>For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster approximation. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--prec-div=false</span></code>.</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--fmad={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-fmad</span></code>)</p>
-<p>Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point multiply-add operations (FMAD, FFMA, or DFMA). <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--fmad=true</span></code>.</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> (<code class="docutils literal notranslate"><span class="pre">-use_fast_math</span></code>)</p>
-<p>Make use of fast math operations. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--ftz=true</span></code> <code class="docutils literal notranslate"><span class="pre">--prec-div=false</span></code> <code class="docutils literal notranslate"><span class="pre">--prec-sqrt=false</span></code> <code class="docutils literal notranslate"><span class="pre">--fmad=true</span></code>.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--extra-device-vectorization</span></code> (<code class="docutils literal notranslate"><span class="pre">-extra-device-vectorization</span></code>)</p>
-<p>Enables more aggressive device code vectorization in the NVVM optimizer.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--modify-stack-limit={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-modify-stack-limit</span></code>)</p>
-<p>On Linux, during compilation, use <code class="docutils literal notranslate"><span class="pre">setrlimit()</span></code> to increase stack size to maximum allowed. The limit is reset to the previous value at the end of compilation. Note: <code class="docutils literal notranslate"><span class="pre">setrlimit()</span></code> changes the value for the entire process.</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--dlink-time-opt</span></code> (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>)</p>
-<p>Generate intermediate code for later link-time optimization. It implies <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code>. Note: when this option is used the nvrtcGetLTOIR API should be used, as PTX or Cubin will not be generated.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--gen-opt-lto</span></code> (<code class="docutils literal notranslate"><span class="pre">-gen-opt-lto</span></code>)</p>
-<p>Run the optimizer passes before generating the LTO IR.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--optix-ir</span></code> (<code class="docutils literal notranslate"><span class="pre">-optix-ir</span></code>)</p>
-<p>Generate OptiX IR. The Optix IR is only intended for consumption by OptiX through appropriate APIs. This feature is not supported with link-time-optimization (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>)</p>
-</li>
-</ul>
-</li>
-</ul>
-<p>. Note: when this option is used the nvrtcGetOptiX API should be used, as PTX or Cubin will not be generated.</p>
+<p>Generate relocatable code that can be linked with other relocatable device code. It is equivalent to <code class="docutils literal notranslate"><span class="pre">--relocatable-device-code=true</span></code>.</p>
 <blockquote>
-<div><ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">--jump-table-density=</span></code>[0-101] (<code class="docutils literal notranslate"><span class="pre">-jtd</span></code>)</p>
-<p>Specify the case density percentage in switch statements, and use it as a minimal threshold to determine whether jump table(brx.idx instruction) will be used to implement a switch statement. Default value is 101. The percentage ranges from 0 to 101 inclusively.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--device-stack-protector={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-stack-protector</span></code>)</p>
-<p>Enable (disable) the generation of stack canaries in device code.</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
-</ul>
-</li>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-w</span></code> (<code class="docutils literal notranslate"><span class="pre">-dw</span></code>)</p></li>
 </ul>
 </div></blockquote>
+<p>Generate non-relocatable code. It is equivalent to <code class="docutils literal notranslate"><span class="pre">--relocatable-device-code=false</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--relocatable-device-code={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-rdc</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable (disable) the generation of relocatable device code.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--extensible-whole-program</span></code> (<code class="docutils literal notranslate"><span class="pre">-ewp</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Do extensible whole program compilation of device code.</p>
+<ul class="simple">
+<li><p>Debugging support</p>
 <ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-debug</span></code> (<code class="docutils literal notranslate"><span class="pre">-G</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Generate debug information. If <code class="docutils literal notranslate"><span class="pre">--dopt</span></code> is not specified, then turns off all optimizations.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--generate-line-info</span></code> (<code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate line-number information.</p>
+<ul class="simple">
+<li><p>Code generation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dopt</span></code> <code class="docutils literal notranslate"><span class="pre">on</span></code> (<code class="docutils literal notranslate"><span class="pre">-dopt</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dopt=on</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p>Enable device code optimization. When specified along with <code class="docutils literal notranslate"><span class="pre">-G</span></code>, enables limited debug information generation for optimized device code (currently, only line number information). When <code class="docutils literal notranslate"><span class="pre">-G</span></code> is not specified, <code class="docutils literal notranslate"><span class="pre">-dopt=on</span></code> is implicit.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options</span></code> &lt;options&gt; (<code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options=&lt;options&gt;</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Specify options directly to ptxas, the PTX optimizing assembler.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--maxrregcount=&lt;N&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-maxrregcount</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Specify the maximum amount of registers that GPU functions can use. Until a function-specific limit, a higher value will generally increase the performance of individual GPU threads that execute this function. However, because thread registers are allocated from a global register pool on each GPU, a higher value of this option will also reduce the maximum thread block size, thereby reducing the amount of thread parallelism. Hence, a good maxrregcount value is the result of a trade-off. If this option is not specified, then no maximum is assumed. Value less than the minimum registers required by ABI will be bumped up by the compiler to ABI minimum limit.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ftz={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-ftz</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal values.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--ftz=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--prec-sqrt={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-sqrt</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--prec-sqrt=false</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--prec-div={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-div</span></code>) For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster approximation. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--prec-div=false</span></code>.</p>
+<ul>
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--fmad={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-fmad</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point multiply-add operations (FMAD, FFMA, or DFMA). <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--fmad=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> (<code class="docutils literal notranslate"><span class="pre">-use_fast_math</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Make use of fast math operations. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--ftz=true</span></code> <code class="docutils literal notranslate"><span class="pre">--prec-div=false</span></code> <code class="docutils literal notranslate"><span class="pre">--prec-sqrt=false</span></code> <code class="docutils literal notranslate"><span class="pre">--fmad=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--extra-device-vectorization</span></code> (<code class="docutils literal notranslate"><span class="pre">-extra-device-vectorization</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enables more aggressive device code vectorization in the NVVM optimizer.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--modify-stack-limit={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-modify-stack-limit</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>On Linux, during compilation, use <code class="docutils literal notranslate"><span class="pre">setrlimit()</span></code> to increase stack size to maximum allowed. The limit is reset to the previous value at the end of compilation. Note: <code class="docutils literal notranslate"><span class="pre">setrlimit()</span></code> changes the value for the entire process.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dlink-time-opt</span></code> (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate intermediate code for later link-time optimization. It implies <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code>. Note: when this option is used the <code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIR</span></code> API should be used, as PTX or Cubin will not be generated.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--gen-opt-lto</span></code> (<code class="docutils literal notranslate"><span class="pre">-gen-opt-lto</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Run the optimizer passes before generating the LTO IR.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--optix-ir</span></code> (<code class="docutils literal notranslate"><span class="pre">-optix-ir</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate OptiX IR. The Optix IR is only intended for consumption by OptiX through appropriate APIs. This feature is not supported with link-time-optimization (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>).</p>
+<p>Note: when this option is used the nvrtcGetOptiX API should be used, as PTX or Cubin will not be generated.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--jump-table-density=</span></code>[0-101] (<code class="docutils literal notranslate"><span class="pre">-jtd</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Specify the case density percentage in switch statements, and use it as a minimal threshold to determine whether jump table(brx.idx instruction) will be used to implement a switch statement. Default value is 101. The percentage ranges from 0 to 101 inclusively.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-stack-protector={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-stack-protector</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable (disable) the generation of stack canaries in device code.</p>
+<ul class="simple">
 <li><p>Preprocessing</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">--define-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-D</span></code>)</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">--define-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-D</span></code>)</p></li>
+</ul>
+</li>
+</ul>
 <p><code class="docutils literal notranslate"><span class="pre">&lt;def&gt;</span></code> can be either <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;name=definitions&gt;</span></code>.</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code></p>
-<p>Predefine <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> as a macro with definition <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&lt;name&gt;=&lt;definition&gt;</span></code></p>
-<p>The contents of <code class="docutils literal notranslate"><span class="pre">&lt;definition&gt;</span></code> are tokenized and preprocessed as if they appeared during translation phase three in a <code class="docutils literal notranslate"><span class="pre">#define</span></code> directive. In particular, the definition will be truncated by embedded new line characters.</p>
-</li>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--undefine-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-U</span></code>)</p></li>
 </ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--undefine-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-U</span></code>)</p>
+</div></blockquote>
 <p>Cancel any previous definition of <code class="docutils literal notranslate"><span class="pre">&lt;def&gt;</span></code>.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--include-path=&lt;dir&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-I</span></code>)</p>
-<p>Add the directory <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;</span></code> to the list of directories to be searched for headers. These paths are searched after the list of headers given to nvrtcCreateProgram.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--pre-include=&lt;header&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-include</span></code>)</p>
-<p>Preinclude <code class="docutils literal notranslate"><span class="pre">&lt;header&gt;</span></code> during preprocessing.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--no-source-include</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-source-include</span></code>) The preprocessor by default adds the directory of each input sources to the include path. This option disables this feature and only considers the path specified explicitly.</p></li>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--include-path=&lt;dir&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-I</span></code>)</p></li>
 </ul>
-</li>
+</div></blockquote>
+<p>Add the directory <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;</span></code> to the list of directories to be searched for headers. These paths are searched after the list of headers given to nvrtcCreateProgram.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pre-include=&lt;header&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-include</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Preinclude <code class="docutils literal notranslate"><span class="pre">&lt;header&gt;</span></code> during preprocessing.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-source-include</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-source-include</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>The preprocessor by default adds the directory of each input sources to the include path. This option disables this feature and only considers the path specified explicitly.</p>
+<ul class="simple">
 <li><p>Language Dialect</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20}</span></code> (<code class="docutils literal notranslate"><span class="pre">-std={c++11|c++14|c++17|c++20}</span></code>)</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20}</span></code> (<code class="docutils literal notranslate"><span class="pre">-std</span></code>)</p></li>
+</ul>
+</li>
+</ul>
 <p>Set language dialect to C++03, C++11, C++14, C++17 or C++20</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">c++17</span></code></p></li>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtin-move-forward={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-move-forward</span></code>)</p></li>
 </ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--builtin-move-forward={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-move-forward</span></code>)</p>
+</div></blockquote>
 <p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::move</span></code> and <code class="docutils literal notranslate"><span class="pre">std::forward</span></code>, when C++11 or later language dialect is selected.</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtin-initializer-list={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-initializer-list</span></code>)</p></li>
 </ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--builtin-initializer-list={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-initializer-list</span></code>)</p>
+</div></blockquote>
 <p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::initializer_list</span></code> class and member functions when C++11 or later language dialect is selected.</p>
 <ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+<li><p>Precompiled header support (CUDA 12.8+)</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch</span></code>)</p></li>
 </ul>
 </li>
 </ul>
-</li>
+<p>Enable automatic PCH processing.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--create-pch=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-create-pch</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Create a PCH file.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--use-pch=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-use-pch</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Use the specified PCH file.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch-dir=&lt;directory-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch-dir</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>When using automatic PCH (<code class="docutils literal notranslate"><span class="pre">-pch</span></code>), look for and create PCH files in the specified directory. When using explicit PCH (<code class="docutils literal notranslate"><span class="pre">-create-pch</span></code> or <code class="docutils literal notranslate"><span class="pre">-use-pch</span></code>), the directory name is prefixed before the specified file name, unless the file name is an absolute path name.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch-verbose={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch-verbose</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>In automatic PCH mode, for each PCH file that could not be used in current compilation, print the reason in the compilation log.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch-messages={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch-messages</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Print a message in the compilation log, if a PCH file was created or used in the current compilation.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--instantiate-templates-in-pch={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-instantiate-templates-in-pch</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable or disable instantiatiation of templates before PCH creation. Instantiating templates may increase the size of the PCH file, while reducing the compilation cost when using the PCH file (since some template instantiations can be skipped).</p>
+<ul class="simple">
 <li><p>Misc.</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">--disable-warnings</span></code> (<code class="docutils literal notranslate"><span class="pre">-w</span></code>)</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">--disable-warnings</span></code> (<code class="docutils literal notranslate"><span class="pre">-w</span></code>)</p></li>
+</ul>
+</li>
+</ul>
 <p>Inhibit all warning messages.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--restrict</span></code> (<code class="docutils literal notranslate"><span class="pre">-restrict</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--restrict</span></code> (<code class="docutils literal notranslate"><span class="pre">-restrict</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Programmer assertion that all kernel pointer parameters are restrict pointers.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--device-as-default-execution-space</span></code> (<code class="docutils literal notranslate"><span class="pre">-default-device</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-as-default-execution-space</span></code> (<code class="docutils literal notranslate"><span class="pre">-default-device</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Treat entities with no execution space annotation as <code class="docutils literal notranslate"><span class="pre">device</span></code> entities.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--device-int128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-int128</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-int128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-int128</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Allow the <code class="docutils literal notranslate"><span class="pre">__int128</span></code> type in device code. Also causes the macro <code class="docutils literal notranslate"><span class="pre">CUDACC_RTC_INT128</span></code> to be defined.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--optimization-info=&lt;kind&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-opt-info</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-float128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-float128</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Allow the <code class="docutils literal notranslate"><span class="pre">__float128</span></code> and <code class="docutils literal notranslate"><span class="pre">_Float128</span></code> types in device code. Also causes the macro <code class="docutils literal notranslate"><span class="pre">D__CUDACC_RTC_FLOAT128__</span></code> to be defined.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--optimization-info=&lt;kind&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-opt-info</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Provide optimization reports for the specified kind of optimization. The following kind tags are supported:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">inline</span></code> : emit a remark when a function is inlined.</p></li>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-err-no</span></code>)</p></li>
 </ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-err-no</span></code>)</p>
+</div></blockquote>
 <p>Display diagnostic number for warning messages. (Default)</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--no-display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-err-no</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-err-no</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Disables the display of a diagnostic number for warning messages.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--diag-error=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-error</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-error=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-error</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Emit error for specified diagnostic message number(s). Message numbers can be separated by comma.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--diag-suppress=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-suppress</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-suppress=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-suppress</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Suppress specified diagnostic message number(s). Message numbers can be separated by comma.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--diag-warn=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-warn</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-warn=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-warn</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Emit warning for specified diagnostic message number(s). Message numbers can be separated by comma.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--brief-diagnostics={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-brief-diag</span></code>)</p>
-<p>This option disables or enables showing source line and column info in a diagnostic. The –brief-diagnostics=true will not show the source line and column info.</p>
-<ul class="simple">
-<li><p>Default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--brief-diagnostics={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-brief-diag</span></code>)</p></li>
 </ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--time=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-time</span></code>)</p>
+</div></blockquote>
+<p>This option disables or enables showing source line and column info in a diagnostic. The <code class="docutils literal notranslate"><span class="pre">--brief-diagnostics=true</span></code> will not show the source line and column info.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--time=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-time</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Generate a comma separated value table with the time taken by each compilation phase, and append it at the end of the file given as the option argument. If the file does not exist, the column headings are generated in the first row of the table. If the file name is ‘-’, the timing data is written to the compilation log.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--split-compile=</span></code> &lt;number of threads&gt; (<code class="docutils literal notranslate"><span class="pre">-split-compile=</span></code> &lt;number of threads&gt;)</p>
-<p>Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting –split-compile=0. Setting –split-compile=1 will cause this option to be ignored.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--fdevice-syntax-only</span></code> (<code class="docutils literal notranslate"><span class="pre">-fdevice-syntax-only</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--split-compile=&lt;number-of-threads&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-split-compile=&lt;number-of-threads&gt;</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting <code class="docutils literal notranslate"><span class="pre">--split-compile=0</span></code>. Setting <code class="docutils literal notranslate"><span class="pre">--split-compile=1</span></code> will cause this option to be ignored.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--fdevice-syntax-only</span></code> (<code class="docutils literal notranslate"><span class="pre">-fdevice-syntax-only</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Ends device compilation after front-end syntax checking. This option does not generate valid device code.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--minimal</span></code> (<code class="docutils literal notranslate"><span class="pre">-minimal</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--minimal</span></code> (<code class="docutils literal notranslate"><span class="pre">-minimal</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Omit certain language features to reduce compile time for small programs. In particular, the following are omitted:</p>
-<ul class="simple">
-<li><p>Texture and surface functions and associated types, e.g., <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>.</p></li>
-<li><p>CUDA Runtime Functions that are provided by the cudadevrt device code library, typically named with prefix “cuda”, e.g., <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>.</p></li>
-<li><p>Kernel launch from device code.</p></li>
-<li><p>Types and macros associated with CUDA Runtime and Driver APIs, provided by cuda/tools/cudart/driver_types.h, typically named with prefix “cuda”, e.g., <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>.</p></li>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-stack-protector</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-stack-protector</span></code>)</p></li>
 </ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--device-stack-protector</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-stack-protector</span></code>)</p>
+</div></blockquote>
 <p>Enable stack canaries in device code. Stack canaries make it more difficult to exploit certain types of memory safety bugs involving stack-local variables. The compiler uses heuristics to assess the risk of such a bug in each function. Only those functions which are deemed high-risk make use of a stack canary.</p>
-</li>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--fdevice-time-trace=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-fdevice-time-trace=&lt;file-name&gt;</span></code>) Enables the time profiler, outputting a JSON file based on given &lt;file-name&gt;. Results can be analyzed on chrome://tracing for a flamegraph visualization.</p></li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
 </section>
 </section>
 
@@ -1313,6 +1579,10 @@ expression.</p></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_PCH_CREATE</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_CANCELLED</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetErrorString"><code class="docutils literal notranslate"><span class="pre">nvrtcGetErrorString()</span></code></a></li>
@@ -1346,6 +1616,14 @@ expression.</p></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetProgramLog"><code class="docutils literal notranslate"><span class="pre">nvrtcGetProgramLog()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcAddNameExpression"><code class="docutils literal notranslate"><span class="pre">nvrtcAddNameExpression()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetLoweredName"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLoweredName()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcSetFlowCallback"><code class="docutils literal notranslate"><span class="pre">nvrtcSetFlowCallback()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#precompiled-header-pch-cuda-12-8">Precompiled header (PCH) (CUDA 12.8+)</a><ul>
+<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPCHHeapSize()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcSetPCHHeapSize"><code class="docutils literal notranslate"><span class="pre">nvrtcSetPCHHeapSize()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPCHCreateStatus()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPCHHeapSizeRequired()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#supported-compile-options">Supported Compile Options</a></li>
@@ -1360,7 +1638,7 @@ expression.</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=dabec1d4"></script>
+</div><script src="../_static/documentation_options.js?v=2a80ae63"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -156,7 +156,11 @@
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
-
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/398">PR 398</a>! 
+  </aside>
+</div>
 
 <div class="page">
   <header class="mobile-header">
@@ -206,9 +210,9 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html">    0.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html">    0.1.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html">    0.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
@@ -221,6 +225,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
@@ -285,13 +290,13 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#X"><strong>X</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a></div>
 </section>
 <section id="A" class="genindex-section">
   <h2>A</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.arch">arch (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.arch">arch (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
@@ -307,9 +312,15 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.block">block (in module cuda.core.experimental)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.brief_diagnostics">brief_diagnostics (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental._memory.Buffer.html#cuda.core.experimental._memory.Buffer">Buffer (in module cuda.core.experimental._memory)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental._memory.Buffer.html#cuda.core.experimental._memory.Buffer">Buffer (in module cuda.core.experimental._memory)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.builtin_initializer_list">builtin_initializer_list (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.builtin_move_forward">builtin_move_forward (in module cuda.core.experimental)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.busy_waited_sync">busy_waited_sync (in module cuda.core.experimental)</a>
 </li>
@@ -347,11 +358,31 @@
   <h2>D</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.debug">debug (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.debug">debug (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.define_macro">define_macro (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device">Device (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.device_as_default_execution_space">device_as_default_execution_space (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.device_code_optimize">device_code_optimize (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.device_int128">device_int128 (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device">Device (in module cuda.core.experimental)</a>
+        <li><a href="api.html#cuda.core.experimental.system.devices">devices (in module cuda.core.experimental.system)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.diag_error">diag_error (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.diag_suppress">diag_suppress (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.diag_warn">diag_warn (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.disable_warnings">disable_warnings (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="api.html#cuda.core.experimental.system.driver_version">driver_version (in module cuda.core.experimental.system)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -363,11 +394,15 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.enable_timing">enable_timing (in module cuda.core.experimental)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event">Event (in module cuda.core.experimental._event)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions">EventOptions (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.extensible_whole_program">extensible_whole_program (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.extra_device_vectorization">extra_device_vectorization (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -377,11 +412,13 @@
   <h2>F</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.fma">fma (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.fdevice_syntax_only">fdevice_syntax_only (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.ftz">ftz (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.fma">fma (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ftz">ftz (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -391,7 +428,21 @@
   <h2>G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.gen_opt_lto">gen_opt_lto (in module cuda.core.experimental)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.grid">grid (in module cuda.core.experimental)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.include_path">include_path (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -402,10 +453,6 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._module.Kernel.html#cuda.core.experimental._module.Kernel">Kernel (in module cuda.core.experimental._module)</a>
-</li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.kernels_used">kernels_used (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -419,11 +466,11 @@
 </li>
         <li><a href="generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig">LaunchConfig (in module cuda.core.experimental)</a>
 </li>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.lineinfo">lineinfo (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.lineinfo">lineinfo (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.link_time_optimization">link_time_optimization (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.link_time_optimization">link_time_optimization (in module cuda.core.experimental)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker">Linker (in module cuda.core.experimental)</a>
 </li>
@@ -437,8 +484,12 @@
   <h2>M</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.max_register_count">max_register_count (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.max_register_count">max_register_count (in module cuda.core.experimental)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.minimal">minimal (in module cuda.core.experimental)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     module
 
@@ -456,11 +507,15 @@
   <h2>N</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.no_cache">no_cache (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.no_display_error_number">no_display_error_number (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.no_source_include">no_source_include (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental.StreamOptions.html#cuda.core.experimental.nonblocking">nonblocking (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="api.html#cuda.core.experimental.system.num_devices">num_devices (in module cuda.core.experimental.system)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -474,9 +529,7 @@
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.optimization_level">optimization_level (in module cuda.core.experimental)</a>
-</li>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.optimize_unused_variables">optimize_unused_variables (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.optimization_info">optimization_info (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -486,9 +539,11 @@
   <h2>P</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.prec_div">prec_div (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.pre_include">pre_include (in module cuda.core.experimental)</a>
 </li>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.prec_sqrt">prec_sqrt (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.prec_div">prec_div (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.prec_sqrt">prec_sqrt (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
@@ -496,7 +551,23 @@
 </li>
         <li><a href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program">Program (in module cuda.core.experimental)</a>
 </li>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.ptx">ptx (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions">ProgramOptions (in module cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ptxas_options">ptxas_options (in module cuda.core.experimental)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.relocatable_device_code">relocatable_device_code (in module cuda.core.experimental)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.restrict">restrict (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -508,9 +579,9 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.shmem_size">shmem_size (in module cuda.core.experimental)</a>
 </li>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.split_compile">split_compile (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.split_compile">split_compile (in module cuda.core.experimental)</a>
 </li>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.split_compile_extended">split_compile_extended (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.std">std (in module cuda.core.experimental)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.stream">stream (in module cuda.core.experimental)</a>
 </li>
@@ -532,31 +603,21 @@
   <h2>T</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.time">time (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.time">time (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
   </tr></table>
 </section>
 
-<section id="V" class="genindex-section">
-  <h2>V</h2>
+<section id="U" class="genindex-section">
+  <h2>U</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.variables_used">variables_used (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.undefine_macro">undefine_macro (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.verbose">verbose (in module cuda.core.experimental)</a>
-</li>
-    </ul></td>
-  </tr></table>
-</section>
-
-<section id="X" class="genindex-section">
-  <h2>X</h2>
-  <table style="width: 100%" class="indextable genindextable"><tr>
-    <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.xptxas">xptxas (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.use_fast_math">use_fast_math (in module cuda.core.experimental)</a>
 </li>
     </ul></td>
   </tr></table>

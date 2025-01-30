@@ -47,6 +47,18 @@ NVRTC defines the following enumeration type and function for API call error han
 
     .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED
 
+
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED
+
+
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED
+
+
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE
+
+
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED
+
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetErrorString
 
 General Information Query
@@ -81,6 +93,17 @@ NVRTC defines the following type and functions for actual compilation.
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetProgramLog
 .. autofunction:: cuda.bindings.nvrtc.nvrtcAddNameExpression
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetLoweredName
+.. autofunction:: cuda.bindings.nvrtc.nvrtcSetFlowCallback
+
+Precompiled header (PCH) (CUDA 12.8+)
+-------------------------------------
+
+NVRTC defines the following function related to PCH. Also see PCH related flags passed to nvrtcCompileProgram.
+
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetPCHHeapSize
+.. autofunction:: cuda.bindings.nvrtc.nvrtcSetPCHHeapSize
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus
+.. autofunction:: cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired
 
 Supported Compile Options
 -------------------------
@@ -103,249 +126,7 @@ The valid compiler options are:
 
   - ``--gpu-architecture=<arch>``\  (``-arch``\ )
 
-
-
-    Specify the name of the class of GPU architectures for which the input must be compiled.
-
-
-
-
-
-
-
-    - Valid ``<arch>``\ s:
-
-
-
-
-
-      - ``compute_50``\  
-
-
-
-
-
-
-
-      - ``compute_52``\  
-
-
-
-
-
-
-
-      - ``compute_53``\  
-
-
-
-
-
-
-
-      - ``compute_60``\  
-
-
-
-
-
-
-
-      - ``compute_61``\  
-
-
-
-
-
-
-
-      - ``compute_62``\  
-
-
-
-
-
-
-
-      - ``compute_70``\  
-
-
-
-
-
-
-
-      - ``compute_72``\  
-
-
-
-
-
-
-
-      - ``compute_75``\  
-
-
-
-
-
-
-
-      - ``compute_80``\  
-
-
-
-
-
-
-
-      - ``compute_87``\  
-
-
-
-
-
-
-
-      - ``compute_89``\  
-
-
-
-
-
-
-
-      - ``compute_90``\  
-
-
-
-
-
-
-
-      - ``compute_90a``\  
-
-
-
-
-
-
-
-      - ``sm_50``\  
-
-
-
-
-
-
-
-      - ``sm_52``\  
-
-
-
-
-
-
-
-      - ``sm_53``\  
-
-
-
-
-
-
-
-      - ``sm_60``\  
-
-
-
-
-
-
-
-      - ``sm_61``\  
-
-
-
-
-
-
-
-      - ``sm_62``\  
-
-
-
-
-
-
-
-      - ``sm_70``\  
-
-
-
-
-
-
-
-      - ``sm_72``\  
-
-
-
-
-
-
-
-      - ``sm_75``\  
-
-
-
-
-
-
-
-      - ``sm_80``\  
-
-
-
-
-
-
-
-      - ``sm_87``\  
-
-
-
-
-
-
-
-      - ``sm_89``\  
-
-
-
-
-
-
-
-      - ``sm_90``\  
-
-
-
-
-
-
-
-      - ``sm_90a``\  
-
-
-
-
-
-
-
-
-
-    - Default: ``compute_52``\  
+Specify the name of the class of GPU architectures for which the input must be compiled.
 
 
 
@@ -365,9 +146,7 @@ The valid compiler options are:
 
   - ``--device-c``\  (``-dc``\ )
 
-
-
-    Generate relocatable code that can be linked with other relocatable device code. It is equivalent to --relocatable-device-code=true.
+Generate relocatable code that can be linked with other relocatable device code. It is equivalent to ``--relocatable-device-code=true``\ .
 
 
 
@@ -377,9 +156,7 @@ The valid compiler options are:
 
   - ``--device-w``\  (``-dw``\ )
 
-
-
-    Generate non-relocatable code. It is equivalent to ``--relocatable-device-code=false``\ .
+Generate non-relocatable code. It is equivalent to ``--relocatable-device-code=false``\ .
 
 
 
@@ -389,17 +166,7 @@ The valid compiler options are:
 
   - ``--relocatable-device-code={true|false}``\  (``-rdc``\ )
 
-
-
-    Enable (disable) the generation of relocatable device code.
-
-
-
-
-
-    - Default: ``false``\  
-
-
+Enable (disable) the generation of relocatable device code.
 
 
 
@@ -409,17 +176,7 @@ The valid compiler options are:
 
   - ``--extensible-whole-program``\  (``-ewp``\ )
 
-
-
-    Do extensible whole program compilation of device code.
-
-
-
-
-
-    - Default: ``false``\  
-
-
+Do extensible whole program compilation of device code.
 
 
 
@@ -437,9 +194,7 @@ The valid compiler options are:
 
   - ``--device-debug``\  (``-G``\ )
 
-
-
-    Generate debug information. If --dopt is not specified, then turns off all optimizations.
+Generate debug information. If ``--dopt``\  is not specified, then turns off all optimizations.
 
 
 
@@ -449,9 +204,7 @@ The valid compiler options are:
 
   - ``--generate-line-info``\  (``-lineinfo``\ )
 
-
-
-    Generate line-number information.
+Generate line-number information.
 
 
 
@@ -467,9 +220,7 @@ The valid compiler options are:
 
 
 
-  - ``--dopt``\  on (``-dopt``\ )
-
-
+  - ``--dopt``\  ``on``\  (``-dopt``\ )
 
 
 
@@ -479,9 +230,7 @@ The valid compiler options are:
 
   - ``--dopt=on``\  
 
-
-
-    Enable device code optimization. When specified along with '-G', enables limited debug information generation for optimized device code (currently, only line number information). When '-G' is not specified, '-dopt=on' is implicit.
+Enable device code optimization. When specified along with ``-G``\ , enables limited debug information generation for optimized device code (currently, only line number information). When ``-G``\  is not specified, ``-dopt=on``\  is implicit.
 
 
 
@@ -497,13 +246,9 @@ The valid compiler options are:
 
 
 
-
-
   - ``--ptxas-options=<options>``\  
 
-
-
-    Specify options directly to ptxas, the PTX optimizing assembler.
+Specify options directly to ptxas, the PTX optimizing assembler.
 
 
 
@@ -513,9 +258,7 @@ The valid compiler options are:
 
   - ``--maxrregcount=<N>``\  (``-maxrregcount``\ )
 
-
-
-    Specify the maximum amount of registers that GPU functions can use. Until a function-specific limit, a higher value will generally increase the performance of individual GPU threads that execute this function. However, because thread registers are allocated from a global register pool on each GPU, a higher value of this option will also reduce the maximum thread block size, thereby reducing the amount of thread parallelism. Hence, a good maxrregcount value is the result of a trade-off. If this option is not specified, then no maximum is assumed. Value less than the minimum registers required by ABI will be bumped up by the compiler to ABI minimum limit.
+Specify the maximum amount of registers that GPU functions can use. Until a function-specific limit, a higher value will generally increase the performance of individual GPU threads that execute this function. However, because thread registers are allocated from a global register pool on each GPU, a higher value of this option will also reduce the maximum thread block size, thereby reducing the amount of thread parallelism. Hence, a good maxrregcount value is the result of a trade-off. If this option is not specified, then no maximum is assumed. Value less than the minimum registers required by ABI will be bumped up by the compiler to ABI minimum limit.
 
 
 
@@ -525,17 +268,9 @@ The valid compiler options are:
 
   - ``--ftz={true|false}``\  (``-ftz``\ )
 
+When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal values.
 
-
-    When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal values. ``--use_fast_math``\  implies ``--ftz=true``\ .
-
-
-
-
-
-    - Default: ``false``\  
-
-
+``--use_fast_math``\  implies ``--ftz=true``\ .
 
 
 
@@ -545,15 +280,7 @@ The valid compiler options are:
 
   - ``--prec-sqrt={true|false}``\  (``-prec-sqrt``\ )
 
-
-
-    For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation. ``--use_fast_math``\  implies ``--prec-sqrt=false``\ .
-
-
-
-
-
-    - Default: ``true``\  
+For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation. ``--use_fast_math``\  implies ``--prec-sqrt=false``\ .
 
 
 
@@ -561,13 +288,7 @@ The valid compiler options are:
 
 
 
-
-
-  - ``--prec-div={true|false}``\  (``-prec-div``\ )
-
-
-
-    For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster approximation. ``--use_fast_math``\  implies ``--prec-div=false``\ .
+  - ``--prec-div={true|false}``\  (``-prec-div``\ ) For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster approximation. ``--use_fast_math``\  implies ``--prec-div=false``\ .
 
 
 
@@ -585,17 +306,7 @@ The valid compiler options are:
 
   - ``--fmad={true|false}``\  (``-fmad``\ )
 
-
-
-    Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point multiply-add operations (FMAD, FFMA, or DFMA). ``--use_fast_math``\  implies ``--fmad=true``\ .
-
-
-
-
-
-    - Default: ``true``\  
-
-
+Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point multiply-add operations (FMAD, FFMA, or DFMA). ``--use_fast_math``\  implies ``--fmad=true``\ .
 
 
 
@@ -605,9 +316,7 @@ The valid compiler options are:
 
   - ``--use_fast_math``\  (``-use_fast_math``\ )
 
-
-
-    Make use of fast math operations. ``--use_fast_math``\  implies ``--ftz=true``\  ``--prec-div=false``\  ``--prec-sqrt=false``\  ``--fmad=true``\ .
+Make use of fast math operations. ``--use_fast_math``\  implies ``--ftz=true``\  ``--prec-div=false``\  ``--prec-sqrt=false``\  ``--fmad=true``\ .
 
 
 
@@ -617,9 +326,7 @@ The valid compiler options are:
 
   - ``--extra-device-vectorization``\  (``-extra-device-vectorization``\ )
 
-
-
-    Enables more aggressive device code vectorization in the NVVM optimizer.
+Enables more aggressive device code vectorization in the NVVM optimizer.
 
 
 
@@ -629,17 +336,7 @@ The valid compiler options are:
 
   - ``--modify-stack-limit={true|false}``\  (``-modify-stack-limit``\ )
 
-
-
-    On Linux, during compilation, use ``setrlimit()``\  to increase stack size to maximum allowed. The limit is reset to the previous value at the end of compilation. Note: ``setrlimit()``\  changes the value for the entire process.
-
-
-
-
-
-    - Default: ``true``\  
-
-
+On Linux, during compilation, use ``setrlimit()``\  to increase stack size to maximum allowed. The limit is reset to the previous value at the end of compilation. Note: ``setrlimit()``\  changes the value for the entire process.
 
 
 
@@ -649,9 +346,7 @@ The valid compiler options are:
 
   - ``--dlink-time-opt``\  (``-dlto``\ )
 
-
-
-    Generate intermediate code for later link-time optimization. It implies ``-rdc=true``\ . Note: when this option is used the nvrtcGetLTOIR API should be used, as PTX or Cubin will not be generated.
+Generate intermediate code for later link-time optimization. It implies ``-rdc=true``\ . Note: when this option is used the ``nvrtcGetLTOIR``\  API should be used, as PTX or Cubin will not be generated.
 
 
 
@@ -661,9 +356,7 @@ The valid compiler options are:
 
   - ``--gen-opt-lto``\  (``-gen-opt-lto``\ )
 
-
-
-    Run the optimizer passes before generating the LTO IR.
+Run the optimizer passes before generating the LTO IR.
 
 
 
@@ -673,11 +366,9 @@ The valid compiler options are:
 
   - ``--optix-ir``\  (``-optix-ir``\ )
 
+Generate OptiX IR. The Optix IR is only intended for consumption by OptiX through appropriate APIs. This feature is not supported with link-time-optimization (``-dlto``\ ).
 
-
-    Generate OptiX IR. The Optix IR is only intended for consumption by OptiX through appropriate APIs. This feature is not supported with link-time-optimization (``-dlto``\ )
-
-. Note: when this option is used the nvrtcGetOptiX API should be used, as PTX or Cubin will not be generated.
+Note: when this option is used the nvrtcGetOptiX API should be used, as PTX or Cubin will not be generated.
 
 
 
@@ -687,9 +378,7 @@ The valid compiler options are:
 
   - ``--jump-table-density=``\ [0-101] (``-jtd``\ )
 
-
-
-    Specify the case density percentage in switch statements, and use it as a minimal threshold to determine whether jump table(brx.idx instruction) will be used to implement a switch statement. Default value is 101. The percentage ranges from 0 to 101 inclusively.
+Specify the case density percentage in switch statements, and use it as a minimal threshold to determine whether jump table(brx.idx instruction) will be used to implement a switch statement. Default value is 101. The percentage ranges from 0 to 101 inclusively.
 
 
 
@@ -699,19 +388,7 @@ The valid compiler options are:
 
   - ``--device-stack-protector={true|false}``\  (``-device-stack-protector``\ )
 
-
-
-    Enable (disable) the generation of stack canaries in device code.
-
-
-
-
-
-
-
-    - Default: ``false``\  
-
-
+Enable (disable) the generation of stack canaries in device code.
 
 
 
@@ -729,33 +406,7 @@ The valid compiler options are:
 
   - ``--define-macro=<def>``\  (``-D``\ )
 
-
-
-    ``<def>``\  can be either ``<name>``\  or ``<name=definitions>``\ .
-
-
-
-
-
-    - ``<name>``\  
-
-
-
-      Predefine ``<name>``\  as a macro with definition ``1``\ .
-
-
-
-
-
-
-
-    - ``<name>=<definition>``\  
-
-
-
-      The contents of ``<definition>``\  are tokenized and preprocessed as if they appeared during translation phase three in a ``#define``\  directive. In particular, the definition will be truncated by embedded new line characters.
-
-
+``<def>``\  can be either ``<name>``\  or ``<name=definitions>``\ .
 
 
 
@@ -765,9 +416,7 @@ The valid compiler options are:
 
   - ``--undefine-macro=<def>``\  (``-U``\ )
 
-
-
-    Cancel any previous definition of ``<def>``\ .
+Cancel any previous definition of ``<def>``\ .
 
 
 
@@ -777,9 +426,7 @@ The valid compiler options are:
 
   - ``--include-path=<dir>``\  (``-I``\ )
 
-
-
-    Add the directory ``<dir>``\  to the list of directories to be searched for headers. These paths are searched after the list of headers given to nvrtcCreateProgram.
+Add the directory ``<dir>``\  to the list of directories to be searched for headers. These paths are searched after the list of headers given to nvrtcCreateProgram.
 
 
 
@@ -789,9 +436,7 @@ The valid compiler options are:
 
   - ``--pre-include=<header>``\  (``-include``\ )
 
-
-
-    Preinclude ``<header>``\  during preprocessing.
+Preinclude ``<header>``\  during preprocessing.
 
 
 
@@ -799,7 +444,9 @@ The valid compiler options are:
 
 
 
-  - ``--no-source-include``\  (``-no-source-include``\ ) The preprocessor by default adds the directory of each input sources to the include path. This option disables this feature and only considers the path specified explicitly.
+  - ``--no-source-include``\  (``-no-source-include``\ )
+
+The preprocessor by default adds the directory of each input sources to the include path. This option disables this feature and only considers the path specified explicitly.
 
 
 
@@ -815,19 +462,9 @@ The valid compiler options are:
 
 
 
-  - ``--std={c++03|c++11|c++14|c++17|c++20}``\  (``-std={c++11|c++14|c++17|c++20}``\ )
+  - ``--std={c++03|c++11|c++14|c++17|c++20}``\  (``-std``\ )
 
-
-
-    Set language dialect to C++03, C++11, C++14, C++17 or C++20
-
-
-
-
-
-    - Default: ``c++17``\  
-
-
+Set language dialect to C++03, C++11, C++14, C++17 or C++20
 
 
 
@@ -837,17 +474,7 @@ The valid compiler options are:
 
   - ``--builtin-move-forward={true|false}``\  (``-builtin-move-forward``\ )
 
-
-
-    Provide builtin definitions of ``std::move``\  and ``std::forward``\ , when C++11 or later language dialect is selected.
-
-
-
-
-
-    - Default: ``true``\  
-
-
+Provide builtin definitions of ``std::move``\  and ``std::forward``\ , when C++11 or later language dialect is selected.
 
 
 
@@ -857,17 +484,85 @@ The valid compiler options are:
 
   - ``--builtin-initializer-list={true|false}``\  (``-builtin-initializer-list``\ )
 
-
-
-    Provide builtin definitions of ``std::initializer_list``\  class and member functions when C++11 or later language dialect is selected.
-
+Provide builtin definitions of ``std::initializer_list``\  class and member functions when C++11 or later language dialect is selected.
 
 
 
 
-    - Default: ``true``\  
 
 
+
+
+
+- Precompiled header support (CUDA 12.8+)
+
+
+
+
+
+  - ``--pch``\  (``-pch``\ )
+
+Enable automatic PCH processing.
+
+
+
+
+
+
+
+  - ``--create-pch=<file-name>``\  (``-create-pch``\ )
+
+Create a PCH file.
+
+
+
+
+
+
+
+  - ``--use-pch=<file-name>``\  (``-use-pch``\ )
+
+Use the specified PCH file.
+
+
+
+
+
+
+
+  - ``--pch-dir=<directory-name>``\  (``-pch-dir``\ )
+
+When using automatic PCH (``-pch``\ ), look for and create PCH files in the specified directory. When using explicit PCH (``-create-pch``\  or ``-use-pch``\ ), the directory name is prefixed before the specified file name, unless the file name is an absolute path name.
+
+
+
+
+
+
+
+  - ``--pch-verbose={true|false}``\  (``-pch-verbose``\ )
+
+In automatic PCH mode, for each PCH file that could not be used in current compilation, print the reason in the compilation log.
+
+
+
+
+
+
+
+  - ``--pch-messages={true|false}``\  (``-pch-messages``\ )
+
+Print a message in the compilation log, if a PCH file was created or used in the current compilation.
+
+
+
+
+
+
+
+  - ``--instantiate-templates-in-pch={true|false}``\  (``-instantiate-templates-in-pch``\ )
+
+Enable or disable instantiatiation of templates before PCH creation. Instantiating templates may increase the size of the PCH file, while reducing the compilation cost when using the PCH file (since some template instantiations can be skipped).
 
 
 
@@ -885,9 +580,7 @@ The valid compiler options are:
 
   - ``--disable-warnings``\  (``-w``\ )
 
-
-
-    Inhibit all warning messages.
+Inhibit all warning messages.
 
 
 
@@ -897,9 +590,7 @@ The valid compiler options are:
 
   - ``--restrict``\  (``-restrict``\ )
 
-
-
-    Programmer assertion that all kernel pointer parameters are restrict pointers.
+Programmer assertion that all kernel pointer parameters are restrict pointers.
 
 
 
@@ -909,9 +600,7 @@ The valid compiler options are:
 
   - ``--device-as-default-execution-space``\  (``-default-device``\ )
 
-
-
-    Treat entities with no execution space annotation as ``device``\  entities.
+Treat entities with no execution space annotation as ``device``\  entities.
 
 
 
@@ -921,9 +610,17 @@ The valid compiler options are:
 
   - ``--device-int128``\  (``-device-int128``\ )
 
+Allow the ``__int128``\  type in device code. Also causes the macro ``CUDACC_RTC_INT128``\  to be defined.
 
 
-    Allow the ``__int128``\  type in device code. Also causes the macro ``CUDACC_RTC_INT128``\  to be defined.
+
+
+
+
+
+  - ``--device-float128``\  (``-device-float128``\ )
+
+Allow the ``__float128``\  and ``_Float128``\  types in device code. Also causes the macro ``D__CUDACC_RTC_FLOAT128__``\  to be defined.
 
 
 
@@ -933,17 +630,7 @@ The valid compiler options are:
 
   - ``--optimization-info=<kind>``\  (``-opt-info``\ )
 
-
-
-    Provide optimization reports for the specified kind of optimization. The following kind tags are supported:
-
-
-
-
-
-    - ``inline``\  : emit a remark when a function is inlined.
-
-
+Provide optimization reports for the specified kind of optimization. The following kind tags are supported:
 
 
 
@@ -953,9 +640,7 @@ The valid compiler options are:
 
   - ``--display-error-number``\  (``-err-no``\ )
 
-
-
-    Display diagnostic number for warning messages. (Default)
+Display diagnostic number for warning messages. (Default)
 
 
 
@@ -965,9 +650,7 @@ The valid compiler options are:
 
   - ``--no-display-error-number``\  (``-no-err-no``\ )
 
-
-
-    Disables the display of a diagnostic number for warning messages.
+Disables the display of a diagnostic number for warning messages.
 
 
 
@@ -977,9 +660,7 @@ The valid compiler options are:
 
   - ``--diag-error=<error-number>``\ ,... (``-diag-error``\ )
 
-
-
-    Emit error for specified diagnostic message number(s). Message numbers can be separated by comma.
+Emit error for specified diagnostic message number(s). Message numbers can be separated by comma.
 
 
 
@@ -989,9 +670,7 @@ The valid compiler options are:
 
   - ``--diag-suppress=<error-number>``\ ,... (``-diag-suppress``\ )
 
-
-
-    Suppress specified diagnostic message number(s). Message numbers can be separated by comma.
+Suppress specified diagnostic message number(s). Message numbers can be separated by comma.
 
 
 
@@ -1001,9 +680,7 @@ The valid compiler options are:
 
   - ``--diag-warn=<error-number>``\ ,... (``-diag-warn``\ )
 
-
-
-    Emit warning for specified diagnostic message number(s). Message numbers can be separated by comma.
+Emit warning for specified diagnostic message number(s). Message numbers can be separated by comma.
 
 
 
@@ -1013,17 +690,7 @@ The valid compiler options are:
 
   - ``--brief-diagnostics={true|false}``\  (``-brief-diag``\ )
 
-
-
-    This option disables or enables showing source line and column info in a diagnostic. The --brief-diagnostics=true will not show the source line and column info.
-
-
-
-
-
-    - Default: ``false``\  
-
-
+This option disables or enables showing source line and column info in a diagnostic. The ``--brief-diagnostics=true``\  will not show the source line and column info.
 
 
 
@@ -1033,9 +700,7 @@ The valid compiler options are:
 
   - ``--time=<file-name>``\  (``-time``\ )
 
-
-
-    Generate a comma separated value table with the time taken by each compilation phase, and append it at the end of the file given as the option argument. If the file does not exist, the column headings are generated in the first row of the table. If the file name is '-', the timing data is written to the compilation log.
+Generate a comma separated value table with the time taken by each compilation phase, and append it at the end of the file given as the option argument. If the file does not exist, the column headings are generated in the first row of the table. If the file name is '-', the timing data is written to the compilation log.
 
 
 
@@ -1043,11 +708,9 @@ The valid compiler options are:
 
 
 
-  - ``--split-compile=``\  <number of threads> (``-split-compile=``\  <number of threads>)
+  - ``--split-compile=<number-of-threads>``\  (``-split-compile=<number-of-threads>``\ )
 
-
-
-    Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting --split-compile=0. Setting --split-compile=1 will cause this option to be ignored.
+Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting ``--split-compile=0``\ . Setting ``--split-compile=1``\  will cause this option to be ignored.
 
 
 
@@ -1057,9 +720,7 @@ The valid compiler options are:
 
   - ``--fdevice-syntax-only``\  (``-fdevice-syntax-only``\ )
 
-
-
-    Ends device compilation after front-end syntax checking. This option does not generate valid device code.
+Ends device compilation after front-end syntax checking. This option does not generate valid device code.
 
 
 
@@ -1069,41 +730,7 @@ The valid compiler options are:
 
   - ``--minimal``\  (``-minimal``\ )
 
-
-
-    Omit certain language features to reduce compile time for small programs. In particular, the following are omitted:
-
-
-
-
-
-    - Texture and surface functions and associated types, e.g., ``cudaTextureObject_t``\ .
-
-
-
-
-
-
-
-    - CUDA Runtime Functions that are provided by the cudadevrt device code library, typically named with prefix "cuda", e.g., ``cudaMalloc``\ .
-
-
-
-
-
-
-
-    - Kernel launch from device code.
-
-
-
-
-
-
-
-    - Types and macros associated with CUDA Runtime and Driver APIs, provided by cuda/tools/cudart/driver_types.h, typically named with prefix "cuda", e.g., ``cudaError_t``\ .
-
-
+Omit certain language features to reduce compile time for small programs. In particular, the following are omitted:
 
 
 
@@ -1113,7 +740,13 @@ The valid compiler options are:
 
   - ``--device-stack-protector``\  (``-device-stack-protector``\ )
 
+Enable stack canaries in device code. Stack canaries make it more difficult to exploit certain types of memory safety bugs involving stack-local variables. The compiler uses heuristics to assess the risk of such a bug in each function. Only those functions which are deemed high-risk make use of a stack canary.
 
 
-    Enable stack canaries in device code. Stack canaries make it more difficult to exploit certain types of memory safety bugs involving stack-local variables. The compiler uses heuristics to assess the risk of such a bug in each function. Only those functions which are deemed high-risk make use of a stack canary.
+
+
+
+
+
+  - ``--fdevice-time-trace=<file-name>``\  (``-fdevice-time-trace=<file-name>``\ ) Enables the time profiler, outputting a JSON file based on given <file-name>. Results can be analyzed on chrome://tracing for a flamegraph visualization.
 
