@@ -297,9 +297,9 @@
         <article role="main" id="furo-main-content">
           <section id="cuda-core-experimental-module-objectcode">
 <h1>cuda.core.experimental._module.ObjectCode<a class="headerlink" href="#cuda-core-experimental-module-objectcode" title="Link to this heading">¶</a></h1>
-<dl class="py data">
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental._module.ObjectCode">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._module.</span></span><span class="sig-name descname"><span class="pre">ObjectCode</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.core.experimental._module.ObjectCode'&gt;</span></em><a class="headerlink" href="#cuda.core.experimental._module.ObjectCode" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._module.</span></span><span class="sig-name descname"><span class="pre">ObjectCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jit_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.ObjectCode" title="Link to this definition">¶</a></dt>
 <dd><p>Represent a compiled program that was loaded onto the device.</p>
 <p>This object provides a unified interface for different types of
 compiled programs that are loaded onto the device.</p>
@@ -324,6 +324,29 @@ should be mapped before trying to retrieve them.
 </ul>
 </dd>
 </dl>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._module.ObjectCode.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jit_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.ObjectCode.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._module.ObjectCode.get_kernel">
+<span class="sig-name descname"><span class="pre">get_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.ObjectCode.get_kernel" title="Link to this definition">¶</a></dt>
+<dd><p>Return the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code> of a specified name from this object code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>Any</em>) – Name of the kernel to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Newly created kernel object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -366,7 +389,11 @@ should be mapped before trying to retrieve them.
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">cuda.core.experimental._module.ObjectCode</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental._module.ObjectCode"><code class="docutils literal notranslate"><span class="pre">ObjectCode</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._module.ObjectCode"><code class="docutils literal notranslate"><span class="pre">ObjectCode</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental._module.ObjectCode.__init__"><code class="docutils literal notranslate"><span class="pre">ObjectCode.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._module.ObjectCode.get_kernel"><code class="docutils literal notranslate"><span class="pre">ObjectCode.get_kernel()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -3,4 +3,4 @@
 
 .. currentmodule:: cuda.core.experimental.utils
 
-.. autodata:: args_viewable_as_strided_memory
+.. autofunction:: args_viewable_as_strided_memory

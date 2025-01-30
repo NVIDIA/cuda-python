@@ -297,9 +297,9 @@
         <article role="main" id="furo-main-content">
           <section id="cuda-core-experimental-device">
 <h1>cuda.core.experimental.Device<a class="headerlink" href="#cuda-core-experimental-device" title="Link to this heading">¶</a></h1>
-<dl class="py data">
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental.Device">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Device</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.core.experimental._device.Device'&gt;</span></em><a class="headerlink" href="#cuda.core.experimental.Device" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Device" title="Link to this definition">¶</a></dt>
 <dd><p>Represent a GPU and act as an entry point for cuda.core features.</p>
 <p>This is a singleton object that helps ensure interoperability
 across multiple libraries imported in the process to both see
@@ -308,7 +308,7 @@ and use the same GPU device.</p>
 allocated such as streams and buffers. Any <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> dependent
 resource created through this device, will continue to refer to
 this device’s context.</p>
-<p>Newly returned <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code> objects are thread-local singletons
+<p>Newly returned <a class="reference internal" href="#cuda.core.experimental.Device" title="cuda.core.experimental._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> objects are thread-local singletons
 for a specified device.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -316,10 +316,212 @@ for a specified device.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>device_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Device ordinal to return a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code> object for.
+<dd class="field-odd"><p><strong>device_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Device ordinal to return a <a class="reference internal" href="#cuda.core.experimental.Device" title="cuda.core.experimental._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> object for.
 Default value of <cite>None</cite> return the currently used device.</p>
 </dd>
 </dl>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Device.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.allocate">
+<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental._memory.Buffer.html#cuda.core.experimental._memory.Buffer" title="cuda.core.experimental._memory.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Device.allocate" title="Link to this definition">¶</a></dt>
+<dd><p>Allocate device memory from a specified stream.</p>
+<p>Allocates device memory of <cite>size</cite> bytes on the specified <cite>stream</cite>
+using the memory resource currently associated with this Device.</p>
+<p>Parameter <cite>stream</cite> is optional, using a default stream by default.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Device must be initialized.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of bytes to allocate.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>, optional) – The stream establishing the stream ordering semantic.
+Default value of <cite>None</cite> uses default stream.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Newly created buffer object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._memory.Buffer.html#cuda.core.experimental._memory.Buffer" title="cuda.core.experimental._memory.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.create_context">
+<span class="sig-name descname"><span class="pre">create_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ContextOptions</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Context</span></span></span><a class="headerlink" href="#cuda.core.experimental.Device.create_context" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The newly context will not be set as current.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>options</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">ContextOptions</span></code>, optional) – Customizable dataclass for context creation options.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Newly created context object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.create_stream">
+<span class="sig-name descname"><span class="pre">create_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions" title="cuda.core.experimental._stream.StreamOptions"><span class="pre">StreamOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Device.create_stream" title="Link to this definition">¶</a></dt>
+<dd><p>Create a Stream object.</p>
+<p>New stream objects can be created in two different ways:</p>
+<ol class="arabic simple">
+<li><p>Create a new CUDA stream with customizable <cite>options</cite>.</p></li>
+<li><p>Wrap an existing foreign <cite>obj</cite> supporting the __cuda_stream__ protocol.</p></li>
+</ol>
+<p>Option (2) internally holds a reference to the foreign object
+such that the lifetime is managed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Device must be initialized.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<em>Any</em><em>, </em><em>optional</em>) – Any object supporting the __cuda_stream__ protocol.</p></li>
+<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions" title="cuda.core.experimental._stream.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>, optional) – Customizable dataclass for stream creation options.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Newly created stream object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.set_current">
+<span class="sig-name descname"><span class="pre">set_current</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Context</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Context</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Device.set_current" title="Link to this definition">¶</a></dt>
+<dd><p>Set device to be used for GPU executions.</p>
+<p>Initializes CUDA and sets the calling thread to a valid CUDA
+context. By default the primary context is used, but optional <cite>ctx</cite>
+parameter can be used to explicitly supply a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> object.</p>
+<p>Providing a <cite>ctx</cite> causes the previous set context to be popped and returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ctx</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code>, optional) – Optional context to push onto this device’s current thread stack.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Popped context.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code>, None], optional</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Acts as an entry point of this object. Users always start a code by
+calling this method, e.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core.experimental</span><span class="w"> </span><span class="kn">import</span> <span class="n">Device</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev0</span> <span class="o">=</span> <span class="n">Device</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev0</span><span class="o">.</span><span class="n">set_current</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># ... do work on device 0 ...</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.sync">
+<span class="sig-name descname"><span class="pre">sync</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Device.sync" title="Link to this definition">¶</a></dt>
+<dd><p>Synchronize the device.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Device must be initialized.</p>
+</div>
+</dd></dl>
+
+<p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.compute_capability">
+<span class="sig-name descname"><span class="pre">compute_capability</span></span><a class="headerlink" href="#cuda.core.experimental.Device.compute_capability" title="Link to this definition">¶</a></dt>
+<dd><p>major and minor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Return a named tuple with 2 fields</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.context">
+<span class="sig-name descname"><span class="pre">context</span></span><a class="headerlink" href="#cuda.core.experimental.Device.context" title="Link to this definition">¶</a></dt>
+<dd><p>Return the current <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> associated with this device.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Device must be initialized.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.default_stream">
+<span class="sig-name descname"><span class="pre">default_stream</span></span><a class="headerlink" href="#cuda.core.experimental.Device.default_stream" title="Link to this definition">¶</a></dt>
+<dd><p>Return default CUDA <a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> associated with this device.</p>
+<p>The type of default stream returned depends on if the environment
+variable CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set.</p>
+<p>If set, returns a per-thread default stream. Otherwise returns
+the legacy stream.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.device_id">
+<span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.experimental.Device.device_id" title="Link to this definition">¶</a></dt>
+<dd><p>Return device ordinal.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.memory_resource">
+<span class="sig-name descname"><span class="pre">memory_resource</span></span><a class="headerlink" href="#cuda.core.experimental.Device.memory_resource" title="Link to this definition">¶</a></dt>
+<dd><p>Return <code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code> associated with this device.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cuda.core.experimental.Device.name" title="Link to this definition">¶</a></dt>
+<dd><p>Return the device name.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.pci_bus_id">
+<span class="sig-name descname"><span class="pre">pci_bus_id</span></span><a class="headerlink" href="#cuda.core.experimental.Device.pci_bus_id" title="Link to this definition">¶</a></dt>
+<dd><p>Return a PCI Bus Id string for this device.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.properties">
+<span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#cuda.core.experimental.Device.properties" title="Link to this definition">¶</a></dt>
+<dd><p>Return information about the compute-device.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#cuda.core.experimental.Device.uuid" title="Link to this definition">¶</a></dt>
+<dd><p>Return a UUID for the device.</p>
+<p>Returns 16-octets identifying the device. If the device is in
+MIG mode, returns its MIG UUID which uniquely identifies the
+subscribed MIG compute instance.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>MIG UUID is only returned when device is in MIG mode and the
+driver is older than CUDA 11.4.</p>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -380,7 +582,24 @@ Default value of <cite>None</cite> return the currently used device.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">cuda.core.experimental.Device</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.Device"><code class="docutils literal notranslate"><span class="pre">Device</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device"><code class="docutils literal notranslate"><span class="pre">Device</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.__init__"><code class="docutils literal notranslate"><span class="pre">Device.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.allocate"><code class="docutils literal notranslate"><span class="pre">Device.allocate()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.create_context"><code class="docutils literal notranslate"><span class="pre">Device.create_context()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.create_stream"><code class="docutils literal notranslate"><span class="pre">Device.create_stream()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.set_current"><code class="docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.sync"><code class="docutils literal notranslate"><span class="pre">Device.sync()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.compute_capability"><code class="docutils literal notranslate"><span class="pre">Device.compute_capability</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.context"><code class="docutils literal notranslate"><span class="pre">Device.context</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.default_stream"><code class="docutils literal notranslate"><span class="pre">Device.default_stream</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.device_id"><code class="docutils literal notranslate"><span class="pre">Device.device_id</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.memory_resource"><code class="docutils literal notranslate"><span class="pre">Device.memory_resource</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.name"><code class="docutils literal notranslate"><span class="pre">Device.name</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.pci_bus_id"><code class="docutils literal notranslate"><span class="pre">Device.pci_bus_id</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.properties"><code class="docutils literal notranslate"><span class="pre">Device.properties</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.uuid"><code class="docutils literal notranslate"><span class="pre">Device.uuid</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

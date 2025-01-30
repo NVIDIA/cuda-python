@@ -3,4 +3,31 @@
 
 .. currentmodule:: cuda.core.experimental._memory
 
-.. autodata:: Buffer
+.. autoclass:: Buffer
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: copy_from
+   .. automethod:: copy_to
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: device_id
+   .. autoattribute:: handle
+   .. autoattribute:: is_device_accessible
+   .. autoattribute:: is_host_accessible
+   .. autoattribute:: memory_resource
+   .. autoattribute:: size
+   
+   
