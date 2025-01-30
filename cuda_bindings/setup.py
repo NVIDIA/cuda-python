@@ -352,7 +352,7 @@ class ParallelBuildExtensions(build_ext):
             elif ext.name == "cuda.bindings._internal.nvjitlink":
                 ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvjitlink/lib"
             elif ext.name == "cuda.bindings._internal.nvvm":
-                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvvm/lib"
+                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvcc/nvvm/lib64"
             else:
                 ldflag = None
 
