@@ -36,12 +36,15 @@ else:
     show_info(nvvm.ir_version())
 
     prog = nvvm.create_program()
-    nvvm.add_module_to_program(prog, nvvmir, len(nvvmir), filename_ll)
-    try:
-        nvvm.compile_program(prog, 0, [])
-    except Exception as e:
-        print("EXCEPTION:", e, flush=True)
+    nvvmir_bytes = nvvmir.encode()
+    nvvm.add_module_to_program(prog, nvvmir_bytes, len(nvvmir_bytes), filename_ll)
+    nvvm.compile_program(prog, 0, [])
     log_size = nvvm.get_program_log_size(prog)
+    assert log_size == 1
     buffer = bytearray(log_size)
     nvvm.get_program_log(prog, buffer)
-    print(buffer, flush=True)
+    assert buffer == b"\x00"
+    result_size = nvvm.get_compiled_result_size(prog)
+    buffer = bytearray(result_size)
+    nvvm.get_compiled_result(prog, buffer)
+    print(buffer.decode("utf-8"), flush=True)
