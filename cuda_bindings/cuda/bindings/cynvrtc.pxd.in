@@ -5,6 +5,8 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+#
+# This code was automatically generated with version 12.8.0. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -24,6 +26,10 @@ cdef extern from "nvrtc.h":
         NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID = 10
         NVRTC_ERROR_INTERNAL_ERROR = 11
         NVRTC_ERROR_TIME_FILE_WRITE_FAILED = 12
+        NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED = 13
+        NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED = 14
+        NVRTC_ERROR_PCH_CREATE = 15
+        NVRTC_ERROR_CANCELLED = 16
 
     cdef struct _nvrtcProgram:
         pass
@@ -132,5 +138,30 @@ cdef nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expr
 {{if 'nvrtcGetLoweredName' in found_functions}}
 
 cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSize' in found_functions}}
+
+cdef nvrtcResult nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil
+{{endif}}
+
+{{if 'nvrtcSetPCHHeapSize' in found_functions}}
+
+cdef nvrtcResult nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil
+{{endif}}
+
+{{if 'nvrtcGetPCHCreateStatus' in found_functions}}
+
+cdef nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
+
+cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil
+{{endif}}
+
+{{if 'nvrtcSetFlowCallback' in found_functions}}
+
+cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 

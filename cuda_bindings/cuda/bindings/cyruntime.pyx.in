@@ -5,6 +5,8 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+#
+# This code was automatically generated with version 12.8.0. Do not modify it directly.
 
 # cython: show_performance_hints=False
 
@@ -391,6 +393,9 @@ cdef const char* cudaGetErrorName(cudaError_t error) except ?NULL nogil:
     {{if 'cudaErrorUnsupportedDevSideSync' in found_values}}
     if error == cudaErrorUnsupportedDevSideSync:
         return "cudaErrorUnsupportedDevSideSync"{{endif}}
+    {{if 'cudaErrorContained' in found_values}}
+    if error == cudaErrorContained:
+        return "cudaErrorContained"{{endif}}
     {{if 'cudaErrorInvalidSource' in found_values}}
     if error == cudaErrorInvalidSource:
         return "cudaErrorInvalidSource"{{endif}}
@@ -478,6 +483,9 @@ cdef const char* cudaGetErrorName(cudaError_t error) except ?NULL nogil:
     {{if 'cudaErrorCooperativeLaunchTooLarge' in found_values}}
     if error == cudaErrorCooperativeLaunchTooLarge:
         return "cudaErrorCooperativeLaunchTooLarge"{{endif}}
+    {{if 'cudaErrorTensorMemoryLeak' in found_values}}
+    if error == cudaErrorTensorMemoryLeak:
+        return "cudaErrorTensorMemoryLeak"{{endif}}
     {{if 'cudaErrorNotPermitted' in found_values}}
     if error == cudaErrorNotPermitted:
         return "cudaErrorNotPermitted"{{endif}}
@@ -722,6 +730,13 @@ cdef cudaError_t cudaStreamGetId(cudaStream_t hStream, unsigned long long* strea
 
 {{endif}}
 
+{{if 'cudaStreamGetDevice' in found_functions}}
+
+cdef cudaError_t cudaStreamGetDevice(cudaStream_t hStream, int* device) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaStreamGetDevice(hStream, device)
+
+{{endif}}
+
 {{if 'cudaCtxResetPersistingL2Cache' in found_functions}}
 
 cdef cudaError_t cudaCtxResetPersistingL2Cache() except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -908,6 +923,13 @@ cdef cudaError_t cudaEventDestroy(cudaEvent_t event) except ?cudaErrorCallRequir
 
 cdef cudaError_t cudaEventElapsedTime(float* ms, cudaEvent_t start, cudaEvent_t end) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _cudaEventElapsedTime(ms, start, end)
+
+{{endif}}
+
+{{if 'cudaEventElapsedTime_v2' in found_functions}}
+
+cdef cudaError_t cudaEventElapsedTime_v2(float* ms, cudaEvent_t start, cudaEvent_t end) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaEventElapsedTime_v2(ms, start, end)
 
 {{endif}}
 
@@ -1279,6 +1301,20 @@ cdef cudaError_t cudaMemcpyAsync(void* dst, const void* src, size_t count, cudaM
 
 cdef cudaError_t cudaMemcpyPeerAsync(void* dst, int dstDevice, const void* src, int srcDevice, size_t count, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _cudaMemcpyPeerAsync(dst, dstDevice, src, srcDevice, count, stream)
+
+{{endif}}
+
+{{if 'cudaMemcpyBatchAsync' in found_functions}}
+
+cdef cudaError_t cudaMemcpyBatchAsync(void** dsts, void** srcs, size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, size_t* failIdx, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaMemcpyBatchAsync(dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, failIdx, stream)
+
+{{endif}}
+
+{{if 'cudaMemcpy3DBatchAsync' in found_functions}}
+
+cdef cudaError_t cudaMemcpy3DBatchAsync(size_t numOps, cudaMemcpy3DBatchOp* opList, size_t* failIdx, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaMemcpy3DBatchAsync(numOps, opList, failIdx, flags, stream)
 
 {{endif}}
 
@@ -2308,6 +2344,76 @@ cdef cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, uns
 
 cdef cudaError_t cudaGetDriverEntryPointByVersion(const char* symbol, void** funcPtr, unsigned int cudaVersion, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _cudaGetDriverEntryPointByVersion(symbol, funcPtr, cudaVersion, flags, driverStatus)
+
+{{endif}}
+
+{{if 'cudaLibraryLoadData' in found_functions}}
+
+cdef cudaError_t cudaLibraryLoadData(cudaLibrary_t* library, const void* code, cudaJitOption* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, cudaLibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaLibraryLoadData(library, code, jitOptions, jitOptionsValues, numJitOptions, libraryOptions, libraryOptionValues, numLibraryOptions)
+
+{{endif}}
+
+{{if 'cudaLibraryLoadFromFile' in found_functions}}
+
+cdef cudaError_t cudaLibraryLoadFromFile(cudaLibrary_t* library, const char* fileName, cudaJitOption* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, cudaLibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaLibraryLoadFromFile(library, fileName, jitOptions, jitOptionsValues, numJitOptions, libraryOptions, libraryOptionValues, numLibraryOptions)
+
+{{endif}}
+
+{{if 'cudaLibraryUnload' in found_functions}}
+
+cdef cudaError_t cudaLibraryUnload(cudaLibrary_t library) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaLibraryUnload(library)
+
+{{endif}}
+
+{{if 'cudaLibraryGetKernel' in found_functions}}
+
+cdef cudaError_t cudaLibraryGetKernel(cudaKernel_t* pKernel, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaLibraryGetKernel(pKernel, library, name)
+
+{{endif}}
+
+{{if 'cudaLibraryGetGlobal' in found_functions}}
+
+cdef cudaError_t cudaLibraryGetGlobal(void** dptr, size_t* numbytes, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaLibraryGetGlobal(dptr, numbytes, library, name)
+
+{{endif}}
+
+{{if 'cudaLibraryGetManaged' in found_functions}}
+
+cdef cudaError_t cudaLibraryGetManaged(void** dptr, size_t* numbytes, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaLibraryGetManaged(dptr, numbytes, library, name)
+
+{{endif}}
+
+{{if 'cudaLibraryGetUnifiedFunction' in found_functions}}
+
+cdef cudaError_t cudaLibraryGetUnifiedFunction(void** fptr, cudaLibrary_t library, const char* symbol) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaLibraryGetUnifiedFunction(fptr, library, symbol)
+
+{{endif}}
+
+{{if 'cudaLibraryGetKernelCount' in found_functions}}
+
+cdef cudaError_t cudaLibraryGetKernelCount(unsigned int* count, cudaLibrary_t lib) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaLibraryGetKernelCount(count, lib)
+
+{{endif}}
+
+{{if 'cudaLibraryEnumerateKernels' in found_functions}}
+
+cdef cudaError_t cudaLibraryEnumerateKernels(cudaKernel_t* kernels, unsigned int numKernels, cudaLibrary_t lib) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaLibraryEnumerateKernels(kernels, numKernels, lib)
+
+{{endif}}
+
+{{if 'cudaKernelSetAttributeForDevice' in found_functions}}
+
+cdef cudaError_t cudaKernelSetAttributeForDevice(cudaKernel_t kernel, cudaFuncAttribute attr, int value, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _cudaKernelSetAttributeForDevice(kernel, attr, value, device)
 
 {{endif}}
 
