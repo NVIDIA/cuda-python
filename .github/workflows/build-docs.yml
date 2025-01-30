@@ -6,6 +6,31 @@ on:
       build-ctk-ver:
         type: string
         required: true
+      component:
+        description: "Component(s) to build docs for"
+        required: false
+        default: "all"
+        type: string
+        # below are the acceptable options:
+        #   - cuda-core
+        #   - cuda-bindings
+        #   - cuda-python
+        #   - all
+      git-tag:
+        description: "Target git tag to build docs for"
+        required: false
+        default: ""
+        type: string
+      run-id:
+        description: "The GHA run ID that generated validated artifacts"
+        required: false
+        default: ${{ github.run_id }}
+        type: string
+      is-release:
+        description: "Are we building release docs?"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -27,6 +52,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ inputs.git-tag }}
 
       # TODO: cache conda env to speed up the workflow once conda-incubator/setup-miniconda#267
       # is resolved
@@ -59,14 +85,23 @@ jobs:
           PYTHON_VERSION_FORMATTED="312"  # see above
           REPO_DIR=$(pwd)
 
+          if [[ ${{ inputs.is-release }} == "true" ]]; then
+            FILE_HASH="*"
+            COMMIT_HASH="${{ inputs.git-tag }}"
+          else
+            FILE_HASH="${{ github.sha }}"
+            COMMIT_HASH="${{ github.sha }}"
+          fi
+
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
+          echo "COMMIT_HASH=${COMMIT_HASH}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
           CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-linux-64"
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
@@ -74,6 +109,8 @@ jobs:
         with:
           name: cuda-python-wheel
           path: .
+          run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-python artifacts
         run: |
@@ -81,10 +118,21 @@ jobs:
           ls -lahR .
 
       - name: Download cuda.bindings build artifacts
+        if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Download cuda.bindings build artifacts
+        if: ${{ inputs.is-release }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          merge-multiple: true
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
@@ -92,10 +140,21 @@ jobs:
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
       - name: Download cuda.core build artifacts
+        if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: Download cuda.core build artifacts
+        if: ${{ inputs.is-release }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          merge-multiple: true
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
@@ -114,23 +173,53 @@ jobs:
 
           pip install cuda_python*.whl
 
-      # This step sets the PR_NUMBER env var.
+      # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
       - name: Get PR number
+        if: ${{ !inputs.is-release }}
         uses: ./.github/actions/get_pr_number
 
-      - name: Build all (latest) docs
-        id: build
+      - name: Set up artifact directories
         run: |
-          pushd cuda_python/docs/
-          ./build_all_docs.sh latest-only
-          ls -l build
-          popd
-
           mkdir -p artifacts/docs
-          mv cuda_python/docs/build/html/* artifacts/docs/
-
           # create an empty folder for removal use
           mkdir -p artifacts/empty_docs
+
+      - name: Build all docs
+        if: ${{ inputs.component == 'all' }}
+        run: |
+          pushd cuda_python/docs/
+          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+            ./build_all_docs.sh latest-only
+          else
+            ./build_all_docs.sh
+            # At release time, we don't want to update the latest docs
+            rm -rf build/html/latest
+          fi
+          ls -l build
+          popd
+          mv cuda_python/docs/build/html/* artifacts/docs/
+
+      - name: Build component docs
+        if: ${{ inputs.component != 'all' }}
+        run: |
+          COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
+          pushd ${COMPONENT}/docs/
+          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+            ./build_docs.sh latest-only
+          else
+            ./build_docs.sh
+            # At release time, we don't want to update the latest docs
+            rm -rf build/html/latest
+          fi
+          ls -l build
+          popd
+          if [[ "${{ inputs.component }}" != "cuda-python" ]]; then
+            TARGET="${{ inputs.component }}"
+            mkdir -p artifacts/docs/${TARGET}
+          else
+            TARGET=""
+          fi
+          mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
       # TODO: Consider removing this step?
       - name: Upload doc artifacts
@@ -140,6 +229,7 @@ jobs:
           retention-days: 3
 
       - name: Deploy or clean up doc preview
+        if: ${{ !inputs.is-release }}
         uses: ./.github/actions/doc_preview
         with:
           source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
@@ -147,12 +237,12 @@ jobs:
           pr-number: ${{ env.PR_NUMBER }}
 
       - name: Deploy doc update
-        if: ${{ github.ref_name == 'main' }}
+        if: ${{ github.ref_name == 'main' || inputs.is-release }}
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
           folder: artifacts/docs/
           target-folder: docs/
-          commit-message: "Deploy latest docs: ${{ github.sha }}"
+          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.COMMIT_HASH }}"
           clean: false

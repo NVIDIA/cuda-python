@@ -5,6 +5,8 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+#
+# This code was automatically generated with version 12.8.0. Do not modify it directly.
 from typing import List, Tuple, Any, Optional
 from enum import IntEnum
 import cython
@@ -75,6 +77,14 @@ class nvrtcResult(IntEnum):
     NVRTC_ERROR_INTERNAL_ERROR = cynvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR{{endif}}
     {{if 'NVRTC_ERROR_TIME_FILE_WRITE_FAILED' in found_values}}
     NVRTC_ERROR_TIME_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED{{endif}}
+    {{if 'NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED' in found_values}}
+    NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED = cynvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED{{endif}}
+    {{if 'NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED' in found_values}}
+    NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED{{endif}}
+    {{if 'NVRTC_ERROR_PCH_CREATE' in found_values}}
+    NVRTC_ERROR_PCH_CREATE = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE{{endif}}
+    {{if 'NVRTC_ERROR_CANCELLED' in found_values}}
+    NVRTC_ERROR_CANCELLED = cynvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED{{endif}}
 {{endif}}
 {{if 'nvrtcProgram' in found_types}}
 
@@ -91,10 +101,10 @@ cdef class nvrtcProgram:
     """
     def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._ptr = &self.__val
-            self._ptr[0] = <cynvrtc.nvrtcProgram>init_value
+            self._pvt_ptr = &self._pvt_val
+            self._pvt_ptr[0] = <cynvrtc.nvrtcProgram>init_value
         else:
-            self._ptr = <cynvrtc.nvrtcProgram *>_ptr
+            self._pvt_ptr = <cynvrtc.nvrtcProgram *>_ptr
     def __init__(self, *args, **kwargs):
         pass
     def __repr__(self):
@@ -102,9 +112,9 @@ cdef class nvrtcProgram:
     def __index__(self):
         return self.__int__()
     def __int__(self):
-        return <void_ptr>self._ptr[0]
+        return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
-        return <void_ptr>self._ptr
+        return <void_ptr>self._pvt_ptr
 {{endif}}
 
 {{if 'nvrtcGetErrorString' in found_functions}}
@@ -248,7 +258,7 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional
     if numHeaders > len(includeNames): raise RuntimeError("List is too small: " + str(len(includeNames)) + " < " + str(numHeaders))
     cdef vector[const char*] cyheaders = headers
     cdef vector[const char*] cyincludeNames = includeNames
-    err = cynvrtc.nvrtcCreateProgram(<cynvrtc.nvrtcProgram*>prog._ptr, src, name, numHeaders, cyheaders.data(), cyincludeNames.data())
+    err = cynvrtc.nvrtcCreateProgram(<cynvrtc.nvrtcProgram*>prog._pvt_ptr, src, name, numHeaders, cyheaders.data(), cyincludeNames.data())
     return (nvrtcResult(err), prog)
 {{endif}}
 
@@ -317,6 +327,7 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[Tuple[bytes] | 
         - :py:obj:`~.NVRTC_ERROR_COMPILATION`
         - :py:obj:`~.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE`
         - :py:obj:`~.NVRTC_ERROR_TIME_FILE_WRITE_FAILED`
+        - :py:obj:`~.NVRTC_ERROR_CANCELLED`
     """
     options = [] if options is None else options
     if not all(isinstance(_x, (bytes)) for _x in options):
@@ -672,8 +683,8 @@ def nvrtcGetOptiXIR(prog, char* optixir):
     ----------
     prog : :py:obj:`~.nvrtcProgram`
         CUDA Runtime Compilation program.
-    Optix : bytes
-        IR Compiled result.
+    optixir : bytes
+        Optix IR Compiled result.
 
     Returns
     -------
@@ -860,6 +871,193 @@ def nvrtcGetLoweredName(prog, char* name_expression):
     cdef const char* lowered_name = NULL
     err = cynvrtc.nvrtcGetLoweredName(cyprog, name_expression, &lowered_name)
     return (nvrtcResult(err), <bytes>lowered_name)
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetPCHHeapSize():
+    """ retrieve the current size of the PCH Heap.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+    ret : int
+        pointer to location where the size of the PCH Heap will be stored
+    """
+    cdef size_t ret = 0
+    err = cynvrtc.nvrtcGetPCHHeapSize(&ret)
+    return (nvrtcResult(err), ret)
+{{endif}}
+
+{{if 'nvrtcSetPCHHeapSize' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcSetPCHHeapSize(size_t size):
+    """ set the size of the PCH Heap.
+
+    The requested size may be rounded up to a platform dependent alignment
+    (e.g. page size). If the PCH Heap has already been allocated, the heap
+    memory will be freed and a new PCH Heap will be allocated.
+
+    Parameters
+    ----------
+    size : size_t
+        requested size of the PCH Heap, in bytes
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+    """
+    err = cynvrtc.nvrtcSetPCHHeapSize(size)
+    return (nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetPCHCreateStatus' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetPCHCreateStatus(prog):
+    """ returns the PCH creation status.
+
+    NVRTC_SUCCESS indicates that the PCH was successfully created.
+    NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED indicates that no PCH creation was
+    attempted, either because PCH functionality was not requested during
+    the preceding nvrtcCompileProgram call, or automatic PCH processing was
+    requested, and compiler chose not to create a PCH file.
+    NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED indicates that a PCH file could
+    potentially have been created, but the compiler ran out space in the
+    PCH heap. In this scenario, the
+    :py:obj:`~.nvrtcGetPCHHeapSizeRequired()` can be used to query the
+    required heap size, the heap can be reallocated for this size with
+    :py:obj:`~.nvrtcSetPCHHeapSize()` and PCH creation may be reattempted
+    again invoking :py:obj:`~.nvrtcCompileProgram()` with a new NVRTC
+    program instance. NVRTC_ERROR_PCH_CREATE indicates that an error
+    condition prevented the PCH file from being created.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED`
+        - :py:obj:`~.NVRTC_ERROR_PCH_CREATE`
+        - :py:obj:`~.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    else:
+        pprog = int(nvrtcProgram(prog))
+        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    err = cynvrtc.nvrtcGetPCHCreateStatus(cyprog)
+    return (nvrtcResult(err),)
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcGetPCHHeapSizeRequired(prog):
+    """ retrieve the required size of the PCH heap required to compile the given program.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT` The size retrieved using this function is only valid if :py:obj:`~.nvrtcGetPCHCreateStatus()` returned NVRTC_SUCCESS or NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED
+    size : int
+        pointer to location where the required size of the PCH Heap will be
+        stored
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    else:
+        pprog = int(nvrtcProgram(prog))
+        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cdef size_t size = 0
+    err = cynvrtc.nvrtcGetPCHHeapSizeRequired(cyprog, &size)
+    return (nvrtcResult(err), size)
+{{endif}}
+
+{{if 'nvrtcSetFlowCallback' in found_functions}}
+
+@cython.embedsignature(True)
+def nvrtcSetFlowCallback(prog, callback, payload):
+    """ nvrtcSetFlowCallback registers a callback function that the compiler will invoke at different points during a call to nvrtcCompileProgram, and the callback function can decide whether to cancel compilation by returning specific values.
+
+    The callback function must satisfy the following constraints:
+
+    (1) Its signature should be:
+
+    **View CUDA Toolkit Documentation for a C++ code example**
+
+    When invoking the callback, the compiler will always pass `payload` to
+    param1 so that the callback may make decisions based on `payload` .
+    It'll always pass NULL to param2 for now which is reserved for future
+    extensions.
+
+    (2) It must return 1 to cancel compilation or 0 to continue. Other
+    return values are reserved for future use.
+
+    (3) It must return consistent values. Once it returns 1 at one point,
+    it must return 1 in all following invocations during the current
+    nvrtcCompileProgram call in progress.
+
+    (4) It must be thread-safe.
+
+    (5) It must not invoke any nvrtc/libnvvm/ptx APIs.
+
+    Parameters
+    ----------
+    prog : :py:obj:`~.nvrtcProgram`
+        CUDA Runtime Compilation program.
+    callback : Any
+        the callback that issues cancellation signal.
+    payload : Any
+        to be passed as a parameter when invoking the callback.
+
+    Returns
+    -------
+    nvrtcResult
+        - :py:obj:`~.NVRTC_SUCCESS`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_PROGRAM`
+        - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
+    """
+    cdef cynvrtc.nvrtcProgram cyprog
+    if prog is None:
+        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+    elif isinstance(prog, (nvrtcProgram,)):
+        pprog = int(prog)
+        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    else:
+        pprog = int(nvrtcProgram(prog))
+        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cycallback = utils.HelperInputVoidPtr(callback)
+    cdef void* cycallback_ptr = <void*><void_ptr>cycallback.cptr
+    cypayload = utils.HelperInputVoidPtr(payload)
+    cdef void* cypayload_ptr = <void*><void_ptr>cypayload.cptr
+    err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback_ptr, cypayload_ptr)
+    return (nvrtcResult(err),)
 {{endif}}
 
 @cython.embedsignature(True)
