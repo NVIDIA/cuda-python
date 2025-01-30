@@ -158,7 +158,11 @@
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
-
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/409">PR 409</a>! 
+  </aside>
+</div>
 
 <div class="page">
   <header class="mobile-header">
@@ -208,9 +212,9 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.2.0-notes.html">    0.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.1.1-notes.html">    0.1.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.1.0-notes.html">    0.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
@@ -223,6 +227,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
@@ -294,45 +299,37 @@
 <h1>cuda.core.experimental._device.DeviceProperties<a class="headerlink" href="#cuda-core-experimental-device-deviceproperties" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._device.</span></span><span class="sig-name descname"><span class="pre">DeviceProperties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties" title="Link to this definition">¶</a></dt>
-<dd><p>Represents the properties of a CUDA device.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._device.</span></span><span class="sig-name descname"><span class="pre">DeviceProperties</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties" title="Link to this definition">¶</a></dt>
+<dd><p>A class to query various attributes of a CUDA device.</p>
+<p>Attributes are read-only and provide information about the device.</p>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.name" title="Link to this definition">¶</a></dt>
-<dd><p>ASCII string identifying the device.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.can_map_host_memory">
+<span class="sig-name descname"><span class="pre">can_map_host_memory</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.can_map_host_memory" title="Link to this definition">¶</a></dt>
+<dd><p>True if the device can map host memory into the CUDA address space, False if not.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.uuid" title="Link to this definition">¶</a></dt>
-<dd><p>16-byte unique identifier.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>cudaUUID_t</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.can_use_host_pointer_for_registered_mem">
+<span class="sig-name descname"><span class="pre">can_use_host_pointer_for_registered_mem</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.can_use_host_pointer_for_registered_mem" title="Link to this definition">¶</a></dt>
+<dd><p>True if device can access host registered memory at the same virtual address as the CPU, False if not.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.total_global_mem">
-<span class="sig-name descname"><span class="pre">total_global_mem</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.total_global_mem" title="Link to this definition">¶</a></dt>
-<dd><p>Total amount of global memory available on the device in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.shared_mem_per_block">
-<span class="sig-name descname"><span class="pre">shared_mem_per_block</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.shared_mem_per_block" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum amount of shared memory available to a thread block in bytes.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.clock_rate">
+<span class="sig-name descname"><span class="pre">clock_rate</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.clock_rate" title="Link to this definition">¶</a></dt>
+<dd><p>The typical clock frequency in kilohertz.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -341,8 +338,321 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.regs_per_block">
-<span class="sig-name descname"><span class="pre">regs_per_block</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.regs_per_block" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.compute_capability_major">
+<span class="sig-name descname"><span class="pre">compute_capability_major</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.compute_capability_major" title="Link to this definition">¶</a></dt>
+<dd><p>Major compute capability version number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.compute_capability_minor">
+<span class="sig-name descname"><span class="pre">compute_capability_minor</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.compute_capability_minor" title="Link to this definition">¶</a></dt>
+<dd><p>Minor compute capability version number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.compute_mode">
+<span class="sig-name descname"><span class="pre">compute_mode</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.compute_mode" title="Link to this definition">¶</a></dt>
+<dd><p>Compute mode that device is currently in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.compute_preemption_supported">
+<span class="sig-name descname"><span class="pre">compute_preemption_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.compute_preemption_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports Compute Preemption, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.concurrent_kernels">
+<span class="sig-name descname"><span class="pre">concurrent_kernels</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.concurrent_kernels" title="Link to this definition">¶</a></dt>
+<dd><p>True if the device supports executing multiple kernels within the same context simultaneously,
+False if not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.concurrent_managed_access">
+<span class="sig-name descname"><span class="pre">concurrent_managed_access</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.concurrent_managed_access" title="Link to this definition">¶</a></dt>
+<dd><p>True if device can coherently access managed memory concurrently with the CPU, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.deferred_mapping_cuda_array_supported">
+<span class="sig-name descname"><span class="pre">deferred_mapping_cuda_array_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.deferred_mapping_cuda_array_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports deferred mapping CUDA arrays and CUDA mipmapped arrays, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.direct_managed_mem_access_from_host">
+<span class="sig-name descname"><span class="pre">direct_managed_mem_access_from_host</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.direct_managed_mem_access_from_host" title="Link to this definition">¶</a></dt>
+<dd><p>True if the host can directly access managed memory on the device without migration, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.ecc_enabled">
+<span class="sig-name descname"><span class="pre">ecc_enabled</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.ecc_enabled" title="Link to this definition">¶</a></dt>
+<dd><p>True if error correction is enabled on the device, False if error correction is disabled or not
+supported by the device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.generic_compression_supported">
+<span class="sig-name descname"><span class="pre">generic_compression_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.generic_compression_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports compressible memory allocation via cuMemCreate, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.global_l1_cache_supported">
+<span class="sig-name descname"><span class="pre">global_l1_cache_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.global_l1_cache_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports caching globals in L1 cache, False if caching globals in L1 cache is not supported
+by the device.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.global_memory_bus_width">
+<span class="sig-name descname"><span class="pre">global_memory_bus_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.global_memory_bus_width" title="Link to this definition">¶</a></dt>
+<dd><p>Global memory bus width in bits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_flush_writes_options">
+<span class="sig-name descname"><span class="pre">gpu_direct_rdma_flush_writes_options</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_flush_writes_options" title="Link to this definition">¶</a></dt>
+<dd><p>The returned attribute shall be interpreted as a bitmask, where the individual bits are described by
+the CUflushGPUDirectRDMAWritesOptions enum.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_supported">
+<span class="sig-name descname"><span class="pre">gpu_direct_rdma_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports GPUDirect RDMA APIs, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported">
+<span class="sig-name descname"><span class="pre">gpu_direct_rdma_with_cuda_vmm_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports specifying the GPUDirect RDMA flag with cuMemCreate, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_writes_ordering">
+<span class="sig-name descname"><span class="pre">gpu_direct_rdma_writes_ordering</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_writes_ordering" title="Link to this definition">¶</a></dt>
+<dd><p>GPUDirect RDMA writes to the device do not need to be flushed for consumers within the scope indicated
+by the returned attribute.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.gpu_overlap">
+<span class="sig-name descname"><span class="pre">gpu_overlap</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.gpu_overlap" title="Link to this definition">¶</a></dt>
+<dd><p>True if the device can concurrently copy memory between host and device while executing a kernel,
+False if not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.handle_type_posix_file_descriptor_supported">
+<span class="sig-name descname"><span class="pre">handle_type_posix_file_descriptor_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.handle_type_posix_file_descriptor_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports exporting memory to a posix file descriptor with cuMemExportToShareableHandle,
+False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.handle_type_win32_handle_supported">
+<span class="sig-name descname"><span class="pre">handle_type_win32_handle_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.handle_type_win32_handle_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports exporting memory to a Win32 NT handle with cuMemExportToShareableHandle,
+False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.handle_type_win32_kmt_handle_supported">
+<span class="sig-name descname"><span class="pre">handle_type_win32_kmt_handle_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.handle_type_win32_kmt_handle_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports exporting memory to a Win32 KMT handle with cuMemExportToShareableHandle,
+False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.host_native_atomic_supported">
+<span class="sig-name descname"><span class="pre">host_native_atomic_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.host_native_atomic_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if Link between the device and the host supports native atomic operations, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.integrated">
+<span class="sig-name descname"><span class="pre">integrated</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.integrated" title="Link to this definition">¶</a></dt>
+<dd><p>True if the device is integrated with the memory subsystem, False if not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.kernel_exec_timeout">
+<span class="sig-name descname"><span class="pre">kernel_exec_timeout</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.kernel_exec_timeout" title="Link to this definition">¶</a></dt>
+<dd><p>True if there is a run time limit for kernels executed on the device, False if not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.l2_cache_size">
+<span class="sig-name descname"><span class="pre">l2_cache_size</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.l2_cache_size" title="Link to this definition">¶</a></dt>
+<dd><p>Size of L2 cache in bytes, 0 if the device doesn’t have L2 cache.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.local_l1_cache_supported">
+<span class="sig-name descname"><span class="pre">local_l1_cache_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.local_l1_cache_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports caching locals in L1 cache, False if caching locals in L1 cache is not supported
+by the device.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.managed_memory">
+<span class="sig-name descname"><span class="pre">managed_memory</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.managed_memory" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports allocating managed memory on this system, False if allocating managed memory is not
+supported by the device on this system.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_access_policy_window_size">
+<span class="sig-name descname"><span class="pre">max_access_policy_window_size</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_access_policy_window_size" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum value of CUaccessPolicyWindow::num_bytes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_block_dim_x">
+<span class="sig-name descname"><span class="pre">max_block_dim_x</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_block_dim_x" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum x-dimension of a block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_block_dim_y">
+<span class="sig-name descname"><span class="pre">max_block_dim_y</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_block_dim_y" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum y-dimension of a block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_block_dim_z">
+<span class="sig-name descname"><span class="pre">max_block_dim_z</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_block_dim_z" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum z-dimension of a block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_blocks_per_multiprocessor">
+<span class="sig-name descname"><span class="pre">max_blocks_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_blocks_per_multiprocessor" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum number of thread blocks that can reside on a multiprocessor.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_grid_dim_x">
+<span class="sig-name descname"><span class="pre">max_grid_dim_x</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_grid_dim_x" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum x-dimension of a grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_grid_dim_y">
+<span class="sig-name descname"><span class="pre">max_grid_dim_y</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_grid_dim_y" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum y-dimension of a grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_grid_dim_z">
+<span class="sig-name descname"><span class="pre">max_grid_dim_z</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_grid_dim_z" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum z-dimension of a grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_persisting_l2_cache_size">
+<span class="sig-name descname"><span class="pre">max_persisting_l2_cache_size</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_persisting_l2_cache_size" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum L2 persisting lines capacity setting in bytes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_pitch">
+<span class="sig-name descname"><span class="pre">max_pitch</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_pitch" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum pitch in bytes allowed by the memory copy functions that involve memory regions allocated
+through cuMemAllocPitch().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_registers_per_block">
+<span class="sig-name descname"><span class="pre">max_registers_per_block</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_registers_per_block" title="Link to this definition">¶</a></dt>
 <dd><p>Maximum number of 32-bit registers available to a thread block.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -352,9 +662,15 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.warp_size">
-<span class="sig-name descname"><span class="pre">warp_size</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.warp_size" title="Link to this definition">¶</a></dt>
-<dd><p>Warp size in threads.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_registers_per_multiprocessor">
+<span class="sig-name descname"><span class="pre">max_registers_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_registers_per_multiprocessor" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum number of 32-bit registers available to a multiprocessor.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_shared_memory_per_block">
+<span class="sig-name descname"><span class="pre">max_shared_memory_per_block</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_shared_memory_per_block" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum amount of shared memory available to a thread block in bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -363,15 +679,15 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.mem_pitch">
-<span class="sig-name descname"><span class="pre">mem_pitch</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.mem_pitch" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum pitch in bytes allowed by the memory copy functions that involve memory regions allocated through
-cudaMallocPitch().</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_shared_memory_per_block_optin">
+<span class="sig-name descname"><span class="pre">max_shared_memory_per_block_optin</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_shared_memory_per_block_optin" title="Link to this definition">¶</a></dt>
+<dd><p>The maximum per block shared memory size supported on this device.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_shared_memory_per_multiprocessor">
+<span class="sig-name descname"><span class="pre">max_shared_memory_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_shared_memory_per_multiprocessor" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum amount of shared memory available to a multiprocessor in bytes.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -386,31 +702,9 @@ cudaMallocPitch().</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_threads_dim">
-<span class="sig-name descname"><span class="pre">max_threads_dim</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_threads_dim" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum size of each dimension of a block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_grid_size">
-<span class="sig-name descname"><span class="pre">max_grid_size</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_grid_size" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum size of each dimension of a grid.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.clock_rate">
-<span class="sig-name descname"><span class="pre">clock_rate</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.clock_rate" title="Link to this definition">¶</a></dt>
-<dd><p>Clock frequency in kilohertz.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_threads_per_multiprocessor">
+<span class="sig-name descname"><span class="pre">max_threads_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_threads_per_multiprocessor" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum resident threads per multiprocessor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -419,9 +713,9 @@ cudaMallocPitch().</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.total_const_mem">
-<span class="sig-name descname"><span class="pre">total_const_mem</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.total_const_mem" title="Link to this definition">¶</a></dt>
-<dd><p>Total amount of constant memory available on the device in bytes.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface1d_layered_layers">
+<span class="sig-name descname"><span class="pre">maximum_surface1d_layered_layers</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface1d_layered_layers" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum layers in a 1D layered surface.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -430,9 +724,9 @@ cudaMallocPitch().</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.major">
-<span class="sig-name descname"><span class="pre">major</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.major" title="Link to this definition">¶</a></dt>
-<dd><p>Major revision number defining the device’s compute capability.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface1d_layered_width">
+<span class="sig-name descname"><span class="pre">maximum_surface1d_layered_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface1d_layered_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 1D layered surface width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -441,9 +735,9 @@ cudaMallocPitch().</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.minor">
-<span class="sig-name descname"><span class="pre">minor</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.minor" title="Link to this definition">¶</a></dt>
-<dd><p>Minor revision number defining the device’s compute capability.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface1d_width">
+<span class="sig-name descname"><span class="pre">maximum_surface1d_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface1d_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 1D surface width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -452,10 +746,9 @@ cudaMallocPitch().</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.texture_alignment">
-<span class="sig-name descname"><span class="pre">texture_alignment</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.texture_alignment" title="Link to this definition">¶</a></dt>
-<dd><p>Alignment requirement; texture base addresses that are aligned to textureAlignment bytes do not need an
-offset applied to texture fetches.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface2d_height">
+<span class="sig-name descname"><span class="pre">maximum_surface2d_height</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface2d_height" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 2D surface height.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -464,9 +757,9 @@ offset applied to texture fetches.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.texture_pitch_alignment">
-<span class="sig-name descname"><span class="pre">texture_pitch_alignment</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.texture_pitch_alignment" title="Link to this definition">¶</a></dt>
-<dd><p>Pitch alignment requirement for 2D texture references that are bound to pitched memory.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface2d_layered_height">
+<span class="sig-name descname"><span class="pre">maximum_surface2d_layered_height</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface2d_layered_height" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 2D layered surface height.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -475,9 +768,9 @@ offset applied to texture fetches.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.device_overlap">
-<span class="sig-name descname"><span class="pre">device_overlap</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.device_overlap" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device can concurrently copy memory between host and device while executing a kernel, or 0 if not.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface2d_layered_layers">
+<span class="sig-name descname"><span class="pre">maximum_surface2d_layered_layers</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface2d_layered_layers" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum layers in a 2D layered surface.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -486,9 +779,9 @@ offset applied to texture fetches.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.multi_processor_count">
-<span class="sig-name descname"><span class="pre">multi_processor_count</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.multi_processor_count" title="Link to this definition">¶</a></dt>
-<dd><p>Number of multiprocessors on the device.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface2d_layered_width">
+<span class="sig-name descname"><span class="pre">maximum_surface2d_layered_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface2d_layered_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 2D layered surface width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -497,9 +790,9 @@ offset applied to texture fetches.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.kernel_exec_timeout_enabled">
-<span class="sig-name descname"><span class="pre">kernel_exec_timeout_enabled</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.kernel_exec_timeout_enabled" title="Link to this definition">¶</a></dt>
-<dd><p>1 if there is a run time limit for kernels executed on the device, or 0 if not.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface2d_width">
+<span class="sig-name descname"><span class="pre">maximum_surface2d_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface2d_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 2D surface width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -508,9 +801,9 @@ offset applied to texture fetches.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.integrated">
-<span class="sig-name descname"><span class="pre">integrated</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.integrated" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device is an integrated (motherboard) GPU and 0 if it is a discrete (card) component.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface3d_depth">
+<span class="sig-name descname"><span class="pre">maximum_surface3d_depth</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface3d_depth" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 3D surface depth.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -519,10 +812,9 @@ offset applied to texture fetches.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.can_map_host_memory">
-<span class="sig-name descname"><span class="pre">can_map_host_memory</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.can_map_host_memory" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device can map host memory into the CUDA address space for use with
-cudaHostAlloc()/cudaHostGetDevicePointer(), or 0 if not.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface3d_height">
+<span class="sig-name descname"><span class="pre">maximum_surface3d_height</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface3d_height" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 3D surface height.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -531,9 +823,9 @@ cudaHostAlloc()/cudaHostGetDevicePointer(), or 0 if not.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.compute_mode">
-<span class="sig-name descname"><span class="pre">compute_mode</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.compute_mode" title="Link to this definition">¶</a></dt>
-<dd><p>Compute mode that the device is currently in.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surface3d_width">
+<span class="sig-name descname"><span class="pre">maximum_surface3d_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface3d_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 3D surface width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -542,9 +834,9 @@ cudaHostAlloc()/cudaHostGetDevicePointer(), or 0 if not.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_1d">
-<span class="sig-name descname"><span class="pre">max_texture_1d</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_1d" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 1D texture size.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_layered_layers">
+<span class="sig-name descname"><span class="pre">maximum_surfacecubemap_layered_layers</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_layered_layers" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum layers in a cubemap layered surface.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -553,9 +845,9 @@ cudaHostAlloc()/cudaHostGetDevicePointer(), or 0 if not.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_1d_mipmap">
-<span class="sig-name descname"><span class="pre">max_texture_1d_mipmap</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_1d_mipmap" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 1D mipmapped texture size.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_layered_width">
+<span class="sig-name descname"><span class="pre">maximum_surfacecubemap_layered_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_layered_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum cubemap layered surface width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -564,9 +856,9 @@ cudaHostAlloc()/cudaHostGetDevicePointer(), or 0 if not.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_1d_linear">
-<span class="sig-name descname"><span class="pre">max_texture_1d_linear</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_1d_linear" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 1D texture size for textures bound to linear memory.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_width">
+<span class="sig-name descname"><span class="pre">maximum_surfacecubemap_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum cubemap surface width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -575,287 +867,262 @@ cudaHostAlloc()/cudaHostGetDevicePointer(), or 0 if not.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_2d">
-<span class="sig-name descname"><span class="pre">max_texture_2d</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_2d" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 2D texture dimensions.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture1d_layered_layers">
+<span class="sig-name descname"><span class="pre">maximum_texture1d_layered_layers</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_layered_layers" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum layers in a 1D layered texture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_2d_mipmap">
-<span class="sig-name descname"><span class="pre">max_texture_2d_mipmap</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_2d_mipmap" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 2D mipmapped texture dimensions.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture1d_layered_width">
+<span class="sig-name descname"><span class="pre">maximum_texture1d_layered_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_layered_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 1D layered texture width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_2d_linear">
-<span class="sig-name descname"><span class="pre">max_texture_2d_linear</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_2d_linear" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 2D texture dimensions for 2D textures bound to pitch linear memory.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture1d_linear_width">
+<span class="sig-name descname"><span class="pre">maximum_texture1d_linear_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_linear_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum width for a 1D texture bound to linear memory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_2d_gather">
-<span class="sig-name descname"><span class="pre">max_texture_2d_gather</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_2d_gather" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 2D texture dimensions if texture gather operations have to be performed.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture1d_mipmapped_width">
+<span class="sig-name descname"><span class="pre">maximum_texture1d_mipmapped_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_mipmapped_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum mipmapped 1D texture width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_3d">
-<span class="sig-name descname"><span class="pre">max_texture_3d</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_3d" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 3D texture dimensions.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture1d_width">
+<span class="sig-name descname"><span class="pre">maximum_texture1d_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 1D texture width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_3d_alt">
-<span class="sig-name descname"><span class="pre">max_texture_3d_alt</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_3d_alt" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum alternate 3D texture dimensions.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture2d_height">
+<span class="sig-name descname"><span class="pre">maximum_texture2d_height</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_height" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 2D texture height.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_cubemap">
-<span class="sig-name descname"><span class="pre">max_texture_cubemap</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_cubemap" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture2d_layered_height">
+<span class="sig-name descname"><span class="pre">maximum_texture2d_layered_height</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_layered_height" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 2D layered texture height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture2d_layered_layers">
+<span class="sig-name descname"><span class="pre">maximum_texture2d_layered_layers</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_layered_layers" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum layers in a 2D layered texture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture2d_layered_width">
+<span class="sig-name descname"><span class="pre">maximum_texture2d_layered_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_layered_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 2D layered texture width.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture2d_linear_height">
+<span class="sig-name descname"><span class="pre">maximum_texture2d_linear_height</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_linear_height" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum height for a 2D texture bound to linear memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture2d_linear_pitch">
+<span class="sig-name descname"><span class="pre">maximum_texture2d_linear_pitch</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_linear_pitch" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum pitch in bytes for a 2D texture bound to linear memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture2d_linear_width">
+<span class="sig-name descname"><span class="pre">maximum_texture2d_linear_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_linear_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum width for a 2D texture bound to linear memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture2d_mipmapped_height">
+<span class="sig-name descname"><span class="pre">maximum_texture2d_mipmapped_height</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_mipmapped_height" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum mipmapped 2D texture height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture2d_mipmapped_width">
+<span class="sig-name descname"><span class="pre">maximum_texture2d_mipmapped_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_mipmapped_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum mipmapped 2D texture width.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture2d_width">
+<span class="sig-name descname"><span class="pre">maximum_texture2d_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 2D texture width.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture3d_depth">
+<span class="sig-name descname"><span class="pre">maximum_texture3d_depth</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_depth" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 3D texture depth.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture3d_depth_alternate">
+<span class="sig-name descname"><span class="pre">maximum_texture3d_depth_alternate</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_depth_alternate" title="Link to this definition">¶</a></dt>
+<dd><p>Alternate maximum 3D texture depth, 0 if no alternate maximum 3D texture size is supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture3d_height">
+<span class="sig-name descname"><span class="pre">maximum_texture3d_height</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_height" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 3D texture height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture3d_height_alternate">
+<span class="sig-name descname"><span class="pre">maximum_texture3d_height_alternate</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_height_alternate" title="Link to this definition">¶</a></dt>
+<dd><p>Alternate maximum 3D texture height, 0 if no alternate maximum 3D texture size is supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture3d_width">
+<span class="sig-name descname"><span class="pre">maximum_texture3d_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum 3D texture width.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texture3d_width_alternate">
+<span class="sig-name descname"><span class="pre">maximum_texture3d_width_alternate</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_width_alternate" title="Link to this definition">¶</a></dt>
+<dd><p>Alternate maximum 3D texture width, 0 if no alternate maximum 3D texture size is supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texturecubemap_layered_layers">
+<span class="sig-name descname"><span class="pre">maximum_texturecubemap_layered_layers</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texturecubemap_layered_layers" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum layers in a cubemap layered texture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texturecubemap_layered_width">
+<span class="sig-name descname"><span class="pre">maximum_texturecubemap_layered_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texturecubemap_layered_width" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum cubemap layered texture width or height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.maximum_texturecubemap_width">
+<span class="sig-name descname"><span class="pre">maximum_texturecubemap_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.maximum_texturecubemap_width" title="Link to this definition">¶</a></dt>
 <dd><p>Maximum cubemap texture width or height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_1d_layered">
-<span class="sig-name descname"><span class="pre">max_texture_1d_layered</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_1d_layered" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 1D layered texture dimensions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_2d_layered">
-<span class="sig-name descname"><span class="pre">max_texture_2d_layered</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_2d_layered" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 2D layered texture dimensions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_texture_cubemap_layered">
-<span class="sig-name descname"><span class="pre">max_texture_cubemap_layered</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_texture_cubemap_layered" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum cubemap layered texture dimensions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_surface_1d">
-<span class="sig-name descname"><span class="pre">max_surface_1d</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_surface_1d" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 1D surface size.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_surface_2d">
-<span class="sig-name descname"><span class="pre">max_surface_2d</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_surface_2d" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 2D surface dimensions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_surface_3d">
-<span class="sig-name descname"><span class="pre">max_surface_3d</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_surface_3d" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 3D surface dimensions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_surface_1d_layered">
-<span class="sig-name descname"><span class="pre">max_surface_1d_layered</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_surface_1d_layered" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 1D layered surface dimensions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_surface_2d_layered">
-<span class="sig-name descname"><span class="pre">max_surface_2d_layered</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_surface_2d_layered" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum 2D layered surface dimensions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_surface_cubemap">
-<span class="sig-name descname"><span class="pre">max_surface_cubemap</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_surface_cubemap" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum cubemap surface width or height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_surface_cubemap_layered">
-<span class="sig-name descname"><span class="pre">max_surface_cubemap_layered</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_surface_cubemap_layered" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum cubemap layered surface dimensions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.surface_alignment">
-<span class="sig-name descname"><span class="pre">surface_alignment</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.surface_alignment" title="Link to this definition">¶</a></dt>
-<dd><p>Alignment requirements for surfaces.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.concurrent_kernels">
-<span class="sig-name descname"><span class="pre">concurrent_kernels</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.concurrent_kernels" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports executing multiple kernels within the same context simultaneously, or 0 if
-not.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.ecc_enabled">
-<span class="sig-name descname"><span class="pre">ecc_enabled</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.ecc_enabled" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device has ECC support turned on, or 0 if not.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.pci_bus_id">
-<span class="sig-name descname"><span class="pre">pci_bus_id</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.pci_bus_id" title="Link to this definition">¶</a></dt>
-<dd><p>PCI bus identifier of the device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.pci_device_id">
-<span class="sig-name descname"><span class="pre">pci_device_id</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.pci_device_id" title="Link to this definition">¶</a></dt>
-<dd><p>PCI device (sometimes called slot) identifier of the device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.pci_domain_id">
-<span class="sig-name descname"><span class="pre">pci_domain_id</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.pci_domain_id" title="Link to this definition">¶</a></dt>
-<dd><p>PCI domain identifier of the device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.tcc_driver">
-<span class="sig-name descname"><span class="pre">tcc_driver</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.tcc_driver" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device is using a TCC driver or 0 if not.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.async_engine_count">
-<span class="sig-name descname"><span class="pre">async_engine_count</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.async_engine_count" title="Link to this definition">¶</a></dt>
-<dd><p>1 when the device can concurrently copy memory between host and device while executing a kernel.
-It is 2 when the device can concurrently copy memory between host and device in both directions
-and execute a kernel at the same time. It is 0 if neither of these is supported.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.unified_addressing">
-<span class="sig-name descname"><span class="pre">unified_addressing</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.unified_addressing" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device shares a unified address space with the host and 0 otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -875,138 +1142,115 @@ and execute a kernel at the same time. It is 0 if neither of these is supported.
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.memory_bus_width">
-<span class="sig-name descname"><span class="pre">memory_bus_width</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.memory_bus_width" title="Link to this definition">¶</a></dt>
-<dd><p>Memory bus width in bits.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.memory_pools_supported">
+<span class="sig-name descname"><span class="pre">memory_pools_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.memory_pools_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports using the cuMemAllocAsync and cuMemPool family of APIs, False if not.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.l2_cache_size">
-<span class="sig-name descname"><span class="pre">l2_cache_size</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.l2_cache_size" title="Link to this definition">¶</a></dt>
-<dd><p>L2 cache size in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.mempool_supported_handle_types">
+<span class="sig-name descname"><span class="pre">mempool_supported_handle_types</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.mempool_supported_handle_types" title="Link to this definition">¶</a></dt>
+<dd><p>Bitmask of handle types supported with mempool based IPC.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.persisting_l2_cache_max_size">
-<span class="sig-name descname"><span class="pre">persisting_l2_cache_max_size</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.persisting_l2_cache_max_size" title="Link to this definition">¶</a></dt>
-<dd><p>L2 cache’s maximum persisting lines size in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.max_threads_per_multi_processor">
-<span class="sig-name descname"><span class="pre">max_threads_per_multi_processor</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.max_threads_per_multi_processor" title="Link to this definition">¶</a></dt>
-<dd><p>Number of maximum resident threads per multiprocessor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.stream_priorities_supported">
-<span class="sig-name descname"><span class="pre">stream_priorities_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.stream_priorities_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports stream priorities, or 0 if it is not supported.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.global_l1_cache_supported">
-<span class="sig-name descname"><span class="pre">global_l1_cache_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.global_l1_cache_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports caching of globals in L1 cache, or 0 if it is not supported.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.local_l1_cache_supported">
-<span class="sig-name descname"><span class="pre">local_l1_cache_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.local_l1_cache_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports caching of locals in L1 cache, or 0 if it is not supported.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.shared_mem_per_multiprocessor">
-<span class="sig-name descname"><span class="pre">shared_mem_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.shared_mem_per_multiprocessor" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum amount of shared memory available to a multiprocessor in bytes; this amount is shared by all
-thread blocks simultaneously resident on a multiprocessor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.regs_per_multiprocessor">
-<span class="sig-name descname"><span class="pre">regs_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.regs_per_multiprocessor" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum number of 32-bit registers available to a multiprocessor; this number is shared by all thread
-blocks simultaneously resident on a multiprocessor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.managed_memory">
-<span class="sig-name descname"><span class="pre">managed_memory</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.managed_memory" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports allocating managed memory on this system, or 0 if it is not supported.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.is_multi_gpu_board">
-<span class="sig-name descname"><span class="pre">is_multi_gpu_board</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.is_multi_gpu_board" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device is on a multi-GPU board (e.g. Gemini cards), and 0 if not.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.multi_gpu_board">
+<span class="sig-name descname"><span class="pre">multi_gpu_board</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.multi_gpu_board" title="Link to this definition">¶</a></dt>
+<dd><p>True if device is on a multi-GPU board, False if not.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.multi_gpu_board_group_id">
 <span class="sig-name descname"><span class="pre">multi_gpu_board_group_id</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.multi_gpu_board_group_id" title="Link to this definition">¶</a></dt>
-<dd><p>Unique identifier for a group of devices associated with the same board. Devices on the same
-multi-GPU board will share the same identifier.</p>
+<dd><p>Unique identifier for a group of devices associated with the same board.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.multicast_supported">
+<span class="sig-name descname"><span class="pre">multicast_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.multicast_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports switch multicast and reduction operations, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.multiprocessor_count">
+<span class="sig-name descname"><span class="pre">multiprocessor_count</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.multiprocessor_count" title="Link to this definition">¶</a></dt>
+<dd><p>Number of multiprocessors on the device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.numa_config">
+<span class="sig-name descname"><span class="pre">numa_config</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.numa_config" title="Link to this definition">¶</a></dt>
+<dd><p>NUMA configuration of a device.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.numa_id">
+<span class="sig-name descname"><span class="pre">numa_id</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.numa_id" title="Link to this definition">¶</a></dt>
+<dd><p>NUMA node ID of the GPU memory.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.pageable_memory_access">
+<span class="sig-name descname"><span class="pre">pageable_memory_access</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.pageable_memory_access" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports coherently accessing pageable memory without calling cudaHostRegister on it,
+False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.pageable_memory_access_uses_host_page_tables">
+<span class="sig-name descname"><span class="pre">pageable_memory_access_uses_host_page_tables</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.pageable_memory_access_uses_host_page_tables" title="Link to this definition">¶</a></dt>
+<dd><p>True if device accesses pageable memory via the host’s page tables, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.pci_bus_id">
+<span class="sig-name descname"><span class="pre">pci_bus_id</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.pci_bus_id" title="Link to this definition">¶</a></dt>
+<dd><p>PCI bus identifier of the device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.pci_device_id">
+<span class="sig-name descname"><span class="pre">pci_device_id</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.pci_device_id" title="Link to this definition">¶</a></dt>
+<dd><p>PCI device (also known as slot) identifier of the device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.pci_domain_id">
+<span class="sig-name descname"><span class="pre">pci_domain_id</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.pci_domain_id" title="Link to this definition">¶</a></dt>
+<dd><p>PCI domain identifier of the device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.read_only_host_register_supported">
+<span class="sig-name descname"><span class="pre">read_only_host_register_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.read_only_host_register_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports using the cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY to register
+memory that must be mapped as read-only to the GPU, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.reserved_shared_memory_per_block">
+<span class="sig-name descname"><span class="pre">reserved_shared_memory_per_block</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.reserved_shared_memory_per_block" title="Link to this definition">¶</a></dt>
+<dd><p>Amount of shared memory per block reserved by CUDA driver in bytes.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1014,140 +1258,30 @@ multi-GPU board will share the same identifier.</p>
 <span class="sig-name descname"><span class="pre">single_to_double_precision_perf_ratio</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.single_to_double_precision_perf_ratio" title="Link to this definition">¶</a></dt>
 <dd><p>Ratio of single precision performance (in floating-point operations per second) to double precision
 performance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.pageable_memory_access">
-<span class="sig-name descname"><span class="pre">pageable_memory_access</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.pageable_memory_access" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports coherently accessing pageable memory without calling cudaHostRegister on it,
-and 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.concurrent_managed_access">
-<span class="sig-name descname"><span class="pre">concurrent_managed_access</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.concurrent_managed_access" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device can coherently access managed memory concurrently with the CPU, and 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.compute_preemption_supported">
-<span class="sig-name descname"><span class="pre">compute_preemption_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.compute_preemption_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports Compute Preemption, and 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.can_use_host_pointer_for_registered_mem">
-<span class="sig-name descname"><span class="pre">can_use_host_pointer_for_registered_mem</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.can_use_host_pointer_for_registered_mem" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device can access host registered memory at the same virtual address as the CPU, and 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.cooperative_launch">
-<span class="sig-name descname"><span class="pre">cooperative_launch</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.cooperative_launch" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports launching cooperative kernels via cudaLaunchCooperativeKernel, and 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.cooperative_multi_device_launch">
-<span class="sig-name descname"><span class="pre">cooperative_multi_device_launch</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.cooperative_multi_device_launch" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports launching cooperative kernels via cudaLaunchCooperativeKernelMultiDevice, and 0
-otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.pageable_memory_access_uses_host_page_tables">
-<span class="sig-name descname"><span class="pre">pageable_memory_access_uses_host_page_tables</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.pageable_memory_access_uses_host_page_tables" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device accesses pageable memory via the host’s page tables, and 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.direct_managed_mem_access_from_host">
-<span class="sig-name descname"><span class="pre">direct_managed_mem_access_from_host</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.direct_managed_mem_access_from_host" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the host can directly access managed memory on the device without migration, and 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.access_policy_max_window_size">
-<span class="sig-name descname"><span class="pre">access_policy_max_window_size</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.access_policy_max_window_size" title="Link to this definition">¶</a></dt>
-<dd><p>Maximum value of cudaAccessPolicyWindow::num_bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.reserved_shared_mem_per_block">
-<span class="sig-name descname"><span class="pre">reserved_shared_mem_per_block</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.reserved_shared_mem_per_block" title="Link to this definition">¶</a></dt>
-<dd><p>Shared memory reserved by CUDA driver per block in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.host_register_supported">
-<span class="sig-name descname"><span class="pre">host_register_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.host_register_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports host memory registration via cudaHostRegister, and 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.sparse_cuda_array_supported">
 <span class="sig-name descname"><span class="pre">sparse_cuda_array_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.sparse_cuda_array_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports sparse CUDA arrays and sparse CUDA mipmapped arrays, 0 otherwise.</p>
+<dd><p>True if device supports sparse CUDA arrays and sparse CUDA mipmapped arrays, False if not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.tcc_driver">
+<span class="sig-name descname"><span class="pre">tcc_driver</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.tcc_driver" title="Link to this definition">¶</a></dt>
+<dd><p>True if the device is using a TCC driver, False if not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.texture_alignment">
+<span class="sig-name descname"><span class="pre">texture_alignment</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.texture_alignment" title="Link to this definition">¶</a></dt>
+<dd><p>Alignment requirement; texture base addresses aligned to textureAlign bytes do not need an offset
+applied to texture fetches.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -1156,10 +1290,9 @@ otherwise.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.host_register_read_only_supported">
-<span class="sig-name descname"><span class="pre">host_register_read_only_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.host_register_read_only_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports using the cudaHostRegister flag cudaHostRegisterReadOnly to register memory
-that must be mapped as read-only to the GPU.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.texture_pitch_alignment">
+<span class="sig-name descname"><span class="pre">texture_pitch_alignment</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.texture_pitch_alignment" title="Link to this definition">¶</a></dt>
+<dd><p>Pitch alignment requirement for 2D texture references bound to pitched memory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -1168,9 +1301,9 @@ that must be mapped as read-only to the GPU.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.timeline_semaphore_interop_supported">
-<span class="sig-name descname"><span class="pre">timeline_semaphore_interop_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.timeline_semaphore_interop_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if external timeline semaphore interop is supported on the device, 0 otherwise.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.total_constant_memory">
+<span class="sig-name descname"><span class="pre">total_constant_memory</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.total_constant_memory" title="Link to this definition">¶</a></dt>
+<dd><p>Memory available on device for __constant__ variables in a CUDA C kernel in bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -1179,98 +1312,33 @@ that must be mapped as read-only to the GPU.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.memory_pools_supported">
-<span class="sig-name descname"><span class="pre">memory_pools_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.memory_pools_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports using the cudaMallocAsync and cudaMemPool family of APIs, 0 otherwise.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.unified_addressing">
+<span class="sig-name descname"><span class="pre">unified_addressing</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.unified_addressing" title="Link to this definition">¶</a></dt>
+<dd><p>True if the device shares a unified address space with the host, False if not.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_supported">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports GPUDirect RDMA APIs, 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.virtual_memory_management_supported">
+<span class="sig-name descname"><span class="pre">virtual_memory_management_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.virtual_memory_management_supported" title="Link to this definition">¶</a></dt>
+<dd><p>True if device supports virtual memory management APIs like cuMemAddressReserve, cuMemCreate, cuMemMap
+and related APIs, False if not.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_flush_writes_options">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_flush_writes_options</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_flush_writes_options" title="Link to this definition">¶</a></dt>
-<dd><p>Bitmask to be interpreted according to the cudaFlushGPUDirectRDMAWritesOptions enum.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.warp_size">
+<span class="sig-name descname"><span class="pre">warp_size</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.warp_size" title="Link to this definition">¶</a></dt>
+<dd><p>Warp size in threads.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_writes_ordering">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_writes_ordering</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_writes_ordering" title="Link to this definition">¶</a></dt>
-<dd><p>See the cudaGPUDirectRDMAWritesOrdering enum for numerical values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.memory_pool_supported_handle_types">
-<span class="sig-name descname"><span class="pre">memory_pool_supported_handle_types</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.memory_pool_supported_handle_types" title="Link to this definition">¶</a></dt>
-<dd><p>Bitmask of handle types supported with mempool-based IPC.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.deferred_mapping_cuda_array_supported">
-<span class="sig-name descname"><span class="pre">deferred_mapping_cuda_array_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.deferred_mapping_cuda_array_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports deferred mapping CUDA arrays and CUDA mipmapped arrays.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.ipc_event_supported">
-<span class="sig-name descname"><span class="pre">ipc_event_supported</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.ipc_event_supported" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports IPC Events, and 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.unified_function_pointers">
-<span class="sig-name descname"><span class="pre">unified_function_pointers</span></span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.unified_function_pointers" title="Link to this definition">¶</a></dt>
-<dd><p>1 if the device supports unified pointers, and 0 otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<p class="rubric">Methods</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.__init__" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -1315,94 +1383,116 @@ that must be mapped as read-only to the GPU.</p>
             <ul>
 <li><a class="reference internal" href="#">cuda.core.experimental._device.DeviceProperties</a><ul>
 <li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties"><code class="docutils literal notranslate"><span class="pre">DeviceProperties</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.name"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.name</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.uuid"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.uuid</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.total_global_mem"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.total_global_mem</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.shared_mem_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.shared_mem_per_block</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.regs_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.regs_per_block</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.warp_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.warp_size</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.mem_pitch"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.mem_pitch</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_threads_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_threads_per_block</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_threads_dim"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_threads_dim</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_grid_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_grid_size</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.clock_rate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.clock_rate</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.total_const_mem"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.total_const_mem</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.major"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.major</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.minor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.minor</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.texture_alignment"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.texture_alignment</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.texture_pitch_alignment"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.texture_pitch_alignment</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.device_overlap"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.device_overlap</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.multi_processor_count"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.multi_processor_count</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.kernel_exec_timeout_enabled"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.kernel_exec_timeout_enabled</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.integrated"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.integrated</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.__init__"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.can_map_host_memory"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.can_map_host_memory</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.can_use_host_pointer_for_registered_mem"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.can_use_host_pointer_for_registered_mem</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.clock_rate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.clock_rate</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.compute_capability_major"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.compute_capability_major</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.compute_capability_minor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.compute_capability_minor</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.compute_mode"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.compute_mode</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_1d"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_1d</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_1d_mipmap"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_1d_mipmap</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_1d_linear"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_1d_linear</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_2d"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_2d</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_2d_mipmap"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_2d_mipmap</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_2d_linear"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_2d_linear</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_2d_gather"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_2d_gather</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_3d"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_3d</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_3d_alt"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_3d_alt</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_cubemap"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_cubemap</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_1d_layered"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_1d_layered</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_2d_layered"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_2d_layered</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_texture_cubemap_layered"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_texture_cubemap_layered</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_surface_1d"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_surface_1d</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_surface_2d"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_surface_2d</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_surface_3d"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_surface_3d</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_surface_1d_layered"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_surface_1d_layered</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_surface_2d_layered"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_surface_2d_layered</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_surface_cubemap"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_surface_cubemap</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_surface_cubemap_layered"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_surface_cubemap_layered</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.surface_alignment"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.surface_alignment</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.compute_preemption_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.compute_preemption_supported</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.concurrent_kernels"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.concurrent_kernels</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.concurrent_managed_access"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.concurrent_managed_access</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.deferred_mapping_cuda_array_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.deferred_mapping_cuda_array_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.direct_managed_mem_access_from_host"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.direct_managed_mem_access_from_host</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.ecc_enabled"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.ecc_enabled</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.generic_compression_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.generic_compression_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.global_l1_cache_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.global_l1_cache_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.global_memory_bus_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.global_memory_bus_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_flush_writes_options"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_flush_writes_options</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_writes_ordering"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_writes_ordering</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.gpu_overlap"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_overlap</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.handle_type_posix_file_descriptor_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.handle_type_posix_file_descriptor_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.handle_type_win32_handle_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.handle_type_win32_handle_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.handle_type_win32_kmt_handle_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.handle_type_win32_kmt_handle_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.host_native_atomic_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_native_atomic_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.integrated"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.integrated</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.kernel_exec_timeout"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.kernel_exec_timeout</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.l2_cache_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.l2_cache_size</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.local_l1_cache_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.local_l1_cache_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.managed_memory"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.managed_memory</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_access_policy_window_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_access_policy_window_size</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_block_dim_x"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_block_dim_x</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_block_dim_y"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_block_dim_y</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_block_dim_z"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_block_dim_z</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_blocks_per_multiprocessor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_blocks_per_multiprocessor</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_grid_dim_x"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_grid_dim_x</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_grid_dim_y"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_grid_dim_y</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_grid_dim_z"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_grid_dim_z</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_persisting_l2_cache_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_persisting_l2_cache_size</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_pitch"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_pitch</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_registers_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_registers_per_block</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_registers_per_multiprocessor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_registers_per_multiprocessor</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_shared_memory_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_shared_memory_per_block</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_shared_memory_per_block_optin"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_shared_memory_per_block_optin</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_shared_memory_per_multiprocessor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_shared_memory_per_multiprocessor</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_threads_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_threads_per_block</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_threads_per_multiprocessor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_threads_per_multiprocessor</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface1d_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface1d_layered_layers</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface1d_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface1d_layered_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface1d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface1d_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface2d_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface2d_height</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface2d_layered_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface2d_layered_height</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface2d_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface2d_layered_layers</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface2d_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface2d_layered_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface2d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface2d_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface3d_depth"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface3d_depth</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface3d_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface3d_height</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surface3d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface3d_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surfacecubemap_layered_layers</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surfacecubemap_layered_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surfacecubemap_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture1d_layered_layers</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture1d_layered_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_linear_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture1d_linear_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_mipmapped_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture1d_mipmapped_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture1d_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_height</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_layered_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_layered_height</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_layered_layers</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_layered_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_linear_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_linear_height</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_linear_pitch"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_linear_pitch</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_linear_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_linear_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_mipmapped_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_mipmapped_height</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_mipmapped_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_mipmapped_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture2d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_depth"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_depth</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_depth_alternate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_depth_alternate</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_height</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_height_alternate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_height_alternate</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texture3d_width_alternate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_width_alternate</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texturecubemap_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texturecubemap_layered_layers</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texturecubemap_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texturecubemap_layered_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.maximum_texturecubemap_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texturecubemap_width</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.memory_clock_rate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.memory_clock_rate</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.memory_pools_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.memory_pools_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.mempool_supported_handle_types"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.mempool_supported_handle_types</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.multi_gpu_board"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.multi_gpu_board</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.multi_gpu_board_group_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.multi_gpu_board_group_id</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.multicast_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.multicast_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.multiprocessor_count"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.multiprocessor_count</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.numa_config"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.numa_config</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.numa_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.numa_id</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.pageable_memory_access"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pageable_memory_access</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.pageable_memory_access_uses_host_page_tables"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pageable_memory_access_uses_host_page_tables</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.pci_bus_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pci_bus_id</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.pci_device_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pci_device_id</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.pci_domain_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pci_domain_id</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.tcc_driver"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.tcc_driver</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.async_engine_count"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.async_engine_count</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.unified_addressing"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.unified_addressing</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.memory_clock_rate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.memory_clock_rate</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.memory_bus_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.memory_bus_width</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.l2_cache_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.l2_cache_size</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.persisting_l2_cache_max_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.persisting_l2_cache_max_size</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.max_threads_per_multi_processor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_threads_per_multi_processor</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.stream_priorities_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.stream_priorities_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.global_l1_cache_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.global_l1_cache_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.local_l1_cache_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.local_l1_cache_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.shared_mem_per_multiprocessor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.shared_mem_per_multiprocessor</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.regs_per_multiprocessor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.regs_per_multiprocessor</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.managed_memory"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.managed_memory</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.is_multi_gpu_board"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.is_multi_gpu_board</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.multi_gpu_board_group_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.multi_gpu_board_group_id</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.read_only_host_register_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.read_only_host_register_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.reserved_shared_memory_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.reserved_shared_memory_per_block</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.single_to_double_precision_perf_ratio"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.single_to_double_precision_perf_ratio</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.pageable_memory_access"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pageable_memory_access</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.concurrent_managed_access"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.concurrent_managed_access</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.compute_preemption_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.compute_preemption_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.can_use_host_pointer_for_registered_mem"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.can_use_host_pointer_for_registered_mem</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.cooperative_launch"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.cooperative_launch</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.cooperative_multi_device_launch"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.cooperative_multi_device_launch</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.pageable_memory_access_uses_host_page_tables"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pageable_memory_access_uses_host_page_tables</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.direct_managed_mem_access_from_host"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.direct_managed_mem_access_from_host</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.access_policy_max_window_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.access_policy_max_window_size</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.reserved_shared_mem_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.reserved_shared_mem_per_block</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.host_register_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_register_supported</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.sparse_cuda_array_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.sparse_cuda_array_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.host_register_read_only_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_register_read_only_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.timeline_semaphore_interop_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.timeline_semaphore_interop_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.memory_pools_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.memory_pools_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_flush_writes_options"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_flush_writes_options</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_writes_ordering"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_writes_ordering</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.memory_pool_supported_handle_types"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.memory_pool_supported_handle_types</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.deferred_mapping_cuda_array_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.deferred_mapping_cuda_array_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.ipc_event_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.ipc_event_supported</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.unified_function_pointers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.unified_function_pointers</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.__init__"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.tcc_driver"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.tcc_driver</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.texture_alignment"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.texture_alignment</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.texture_pitch_alignment"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.texture_pitch_alignment</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.total_constant_memory"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.total_constant_memory</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.unified_addressing"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.unified_addressing</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.virtual_memory_management_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.virtual_memory_management_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._device.DeviceProperties.warp_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.warp_size</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -1,14 +1,24 @@
-``cuda.core`` v0.2.0 Release notes
-==================================
+.. currentmodule:: cuda.core.experimental
+
+``cuda.core`` 0.2.0 Release Notes
+=================================
+
+Released on <TODO>, 2024
 
 Highlights
 ----------
 
-- :class:`DeviceProperties` class added to provide pythonic access to device properties
+- Add :class:`~ProgramOptions` to facilitate the passing of runtime compile options to :obj:`~Program`.
+- Add :class:`DeviceProperties` to provide pythonic access to device properties.
 
+Limitations
+-----------
 
-Breaking changes
+- <TODO>
+
+Breaking Changes
 ----------------
 
 - Change ``__cuda_stream__`` from attribute to method
-- Device.properties now provides an instance of :class:`DeviceProperties` instead of a dictionary. 
+- The :meth:`~Program.compile` method no longer accepts the `options` argument. Instead, you can optionally pass an instance of :class:`~ProgramOptions` to the constructor of :obj:`~Program`.
+- :meth: `~Device.properties` now provides an instance of :class:`~DeviceProperties` instead of a dictionary. 
