@@ -1,12 +1,3 @@
----
-jupytext:
-  text_representation:
-    format_name: myst
-kernelspec:
-  display_name: Python 3
-  name: python3
----
-
 # Overview
 
 <p style="font-size: 14px; color: grey; text-align: right;">by <a
