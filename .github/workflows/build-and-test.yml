@@ -204,7 +204,7 @@ jobs:
       contents: read  # This is required for actions/checkout
     runs-on: ${{ (matrix.runner == 'default' && matrix.host-platform == 'linux-64' && 'linux-amd64-gpu-v100-latest-1') ||
                  (matrix.runner == 'default' && matrix.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') ||
-                 (matrix.runner == 'H100' && 'linux-amd64-gpu-h100-latest-1-testing') }}
+                 (matrix.runner == 'H100' && 'linux-amd64-gpu-h100-latest-1') }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
