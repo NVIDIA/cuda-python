@@ -297,9 +297,9 @@
         <article role="main" id="furo-main-content">
           <section id="cuda-core-experimental-event-event">
 <h1>cuda.core.experimental._event.Event<a class="headerlink" href="#cuda-core-experimental-event-event" title="Link to this heading">¶</a></h1>
-<dl class="py data">
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._event.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.core.experimental._event.Event'&gt;</span></em><a class="headerlink" href="#cuda.core.experimental._event.Event" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._event.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event" title="Link to this definition">¶</a></dt>
 <dd><p>Represent a record at a specific point of execution within a CUDA stream.</p>
 <p>Applications can asynchronously record events at any point in
 the program. An event keeps a record of all previous work within
@@ -309,6 +309,60 @@ of work up to event’s record, and help establish dependencies
 between GPU work submissions.</p>
 <p>Directly creating an <code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code> is not supported due to ambiguity,
 and they should instead be created through a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> object.</p>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._event.Event.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._event.Event.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._event.Event.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._event.Event.close" title="Link to this definition">¶</a></dt>
+<dd><p>Destroy the event.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._event.Event.sync">
+<span class="sig-name descname"><span class="pre">sync</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._event.Event.sync" title="Link to this definition">¶</a></dt>
+<dd><p>Synchronize until the event completes.</p>
+<p>If the event was created with busy_waited_sync, then the
+calling CPU thread will block until the event has been
+completed by the device.
+Otherwise the CPU thread will busy-wait until the event
+has been completed.</p>
+</dd></dl>
+
+<p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._event.Event.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.handle" title="Link to this definition">¶</a></dt>
+<dd><p>Return the underlying cudaEvent_t pointer address as Python int.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_done">
+<span class="sig-name descname"><span class="pre">is_done</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_done" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if all captured works have been completed, otherwise False.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_ipc_supported">
+<span class="sig-name descname"><span class="pre">is_ipc_supported</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_ipc_supported" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if this event can be used as an interprocess event, otherwise False.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_sync_busy_waited">
+<span class="sig-name descname"><span class="pre">is_sync_busy_waited</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_sync_busy_waited" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the event synchronization would keep the CPU busy-waiting, otherwise False.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_timing_disabled">
+<span class="sig-name descname"><span class="pre">is_timing_disabled</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_timing_disabled" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if the event does not record timing data, otherwise False.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -351,7 +405,17 @@ and they should instead be created through a <code class="xref py py-obj docutil
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">cuda.core.experimental._event.Event</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental._event.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event.__init__"><code class="docutils literal notranslate"><span class="pre">Event.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event.close"><code class="docutils literal notranslate"><span class="pre">Event.close()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event.sync"><code class="docutils literal notranslate"><span class="pre">Event.sync()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event.handle"><code class="docutils literal notranslate"><span class="pre">Event.handle</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event.is_done"><code class="docutils literal notranslate"><span class="pre">Event.is_done</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event.is_ipc_supported"><code class="docutils literal notranslate"><span class="pre">Event.is_ipc_supported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event.is_sync_busy_waited"><code class="docutils literal notranslate"><span class="pre">Event.is_sync_busy_waited</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event.is_timing_disabled"><code class="docutils literal notranslate"><span class="pre">Event.is_timing_disabled</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

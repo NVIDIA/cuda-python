@@ -3,4 +3,4 @@
 
 .. currentmodule:: cuda.core.experimental
 
-.. autodata:: LinkerOptions
+.. autoclass:: LinkerOptions

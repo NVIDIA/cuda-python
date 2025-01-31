@@ -297,13 +297,13 @@
         <article role="main" id="furo-main-content">
           <section id="cuda-core-experimental-streamoptions">
 <h1>cuda.core.experimental.StreamOptions<a class="headerlink" href="#cuda-core-experimental-streamoptions" title="Link to this heading">¶</a></h1>
-<dl class="py data">
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental.StreamOptions">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">StreamOptions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.core.experimental._stream.StreamOptions'&gt;</span></em><a class="headerlink" href="#cuda.core.experimental.StreamOptions" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">StreamOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nonblocking</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.StreamOptions" title="Link to this definition">¶</a></dt>
 <dd><p>Customizable <a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> options.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.nonblocking">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">nonblocking</span></span><a class="headerlink" href="#cuda.core.experimental.nonblocking" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.StreamOptions.nonblocking">
+<span class="sig-name descname"><span class="pre">nonblocking</span></span><a class="headerlink" href="#cuda.core.experimental.StreamOptions.nonblocking" title="Link to this definition">¶</a></dt>
 <dd><p>Stream does not synchronize with the NULL stream. (Default to True)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -313,8 +313,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.priority">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#cuda.core.experimental.priority" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.StreamOptions.priority">
+<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#cuda.core.experimental.StreamOptions.priority" title="Link to this definition">¶</a></dt>
 <dd><p>Stream priority where lower number represents a
 higher priority. (Default to lowest priority)</p>
 <dl class="field-list simple">
@@ -385,8 +385,8 @@ higher priority. (Default to lowest priority)</p>
             <ul>
 <li><a class="reference internal" href="#">cuda.core.experimental.StreamOptions</a><ul>
 <li><a class="reference internal" href="#cuda.core.experimental.StreamOptions"><code class="docutils literal notranslate"><span class="pre">StreamOptions</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.nonblocking"><code class="docutils literal notranslate"><span class="pre">nonblocking</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.priority"><code class="docutils literal notranslate"><span class="pre">priority</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.StreamOptions.nonblocking"><code class="docutils literal notranslate"><span class="pre">StreamOptions.nonblocking</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.StreamOptions.priority"><code class="docutils literal notranslate"><span class="pre">StreamOptions.priority</span></code></a></li>
 </ul>
 </li>
 </ul>
