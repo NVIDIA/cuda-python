@@ -10,8 +10,11 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
+import sys
+from unittest.mock import MagicMock
 
-# import sys
+from cuda.core.experimental._system import System
+
 # sys.path.insert(0, os.path.abspath('.'))
 
 
@@ -101,6 +104,24 @@ intersphinx_mapping = {
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 
+
+# Mock the System class and its methods
+class MockSystem:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    driver_version = MagicMock()
+    driver_version.__doc__ = System.driver_version.__doc__
+    num_devices = MagicMock()
+    num_devices.__doc__ = System.num_devices.__doc__
+    devices = MagicMock()
+    devices.__doc__ = System.devices.__doc__
+
+
+sys.modules["cuda.core.experimental._system.System"] = MagicMock(System=MockSystem)
+
+# Add 'cuda.core.experimental.system' to autodoc_mock_imports
+autodoc_mock_imports = ["cuda.core.experimental.system"]
 
 section_titles = ["Returns"]
 
