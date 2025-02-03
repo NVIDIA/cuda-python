@@ -188,10 +188,14 @@ cuda_base_properties = [
     ("gpu_direct_rdma_writes_ordering", int),
     ("mempool_supported_handle_types", int),
     ("deferred_mapping_cuda_array_supported", bool),
-    ("numa_config", int),
-    ("numa_id", int),
-    ("multicast_supported", bool),
 ]
+
+cuda_12_properties = [("numa_config", int), ("numa_id", int), ("multicast_supported", bool)]
+
+cuda_11 = True
+if runtime.cudaRuntimeGetVersion() >= (12, 0):
+    cuda_base_properties += cuda_12_properties
+    cuda_11 = False
 
 
 @pytest.mark.parametrize("property_name, expected_type", cuda_base_properties)
@@ -204,5 +208,12 @@ def test_device_properties_complete():
     device = Device()
     live_props = set(attr for attr in dir(device.properties) if not attr.startswith("_"))
     tab_props = set(attr for attr, _ in cuda_base_properties)
-    assert len(tab_props) == len(cuda_base_properties)  # Ensure no duplicates.
-    assert tab_props == live_props  # Ensure exact match.
+
+    # Exclude specific properties from the comparison when unsupported by CTK.
+    excluded_props = {"numa_config", "multicast_supported", "numa_id"} if cuda_11 else set()
+
+    filtered_tab_props = tab_props - excluded_props
+    filtered_live_props = live_props - excluded_props
+
+    assert len(filtered_tab_props) == len(cuda_base_properties)  # Ensure no duplicates.
+    assert filtered_tab_props == filtered_live_props  # Ensure exact match.
