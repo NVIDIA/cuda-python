@@ -1,12 +1,3 @@
----
-jupytext:
-  text_representation:
-    format_name: myst
-kernelspec:
-  display_name: Python 3
-  name: python3
----
-
 # Overview
 
 <p style="font-size: 14px; color: grey; text-align: right;">by <a
@@ -48,7 +39,7 @@ API](https://docs.nvidia.com/cuda/cuda-driver-api/index.html) and
 Python package. In this example, you copy data from the host to device. You need
 [NumPy](https://numpy.org/doc/stable/contents.html) to store data on the host.
 
-```{code-cell} python
+```python
 from cuda.bindings import driver, nvrtc
 import numpy as np
 ```
@@ -58,7 +49,7 @@ example is provided.
 In a future release, this may automatically raise exceptions using a Python
 object model.
 
-```{code-cell} python
+```python
 def _cudaGetErrorEnum(error):
     if isinstance(error, driver.CUresult):
         err, name = driver.cuGetErrorName(error)
@@ -86,7 +77,7 @@ Python that requires some understanding of CUDA C++. For more information, see
 [An Even Easier Introduction to
 CUDA](https://developer.nvidia.com/blog/even-easier-introduction-cuda/).
 
-```{code-cell} python
+```python
 saxpy = """\
 extern "C" __global__
 void saxpy(float a, float *x, float *y, float *out, size_t n)
@@ -108,7 +99,7 @@ In the following code example, the Driver API is initialized so that the NVIDIA 
 and GPU are accessible. Next, the GPU is queried for their compute capability. Finally,
 the program is compiled to target our local compute capability architecture with FMAD enabled.
 
-```{code-cell} python
+```python
 # Initialize CUDA Driver API
 checkCudaErrors(driver.cuInit(0))
 
@@ -138,7 +129,7 @@ context. CUDA contexts are analogous to host processes for the device. In the
 following code example, a handle for compute device 0 is passed to
 `cuCtxCreate` to designate that GPU for context creation.
 
-```{code-cell} python
+```python
 # Create context
 context = checkCudaErrors(driver.cuCtxCreate(0, cuDevice))
 ```
@@ -148,7 +139,7 @@ module. A module is analogous to dynamically loaded libraries for the device.
 After loading into the module, extract a specific kernel with
 `cuModuleGetFunction`. It is not uncommon for multiple kernels to reside in PTX.
 
-```{code-cell} python
+```python
 # Load PTX as module data and retrieve function
 ptx = np.char.array(ptx)
 # Note: Incompatible --gpu-architecture would be detected here
@@ -161,7 +152,7 @@ application performance, you can input data on the device to eliminate data
 transfers. For completeness, this example shows how you would transfer data to
 and from the device.
 
-```{code-cell} python
+```python
 NUM_THREADS = 512  # Threads per block
 NUM_BLOCKS = 32768  # Blocks per grid
 
@@ -184,7 +175,7 @@ Python doesn’t have a natural concept of pointers, yet `cuMemcpyHtoDAsync` exp
 `void*`. Therefore, `XX.ctypes.data` retrieves the pointer value associated with
 XX.
 
-```{code-cell} python
+```python
 dXclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
 dYclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
 dOutclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
@@ -209,7 +200,7 @@ Like `cuMemcpyHtoDAsync`, `cuLaunchKernel` expects `void**` in the argument list
 the earlier code example, it creates `void**` by grabbing the `void*` value of each
 individual argument and placing them into its own contiguous memory.
 
-```{code-cell} python
+```python
 # The following code example is not intuitive 
 # Subject to change in a future release
 dX = np.array([int(dXclass)], dtype=np.uint64)
@@ -222,7 +213,7 @@ args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
 Now the kernel can be launched:
 
-```{code-cell} python
+```python
 checkCudaErrors(driver.cuLaunchKernel(
    kernel,
    NUM_BLOCKS,  # grid x dim
@@ -251,7 +242,7 @@ stream are serialized. After the call to transfer data back to the host is
 executed, `cuStreamSynchronize` is used to halt CPU execution until all operations
 in the designated stream are finished.
 
-```{code-cell} python
+```python
 # Assert values are same after running kernel
 hZ = a * hX + hY
 if not np.allclose(hOut, hZ):
@@ -261,7 +252,7 @@ if not np.allclose(hOut, hZ):
 Perform verification of the data to ensure correctness and finish the code with
 memory clean up.
 
-```{code-cell} python
+```python
 checkCudaErrors(driver.cuStreamDestroy(stream))
 checkCudaErrors(driver.cuMemFree(dXclass))
 checkCudaErrors(driver.cuMemFree(dYclass))
