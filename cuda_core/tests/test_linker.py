@@ -67,7 +67,7 @@ culink_options = [
     + [
         LinkerOptions(arch=ARCH, time=True),
         LinkerOptions(arch=ARCH, optimize_unused_variables=True),
-        LinkerOptions(arch=ARCH, xptxas=["-v"]),
+        LinkerOptions(arch=ARCH, ptxas_options=["-v"]),
         LinkerOptions(arch=ARCH, split_compile=0),
         LinkerOptions(arch=ARCH, split_compile_extended=1),
         # The following options are supported by nvjitlink and deprecated by culink
