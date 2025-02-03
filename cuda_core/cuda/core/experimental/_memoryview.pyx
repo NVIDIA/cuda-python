@@ -48,20 +48,20 @@ cdef class StridedMemoryView:
     ----------
     ptr : int
         Pointer to the tensor buffer (as a Python `int`).
-    shape: tuple
+    shape : tuple
         Shape of the tensor.
-    strides: tuple
+    strides : tuple
         Strides of the tensor (in **counts**, not bytes).
     dtype: numpy.dtype
         Data type of the tensor.
-    device_id: int
+    device_id : int
         The device ID for where the tensor is located. It is -1 for CPU tensors
         (meaning those only accessible from the host).
-    is_device_accessible: bool
+    is_device_accessible : bool
         Whether the tensor data can be accessed on the GPU.
     readonly: bool
         Whether the tensor data can be modified in place.
-    exporting_obj: Any
+    exporting_obj : Any
         A reference to the original tensor object that is being viewed.
 
     Parameters
@@ -334,7 +334,8 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
 
 
 def args_viewable_as_strided_memory(tuple arg_indices):
-    """Decorator to create proxy objects to :obj:`StridedMemoryView` for the
+    """
+    Decorator to create proxy objects to :obj:`StridedMemoryView` for the
     specified positional arguments.
 
     This allows array/tensor attributes to be accessed inside the function
