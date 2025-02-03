@@ -14,6 +14,14 @@ from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._program import Program, ProgramOptions
 
 
+@pytest.fixture(scope="module")
+def ptx_code_object():
+    code = 'extern "C" __global__ void my_kernel() {}'
+    program = Program(code, "c++")
+    ptx_object_code = program.compile("ptx")
+    return ptx_object_code
+
+
 @pytest.mark.parametrize(
     "options",
     [
@@ -65,11 +73,8 @@ if not _linker._decide_nvjitlink_or_driver():
 
 
 @pytest.mark.parametrize("options", options)
-def test_ptx_program_with_various_options(init_cuda, options):
-    code = 'extern "C" __global__ void my_kernel() {}'
-    program = Program(code, "c++")
-    ptx_object_code = program.compile("ptx")
-    program = Program(ptx_object_code._module.decode(), "ptx", options=options)
+def test_ptx_program_with_various_options(init_cuda, ptx_code_object, options):
+    program = Program(ptx_code_object._module.decode(), "ptx", options=options)
     assert program.backend == "linker"
     program.compile("cubin")
     program.close()

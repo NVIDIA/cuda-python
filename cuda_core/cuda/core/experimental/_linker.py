@@ -138,7 +138,7 @@ class LinkerOptions:
     optimize_unused_variables : bool, optional
         Assume that if a variable is not referenced in device code, it can be removed.
         Default: False.
-    xptxas : List[str], optional
+    ptxas_options : List[str], optional
         Pass options to PTXAS.
     split_compile : int, optional
         Split compilation maximum thread count. Use 0 to use all available processors. Value of 1 disables split
@@ -170,7 +170,7 @@ class LinkerOptions:
     kernels_used: Optional[List[str]] = None
     variables_used: Optional[List[str]] = None
     optimize_unused_variables: Optional[bool] = None
-    xptxas: Optional[List[str]] = None
+    ptxas_options: Optional[List[str]] = None
     split_compile: Optional[int] = None
     split_compile_extended: Optional[int] = None
     no_cache: Optional[bool] = None
@@ -220,8 +220,8 @@ class LinkerOptions:
                 self.formatted_options.append(f"-variables-used={variable}")
         if self.optimize_unused_variables is not None:
             self.formatted_options.append("-optimize-unused-variables")
-        if self.xptxas is not None:
-            for opt in self.xptxas:
+        if self.ptxas_options is not None:
+            for opt in self.ptxas_options:
                 self.formatted_options.append(f"-Xptxas={opt}")
         if self.split_compile is not None:
             self.formatted_options.append(f"-split-compile={self.split_compile}")
@@ -284,8 +284,8 @@ class LinkerOptions:
             warn("variables_used is deprecated in the driver API", DeprecationWarning, stacklevel=3)
         if self.optimize_unused_variables is not None:
             warn("optimize_unused_variables is deprecated in the driver API", DeprecationWarning, stacklevel=3)
-        if self.xptxas is not None:
-            raise ValueError("xptxas option is not supported by the driver API")
+        if self.ptxas_options is not None:
+            raise ValueError("ptxas_options option is not supported by the driver API")
         if self.split_compile is not None:
             raise ValueError("split_compile option is not supported by the driver API")
         if self.split_compile_extended is not None:

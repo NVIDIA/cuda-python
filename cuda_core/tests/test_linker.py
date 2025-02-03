@@ -52,7 +52,9 @@ culink_options = [
     LinkerOptions(arch=ARCH, max_register_count=32),
     LinkerOptions(arch=ARCH, optimization_level=3),
     LinkerOptions(arch=ARCH, debug=True),
-    LinkerOptions(arch=ARCH, lineinfo=True),  # TODO: consider adding cuda 12.4 to test matrix in which case this
+    LinkerOptions(arch=ARCH, lineinfo=True),
+    LinkerOptions(arch=ARCH, lineinfo=True),
+    LinkerOptions(arch=ARCH, no_cache=True),  # TODO: consider adding cuda 12.4 to test matrix in which case this
     # will fail. Tracked in issue #337
 ]
 

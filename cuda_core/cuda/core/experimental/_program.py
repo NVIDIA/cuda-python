@@ -342,23 +342,23 @@ class Program:
     code : Any
         String of the CUDA Runtime Compilation program.
     code_type : Any
-        String of the code type. Currently only ``"c++"`` is supported.
+        String of the code type. Currently ``"ptx"`` and ``"c++"`` are supported.
     options : ProgramOptions, optional
         A ProgramOptions object to customize the compilation process.
         See :obj:`ProgramOptions` for more information.
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = "handle"
+        __slots__ = "nvrtc_handle"
 
-        def __init__(self, program_obj, handle):
-            self.handle = handle
+        def __init__(self, program_obj, nvrtc_handle):
+            self.nvrtc_handle = nvrtc_handle
             weakref.finalize(program_obj, self.close)
 
         def close(self):
-            if self.handle is not None:
-                handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
-                self.handle = None
+            if self.nvrtc_handle is not None:
+                handle_return(nvrtc.nvrtcDestroyProgram(self.nvrtc_handle))
+                self.nvrtc_handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
     _supported_code_type = ("c++", "ptx")
@@ -375,15 +375,16 @@ class Program:
 
         if code_type == "c++":
             if not isinstance(code, str):
-                raise TypeError
+                raise TypeError("c++ Program expects code argument to be a string")
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
-            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
+            self._mnff.nvrtc_handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
             self._backend = "nvrtc"
+            self._linker = None
 
         elif code_type == "ptx":
             if not isinstance(code, str):
-                raise TypeError
+                raise TypeError("ptx Program expects code argument to be a string")
             self._linker = Linker(
                 ObjectCode(code.encode(), code_type), options=self._translate_program_options(options)
             )
@@ -404,6 +405,7 @@ class Program:
             fma=options.fma,
             link_time_optimization=options.link_time_optimization,
             split_compile=options.split_compile,
+            ptxas_options=options.ptxas_options,
         )
 
     def close(self):
@@ -438,34 +440,39 @@ class Program:
         if self._backend == "nvrtc":
             if name_expressions:
                 for n in name_expressions:
-                    handle_return(nvrtc.nvrtcAddNameExpression(self._mnff.handle, n.encode()), handle=self._mnff.handle)
+                    handle_return(
+                        nvrtc.nvrtcAddNameExpression(self._mnff.nvrtc_handle, n.encode()),
+                        handle=self._mnff.nvrtc_handle,
+                    )
             options = self._options._as_bytes()
             handle_return(
-                nvrtc.nvrtcCompileProgram(self._mnff.handle, len(options), options),
-                handle=self._mnff.handle,
+                nvrtc.nvrtcCompileProgram(self._mnff.nvrtc_handle, len(options), options),
+                handle=self._mnff.nvrtc_handle,
             )
 
             size_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}Size")
             comp_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}")
-            size = handle_return(size_func(self._mnff.handle), handle=self._mnff.handle)
+            size = handle_return(size_func(self._mnff.nvrtc_handle), handle=self._mnff.nvrtc_handle)
             data = b" " * size
-            handle_return(comp_func(self._mnff.handle, data), handle=self._mnff.handle)
+            handle_return(comp_func(self._mnff.nvrtc_handle, data), handle=self._mnff.nvrtc_handle)
 
             symbol_mapping = {}
             if name_expressions:
                 for n in name_expressions:
                     symbol_mapping[n] = handle_return(
-                        nvrtc.nvrtcGetLoweredName(self._mnff.handle, n.encode()), handle=self._mnff.handle
+                        nvrtc.nvrtcGetLoweredName(self._mnff.nvrtc_handle, n.encode()), handle=self._mnff.nvrtc_handle
                     )
 
             if logs is not None:
-                logsize = handle_return(nvrtc.nvrtcGetProgramLogSize(self._mnff.handle), handle=self._mnff.handle)
+                logsize = handle_return(
+                    nvrtc.nvrtcGetProgramLogSize(self._mnff.nvrtc_handle), handle=self._mnff.nvrtc_handle
+                )
                 if logsize > 1:
                     log = b" " * logsize
-                    handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
+                    handle_return(
+                        nvrtc.nvrtcGetProgramLog(self._mnff.nvrtc_handle, log), handle=self._mnff.nvrtc_handle
+                    )
                     logs.write(log.decode())
-
-            # TODO: handle jit_options for ptx?
 
             return ObjectCode(data, target_type, symbol_mapping=symbol_mapping)
 
@@ -480,4 +487,4 @@ class Program:
     @property
     def handle(self):
         """Return the program handle object."""
-        return self._mnff.handle
+        return self._mnff.nvrtc_handle
