@@ -121,7 +121,7 @@ class MockSystem:
 sys.modules["cuda.core.experimental._system.System"] = MagicMock(System=MockSystem)
 
 # Add 'cuda.core.experimental.system' to autodoc_mock_imports
-autodoc_mock_imports = ["cuda.core.experimental.system"]
+autodoc_mock_imports = ["cuda.core.experimental.System"]
 
 section_titles = ["Returns"]
 
