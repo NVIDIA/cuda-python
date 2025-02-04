@@ -7,7 +7,8 @@ import pytest
 from cuda.bindings import nvvm
 
 MINIMAL_NVVMIR = b"""\
-target datalayout = "e-p:64:64:64-i64:64:64:64-i128:128:128:128-v16:16:16:16-v32:32:32:32-n16:32:64"
+target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
+
 target triple = "nvptx64-nvidia-cuda"
 
 define void @kernel() {
@@ -20,7 +21,7 @@ entry:
 
 !nvvmir.version = !{!1}
 !1 = !{i32 2, i32 0, i32 3, i32 1}
-"""
+"""  # noqa: E501
 
 
 def test_nvvm_version():
@@ -112,12 +113,18 @@ def test_with_minimal_nnvm_ir():
     prog = nvvm.create_program()
     try:
         nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
-        nvvm.compile_program(prog, 0, [])
-        log_size = nvvm.get_program_log_size(prog)
-        assert log_size == 1
-        buffer = bytearray(log_size)
-        nvvm.get_program_log(prog, buffer)
-        assert buffer == b"\x00"
+        try:
+            nvvm.compile_program(prog, 0, [])
+        except nvvm.nvvmError as e:
+            buffer = bytearray(nvvm.get_program_log_size(prog))
+            nvvm.get_program_log(prog, buffer)
+            raise RuntimeError(buffer.decode(errors="backslashreplace")) from e
+        else:
+            log_size = nvvm.get_program_log_size(prog)
+            assert log_size == 1
+            buffer = bytearray(log_size)
+            nvvm.get_program_log(prog, buffer)
+            assert buffer == b"\x00"
         result_size = nvvm.get_compiled_result_size(prog)
         buffer = bytearray(result_size)
         nvvm.get_compiled_result(prog, buffer)
