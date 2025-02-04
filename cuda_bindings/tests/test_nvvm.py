@@ -137,7 +137,7 @@ def test_compile_program_with_minimal_nnvm_ir(options):
         result_size = nvvm.get_compiled_result_size(prog)
         buffer = bytearray(result_size)
         nvvm.get_compiled_result(prog, buffer)
-        assert ".visible .entry kernel()" in buffer.decode("utf-8")
+        assert ".visible .entry kernel()" in buffer.decode()
 
 
 @pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
