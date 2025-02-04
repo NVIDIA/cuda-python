@@ -7,11 +7,11 @@ import warnings
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import check_or_create_options, driver, handle_return
+from cuda.core.experimental._utils import check_or_create_options, driver, handle_return, is_sequence
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used
@@ -153,7 +153,7 @@ class LinkerOptions:
         Assume that if a variable is not referenced in device code, it can be removed.
         Maps to: ``-optimize-unused-variables``
         Default: False.
-    xptxas : List[str], optional
+    xptxas : [Union[str, Tuple[str], List[str]]], optional
         Pass options to PTXAS.
         Maps to: ``-Xptxas=<opt>``.
     split_compile : int, optional
@@ -189,7 +189,7 @@ class LinkerOptions:
     kernels_used: Optional[List[str]] = None
     variables_used: Optional[List[str]] = None
     optimize_unused_variables: Optional[bool] = None
-    xptxas: Optional[List[str]] = None
+    xptxas: Optional[Union[str, Tuple[str], List[str]]] = None
     split_compile: Optional[int] = None
     split_compile_extended: Optional[int] = None
     no_cache: Optional[bool] = None
@@ -240,8 +240,11 @@ class LinkerOptions:
         if self.optimize_unused_variables is not None:
             self.formatted_options.append("-optimize-unused-variables")
         if self.xptxas is not None:
-            for opt in self.xptxas:
-                self.formatted_options.append(f"-Xptxas={opt}")
+            if isinstance(self.xptxas, str):
+                self.formatted_options.append(f"-Xptxas={self.xptxas}")
+            elif is_sequence(self.xptxas):
+                for opt in self.xptxas:
+                    self.formatted_options.append(f"-Xptxas={opt}")
         if self.split_compile is not None:
             self.formatted_options.append(f"-split-compile={self.split_compile}")
         if self.split_compile_extended is not None:
