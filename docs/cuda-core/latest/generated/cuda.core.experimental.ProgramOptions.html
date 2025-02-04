@@ -318,8 +318,7 @@ will be used.</p>
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.relocatable_device_code">
 <span class="sig-name descname"><span class="pre">relocatable_device_code</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.relocatable_device_code" title="Link to this definition">¶</a></dt>
 <dd><p>Enable (disable) the generation of relocatable device code.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--relocatable-device-code={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-rdc</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -331,8 +330,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--relocata
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.extensible_whole_program">
 <span class="sig-name descname"><span class="pre">extensible_whole_program</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.extensible_whole_program" title="Link to this definition">¶</a></dt>
 <dd><p>Do extensible whole program compilation of device code.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--extensible-whole-program</span></code> (<code class="docutils literal notranslate"><span class="pre">-ewp</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -344,8 +342,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--extensib
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.debug">
 <span class="sig-name descname"><span class="pre">debug</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.debug" title="Link to this definition">¶</a></dt>
 <dd><p>Generate debug information. If –dopt is not specified, then turns off all optimizations.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--device-debug</span></code> (<code class="docutils literal notranslate"><span class="pre">-G</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -357,8 +354,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--device-d
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.lineinfo">
 <span class="sig-name descname"><span class="pre">lineinfo</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.lineinfo" title="Link to this definition">¶</a></dt>
 <dd><p>Generate line-number information.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--generate-line-info</span></code> (<code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -371,8 +367,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--generate
 <span class="sig-name descname"><span class="pre">device_code_optimize</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.device_code_optimize" title="Link to this definition">¶</a></dt>
 <dd><p>Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation
 for optimized device code.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--dopt</span> <span class="pre">on</span></code> (<code class="docutils literal notranslate"><span class="pre">-dopt</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -385,8 +380,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--dopt</sp
 <span class="sig-name descname"><span class="pre">ptxas_options</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.ptxas_options" title="Link to this definition">¶</a></dt>
 <dd><p>Specify one or more options directly to ptxas, the PTX optimizing assembler. Options should be strings.
 For example [“-v”, “-O2”].
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--ptxas-options</span> <span class="pre">&lt;options&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, List[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]], optional</p>
@@ -398,8 +392,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--ptxas-op
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.max_register_count">
 <span class="sig-name descname"><span class="pre">max_register_count</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.max_register_count" title="Link to this definition">¶</a></dt>
 <dd><p>Specify the maximum amount of registers that GPU functions can use.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--maxrregcount=&lt;N&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-maxrregcount</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, optional</p>
@@ -412,8 +405,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--maxrregc
 <span class="sig-name descname"><span class="pre">ftz</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.ftz" title="Link to this definition">¶</a></dt>
 <dd><p>When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal
 values.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--ftz={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-ftz</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -425,8 +417,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--ftz={tru
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.prec_sqrt">
 <span class="sig-name descname"><span class="pre">prec_sqrt</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.prec_sqrt" title="Link to this definition">¶</a></dt>
 <dd><p>For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation.
-Default: True
-Maps to: <code class="docutils literal notranslate"><span class="pre">--prec-sqrt={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-sqrt</span></code>)</p>
+Default: True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -439,8 +430,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--prec-sqr
 <span class="sig-name descname"><span class="pre">prec_div</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.prec_div" title="Link to this definition">¶</a></dt>
 <dd><p>For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster
 approximation.
-Default: True
-Maps to: <code class="docutils literal notranslate"><span class="pre">--prec-div={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-div</span></code>)</p>
+Default: True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -453,8 +443,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--prec-div
 <span class="sig-name descname"><span class="pre">fma</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.fma" title="Link to this definition">¶</a></dt>
 <dd><p>Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point
 multiply-add operations.
-Default: True
-Maps to: <code class="docutils literal notranslate"><span class="pre">--fmad={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-fmad</span></code>)</p>
+Default: True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -466,8 +455,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--fmad={tr
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.use_fast_math">
 <span class="sig-name descname"><span class="pre">use_fast_math</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.use_fast_math" title="Link to this definition">¶</a></dt>
 <dd><p>Make use of fast math operations.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> (<code class="docutils literal notranslate"><span class="pre">-use_fast_math</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -479,8 +467,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--use_fast
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.extra_device_vectorization">
 <span class="sig-name descname"><span class="pre">extra_device_vectorization</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.extra_device_vectorization" title="Link to this definition">¶</a></dt>
 <dd><p>Enables more aggressive device code vectorization in the NVVM optimizer.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--extra-device-vectorization</span></code> (<code class="docutils literal notranslate"><span class="pre">-extra-device-vectorization</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -492,8 +479,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--extra-de
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.link_time_optimization">
 <span class="sig-name descname"><span class="pre">link_time_optimization</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.link_time_optimization" title="Link to this definition">¶</a></dt>
 <dd><p>Generate intermediate code for later link-time optimization.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--dlink-time-opt</span></code> (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -505,8 +491,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--dlink-ti
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.gen_opt_lto">
 <span class="sig-name descname"><span class="pre">gen_opt_lto</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.gen_opt_lto" title="Link to this definition">¶</a></dt>
 <dd><p>Run the optimizer passes before generating the LTO IR.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--gen-opt-lto</span></code> (<code class="docutils literal notranslate"><span class="pre">-gen-opt-lto</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -519,8 +504,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--gen-opt-
 <span class="sig-name descname"><span class="pre">define_macro</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.define_macro" title="Link to this definition">¶</a></dt>
 <dd><p>Predefine a macro. Can be either a string, in which case that macro will be set to 1, a 2 element tuple of
 strings, in which case the first element is defined as the second, or a list of strings or tuples.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--define-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-D</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, Tuple[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>], List[Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, Tuple[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]]]], optional</p>
@@ -532,8 +516,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--define-m
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.undefine_macro">
 <span class="sig-name descname"><span class="pre">undefine_macro</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.undefine_macro" title="Link to this definition">¶</a></dt>
 <dd><p>Cancel any previous definition of a macro, or list of macros.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--undefine-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-U</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, List[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]], optional</p>
@@ -545,8 +528,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--undefine
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.include_path">
 <span class="sig-name descname"><span class="pre">include_path</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.include_path" title="Link to this definition">¶</a></dt>
 <dd><p>Add the directory or directories to the list of directories to be searched for headers.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--include-path=&lt;dir&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-I</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, List[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]], optional</p>
@@ -558,8 +540,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--include-
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.pre_include">
 <span class="sig-name descname"><span class="pre">pre_include</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.pre_include" title="Link to this definition">¶</a></dt>
 <dd><p>Preinclude one or more headers during preprocessing. Can be either a string or a list of strings.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--pre-include=&lt;header&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-include</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, List[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]], optional</p>
@@ -571,8 +552,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--pre-incl
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.no_source_include">
 <span class="sig-name descname"><span class="pre">no_source_include</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.no_source_include" title="Link to this definition">¶</a></dt>
 <dd><p>Disable the default behavior of adding the directory of each input source to the include path.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--no-source-include</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-source-include</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -584,8 +564,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--no-sourc
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.std">
 <span class="sig-name descname"><span class="pre">std</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.std" title="Link to this definition">¶</a></dt>
 <dd><p>Set language dialect to C++03, C++11, C++14, C++17 or C++20.
-Default: c++17
-Maps to: <code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20}</span></code> (<code class="docutils literal notranslate"><span class="pre">-std</span></code>)</p>
+Default: c++17</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, optional</p>
@@ -597,8 +576,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--std={c++
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.builtin_move_forward">
 <span class="sig-name descname"><span class="pre">builtin_move_forward</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.builtin_move_forward" title="Link to this definition">¶</a></dt>
 <dd><p>Provide builtin definitions of std::move and std::forward.
-Default: True
-Maps to: <code class="docutils literal notranslate"><span class="pre">--builtin-move-forward={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-move-forward</span></code>)</p>
+Default: True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -610,8 +588,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--builtin-
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.builtin_initializer_list">
 <span class="sig-name descname"><span class="pre">builtin_initializer_list</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.builtin_initializer_list" title="Link to this definition">¶</a></dt>
 <dd><p>Provide builtin definitions of std::initializer_list class and member functions.
-Default: True
-Maps to: <code class="docutils literal notranslate"><span class="pre">--builtin-initializer-list={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-initializer-list</span></code>)</p>
+Default: True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -623,8 +600,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--builtin-
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.disable_warnings">
 <span class="sig-name descname"><span class="pre">disable_warnings</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.disable_warnings" title="Link to this definition">¶</a></dt>
 <dd><p>Inhibit all warning messages.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--disable-warnings</span></code> (<code class="docutils literal notranslate"><span class="pre">-w</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -636,8 +612,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--disable-
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.restrict">
 <span class="sig-name descname"><span class="pre">restrict</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.restrict" title="Link to this definition">¶</a></dt>
 <dd><p>Programmer assertion that all kernel pointer parameters are restrict pointers.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--restrict</span></code> (<code class="docutils literal notranslate"><span class="pre">-restrict</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -649,8 +624,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--restrict
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.device_as_default_execution_space">
 <span class="sig-name descname"><span class="pre">device_as_default_execution_space</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.device_as_default_execution_space" title="Link to this definition">¶</a></dt>
 <dd><p>Treat entities with no execution space annotation as __device__ entities.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--device-as-default-execution-space</span></code> (<code class="docutils literal notranslate"><span class="pre">-default-device</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -662,8 +636,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--device-a
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.device_int128">
 <span class="sig-name descname"><span class="pre">device_int128</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.device_int128" title="Link to this definition">¶</a></dt>
 <dd><p>Allow the __int128 type in device code.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--device-int128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-int128</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -675,8 +648,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--device-i
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.optimization_info">
 <span class="sig-name descname"><span class="pre">optimization_info</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.optimization_info" title="Link to this definition">¶</a></dt>
 <dd><p>Provide optimization reports for the specified kind of optimization.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--optimization-info=&lt;kind&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-opt-info</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, optional</p>
@@ -688,8 +660,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--optimiza
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.no_display_error_number">
 <span class="sig-name descname"><span class="pre">no_display_error_number</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.no_display_error_number" title="Link to this definition">¶</a></dt>
 <dd><p>Disable the display of a diagnostic number for warning messages.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--no-display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-err-no</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -701,8 +672,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--no-displ
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.diag_error">
 <span class="sig-name descname"><span class="pre">diag_error</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.diag_error" title="Link to this definition">¶</a></dt>
 <dd><p>Emit error for a specified diagnostic message number or comma separated list of numbers.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-error=&lt;error-number&gt;,</span> <span class="pre">...</span></code> (<code class="docutils literal notranslate"><span class="pre">-diag-error</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]], optional</p>
@@ -714,8 +684,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-err
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.diag_suppress">
 <span class="sig-name descname"><span class="pre">diag_suppress</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.diag_suppress" title="Link to this definition">¶</a></dt>
 <dd><p>Suppress a specified diagnostic message number or comma separated list of numbers.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-suppress=&lt;error-number&gt;,…</span></code> (<code class="docutils literal notranslate"><span class="pre">-diag-suppress</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]], optional</p>
@@ -727,8 +696,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-sup
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.diag_warn">
 <span class="sig-name descname"><span class="pre">diag_warn</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.diag_warn" title="Link to this definition">¶</a></dt>
 <dd><p>Emit warning for a specified diagnostic message number or comma separated lis of numbers.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-warn=&lt;error-number&gt;,…</span></code> (<code class="docutils literal notranslate"><span class="pre">-diag-warn</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]], optional</p>
@@ -740,8 +708,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--diag-war
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.brief_diagnostics">
 <span class="sig-name descname"><span class="pre">brief_diagnostics</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.brief_diagnostics" title="Link to this definition">¶</a></dt>
 <dd><p>Disable or enable showing source line and column info in a diagnostic.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--brief-diagnostics={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-brief-diag</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -753,8 +720,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--brief-di
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.time">
 <span class="sig-name descname"><span class="pre">time</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.time" title="Link to this definition">¶</a></dt>
 <dd><p>Generate a CSV table with the time taken by each compilation phase.
-Default: None
-Maps to: <code class="docutils literal notranslate"><span class="pre">--time=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-time</span></code>)</p>
+Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, optional</p>
@@ -766,8 +732,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--time=&lt
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.split_compile">
 <span class="sig-name descname"><span class="pre">split_compile</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.split_compile" title="Link to this definition">¶</a></dt>
 <dd><p>Perform compiler optimizations in parallel.
-Default: 1
-Maps to: <code class="docutils literal notranslate"><span class="pre">--split-compile=</span> <span class="pre">&lt;number</span> <span class="pre">of</span> <span class="pre">threads&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-split-compile</span></code>)</p>
+Default: 1</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, optional</p>
@@ -779,8 +744,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--split-co
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.fdevice_syntax_only">
 <span class="sig-name descname"><span class="pre">fdevice_syntax_only</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.fdevice_syntax_only" title="Link to this definition">¶</a></dt>
 <dd><p>Ends device compilation after front-end syntax checking.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--fdevice-syntax-only</span></code> (<code class="docutils literal notranslate"><span class="pre">-fdevice-syntax-only</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
@@ -792,8 +756,7 @@ Maps to: <code class="docutils literal notranslate"><span class="pre">--fdevice-
 <dt class="sig sig-object py" id="cuda.core.experimental.ProgramOptions.minimal">
 <span class="sig-name descname"><span class="pre">minimal</span></span><a class="headerlink" href="#cuda.core.experimental.ProgramOptions.minimal" title="Link to this definition">¶</a></dt>
 <dd><p>Omit certain language features to reduce compile time for small programs.
-Default: False
-Maps to: <code class="docutils literal notranslate"><span class="pre">--minimal</span></code> (<code class="docutils literal notranslate"><span class="pre">-minimal</span></code>)</p>
+Default: False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
