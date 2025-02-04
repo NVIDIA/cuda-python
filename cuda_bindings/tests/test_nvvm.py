@@ -32,8 +32,8 @@ def match_exact(s):
 
 
 @contextmanager
-def nvvm_program():
-    prog = nvvm.create_program()
+def nvvm_program() -> int:
+    prog: int = nvvm.create_program()
     try:
         yield prog
     finally:
