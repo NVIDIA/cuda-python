@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import re
+from contextlib import contextmanager
 
 import pytest
 
@@ -30,6 +31,15 @@ def noregex(s):
     return "^" + re.escape(s) + "$"
 
 
+@contextmanager
+def nvvm_program():
+    prog = nvvm.create_program()
+    try:
+        yield prog
+    finally:
+        nvvm.destroy_program(prog)
+
+
 def test_nvvm_version():
     ver = nvvm.version()
     assert len(ver) == 2
@@ -43,35 +53,24 @@ def test_nvvm_ir_version():
 
 
 def test_create_and_destroy():
-    prog = nvvm.create_program()
-    try:
+    with nvvm_program() as prog:
         assert isinstance(prog, int)
         assert prog != 0
-    finally:
-        nvvm.destroy_program(prog)
 
 
 @pytest.mark.parametrize("add_fn", [nvvm.add_module_to_program, nvvm.lazy_add_module_to_program])
 def test_add_module_to_program_fail(add_fn):
-    prog = nvvm.create_program()
-    try:
+    with nvvm_program() as prog, pytest.raises(ValueError):
         # Passing a C NULL pointer generates "ERROR_INVALID_INPUT (4)",
         # but that is not possible through our Python bindings.
         # The ValueError originates from the cython bindings code.
-        with pytest.raises(ValueError):
-            add_fn(prog, None, 0, "FileNameHere.ll")
-    finally:
-        nvvm.destroy_program(prog)
+        add_fn(prog, None, 0, "FileNameHere.ll")
 
 
 @pytest.mark.parametrize("c_or_v", [nvvm.compile_program, nvvm.verify_program])
 def test_c_or_v_program_fail_no_module(c_or_v):
-    prog = nvvm.create_program()
-    try:
-        with pytest.raises(nvvm.nvvmError, match=noregex("ERROR_NO_MODULE_IN_PROGRAM (8)")):
-            c_or_v(prog, 0, [])
-    finally:
-        nvvm.destroy_program(prog)
+    with nvvm_program() as prog, pytest.raises(nvvm.nvvmError, match=noregex("ERROR_NO_MODULE_IN_PROGRAM (8)")):
+        c_or_v(prog, 0, [])
 
 
 @pytest.mark.parametrize(
@@ -82,31 +81,25 @@ def test_c_or_v_program_fail_no_module(c_or_v):
     ],
 )
 def test_c_or_v_program_fail_invalid_ir(c_or_v, expected_error):
-    prog = nvvm.create_program()
     nvvm_ll = b"This is not NVVM IR"
-    nvvm.add_module_to_program(prog, nvvm_ll, len(nvvm_ll), "FileNameHere.ll")
-    try:
+    with nvvm_program() as prog:
+        nvvm.add_module_to_program(prog, nvvm_ll, len(nvvm_ll), "FileNameHere.ll")
         with pytest.raises(nvvm.nvvmError, match=noregex(expected_error)):
             c_or_v(prog, 0, [])
         buffer = bytearray(nvvm.get_program_log_size(prog))
         nvvm.get_program_log(prog, buffer)
         assert buffer.decode(errors="backslashreplace") == "FileNameHere.ll (1, 0): parse expected top-level entity\x00"
-    finally:
-        nvvm.destroy_program(prog)
 
 
 @pytest.mark.parametrize("c_or_v", [nvvm.compile_program, nvvm.verify_program])
 def test_c_or_v_program_fail_bad_option(c_or_v):
-    prog = nvvm.create_program()
-    nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
-    try:
+    with nvvm_program() as prog:
+        nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
         with pytest.raises(nvvm.nvvmError, match=noregex("ERROR_INVALID_OPTION (7)")):
             c_or_v(prog, 1, ["BadOption"])
         buffer = bytearray(nvvm.get_program_log_size(prog))
         nvvm.get_program_log(prog, buffer)
         assert buffer.decode(errors="backslashreplace") == "libnvvm : error: BadOption is an unsupported option\x00"
-    finally:
-        nvvm.destroy_program(prog)
 
 
 @pytest.mark.parametrize(
@@ -117,21 +110,17 @@ def test_c_or_v_program_fail_bad_option(c_or_v):
     ],
 )
 def test_get_buffer_empty(get_size, get_buffer):
-    prog = nvvm.create_program()
-    try:
+    with nvvm_program() as prog:
         buffer_size = get_size(prog)
         assert buffer_size == 1
         buffer = bytearray(buffer_size)
         get_buffer(prog, buffer)
         assert buffer == b"\x00"
-    finally:
-        nvvm.destroy_program(prog)
 
 
 @pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
 def test_compile_program_with_minimal_nnvm_ir(options):
-    prog = nvvm.create_program()
-    try:
+    with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
         try:
             nvvm.compile_program(prog, len(options), options)
@@ -149,15 +138,10 @@ def test_compile_program_with_minimal_nnvm_ir(options):
         buffer = bytearray(result_size)
         nvvm.get_compiled_result(prog, buffer)
         assert ".visible .entry kernel()" in buffer.decode("utf-8")
-    finally:
-        nvvm.destroy_program(prog)
 
 
 @pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
 def test_verify_program_with_minimal_nnvm_ir(options):
-    prog = nvvm.create_program()
-    try:
+    with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
         nvvm.verify_program(prog, len(options), options)
-    finally:
-        nvvm.destroy_program(prog)
