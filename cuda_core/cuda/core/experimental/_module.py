@@ -128,37 +128,15 @@ class ObjectCode:
     def _lazy_load_module(self, *args, **kwargs):
         if self._handle is not None:
             return
-        jit_options = self._jit_options
         module = self._module
         if isinstance(module, str):
-            # TODO: this option is only taken by the new library APIs, but we have
-            # a bug that we can't easily support it just yet (NVIDIA/cuda-python#73).
-            if jit_options is not None:
-                raise ValueError
             self._handle = handle_return(self._loader["file"](module))
         else:
             assert isinstance(module, bytes)
-            if jit_options is None:
-                jit_options = {}
             if self._backend_version == "new":
-                args = (
-                    module,
-                    list(jit_options.keys()),
-                    list(jit_options.values()),
-                    len(jit_options),
-                    # TODO: support library options
-                    [],
-                    [],
-                    0,
-                )
+                self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
             else:  # "old" backend
-                args = (
-                    module,
-                    len(jit_options),
-                    list(jit_options.keys()),
-                    list(jit_options.values()),
-                )
-            self._handle = handle_return(self._loader["data"](*args))
+                self._handle = handle_return(self._loader["data"](module, 0, [], []))
 
     @precondition(_lazy_load_module)
     def get_kernel(self, name):
