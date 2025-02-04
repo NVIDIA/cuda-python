@@ -42,10 +42,6 @@ jobs:
       run:
         shell: bash -el {0}
     steps:
-      # WAR: Building the doc currently requires a GPU (NVIDIA/cuda-python#326,327)
-      - name: Ensure GPU is working
-        run: nvidia-smi
-
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
         with:
