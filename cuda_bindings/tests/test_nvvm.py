@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import re
+
 import pytest
 
 from cuda.bindings import nvvm
@@ -22,6 +24,10 @@ entry:
 !nvvmir.version = !{!1}
 !1 = !{i32 2, i32 0, i32 3, i32 1}
 """  # noqa: E501
+
+
+def noregex(s):
+    return "^" + re.escape(s) + "$"
 
 
 def test_nvvm_version():
@@ -62,7 +68,7 @@ def test_add_module_to_program_fail(add_fn):
 def test_c_or_v_program_fail_no_module(c_or_v):
     prog = nvvm.create_program()
     try:
-        with pytest.raises(nvvm.nvvmError, match=r"^ERROR_NO_MODULE_IN_PROGRAM \(8\)$"):
+        with pytest.raises(nvvm.nvvmError, match=noregex("ERROR_NO_MODULE_IN_PROGRAM (8)")):
             c_or_v(prog, 0, [])
     finally:
         nvvm.destroy_program(prog)
@@ -71,8 +77,8 @@ def test_c_or_v_program_fail_no_module(c_or_v):
 @pytest.mark.parametrize(
     ("c_or_v", "expected_error"),
     [
-        (nvvm.compile_program, r"^ERROR_COMPILATION \(9\)$"),
-        (nvvm.verify_program, r"^ERROR_INVALID_IR \(6\)$"),
+        (nvvm.compile_program, "ERROR_COMPILATION (9)"),
+        (nvvm.verify_program, "ERROR_INVALID_IR (6)"),
     ],
 )
 def test_c_or_v_program_fail_invalid_ir(c_or_v, expected_error):
@@ -80,7 +86,7 @@ def test_c_or_v_program_fail_invalid_ir(c_or_v, expected_error):
     nvvm_ll = b"This is not NVVM IR"
     nvvm.add_module_to_program(prog, nvvm_ll, len(nvvm_ll), "FileNameHere.ll")
     try:
-        with pytest.raises(nvvm.nvvmError, match=expected_error):
+        with pytest.raises(nvvm.nvvmError, match=noregex(expected_error)):
             c_or_v(prog, 0, [])
         buffer = bytearray(nvvm.get_program_log_size(prog))
         nvvm.get_program_log(prog, buffer)
@@ -94,7 +100,7 @@ def test_c_or_v_program_fail_bad_option(c_or_v):
     prog = nvvm.create_program()
     nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
     try:
-        with pytest.raises(nvvm.nvvmError, match=r"^ERROR_INVALID_OPTION \(7\)$"):
+        with pytest.raises(nvvm.nvvmError, match=noregex("ERROR_INVALID_OPTION (7)")):
             c_or_v(prog, 1, ["BadOption"])
         buffer = bytearray(nvvm.get_program_log_size(prog))
         nvvm.get_program_log(prog, buffer)
