@@ -67,7 +67,7 @@ def test_lazy_add_module_to_program():
         nvvm.destroy_program(prog)
 
 
-def test_compile_program():
+def test_compile_program_fail():
     prog = nvvm.create_program()
     try:
         with pytest.raises(nvvm.nvvmError, match=r"^ERROR_NO_MODULE_IN_PROGRAM \(8\)$"):
@@ -76,7 +76,7 @@ def test_compile_program():
         nvvm.destroy_program(prog)
 
 
-def test_verify_program():
+def test_verify_program_fail():
     prog = nvvm.create_program()
     try:
         with pytest.raises(nvvm.nvvmError, match=r"^ERROR_NO_MODULE_IN_PROGRAM \(8\)$"):
@@ -85,7 +85,7 @@ def test_verify_program():
         nvvm.destroy_program(prog)
 
 
-def test_get_compiled_result():
+def test_get_compiled_result_empty():
     prog = nvvm.create_program()
     try:
         result_size = nvvm.get_compiled_result_size(prog)
@@ -97,7 +97,7 @@ def test_get_compiled_result():
         nvvm.destroy_program(prog)
 
 
-def test_get_program_log():
+def test_get_program_log_empty():
     prog = nvvm.create_program()
     try:
         log_size = nvvm.get_program_log_size(prog)
@@ -109,7 +109,7 @@ def test_get_program_log():
         nvvm.destroy_program(prog)
 
 
-def test_with_minimal_nnvm_ir():
+def test_compile_program_with_minimal_nnvm_ir():
     prog = nvvm.create_program()
     try:
         nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
@@ -129,5 +129,14 @@ def test_with_minimal_nnvm_ir():
         buffer = bytearray(result_size)
         nvvm.get_compiled_result(prog, buffer)
         assert ".visible .entry kernel()" in buffer.decode("utf-8")
+    finally:
+        nvvm.destroy_program(prog)
+
+
+def test_verify_program_with_minimal_nnvm_ir():
+    prog = nvvm.create_program()
+    try:
+        nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
+        nvvm.verify_program(prog, 0, [])
     finally:
         nvvm.destroy_program(prog)
