@@ -46,24 +46,16 @@ def compile_ltoir_functions(init_cuda):
     return object_code_a_ltoir, object_code_b_ltoir, object_code_c_ltoir
 
 
-culink_options = [
+options = [
     LinkerOptions(),
     LinkerOptions(arch=ARCH, verbose=True),
     LinkerOptions(arch=ARCH, max_register_count=32),
     LinkerOptions(arch=ARCH, optimization_level=3),
     LinkerOptions(arch=ARCH, debug=True),
     LinkerOptions(arch=ARCH, lineinfo=True),
-    LinkerOptions(arch=ARCH, no_cache=True),  # TODO: consider adding cuda 12.4 to test matrix in which case this
-    # will fail. Tracked in issue #337
 ]
-
-
-@pytest.mark.parametrize(
-    "options",
-    culink_options
-    if culink_backend
-    else culink_options
-    + [
+if not culink_backend:
+    options += [
         LinkerOptions(arch=ARCH, time=True),
         LinkerOptions(arch=ARCH, ftz=True),
         LinkerOptions(arch=ARCH, prec_div=True),
@@ -77,8 +69,13 @@ culink_options = [
         LinkerOptions(arch=ARCH, xptxas=["-v"]),
         LinkerOptions(arch=ARCH, split_compile=0),
         LinkerOptions(arch=ARCH, split_compile_extended=1),
-    ],
-)
+    ]
+    version = nvjitlink.version()
+    if version >= (12, 5):
+        options += [LinkerOptions(arch=ARCH, no_cache=True)]
+
+
+@pytest.mark.parametrize("options", options)
 def test_linker_init(compile_ptx_functions, options):
     linker = Linker(*compile_ptx_functions, options=options)
     object_code = linker.link("cubin")
