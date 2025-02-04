@@ -27,7 +27,7 @@ entry:
 """  # noqa: E501
 
 
-def noregex(s):
+def match_exact(s):
     return "^" + re.escape(s) + "$"
 
 
@@ -69,7 +69,7 @@ def test_add_module_to_program_fail(add_fn):
 
 @pytest.mark.parametrize("c_or_v", [nvvm.compile_program, nvvm.verify_program])
 def test_c_or_v_program_fail_no_module(c_or_v):
-    with nvvm_program() as prog, pytest.raises(nvvm.nvvmError, match=noregex("ERROR_NO_MODULE_IN_PROGRAM (8)")):
+    with nvvm_program() as prog, pytest.raises(nvvm.nvvmError, match=match_exact("ERROR_NO_MODULE_IN_PROGRAM (8)")):
         c_or_v(prog, 0, [])
 
 
@@ -84,7 +84,7 @@ def test_c_or_v_program_fail_invalid_ir(c_or_v, expected_error):
     nvvm_ll = b"This is not NVVM IR"
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, nvvm_ll, len(nvvm_ll), "FileNameHere.ll")
-        with pytest.raises(nvvm.nvvmError, match=noregex(expected_error)):
+        with pytest.raises(nvvm.nvvmError, match=match_exact(expected_error)):
             c_or_v(prog, 0, [])
         buffer = bytearray(nvvm.get_program_log_size(prog))
         nvvm.get_program_log(prog, buffer)
@@ -95,7 +95,7 @@ def test_c_or_v_program_fail_invalid_ir(c_or_v, expected_error):
 def test_c_or_v_program_fail_bad_option(c_or_v):
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
-        with pytest.raises(nvvm.nvvmError, match=noregex("ERROR_INVALID_OPTION (7)")):
+        with pytest.raises(nvvm.nvvmError, match=match_exact("ERROR_INVALID_OPTION (7)")):
             c_or_v(prog, 1, ["BadOption"])
         buffer = bytearray(nvvm.get_program_log_size(prog))
         nvvm.get_program_log(prog, buffer)
