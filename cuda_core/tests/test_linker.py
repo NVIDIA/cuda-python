@@ -70,7 +70,7 @@ if not culink_backend:
         LinkerOptions(arch=ARCH, kernels_used=["C", "B"]),
         LinkerOptions(arch=ARCH, variables_used=["var1"]),
         LinkerOptions(arch=ARCH, variables_used=["var1", "var2"]),
-    ],
+    ]
     version = nvjitlink.version()
     if version >= (12, 5):
         options.append(LinkerOptions(arch=ARCH, no_cache=True))
