@@ -3,7 +3,7 @@
 ``cuda.core`` 0.2.0 Release Notes
 =================================
 
-Released on <TODO>, 2024
+Released on <TODO>, 2025
 
 Highlights
 ----------
@@ -20,3 +20,4 @@ Breaking Changes
 
 - Change ``__cuda_stream__`` from attribute to method
 - The :meth:`~Program.compile` method no longer accepts the `options` argument. Instead, you can optionally pass an instance of :class:`~ProgramOptions` to the constructor of :obj:`~Program`.
+- The internal constructor of :class:`~ObjectCode` no longer accepts the jit_options argument. Options are provided to upstream :class:`~ProgramOptions` or :class:`~LinkerOptions` instead.
