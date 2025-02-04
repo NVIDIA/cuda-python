@@ -40,6 +40,12 @@ def nvvm_program():
         nvvm.destroy_program(prog)
 
 
+def get_program_log(prog):
+    buffer = bytearray(nvvm.get_program_log_size(prog))
+    nvvm.get_program_log(prog, buffer)
+    return buffer.decode(errors="backslashreplace")
+
+
 def test_nvvm_version():
     ver = nvvm.version()
     assert len(ver) == 2
@@ -86,9 +92,7 @@ def test_c_or_v_program_fail_invalid_ir(c_or_v, expected_error):
         nvvm.add_module_to_program(prog, nvvm_ll, len(nvvm_ll), "FileNameHere.ll")
         with pytest.raises(nvvm.nvvmError, match=match_exact(expected_error)):
             c_or_v(prog, 0, [])
-        buffer = bytearray(nvvm.get_program_log_size(prog))
-        nvvm.get_program_log(prog, buffer)
-        assert buffer.decode(errors="backslashreplace") == "FileNameHere.ll (1, 0): parse expected top-level entity\x00"
+        assert get_program_log(prog) == "FileNameHere.ll (1, 0): parse expected top-level entity\x00"
 
 
 @pytest.mark.parametrize("c_or_v", [nvvm.compile_program, nvvm.verify_program])
@@ -97,9 +101,7 @@ def test_c_or_v_program_fail_bad_option(c_or_v):
         nvvm.add_module_to_program(prog, MINIMAL_NVVMIR, len(MINIMAL_NVVMIR), "FileNameHere.ll")
         with pytest.raises(nvvm.nvvmError, match=match_exact("ERROR_INVALID_OPTION (7)")):
             c_or_v(prog, 1, ["BadOption"])
-        buffer = bytearray(nvvm.get_program_log_size(prog))
-        nvvm.get_program_log(prog, buffer)
-        assert buffer.decode(errors="backslashreplace") == "libnvvm : error: BadOption is an unsupported option\x00"
+        assert get_program_log(prog) == "libnvvm : error: BadOption is an unsupported option\x00"
 
 
 @pytest.mark.parametrize(
@@ -125,9 +127,7 @@ def test_compile_program_with_minimal_nnvm_ir(options):
         try:
             nvvm.compile_program(prog, len(options), options)
         except nvvm.nvvmError as e:
-            buffer = bytearray(nvvm.get_program_log_size(prog))
-            nvvm.get_program_log(prog, buffer)
-            raise RuntimeError(buffer.decode(errors="backslashreplace")) from e
+            raise RuntimeError(get_program_log(prog)) from e
         else:
             log_size = nvvm.get_program_log_size(prog)
             assert log_size == 1
