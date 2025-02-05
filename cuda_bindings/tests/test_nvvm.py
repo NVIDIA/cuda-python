@@ -76,6 +76,11 @@ def minimal_nvvmir(request):
     return MINIMAL_NVVMIR_TXT if request.param == "txt" else MINIMAL_NVVMIR_BITCODE
 
 
+@pytest.fixture(params=[nvvm.compile_program, nvvm.verify_program])
+def compile_or_verify(request):
+    return request.param
+
+
 def match_exact(s):
     return "^" + re.escape(s) + "$"
 
@@ -122,34 +127,26 @@ def test_add_module_to_program_fail(add_fn):
         add_fn(prog, None, 0, "FileNameHere.ll")
 
 
-@pytest.mark.parametrize("c_or_v", [nvvm.compile_program, nvvm.verify_program])
-def test_c_or_v_program_fail_no_module(c_or_v):
+def test_c_or_v_program_fail_no_module(compile_or_verify):
     with nvvm_program() as prog, pytest.raises(nvvm.nvvmError, match=match_exact("ERROR_NO_MODULE_IN_PROGRAM (8)")):
-        c_or_v(prog, 0, [])
+        compile_or_verify(prog, 0, [])
 
 
-@pytest.mark.parametrize(
-    ("c_or_v", "expected_error"),
-    [
-        (nvvm.compile_program, "ERROR_COMPILATION (9)"),
-        (nvvm.verify_program, "ERROR_INVALID_IR (6)"),
-    ],
-)
-def test_c_or_v_program_fail_invalid_ir(c_or_v, expected_error):
+def test_c_or_v_program_fail_invalid_ir(compile_or_verify):
+    expected_error = "ERROR_COMPILATION (9)" if compile_or_verify is nvvm.compile_program else "ERROR_INVALID_IR (6)"
     nvvm_ll = b"This is not NVVM IR"
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, nvvm_ll, len(nvvm_ll), "FileNameHere.ll")
         with pytest.raises(nvvm.nvvmError, match=match_exact(expected_error)):
-            c_or_v(prog, 0, [])
+            compile_or_verify(prog, 0, [])
         assert get_program_log(prog) == "FileNameHere.ll (1, 0): parse expected top-level entity\x00"
 
 
-@pytest.mark.parametrize("c_or_v", [nvvm.compile_program, nvvm.verify_program])
-def test_c_or_v_program_fail_bad_option(minimal_nvvmir, c_or_v):
+def test_c_or_v_program_fail_bad_option(minimal_nvvmir, compile_or_verify):
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
         with pytest.raises(nvvm.nvvmError, match=match_exact("ERROR_INVALID_OPTION (7)")):
-            c_or_v(prog, 1, ["BadOption"])
+            compile_or_verify(prog, 1, ["BadOption"])
         assert get_program_log(prog) == "libnvvm : error: BadOption is an unsupported option\x00"
 
 
