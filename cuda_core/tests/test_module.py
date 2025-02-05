@@ -91,6 +91,15 @@ def test_read_only_kernel_attributes(get_saxpy_kernel, attr, expected_type, cuda
     kernel = get_saxpy_kernel
     method = getattr(kernel.attributes, attr)
     # get the value without providing a device ordinal
+    # temp profile to be removed:
+    # Profile the method call
+    import timeit
+
+    num_calls = 1000
+    total_time = timeit.timeit(lambda: method(), number=num_calls)
+    average_time = total_time / num_calls
+    print(f"Average time per call to {attr}: {average_time:.10f} seconds")
+
     value = method()
     assert value is not None
 
