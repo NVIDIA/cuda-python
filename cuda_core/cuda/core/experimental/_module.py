@@ -53,159 +53,149 @@ class KernelAttributes:
         self._handle = handle
         return self
 
-    @property
-    def max_threads_per_block(self) -> int:
+    def max_threads_per_block(self, device_id: int = None) -> int:
         """int : The maximum number of threads per block.
         This attribute is read-only."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK, self._handle, device_id
             )
         )
 
-    @property
-    def shared_size_bytes(self) -> int:
+    def shared_size_bytes(self, device_id: int = None) -> int:
         """int : The size in bytes of statically-allocated shared memory required by this function.
         This attribute is read-only."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES, self._handle, device_id
             )
         )
 
-    @property
-    def const_size_bytes(self) -> int:
+    def const_size_bytes(self, device_id: int = None) -> int:
         """int : The size in bytes of user-allocated constant memory required by this function.
         This attribute is read-only."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES, self._handle, device_id
             )
         )
 
-    @property
-    def local_size_bytes(self) -> int:
+    def local_size_bytes(self, device_id: int = None) -> int:
         """int : The size in bytes of local memory used by each thread of this function.
         This attribute is read-only."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES, self._handle, device_id
             )
         )
 
-    @property
-    def num_regs(self) -> int:
+    def num_regs(self, device_id: int = None) -> int:
         """int : The number of registers used by each thread of this function.
         This attribute is read-only."""
         return handle_return(
-            driver.cuKernelGetAttribute(driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NUM_REGS, self._handle, None)
+            driver.cuKernelGetAttribute(driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NUM_REGS, self._handle, device_id)
         )
 
-    @property
-    def ptx_version(self) -> int:
+    def ptx_version(self, device_id: int = None) -> int:
         """int : The PTX virtual architecture version for which the function was compiled.
         This attribute is read-only."""
         return handle_return(
-            driver.cuKernelGetAttribute(driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PTX_VERSION, self._handle, None)
+            driver.cuKernelGetAttribute(
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PTX_VERSION, self._handle, device_id
+            )
         )
 
-    @property
-    def binary_version(self) -> int:
+    def binary_version(self, device_id: int = None) -> int:
         """int : The binary architecture version for which the function was compiled.
         This attribute is read-only."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_BINARY_VERSION, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_BINARY_VERSION, self._handle, device_id
             )
         )
 
-    @property
-    def cache_mode_ca(self) -> bool:
+    def cache_mode_ca(self, device_id: int = None) -> bool:
         """bool : Whether the function has been compiled with user specified option "-Xptxas --dlcm=ca" set.
         This attribute is read-only."""
         return bool(
             handle_return(
                 driver.cuKernelGetAttribute(
-                    driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA, self._handle, None
+                    driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA, self._handle, device_id
                 )
             )
         )
 
-    @property
-    def max_dynamic_shared_size_bytes(self) -> int:
+    def max_dynamic_shared_size_bytes(self, device_id: int = None) -> int:
         """int : The maximum size in bytes of dynamically-allocated shared memory that can be used
         by this function."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES, self._handle, device_id
             )
         )
 
-    @property
-    def preferred_shared_memory_carveout(self) -> int:
+    def preferred_shared_memory_carveout(self, device_id: int = None) -> int:
         """int : The shared memory carveout preference, in percent of the total shared memory."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT, self._handle, device_id
             )
         )
 
-    @property
-    def cluster_size_must_be_set(self) -> bool:
+    def cluster_size_must_be_set(self, device_id: int = None) -> bool:
         """bool : The kernel must launch with a valid cluster size specified.
         This attribute is read-only."""
         return bool(
             handle_return(
                 driver.cuKernelGetAttribute(
-                    driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET, self._handle, None
+                    driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET, self._handle, device_id
                 )
             )
         )
 
-    @property
-    def required_cluster_width(self) -> int:
+    def required_cluster_width(self, device_id: int = None) -> int:
         """int : The required cluster width in blocks."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH, self._handle, device_id
             )
         )
 
-    @property
-    def required_cluster_height(self) -> int:
+    def required_cluster_height(self, device_id: int = None) -> int:
         """int : The required cluster height in blocks."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT, self._handle, device_id
             )
         )
 
-    @property
-    def required_cluster_depth(self) -> int:
+    def required_cluster_depth(self, device_id: int = None) -> int:
         """int : The required cluster depth in blocks."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH, self._handle, device_id
             )
         )
 
-    @property
-    def non_portable_cluster_size_allowed(self) -> bool:
+    def non_portable_cluster_size_allowed(self, device_id: int = None) -> bool:
         """bool : Whether the function can be launched with non-portable cluster size."""
         return bool(
             handle_return(
                 driver.cuKernelGetAttribute(
-                    driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED, self._handle, None
+                    driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED,
+                    self._handle,
+                    device_id,
                 )
             )
         )
 
-    @property
-    def cluster_scheduling_policy_preference(self) -> int:
+    def cluster_scheduling_policy_preference(self, device_id: int = None) -> int:
         """int : The block scheduling policy of a function."""
         return handle_return(
             driver.cuKernelGetAttribute(
-                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE, self._handle, None
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE,
+                self._handle,
+                device_id,
             )
         )
 

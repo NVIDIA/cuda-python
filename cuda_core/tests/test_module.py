@@ -11,23 +11,20 @@ import pytest
 from conftest import can_load_generated_ptx
 
 try:
-    from cuda.bindings import runtime
+    from cuda.bindings import driver
 except ImportError:
-    from cuda import cudart as runtime
+    from cuda import cuda as driver
 
-from cuda.core.experimental import Program, ProgramOptions
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental import Program, ProgramOptions, system
+from cuda.core.experimental._utils import get_binding_version, handle_return
 
 
 @pytest.fixture(scope="module")
 def cuda_version():
-    # WAR this is a workaround for the fact that checking the runtime version using the cuGetDriverVersion
-    # doesnt actually return the driver version buyt rather the latest cuda whcih is supported by the installed drive3r.
-
-    version = handle_return(runtime.cudaRuntimeGetVersion())
-    major_version = version // 1000
-    minor_version = (version % 1000) // 10
-    return major_version, minor_version
+    # binding availability depends on cuda-python version
+    _py_major_ver, _ = get_binding_version()
+    _driver_ver = handle_return(driver.cuDriverGetVersion())
+    return _py_major_ver, _driver_ver
 
 
 @pytest.fixture(scope="function")
@@ -89,16 +86,15 @@ def test_get_kernel(init_cuda):
     ],
 )
 def test_read_only_kernel_attributes(get_saxpy_kernel, attr, expected_type, cuda_version):
-    if cuda_version[0] < 12:
+    if cuda_version[0] < 12 and cuda_version[1] >= 12000:
         pytest.skip("CUDA version is less than 12, and doesn't support kernel attribute access")
-
     kernel = get_saxpy_kernel
-
-    # Access the attribute to ensure it can be read
-    value = getattr(kernel.attributes, attr)
+    method = getattr(kernel.attributes, attr)
+    # get the value without providing a device ordinal
+    value = method()
     assert value is not None
-    assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
 
-    # Attempt to set the attribute and ensure it raises an exception
-    with pytest.raises(AttributeError):
-        setattr(kernel.attributes, attr, value)
+    # get the value for each device on the system
+    for device in system.devices:
+        value = method(device.device_id)
+    assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
