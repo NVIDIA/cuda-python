@@ -32,7 +32,7 @@ release = os.environ["SPHINX_CUDA_BINDINGS_VER"]
 # ones.
 extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "myst_nb", "enum_tools.autoenum"]
 
-jupyter_execute_notebooks = "force"
+nb_execution_mode = "off"
 numfig = True
 
 # Add any paths that contain templates here, relative to this directory.
