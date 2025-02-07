@@ -14,7 +14,15 @@ except ImportError:
 import pytest
 
 from cuda.core.experimental import Device
-from cuda.core.experimental._utils import ComputeCapability, handle_return
+from cuda.core.experimental._utils import ComputeCapability, get_binding_version, handle_return
+
+
+@pytest.fixture(scope="module")
+def cuda_version():
+    # binding availability depends on cuda-python version
+    _py_major_ver, _ = get_binding_version()
+    _driver_ver = handle_return(driver.cuDriverGetVersion())
+    return _py_major_ver, _driver_ver
 
 
 def test_device_set_current(deinit_cuda):
@@ -192,8 +200,9 @@ cuda_base_properties = [
 
 cuda_12_properties = [("numa_config", int), ("numa_id", int), ("multicast_supported", bool)]
 
+version = get_binding_version()
 cuda_11 = True
-if runtime.cudaRuntimeGetVersion() >= (12, 0):
+if version[0] >= 12 and version[1] >= 12000:
     cuda_base_properties += cuda_12_properties
     cuda_11 = False
 
