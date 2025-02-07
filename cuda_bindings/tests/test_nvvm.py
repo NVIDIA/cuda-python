@@ -10,68 +10,6 @@ import pytest
 
 from cuda.bindings import nvvm
 
-if True:  # Trick to stop ruff from moving these.
-    import glob
-    import os
-    import pathlib
-
-
-def get_proc_self_maps_paths():
-    paths = set()
-    with open("/proc/self/maps") as f:
-        for line in f:
-            parts = line.strip().split(maxsplit=5)
-            if len(parts) == 6:
-                path = parts[5]
-                if path.startswith("/"):
-                    paths.add(path)
-    return tuple(sorted(paths))
-
-
-def find_libnvvm_so_in_dir(dirpath):
-    if not os.path.isdir(dirpath):
-        return None
-    longest_so_path = ""
-    for so_path in sorted(glob.glob(f"{dirpath}/libnvvm.so*")):
-        if len(so_path) > len(longest_so_path) and os.path.isfile(so_path):
-            longest_so_path = so_path
-    return longest_so_path if longest_so_path else None
-
-
-def find_libnvvm_so_via_proc_self_maps():
-    # Traverse /proc/self/maps to look for one of these:
-    #     **/lib/nvvm/lib64/libnvvm.so*
-    #     **/site-packages/nvidia/cuda_nvcc/nvvm/lib64/libnvvm.so*
-    # using "lib" or "site-packages" as anchor points.
-    dirs_inspected = set()
-    for maps_path in get_proc_self_maps_paths():
-        dir_parts = pathlib.Path(maps_path).parts[1:-1]  # Strip leading slash and filename.
-        if dir_parts not in dirs_inspected:
-            for ix in range(len(dir_parts), 0, -1):
-                parent_dir = dir_parts[:ix]
-                if parent_dir in dirs_inspected:
-                    continue
-                dirs_inspected.add(parent_dir)
-                if parent_dir[-1] == "lib":
-                    trialdir = parent_dir[:-1] + ("nvvm", "lib64")
-                elif parent_dir[-1] == "site-packages":
-                    trialdir = parent_dir + ("nvidia", "cuda_nvcc", "nvvm", "lib64")
-                else:
-                    continue
-                so_path = find_libnvvm_so_in_dir(os.sep + os.sep.join(trialdir))
-                if so_path is not None:
-                    return so_path
-    return None
-
-
-so_path = find_libnvvm_so_via_proc_self_maps()
-print(f"\nfind_libnvvm_so_via_proc_self_maps() {so_path=}", flush=True)
-if so_path is not None:
-    import ctypes
-
-    ctypes.CDLL(so_path)
-
-
 MINIMAL_NVVMIR_TXT = b"""\
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
