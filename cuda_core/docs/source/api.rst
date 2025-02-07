@@ -42,12 +42,15 @@ CUDA compilation toolchain
 CUDA system information
 -----------------------
 
-.. autodata:: cuda.core.experimental.system.driver_version
+.. autodata:: cuda.core.experimental._system.System.driver_version
    :no-value:
-.. autodata:: cuda.core.experimental.system.num_devices
+   :noindex:
+.. autodata:: cuda.core.experimental._system.System.num_devices
    :no-value:
-.. autodata:: cuda.core.experimental.system.devices
+   :noindex:
+.. autodata:: cuda.core.experimental._system.System.devices
    :no-value:
+   :noindex:
 
 
 .. module:: cuda.core.experimental.utils

@@ -100,14 +100,14 @@ intersphinx_mapping = {
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 
-
-autodoc_mock_imports = ["cuda.bindings"]
-
 section_titles = ["Returns"]
 
 
 def autodoc_process_docstring(app, what, name, obj, options, lines):
-    if name.startswith("cuda.core.experimental.system"):
+    if name.startswith("cuda.core.experimental._system.System"):
+        new_name = name = name.replace("cuda.core.experimental._system.System", "cuda.core.experimental.system")
+        lines.insert(0, f".. py:data:: {new_name}")
+        lines.insert(1, "")
         # patch the docstring (in lines) *in-place*. Should docstrings include section titles other than "Returns",
         # this will need to be modified to handle them.
         attr = name.split(".")[-1]
@@ -127,6 +127,8 @@ def autodoc_process_docstring(app, what, name, obj, options, lines):
         lines.extend(formatted_lines)
         for _ in range(n_pops):
             lines.pop(0)
+
+        print("\n\n\n\n", lines, name, what, obj, options, app, "\n\n\n\n")
 
 
 def setup(app):
