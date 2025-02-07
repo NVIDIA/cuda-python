@@ -10,21 +10,7 @@
 import pytest
 from conftest import can_load_generated_ptx
 
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
-
 from cuda.core.experimental import Program, ProgramOptions, system
-from cuda.core.experimental._utils import get_binding_version, handle_return
-
-
-@pytest.fixture(scope="module")
-def cuda_version():
-    # binding availability depends on cuda-python version
-    _py_major_ver, _ = get_binding_version()
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    return _py_major_ver, _driver_ver
 
 
 @pytest.fixture(scope="function")
@@ -85,9 +71,7 @@ def test_get_kernel(init_cuda):
         ("cluster_scheduling_policy_preference", int),
     ],
 )
-def test_read_only_kernel_attributes(get_saxpy_kernel, attr, expected_type, cuda_version):
-    if cuda_version[0] < 12 and cuda_version[1] >= 12000:
-        pytest.skip("CUDA version is less than 12, and doesn't support kernel attribute access")
+def test_read_only_kernel_attributes(get_saxpy_kernel, attr, expected_type):
     kernel = get_saxpy_kernel
     method = getattr(kernel.attributes, attr)
     # get the value without providing a device ordinal

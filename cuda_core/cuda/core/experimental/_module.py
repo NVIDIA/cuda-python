@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
+from warnings import warn
+
 from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
@@ -10,6 +12,7 @@ _backend = {
         "file": driver.cuModuleLoad,
         "data": driver.cuModuleLoadDataEx,
         "kernel": driver.cuModuleGetFunction,
+        "attribute": driver.cuFuncGetAttribute,
     },
 }
 
@@ -34,6 +37,7 @@ def _lazy_init():
             "file": driver.cuLibraryLoadFromFile,
             "data": driver.cuLibraryLoadData,
             "kernel": driver.cuLibraryGetKernel,
+            "attribute": driver.cuKernelGetAttribute,
         }
         _kernel_ctypes = (driver.CUfunction, driver.CUkernel)
     else:
@@ -46,19 +50,30 @@ class KernelAttributes:
     def __init__(self):
         raise RuntimeError("KernelAttributes should not be instantiated directly")
 
-    slots = ("_handle", "_cache")
+    slots = ("_handle", "_cache", "_backend_version", "_loader")
 
     def _init(handle):
         self = KernelAttributes.__new__(KernelAttributes)
         self._handle = handle
         self._cache = {}
+
+        self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
+        self._loader = _backend[self._backend_version]
         return self
 
     def _get_cached_attribute(self, device_id: int, attribute: driver.CUfunction_attribute) -> int:
         """Helper function to get a cached attribute or fetch and cache it if not present."""
         if device_id in self._cache and attribute in self._cache[device_id]:
             return self._cache[device_id][attribute]
-        result = handle_return(driver.cuKernelGetAttribute(attribute, self._handle, device_id))
+        if self._backend_version == "new":
+            result = handle_return(self._loader["attribute"](attribute, self._handle, device_id))
+        else:  # "old" backend
+            warn(
+                "Device ID argument is ignored when getting attribute from kernel when cuda version < 12. ",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            result = handle_return(self._loader["attribute"](attribute, self._handle))
         if device_id not in self._cache:
             self._cache[device_id] = {}
         self._cache[device_id][attribute] = result
