@@ -6,11 +6,15 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
+import atexit
+import contextlib
 import glob
 import os
 import platform
+import shutil
 import sys
 import sysconfig
+import tempfile
 
 from Cython import Tempita
 from Cython.Build import cythonize
@@ -145,7 +149,9 @@ path_list = [os.path.join('cuda'),
              os.path.join('cuda', 'bindings'),
              os.path.join('cuda', 'bindings', '_bindings'),
              os.path.join('cuda', 'bindings', '_lib'),
-             os.path.join('cuda', 'bindings', '_lib', 'cyruntime')]
+             os.path.join('cuda', 'bindings', '_lib', 'cyruntime'),
+             os.path.join('cuda', 'bindings', '_internal'),
+            ]
 input_files = []
 for path in path_list:
     input_files += fetch_input_files(path)
@@ -204,6 +210,38 @@ def prep_extensions(sources):
             )
         )
     return exts
+
+
+# new path for the bindings from cybind
+def rename_architecture_specific_files():
+    if sys.platform == "linux":
+        src_files = glob.glob(os.path.join(path, "*_linux.pyx"))
+    elif sys.platform == "win32":
+        src_files = glob.glob(os.path.join(path, "*_windows.pyx"))
+    else:
+        raise RuntimeError(f"platform is unrecognized: {sys.platform}")
+    dst_files = []
+    for src in src_files:
+        # Set up a temporary file; it must be under the cache directory so
+        # that atomic moves within the same filesystem can be guaranteed
+        with tempfile.NamedTemporaryFile(delete=False, dir=".") as f:
+            shutil.copy2(src, f.name)
+            f_name = f.name
+        dst = src.replace("_linux", "").replace("_windows", "")
+        # atomic move with the destination guaranteed to be overwritten
+        os.replace(f_name, f"./{dst}")
+        dst_files.append(dst)
+    return dst_files
+
+
+dst_files = rename_architecture_specific_files()
+
+
+@atexit.register
+def cleanup_dst_files():
+    for dst in dst_files:
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(dst)
 
 
 def do_cythonize(extensions):
