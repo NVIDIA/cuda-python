@@ -228,6 +228,9 @@ sources_list = [
     ["cuda/bindings/*.pyx"],
     # public (deprecated, to be removed)
     ["cuda/*.pyx"],
+    # internal files used by generated bindings
+    ["cuda/bindings/_internal/nvvm.pyx"],
+    ["cuda/bindings/_internal/utils.pyx"],
 ]
 
 for sources in sources_list:
@@ -260,7 +263,15 @@ class ParallelBuildExtensions(build_ext):
             # Allow extensions to discover libraries at runtime
             # relative their wheels installation.
             if ext.name == "cuda.bindings._bindings.cynvrtc":
-                ldflag = f"-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
+                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
+            elif ext.name == "cuda.bindings._internal.nvvm":
+                # from <loc>/site-packages/cuda/bindings/_internal/
+                #   to <loc>/site-packages/nvidia/cuda_nvcc/nvvm/lib64/
+                rel1 = "$ORIGIN/../../../nvidia/cuda_nvcc/nvvm/lib64"
+                # from <loc>/lib/python3.*/site-packages/cuda/bindings/_internal/
+                #   to <loc>/lib/nvvm/lib64/
+                rel2 = "$ORIGIN/../../../../../../nvvm/lib64"
+                ldflag = f"-Wl,--disable-new-dtags,-rpath,{rel1},-rpath,{rel2}"
             else:
                 ldflag = None
 
