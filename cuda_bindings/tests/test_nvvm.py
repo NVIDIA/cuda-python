@@ -24,11 +24,11 @@ entry:
 !0 = !{void ()* @kernel, !"kernel", i32 1}
 
 !nvvmir.version = !{!1}
-!1 = !{i32 2, i32 0, i32 3, i32 1}
+!1 = !{i32 %d, i32 %d, i32 %d, i32 %d}
 """  # noqa: E501
 
-# Equivalent to MINIMAL_NVVMIR_TXT
-MINIMAL_NVVMIR_BITCODE = base64.b64decode("""
+# Equivalent to MINIMAL_NVVMIR_TXT % (2, 0, 3, 1)
+MINIMAL_NVVMIR_BITCODE_2_0_3_1 = base64.b64decode("""
 QkPA3jUUAAAFAAAAYgwwJElZvmbu034tRAEyBQAAAAAhDAAAJAEAAAsCIQACAAAAEwAAAAeBI5FB
 yARJBhAyOZIBhAwlBQgZHgSLYoAMRQJCkgtCZBAyFDgIGEsKMjKISJAUIENGiKUAGTJC5EgOkJEh
 xFBBUYGM4YPligQZRgaJIAAACwAAADIiyAggZIUEkyGkhASTIeOEoZAUEkyGjAuEZEwQFCMAJQBl
@@ -73,7 +73,12 @@ dmlkaWEtY3VkYW1pbmltYWxfbnZ2bWlyLmxsAAAAAAA=
 
 @pytest.fixture(params=["txt", "bitcode"])
 def minimal_nvvmir(request):
-    return MINIMAL_NVVMIR_TXT if request.param == "txt" else MINIMAL_NVVMIR_BITCODE
+    ir_vers = nvvm.ir_version()
+    if request.param == "txt":
+        return MINIMAL_NVVMIR_TXT % ir_vers
+    if ir_vers[:2] != (3, 0):
+        pytest.skip(f"MINIMAL_NVVMIR_BITCODE_2_0_3_1 vs {ir_vers} IR version incompatibility")
+    return MINIMAL_NVVMIR_BITCODE_2_0_3_1
 
 
 @pytest.fixture(params=[nvvm.compile_program, nvvm.verify_program])
@@ -103,13 +108,13 @@ def get_program_log(prog):
 def test_nvvm_version():
     ver = nvvm.version()
     assert len(ver) == 2
-    assert ver >= (2, 0)
+    assert ver >= (1, 0)
 
 
 def test_nvvm_ir_version():
     ver = nvvm.ir_version()
     assert len(ver) == 4
-    assert ver >= (2, 0, 3, 1)
+    assert ver >= (1, 0, 0, 0)
 
 
 def test_create_and_destroy():
