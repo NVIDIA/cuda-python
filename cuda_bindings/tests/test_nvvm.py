@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import base64
 import re
 from contextlib import contextmanager
 
+import llvmlite.binding
 import pytest
 
 from cuda.bindings import nvvm
@@ -27,58 +27,20 @@ entry:
 !1 = !{i32 %d, i32 %d, i32 %d, i32 %d}
 """  # noqa: E501
 
-# Equivalent to MINIMAL_NVVMIR_TXT % (2, 0, 3, 1)
-MINIMAL_NVVMIR_BITCODE_2_0_3_1 = base64.b64decode("""
-QkPA3jUUAAAFAAAAYgwwJElZvmbu034tRAEyBQAAAAAhDAAAJAEAAAsCIQACAAAAEwAAAAeBI5FB
-yARJBhAyOZIBhAwlBQgZHgSLYoAMRQJCkgtCZBAyFDgIGEsKMjKISJAUIENGiKUAGTJC5EgOkJEh
-xFBBUYGM4YPligQZRgaJIAAACwAAADIiyAggZIUEkyGkhASTIeOEoZAUEkyGjAuEZEwQFCMAJQBl
-IGCOAAwAAAAAEyZ3sAd4oAd8sAM6aAN3sId0IId0CIc2GId6IIdw2OAS5dAG8KAHdkAHemAHdKAH
-dkAHbZAOcaAHeKAHeNAG6YAHeoAHeoAHbZAOcWAHehAHdqAHcWAHbZAOcyAHejAHcqAHcyAHbZAO
-dkAHemAHdKAHdkAHbZAOcSAHeKAHcSAHeKAHcSAHeNAG5jAHcqAHcyAHejAHctAG5mAHdKAHdkAH
-emAHdNAG9hAHdqAHcWAHehAHdtAG9jAHcqAHcyAHejAHctAG9mAHdKAHdkAHemAHdNAG9hAHcoAH
-ehAHcoAHehAHcoAHbeAOcWAHejAHcqAHdkAHGiEMGTFIgzDA8jdVxSCRvyxDIsAIAAAAAAAAAAAA
-AEBig0BRlAAAgCwQBgAAADIemAwZEUyQjAkmR8YEQ2IJFMEIQBkAALEYAABtAAAAMwiAHMThHGYU
-AT2IQziEw4xCgAd5eAdzmHEM5gAP7RAO9IAOMwxCHsLBHc6hHGYwBT2IQziEgxvMAz3IQz2MAz3M
-eIx0cAd7CAd5SIdwcAd6cAN2eIdwIIcZzBEO7JAO4TAPbjAP4/AO8FAOMxDEHd4hHNghHcJhHmYw
-iTu8gzvQQzm0Azy8gzyEAzvM8BR2YAd7aAc3aIdyaAc3gIdwkIdwYAd2KAd2+AV2eId3gIdfCIdx
-GIdymId5mIEs7vAO7uAO9cAO7DADYsihHOShHMyhHOShHNxhHMohHMSBHcphBtaQQznIQzmYQznI
-Qzm4wziUQziIAzuUwy+8gzz8gjvUAzuwwwzHaYdwWIdycIN0aAd4YId0GId0oIcZzlMP7gAP8lAO
-5JAO40AP4SAO7FAOMyAoHdzBHsJBHtIhHNyBHtzgHOThHeoBHmYYUTiwQzqcgzvMUCR2YAd7aAc3
-YId3eAd4mFFM9JAP8FAOMx5qHsphHOghHd7BHX4BHuShHMwhHfBhBlSFgzjMwzuwQz3QQzn8wjzk
-QzuIwzuww4zFCod5mId3GId0CAd6KAdyAAAAAHkgAAAeAAAAYh5IIEOIDBk5GSSQkUDGyMhoIlAI
-FDKeGBkhR8iQUQwIBQAABgAAAGtlcm5lbAAAIwgCMIJABCMIhDCCQAwjCAQxwyAEwwwEURiDjAQm
-KCE3O7s2lzA3tze6MLq0N7e5UQIjHTc7u7Y0ORe7Mrm5tDe3UYIDAAAAqRgAAAsAAAALCnIoh3eA
-B3pYcJhDPbjDOLBDOdDDguYcxqEN6EEewsEd5iEd6CEd3sEdANEQAAAGAAAAB8w8pIM7nAM7lAM9
-oIM8lEM4kMMBAAAAYSAAAAYAAAATBAGGAwEAAAIAAAAHUBDNFGEAAAAAAABxIAAAAwAAADIOECKE
-AKACAAAAAAAAAABlDAAAHQAAABIDlOgAAAAAAAAAAAYAAAAFAAAARAAAAAEAAABQAAAAAAAAAFAA
-AAABAAAAaAAAAAAAAAALAAAAEwAAAB4AAAARAAAALwAAAAAAAAAAAAAAAQAAAAAAAAAAAAAABgAA
-AAAAAAAGAAAA/////wAkAAAAAAAAXQwAAA8AAAASA5RvAAAAAGtlcm5lbDUuMC4xbnZwdHg2NC1u
-dmlkaWEtY3VkYW1pbmltYWxfbnZ2bWlyLmxsAAAAAAA=
-""")
-# To regenerate, pull and start a docker container:
-#     docker pull centos/llvm-toolset-7-centos7
-#     docker run -it centos/llvm-toolset-7-centos7 /bin/bash
-# In the docker container, copy MINIMAL_NVVMIR_TXT to a file with name minimal_nvvmir.ll
-# Then run:
-#     llvm-as minimal_nvvmir.ll -o minimal_nvvmir.bc
-# Save this to encode.py:
-#     import base64, sys, textwrap
-#     bitcode = open(sys.argv[1], "rb").read()
-#     encoded_bitcode = base64.b64encode(bitcode).decode("ascii")
-#     wrapped_base64 = "\n".join(textwrap.wrap(encoded_bitcode, width=76))
-#     print(wrapped_base64)
-# Then run:
-#     python encode.py minimal_nvvmir.bc
+MINIMAL_NVVMIR_CACHE = {}
 
 
 @pytest.fixture(params=["txt", "bitcode"])
 def minimal_nvvmir(request):
-    ir_vers = nvvm.ir_version()
-    if request.param == "txt":
-        return MINIMAL_NVVMIR_TXT % ir_vers
-    if ir_vers[:2] != (3, 0):
-        pytest.skip(f"MINIMAL_NVVMIR_BITCODE_2_0_3_1 vs {ir_vers} IR version incompatibility")
-    return MINIMAL_NVVMIR_BITCODE_2_0_3_1
+    for _ in range(2):
+        nvvmir = MINIMAL_NVVMIR_CACHE.get(request.param)
+        if nvvmir is not None:
+            return nvvmir
+        txt = MINIMAL_NVVMIR_TXT % nvvm.ir_version()
+        bitcode = llvmlite.binding.parse_assembly(txt.decode()).as_bitcode()
+        MINIMAL_NVVMIR_CACHE["txt"] = txt
+        MINIMAL_NVVMIR_CACHE["bitcode"] = bitcode
+    raise AssertionError("This code path is meant to be unreachable.")
 
 
 @pytest.fixture(params=[nvvm.compile_program, nvvm.verify_program])
@@ -172,7 +134,7 @@ def test_get_buffer_empty(get_size, get_buffer):
 
 
 @pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
-def test_compile_program_with_minimal_nnvm_ir(minimal_nvvmir, options):
+def test_compile_program_with_minimal_nvvm_ir(minimal_nvvmir, options):
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
         try:
@@ -192,7 +154,7 @@ def test_compile_program_with_minimal_nnvm_ir(minimal_nvvmir, options):
 
 
 @pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
-def test_verify_program_with_minimal_nnvm_ir(minimal_nvvmir, options):
+def test_verify_program_with_minimal_nvvm_ir(minimal_nvvmir, options):
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
         nvvm.verify_program(prog, len(options), options)
