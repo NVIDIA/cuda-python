@@ -9,6 +9,7 @@ Highlights
 ----------
 
 - Add :class:`~ProgramOptions` to facilitate the passing of runtime compile options to :obj:`~Program`.
+- Add kernel attributes to :class:`~_module.Kernel`
 
 Limitations
 -----------
