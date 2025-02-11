@@ -156,7 +156,7 @@ def minimal_nvvmir(request):
         MINIMAL_NVVMIR_CACHE["bitcode_static"] = bitcode_static
         if bitcode_static is None:
             if bitcode_dynamic is None:
-                raise RuntimeError("Please `pip install llvmlite` to generate `bitcode_static`")
+                raise RuntimeError("Please `pip install llvmlite` to generate `bitcode_static` (see PR #443)")
             bitcode_hex = binascii.hexlify(bitcode_dynamic).decode("ascii")
             print("\n\nMINIMAL_NVVMIR_BITCODE_STATIC = { # PLEASE ADD TO test_nvvm.py")
             print(f"    ({major}, {debug_major}):  # (major, debug_major)")
