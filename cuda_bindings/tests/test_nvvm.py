@@ -136,12 +136,15 @@ MINIMAL_NVVMIR_CACHE = {}
 
 @pytest.fixture(params=MINIMAL_NVVMIR_FIXTURE_PARAMS)
 def minimal_nvvmir(request):
-    for _ in range(2):
+    for pass_counter in range(2):
         nvvmir = MINIMAL_NVVMIR_CACHE.get(request.param, -1)
         if nvvmir != -1:
             if nvvmir is None:
                 pytest.skip(f"UNAVAILABLE: {request.param}")
             return nvvmir
+        if pass_counter:
+            raise AssertionError("This code path is meant to be unreachable.")
+        # Build cache entries, then try again (above).
         major, minor, debug_major, debug_minor = nvvm.ir_version()
         txt = MINIMAL_NVVMIR_TXT % (major, debug_major)
         if llvmlite_binding is None:
@@ -165,7 +168,6 @@ def minimal_nvvmir(request):
                 print(f'    "{line}"')
             print(f'    "{lines[-1]}",')
             print("}\n", flush=True)
-    raise AssertionError("This code path is meant to be unreachable.")
 
 
 @pytest.fixture(params=[nvvm.compile_program, nvvm.verify_program])
