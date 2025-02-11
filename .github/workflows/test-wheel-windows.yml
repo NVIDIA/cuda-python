@@ -27,9 +27,6 @@ jobs:
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     runs-on: ${{ (inputs.runner == 'default' && inputs.host-platform == 'win-64' && 'cuda-python-windows-gpu-github') }}
-    defaults:
-      run:
-        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Ensure GPU is working
         run: nvidia-smi
@@ -68,14 +65,6 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        uses: ./.github/actions/install_unix_deps
-        continue-on-error: false
-        with:
-          # gcc for Cython tests, jq/wget for artifact fetching
-          dependencies: "build-essential jq wget"
-          dependent_exes: "gcc jq wget"
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
