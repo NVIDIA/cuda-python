@@ -240,8 +240,8 @@ jobs:
             runner: H100
           - host-platform: win-64
             python-version: "3.12"
-            cuda-version: ["12.8.0", "11.8.0"]
-            local-ctk: [0, 1]
+            cuda-version: "12.8.0"
+            local-ctk: 0
             runner: default
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }}, ${{ (matrix.local-ctk == '1' && 'local CTK') || 'CTK wheels' }})
     if: ${{ github.repository_owner == 'nvidia' }}
