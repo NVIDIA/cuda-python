@@ -34,7 +34,8 @@ dependencies = [
 
 [project.optional-dependencies]
 all = [
-    "nvidia-cuda-nvrtc-cu11"
+    "nvidia-cuda-nvcc-cu11",
+    "nvidia-cuda-nvrtc-cu11",
 ]
 
 [project.urls]
