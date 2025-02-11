@@ -7,4 +7,4 @@ setuptools
 tomli; python_version < "3.11"
 wheel
 pywin32; sys_platform == 'win32'
-# llvmlite # Uncomment to generate MINIMAL_NVVMIR_BITCODE_STATIC for test_nvvm.py
+# llvmlite # Uncomment to generate MINIMAL_NVVMIR_BITCODE_STATIC for test_nvvm.py (see PR #443).
