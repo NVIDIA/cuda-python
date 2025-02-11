@@ -28,7 +28,6 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     runs-on: ${{ (inputs.runner == 'default' && inputs.host-platform == 'linux-64' && 'linux-amd64-gpu-v100-latest-1') ||
                  (inputs.runner == 'default' && inputs.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') ||
-                 (inputs.runner == 'default' && inputs.host-platform == 'win-64' && 'cuda-python-windows-gpu-github') ||
                  (inputs.runner == 'H100' && 'linux-amd64-gpu-h100-latest-1') }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container

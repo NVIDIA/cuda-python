@@ -26,10 +26,7 @@ jobs:
   test:
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
-    runs-on: ${{ (inputs.runner == 'default' && inputs.host-platform == 'linux-64' && 'linux-amd64-gpu-v100-latest-1') ||
-                 (inputs.runner == 'default' && inputs.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') ||
-                 (inputs.runner == 'default' && inputs.host-platform == 'win-64' && 'cuda-python-windows-gpu-github') ||
-                 (inputs.runner == 'H100' && 'linux-amd64-gpu-h100-latest-1') }}
+    runs-on: ${{ (inputs.runner == 'default' && inputs.host-platform == 'win-64' && 'cuda-python-windows-gpu-github') }}
     defaults:
       run:
         shell: bash --noprofile --norc -xeuo pipefail {0}
