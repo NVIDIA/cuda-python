@@ -112,7 +112,7 @@ def get_cuda_home(*subdirs):
         return os.path.join(cuda_home, *subdirs)
 
 
-def _get_nvvm_path():
+def get_nvvm_path():
     by, path = _get_nvvm_path_decision()
     candidates = find_lib("nvvm", path)
     path = max(candidates) if candidates else None
