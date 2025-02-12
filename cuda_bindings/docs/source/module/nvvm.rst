@@ -22,15 +22,29 @@ Functions
 Types
 -----
 
+..
+   The empty lines below are important!
+
 .. autoclass:: cuda.bindings.nvvm.Result
+
     .. autoattribute:: cuda.bindings.nvvm.Result.SUCCESS
+
     .. autoattribute:: cuda.bindings.nvvm.Result.ERROR_OUT_OF_MEMORY
+
     .. autoattribute:: cuda.bindings.nvvm.Result.ERROR_PROGRAM_CREATION_FAILURE
+
     .. autoattribute:: cuda.bindings.nvvm.Result.ERROR_IR_VERSION_MISMATCH
+
     .. autoattribute:: cuda.bindings.nvvm.Result.ERROR_INVALID_INPUT
+
     .. autoattribute:: cuda.bindings.nvvm.Result.ERROR_INVALID_PROGRAM
+
     .. autoattribute:: cuda.bindings.nvvm.Result.ERROR_INVALID_IR
+
     .. autoattribute:: cuda.bindings.nvvm.Result.ERROR_INVALID_OPTION
+
     .. autoattribute:: cuda.bindings.nvvm.Result.ERROR_NO_MODULE_IN_PROGRAM
+
     .. autoattribute:: cuda.bindings.nvvm.Result.ERROR_COMPILATION
+
     .. autoattribute:: cuda.bindings.nvvm.Result.ERROR_CANCELLED
