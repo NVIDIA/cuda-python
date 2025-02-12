@@ -29,6 +29,7 @@ Where the optional dependencies are:
 
 * nvidia-cuda-nvrtc-cu12 (Provides NVRTC shared library)
 * nvidia-nvjitlink-cu12>=12.3 (Provides nvJitLink shared library)
+* nvidia-cuda-nvcc-cu12 (Provides NVVM shared library)
 
 
 ## Installing from Conda
