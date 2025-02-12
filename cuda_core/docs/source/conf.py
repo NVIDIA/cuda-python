@@ -112,6 +112,7 @@ def autodoc_process_docstring(app, what, name, obj, options, lines):
             lines.pop()
         attr = name.split(".")[-1]
         from cuda.core.experimental._system import System
+
         original_lines = getattr(System, attr).__doc__.split("\n")
         new_lines = []
         new_lines.append(f".. py:data:: {name}")
