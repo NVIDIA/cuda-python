@@ -1,3 +1,6 @@
+# Forked from:
+# https://github.com/NVIDIA/numba-cuda/blob/bf487d78a40eea87f009d636882a5000a7524c95/numba_cuda/numba/cuda/cuda_paths.py
+
 import sys
 import re
 import os

@@ -1,3 +1,6 @@
+# Forked from:
+# https://github.com/numba/numba/blob/f0d24824fcd6a454827e3c108882395d00befc04/numba/misc/findlib.py
+
 import sys
 import os
 import re
