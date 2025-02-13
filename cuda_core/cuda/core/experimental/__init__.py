@@ -5,6 +5,7 @@
 from cuda.core.experimental import utils
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._event import Event, EventOptions
+from cuda.core.experimental._graph import Graph, GraphBuilder
 from cuda.core.experimental._launcher import LaunchConfig, launch
 from cuda.core.experimental._linker import Linker, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
