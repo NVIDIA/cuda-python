@@ -23,6 +23,7 @@ from cuda.core.experimental._utils.cuda_utils import (
     handle_return,
     runtime,
 )
+from cuda.core.experimental._graph import GraphBuilder
 
 
 @dataclass
@@ -341,6 +342,9 @@ class Stream:
                 return (0, handle)
 
         return Stream._init(obj=_stream_holder())
+
+    def build_graph(self) -> GraphBuilder:
+        return GraphBuilder._init(stream=self)
 
 
 LEGACY_DEFAULT_STREAM = Stream._legacy_default()

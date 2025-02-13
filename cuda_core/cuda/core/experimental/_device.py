@@ -7,6 +7,7 @@ from typing import Optional, Union
 
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
+from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
@@ -1271,3 +1272,8 @@ class Device:
 
         """
         handle_return(runtime.cudaDeviceSynchronize())
+
+    @precondition(_check_context_initialized)
+    def build_graph(self) -> GraphBuilder:
+        private_stream = self.create_stream()
+        return GraphBuilder._init(stream=private_stream)
