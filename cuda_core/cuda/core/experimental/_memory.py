@@ -370,10 +370,9 @@ class ShareableAllocator(MemoryResource):
         prop.requestedHandleTypes = _get_platform_handle_type()
         _, granularity = handle_return(
             driver.cuMemGetAllocationGranularity(
-                prop, driver.CUmemAllocationGranularity_flags.CU_MULTICAST_GRANULARITY_MINIMUM
+                prop, driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
             )
         )
-
         # Size must be a multiple of granularity
         if size % granularity != 0:
             raise ValueError(f"Size {size} is not a multiple of minimum allocation granularity {granularity}")
