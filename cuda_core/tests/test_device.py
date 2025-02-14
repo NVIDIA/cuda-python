@@ -11,9 +11,18 @@ try:
 except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
+import pytest
 
 from cuda.core.experimental import Device
-from cuda.core.experimental._utils import ComputeCapability, handle_return
+from cuda.core.experimental._utils import ComputeCapability, get_binding_version, handle_return
+
+
+@pytest.fixture(scope="module")
+def cuda_version():
+    # binding availability depends on cuda-python version
+    _py_major_ver, _ = get_binding_version()
+    _driver_ver = handle_return(driver.cuDriverGetVersion())
+    return _py_major_ver, _driver_ver
 
 
 def test_device_set_current(deinit_cuda):
@@ -78,3 +87,142 @@ def test_compute_capability():
     )
     expected_cc = ComputeCapability(major, minor)
     assert device.compute_capability == expected_cc
+
+
+cuda_base_properties = [
+    ("max_threads_per_block", int),
+    ("max_block_dim_x", int),
+    ("max_block_dim_y", int),
+    ("max_block_dim_z", int),
+    ("max_grid_dim_x", int),
+    ("max_grid_dim_y", int),
+    ("max_grid_dim_z", int),
+    ("max_shared_memory_per_block", int),
+    ("total_constant_memory", int),
+    ("warp_size", int),
+    ("max_pitch", int),
+    ("maximum_texture1d_width", int),
+    ("maximum_texture1d_linear_width", int),
+    ("maximum_texture1d_mipmapped_width", int),
+    ("maximum_texture2d_width", int),
+    ("maximum_texture2d_height", int),
+    ("maximum_texture2d_linear_width", int),
+    ("maximum_texture2d_linear_height", int),
+    ("maximum_texture2d_linear_pitch", int),
+    ("maximum_texture2d_mipmapped_width", int),
+    ("maximum_texture2d_mipmapped_height", int),
+    ("maximum_texture3d_width", int),
+    ("maximum_texture3d_height", int),
+    ("maximum_texture3d_depth", int),
+    ("maximum_texture3d_width_alternate", int),
+    ("maximum_texture3d_height_alternate", int),
+    ("maximum_texture3d_depth_alternate", int),
+    ("maximum_texturecubemap_width", int),
+    ("maximum_texture1d_layered_width", int),
+    ("maximum_texture1d_layered_layers", int),
+    ("maximum_texture2d_layered_width", int),
+    ("maximum_texture2d_layered_height", int),
+    ("maximum_texture2d_layered_layers", int),
+    ("maximum_texturecubemap_layered_width", int),
+    ("maximum_texturecubemap_layered_layers", int),
+    ("maximum_surface1d_width", int),
+    ("maximum_surface2d_width", int),
+    ("maximum_surface2d_height", int),
+    ("maximum_surface3d_width", int),
+    ("maximum_surface3d_height", int),
+    ("maximum_surface3d_depth", int),
+    ("maximum_surface1d_layered_width", int),
+    ("maximum_surface1d_layered_layers", int),
+    ("maximum_surface2d_layered_width", int),
+    ("maximum_surface2d_layered_height", int),
+    ("maximum_surface2d_layered_layers", int),
+    ("maximum_surfacecubemap_width", int),
+    ("maximum_surfacecubemap_layered_width", int),
+    ("maximum_surfacecubemap_layered_layers", int),
+    ("max_registers_per_block", int),
+    ("clock_rate", int),
+    ("texture_alignment", int),
+    ("texture_pitch_alignment", int),
+    ("gpu_overlap", bool),
+    ("multiprocessor_count", int),
+    ("kernel_exec_timeout", bool),
+    ("integrated", bool),
+    ("can_map_host_memory", bool),
+    ("compute_mode", int),
+    ("concurrent_kernels", bool),
+    ("ecc_enabled", bool),
+    ("pci_bus_id", int),
+    ("pci_device_id", int),
+    ("pci_domain_id", int),
+    ("tcc_driver", bool),
+    ("memory_clock_rate", int),
+    ("global_memory_bus_width", int),
+    ("l2_cache_size", int),
+    ("max_threads_per_multiprocessor", int),
+    ("unified_addressing", bool),
+    ("compute_capability_major", int),
+    ("compute_capability_minor", int),
+    ("global_l1_cache_supported", bool),
+    ("local_l1_cache_supported", bool),
+    ("max_shared_memory_per_multiprocessor", int),
+    ("max_registers_per_multiprocessor", int),
+    ("managed_memory", bool),
+    ("multi_gpu_board", bool),
+    ("multi_gpu_board_group_id", int),
+    ("host_native_atomic_supported", bool),
+    ("single_to_double_precision_perf_ratio", int),
+    ("pageable_memory_access", bool),
+    ("concurrent_managed_access", bool),
+    ("compute_preemption_supported", bool),
+    ("can_use_host_pointer_for_registered_mem", bool),
+    ("max_shared_memory_per_block_optin", int),
+    ("pageable_memory_access_uses_host_page_tables", bool),
+    ("direct_managed_mem_access_from_host", bool),
+    ("virtual_memory_management_supported", bool),
+    ("handle_type_posix_file_descriptor_supported", bool),
+    ("handle_type_win32_handle_supported", bool),
+    ("handle_type_win32_kmt_handle_supported", bool),
+    ("max_blocks_per_multiprocessor", int),
+    ("generic_compression_supported", bool),
+    ("max_persisting_l2_cache_size", int),
+    ("max_access_policy_window_size", int),
+    ("gpu_direct_rdma_with_cuda_vmm_supported", bool),
+    ("reserved_shared_memory_per_block", int),
+    ("sparse_cuda_array_supported", bool),
+    ("read_only_host_register_supported", bool),
+    ("memory_pools_supported", bool),
+    ("gpu_direct_rdma_supported", bool),
+    ("gpu_direct_rdma_flush_writes_options", int),
+    ("gpu_direct_rdma_writes_ordering", int),
+    ("mempool_supported_handle_types", int),
+    ("deferred_mapping_cuda_array_supported", bool),
+]
+
+cuda_12_properties = [("numa_config", int), ("numa_id", int), ("multicast_supported", bool)]
+
+version = get_binding_version()
+cuda_11 = True
+if version[0] >= 12 and version[1] >= 12000:
+    cuda_base_properties += cuda_12_properties
+    cuda_11 = False
+
+
+@pytest.mark.parametrize("property_name, expected_type", cuda_base_properties)
+def test_device_property_types(property_name, expected_type):
+    device = Device()
+    assert isinstance(getattr(device.properties, property_name), expected_type)
+
+
+def test_device_properties_complete():
+    device = Device()
+    live_props = set(attr for attr in dir(device.properties) if not attr.startswith("_"))
+    tab_props = set(attr for attr, _ in cuda_base_properties)
+
+    # Exclude specific properties from the comparison when unsupported by CTK.
+    excluded_props = {"numa_config", "multicast_supported", "numa_id"} if cuda_11 else set()
+
+    filtered_tab_props = tab_props - excluded_props
+    filtered_live_props = live_props - excluded_props
+
+    assert len(filtered_tab_props) == len(cuda_base_properties)  # Ensure no duplicates.
+    assert filtered_tab_props == filtered_live_props  # Ensure exact match.

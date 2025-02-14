@@ -16,6 +16,7 @@ CUDA runtime
    _memory.Buffer
    _stream.Stream
    _event.Event
+   _device.DeviceProperties
 
 
 CUDA compilation toolchain

@@ -10,3 +10,4 @@ CUDA Python API Reference
    module/runtime
    module/nvrtc
    module/nvjitlink
+   module/nvvm
