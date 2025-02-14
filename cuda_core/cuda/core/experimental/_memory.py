@@ -361,7 +361,7 @@ class ShareableAllocator(MemoryResource):
         """
         # Create allocation properties for the device
         prop = driver.CUmemAllocationProp()
-        prop.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
         prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         prop.location.id = self._dev_id
 
