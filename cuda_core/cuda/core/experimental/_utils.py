@@ -38,7 +38,7 @@ def _check_error(error, handle=None):
         if err == driver.CUresult.CUDA_SUCCESS:
             stack = traceback.extract_stack()
             # Get the last 2 frames (excluding the current one)
-            relevant_stack = stack[-3:-1]
+            relevant_stack = stack[-4:-1]
             stack_info = "\n".join(
                 f"  File '{frame.filename}', line {frame.lineno}, in {frame.name}\n    {frame.line}"
                 for frame in relevant_stack
