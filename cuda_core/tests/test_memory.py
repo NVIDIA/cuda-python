@@ -224,7 +224,7 @@ def child_process(shared_handle, queue):
 
         # Import the shared memory pool
         print("creating a shared memory pool from a handle")
-        mr = SharedMempool(device.device_id, shared_handle=shared_handle)
+        mr = SharedMempool(0, shared_handle=shared_handle)
 
         # Allocate and write to buffer
         buffer = mr.allocate(64)
@@ -279,7 +279,7 @@ def test_shared_memory_resource():
 
     # Create shared memory pool
     pool_size = 64 * 64  # 1MB
-    mr = SharedMempool(device.device_id, max_size=pool_size)
+    mr = SharedMempool(0, max_size=pool_size)
 
     # Test basic allocation
     # buffer = mr.allocate(64)
@@ -314,7 +314,7 @@ def test_shared_memory_resource():
 
     # Run parent process logic
     print("creating a shared mempool for a sharable handle within the same parent proc")
-    # parent_process(device.device_id, shareable_handle, queue)
+    # parent_process(0, shareable_handle, queue)
 
     # Check for any exceptions from the child process
     if not queue.empty():
@@ -326,11 +326,13 @@ def test_shared_memory_resource():
 def child_process_allocator(size, handle, queue):
     try:
         # Initialize device in child process
-        device = Device()
-        device.set_current()
+        device = driver.cuDeviceGet(0)
+
+        # Create context with flags=0 for default stream behavior
+        driver.cuCtxCreate(0, device)
 
         # Create allocator and import buffer
-        alloc = ShareableAllocator(device.device_id)
+        alloc = ShareableAllocator(0)
         imported_buffer = alloc.import_shareable_allocation(size, handle)
 
         # Verify imported buffer properties
@@ -339,7 +341,7 @@ def child_process_allocator(size, handle, queue):
         assert imported_buffer.memory_resource == alloc
         assert imported_buffer.is_device_accessible
         assert not imported_buffer.is_host_accessible
-        assert imported_buffer.device_id == device.device_id
+        assert imported_buffer.device_id == 0
 
         # Clean up
         imported_buffer.close()
@@ -354,18 +356,21 @@ def test_sharable_allocator():
 
     # Initialize device
     print("Initializing device...")
-    device = Device()
-    device.set_current()
+    # Get the device handle
+    device = driver.cuDeviceGet(0)
+
+    # Create context with flags=0 for default stream behavior
+    driver.cuCtxCreate(0, device)
 
     print(
         "device.properties.virtual_memory_management_supported: ", device.properties.virtual_memory_management_supported
     )
     print("device.properties.can map: ", device.properties.can_map_host_memory)
-    print(f"Using device {device.device_id}")
+    print(f"Using device {0}")
 
     # Create allocator and get sharable allocation
     print("Creating ShareableAllocator...")
-    alloc = ShareableAllocator(device.device_id)
+    alloc = ShareableAllocator(0)
     size = 2097152
     print(f"Getting shareable allocation of size {size} bytes...")
     buffer, handle = alloc.get_shareable_allocation(size)
@@ -378,11 +383,11 @@ def test_sharable_allocator():
     assert buffer.memory_resource == alloc
     assert buffer.is_device_accessible
     assert not buffer.is_host_accessible
-    assert buffer.device_id == device.device_id
+    assert buffer.device_id == 0
     print("Buffer properties verified successfully")
 
     print("mock sharing on same process")
-    alloc = ShareableAllocator(device.device_id)
+    alloc = ShareableAllocator(0)
     imported_buffer = alloc.import_shareable_allocation(size, handle)
     print(imported_buffer)
     print("done mock sharing on same process")
