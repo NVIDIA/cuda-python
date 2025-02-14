@@ -32,9 +32,14 @@ class DeviceProperties:
         self._cache = {}
         return self
 
+    def _get_attribute(self, attr):
+        """Retrieve the attribute value directly from the driver."""
+        return handle_return(driver.cuDeviceGetAttribute(attr, self._handle))
+
     def _get_cached_attribute(self, attr):
+        """Retrieve the attribute value, using cache if applicable."""
         if attr not in self._cache:
-            self._cache[attr] = handle_return(driver.cuDeviceGetAttribute(attr, self._handle))
+            self._cache[attr] = self._get_attribute(attr)
         return self._cache[attr]
 
     @property
@@ -425,7 +430,7 @@ class DeviceProperties:
         """
         int: The typical clock frequency in kilohertz.
         """
-        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CLOCK_RATE)
+        return self._get_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CLOCK_RATE)
 
     @property
     def texture_alignment(self) -> int:
@@ -462,7 +467,7 @@ class DeviceProperties:
         """
         bool: True if there is a run time limit for kernels executed on the device, False if not.
         """
-        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT))
+        return bool(self._get_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT))
 
     @property
     def integrated(self) -> bool:
@@ -483,7 +488,7 @@ class DeviceProperties:
         """
         int: Compute mode that device is currently in.
         """
-        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_MODE)
+        return self._get_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_MODE)
 
     @property
     def concurrent_kernels(self) -> bool:
@@ -534,7 +539,7 @@ class DeviceProperties:
         """
         int: Peak memory clock frequency in kilohertz.
         """
-        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE)
+        return self._get_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE)
 
     @property
     def global_memory_bus_width(self) -> int:
@@ -646,12 +651,9 @@ class DeviceProperties:
     @property
     def single_to_double_precision_perf_ratio(self) -> int:
         """
-        Ratio of single precision performance (in floating-point operations per second) to double precision
-        performance.
+        Ratio of single precision performance to double precision performance.
         """
-        return self._get_cached_attribute(
-            driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SINGLE_TO_DOUBLE_PRECISION_PERF_RATIO
-        )
+        return self._get_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SINGLE_TO_DOUBLE_PRECISION_PERF_RATIO)
 
     @property
     def pageable_memory_access(self) -> bool:
