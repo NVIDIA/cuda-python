@@ -323,11 +323,11 @@ def test_shared_memory_resource():
             raise exception
 
 
-def child_process_allocator(size, handle, queue):
+def child_process_allocator(size, handle, ctx, queue):
     try:
         # Initialize device in child process
         device = Device()
-        device.set_current()
+        device.set_current(ctx)
 
         # Create allocator and import buffer
         alloc = ShareableAllocator(device.device_id)
@@ -355,7 +355,7 @@ def test_sharable_allocator():
     # Initialize device
     print("Initializing device...")
     device = Device()
-    device.set_current()
+    ctx = device.set_current()
     print(f"Using device {device.device_id}")
 
     # Create allocator and get sharable allocation
@@ -385,7 +385,7 @@ def test_sharable_allocator():
     print("Testing cross-process sharing...")
     queue = multiprocessing.Queue()
     print("Creating child process...")
-    process = multiprocessing.Process(target=child_process_allocator, args=(size, handle, queue))
+    process = multiprocessing.Process(target=child_process_allocator, args=(size, handle, ctx, queue))
     print("Starting child process...")
     process.start()
     print("Waiting for child process to complete...")
