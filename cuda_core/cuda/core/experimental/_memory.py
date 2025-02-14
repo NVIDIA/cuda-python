@@ -361,14 +361,29 @@ class ShareableAllocator(MemoryResource):
             used to import this allocation in another process
         """
         # Create allocation properties for the device
-
+        # Get minimum granularity for allocation
         prop = driver.CUmemAllocationProp()
         prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
         prop.location = driver.CUmemLocation()
         prop.location.id = self._dev_id
         prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         prop.requestedHandleTypes = _get_platform_handle_type()
-        prop.compressionType = driver.CUmemAllocationCompType.CU_MEM_ALLOCATION_COMP_NONE
+        _, granularity = handle_return(
+            driver.cuMemGetAllocationGranularity(
+                prop, driver.CUmemAllocationGranularity_flags.CU_MULTICAST_GRANULARITY_MINIMUM
+            )
+        )
+
+        # Size must be a multiple of granularity
+        if size % granularity != 0:
+            raise ValueError(f"Size {size} is not a multiple of minimum allocation granularity {granularity}")
+
+        # prop = driver.CUmemAllocationProp()
+        # prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+        # prop.location = driver.CUmemLocation()
+        # prop.location.id = self._dev_id
+        # prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        # prop.compressionType = driver.CUmemAllocationCompType.CU_MEM_ALLOCATION_COMP_NONE
 
         # Create the allocation
         print("creating a new shareable allocation")
