@@ -342,7 +342,7 @@ def child_process_allocator(size, handle, queue):
         assert imported_buffer.device_id == device.device_id
 
         # Clean up
-        # imported_buffer.close()
+        imported_buffer.close()
         queue.put(None)  # Signal success
 
     except Exception as e:
