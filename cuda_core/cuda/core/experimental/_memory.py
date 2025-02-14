@@ -242,6 +242,7 @@ class MemoryResource(abc.ABC):
 def _get_platform_handle_type() -> int:
     """Returns the appropriate handle type for the current platform."""
     system = platform.system()
+    return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
     print("system: ", system)
     if system == "Linux":
         return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
