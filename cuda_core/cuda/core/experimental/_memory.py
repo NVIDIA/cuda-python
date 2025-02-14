@@ -11,7 +11,7 @@ from typing import Optional, Tuple, TypeVar
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
-from cuda.core.experimental._utils import driver, handle_return, handle_return_with_context
+from cuda.core.experimental._utils import driver, handle_return
 
 PyCapsule = TypeVar("PyCapsule")
 
@@ -368,10 +368,11 @@ class ShareableAllocator(MemoryResource):
         prop.location.id = self._dev_id
         prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         prop.requestedHandleTypes = _get_platform_handle_type()
+        print(prop)
 
         # Create the allocation
         print("creating a new shareable allocation")
-        handle = handle_return_with_context(driver.cuMemCreate, size, prop, 0)
+        handle = handle_return(driver.cuMemCreate(size, prop, 0))
         print("created a new shareable allocation")
         # Get platform-specific handle type
         system = platform.system()

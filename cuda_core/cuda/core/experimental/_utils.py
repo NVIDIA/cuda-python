@@ -170,16 +170,3 @@ def get_binding_version():
     except importlib.metadata.PackageNotFoundError:
         major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
     return tuple(int(v) for v in major_minor)
-
-
-def handle_return_with_context(call, *args, **kwargs):
-    """Wraps a CUDA API call with additional context for error messages."""
-    try:
-        result = call(*args, **kwargs)
-        return result
-    except driver.CUDAError as e:
-        # Construct a detailed error message
-        arg_str = ", ".join([f"{arg}" for arg in args])
-        kwarg_str = ", ".join([f"{k}={v}" for k, v in kwargs.items()])
-        context = f"Function: {call.__name__}, Args: ({arg_str}), Kwargs: ({kwarg_str})"
-        raise driver.CUDAError(f"{e}: {context}")  # noqa B904
