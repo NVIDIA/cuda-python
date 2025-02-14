@@ -326,7 +326,7 @@ def test_shared_memory_resource():
 def child_process_allocator(size, handle, ctx, queue):
     try:
         # Initialize device in child process
-        device = Device()
+        device = Device(0)
         device.set_current(ctx)
 
         # Create allocator and import buffer
@@ -354,7 +354,7 @@ def test_sharable_allocator():
 
     # Initialize device
     print("Initializing device...")
-    device = Device()
+    device = Device(0)
     ctx = device.set_current()
     print(f"Using device {device.device_id}")
 
