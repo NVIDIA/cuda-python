@@ -242,7 +242,6 @@ class MemoryResource(abc.ABC):
 def _get_platform_handle_type() -> int:
     """Returns the appropriate handle type for the current platform."""
     system = platform.system()
-    return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
     print("system: ", system)
     if system == "Linux":
         return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
@@ -369,7 +368,7 @@ class ShareableAllocator(MemoryResource):
         prop.location.id = self._dev_id
         prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         prop.requestedHandleTypes = _get_platform_handle_type()
-        print(prop)
+        prop.compressionType = driver.CUmemCompressionType.CU_MEM_COMPRESSION_TYPE_NONE
 
         # Create the allocation
         print("creating a new shareable allocation")

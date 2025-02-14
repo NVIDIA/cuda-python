@@ -361,7 +361,7 @@ def test_sharable_allocator():
     # Create allocator and get sharable allocation
     print("Creating ShareableAllocator...")
     alloc = ShareableAllocator(device.device_id)
-    size = 1024 * 1024
+    size = 64
     print(f"Getting shareable allocation of size {size} bytes...")
     buffer, handle = alloc.get_shareable_allocation(size)
     print(f"Got buffer with handle {buffer.handle} and shareable handle {handle}")
