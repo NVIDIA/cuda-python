@@ -8,8 +8,6 @@ from collections import namedtuple
 from collections.abc import Sequence
 from typing import Callable, Dict
 
-from cuda import driver
-
 try:
     from cuda.bindings import driver, nvrtc, runtime
 except ImportError:
