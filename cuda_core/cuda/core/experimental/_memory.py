@@ -366,8 +366,9 @@ class ShareableAllocator(MemoryResource):
         prop.location.id = self._dev_id
 
         # Create the allocation
+        print("creating a new shareable allocation")
         handle = handle_return(driver.cuMemCreate(size, prop, 0))
-
+        print("created a new shareable allocation")
         # Get platform-specific handle type
         system = platform.system()
         if system == "Linux":
@@ -378,13 +379,19 @@ class ShareableAllocator(MemoryResource):
             raise RuntimeError(f"Unsupported platform: {system}")
 
         # Export a shareable handle
+        print("exporting a shareable handle")
         shareable_handle = handle_return(driver.cuMemExportToShareableHandle(handle, handle_type, 0))
+        print("exported a shareable handle")
 
         # Reserve virtual address space
+        print("reserving virtual address space")
         ptr = handle_return(driver.cuMemAddressReserve(size, 0, 0, 0))
+        print("reserved virtual address space")
 
         # Map allocation to address space
+        print("mapping allocation to address space")
         handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
+        print("mapped allocation to address space")
 
         # Set access permissions
         access_desc = driver.CUmemAccessDesc()
