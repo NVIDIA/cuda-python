@@ -368,7 +368,7 @@ class ShareableAllocator(MemoryResource):
         prop.location.id = self._dev_id
         prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         prop.requestedHandleTypes = _get_platform_handle_type()
-        _, granularity = handle_return(
+        granularity = handle_return(
             driver.cuMemGetAllocationGranularity(
                 prop, driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
             )
