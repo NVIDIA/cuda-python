@@ -361,10 +361,13 @@ class ShareableAllocator(MemoryResource):
             used to import this allocation in another process
         """
         # Create allocation properties for the device
+
         prop = driver.CUmemAllocationProp()
         prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+        prop.location = driver.CUmemLocation()
+        prop.location.id = self._dev_id
         prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-        prop.requestedHandleTypes = _get_platform_handle_type()
+        prop.requestedHandleTypes = driver.Cu_get_platform_handle_type()
         prop.location.id = self._dev_id
 
         # Create the allocation
