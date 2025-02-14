@@ -376,6 +376,11 @@ def test_sharable_allocator():
     assert buffer.device_id == device.device_id
     print("Buffer properties verified successfully")
 
+    print("mock sharing on same process")
+    alloc = ShareableAllocator(device.device_id)
+    imported_buffer = alloc.import_shareable_allocation(size, handle)
+    print(imported_buffer)
+    print("done mock sharing on same process")
     # Test cross-process sharing
     print("Testing cross-process sharing...")
     queue = multiprocessing.Queue()

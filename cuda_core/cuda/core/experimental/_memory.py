@@ -462,13 +462,13 @@ class ShareableAllocator(MemoryResource):
         print("Mapped allocation to address space")
 
         # Set access permissions
-        # print("Setting access permissions")
-        # access_desc = driver.CUmemAccessDesc()
-        # access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-        # access_desc.location.id = self._dev_id
-        # access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-        # handle_return(driver.cuMemSetAccess(ptr, size, access_desc, 1))
-        # print("Set access permissions")
+        print("Setting access permissions")
+        access_desc = driver.CUmemAccessDesc()
+        access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        access_desc.location.id = self._dev_id
+        access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        handle_return(driver.cuMemSetAccess(ptr, size, access_desc, 1))
+        print("Set access permissions")
 
         return Buffer(ptr, size, self)
 
