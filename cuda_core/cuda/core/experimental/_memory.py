@@ -446,7 +446,7 @@ class ShareableAllocator(MemoryResource):
             raise RuntimeError(f"Unsupported platform: {system}")
 
         # Import the handle into a memory allocation
-        handle = handle_return(driver.cuMemImportFromShareableHandle(shareable_handle, handle_type, 0))
+        handle = handle_return(driver.cuMemImportFromShareableHandle(shareable_handle, handle_type))
 
         # Reserve virtual address space
         ptr = handle_return(driver.cuMemAddressReserve(size, 0, 0, 0))
