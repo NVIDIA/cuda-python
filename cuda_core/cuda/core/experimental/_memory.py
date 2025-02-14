@@ -438,6 +438,7 @@ class ShareableAllocator(MemoryResource):
         """
         # Get platform-specific handle type
         system = platform.system()
+        print(f"Importing on platform: {system}")
         if system == "Linux":
             handle_type = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
         elif system == "Windows":
@@ -446,20 +447,28 @@ class ShareableAllocator(MemoryResource):
             raise RuntimeError(f"Unsupported platform: {system}")
 
         # Import the handle into a memory allocation
+        print("Importing shareable handle")
         handle = handle_return(driver.cuMemImportFromShareableHandle(shareable_handle, handle_type))
+        print("Imported shareable handle")
 
         # Reserve virtual address space
+        print("Reserving virtual address space")
         ptr = handle_return(driver.cuMemAddressReserve(size, 0, 0, 0))
+        print("Reserved virtual address space")
 
         # Map allocation to address space
+        print("Mapping allocation to address space")
         handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
+        print("Mapped allocation to address space")
 
         # Set access permissions
+        print("Setting access permissions")
         access_desc = driver.CUmemAccessDesc()
         access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         access_desc.location.id = self._dev_id
         access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
         handle_return(driver.cuMemSetAccess(ptr, size, access_desc, 1))
+        print("Set access permissions")
 
         return Buffer(ptr, size, self)
 
