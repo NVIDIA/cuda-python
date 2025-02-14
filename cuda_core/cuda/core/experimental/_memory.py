@@ -239,6 +239,18 @@ class MemoryResource(abc.ABC):
         ...
 
 
+def _get_platform_handle_type() -> int:
+    """Returns the appropriate handle type for the current platform."""
+    system = platform.system()
+    print("system: ", system)
+    if system == "Linux":
+        return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
+    elif system == "Windows":
+        return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32
+    else:
+        raise RuntimeError(f"Unsupported platform: {system}")
+
+
 class SharedMempool(MemoryResource):
     """A memory pool that can be shared between processes on the same device.
 
@@ -266,7 +278,7 @@ class SharedMempool(MemoryResource):
             # Import existing pool
             print("importing shared memory pool")
             self._handle = handle_return(
-                driver.cuMemPoolImportFromShareableHandle(shared_handle, self._get_platform_handle_type(), 0)
+                driver.cuMemPoolImportFromShareableHandle(shared_handle, _get_platform_handle_type(), 0)
             )
             print("imported shared memory pool")
         else:
@@ -276,7 +288,7 @@ class SharedMempool(MemoryResource):
 
             properties = driver.CUmemPoolProps()
             properties.allocType = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-            properties.handleTypes = self._get_platform_handle_type()
+            properties.handleTypes = _get_platform_handle_type()
 
             properties.location = driver.CUmemLocation()
             properties.location.id = dev_id
@@ -288,17 +300,6 @@ class SharedMempool(MemoryResource):
             self._handle = handle_return(driver.cuMemPoolCreate(properties))
             print("created a new shared memory pool")
 
-    def _get_platform_handle_type(self) -> int:
-        """Returns the appropriate handle type for the current platform."""
-        system = platform.system()
-        print("system: ", system)
-        if system == "Linux":
-            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
-        elif system == "Windows":
-            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32
-        else:
-            raise RuntimeError(f"Unsupported platform: {system}")
-
     def get_shareable_handle(self) -> int:
         """Get a platform-specific handle that can be shared with other processes.
 
@@ -308,7 +309,7 @@ class SharedMempool(MemoryResource):
             A shareable handle that can be used to import this memory pool
             in another process
         """
-        return handle_return(driver.cuMemPoolExportToShareableHandle(self._handle, self._get_platform_handle_type(), 0))
+        return handle_return(driver.cuMemPoolExportToShareableHandle(self._handle, _get_platform_handle_type(), 0))
 
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
@@ -363,6 +364,7 @@ class ShareableAllocator(MemoryResource):
         prop = driver.CUmemAllocationProp()
         prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
         prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        prop.requestedHandleTypes = _get_platform_handle_type()
         prop.location.id = self._dev_id
 
         # Create the allocation
