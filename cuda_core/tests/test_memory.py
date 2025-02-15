@@ -326,7 +326,8 @@ def test_shared_memory_resource():
 def child_process_allocator(size, handle, queue):
     try:
         # Create context with flags=0 for default stream behavior
-        driver.cuCtxCreate(0, 0)
+        device = Device()
+        device.set_current()
 
         # Create allocator and import buffer
         alloc = ShareableAllocator(0)
@@ -355,7 +356,8 @@ def test_sharable_allocator():
     print("Initializing device...")
 
     # Create context with flags=0 for default stream behavior
-    driver.cuCtxCreate(0, 0)
+    device = Device()
+    device.set_current()
 
     print(f"Using device {0}")
 
