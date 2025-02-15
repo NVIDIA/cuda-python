@@ -325,11 +325,8 @@ def test_shared_memory_resource():
 
 def child_process_allocator(size, handle, queue):
     try:
-        # Initialize device in child process
-        device = driver.cuDeviceGet(0)
-
         # Create context with flags=0 for default stream behavior
-        driver.cuCtxCreate(0, device)
+        driver.cuCtxCreate(0, 0)
 
         # Create allocator and import buffer
         alloc = ShareableAllocator(0)
@@ -356,16 +353,10 @@ def test_sharable_allocator():
 
     # Initialize device
     print("Initializing device...")
-    # Get the device handle
-    device = driver.cuDeviceGet(0)
 
     # Create context with flags=0 for default stream behavior
-    driver.cuCtxCreate(0, device)
+    driver.cuCtxCreate(0, 0)
 
-    print(
-        "device.properties.virtual_memory_management_supported: ", device.properties.virtual_memory_management_supported
-    )
-    print("device.properties.can map: ", device.properties.can_map_host_memory)
     print(f"Using device {0}")
 
     # Create allocator and get sharable allocation
