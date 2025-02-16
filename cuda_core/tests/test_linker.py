@@ -58,7 +58,9 @@ if not culink_backend:
     options += [
         LinkerOptions(arch=ARCH, time=True),
         LinkerOptions(arch=ARCH, optimize_unused_variables=True),
-        LinkerOptions(arch=ARCH, ptxas_options=["-v"]),
+        LinkerOptions(arch=ARCH, ptxas_options="-v"),
+        LinkerOptions(arch=ARCH, ptxas_options=["-v", "--verbose"]),
+        LinkerOptions(arch=ARCH, ptxas_options=("-v", "--verbose")),
         LinkerOptions(arch=ARCH, split_compile=0),
         LinkerOptions(arch=ARCH, split_compile_extended=1),
         # The following options are supported by nvjitlink and deprecated by culink
@@ -66,10 +68,12 @@ if not culink_backend:
         LinkerOptions(arch=ARCH, prec_div=True),
         LinkerOptions(arch=ARCH, prec_sqrt=True),
         LinkerOptions(arch=ARCH, fma=True),
-        LinkerOptions(arch=ARCH, kernels_used=["A"]),
+        LinkerOptions(arch=ARCH, kernels_used="A"),
         LinkerOptions(arch=ARCH, kernels_used=["C", "B"]),
-        LinkerOptions(arch=ARCH, variables_used=["var1"]),
+        LinkerOptions(arch=ARCH, kernels_used=("C", "B")),
+        LinkerOptions(arch=ARCH, variables_used="var1"),
         LinkerOptions(arch=ARCH, variables_used=["var1", "var2"]),
+        LinkerOptions(arch=ARCH, variables_used=("var1", "var2")),
     ]
     version = nvjitlink.version()
     if version >= (12, 5):
