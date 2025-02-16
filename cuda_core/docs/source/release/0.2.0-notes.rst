@@ -12,15 +12,19 @@ Highlights
 - Add :class:`~DeviceProperties` to provide pythonic access to device properties.
 - Add kernel attributes to :class:`~Kernel`
 
-Limitations
------------
-
-- <TODO>
-
 Breaking Changes
 ----------------
 
 - Change ``__cuda_stream__`` from attribute to method
 - The :meth:`~Program.compile` method no longer accepts the `options` argument. Instead, you can optionally pass an instance of :class:`~ProgramOptions` to the constructor of :obj:`~Program`.
-- The internal constructor of :class:`~ObjectCode` no longer accepts the jit_options argument. Options are provided to upstream :class:`~ProgramOptions` or :class:`~LinkerOptions` instead.
-- :meth: `~Device.properties` now provides an instance of :class:`~DeviceProperties` instead of a dictionary. 
+- :meth: `~Device.properties` now provides an instance of :class:`~DeviceProperties` instead of a dictionary.
+
+New features
+------------
+
+- Expose :class:`ObjectCode` as a public API, which allows loading cubins from memory or disk. For loading other kinds of code types, please continue using :class:`Program`.
+
+Limitations
+-----------
+
+- <TODO>

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from typing import Union
+from typing import Optional, Union
 from warnings import warn
 
 from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
@@ -236,12 +236,16 @@ class ObjectCode:
     module : Union[bytes, str]
         Either a bytes object containing the cubin to load, or
         a file path string pointing to the cubin to load.
+    symbol_mapping : Optional[dict]
+        A dictionary specifying how the unmangled symbol names (as keys)
+        should be mapped to the mangled names before trying to retrieve
+        them (default to no mappings).
     """
 
     __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self, module: Union[bytes, str]):
+    def __init__(self, module: Union[bytes, str], *, symbol_mapping: Optional[dict]=None):
         _lazy_init()
 
         # handle is assigned during _lazy_load
@@ -250,9 +254,9 @@ class ObjectCode:
         self._loader = _backend[self._backend_version]
         self._code_type = "cubin"
         self._module = module
-        self._sym_map = {}
+        self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
-    def _init(module, code_type, *, symbol_mapping=None):
+    def _init(module, code_type, *, symbol_mapping: Optional[dict]=None):
         self = ObjectCode.__new__(ObjectCode)
         if code_type not in self._supported_code_type:
             raise ValueError
@@ -278,9 +282,9 @@ class ObjectCode:
         module = self._module
         if isinstance(module, str):
             if self._backend_version == "new":
-                self._handle = handle_return(self._loader["file"](module, [], [], 0, [], [], 0))
+                self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
             else:  # "old" backend
-                self._handle = handle_return(self._loader["file"](module))
+                self._handle = handle_return(self._loader["file"](module.encode()))
         else:
             assert isinstance(module, bytes)
             if self._backend_version == "new":
