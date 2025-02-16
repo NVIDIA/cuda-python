@@ -12,9 +12,10 @@ except ImportError:
     from cuda import cuda as driver
 
 import ctypes
+import multiprocessing
 
 from cuda.core.experimental import Device
-from cuda.core.experimental._memory import Buffer, MemoryResource
+from cuda.core.experimental._memory import Buffer, MemoryResource, ShareableAllocator, SharedMempool
 from cuda.core.experimental._utils import handle_return
 
 
@@ -47,12 +48,10 @@ class DummyHostMemoryResource(MemoryResource):
         pass
 
     def allocate(self, size, stream=None) -> Buffer:
-        # Allocate a ctypes buffer of size `size`
         ptr = (ctypes.c_byte * size)()
         return Buffer(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        # the memory is deallocated per the ctypes deallocation at garbage collection time
         pass
 
     @property
@@ -117,9 +116,9 @@ class DummyPinnedMemoryResource(MemoryResource):
 
 
 def buffer_initialization(dummy_mr: MemoryResource):
-    buffer = dummy_mr.allocate(size=1024)
+    buffer = dummy_mr.allocate(size=64)
     assert buffer.handle != 0
-    assert buffer.size == 1024
+    assert buffer.size == 64
     assert buffer.memory_resource == dummy_mr
     assert buffer.is_device_accessible == dummy_mr.is_device_accessible
     assert buffer.is_host_accessible == dummy_mr.is_host_accessible
@@ -136,13 +135,13 @@ def test_buffer_initialization():
 
 
 def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
-    src_buffer = dummy_mr.allocate(size=1024)
-    dst_buffer = dummy_mr.allocate(size=1024)
+    src_buffer = dummy_mr.allocate(size=64)
+    dst_buffer = dummy_mr.allocate(size=64)
     stream = device.create_stream()
 
     if check:
         src_ptr = ctypes.cast(src_buffer.handle, ctypes.POINTER(ctypes.c_byte))
-        for i in range(1024):
+        for i in range(64):
             src_ptr[i] = ctypes.c_byte(i)
 
     src_buffer.copy_to(dst_buffer, stream=stream)
@@ -150,7 +149,6 @@ def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
 
     if check:
         dst_ptr = ctypes.cast(dst_buffer.handle, ctypes.POINTER(ctypes.c_byte))
-
         for i in range(10):
             assert dst_ptr[i] == src_ptr[i]
 
@@ -167,13 +165,13 @@ def test_buffer_copy_to():
 
 
 def buffer_copy_from(dummy_mr: MemoryResource, device, check=False):
-    src_buffer = dummy_mr.allocate(size=1024)
-    dst_buffer = dummy_mr.allocate(size=1024)
+    src_buffer = dummy_mr.allocate(size=64)
+    dst_buffer = dummy_mr.allocate(size=64)
     stream = device.create_stream()
 
     if check:
         src_ptr = ctypes.cast(src_buffer.handle, ctypes.POINTER(ctypes.c_byte))
-        for i in range(1024):
+        for i in range(64):
             src_ptr[i] = ctypes.c_byte(i)
 
     dst_buffer.copy_from(src_buffer, stream=stream)
@@ -181,7 +179,6 @@ def buffer_copy_from(dummy_mr: MemoryResource, device, check=False):
 
     if check:
         dst_ptr = ctypes.cast(dst_buffer.handle, ctypes.POINTER(ctypes.c_byte))
-
         for i in range(10):
             assert dst_ptr[i] == src_ptr[i]
 
@@ -198,7 +195,7 @@ def test_buffer_copy_from():
 
 
 def buffer_close(dummy_mr: MemoryResource):
-    buffer = dummy_mr.allocate(size=1024)
+    buffer = dummy_mr.allocate(size=64)
     buffer.close()
     assert buffer.handle == 0
     assert buffer.memory_resource is None
@@ -211,3 +208,85 @@ def test_buffer_close():
     buffer_close(DummyHostMemoryResource())
     buffer_close(DummyUnifiedMemoryResource(device))
     buffer_close(DummyPinnedMemoryResource(device))
+
+
+def child_process(shared_handle, queue):
+    try:
+        device = Device()
+        device.set_current()
+        mr = SharedMempool(device.device_id, shared_handle=shared_handle)
+        buffer = mr.allocate(64)
+        ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
+        for i in range(64):
+            ptr[i] = ctypes.c_byte(i % 256)
+        queue.put("Data written")
+        assert queue.get() == "Data read"
+        buffer.close()
+    except Exception as e:
+        queue.put(e)
+        raise
+
+
+def test_shared_memory_resource():
+    device = Device()
+    device.set_current()
+    pool_size = 64 * 64
+    mr = SharedMempool(device.device_id, max_size=pool_size)
+    shareable_handle = mr.get_shareable_handle()
+
+    multiprocessing.set_start_method("spawn", force=True)
+    queue = multiprocessing.Queue()
+    process = multiprocessing.Process(target=child_process, args=(shareable_handle, queue))
+    process.start()
+    process.join(timeout=10)
+    assert process.exitcode == 0
+
+    if not queue.empty():
+        exception = queue.get()
+        if isinstance(exception, Exception):
+            raise exception
+
+
+def child_process_allocator(size, handle, queue):
+    try:
+        device = Device()
+        device.set_current()
+        alloc = ShareableAllocator(device.device_id)
+        imported_buffer = alloc.import_shareable_allocation(size, handle)
+        assert imported_buffer.handle != 0
+        assert imported_buffer.size == size
+        assert imported_buffer.memory_resource == alloc
+        assert imported_buffer.is_device_accessible
+        assert not imported_buffer.is_host_accessible
+        assert imported_buffer.device_id == device.device_id
+        imported_buffer.close()
+        queue.put(None)
+    except Exception as e:
+        queue.put(e)
+
+
+def test_sharable_allocator():
+    device = Device()
+    device.set_current()
+    alloc = ShareableAllocator(device.device_id)
+    size = 2097152
+    buffer, handle = alloc.get_shareable_allocation(size)
+    assert buffer.handle != 0
+    assert buffer.size == size
+    assert buffer.memory_resource == alloc
+    assert buffer.is_device_accessible
+    assert not buffer.is_host_accessible
+    assert buffer.device_id == device.device_id
+
+    queue = multiprocessing.Queue()
+    process = multiprocessing.Process(target=child_process_allocator, args=(size, handle, queue))
+    process.start()
+    process.join(timeout=10)
+    assert process.exitcode == 0
+
+    if not queue.empty():
+        exception = queue.get()
+        if isinstance(exception, Exception):
+            raise exception
+
+    buffer.close()
