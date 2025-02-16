@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-
+from typing import Union
 from warnings import warn
 
 from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
@@ -222,38 +222,44 @@ class ObjectCode:
 
     Note
     ----
+    The public constructor assumes that ``module`` is of code type "cubin".
+    For all other possible code types (ex: "ptx"), only :class:`~cuda.core.experimental.Program`
+    accepts them and returns an `ObjectCode` instance with its ``compile`` method.
+
+    Note
+    ----
     Usage under CUDA 11.x will only load to the current device
     context.
 
     Parameters
     ----------
     module : Union[bytes, str]
-        Either a bytes object containing the module to load, or
-        a file path string containing that module for loading.
-    code_type : Any
-        String of the compiled type.
-        Supported options are "ptx", "cubin", "ltoir" and "fatbin".
-    jit_options : Optional
-        Mapping of JIT options to use during module loading.
-        (Default to no options)
-    symbol_mapping : Optional
-        Keyword argument dictionary specifying how symbol names
-        should be mapped before trying to retrieve them.
-        (Default to no mappings)
-
+        Either a bytes object containing the cubin to load, or
+        a file path string pointing to the cubin to load.
     """
 
-    __slots__ = ("_handle", "_backend_version", "_jit_options", "_code_type", "_module", "_loader", "_sym_map")
+    __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self, module, code_type, jit_options=None, *, symbol_mapping=None):
+    def __init__(self, module: Union[bytes, str]):
+        _lazy_init()
+
+        # handle is assigned during _lazy_load
+        self._handle = None
+        self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
+        self._loader = _backend[self._backend_version]
+        self._code_type = "cubin"
+        self._module = module
+        self._sym_map = {}
+
+    def _init(module, code_type, *, symbol_mapping=None):
+        self = ObjectCode.__new__(ObjectCode)
         if code_type not in self._supported_code_type:
             raise ValueError
         _lazy_init()
 
         # handle is assigned during _lazy_load
         self._handle = None
-        self._jit_options = jit_options
 
         self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
         self._loader = _backend[self._backend_version]
@@ -262,6 +268,8 @@ class ObjectCode:
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
+        return self
+
     # TODO: do we want to unload in a finalizer? Probably not..
 
     def _lazy_load_module(self, *args, **kwargs):
@@ -269,7 +277,10 @@ class ObjectCode:
             return
         module = self._module
         if isinstance(module, str):
-            self._handle = handle_return(self._loader["file"](module))
+            if self._backend_version == "new":
+                self._handle = handle_return(self._loader["file"](module, [], [], 0, [], [], 0))
+            else:  # "old" backend
+                self._handle = handle_return(self._loader["file"](module))
         else:
             assert isinstance(module, bytes)
             if self._backend_version == "new":
