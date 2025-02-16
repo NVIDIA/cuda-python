@@ -245,7 +245,7 @@ class ObjectCode:
     __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self, module: Union[bytes, str], *, symbol_mapping: Optional[dict]=None):
+    def __init__(self, module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None):
         _lazy_init()
 
         # handle is assigned during _lazy_load
@@ -256,7 +256,7 @@ class ObjectCode:
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
-    def _init(module, code_type, *, symbol_mapping: Optional[dict]=None):
+    def _init(module, code_type, *, symbol_mapping: Optional[dict] = None):
         self = ObjectCode.__new__(ObjectCode)
         if code_type not in self._supported_code_type:
             raise ValueError

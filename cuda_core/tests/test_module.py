@@ -90,7 +90,7 @@ def test_object_code_load_cubin(get_saxpy_kernel):
     sym_map = mod._sym_map
     assert isinstance(cubin, bytes)
     mod = ObjectCode(cubin, symbol_mapping=sym_map)
-    ker = mod.get_kernel("saxpy<double>")
+    mod.get_kernel("saxpy<double>")  # force loading
 
 
 def test_object_code_load_cubin_from_file(get_saxpy_kernel, tmp_path):
@@ -101,4 +101,4 @@ def test_object_code_load_cubin_from_file(get_saxpy_kernel, tmp_path):
     cubin_file = tmp_path / "test.cubin"
     cubin_file.write_bytes(cubin)
     mod = ObjectCode(str(cubin_file), symbol_mapping=sym_map)
-    ker = mod.get_kernel("saxpy<double>")
+    mod.get_kernel("saxpy<double>")  # force loading
