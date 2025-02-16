@@ -126,10 +126,22 @@ def test_linker_link_invalid_target_type(compile_ptx_functions):
 
 def test_linker_get_error_log(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)
-    linker = Linker(*compile_ptx_functions, options=options)
-    linker.link("cubin")
-    log = linker.get_error_log()
-    assert isinstance(log, str)
+
+    replacement_kernel = """
+extern __device__ int Z();
+extern __device__ int C(int a, int b);
+__global__ void A() { int result = C(Z(), 1);}
+"""
+    dummy_program = Program(replacement_kernel, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    linker = Linker(dummy_program, compile_ptx_functions[1], compile_ptx_functions[2], options=options)
+    try:
+        linker.link("cubin")
+
+    except:  # noqa E722
+        log = linker.get_error_log()
+        # TODO when 4902246 is addressed, we can update this to cover nvjitlink as well
+        if culink_backend:
+            assert log.rstrip("\x00") == "error   : Undefined reference to '_Z1Zv' in 'None_ptx'"
 
 
 def test_linker_get_info_log(compile_ptx_functions):
@@ -137,4 +149,5 @@ def test_linker_get_info_log(compile_ptx_functions):
     linker = Linker(*compile_ptx_functions, options=options)
     linker.link("cubin")
     log = linker.get_info_log()
+    print(log)
     assert isinstance(log, str)
