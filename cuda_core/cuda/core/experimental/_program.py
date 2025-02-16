@@ -12,6 +12,7 @@ from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils import (
     _handle_boolean_option,
     check_or_create_options,
+    driver,
     handle_return,
     is_nested_sequence,
     is_sequence,
@@ -378,6 +379,23 @@ class Program:
                 raise TypeError("c++ Program expects code argument to be a string")
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
+
+            supported_archs = handle_return(nvrtc.nvrtcGetSupportedArchs())
+
+            if options is not None:
+                arch_not_supported = (
+                    options.arch is not None and int(options.arch.split("_")[-1]) not in supported_archs
+                )
+                default_arch_not_supported = (
+                    options.arch is None
+                    and 10 * Device().compute_capability[0] + Device().compute_capability[1] not in supported_archs
+                )
+
+                if arch_not_supported or default_arch_not_supported:
+                    raise ValueError(
+                        f"The provided arch, or default arch (that of the current device) "
+                        f"is not supported by the current backend. Supported architectures: {supported_archs}"
+                    )
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
             self._backend = "nvrtc"
             self._linker = None
@@ -440,6 +458,12 @@ class Program:
             raise NotImplementedError
 
         if self._backend == "nvrtc":
+            version = handle_return(nvrtc.nvrtcVersion())
+            if handle_return(driver.cuDriverGetVersion()) > version[0] * 1000 + version[1] * 10:
+                raise RuntimeError(
+                    "The CUDA driver version is newer than the NVRTC version. "
+                    "Please update your NVRTC library to match the CUDA driver version."
+                )
             if name_expressions:
                 for n in name_expressions:
                     handle_return(
