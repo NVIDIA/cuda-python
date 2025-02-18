@@ -1,7 +1,7 @@
-﻿cuda.core.experimental.\_module.ObjectCode
-==========================================
+﻿cuda.core.experimental.ObjectCode
+=================================
 
-.. currentmodule:: cuda.core.experimental._module
+.. currentmodule:: cuda.core.experimental
 
 .. autoclass:: ObjectCode
 
