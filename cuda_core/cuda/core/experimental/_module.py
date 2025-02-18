@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-
+from typing import Optional, Union
 from warnings import warn
 
 from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
@@ -213,47 +213,42 @@ class Kernel:
 
 
 class ObjectCode:
-    """Represent a compiled program that was loaded onto the device.
+    """Represent a compiled program to be loaded onto the device.
 
     This object provides a unified interface for different types of
-    compiled programs that are loaded onto the device.
+    compiled programs that will be loaded onto the device.
 
-    Loads the module library with specified module code and JIT options.
+    Note
+    ----
+    This class has no default constructor. If you already have a cubin that you would
+    like to load, use the :meth:`from_cubin` alternative constructor. For all other
+    possible code types (ex: "ptx"), only :class:`~cuda.core.experimental.Program`
+    accepts them and returns an :class:`ObjectCode` instance with its
+    :meth:`~cuda.core.experimental.Program.compile` method.
 
     Note
     ----
     Usage under CUDA 11.x will only load to the current device
     context.
-
-    Parameters
-    ----------
-    module : Union[bytes, str]
-        Either a bytes object containing the module to load, or
-        a file path string containing that module for loading.
-    code_type : Any
-        String of the compiled type.
-        Supported options are "ptx", "cubin", "ltoir" and "fatbin".
-    jit_options : Optional
-        Mapping of JIT options to use during module loading.
-        (Default to no options)
-    symbol_mapping : Optional
-        Keyword argument dictionary specifying how symbol names
-        should be mapped before trying to retrieve them.
-        (Default to no mappings)
-
     """
 
-    __slots__ = ("_handle", "_backend_version", "_jit_options", "_code_type", "_module", "_loader", "_sym_map")
+    __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self, module, code_type, jit_options=None, *, symbol_mapping=None):
-        if code_type not in self._supported_code_type:
-            raise ValueError
+    def __init__(self):
+        raise NotImplementedError(
+            "directly creating an ObjectCode object can be ambiguous. Please either call Program.compile() "
+            "or one of the ObjectCode.from_*() constructors"
+        )
+
+    @staticmethod
+    def _init(module, code_type, *, symbol_mapping: Optional[dict] = None):
+        self = ObjectCode.__new__(ObjectCode)
+        assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
 
         # handle is assigned during _lazy_load
         self._handle = None
-        self._jit_options = jit_options
 
         self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
         self._loader = _backend[self._backend_version]
@@ -262,42 +257,41 @@ class ObjectCode:
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
+        return self
+
+    @staticmethod
+    def from_cubin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing cubin.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory cubin to load, or
+            a file path string pointing to the on-disk cubin to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
+
     # TODO: do we want to unload in a finalizer? Probably not..
 
     def _lazy_load_module(self, *args, **kwargs):
         if self._handle is not None:
             return
-        jit_options = self._jit_options
         module = self._module
         if isinstance(module, str):
-            # TODO: this option is only taken by the new library APIs, but we have
-            # a bug that we can't easily support it just yet (NVIDIA/cuda-python#73).
-            if jit_options is not None:
-                raise ValueError
-            self._handle = handle_return(self._loader["file"](module))
+            if self._backend_version == "new":
+                self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
+            else:  # "old" backend
+                self._handle = handle_return(self._loader["file"](module.encode()))
         else:
             assert isinstance(module, bytes)
-            if jit_options is None:
-                jit_options = {}
             if self._backend_version == "new":
-                args = (
-                    module,
-                    list(jit_options.keys()),
-                    list(jit_options.values()),
-                    len(jit_options),
-                    # TODO: support library options
-                    [],
-                    [],
-                    0,
-                )
+                self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
             else:  # "old" backend
-                args = (
-                    module,
-                    len(jit_options),
-                    list(jit_options.keys()),
-                    list(jit_options.values()),
-                )
-            self._handle = handle_return(self._loader["data"](*args))
+                self._handle = handle_return(self._loader["data"](module, 0, [], []))
 
     @precondition(_lazy_load_module)
     def get_kernel(self, name):
@@ -314,6 +308,8 @@ class ObjectCode:
             Newly created kernel object.
 
         """
+        if self._code_type not in ("cubin", "ptx", "fatbin"):
+            raise RuntimeError(f"get_kernel() is not supported for {self._code_type}")
         try:
             name = self._sym_map[name]
         except KeyError:
@@ -321,5 +317,3 @@ class ObjectCode:
 
         data = handle_return(self._loader["kernel"](self._handle, name))
         return Kernel._from_obj(data, self)
-
-    # TODO: implement from_handle()
