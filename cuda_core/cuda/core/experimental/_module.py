@@ -213,53 +213,38 @@ class Kernel:
 
 
 class ObjectCode:
-    """Represent a compiled program that was loaded onto the device.
+    """Represent a compiled program to be loaded onto the device.
 
     This object provides a unified interface for different types of
-    compiled programs that are loaded onto the device.
-
-    Loads the module library with specified module code and JIT options.
+    compiled programs that will be loaded onto the device.
 
     Note
     ----
-    The public constructor assumes that ``module`` is of code type "cubin".
-    For all other possible code types (ex: "ptx"), only :class:`~cuda.core.experimental.Program`
-    accepts them and returns an `ObjectCode` instance with its ``compile`` method.
+    This class has no default constructor. If you already have a cubin that you would
+    like to load, use the :meth:`from_cubin` alternative constructor. For all other
+    possible code types (ex: "ptx"), only :class:`~cuda.core.experimental.Program`
+    accepts them and returns an :class:`ObjectCode` instance with its
+    :meth:`~cuda.core.experimental.Program.compile` method.
 
     Note
     ----
     Usage under CUDA 11.x will only load to the current device
     context.
-
-    Parameters
-    ----------
-    module : Union[bytes, str]
-        Either a bytes object containing the cubin to load, or
-        a file path string pointing to the cubin to load.
-    symbol_mapping : Optional[dict]
-        A dictionary specifying how the unmangled symbol names (as keys)
-        should be mapped to the mangled names before trying to retrieve
-        them (default to no mappings).
     """
 
     __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self, module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None):
-        _lazy_init()
+    def __init__(self):
+        raise NotImplementedError(
+            "directly creating an ObjectCode object can be ambiguous. Please either call Program.compile() "
+            "or one of the ObjectCode.from_*() constructors"
+        )
 
-        # handle is assigned during _lazy_load
-        self._handle = None
-        self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
-        self._loader = _backend[self._backend_version]
-        self._code_type = "cubin"
-        self._module = module
-        self._sym_map = {} if symbol_mapping is None else symbol_mapping
-
+    @staticmethod
     def _init(module, code_type, *, symbol_mapping: Optional[dict] = None):
         self = ObjectCode.__new__(ObjectCode)
-        if code_type not in self._supported_code_type:
-            raise ValueError
+        assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
 
         # handle is assigned during _lazy_load
@@ -273,6 +258,22 @@ class ObjectCode:
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
         return self
+
+    @staticmethod
+    def from_cubin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing cubin.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory cubin to load, or
+            a file path string pointing to the on-disk cubin to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
@@ -307,6 +308,8 @@ class ObjectCode:
             Newly created kernel object.
 
         """
+        if self._code_type not in ("cubin", "ptx", "fatbin"):
+            raise RuntimeError(f"get_kernel() is not supported for {self._code_type}")
         try:
             name = self._sym_map[name]
         except KeyError:
@@ -314,5 +317,3 @@ class ObjectCode:
 
         data = handle_return(self._loader["kernel"](self._handle, name))
         return Kernel._from_obj(data, self)
-
-    # TODO: implement from_handle()
