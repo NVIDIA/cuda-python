@@ -57,7 +57,7 @@ __global__ void vector_sub(const float* A,
 }
 """
 arch1 = "".join(f"{i}" for i in dev1.compute_capability)
-prog_sub = Program(code_sub, code_type="c++", options={"std": "c++17", "arch": f"sm_{arch0}"})
+prog_sub = Program(code_sub, code_type="c++", options={"std": "c++17", "arch": f"sm_{arch1}"})
 mod_sub = prog_sub.compile("cubin")
 ker_sub = mod_sub.get_kernel("vector_sub")
 
