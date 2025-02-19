@@ -28,20 +28,22 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     runs-on: ${{ (inputs.runner == 'default' && inputs.host-platform == 'win-64' && 'cuda-python-windows-gpu-github') }}
     steps:
-      # TODO: need to roll our own script... this is from:
-      # https://cloud.google.com/compute/docs/gpus/install-drivers-gpu#install-script
-      - name: Update driver
-        run: |
-          Invoke-WebRequest https://github.com/GoogleCloudPlatform/compute-gpu-installation/raw/main/windows/install_gpu_driver.ps1 -OutFile C:\install_gpu_driver.ps1
-          C:\install_gpu_driver.ps1
-
-      - name: Ensure GPU is working
-        run: nvidia-smi
-
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Update driver
+        run: |
+          .github/workflows/install_gpu_driver.ps1
+
+      - name: Ensure GPU is working
+        run: nvidia-smi
+
+      - name: Check repo
+        run: |
+          Get-ChildItem -Path .
+          Get-ChildItem -Path $PWD.Path
 
       - name: Set environment variables
         run: |
