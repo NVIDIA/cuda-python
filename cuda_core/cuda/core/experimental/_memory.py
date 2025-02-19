@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import abc
+import platform
 import weakref
 from typing import Optional, Tuple, TypeVar
 
@@ -236,6 +237,241 @@ class MemoryResource(abc.ABC):
         # Return the device ID if this MR is for single devices. Raise an
         # exception if it is not.
         ...
+
+
+def _get_platform_handle_type() -> int:
+    """Returns the appropriate handle type for the current platform."""
+    system = platform.system()
+    if system == "Linux":
+        return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
+    elif system == "Windows":
+        return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32
+    else:
+        raise RuntimeError(f"Unsupported platform: {system}")
+
+
+class SharedMempool(MemoryResource):
+    """A memory pool that can be shared between processes on the same device.
+
+    This class creates a CUDA memory pool that can be exported and imported
+    across process boundaries, enabling efficient memory sharing between processes.
+
+    Parameters
+    ----------
+    dev_id : int
+        The ID of the GPU device where the memory pool will be created
+    max_size : int, optional
+        Maximum size in bytes that the memory pool can grow to. Only used when creating
+        a new pool (not when importing)
+    shared_handle : int, optional
+        A platform-specific handle to import an existing memory pool. If provided,
+        max_size is ignored and the pool is imported instead of created
+    """
+
+    __slots__ = ("_dev_id", "_handle")
+
+    def __init__(self, dev_id: int, max_size: Optional[int] = None, shared_handle: Optional[int] = None) -> None:
+        self._dev_id = dev_id
+
+        if shared_handle is not None:
+            # Import existing pool
+            self._handle = handle_return(
+                driver.cuMemPoolImportFromShareableHandle(shared_handle, _get_platform_handle_type(), 0)
+            )
+        else:
+            # Create new pool
+            if max_size is None:
+                raise ValueError("max_size must be provided when creating a new memory pool")
+
+            properties = driver.CUmemPoolProps()
+            properties.allocType = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+            properties.handleTypes = _get_platform_handle_type()
+
+            properties.location = driver.CUmemLocation()
+            properties.location.id = dev_id
+            properties.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+            properties.maxSize = max_size
+            properties.win32SecurityAttributes = 0
+            properties.usage = 0
+
+            self._handle = handle_return(driver.cuMemPoolCreate(properties))
+
+    def get_shareable_handle(self) -> int:
+        """Get a platform-specific handle that can be shared with other processes.
+
+        Returns
+        -------
+        int
+            A shareable handle that can be used to import this memory pool
+            in another process
+        """
+        return handle_return(driver.cuMemPoolExportToShareableHandle(self._handle, _get_platform_handle_type(), 0))
+
+    def allocate(self, size, stream=None) -> Buffer:
+        if stream is None:
+            stream = default_stream()
+        ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, self._handle, stream.handle))
+        return Buffer(ptr, size, self)
+
+    def deallocate(self, ptr, size, stream=None):
+        if stream is None:
+            stream = default_stream()
+        handle_return(driver.cuMemFreeAsync(ptr, stream.handle))
+
+    @property
+    def is_device_accessible(self) -> bool:
+        """Whether memory from this pool is accessible from device code."""
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        """Whether memory from this pool is accessible from host code."""
+        return False
+
+    @property
+    def device_id(self) -> int:
+        """The ID of the GPU device this memory pool is associated with."""
+        return self._dev_id
+
+
+class ShareableAllocator(MemoryResource):
+    """Memory resource that creates allocations that can be shared between processes."""
+
+    __slots__ = ("_dev_id",)
+
+    def __init__(self, dev_id):
+        self._dev_id = dev_id
+
+    def get_shareable_allocation(self, size) -> tuple[Buffer, int]:
+        """Create an allocation that can be shared between processes.
+
+        Parameters
+        ----------
+        size : int
+            Size of the allocation in bytes
+
+        Returns
+        -------
+        tuple[Buffer, int]
+            A tuple containing the Buffer object and a shareable handle that can be
+            used to import this allocation in another process
+        """
+        # Create allocation properties for the device
+        # Get minimum granularity for allocation
+        prop = driver.CUmemAllocationProp()
+        prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+        prop.location = driver.CUmemLocation()
+        prop.location.id = self._dev_id
+        prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        prop.requestedHandleTypes = _get_platform_handle_type()
+        granularity = handle_return(
+            driver.cuMemGetAllocationGranularity(
+                prop, driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
+            )
+        )
+        # Size must be a multiple of granularity
+        if size % granularity != 0:
+            raise ValueError(f"Size {size} is not a multiple of minimum allocation granularity {granularity}")
+
+        # Create the allocation
+        handle = handle_return(driver.cuMemCreate(size, prop, 0))
+
+        # Export a shareable handle
+        shareable_handle = handle_return(driver.cuMemExportToShareableHandle(handle, _get_platform_handle_type(), 0))
+
+        # Reserve virtual address space
+        ptr = handle_return(driver.cuMemAddressReserve(size, 0, 0, 0))
+
+        # Map allocation to address space
+        handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
+
+        # Set access permissions
+        access_desc = driver.CUmemAccessDesc()
+        access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        access_desc.location.id = self._dev_id
+        access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        handle_return(driver.cuMemSetAccess(ptr, size, [access_desc], 1))
+
+        return Buffer(ptr, size, self), shareable_handle
+
+    def import_shareable_allocation(self, size: int, shareable_handle: int) -> Buffer:
+        """Import a shareable allocation from another process.
+
+        Parameters
+        ----------
+        size : int
+            Size of the allocation in bytes
+        shareable_handle : int
+            Handle obtained from get_shareable_allocation in another process
+
+        Returns
+        -------
+        Buffer
+            A Buffer object that can access the imported allocation
+        """
+        # Import the handle into a memory allocation
+        handle = handle_return(driver.cuMemImportFromShareableHandle(shareable_handle, _get_platform_handle_type()))
+
+        # Reserve virtual address space
+        ptr = handle_return(driver.cuMemAddressReserve(size, 0, 0, 0))
+
+        # Map allocation to address space
+        handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
+
+        # Set access permissions
+        access_desc = driver.CUmemAccessDesc()
+        access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        access_desc.location.id = 0
+        access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        handle_return(driver.cuMemSetAccess(ptr, size, [access_desc], 1))
+
+        return Buffer(ptr, size, self)
+
+    def allocate(self, size, stream=None) -> Buffer:
+        """Allocate memory that is accessible only from the device."""
+        # Create allocation properties for the device
+        prop = driver.CUmemAllocationProp()
+        prop.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        prop.location.id = self._dev_id
+
+        # Create the allocation
+        handle = handle_return(driver.cuMemCreate(size, prop, 0))
+
+        # Reserve virtual address space
+        ptr = handle_return(driver.cuMemAddressReserve(size, 0, 0, 0))
+
+        # Map allocation to address space
+        handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
+
+        # Set access permissions
+        access_desc = driver.CUmemAccessDesc()
+        access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        access_desc.location.id = self._dev_id
+        access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        handle_return(driver.cuMemSetAccess(ptr, size, access_desc, 1))
+
+        return Buffer(ptr, size, self)
+
+    def deallocate(self, ptr, size, stream=None):
+        """Free allocated memory."""
+        handle_return(driver.cuMemUnmap(ptr, size))
+        handle_return(driver.cuMemAddressFree(ptr, size))
+
+    @property
+    def is_device_accessible(self) -> bool:
+        """Whether memory from this allocator is accessible from device code."""
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        """Whether memory from this allocator is accessible from host code."""
+        return False
+
+    @property
+    def device_id(self) -> int:
+        """The ID of the GPU device this allocator is associated with."""
+        return self._dev_id
 
 
 class _DefaultAsyncMempool(MemoryResource):
