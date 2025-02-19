@@ -11,7 +11,7 @@ from typing import Optional, Tuple, TypeVar
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
-from cuda.core.experimental._utils import driver, handle_return
+from cuda.core.experimental._utils import driver, handle_return, runtime
 
 PyCapsule = TypeVar("PyCapsule")
 
@@ -392,7 +392,7 @@ class ShareableAllocator(MemoryResource):
         access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
         access_descs = [access_desc]
         handle_return(driver.cuMemSetAccess(ptr, size, access_descs, len(access_descs)))
-
+        handle_return(runtime.cudaGetLastError())
         return Buffer(ptr, size, self), shareable_handle
 
     def import_shareable_allocation(self, size: int, shareable_handle: int) -> Buffer:
@@ -410,12 +410,13 @@ class ShareableAllocator(MemoryResource):
         Buffer
             A Buffer object that can access the imported allocation
         """
+        handle_return(runtime.cudaGetLastError())
         # Import the handle into a memory allocation
         handle = handle_return(driver.cuMemImportFromShareableHandle(shareable_handle, _get_platform_handle_type()))
-
+        handle_return(runtime.cudaGetLastError())
         # Reserve virtual address space
         ptr = handle_return(driver.cuMemAddressReserve(size, 0, 0, 0))
-
+        handle_return(runtime.cudaGetLastError())
         # Map allocation to address space
         handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
 
