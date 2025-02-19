@@ -168,7 +168,7 @@ jobs:
             Get-ChildItem $env:CUDA_PATH
             pip install *.whl
           } else {
-            pip install (Get-ChildItem -Filter *.whl | Select-Object -ExpandProperty Name -First 1)[all]
+            pip install "(Get-ChildItem -Filter *.whl | Select-Object -ExpandProperty Name -First 1)[all]"
           }
           Pop-Location
 
@@ -182,31 +182,12 @@ jobs:
         run: |
           # If build/test majors match: cuda.bindings is installed in the previous step.
           # If mismatch: cuda.bindings is installed from the backport branch.
-          if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
-            pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-            if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
-              pip install *.whl
-            else
-              pip install $(ls *.whl)[all]
-            fi
-            popd
-          fi
-          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})"
-          pushd "${CUDA_CORE_ARTIFACTS_DIR}"
-          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
-          popd
-
-          pushd ./cuda_core
-          pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
-          pytest -rxXs tests/
-          popd
-
           if ($env:SKIP_CUDA_BINDINGS_TEST -eq '1') {
             Push-Location $env:CUDA_BINDINGS_ARTIFACTS_DIR
             if ('${{ inputs.local-ctk }}' -eq '1') {
               pip install *.whl
             } else {
-              pip install (Get-ChildItem -Filter *.whl | Select-Object -ExpandProperty Name -First 1)[all]
+              pip install "(Get-ChildItem -Filter *.whl | Select-Object -ExpandProperty Name -First 1)[all]"
             }
             Pop-Location
           }
@@ -225,5 +206,5 @@ jobs:
           if ('${{ inputs.local-ctk }}' -eq '1') {
             pip install cuda_python*.whl
           } else {
-            pip install (Get-ChildItem -Filter cuda_python*.whl | Select-Object -ExpandProperty Name -First 1)[all]
+            pip install "(Get-ChildItem -Filter cuda_python*.whl | Select-Object -ExpandProperty Name -First 1)[all]"
           }
