@@ -254,13 +254,13 @@ def child_process_allocator(size, handle, queue):
     device.set_current()
 
     err = runtime.cudaGetLastError()
-    if err != runtime.cudaSuccess:
+    if err != driver.CUresult.CUDA_SUCCESS:
         raise RuntimeError(f"CUDA error after device setup: {err}")
 
     # Create allocator with the same device ID
     alloc = ShareableAllocator(device.device_id)
     err = runtime.cudaGetLastError()
-    if err != runtime.cudaSuccess:
+    if err != driver.CUresult.CUDA_SUCCESS:
         raise RuntimeError(f"CUDA error after allocator ctor setup: {err}")
 
     try:
