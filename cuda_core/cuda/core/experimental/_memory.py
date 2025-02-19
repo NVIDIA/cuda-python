@@ -390,7 +390,8 @@ class ShareableAllocator(MemoryResource):
         access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         access_desc.location.id = self._dev_id
         access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-        handle_return(driver.cuMemSetAccess(ptr, size, [access_desc], 1))
+        access_descs = [access_desc]
+        handle_return(driver.cuMemSetAccess(ptr, size, access_descs, len(access_descs)))
 
         return Buffer(ptr, size, self), shareable_handle
 
@@ -409,10 +410,6 @@ class ShareableAllocator(MemoryResource):
         Buffer
             A Buffer object that can access the imported allocation
         """
-        from cuda.core.experimental import Device
-
-        d = Device()
-        d.set_current()
         # Import the handle into a memory allocation
         handle = handle_return(driver.cuMemImportFromShareableHandle(shareable_handle, _get_platform_handle_type()))
 
@@ -423,11 +420,12 @@ class ShareableAllocator(MemoryResource):
         handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
 
         # Set access permissions
-        # access_desc = driver.CUmemAccessDesc()
-        # access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-        # access_desc.location.id = self._dev_id
-        # access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-        # handle_return(driver.cuMemSetAccess(ptr, size, [access_desc], 1))
+        access_desc = driver.CUmemAccessDesc()
+        access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        access_desc.location.id = self._dev_id
+        access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        access_descs = [access_desc]
+        handle_return(driver.cuMemSetAccess(ptr, size, access_descs, len(access_descs)))
 
         return Buffer(ptr, size, self)
 
@@ -453,7 +451,8 @@ class ShareableAllocator(MemoryResource):
         access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         access_desc.location.id = self._dev_id
         access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-        handle_return(driver.cuMemSetAccess(ptr, size, access_desc, 1))
+        access_descs = [access_desc]
+        handle_return(driver.cuMemSetAccess(ptr, size, access_descs, len(access_descs)))
 
         return Buffer(ptr, size, self)
 

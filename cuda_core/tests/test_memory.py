@@ -248,19 +248,24 @@ def child_process(shared_handle, queue):
 
 
 def child_process_allocator(size, handle, queue):
+    # Set the device context in the child process
+    device = Device()  # or Device(specific_device_id)
+    device.set_current()
+
+    # Create allocator with the same device ID
+    alloc = ShareableAllocator(device.device_id)
+
     try:
-        device = Device()
-        device.set_current()
-        alloc = ShareableAllocator(device.device_id)
-        imported_buffer = alloc.import_shareable_allocation(size, handle)
-        assert imported_buffer.handle != 0
-        assert imported_buffer.size == size
-        assert imported_buffer.memory_resource == alloc
-        assert imported_buffer.is_device_accessible
-        assert not imported_buffer.is_host_accessible
-        assert imported_buffer.device_id == device.device_id
-        imported_buffer.close()
-        queue.put(None)
+        # Import the allocation from the parent
+        buffer = alloc.import_shareable_allocation(size, handle)
+        assert buffer.handle != 0
+        assert buffer.size == size
+        assert buffer.memory_resource == alloc
+        assert buffer.is_device_accessible
+        assert not buffer.is_host_accessible
+        assert buffer.device_id == device.device_id
+        buffer.close()
+        queue.put(True)  # or whatever success signal
     except Exception as e:
         queue.put(e)
 
@@ -277,7 +282,6 @@ def test_sharable_allocator():
     assert buffer.is_device_accessible
     assert not buffer.is_host_accessible
     assert buffer.device_id == device.device_id
-
     multiprocessing.set_start_method("spawn", force=True)
     queue = multiprocessing.Queue()
     process = multiprocessing.Process(target=child_process_allocator, args=(size, handle, queue))
