@@ -154,11 +154,16 @@ jobs:
 
       - name: Set up mini CTK
         if: ${{ inputs.local-ctk == '1' }}
-        uses: ./.github/actions/fetch_ctk
-        continue-on-error: false
+        uses: Jimver/cuda-toolkit@0.2.21
         with:
-          host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ inputs.cuda-version }}
+          cuda: ${{ inputs.cuda-version }}
+          method: 'network'
+          sub-packages: ["nvcc", "nvrtc", "nvjitlink"]
+#        uses: ./.github/actions/fetch_ctk
+#        continue-on-error: false
+#        with:
+#          host-platform: ${{ inputs.host-platform }}
+#          cuda-version: ${{ inputs.cuda-version }}
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
