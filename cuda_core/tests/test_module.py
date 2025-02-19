@@ -7,8 +7,9 @@
 # is strictly prohibited.
 
 
+import warnings
+
 import pytest
-from conftest import can_load_generated_ptx
 
 from cuda.core.experimental import Program, ProgramOptions, system
 
@@ -40,10 +41,17 @@ def get_saxpy_kernel(init_cuda):
     return mod.get_kernel("saxpy<float>")
 
 
-@pytest.mark.xfail(not can_load_generated_ptx(), reason="PTX version too new")
 def test_get_kernel(init_cuda):
     kernel = """extern "C" __global__ void ABC() { }"""
-    object_code = Program(kernel, "c++", options=ProgramOptions(relocatable_device_code=True)).compile("ptx")
+
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+
+        object_code = Program(kernel, "c++", options=ProgramOptions(relocatable_device_code=True)).compile("ptx")
+
+        if any("The CUDA driver version is older than the backend version" in str(warning.message) for warning in w):
+            pytest.skip("PTX version too new for current driver")
+
     assert object_code._handle is None
     kernel = object_code.get_kernel("ABC")
     assert object_code._handle is not None

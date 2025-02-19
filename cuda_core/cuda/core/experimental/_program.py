@@ -5,6 +5,7 @@
 import weakref
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
+from warnings import warn
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._linker import Linker, LinkerOptions
@@ -380,22 +381,6 @@ class Program:
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
-            supported_archs = handle_return(nvrtc.nvrtcGetSupportedArchs())
-
-            if options is not None:
-                arch_not_supported = (
-                    options.arch is not None and int(options.arch.split("_")[-1]) not in supported_archs
-                )
-                default_arch_not_supported = (
-                    options.arch is None
-                    and 10 * Device().compute_capability[0] + Device().compute_capability[1] not in supported_archs
-                )
-
-                if arch_not_supported or default_arch_not_supported:
-                    raise ValueError(
-                        f"The provided arch, or default arch (that of the current device) "
-                        f"is not supported by the current backend. Supported architectures: {supported_archs}"
-                    )
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
             self._backend = "nvrtc"
             self._linker = None
@@ -432,6 +417,11 @@ class Program:
             self._linker.close()
         self._mnff.close()
 
+    def _can_load_generated_ptx(self):
+        driver_ver = handle_return(driver.cuDriverGetVersion())
+        nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
+        return nvrtc_major * 1000 + nvrtc_minor * 10 <= driver_ver
+
     def compile(self, target_type, name_expressions=(), logs=None):
         """Compile the program with a specific compilation type.
 
@@ -458,11 +448,12 @@ class Program:
             raise NotImplementedError
 
         if self._backend == "nvrtc":
-            version = handle_return(nvrtc.nvrtcVersion())
-            if handle_return(driver.cuDriverGetVersion()) > version[0] * 1000 + version[1] * 10:
-                raise RuntimeError(
-                    "The CUDA driver version is newer than the NVRTC version. "
-                    "Please update your NVRTC library to match the CUDA driver version."
+            if target_type == "ptx" and not self._can_load_generated_ptx():
+                warn(
+                    "The CUDA driver version is older than the backend version. "
+                    "The generated ptx will not be loadable by the current driver.",
+                    stacklevel=1,
+                    category=RuntimeWarning,
                 )
             if name_expressions:
                 for n in name_expressions:
