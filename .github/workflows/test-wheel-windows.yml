@@ -154,7 +154,7 @@ jobs:
 
       - name: Set up mini CTK
         if: ${{ inputs.local-ctk == '1' }}
-        uses: Jimver/cuda-toolkit@0.2.21
+        uses: Jimver/cuda-toolkit@v0.2.21
         with:
           cuda: ${{ inputs.cuda-version }}
           method: 'network'
