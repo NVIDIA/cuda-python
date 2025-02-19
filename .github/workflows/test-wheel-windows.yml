@@ -33,12 +33,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Update driver
-        run: |
-          .github/workflows/install_gpu_driver.ps1
-
-      - name: Ensure GPU is working
-        run: nvidia-smi
+#      - name: Update driver
+#        run: |
+#          .github/workflows/install_gpu_driver.ps1
+#
+#      - name: Ensure GPU is working
+#        run: nvidia-smi
 
       - name: Check repo
         run: |
@@ -63,11 +63,11 @@ jobs:
           "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $env:GITHUB_ENV
           "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $env:GITHUB_ENV
           "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $env:GITHUB_ENV
-          "CUDA_CORE_ARTIFACTS_DIR=$((Resolve-Path "$REPO_DIR\cuda_core\dist").Path)" >> $env:GITHUB_ENV
+          "CUDA_CORE_ARTIFACTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_core\dist"))" >> $env:GITHUB_ENV
           $CUDA_BINDINGS_ARTIFACT_BASENAME = "cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-${{ inputs.host-platform }}"
           "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $env:GITHUB_ENV
           "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $env:GITHUB_ENV
-          "CUDA_BINDINGS_ARTIFACTS_DIR=$((Resolve-Path "$REPO_DIR\cuda_bindings\dist").Path)" >> $env:GITHUB_ENV
+          "CUDA_BINDINGS_ARTIFACTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_bindings\dist"))" >> $env:GITHUB_ENV
           "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $env:GITHUB_ENV
 
       - name: Download cuda-python build artifacts
@@ -83,6 +83,21 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Install gh cli
+        # the GPU runner image does not have gh pre-installed...
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          GH_MSI_URL: https://github.com/cli/cli/releases/download/v2.67.0/gh_2.67.0_windows_amd64.msi
+        run: |
+          Invoke-WebRequest -Uri "$env:GH_MSI_URL" -OutFile "gh_installer.msi"
+          Start-Process msiexec.exe -Wait -Verbose -ArgumentList '/i "gh_installer.msi" /qn'
+          $GH_POSSIBLE_PATHS = "C:\\Program Files\\GitHub CLI", "C:\\Program Files (x86)\\GitHub CLI"
+          foreach ($p in $GH_POSSIBLE_PATHS) {
+              echo "$p" >> $env:GITHUB_PATH
+              $env:Path += ";$p"
+          }
+          gh --version
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}
