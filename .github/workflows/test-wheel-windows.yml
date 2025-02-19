@@ -164,6 +164,12 @@ jobs:
           method: 'network'
           sub-packages: ${{ env.MINI_CTK_DEPS }}
 
+      - name: Update PATH
+        if: ${{ inputs.local-ctk == '1' }}
+        run: |
+          # mimics actual CTK installation
+          "${CUDA_PATH}\\nvvm\\bin" >> $env:GITHUB_PATH
+
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
