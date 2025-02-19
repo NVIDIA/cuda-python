@@ -214,6 +214,10 @@ def child_process(shared_handle, queue):
     try:
         device = Device()
         device.set_current()
+        # Initialize CUDA context
+        handle_return(driver.cuInit(0))
+        handle_return(driver.cuCtxCreate(0, device.device_id))
+
         mr = SharedMempool(device.device_id, shared_handle=shared_handle)
         buffer = mr.allocate(64)
         ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
@@ -251,6 +255,10 @@ def child_process_allocator(size, handle, queue):
     try:
         device = Device()
         device.set_current()
+        # Initialize CUDA context
+        handle_return(driver.cuInit(0))
+        handle_return(driver.cuCtxCreate(0, device.device_id))
+
         alloc = ShareableAllocator(device.device_id)
         imported_buffer = alloc.import_shareable_allocation(size, handle)
         assert imported_buffer.handle != 0
