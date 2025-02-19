@@ -145,5 +145,4 @@ def test_linker_get_info_log(compile_ptx_functions):
     linker = Linker(*compile_ptx_functions, options=options)
     linker.link("cubin")
     log = linker.get_info_log()
-    print(log)
     assert isinstance(log, str)
