@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
+from warnings import warn
+
 from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
@@ -10,6 +12,7 @@ _backend = {
         "file": driver.cuModuleLoad,
         "data": driver.cuModuleLoadDataEx,
         "kernel": driver.cuModuleGetFunction,
+        "attribute": driver.cuFuncGetAttribute,
     },
 }
 
@@ -34,12 +37,143 @@ def _lazy_init():
             "file": driver.cuLibraryLoadFromFile,
             "data": driver.cuLibraryLoadData,
             "kernel": driver.cuLibraryGetKernel,
+            "attribute": driver.cuKernelGetAttribute,
         }
         _kernel_ctypes = (driver.CUfunction, driver.CUkernel)
     else:
         _kernel_ctypes = (driver.CUfunction,)
     _driver_ver = handle_return(driver.cuDriverGetVersion())
     _inited = True
+
+
+class KernelAttributes:
+    def __init__(self):
+        raise RuntimeError("KernelAttributes should not be instantiated directly")
+
+    slots = ("_handle", "_cache", "_backend_version", "_loader")
+
+    def _init(handle):
+        self = KernelAttributes.__new__(KernelAttributes)
+        self._handle = handle
+        self._cache = {}
+
+        self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
+        self._loader = _backend[self._backend_version]
+        return self
+
+    def _get_cached_attribute(self, device_id: int, attribute: driver.CUfunction_attribute) -> int:
+        """Helper function to get a cached attribute or fetch and cache it if not present."""
+        if device_id in self._cache and attribute in self._cache[device_id]:
+            return self._cache[device_id][attribute]
+        if self._backend_version == "new":
+            result = handle_return(self._loader["attribute"](attribute, self._handle, device_id))
+        else:  # "old" backend
+            warn(
+                "Device ID argument is ignored when getting attribute from kernel when cuda version < 12. ",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            result = handle_return(self._loader["attribute"](attribute, self._handle))
+        if device_id not in self._cache:
+            self._cache[device_id] = {}
+        self._cache[device_id][attribute] = result
+        return result
+
+    def max_threads_per_block(self, device_id: int = None) -> int:
+        """int : The maximum number of threads per block.
+        This attribute is read-only."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
+        )
+
+    def shared_size_bytes(self, device_id: int = None) -> int:
+        """int : The size in bytes of statically-allocated shared memory required by this function.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES)
+
+    def const_size_bytes(self, device_id: int = None) -> int:
+        """int : The size in bytes of user-allocated constant memory required by this function.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES)
+
+    def local_size_bytes(self, device_id: int = None) -> int:
+        """int : The size in bytes of local memory used by each thread of this function.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES)
+
+    def num_regs(self, device_id: int = None) -> int:
+        """int : The number of registers used by each thread of this function.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NUM_REGS)
+
+    def ptx_version(self, device_id: int = None) -> int:
+        """int : The PTX virtual architecture version for which the function was compiled.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PTX_VERSION)
+
+    def binary_version(self, device_id: int = None) -> int:
+        """int : The binary architecture version for which the function was compiled.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_BINARY_VERSION)
+
+    def cache_mode_ca(self, device_id: int = None) -> bool:
+        """bool : Whether the function has been compiled with user specified option "-Xptxas --dlcm=ca" set.
+        This attribute is read-only."""
+        return bool(self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA))
+
+    def max_dynamic_shared_size_bytes(self, device_id: int = None) -> int:
+        """int : The maximum size in bytes of dynamically-allocated shared memory that can be used
+        by this function."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
+        )
+
+    def preferred_shared_memory_carveout(self, device_id: int = None) -> int:
+        """int : The shared memory carveout preference, in percent of the total shared memory."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
+        )
+
+    def cluster_size_must_be_set(self, device_id: int = None) -> bool:
+        """bool : The kernel must launch with a valid cluster size specified.
+        This attribute is read-only."""
+        return bool(
+            self._get_cached_attribute(
+                device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
+            )
+        )
+
+    def required_cluster_width(self, device_id: int = None) -> int:
+        """int : The required cluster width in blocks."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
+        )
+
+    def required_cluster_height(self, device_id: int = None) -> int:
+        """int : The required cluster height in blocks."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
+        )
+
+    def required_cluster_depth(self, device_id: int = None) -> int:
+        """int : The required cluster depth in blocks."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
+        )
+
+    def non_portable_cluster_size_allowed(self, device_id: int = None) -> bool:
+        """bool : Whether the function can be launched with non-portable cluster size."""
+        return bool(
+            self._get_cached_attribute(
+                device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED
+            )
+        )
+
+    def cluster_scheduling_policy_preference(self, device_id: int = None) -> int:
+        """int : The block scheduling policy of a function."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+        )
 
 
 class Kernel:
@@ -53,13 +187,10 @@ class Kernel:
 
     """
 
-    __slots__ = (
-        "_handle",
-        "_module",
-    )
+    __slots__ = ("_handle", "_module", "_attributes")
 
     def __init__(self):
-        raise NotImplementedError("directly constructing a Kernel instance is not supported")
+        raise RuntimeError("directly constructing a Kernel instance is not supported")
 
     @staticmethod
     def _from_obj(obj, mod):
@@ -68,7 +199,15 @@ class Kernel:
         ker = Kernel.__new__(Kernel)
         ker._handle = obj
         ker._module = mod
+        ker._attributes = None
         return ker
+
+    @property
+    def attributes(self):
+        """Get the read-only attributes of this kernel."""
+        if self._attributes is None:
+            self._attributes = KernelAttributes._init(self._handle)
+        return self._attributes
 
     # TODO: implement from_handle()
 

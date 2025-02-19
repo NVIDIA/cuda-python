@@ -4,6 +4,7 @@ Release Notes
 .. toctree::
    :maxdepth: 3
 
+   12.X.Y <release/12.X.Y-notes.rst>
    12.8.0 <release/12.8.0-notes.md>
    12.6.2 <release/12.6.2-notes.md>
    12.6.1 <release/12.6.1-notes.md>
@@ -15,6 +16,7 @@ Release Notes
    12.2.0 <release/12.2.0-notes.md>
    12.1.0 <release/12.1.0-notes.md>
    12.0.0 <release/12.0.0-notes.md>
+   11.8.7 <release/11.8.7-notes.rst>
    11.8.6 <release/11.8.6-notes.md>
    11.8.5 <release/11.8.5-notes.md>
    11.8.4 <release/11.8.4-notes.md>
