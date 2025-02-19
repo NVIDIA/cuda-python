@@ -27,12 +27,15 @@ jobs:
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     runs-on: ${{ (inputs.runner == 'default' && inputs.host-platform == 'win-64' && 'cuda-python-windows-gpu-github') }}
-    defaults:
-      run:
-        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
+      # TODO: need to roll our own script... this is from:
+      # https://cloud.google.com/compute/docs/gpus/install-drivers-gpu#install-script
+      - name: Update driver
+        run: |
+          Invoke-WebRequest https://github.com/GoogleCloudPlatform/compute-gpu-installation/raw/main/windows/install_gpu_driver.ps1 -OutFile C:\install_gpu_driver.ps1
+          C:\install_gpu_driver.ps1
+
       - name: Ensure GPU is working
-        shell: powershell -command ". '{0}'"
         run: nvidia-smi
 
       - name: Checkout ${{ github.event.repository.name }}
@@ -42,33 +45,28 @@ jobs:
 
       - name: Set environment variables
         run: |
-          PYTHON_VERSION_FORMATTED=$(echo '${{ inputs.python-version }}' | tr -d '.')
-          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            REPO_DIR=$(pwd)
-          elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-            PWD=$(pwd)
-            REPO_DIR=$(cygpath -w $PWD)
-          fi
+          $PYTHON_VERSION_FORMATTED = '${{ inputs.python-version }}' -replace '\.'
+          $REPO_DIR = $PWD.Path
 
-          BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ inputs.build-ctk-ver }})"
-          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})"
-          if [[ $BUILD_CUDA_MAJOR != $TEST_CUDA_MAJOR ]]; then
-            SKIP_CUDA_BINDINGS_TEST=1
-          else
-            SKIP_CUDA_BINDINGS_TEST=0
-          fi
+          $BUILD_CUDA_MAJOR = '${{ inputs.build-ctk-ver }}' -split '\.' | Select-Object -First 1
+          $TEST_CUDA_MAJOR = '${{ inputs.cuda-version }}' -split '\.' | Select-Object -First 1
+          if ($BUILD_CUDA_MAJOR -ne $TEST_CUDA_MAJOR) {
+            $SKIP_CUDA_BINDINGS_TEST = 1
+          } else {
+            $SKIP_CUDA_BINDINGS_TEST = 0
+          }
 
-          # make outputs from the previous job as env vars
-          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
-          echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-${{ inputs.host-platform }}"
-          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
-          echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
+          # Make outputs from the previous job as env vars
+          $CUDA_CORE_ARTIFACT_BASENAME = "cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
+          "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $env:GITHUB_ENV
+          "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $env:GITHUB_ENV
+          "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $env:GITHUB_ENV
+          "CUDA_CORE_ARTIFACTS_DIR=$((Resolve-Path "$REPO_DIR\cuda_core\dist").Path)" >> $env:GITHUB_ENV
+          $CUDA_BINDINGS_ARTIFACT_BASENAME = "cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-${{ inputs.host-platform }}"
+          "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $env:GITHUB_ENV
+          "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $env:GITHUB_ENV
+          "CUDA_BINDINGS_ARTIFACTS_DIR=$((Resolve-Path "$REPO_DIR\cuda_bindings\dist").Path)" >> $env:GITHUB_ENV
+          "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $env:GITHUB_ENV
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
@@ -89,34 +87,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
-          # gh is needed for artifact fetching.
-          mkdir -p -m 755 /etc/apt/keyrings \
-                && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-                && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-          && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-          && apt update \
-          && apt install gh -y
-
-          OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
-          OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "CI: Build and test" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
-          if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
-            echo "LATEST_PRIOR_RUN_ID not found!"
+          $OLD_BRANCH = Get-Content .github/BACKPORT_BRANCH
+          $OLD_BASENAME = "cuda-bindings-python${env:PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
+          $LATEST_PRIOR_RUN_ID = gh run list -b $OLD_BRANCH -L 1 -w "CI: Build and test" -s completed -R NVIDIA/cuda-python --json databaseId | ConvertFrom-Json | Select-Object -ExpandProperty databaseId
+          if ([string]::IsNullOrEmpty($LATEST_PRIOR_RUN_ID)) {
+            Write-Host "LATEST_PRIOR_RUN_ID not found!"
             exit 1
-          fi
-
-          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
-          ls -al $OLD_BASENAME
-          mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
-          mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
-          rmdir $OLD_BASENAME
-
+          }
+      
+          gh run download $LATEST_PRIOR_RUN_ID -p $OLD_BASENAME -R NVIDIA/cuda-python
+          Get-ChildItem -Path $OLD_BASENAME
+          New-Item -Path "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}" -ItemType Directory -Force
+          Move-Item -Path "$OLD_BASENAME/*.whl" -Destination "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          Remove-Item -Path $OLD_BASENAME -Force
+      
           gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
-          ls -al cuda-python-wheel
-          mv cuda-python-wheel/*.whl .
-          rmdir cuda-python-wheel
+          Get-ChildItem -Path cuda-python-wheel
+          Move-Item -Path "cuda-python-wheel/*.whl" -Destination .
+          Remove-Item -Path cuda-python-wheel -Force
 
       - name: Display structure of downloaded cuda-python artifacts
         run: |
