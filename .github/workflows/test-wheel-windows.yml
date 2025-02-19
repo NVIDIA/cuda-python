@@ -40,11 +40,6 @@ jobs:
 #      - name: Ensure GPU is working
 #        run: nvidia-smi
 
-      - name: Check repo
-        run: |
-          Get-ChildItem -Path .
-          Get-ChildItem -Path $PWD.Path
-
       - name: Set environment variables
         run: |
           $PYTHON_VERSION_FORMATTED = '${{ inputs.python-version }}' -replace '\.'
@@ -106,12 +101,13 @@ jobs:
         run: |
           $OLD_BRANCH = Get-Content .github/BACKPORT_BRANCH
           $OLD_BASENAME = "cuda-bindings-python${env:PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          $LATEST_PRIOR_RUN_ID = gh run list -b $OLD_BRANCH -L 1 -w "CI: Build and test" -s completed -R NVIDIA/cuda-python --json databaseId | ConvertFrom-Json | Select-Object -ExpandProperty databaseId
-          if ([string]::IsNullOrEmpty($LATEST_PRIOR_RUN_ID)) {
-            Write-Host "LATEST_PRIOR_RUN_ID not found!"
-            exit 1
+          $runData = gh run list -b $OLD_BRANCH -L 1 -w "CI: Build and test" -s completed -R NVIDIA/cuda-python --json databaseId | ConvertFrom-Json
+          if (-not $runData -or $runData.Length -eq 0 -or -not $runData[0].databaseId -or [string]::IsNullOrEmpty($runData[0].databaseId)) {
+              Write-Host "LATEST_PRIOR_RUN_ID not found!"
+              exit 1
           }
-      
+          $LATEST_PRIOR_RUN_ID = $runData[0].databaseId
+
           gh run download $LATEST_PRIOR_RUN_ID -p $OLD_BASENAME -R NVIDIA/cuda-python
           Get-ChildItem -Path $OLD_BASENAME
           New-Item -Path "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}" -ItemType Directory -Force
@@ -171,9 +167,9 @@ jobs:
           Push-Location $env:CUDA_BINDINGS_ARTIFACTS_DIR
           if ('${{ inputs.local-ctk }}' -eq '1') {
             Get-ChildItem $env:CUDA_PATH
-            pip install *.whl
+            pip install (Get-ChildItem -Filter *.whl).FullName
           } else {
-            pip install "(Get-ChildItem -Filter *.whl | Select-Object -ExpandProperty Name -First 1)[all]"
+            pip install "((Get-ChildItem -Filter *.whl).FullName)[all]"
           }
           Pop-Location
 
@@ -190,15 +186,15 @@ jobs:
           if ($env:SKIP_CUDA_BINDINGS_TEST -eq '1') {
             Push-Location $env:CUDA_BINDINGS_ARTIFACTS_DIR
             if ('${{ inputs.local-ctk }}' -eq '1') {
-              pip install *.whl
+              pip install (Get-ChildItem -Filter *.whl).FullName
             } else {
-              pip install "(Get-ChildItem -Filter *.whl | Select-Object -ExpandProperty Name -First 1)[all]"
+              pip install "((Get-ChildItem -Filter *.whl).FullName)[all]"
             }
             Pop-Location
           }
           $TEST_CUDA_MAJOR = '${{ inputs.cuda-version }}' -split '\.' | Select-Object -First 1
           Push-Location $env:CUDA_CORE_ARTIFACTS_DIR
-          pip install (Get-ChildItem -Filter *.whl | Select-Object -ExpandProperty Name -First 1)[cu${TEST_CUDA_MAJOR}]
+          pip install "((Get-ChildItem -Filter *.whl).FullName)[cu${TEST_CUDA_MAJOR}]"
           Pop-Location
 
           Push-Location ./cuda_core
@@ -209,7 +205,7 @@ jobs:
       - name: Ensure cuda-python installable
         run: |
           if ('${{ inputs.local-ctk }}' -eq '1') {
-            pip install cuda_python*.whl
+            pip install (Get-ChildItem -Filter cuda_python*.whl).FullName
           } else {
-            pip install "(Get-ChildItem -Filter cuda_python*.whl | Select-Object -ExpandProperty Name -First 1)[all]"
+            pip install "((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
           }
