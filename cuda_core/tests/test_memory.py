@@ -278,8 +278,8 @@ def test_sharable_allocator():
     assert not buffer.is_host_accessible
     assert buffer.device_id == device.device_id
 
-    queue = multiprocessing.Queue()
     multiprocessing.set_start_method("spawn", force=True)
+    queue = multiprocessing.Queue()
     process = multiprocessing.Process(target=child_process_allocator, args=(size, handle, queue))
     process.start()
     process.join(timeout=10)
