@@ -46,9 +46,7 @@ def test_get_kernel(init_cuda):
 
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
-
         object_code = Program(kernel, "c++", options=ProgramOptions(relocatable_device_code=True)).compile("ptx")
-
         if any("The CUDA driver version is older than the backend version" in str(warning.message) for warning in w):
             pytest.skip("PTX version too new for current driver")
 
