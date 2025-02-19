@@ -169,7 +169,7 @@ jobs:
         run: |
           # mimics actual CTK installation
           echo $PATH
-          echo "${CUDA_PATH}\nvvm\bin" >> $env:GITHUB_PATH
+          echo "$env:CUDA_PATH\nvvm\bin" >> $env:GITHUB_PATH
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
@@ -177,8 +177,6 @@ jobs:
           Push-Location $env:CUDA_BINDINGS_ARTIFACTS_DIR
           if ('${{ inputs.local-ctk }}' -eq '1') {
             Get-ChildItem $env:CUDA_PATH
-            Get-ChildItem "${CUDA_PATH}\bin"
-            Get-ChildItem "${CUDA_PATH}\nvvm\bin"
             echo $PATH
             pip install (Get-ChildItem -Filter *.whl).FullName
           } else {
