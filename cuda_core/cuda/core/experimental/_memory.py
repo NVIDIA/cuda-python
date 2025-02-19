@@ -409,6 +409,10 @@ class ShareableAllocator(MemoryResource):
         Buffer
             A Buffer object that can access the imported allocation
         """
+        from cuda.core.experimental import Device
+
+        d = Device()
+        d.set_current()
         # Import the handle into a memory allocation
         handle = handle_return(driver.cuMemImportFromShareableHandle(shareable_handle, _get_platform_handle_type()))
 
