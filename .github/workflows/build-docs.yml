@@ -37,17 +37,11 @@ jobs:
     name: Build docs
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
-    # WAR: Building the doc currently requires a GPU (NVIDIA/cuda-python#326,327)
-    runs-on: linux-amd64-gpu-t4-latest-1
-    #runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -el {0}
     steps:
-      # WAR: Building the doc currently requires a GPU (NVIDIA/cuda-python#326,327)
-      - name: Ensure GPU is working
-        run: nvidia-smi
-
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
         with:
