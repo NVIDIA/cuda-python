@@ -419,11 +419,11 @@ class ShareableAllocator(MemoryResource):
         handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
 
         # Set access permissions
-        access_desc = driver.CUmemAccessDesc()
-        access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-        access_desc.location.id = 0
-        access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-        handle_return(driver.cuMemSetAccess(ptr, size, [access_desc], 1))
+        # access_desc = driver.CUmemAccessDesc()
+        # access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        # access_desc.location.id = self._dev_id
+        # access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        # handle_return(driver.cuMemSetAccess(ptr, size, [access_desc], 1))
 
         return Buffer(ptr, size, self)
 
