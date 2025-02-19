@@ -129,7 +129,7 @@ extern __device__ int C(int a, int b);
 __global__ void A() { int result = C(Z(), 1);}
 """
     dummy_program = Program(replacement_kernel, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
-    linker = Linker(dummy_program, compile_ptx_functions[1], compile_ptx_functions[2], options=options)
+    linker = Linker(dummy_program, *(compile_ptx_functions[1:]), options=options)
     try:
         linker.link("cubin")
 
