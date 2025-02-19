@@ -158,7 +158,7 @@ jobs:
         with:
           cuda: ${{ inputs.cuda-version }}
           method: 'network'
-          sub-packages: ["nvcc", "nvrtc", "nvjitlink"]
+          sub-packages: '["nvcc", "nvrtc", "nvjitlink"]'
 #        uses: ./.github/actions/fetch_ctk
 #        continue-on-error: false
 #        with:
