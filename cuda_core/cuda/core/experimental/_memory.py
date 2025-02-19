@@ -379,11 +379,11 @@ class ShareableAllocator(MemoryResource):
         # Export a shareable handle
         shareable_handle = handle_return(driver.cuMemExportToShareableHandle(handle, _get_platform_handle_type(), 0))
 
-        # Reserve virtual address space
-        ptr = handle_return(driver.cuMemAddressReserve(size, 0, 0, 0))
+        # # Reserve virtual address space
+        # ptr = handle_return(driver.cuMemAddressReserve(size, 0, 0, 0))
 
-        # Map allocation to address space
-        handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
+        # # Map allocation to address space
+        # handle_return(driver.cuMemMap(ptr, size, 0, handle, 0))
 
         # Set access permissions
         # access_desc = driver.CUmemAccessDesc()
@@ -393,7 +393,7 @@ class ShareableAllocator(MemoryResource):
         # access_descs = [access_desc]
         # handle_return(driver.cuMemSetAccess(ptr, size, access_descs, len(access_descs)))
 
-        return Buffer(ptr, size, self), shareable_handle
+        return shareable_handle
 
     def import_shareable_allocation(self, size: int, shareable_handle: int) -> Buffer:
         """Import a shareable allocation from another process.

@@ -274,13 +274,7 @@ def test_sharable_allocator():
     device.set_current()
     alloc = ShareableAllocator(device.device_id)
     size = 2097152
-    buffer, handle = alloc.get_shareable_allocation(size)
-    assert buffer.handle != 0
-    assert buffer.size == size
-    assert buffer.memory_resource == alloc
-    assert buffer.is_device_accessible
-    assert not buffer.is_host_accessible
-    assert buffer.device_id == device.device_id
+    handle = alloc.get_shareable_allocation(size)
 
     multiprocessing.set_start_method("spawn", force=True)
     queue = multiprocessing.Queue()
@@ -293,5 +287,3 @@ def test_sharable_allocator():
         exception = queue.get()
         if isinstance(exception, Exception):
             raise exception
-
-    buffer.close()
