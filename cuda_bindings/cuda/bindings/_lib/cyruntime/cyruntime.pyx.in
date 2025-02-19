@@ -4639,7 +4639,7 @@ cdef cudaError_t _cudaGraphExecGetFlags(cudaGraphExec_t graphExec, unsigned long
     err = m_global.lazyInitContextState()
     if err != cudaSuccess:
         return err
-    err = <cudaError_t>cydriver._cuGraphExecGetFlags(<cydriver.CUgraphExec>graphExec, flags)
+    err = <cudaError_t>cydriver._cuGraphExecGetFlags(<cydriver.CUgraphExec>graphExec, <cydriver.cuuint64_t *>flags)
     if err != cudaSuccess:
         _setLastError(err)
     return err
@@ -4923,6 +4923,193 @@ cdef cudaError_t _cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCal
 cdef cudaError_t _cudaGetDriverEntryPointByVersion(const char* symbol, void** funcPtr, unsigned int cudaVersion, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef cudaError_t err = cudaSuccess
     err = <cudaError_t>cydriver._cuGetProcAddress_v2(symbol, funcPtr, cudaVersion, flags, <cydriver.CUdriverProcAddressQueryResult*>driverStatus)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaLibraryLoadData' in found_functions}}
+
+cdef cudaError_t _cudaLibraryLoadData(cudaLibrary_t* library, const void* code, cudaJitOption* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, cudaLibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuLibraryLoadData(library, code, <cydriver.CUjit_option*>jitOptions, jitOptionsValues, numJitOptions, <cydriver.CUlibraryOption*>libraryOptions, libraryOptionValues, numLibraryOptions)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaLibraryLoadFromFile' in found_functions}}
+
+cdef cudaError_t _cudaLibraryLoadFromFile(cudaLibrary_t* library, const char* fileName, cudaJitOption* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, cudaLibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuLibraryLoadFromFile(library, fileName, <cydriver.CUjit_option*>jitOptions, jitOptionsValues, numJitOptions, <cydriver.CUlibraryOption*>libraryOptions, libraryOptionValues, numLibraryOptions)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaLibraryUnload' in found_functions}}
+
+cdef cudaError_t _cudaLibraryUnload(cudaLibrary_t library) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuLibraryUnload(library)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaLibraryGetKernel' in found_functions}}
+
+cdef cudaError_t _cudaLibraryGetKernel(cudaKernel_t* pKernel, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuLibraryGetKernel(pKernel, library, name)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaLibraryGetGlobal' in found_functions}}
+
+cdef cudaError_t _cudaLibraryGetGlobal(void** dptr, size_t* numbytes, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuLibraryGetGlobal(<cydriver.CUdeviceptr*>dptr, numbytes, library, name)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaLibraryGetManaged' in found_functions}}
+
+cdef cudaError_t _cudaLibraryGetManaged(void** dptr, size_t* numbytes, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuLibraryGetManaged(<cydriver.CUdeviceptr*>dptr, numbytes, library, name)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaLibraryGetUnifiedFunction' in found_functions}}
+
+cdef cudaError_t _cudaLibraryGetUnifiedFunction(void** fptr, cudaLibrary_t library, const char* symbol) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuLibraryGetUnifiedFunction(fptr, library, symbol)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaLibraryGetKernelCount' in found_functions}}
+
+cdef cudaError_t _cudaLibraryGetKernelCount(unsigned int* count, cudaLibrary_t lib) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuLibraryGetKernelCount(count, lib)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaLibraryEnumerateKernels' in found_functions}}
+
+cdef cudaError_t _cudaLibraryEnumerateKernels(cudaKernel_t* kernels, unsigned int numKernels, cudaLibrary_t lib) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuLibraryEnumerateKernels(kernels, numKernels, lib)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaKernelSetAttributeForDevice' in found_functions}}
+
+cdef cudaError_t _cudaKernelSetAttributeForDevice(cudaKernel_t kernel, cudaFuncAttribute attr, int value, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuKernelSetAttribute(<cydriver.CUfunction_attribute>attr, value, kernel, <cydriver.CUdevice>device)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaStreamGetDevice' in found_functions}}
+
+cdef cudaError_t _cudaStreamGetDevice(cudaStream_t stream, int* device) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    cdef cydriver.CUdevice driverDevice = 0
+    if stream == <cudaStream_t>NULL or stream == <cudaStream_t>cudaStreamLegacy or stream == <cudaStream_t>cudaStreamPerThread:
+        err = m_global.lazyInitContextState()
+        if err != cudaSuccess:
+            return err
+    err = <cudaError_t>cydriver._cuStreamGetDevice(<cydriver.CUstream>stream, &driverDevice)
+    if err != cudaSuccess:
+        _setLastError(err)
+        return err
+    cudaDevice = m_global.getDeviceFromDriver(driverDevice)
+    device[0] = cudaDevice[0].deviceOrdinal
+    return cudaSuccess
+
+{{endif}}
+{{if 'cudaEventElapsedTime_v2' in found_functions}}
+
+cdef cudaError_t _cudaEventElapsedTime_v2(float* ms, cudaEvent_t start, cudaEvent_t end) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    if ms == NULL:
+        _setLastError(cudaErrorInvalidValue)
+        return cudaErrorInvalidValue
+    err = <cudaError_t>cydriver._cuEventElapsedTime_v2(ms, <cydriver.CUevent>start, <cydriver.CUevent>end)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaMemcpyBatchAsync' in found_functions}}
+
+cdef cudaError_t _cudaMemcpyBatchAsync(void** dsts, void** srcs, size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, size_t* failIdx, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver._cuMemcpyBatchAsync(<cydriver.CUdeviceptr*>dsts, <cydriver.CUdeviceptr*>srcs, sizes, count, <cydriver.CUmemcpyAttributes*>attrs, attrsIdxs, numAttrs, failIdx, <cydriver.CUstream>stream)
+    if err != cudaSuccess:
+        _setLastError(err)
+    return err
+
+{{endif}}
+{{if 'cudaMemcpy3DBatchAsync' in found_functions}}
+
+cdef cudaError_t _cudaMemcpy3DBatchAsync(size_t numOps, cudaMemcpy3DBatchOp* opList, size_t* failIdx, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    err = m_global.lazyInitContextState()
+    if err != cudaSuccess:
+        return err
+    err = <cudaError_t>cydriver.cuMemcpy3DBatchAsync(numOps, <cydriver.CUDA_MEMCPY3D_BATCH_OP*>opList, failIdx, flags, <cydriver.CUstream>stream)
     if err != cudaSuccess:
         _setLastError(err)
     return err

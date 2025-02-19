@@ -7,6 +7,7 @@
 # is strictly prohibited.
 import ctypes
 import math
+import platform
 import random as rnd
 import sys
 
@@ -34,6 +35,22 @@ __global__ void vectorAddGPU(float *a, float *b, float *c, int N)
 def main():
     idev = 0
     bPinGenericMemory = False
+
+    if platform.system() == "Darwin":
+        print("simpleZeroCopy is not supported on Mac OSX - waiving sample")
+        return
+
+    if platform.machine() == "armv7l":
+        print("simpleZeroCopy is not supported on ARMv7 - waiving sample")
+        return
+
+    if platform.machine() == "aarch64":
+        print("simpleZeroCopy is not supported on aarch64 - waiving sample")
+        return
+
+    if platform.machine() == "sbsa":
+        print("simpleZeroCopy is not supported on sbsa - waiving sample")
+        return
 
     if checkCmdLineFlag("help"):
         print("Usage:  simpleZeroCopy [OPTION]\n")

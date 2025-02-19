@@ -31,7 +31,7 @@ jobs:
           - "3.9"
         cuda-version:
           # Note: this is for build-time only.
-          - "12.6.2"
+          - "12.8.0"
     name: Build (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }})
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
@@ -76,7 +76,7 @@ jobs:
             REPO_DIR=$(cygpath -w $PWD)
           fi
   
-          echo "PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}"
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
@@ -139,10 +139,10 @@ jobs:
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
-            PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+            CUDA_BINDINGS_PARALLEL_LEVEL=${{ env.CUDA_BINDINGS_PARALLEL_LEVEL }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_HOME="$(cygpath -w ${{ env.CUDA_PATH }})"
-            PARALLEL_LEVEL=${{ env.PARALLEL_LEVEL }}
+            CUDA_BINDINGS_PARALLEL_LEVEL=${{ env.CUDA_BINDINGS_PARALLEL_LEVEL }}
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -157,10 +157,9 @@ jobs:
           $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
-      # TODO: enable this after NVIDIA/cuda-python#297 is resolved
-      # - name: Check cuda.bindings wheel
-      #   run: |
-      #     twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+      - name: Check cuda.bindings wheel
+        run: |
+          twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
         uses: actions/upload-artifact@v4
@@ -221,7 +220,7 @@ jobs:
           - "3.9"
         cuda-version:
           # Note: this is for test-time only.
-          - "12.6.2"
+          - "12.8.0"
           - "12.0.1"
           - "11.8.0"
         local-ctk:
@@ -236,7 +235,7 @@ jobs:
         include:
           - host-platform: linux-64
             python-version: "3.12"
-            cuda-version: "12.6.2"
+            cuda-version: "12.8.0"
             local-ctk: 1
             runner: H100
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }}, ${{ (matrix.local-ctk == '1' && 'local CTK') || 'CTK wheels' }})
@@ -263,6 +262,7 @@ jobs:
     permissions:
       id-token: write
       contents: write
+      pull-requests: write
     needs:
       - build
     secrets: inherit

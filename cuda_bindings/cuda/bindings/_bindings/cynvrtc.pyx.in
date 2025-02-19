@@ -5,6 +5,8 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+#
+# This code was automatically generated with version 12.8.0. Do not modify it directly.
 {{if 'Windows' == platform.system()}}
 import os
 import site
@@ -37,6 +39,11 @@ cdef bint __cuPythonInit = False
 {{if 'nvrtcGetProgramLog' in found_functions}}cdef void *__nvrtcGetProgramLog = NULL{{endif}}
 {{if 'nvrtcAddNameExpression' in found_functions}}cdef void *__nvrtcAddNameExpression = NULL{{endif}}
 {{if 'nvrtcGetLoweredName' in found_functions}}cdef void *__nvrtcGetLoweredName = NULL{{endif}}
+{{if 'nvrtcGetPCHHeapSize' in found_functions}}cdef void *__nvrtcGetPCHHeapSize = NULL{{endif}}
+{{if 'nvrtcSetPCHHeapSize' in found_functions}}cdef void *__nvrtcSetPCHHeapSize = NULL{{endif}}
+{{if 'nvrtcGetPCHCreateStatus' in found_functions}}cdef void *__nvrtcGetPCHCreateStatus = NULL{{endif}}
+{{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}cdef void *__nvrtcGetPCHHeapSizeRequired = NULL{{endif}}
+{{if 'nvrtcSetFlowCallback' in found_functions}}cdef void *__nvrtcSetFlowCallback = NULL{{endif}}
 
 cdef int cuPythonInit() except -1 nogil:
     global __cuPythonInit
@@ -244,6 +251,41 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'nvrtcGetPCHHeapSize' in found_functions}}
+        try:
+            global __nvrtcGetPCHHeapSize
+            __nvrtcGetPCHHeapSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetPCHHeapSize')
+        except:
+            pass
+        {{endif}}
+        {{if 'nvrtcSetPCHHeapSize' in found_functions}}
+        try:
+            global __nvrtcSetPCHHeapSize
+            __nvrtcSetPCHHeapSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcSetPCHHeapSize')
+        except:
+            pass
+        {{endif}}
+        {{if 'nvrtcGetPCHCreateStatus' in found_functions}}
+        try:
+            global __nvrtcGetPCHCreateStatus
+            __nvrtcGetPCHCreateStatus = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetPCHCreateStatus')
+        except:
+            pass
+        {{endif}}
+        {{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
+        try:
+            global __nvrtcGetPCHHeapSizeRequired
+            __nvrtcGetPCHHeapSizeRequired = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetPCHHeapSizeRequired')
+        except:
+            pass
+        {{endif}}
+        {{if 'nvrtcSetFlowCallback' in found_functions}}
+        try:
+            global __nvrtcSetFlowCallback
+            __nvrtcSetFlowCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcSetFlowCallback')
+        except:
+            pass
+        {{endif}}
 
     {{else}}
     {{if 'nvrtcGetErrorString' in found_functions}}
@@ -329,6 +371,26 @@ cdef int cuPythonInit() except -1 nogil:
     {{if 'nvrtcGetLoweredName' in found_functions}}
     global __nvrtcGetLoweredName
     __nvrtcGetLoweredName = dlfcn.dlsym(handle, 'nvrtcGetLoweredName')
+    {{endif}}
+    {{if 'nvrtcGetPCHHeapSize' in found_functions}}
+    global __nvrtcGetPCHHeapSize
+    __nvrtcGetPCHHeapSize = dlfcn.dlsym(handle, 'nvrtcGetPCHHeapSize')
+    {{endif}}
+    {{if 'nvrtcSetPCHHeapSize' in found_functions}}
+    global __nvrtcSetPCHHeapSize
+    __nvrtcSetPCHHeapSize = dlfcn.dlsym(handle, 'nvrtcSetPCHHeapSize')
+    {{endif}}
+    {{if 'nvrtcGetPCHCreateStatus' in found_functions}}
+    global __nvrtcGetPCHCreateStatus
+    __nvrtcGetPCHCreateStatus = dlfcn.dlsym(handle, 'nvrtcGetPCHCreateStatus')
+    {{endif}}
+    {{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
+    global __nvrtcGetPCHHeapSizeRequired
+    __nvrtcGetPCHHeapSizeRequired = dlfcn.dlsym(handle, 'nvrtcGetPCHHeapSizeRequired')
+    {{endif}}
+    {{if 'nvrtcSetFlowCallback' in found_functions}}
+    global __nvrtcSetFlowCallback
+    __nvrtcSetFlowCallback = dlfcn.dlsym(handle, 'nvrtcSetFlowCallback')
     {{endif}}
 
     {{endif}}
@@ -582,5 +644,65 @@ cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expres
         with gil:
             raise RuntimeError('Function "nvrtcGetLoweredName" not found')
     err = (<nvrtcResult (*)(nvrtcProgram, const char*, const char**) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetLoweredName)(prog, name_expression, lowered_name)
+    return err
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSize' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    global __nvrtcGetPCHHeapSize
+    cuPythonInit()
+    if __nvrtcGetPCHHeapSize == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcGetPCHHeapSize" not found')
+    err = (<nvrtcResult (*)(size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPCHHeapSize)(ret)
+    return err
+{{endif}}
+
+{{if 'nvrtcSetPCHHeapSize' in found_functions}}
+
+cdef nvrtcResult _nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    global __nvrtcSetPCHHeapSize
+    cuPythonInit()
+    if __nvrtcSetPCHHeapSize == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcSetPCHHeapSize" not found')
+    err = (<nvrtcResult (*)(size_t) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcSetPCHHeapSize)(size)
+    return err
+{{endif}}
+
+{{if 'nvrtcGetPCHCreateStatus' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    global __nvrtcGetPCHCreateStatus
+    cuPythonInit()
+    if __nvrtcGetPCHCreateStatus == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcGetPCHCreateStatus" not found')
+    err = (<nvrtcResult (*)(nvrtcProgram) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPCHCreateStatus)(prog)
+    return err
+{{endif}}
+
+{{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
+
+cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    global __nvrtcGetPCHHeapSizeRequired
+    cuPythonInit()
+    if __nvrtcGetPCHHeapSizeRequired == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcGetPCHHeapSizeRequired" not found')
+    err = (<nvrtcResult (*)(nvrtcProgram, size_t*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcGetPCHHeapSizeRequired)(prog, size)
+    return err
+{{endif}}
+
+{{if 'nvrtcSetFlowCallback' in found_functions}}
+
+cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+    global __nvrtcSetFlowCallback
+    cuPythonInit()
+    if __nvrtcSetFlowCallback == NULL:
+        with gil:
+            raise RuntimeError('Function "nvrtcSetFlowCallback" not found')
+    err = (<nvrtcResult (*)(nvrtcProgram, void*, void*) except ?NVRTC_ERROR_INVALID_INPUT nogil> __nvrtcSetFlowCallback)(prog, callback, payload)
     return err
 {{endif}}

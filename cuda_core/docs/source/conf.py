@@ -11,7 +11,6 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
 
-# import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
 
@@ -75,6 +74,15 @@ html_theme_options = {
     #    "navbar-icon-links",
     # ],
 }
+if os.environ.get("CI"):
+    if int(os.environ.get("BUILD_PREVIEW", 0)):
+        PR_NUMBER = f"{os.environ['PR_NUMBER']}"
+        PR_TEXT = f'<a href="https://github.com/NVIDIA/cuda-python/pull/{PR_NUMBER}">PR {PR_NUMBER}</a>'
+        html_theme_options["announcement"] = f"<em>Warning</em>: This documentation is only a preview for {PR_TEXT}!"
+    elif int(os.environ.get("BUILD_LATEST", 0)):
+        html_theme_options["announcement"] = (
+            "<em>Warning</em>: This documentation is built from the development branch!"
+        )
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -92,31 +100,32 @@ intersphinx_mapping = {
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 
-
 section_titles = ["Returns"]
 
 
 def autodoc_process_docstring(app, what, name, obj, options, lines):
-    if name.startswith("cuda.core.experimental.system"):
+    if name.startswith("cuda.core.experimental._system.System"):
+        name = name.replace("._system.System", ".system")
         # patch the docstring (in lines) *in-place*. Should docstrings include section titles other than "Returns",
         # this will need to be modified to handle them.
+        while lines:
+            lines.pop()
         attr = name.split(".")[-1]
         from cuda.core.experimental._system import System
 
-        lines_new = getattr(System, attr).__doc__.split("\n")
-        formatted_lines = []
-        for line in lines_new:
+        original_lines = getattr(System, attr).__doc__.split("\n")
+        new_lines = []
+        new_lines.append(f".. py:data:: {name}")
+        new_lines.append("")
+        for line in original_lines:
             title = line.strip()
             if title in section_titles:
-                formatted_lines.append(line.replace(title, f".. rubric:: {title}"))
+                new_lines.append(line.replace(title, f".. rubric:: {title}"))
             elif line.strip() == "-" * len(title):
-                formatted_lines.append(" " * len(title))
+                new_lines.append(" " * len(title))
             else:
-                formatted_lines.append(line)
-        n_pops = len(lines)
-        lines.extend(formatted_lines)
-        for _ in range(n_pops):
-            lines.pop(0)
+                new_lines.append(line)
+        lines.extend(new_lines)
 
 
 def setup(app):

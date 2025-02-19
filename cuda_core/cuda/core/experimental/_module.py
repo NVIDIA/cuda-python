@@ -2,15 +2,17 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+from typing import Optional, Union
+from warnings import warn
 
-from cuda import cuda
-from cuda.core.experimental._utils import get_binding_version, handle_return, precondition
+from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
     "old": {
-        "file": cuda.cuModuleLoad,
-        "data": cuda.cuModuleLoadDataEx,
-        "kernel": cuda.cuModuleGetFunction,
+        "file": driver.cuModuleLoad,
+        "data": driver.cuModuleLoadDataEx,
+        "kernel": driver.cuModuleGetFunction,
+        "attribute": driver.cuFuncGetAttribute,
     },
 }
 
@@ -32,15 +34,146 @@ def _lazy_init():
     _py_major_ver, _ = get_binding_version()
     if _py_major_ver >= 12:
         _backend["new"] = {
-            "file": cuda.cuLibraryLoadFromFile,
-            "data": cuda.cuLibraryLoadData,
-            "kernel": cuda.cuLibraryGetKernel,
+            "file": driver.cuLibraryLoadFromFile,
+            "data": driver.cuLibraryLoadData,
+            "kernel": driver.cuLibraryGetKernel,
+            "attribute": driver.cuKernelGetAttribute,
         }
-        _kernel_ctypes = (cuda.CUfunction, cuda.CUkernel)
+        _kernel_ctypes = (driver.CUfunction, driver.CUkernel)
     else:
-        _kernel_ctypes = (cuda.CUfunction,)
-    _driver_ver = handle_return(cuda.cuDriverGetVersion())
+        _kernel_ctypes = (driver.CUfunction,)
+    _driver_ver = handle_return(driver.cuDriverGetVersion())
     _inited = True
+
+
+class KernelAttributes:
+    def __init__(self):
+        raise RuntimeError("KernelAttributes should not be instantiated directly")
+
+    slots = ("_handle", "_cache", "_backend_version", "_loader")
+
+    def _init(handle):
+        self = KernelAttributes.__new__(KernelAttributes)
+        self._handle = handle
+        self._cache = {}
+
+        self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
+        self._loader = _backend[self._backend_version]
+        return self
+
+    def _get_cached_attribute(self, device_id: int, attribute: driver.CUfunction_attribute) -> int:
+        """Helper function to get a cached attribute or fetch and cache it if not present."""
+        if device_id in self._cache and attribute in self._cache[device_id]:
+            return self._cache[device_id][attribute]
+        if self._backend_version == "new":
+            result = handle_return(self._loader["attribute"](attribute, self._handle, device_id))
+        else:  # "old" backend
+            warn(
+                "Device ID argument is ignored when getting attribute from kernel when cuda version < 12. ",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            result = handle_return(self._loader["attribute"](attribute, self._handle))
+        if device_id not in self._cache:
+            self._cache[device_id] = {}
+        self._cache[device_id][attribute] = result
+        return result
+
+    def max_threads_per_block(self, device_id: int = None) -> int:
+        """int : The maximum number of threads per block.
+        This attribute is read-only."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
+        )
+
+    def shared_size_bytes(self, device_id: int = None) -> int:
+        """int : The size in bytes of statically-allocated shared memory required by this function.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES)
+
+    def const_size_bytes(self, device_id: int = None) -> int:
+        """int : The size in bytes of user-allocated constant memory required by this function.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES)
+
+    def local_size_bytes(self, device_id: int = None) -> int:
+        """int : The size in bytes of local memory used by each thread of this function.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES)
+
+    def num_regs(self, device_id: int = None) -> int:
+        """int : The number of registers used by each thread of this function.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NUM_REGS)
+
+    def ptx_version(self, device_id: int = None) -> int:
+        """int : The PTX virtual architecture version for which the function was compiled.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PTX_VERSION)
+
+    def binary_version(self, device_id: int = None) -> int:
+        """int : The binary architecture version for which the function was compiled.
+        This attribute is read-only."""
+        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_BINARY_VERSION)
+
+    def cache_mode_ca(self, device_id: int = None) -> bool:
+        """bool : Whether the function has been compiled with user specified option "-Xptxas --dlcm=ca" set.
+        This attribute is read-only."""
+        return bool(self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA))
+
+    def max_dynamic_shared_size_bytes(self, device_id: int = None) -> int:
+        """int : The maximum size in bytes of dynamically-allocated shared memory that can be used
+        by this function."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
+        )
+
+    def preferred_shared_memory_carveout(self, device_id: int = None) -> int:
+        """int : The shared memory carveout preference, in percent of the total shared memory."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
+        )
+
+    def cluster_size_must_be_set(self, device_id: int = None) -> bool:
+        """bool : The kernel must launch with a valid cluster size specified.
+        This attribute is read-only."""
+        return bool(
+            self._get_cached_attribute(
+                device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
+            )
+        )
+
+    def required_cluster_width(self, device_id: int = None) -> int:
+        """int : The required cluster width in blocks."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
+        )
+
+    def required_cluster_height(self, device_id: int = None) -> int:
+        """int : The required cluster height in blocks."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
+        )
+
+    def required_cluster_depth(self, device_id: int = None) -> int:
+        """int : The required cluster depth in blocks."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
+        )
+
+    def non_portable_cluster_size_allowed(self, device_id: int = None) -> bool:
+        """bool : Whether the function can be launched with non-portable cluster size."""
+        return bool(
+            self._get_cached_attribute(
+                device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED
+            )
+        )
+
+    def cluster_scheduling_policy_preference(self, device_id: int = None) -> int:
+        """int : The block scheduling policy of a function."""
+        return self._get_cached_attribute(
+            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+        )
 
 
 class Kernel:
@@ -54,13 +187,10 @@ class Kernel:
 
     """
 
-    __slots__ = (
-        "_handle",
-        "_module",
-    )
+    __slots__ = ("_handle", "_module", "_attributes")
 
     def __init__(self):
-        raise NotImplementedError("directly constructing a Kernel instance is not supported")
+        raise RuntimeError("directly constructing a Kernel instance is not supported")
 
     @staticmethod
     def _from_obj(obj, mod):
@@ -69,53 +199,56 @@ class Kernel:
         ker = Kernel.__new__(Kernel)
         ker._handle = obj
         ker._module = mod
+        ker._attributes = None
         return ker
+
+    @property
+    def attributes(self):
+        """Get the read-only attributes of this kernel."""
+        if self._attributes is None:
+            self._attributes = KernelAttributes._init(self._handle)
+        return self._attributes
 
     # TODO: implement from_handle()
 
 
 class ObjectCode:
-    """Represent a compiled program that was loaded onto the device.
+    """Represent a compiled program to be loaded onto the device.
 
     This object provides a unified interface for different types of
-    compiled programs that are loaded onto the device.
+    compiled programs that will be loaded onto the device.
 
-    Loads the module library with specified module code and JIT options.
+    Note
+    ----
+    This class has no default constructor. If you already have a cubin that you would
+    like to load, use the :meth:`from_cubin` alternative constructor. For all other
+    possible code types (ex: "ptx"), only :class:`~cuda.core.experimental.Program`
+    accepts them and returns an :class:`ObjectCode` instance with its
+    :meth:`~cuda.core.experimental.Program.compile` method.
 
     Note
     ----
     Usage under CUDA 11.x will only load to the current device
     context.
-
-    Parameters
-    ----------
-    module : Union[bytes, str]
-        Either a bytes object containing the module to load, or
-        a file path string containing that module for loading.
-    code_type : Any
-        String of the compiled type.
-        Supported options are "ptx", "cubin", "ltoir" and "fatbin".
-    jit_options : Optional
-        Mapping of JIT options to use during module loading.
-        (Default to no options)
-    symbol_mapping : Optional
-        Keyword argument dictionary specifying how symbol names
-        should be mapped before trying to retrieve them.
-        (Default to no mappings)
-
     """
 
-    __slots__ = ("_handle", "_backend_version", "_jit_options", "_code_type", "_module", "_loader", "_sym_map")
+    __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self, module, code_type, jit_options=None, *, symbol_mapping=None):
-        if code_type not in self._supported_code_type:
-            raise ValueError
+    def __init__(self):
+        raise NotImplementedError(
+            "directly creating an ObjectCode object can be ambiguous. Please either call Program.compile() "
+            "or one of the ObjectCode.from_*() constructors"
+        )
+
+    @staticmethod
+    def _init(module, code_type, *, symbol_mapping: Optional[dict] = None):
+        self = ObjectCode.__new__(ObjectCode)
+        assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
 
         # handle is assigned during _lazy_load
         self._handle = None
-        self._jit_options = jit_options
 
         self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
         self._loader = _backend[self._backend_version]
@@ -124,42 +257,41 @@ class ObjectCode:
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
+        return self
+
+    @staticmethod
+    def from_cubin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing cubin.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory cubin to load, or
+            a file path string pointing to the on-disk cubin to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
+
     # TODO: do we want to unload in a finalizer? Probably not..
 
     def _lazy_load_module(self, *args, **kwargs):
         if self._handle is not None:
             return
-        jit_options = self._jit_options
         module = self._module
         if isinstance(module, str):
-            # TODO: this option is only taken by the new library APIs, but we have
-            # a bug that we can't easily support it just yet (NVIDIA/cuda-python#73).
-            if jit_options is not None:
-                raise ValueError
-            self._handle = handle_return(self._loader["file"](module))
+            if self._backend_version == "new":
+                self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
+            else:  # "old" backend
+                self._handle = handle_return(self._loader["file"](module.encode()))
         else:
             assert isinstance(module, bytes)
-            if jit_options is None:
-                jit_options = {}
             if self._backend_version == "new":
-                args = (
-                    module,
-                    list(jit_options.keys()),
-                    list(jit_options.values()),
-                    len(jit_options),
-                    # TODO: support library options
-                    [],
-                    [],
-                    0,
-                )
+                self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
             else:  # "old" backend
-                args = (
-                    module,
-                    len(jit_options),
-                    list(jit_options.keys()),
-                    list(jit_options.values()),
-                )
-            self._handle = handle_return(self._loader["data"](*args))
+                self._handle = handle_return(self._loader["data"](module, 0, [], []))
 
     @precondition(_lazy_load_module)
     def get_kernel(self, name):
@@ -176,6 +308,8 @@ class ObjectCode:
             Newly created kernel object.
 
         """
+        if self._code_type not in ("cubin", "ptx", "fatbin"):
+            raise RuntimeError(f"get_kernel() is not supported for {self._code_type}")
         try:
             name = self._sym_map[name]
         except KeyError:
@@ -183,5 +317,3 @@ class ObjectCode:
 
         data = handle_return(self._loader["kernel"](self._handle, name))
         return Kernel._from_obj(data, self)
-
-    # TODO: implement from_handle()

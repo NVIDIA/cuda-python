@@ -6,6 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 import ctypes
+import platform
 import sys
 
 import numpy as np
@@ -28,6 +29,22 @@ __global__ void SimpleKernel(float *src, float *dst)
 
 def main():
     print("Starting...")
+
+    if platform.system() == "Darwin":
+        print("simpleP2P is not supported on Mac OSX - waiving sample")
+        return
+
+    if platform.machine() == "armv7l":
+        print("simpleP2P is not supported on ARMv7 - waiving sample")
+        return
+
+    if platform.machine() == "aarch64":
+        print("simpleP2P is not supported on aarch64 - waiving sample")
+        return
+
+    if platform.machine() == "sbsa":
+        print("simpleP2P is not supported on sbsa - waiving sample")
+        return
 
     # Number of GPUs
     print("Checking for multiple GPUs...")

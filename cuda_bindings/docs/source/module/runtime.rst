@@ -78,6 +78,7 @@ This section describes the stream management functions of the CUDA runtime appli
 .. autofunction:: cuda.bindings.runtime.cudaStreamGetPriority
 .. autofunction:: cuda.bindings.runtime.cudaStreamGetFlags
 .. autofunction:: cuda.bindings.runtime.cudaStreamGetId
+.. autofunction:: cuda.bindings.runtime.cudaStreamGetDevice
 .. autofunction:: cuda.bindings.runtime.cudaCtxResetPersistingL2Cache
 .. autofunction:: cuda.bindings.runtime.cudaStreamCopyAttributes
 .. autofunction:: cuda.bindings.runtime.cudaStreamGetAttribute
@@ -111,6 +112,7 @@ This section describes the event management functions of the CUDA runtime applic
 .. autofunction:: cuda.bindings.runtime.cudaEventSynchronize
 .. autofunction:: cuda.bindings.runtime.cudaEventDestroy
 .. autofunction:: cuda.bindings.runtime.cudaEventElapsedTime
+.. autofunction:: cuda.bindings.runtime.cudaEventElapsedTime_v2
 
 External Resource Interoperability
 ----------------------------------
@@ -203,6 +205,8 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.bindings.runtime.cudaMemcpy2DArrayToArray
 .. autofunction:: cuda.bindings.runtime.cudaMemcpyAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemcpyPeerAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpyBatchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemcpy3DBatchAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemcpy2DAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemcpy2DToArrayAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemcpy2DFromArrayAsync
@@ -576,6 +580,22 @@ This section describes the driver entry point access functions of CUDA runtime a
 .. autofunction:: cuda.bindings.runtime.cudaGetDriverEntryPoint
 .. autofunction:: cuda.bindings.runtime.cudaGetDriverEntryPointByVersion
 
+Library Management
+------------------
+
+This section describes the library management functions of the CUDA runtime application programming interface.
+
+.. autofunction:: cuda.bindings.runtime.cudaLibraryLoadData
+.. autofunction:: cuda.bindings.runtime.cudaLibraryLoadFromFile
+.. autofunction:: cuda.bindings.runtime.cudaLibraryUnload
+.. autofunction:: cuda.bindings.runtime.cudaLibraryGetKernel
+.. autofunction:: cuda.bindings.runtime.cudaLibraryGetGlobal
+.. autofunction:: cuda.bindings.runtime.cudaLibraryGetManaged
+.. autofunction:: cuda.bindings.runtime.cudaLibraryGetUnifiedFunction
+.. autofunction:: cuda.bindings.runtime.cudaLibraryGetKernelCount
+.. autofunction:: cuda.bindings.runtime.cudaLibraryEnumerateKernels
+.. autofunction:: cuda.bindings.runtime.cudaKernelSetAttributeForDevice
+
 C++ API Routines
 ----------------
 C++-style interface built on top of CUDA runtime API.
@@ -621,7 +641,7 @@ The function cudaSetDevice() initializes the primary context for the specified d
 
 The CUDA Runtime API will automatically initialize the primary context for a device at the first CUDA Runtime API call which requires an active context. If no ::CUcontext is current to the calling thread when a CUDA Runtime API call which requires an active context is made, then the primary context for a device will be selected, made current to the calling thread, and initialized.
 
-The context which the CUDA Runtime API initializes will be initialized using the parameters specified by the CUDA Runtime API functions cudaSetDeviceFlags(), ::cudaD3D9SetDirect3DDevice(), ::cudaD3D10SetDirect3DDevice(), ::cudaD3D11SetDirect3DDevice(), cudaGLSetGLDevice(), and cudaVDPAUSetVDPAUDevice(). Note that these functions will fail with cudaErrorSetOnActiveProcess if they are called when the primary context for the specified device has already been initialized. (or if the current device has already been initialized, in the case of cudaSetDeviceFlags()).
+The context which the CUDA Runtime API initializes will be initialized using the parameters specified by the CUDA Runtime API functions cudaSetDeviceFlags(), ::cudaD3D9SetDirect3DDevice(), ::cudaD3D10SetDirect3DDevice(), ::cudaD3D11SetDirect3DDevice(), cudaGLSetGLDevice(), and cudaVDPAUSetVDPAUDevice(). Note that these functions will fail with cudaErrorSetOnActiveProcess if they are called when the primary context for the specified device has already been initialized, except for cudaSetDeviceFlags() which will simply overwrite the previous settings.
 
 Primary contexts will remain active until they are explicitly deinitialized using cudaDeviceReset(). The function cudaDeviceReset() will deinitialize the primary context for the calling thread's current device immediately. The context will remain current to all of the threads that it was current to. The next CUDA Runtime API call on any thread which requires an active context will trigger the reinitialization of that device's primary context.
 
@@ -735,6 +755,18 @@ The types ::CUfunction and cudaFunction_t represent the same data type and may b
 
 In order to use a cudaFunction_t in a CUDA Driver API function which takes a ::CUfunction, it is necessary to explicitly cast the cudaFunction_t to a ::CUfunction.
 
+
+
+
+
+**Interactions between CUkernel and cudaKernel_t**
+
+
+
+The types ::CUkernel and cudaKernel_t represent the same data type and may be used interchangeably by casting the two types between each other.
+
+In order to use a cudaKernel_t in a CUDA Driver API function which takes a ::CUkernel, it is necessary to explicitly cast the cudaKernel_t to a ::CUkernel.
+
 .. autofunction:: cuda.bindings.runtime.cudaGetKernel
 
 Data types used by CUDA Runtime
@@ -769,6 +801,10 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaMemAllocNodeParams
 .. autoclass:: cuda.bindings.runtime.cudaMemAllocNodeParamsV2
 .. autoclass:: cuda.bindings.runtime.cudaMemFreeNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaMemcpyAttributes
+.. autoclass:: cuda.bindings.runtime.cudaOffset3D
+.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DOperand
+.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DBatchOp
 .. autoclass:: cuda.bindings.runtime.CUuuid_st
 .. autoclass:: cuda.bindings.runtime.cudaDeviceProp
 .. autoclass:: cuda.bindings.runtime.cudaIpcEventHandle_st
@@ -780,6 +816,7 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreHandleDesc
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreSignalParams
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreWaitParams
+.. autoclass:: cuda.bindings.runtime.cudalibraryHostUniversalFunctionAndDataTable
 .. autoclass:: cuda.bindings.runtime.cudaKernelNodeParams
 .. autoclass:: cuda.bindings.runtime.cudaKernelNodeParamsV2
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreSignalNodeParams
@@ -1487,6 +1524,24 @@ Data types used by CUDA Runtime
 
         Extended Range Y12, V12U12 in two surfaces (VU as one surface) U/V width = Y width, U/V height = Y height.
 
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY709
+
+
+        Y, U, V in one surface, interleaved as UYVY in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY709_ER
+
+
+        Extended Range Y, U, V in one surface, interleaved as UYVY in one channel.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatUYVY2020
+
+
+        Y, U, V in one surface, interleaved as UYVY in one channel.
+
 .. autoclass:: cuda.bindings.runtime.cudaError_t
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaSuccess
@@ -1630,7 +1685,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorInvalidNormSetting
 
 
-        This indicates that an attempt was made to read a non-float texture as a normalized float. This is not supported by CUDA.
+        This indicates that an attempt was made to read an unsupported data type as a normalized float. This is not supported by CUDA.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorMixedDeviceExecution
@@ -1921,6 +1976,12 @@ Data types used by CUDA Runtime
         This indicates that the code to be compiled by the PTX JIT contains unsupported call to cudaDeviceSynchronize.
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorContained
+
+
+        This indicates that an exception occurred on the device that is now contained by the GPU's error containment capability. Common causes are - a. Certain types of invalid accesses of peer GPU memory over nvlink b. Certain classes of hardware errors This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorInvalidSource
 
 
@@ -2093,6 +2154,12 @@ Data types used by CUDA Runtime
 
 
         This error indicates that the number of blocks launched per grid for a kernel that was launched via either :py:obj:`~.cudaLaunchCooperativeKernel` or :py:obj:`~.cudaLaunchCooperativeKernelMultiDevice` exceeds the maximum number of blocks as allowed by :py:obj:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessor` or :py:obj:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags` times the number of multiprocessors as specified by the device attribute :py:obj:`~.cudaDevAttrMultiProcessorCount`.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorTensorMemoryLeak
+
+
+        An exception occurred on the device while exiting a kernel using tensor memory: the tensor memory was not completely deallocated. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorNotPermitted
@@ -2463,6 +2530,12 @@ Data types used by CUDA Runtime
 
 
         4 channel unsigned normalized block-compressed (BC7 compression) format with sRGB encoding
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaChannelFormatKind.cudaChannelFormatKindUnsignedNormalized1010102
+
+
+        4 channel unsigned normalized (10-bit, 10-bit, 10-bit, 2-bit) format
 
 .. autoclass:: cuda.bindings.runtime.cudaMemoryType
 
@@ -3999,13 +4072,31 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaId
 
 
-        NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
+        NUMA ID of the host node closest to the device or -1 when system does not support NUMA
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrD3D12CigSupported
 
 
         Device supports CIG with D3D12.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrGpuPciDeviceId
+
+
+        The combined 16-bit PCI device ID and 16-bit PCI vendor ID.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrGpuPciSubsystemId
+
+
+        The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaMultinodeIpcSupported
+
+
+        Device supports HostNuma location IPC between nodes in a multi-node system.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax
@@ -4175,6 +4266,60 @@ Data types used by CUDA Runtime
 
         (value type = cuuint64_t) High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
 
+.. autoclass:: cuda.bindings.runtime.cudaMemcpyFlags
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemcpyFlags.cudaMemcpyFlagDefault
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemcpyFlags.cudaMemcpyFlagPreferOverlapWithCompute
+
+
+        Hint to the driver to try and overlap the copy with compute work on the SMs.
+
+.. autoclass:: cuda.bindings.runtime.cudaMemcpySrcAccessOrder
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderInvalid
+
+
+        Default invalid.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderStream
+
+
+        Indicates that access to the source pointer must be in stream order.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderDuringApiCall
+
+
+        Indicates that access to the source pointer can be out of stream order and all accesses must be complete before the API call returns. This flag is suited for ephemeral sources (ex., stack variables) when it's known that no prior operations in the stream can be accessing the memory and also that the lifetime of the memory is limited to the scope that the source variable was declared in. Specifying this flag allows the driver to optimize the copy and removes the need for the user to synchronize the stream after the API call.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderAny
+
+
+        Indicates that access to the source pointer can be out of stream order and the accesses can happen even after the API call returns. This flag is suited for host pointers allocated outside CUDA (ex., via malloc) when it's known that no prior operations in the stream can be accessing the memory. Specifying this flag allows the driver to optimize the copy on certain platforms.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemcpySrcAccessOrder.cudaMemcpySrcAccessOrderMax
+
+.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DOperandType
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemcpy3DOperandType.cudaMemcpyOperandTypePointer
+
+
+        Memcpy operand is a valid pointer.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemcpy3DOperandType.cudaMemcpyOperandTypeArray
+
+
+        Memcpy operand is a CUarray.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemcpy3DOperandType.cudaMemcpyOperandTypeMax
+
 .. autoclass:: cuda.bindings.runtime.cudaDeviceP2PAttr
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceP2PAttr.cudaDevP2PAttrPerformanceRank
@@ -4310,6 +4455,219 @@ Data types used by CUDA Runtime
 
         Handle is an opaque handle file descriptor referencing a timeline semaphore
 
+.. autoclass:: cuda.bindings.runtime.cudaJitOption
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitMaxRegisters
+
+
+        Max number of registers that a thread may use.
+
+        Option type: unsigned int
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitThreadsPerBlock
+
+
+        IN: Specifies minimum number of threads per block to target compilation for
+
+        OUT: Returns the number of threads the compiler actually targeted. This restricts the resource utilization of the compiler (e.g. max registers) such that a block with the given number of threads should be able to launch based on register limitations. Note, this option does not currently take into account any other resource limitations, such as shared memory utilization.
+
+        Option type: unsigned int
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitWallTime
+
+
+        Overwrites the option value with the total wall clock time, in milliseconds, spent in the compiler and linker
+
+        Option type: float
+
+        Applies to: compiler and linker
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitInfoLogBuffer
+
+
+        Pointer to a buffer in which to print any log messages that are informational in nature (the buffer size is specified via option :py:obj:`~.cudaJitInfoLogBufferSizeBytes`)
+
+        Option type: char *
+
+        Applies to: compiler and linker
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitInfoLogBufferSizeBytes
+
+
+        IN: Log buffer size in bytes. Log messages will be capped at this size (including null terminator)
+
+        OUT: Amount of log buffer filled with messages
+
+        Option type: unsigned int
+
+        Applies to: compiler and linker
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitErrorLogBuffer
+
+
+        Pointer to a buffer in which to print any log messages that reflect errors (the buffer size is specified via option :py:obj:`~.cudaJitErrorLogBufferSizeBytes`)
+
+        Option type: char *
+
+        Applies to: compiler and linker
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitErrorLogBufferSizeBytes
+
+
+        IN: Log buffer size in bytes. Log messages will be capped at this size (including null terminator)
+
+        OUT: Amount of log buffer filled with messages
+
+        Option type: unsigned int
+
+        Applies to: compiler and linker
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitOptimizationLevel
+
+
+        Level of optimizations to apply to generated code (0 - 4), with 4 being the default and highest level of optimizations.
+
+        Option type: unsigned int
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitFallbackStrategy
+
+
+        Specifies choice of fallback strategy if matching cubin is not found. Choice is based on supplied :py:obj:`~.cudaJit_Fallback`. Option type: unsigned int for enumerated type :py:obj:`~.cudaJit_Fallback`
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitGenerateDebugInfo
+
+
+        Specifies whether to create debug information in output (-g) (0: false, default)
+
+        Option type: int
+
+        Applies to: compiler and linker
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitLogVerbose
+
+
+        Generate verbose log messages (0: false, default)
+
+        Option type: int
+
+        Applies to: compiler and linker
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitGenerateLineInfo
+
+
+        Generate line number information (-lineinfo) (0: false, default)
+
+        Option type: int
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitCacheMode
+
+
+        Specifies whether to enable caching explicitly (-dlcm) 
+
+        Choice is based on supplied :py:obj:`~.cudaJit_CacheMode`.
+
+        Option type: unsigned int for enumerated type :py:obj:`~.cudaJit_CacheMode`
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitPositionIndependentCode
+
+
+        Generate position independent code (0: false)
+
+        Option type: int
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitMinCtaPerSm
+
+
+        This option hints to the JIT compiler the minimum number of CTAs from the kernel’s grid to be mapped to a SM. This option is ignored when used together with :py:obj:`~.cudaJitMaxRegisters` or :py:obj:`~.cudaJitThreadsPerBlock`. Optimizations based on this option need :py:obj:`~.cudaJitMaxThreadsPerBlock` to be specified as well. For kernels already using PTX directive .minnctapersm, this option will be ignored by default. Use :py:obj:`~.cudaJitOverrideDirectiveValues` to let this option take precedence over the PTX directive. Option type: unsigned int
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitMaxThreadsPerBlock
+
+
+        Maximum number threads in a thread block, computed as the product of the maximum extent specifed for each dimension of the block. This limit is guaranteed not to be exeeded in any invocation of the kernel. Exceeding the the maximum number of threads results in runtime error or kernel launch failure. For kernels already using PTX directive .maxntid, this option will be ignored by default. Use :py:obj:`~.cudaJitOverrideDirectiveValues` to let this option take precedence over the PTX directive. Option type: int
+
+        Applies to: compiler only
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitOverrideDirectiveValues
+
+
+        This option lets the values specified using :py:obj:`~.cudaJitMaxRegisters`, :py:obj:`~.cudaJitThreadsPerBlock`, :py:obj:`~.cudaJitMaxThreadsPerBlock` and :py:obj:`~.cudaJitMinCtaPerSm` take precedence over any PTX directives. (0: Disable, default; 1: Enable) Option type: int
+
+        Applies to: compiler only
+
+.. autoclass:: cuda.bindings.runtime.cudaLibraryOption
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLibraryOption.cudaLibraryHostUniversalFunctionAndDataTable
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLibraryOption.cudaLibraryBinaryIsPreserved
+
+
+        Specifes that the argument `code` passed to :py:obj:`~.cudaLibraryLoadData()` will be preserved. Specifying this option will let the driver know that `code` can be accessed at any point until :py:obj:`~.cudaLibraryUnload()`. The default behavior is for the driver to allocate and maintain its own copy of `code`. Note that this is only a memory usage optimization hint and the driver can choose to ignore it if required. Specifying this option with :py:obj:`~.cudaLibraryLoadFromFile()` is invalid and will return :py:obj:`~.cudaErrorInvalidValue`.
+
+.. autoclass:: cuda.bindings.runtime.cudaJit_CacheMode
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJit_CacheMode.cudaJitCacheOptionNone
+
+
+        Compile with no -dlcm flag specified
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJit_CacheMode.cudaJitCacheOptionCG
+
+
+        Compile with L1 cache disabled
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJit_CacheMode.cudaJitCacheOptionCA
+
+
+        Compile with L1 cache enabled
+
+.. autoclass:: cuda.bindings.runtime.cudaJit_Fallback
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJit_Fallback.cudaPreferPtx
+
+
+        Prefer to compile ptx if exact binary match not found
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaJit_Fallback.cudaPreferBinary
+
+
+        Prefer to fall back to compatible binary code if exact match not found
+
 .. autoclass:: cuda.bindings.runtime.cudaCGScope
 
     .. autoattribute:: cuda.bindings.runtime.cudaCGScope.cudaCGScopeInvalid
@@ -4341,13 +4699,19 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaGraphConditionalNodeType.cudaGraphCondTypeIf
 
 
-        Conditional 'if' Node. Body executed once if condition value is non-zero.
+        Conditional 'if/else' Node. Body[0] executed if condition is non-zero. If `size` == 2, an optional ELSE graph is created and this is executed if the condition is zero.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphConditionalNodeType.cudaGraphCondTypeWhile
 
 
         Conditional 'while' Node. Body executed repeatedly while condition value is non-zero.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphConditionalNodeType.cudaGraphCondTypeSwitch
+
+
+        Conditional 'switch' Node. Body[n] is executed once, where 'n' is the value of the condition. If the condition does not match a body index, no body is launched.
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphNodeType
 
@@ -4557,6 +4921,12 @@ Data types used by CUDA Runtime
 
 
         Instantiation for device launch failed due to the nodes belonging to different contexts
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphInstantiateResult.cudaGraphInstantiateConditionalHandleUnused
+
+
+        One or more conditional handles are not associated with conditional nodes
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphKernelNodeField
 
@@ -4804,6 +5174,16 @@ Data types used by CUDA Runtime
         Valid for streams, graph nodes, launches. See :py:obj:`~.cudaLaunchAttributeValue.memSyncDomain`.
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributePreferredClusterDimension
+
+
+        Valid for graph nodes and launches. Set :py:obj:`~.cudaLaunchAttributeValue.preferredClusterDim` to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with :py:obj:`~.cudaLaunchAttributeClusterDimension` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible. 
+
+         Each type of cluster will have its enumeration / coordinate setup as if the grid consists solely of its type of cluster. For example, if the preferred substitute cluster dimensions double the regular cluster dimensions, there might be simultaneously a regular cluster indexed at (1,0,0), and a preferred cluster indexed at (1,0,0). In this example, the preferred substitute cluster (1,0,0) replaces regular clusters (2,0,0) and (3,0,0) and groups their blocks. 
+
+         This attribute will only take effect when a regular cluster dimension has been specified. The preferred substitute cluster dimension must be an integer multiple greater than zero of the regular cluster dimension and must divide the grid. It must also be no more than `maxBlocksPerCluster`, if it is set in the kernel's `__launch_bounds__`. Otherwise it must be less than the maximum value the driver can support. Otherwise, setting this attribute to a value physically unable to fit on any particular device is permitted.
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeLaunchCompletionEvent
 
 
@@ -4957,6 +5337,7 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaGraphConditionalHandle
 .. autoclass:: cuda.bindings.runtime.cudaFunction_t
 .. autoclass:: cuda.bindings.runtime.cudaKernel_t
+.. autoclass:: cuda.bindings.runtime.cudaLibrary_t
 .. autoclass:: cuda.bindings.runtime.cudaMemPool_t
 .. autoclass:: cuda.bindings.runtime.cudaGraphEdgeData
 .. autoclass:: cuda.bindings.runtime.cudaGraphExec_t
@@ -4964,6 +5345,7 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaGraphExecUpdateResultInfo
 .. autoclass:: cuda.bindings.runtime.cudaGraphDeviceNode_t
 .. autoclass:: cuda.bindings.runtime.cudaLaunchMemSyncDomainMap
+.. autoclass:: cuda.bindings.runtime.cudaLaunchAttributeValue
 .. autoclass:: cuda.bindings.runtime.cudaLaunchAttribute
 .. autoclass:: cuda.bindings.runtime.cudaAsyncCallbackHandle_t
 .. autoclass:: cuda.bindings.runtime.cudaAsyncNotificationInfo_t
@@ -5197,6 +5579,15 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaArraySparsePropertiesSingleMipTail
 
     Indicates that the layered sparse CUDA array or CUDA mipmapped array has a single mip tail region for all layers
+
+.. autoattribute:: cuda.bindings.runtime.CUDART_CB
+.. autoattribute:: cuda.bindings.runtime.cudaMemPoolCreateUsageHwDecompress
+
+    This flag, if set, indicates that the memory will be used as a buffer for hardware accelerated decompression.
+
+.. autoattribute:: cuda.bindings.runtime.CU_UUID_HAS_BEEN_DEFINED
+
+    CUDA UUID types
 
 .. autoattribute:: cuda.bindings.runtime.CUDA_IPC_HANDLE_SIZE
 

@@ -5,12 +5,14 @@
    :maxdepth: 2
    :caption: Contents:
 
+   release
    install.md
    overview.md
    motivation.md
-   release.md
    environment_variables.md
-   api.rst
+   api
+   tips_and_tricks
+   support
 
 
 Indices and tables
