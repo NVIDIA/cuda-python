@@ -135,6 +135,7 @@ __global__ void A() { int result = C(Z(), 1);}
 
     except:  # noqa E722
         log = linker.get_error_log()
+        assert isinstance(log, str)
         # TODO when 4902246 is addressed, we can update this to cover nvjitlink as well
         if culink_backend:
             assert log.rstrip("\x00") == "error   : Undefined reference to '_Z1Zv' in 'None_ptx'"
