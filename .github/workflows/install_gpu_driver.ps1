@@ -4,8 +4,9 @@
 function Install-Driver {
 
     # Set the correct URL, filename, and arguments to the installer
-    $url = 'https://us.download.nvidia.com/tesla/539.19/539.19-data-center-tesla-desktop-winserver-2019-2022-dch-international.exe';
-    $file_dir = 'C:\NVIDIA-Driver\539.19-data-center-tesla-desktop-winserver-2019-2022-dch-international.exe';
+    # This driver is picked to support Windows 11 & CUDA 12.8
+    $url = 'https://us.download.nvidia.com/tesla/572.13/572.13-data-center-tesla-desktop-win10-win11-64bit-dch-international.exe';
+    $file_dir = 'C:\NVIDIA-Driver\572.13-data-center-tesla-desktop-win10-win11-64bit-dch-international.exe';
     $install_args = '/s /noeula /noreboot';
 
     # Create the folder for the driver download
