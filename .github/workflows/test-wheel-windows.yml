@@ -169,7 +169,7 @@ jobs:
             Get-ChildItem $env:CUDA_PATH
             pip install (Get-ChildItem -Filter *.whl).FullName
           } else {
-            pip install "((Get-ChildItem -Filter *.whl).FullName)[all]"
+            pip install "$((Get-ChildItem -Filter *.whl).FullName)[all]"
           }
           Pop-Location
 
@@ -188,13 +188,13 @@ jobs:
             if ('${{ inputs.local-ctk }}' -eq '1') {
               pip install (Get-ChildItem -Filter *.whl).FullName
             } else {
-              pip install "((Get-ChildItem -Filter *.whl).FullName)[all]"
+              pip install "$((Get-ChildItem -Filter *.whl).FullName)[all]"
             }
             Pop-Location
           }
           $TEST_CUDA_MAJOR = '${{ inputs.cuda-version }}' -split '\.' | Select-Object -First 1
           Push-Location $env:CUDA_CORE_ARTIFACTS_DIR
-          pip install "((Get-ChildItem -Filter *.whl).FullName)[cu${TEST_CUDA_MAJOR}]"
+          pip install "$((Get-ChildItem -Filter *.whl).FullName)[cu${TEST_CUDA_MAJOR}]"
           Pop-Location
 
           Push-Location ./cuda_core
@@ -207,5 +207,5 @@ jobs:
           if ('${{ inputs.local-ctk }}' -eq '1') {
             pip install (Get-ChildItem -Filter cuda_python*.whl).FullName
           } else {
-            pip install "((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
+            pip install "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
           }
