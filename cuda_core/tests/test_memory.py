@@ -7,9 +7,10 @@
 # is strictly prohibited.
 
 try:
-    from cuda.bindings import driver
+    from cuda.bindings import driver, runtime
 except ImportError:
     from cuda import cuda as driver
+    from cuda import cudart as runtime
 
 import ctypes
 import multiprocessing
@@ -252,8 +253,16 @@ def child_process_allocator(size, handle, queue):
     device = Device()  # or Device(specific_device_id)
     device.set_current()
 
+    err = runtime.cudaGetLastError()
+    if err != runtime.cudaSuccess:
+        raise RuntimeError(f"CUDA error after device setup: {err}")
+
     # Create allocator with the same device ID
     alloc = ShareableAllocator(device.device_id)
+    err = runtime.cudaGetLastError()
+    if err != runtime.cudaSuccess:
+        raise RuntimeError(f"CUDA error after allocator ctor setup: {err}")
+
     try:
         # Import the allocation from the parent
         buffer = alloc.import_shareable_allocation(size, handle)
@@ -263,7 +272,7 @@ def child_process_allocator(size, handle, queue):
         assert buffer.is_device_accessible
         assert not buffer.is_host_accessible
         assert buffer.device_id == device.device_id
-        # buffer.close()
+        buffer.close()
         queue.put(True)  # or whatever success signal
     except Exception as e:
         queue.put(e)
@@ -274,7 +283,13 @@ def test_sharable_allocator():
     device.set_current()
     alloc = ShareableAllocator(device.device_id)
     size = 2097152
-    handle = alloc.get_shareable_allocation(size)
+    buffer, handle = alloc.get_shareable_allocation(size)
+    assert buffer.handle != 0
+    assert buffer.size == size
+    assert buffer.memory_resource == alloc
+    assert buffer.is_device_accessible
+    assert not buffer.is_host_accessible
+    assert buffer.device_id == device.device_id
 
     multiprocessing.set_start_method("spawn", force=True)
     queue = multiprocessing.Queue()
@@ -287,3 +302,5 @@ def test_sharable_allocator():
         exception = queue.get()
         if isinstance(exception, Exception):
             raise exception
+
+    buffer.close()
