@@ -125,13 +125,13 @@ jobs:
 
       - name: Display structure of downloaded cuda-python artifacts
         run: |
-          pwd
-          ls -lahR .
+          Get-Location
+          Get-ChildItem -Recurse -Force | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
-          pwd
-          ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
+          Get-Location
+          Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.core build artifacts
         uses: actions/download-artifact@v4
@@ -141,16 +141,16 @@ jobs:
 
       - name: Display structure of downloaded cuda.core build artifacts
         run: |
-          pwd
-          ls -lahR $CUDA_CORE_ARTIFACTS_DIR
+          Get-Location
+          Get-ChildItem -Recurse -Force $env:CUDA_CORE_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-        env:
-          # we use self-hosted runners on which setup-python behaves weirdly...
-          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
+#        env:
+#          # we use self-hosted runners on which setup-python behaves weirdly...
+#          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Set up mini CTK
         if: ${{ inputs.local-ctk == '1' }}
@@ -163,31 +163,20 @@ jobs:
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
-          pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
-            ls $CUDA_PATH
+          Push-Location $env:CUDA_BINDINGS_ARTIFACTS_DIR
+          if ('${{ inputs.local-ctk }}' -eq '1') {
+            Get-ChildItem $env:CUDA_PATH
             pip install *.whl
-          else
-            pip install $(ls *.whl)[all]
-          fi
-          popd
+          } else {
+            pip install (Get-ChildItem -Filter *.whl | Select-Object -ExpandProperty Name -First 1)[all]
+          }
+          Pop-Location
 
-          pushd ./cuda_bindings
+          Push-Location ./cuda_bindings
           pip install -r requirements.txt
           pytest -rxXs tests/
-
-          # It is a bit convoluted to run the Cython tests against CTK wheels,
-          # so let's just skip them.
-          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
-            if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-              bash tests/cython/build_tests.sh
-            elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-              # TODO: enable this once win-64 runners are up 
-              exit 1
-            fi  
-            pytest -rxXs tests/cython
-            popd
-          fi
+          # skip Cython tests for now
+          Pop-Location
 
       - name: Run cuda.core tests
         run: |
@@ -212,10 +201,29 @@ jobs:
           pytest -rxXs tests/
           popd
 
+          if ($env:SKIP_CUDA_BINDINGS_TEST -eq '1') {
+            Push-Location $env:CUDA_BINDINGS_ARTIFACTS_DIR
+            if ('${{ inputs.local-ctk }}' -eq '1') {
+              pip install *.whl
+            } else {
+              pip install (Get-ChildItem -Filter *.whl | Select-Object -ExpandProperty Name -First 1)[all]
+            }
+            Pop-Location
+          }
+          $TEST_CUDA_MAJOR = '${{ inputs.cuda-version }}' -split '\.' | Select-Object -First 1
+          Push-Location $env:CUDA_CORE_ARTIFACTS_DIR
+          pip install (Get-ChildItem -Filter *.whl | Select-Object -ExpandProperty Name -First 1)[cu${TEST_CUDA_MAJOR}]
+          Pop-Location
+
+          Push-Location ./cuda_core
+          pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
+          pytest -rxXs tests/
+          Pop-Location
+
       - name: Ensure cuda-python installable
         run: |
-          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
+          if ('${{ inputs.local-ctk }}' -eq '1') {
             pip install cuda_python*.whl
-          else
-            pip install $(ls cuda_python*.whl)[all]
-          fi
+          } else {
+            pip install (Get-ChildItem -Filter cuda_python*.whl | Select-Object -ExpandProperty Name -First 1)[all]
+          }
