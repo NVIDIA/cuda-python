@@ -261,11 +261,7 @@ jobs:
         host-platform:
           - win-64
         python-version:
-#          - "3.13"
           - "3.12"
-#          - "3.11"
-#          - "3.10"
-#          - "3.9"
         cuda-version:
           # Note: this is for test-time only.
           - "12.8.0"
@@ -284,8 +280,8 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
       contents: read  # This is required for actions/checkout
-#    needs:
-#      - build
+    needs:
+      - build
     secrets: inherit
     uses:
       ./.github/workflows/test-wheel-windows.yml
