@@ -253,15 +253,11 @@ def child_process_allocator(size, handle, queue):
     device = Device()  # or Device(specific_device_id)
     device.set_current()
 
-    err = runtime.cudaGetLastError()
-    if err != runtime.cudaError_t.cudaSuccess:
-        raise RuntimeError(f"CUDA error after device setup: {err}")
+    handle_return(runtime.cudaGetLastError())
 
     # Create allocator with the same device ID
     alloc = ShareableAllocator(device.device_id)
-    err = runtime.cudaGetLastError()
-    if err != runtime.cudaError_t.cudaSuccess:
-        raise RuntimeError(f"CUDA error after allocator ctor setup: {err}")
+    handle_return(runtime.cudaGetLastError())
 
     try:
         # Import the allocation from the parent
