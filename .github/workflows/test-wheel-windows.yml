@@ -27,8 +27,12 @@ jobs:
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     runs-on: ${{ (inputs.runner == 'default' && inputs.host-platform == 'win-64' && 'cuda-python-windows-gpu-github') }}
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Ensure GPU is working
+        shell: powershell -command ". '{0}'"
         run: nvidia-smi
 
       - name: Checkout ${{ github.event.repository.name }}
