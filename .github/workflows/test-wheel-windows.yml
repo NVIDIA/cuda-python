@@ -53,6 +53,14 @@ jobs:
             $SKIP_CUDA_BINDINGS_TEST = 0
           }
 
+          if ('${{ inputs.local-ctk }}' -eq '1') {
+            if ($TEST_CUDA_MAJOR -eq '12') {
+              $MINI_CTK_DEPS = '["nvcc", "nvrtc", "nvjitlink"]'
+            } else {
+              $MINI_CTK_DEPS = '["nvcc", "nvrtc"]'
+            }
+          }
+
           # Make outputs from the previous job as env vars
           $CUDA_CORE_ARTIFACT_BASENAME = "cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
           "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $env:GITHUB_ENV
@@ -64,6 +72,7 @@ jobs:
           "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $env:GITHUB_ENV
           "CUDA_BINDINGS_ARTIFACTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_bindings\dist"))" >> $env:GITHUB_ENV
           "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $env:GITHUB_ENV
+          "MINI_CTK_DEPS=${MINI_CTK_DEPS}" >> $env:GITHUB_ENV
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
@@ -144,22 +153,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-#        env:
-#          # we use self-hosted runners on which setup-python behaves weirdly...
-#          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Set up mini CTK
         if: ${{ inputs.local-ctk == '1' }}
+        # Note: The GH-hosted Windows GPU runner does not have Git for Windows pre-installed,
+        # so we cannot use our own fetch_ctk action unfortunately...
         uses: Jimver/cuda-toolkit@v0.2.21
         with:
           cuda: ${{ inputs.cuda-version }}
           method: 'network'
-          sub-packages: '["nvcc", "nvrtc", "nvjitlink"]'
-#        uses: ./.github/actions/fetch_ctk
-#        continue-on-error: false
-#        with:
-#          host-platform: ${{ inputs.host-platform }}
-#          cuda-version: ${{ inputs.cuda-version }}
+          sub-packages: ${{ env.MINI_CTK_DEPS }}
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}

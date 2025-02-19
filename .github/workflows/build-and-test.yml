@@ -265,17 +265,12 @@ jobs:
         cuda-version:
           # Note: this is for test-time only.
           - "12.8.0"
-#          - "12.0.1"
           - "11.8.0"
         local-ctk:
           - 1  # use mini CTK
           - 0  # use CTK wheels
         runner:
           - default
-        exclude:
-          # To test this combo would require nontrivial installation steps.
-          - cuda-version: "12.0.1"
-            local-ctk: 0
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }}, ${{ (matrix.local-ctk == '1' && 'local CTK') || 'CTK wheels' }})
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
