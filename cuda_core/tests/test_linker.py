@@ -6,6 +6,7 @@ import pytest
 
 from cuda.core.experimental import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core.experimental._module import ObjectCode
+from cuda.core.experimental._utils import CUDAError
 
 ARCH = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
 
@@ -18,8 +19,16 @@ device_function_b = "__device__ int B() { return 0; }"
 device_function_c = "__device__ int C(int a, int b) { return a + b; }"
 
 culink_backend = _linker._decide_nvjitlink_or_driver()
+
+
+class nvJitLinkError_(Exception):
+    pass
+
+
 if not culink_backend:
     from cuda.bindings import nvjitlink
+
+    nvJitLinkError_ = nvjitlink.nvJitLinkError
 
 
 @pytest.fixture(scope="function")
@@ -133,7 +142,7 @@ __global__ void A() { int result = C(Z(), 1);}
     try:
         linker.link("cubin")
 
-    except:  # noqa E722
+    except (nvJitLinkError_, CUDAError):
         log = linker.get_error_log()
         # TODO when 4902246 is addressed, we can update this to cover nvjitlink as well
         if culink_backend:
