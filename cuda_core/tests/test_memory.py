@@ -297,6 +297,6 @@ def test_sharable_allocator():
     if not queue.empty():
         exception = queue.get()
         if isinstance(exception, Exception):
-            print("lookin gto raise exception:", exception)
+            raise exception
 
     buffer.close()
