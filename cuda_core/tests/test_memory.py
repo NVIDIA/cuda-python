@@ -15,7 +15,7 @@ except ImportError:
 import array
 import ctypes
 import multiprocessing
-from socket import socket, socketpair, SOCK_DGRAM, AF_UNIX, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN
+from socket import AF_UNIX, CMSG_LEN, SCM_RIGHTS, SOCK_DGRAM, SOL_SOCKET, socketpair
 
 from cuda.core.experimental import Device
 from cuda.core.experimental._memory import Buffer, MemoryResource, ShareableAllocator, SharedMempool
@@ -213,10 +213,20 @@ def test_buffer_close():
     buffer_close(DummyPinnedMemoryResource(device))
 
 
-def child_process(shared_handle, queue):
+def child_process(importer, queue):
     try:
         device = Device()
         device.set_current()
+
+        # Receive the handle via socket
+        fds = array.array("i")
+        _, ancdata, _, _ = importer.recvmsg(0, CMSG_LEN(fds.itemsize))
+        assert len(ancdata) == 1
+        cmsg_level, cmsg_type, cmsg_data = ancdata[0]
+        assert cmsg_level == SOL_SOCKET and cmsg_type == SCM_RIGHTS
+        fds.frombytes(cmsg_data[: len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
+        shared_handle = int(fds[0])
+
         mr = SharedMempool(device.device_id, shared_handle=shared_handle)
         buffer = mr.allocate(64)
         ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
@@ -230,49 +240,54 @@ def child_process(shared_handle, queue):
         raise
 
 
-# def test_shared_memory_resource():
-#     device = Device()
-#     device.set_current()
-#     pool_size = 64 * 64
-#     mr = SharedMempool(device.device_id, max_size=pool_size)
-#     shareable_handle = mr.get_shareable_handle()
+def test_shared_memory_resource():
+    device = Device()
+    device.set_current()
+    pool_size = 64 * 64
+    mr = SharedMempool(device.device_id, max_size=pool_size)
+    shareable_handle = mr.get_shareable_handle()
 
-#     multiprocessing.set_start_method("spawn", force=True)
-#     queue = multiprocessing.Queue()
-#     process = multiprocessing.Process(target=child_process, args=(shareable_handle, queue))
-#     process.start()
-#     process.join(timeout=10)
-#     assert process.exitcode == 0
+    # Create socket pair for handle transfer
+    exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
 
-#     if not queue.empty():
-#         exception = queue.get()
-#         if isinstance(exception, Exception):
-#             raise exception
+    multiprocessing.set_start_method("spawn", force=True)
+    queue = multiprocessing.Queue()
+    process = multiprocessing.Process(target=child_process, args=(importer, queue))
+    process.start()
+
+    # Send the handle via socket
+    exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [shareable_handle]))])
+
+    assert queue.get() == "Data written"
+    queue.put("Data read")
+
+    process.join(timeout=10)
+    assert process.exitcode == 0
+
+    if not queue.empty():
+        exception = queue.get()
+        if isinstance(exception, Exception):
+            raise exception
 
 
 def child_process_allocator(size, importer, queue):
-    # Set the device context in the child process
     device = Device(0)
     device.set_current()
 
     handle_return(runtime.cudaGetLastError())
 
-    # Create allocator with the same device ID
     alloc = ShareableAllocator(device.device_id)
     handle_return(runtime.cudaGetLastError())
 
-    fds = array.array("i")   # Array of ints
+    fds = array.array("i")
     _, ancdata, _, _ = importer.recvmsg(0, CMSG_LEN(fds.itemsize))
     assert len(ancdata) == 1
     cmsg_level, cmsg_type, cmsg_data = ancdata[0]
     assert cmsg_level == SOL_SOCKET and cmsg_type == SCM_RIGHTS
-    # Append data, ignoring any truncated integers at the end.
-    fds.frombytes(cmsg_data[:len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
+    fds.frombytes(cmsg_data[: len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
     handle = int(fds[0])
-    print(f"child: {handle=}")
 
     try:
-        # Import the allocation from the parent
         buffer = alloc.import_shareable_allocation(size, handle)
         assert buffer.handle != 0
         assert buffer.size == size
@@ -281,12 +296,12 @@ def child_process_allocator(size, importer, queue):
         assert not buffer.is_host_accessible
         assert buffer.device_id == device.device_id
         buffer.close()
-        queue.put(True)  # or whatever success signal
+        queue.put(True)
     except Exception as e:
         queue.put(e)
 
 
-def test_sharable_allocator():
+def test_shareable_allocator():
     device = Device(0)
     device.set_current()
     alloc = ShareableAllocator(device.device_id)
@@ -298,10 +313,7 @@ def test_sharable_allocator():
     assert buffer.is_device_accessible
     assert not buffer.is_host_accessible
     assert buffer.device_id == device.device_id
-    print(f"{handle=}, {size=}")
 
-    # On Linux, the returned handle (a file descriptor) must be passed
-    # via sockets. CANNOT be copied as-is!
     exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
 
     multiprocessing.set_start_method("spawn", force=True)
