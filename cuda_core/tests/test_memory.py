@@ -229,9 +229,6 @@ def child_process(importer, shareable_buffer, queue):
 
         mr = SharedMempool.from_shared_handle(device.device_id, shared_handle)
         buffer = mr.import_pointer(shareable_buffer)
-        ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
-        for i in range(64):  # Still only write 64 bytes of test data
-            ptr[i] = ctypes.c_byte(i % 256)
         queue.put(True)
         buffer.close()
     except Exception as e:
