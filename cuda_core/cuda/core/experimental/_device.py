@@ -6,6 +6,7 @@ import threading
 from typing import Union
 
 from cuda.core.experimental._context import Context, ContextOptions
+from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils import ComputeCapability, CUDAError, driver, handle_return, precondition, runtime
@@ -1234,3 +1235,8 @@ class Device:
 
         """
         handle_return(runtime.cudaDeviceSynchronize())
+
+    @precondition(_check_context_initialized)
+    def build_graph(self) -> GraphBuilder:
+        private_stream = self.create_stream()
+        return GraphBuilder._init(stream=private_stream)

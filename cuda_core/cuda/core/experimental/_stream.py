@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from cuda.core.experimental._device import Device
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
+from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._utils import check_or_create_options, driver, get_device_from_ctx, handle_return, runtime
 
 
@@ -292,6 +293,9 @@ class Stream:
                 return (0, handle)
 
         return Stream._init(obj=_stream_holder())
+
+    def build_graph(self) -> GraphBuilder:
+        return GraphBuilder._init(stream=self)
 
 
 class _LegacyDefaultStream(Stream):
