@@ -256,45 +256,79 @@ class SharedMempool(MemoryResource):
     This class creates a CUDA memory pool that can be exported and imported
     across process boundaries, enabling efficient memory sharing between processes.
 
-    Parameters
-    ----------
-    dev_id : int
-        The ID of the GPU device where the memory pool will be created
-    max_size : int, optional
-        Maximum size in bytes that the memory pool can grow to. Only used when creating
-        a new pool (not when importing)
-    shared_handle : int, optional
-        A platform-specific handle to import an existing memory pool. If provided,
-        max_size is ignored and the pool is imported instead of created
+    Use the static methods `create` or `from_shared_handle` to instantiate a SharedMempool.
     """
 
     __slots__ = ("_dev_id", "_handle")
 
-    def __init__(self, dev_id: int, max_size: Optional[int] = None, shared_handle: Optional[int] = None) -> None:
+    def __init__(self, dev_id: int, handle: int) -> None:
+        """Internal constructor. Use create() or from_shared_handle() instead."""
         self._dev_id = dev_id
+        self._handle = handle
 
-        if shared_handle is not None:
-            # Import existing pool
-            self._handle = handle_return(
-                driver.cuMemPoolImportFromShareableHandle(shared_handle, _get_platform_handle_type(), 0)
-            )
-        else:
-            # Create new pool
-            if max_size is None:
-                raise ValueError("max_size must be provided when creating a new memory pool")
+    @staticmethod
+    def create(dev_id: int, max_size: int) -> SharedMempool:
+        """Create a new memory pool.
 
-            properties = driver.CUmemPoolProps()
-            properties.allocType = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-            properties.handleTypes = _get_platform_handle_type()
+        Parameters
+        ----------
+        dev_id : int
+            The ID of the GPU device where the memory pool will be created
+        max_size : int
+            Maximum size in bytes that the memory pool can grow to
 
-            properties.location = driver.CUmemLocation()
-            properties.location.id = dev_id
-            properties.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-            properties.maxSize = max_size
-            properties.win32SecurityAttributes = 0
-            properties.usage = 0
+        Returns
+        -------
+        SharedMempool
+            A new memory pool instance
 
-            self._handle = handle_return(driver.cuMemPoolCreate(properties))
+        Raises
+        ------
+        ValueError
+            If max_size is None
+        CUDAError
+            If pool creation fails
+        """
+        if max_size is None:
+            raise ValueError("max_size must be provided when creating a new memory pool")
+
+        properties = driver.CUmemPoolProps()
+        properties.allocType = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+        properties.handleTypes = _get_platform_handle_type()
+
+        properties.location = driver.CUmemLocation()
+        properties.location.id = dev_id
+        properties.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        properties.maxSize = max_size
+        properties.win32SecurityAttributes = 0
+        properties.usage = 0
+
+        handle = handle_return(driver.cuMemPoolCreate(properties))
+        return SharedMempool(dev_id, handle)
+
+    @staticmethod
+    def from_shared_handle(dev_id: int, shared_handle: int) -> SharedMempool:
+        """Create a SharedMempool from an existing handle.
+
+        Parameters
+        ----------
+        dev_id : int
+            The ID of the GPU device where the memory pool will be created
+        shared_handle : int
+            A platform-specific handle to import an existing memory pool
+
+        Returns
+        -------
+        SharedMempool
+            A memory pool instance connected to the existing pool
+
+        Raises
+        ------
+        CUDAError
+            If pool import fails
+        """
+        handle = handle_return(driver.cuMemPoolImportFromShareableHandle(shared_handle, _get_platform_handle_type(), 0))
+        return SharedMempool(dev_id, handle)
 
     def get_shareable_handle(self) -> int:
         """Get a platform-specific handle that can be shared with other processes.

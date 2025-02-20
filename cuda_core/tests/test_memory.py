@@ -228,13 +228,13 @@ def child_process(importer, queue):
         fds.frombytes(cmsg_data[: len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
         shared_handle = int(fds[0])
 
-        mr = SharedMempool(device.device_id, shared_handle=shared_handle)
+        mr = SharedMempool.from_shared_handle(device.device_id, shared_handle)
         # Test pool attributes
         current_used = int(mr.get_attribute(driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_CURRENT))
         assert current_used >= 0
         current_reserved = int(mr.get_attribute(driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT))
         assert current_reserved >= 0
-        buffer = mr.allocate(64, stream=stream)  # Match parent's pool size
+        buffer = mr.allocate(64, stream=stream)
         ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
         for i in range(64):  # Still only write 64 bytes of test data
             ptr[i] = ctypes.c_byte(i % 256)
@@ -248,7 +248,7 @@ def test_shared_memory_resource():
     device = Device()
     device.set_current()
     pool_size = 2097152  # Keep consistent 2MB size
-    mr = SharedMempool(device.device_id, max_size=pool_size)
+    mr = SharedMempool.create(device.device_id, pool_size)
     shareable_handle = mr.get_shareable_handle()
 
     # Test pool attributes
