@@ -243,15 +243,12 @@ def test_shared_memory_resource():
     shareable_handle = mr.get_shareable_handle()
     buffer = mr.allocate(64)
     shareable_buffer = mr.export_pointer(buffer.handle)
-    print(type(shareable_buffer))
-    print(dir(shareable_buffer))
-    share_data = bytes(shareable_buffer)
     # Create socket pair for handle transfer
     exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
 
     multiprocessing.set_start_method("spawn", force=True)
     queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=child_process, args=(importer, share_data, queue))
+    process = multiprocessing.Process(target=child_process, args=(importer, shareable_buffer, queue))
     process.start()
 
     # Send the handle via socket
