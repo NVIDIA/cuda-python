@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -9,17 +9,14 @@ import ctypes
 
 import pytest
 
-# Always skip since cupy is not CTK 12.x yet
-skip_tests = True
-if not skip_tests:
-    try:
-        import cupy
+try:
+    import cupy
 
-        skip_tests = False
-    except ImportError:
-        skip_tests = True
+    skip_tests = False
+except ImportError:
+    skip_tests = True
 
-from .kernels import kernel_string
+from kernels import kernel_string
 
 
 def launch(kernel, args=()):

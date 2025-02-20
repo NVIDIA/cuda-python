@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -8,11 +8,10 @@
 import ctypes
 
 import pytest
+from conftest import ASSERT_DRV
+from kernels import kernel_string
 
 from cuda import cuda
-
-from .kernels import kernel_string
-from .perf_test_utils import ASSERT_DRV
 
 
 def launch(kernel, stream, args=(), arg_types=()):
