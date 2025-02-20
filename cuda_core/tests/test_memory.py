@@ -241,7 +241,7 @@ def child_process(importer, queue):
 def test_shared_memory_resource():
     device = Device()
     device.set_current()
-    pool_size = 64 * 64
+    pool_size = 2097152
     mr = SharedMempool(device.device_id, max_size=pool_size)
     shareable_handle = mr.get_shareable_handle()
 
