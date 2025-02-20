@@ -236,7 +236,6 @@ def child_process(importer, queue):
         buffer.close()
     except Exception as e:
         queue.put(e)
-        raise
 
 
 def test_shared_memory_resource():
