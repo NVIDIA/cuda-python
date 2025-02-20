@@ -395,6 +395,59 @@ class SharedMempool(MemoryResource):
         """
         return handle_return(driver.cuMemPoolGetAttribute(self._handle, attr))
 
+    def export_pointer(self, ptr: int) -> driver.CUmemPoolPtrExportData:
+        """Export a pointer allocated from this pool for sharing between processes.
+
+        This method constructs export data for sharing a specific allocation from
+        this shared memory pool. The recipient process can import the allocation
+        using import_pointer(). The data is not a handle and may be shared through
+        any IPC mechanism.
+
+        Parameters
+        ----------
+        ptr : int
+            Pointer to memory being exported (must have been allocated from this pool)
+
+        Returns
+        -------
+        CUmemPoolPtrExportData
+            Export data that can be used to import the pointer in another process
+
+        Raises
+        ------
+        CUDAError
+            If the export operation fails
+        """
+        return handle_return(driver.cuMemPoolExportPointer(ptr))
+
+    def import_pointer(self, share_data: driver.CUmemPoolPtrExportData) -> int:
+        """Import a pointer that was exported from another process.
+
+        The imported memory must not be accessed before the allocation operation
+        completes in the exporting process. The imported memory must be freed from
+        all importing processes before being freed in the exporting process.
+
+        The pointer may be freed with cuMemFree or cuMemFreeAsync. If cuMemFreeAsync
+        is used, the free must be completed on the importing process before the free
+        operation on the exporting process.
+
+        Parameters
+        ----------
+        share_data : CUmemPoolPtrExportData
+            Export data obtained from export_pointer() in another process
+
+        Returns
+        -------
+        int
+            Pointer to the imported memory
+
+        Raises
+        ------
+        CUDAError
+            If the import operation fails
+        """
+        return handle_return(driver.cuMemPoolImportPointer(self._handle, share_data))
+
 
 class ShareableAllocator(MemoryResource):
     """Memory resource that creates allocations that can be shared between processes."""
