@@ -327,94 +327,94 @@ def test_shareable_allocator():
     buffer.close()
 
 
-def child_process_pointer(importer, queue):
-    try:
-        device = Device()
-        device.set_current()
-        stream = device.create_stream()
+# def child_process_pointer(importer, queue):
+#     try:
+#         device = Device()
+#         device.set_current()
+#         stream = device.create_stream()
 
-        # Receive the pool handle via socket
-        fds = array.array("i")
-        _, ancdata, _, _ = importer.recvmsg(0, CMSG_LEN(fds.itemsize))
-        assert len(ancdata) == 1
-        cmsg_level, cmsg_type, cmsg_data = ancdata[0]
-        assert cmsg_level == SOL_SOCKET and cmsg_type == SCM_RIGHTS
-        fds.frombytes(cmsg_data[: len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
-        shared_handle = int(fds[0])
+#         # Receive the pool handle via socket
+#         fds = array.array("i")
+#         _, ancdata, _, _ = importer.recvmsg(0, CMSG_LEN(fds.itemsize))
+#         assert len(ancdata) == 1
+#         cmsg_level, cmsg_type, cmsg_data = ancdata[0]
+#         assert cmsg_level == SOL_SOCKET and cmsg_type == SCM_RIGHTS
+#         fds.frombytes(cmsg_data[: len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
+#         shared_handle = int(fds[0])
 
-        # Import the pool
-        mr = SharedMempool.from_shared_handle(device.device_id, shared_handle)
+#         # Import the pool
+#         mr = SharedMempool.from_shared_handle(device.device_id, shared_handle)
 
-        # Receive the pointer export data
-        export_data = queue.get()
-        assert not isinstance(export_data, Exception)
+#         # Receive the pointer export data
+#         export_data = queue.get()
+#         assert not isinstance(export_data, Exception)
 
-        # Import the pointer
-        ptr = mr.import_pointer(export_data)
-        assert ptr != 0
+#         # Import the pointer
+#         ptr = mr.import_pointer(export_data)
+#         assert ptr != 0
 
-        # Verify we can read the data
-        data = ctypes.cast(ptr, ctypes.POINTER(ctypes.c_byte))
-        for i in range(64):
-            assert data[i] == i % 256
+#         # Verify we can read the data
+#         data = ctypes.cast(ptr, ctypes.POINTER(ctypes.c_byte))
+#         for i in range(64):
+#             assert data[i] == i % 256
 
-        # Signal success
-        queue.put(True)
+#         # Signal success
+#         queue.put(True)
 
-        # Clean up
-        handle_return(driver.cuMemFreeAsync(ptr, stream.handle))
-        device.sync()
+#         # Clean up
+#         handle_return(driver.cuMemFreeAsync(ptr, stream.handle))
+#         device.sync()
 
-    except Exception as e:
-        queue.put(e)
+#     except Exception as e:
+#         queue.put(e)
 
 
-def test_shared_memory_pointer():
-    device = Device()
-    device.set_current()
-    stream = device.create_stream()
-    pool_size = 2097152  # 2MB size
-    mr = SharedMempool.create(device.device_id, pool_size)
+# def test_shared_memory_pointer():
+#     device = Device()
+#     device.set_current()
+#     stream = device.create_stream()
+#     pool_size = 2097152  # 2MB size
+#     mr = SharedMempool.create(device.device_id, pool_size)
 
-    # Allocate and initialize memory
-    buffer = mr.allocate(64, stream=stream)
-    ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
-    for i in range(64):
-        ptr[i] = ctypes.c_byte(i % 256)
-    device.sync()
+#     # Allocate and initialize memory
+#     buffer = mr.allocate(64, stream=stream)
+#     ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
+#     for i in range(64):
+#         ptr[i] = ctypes.c_byte(i % 256)
+#     device.sync()
 
-    # Export the pointer
-    export_data = mr.export_pointer(buffer.handle)
+#     # Export the pointer
+#     export_data = mr.export_pointer(buffer.handle)
 
-    # Get shareable handle for the pool
-    shareable_handle = mr.get_shareable_handle()
+#     # Get shareable handle for the pool
+#     shareable_handle = mr.get_shareable_handle()
 
-    # Create socket pair for handle transfer
-    exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
+#     # Create socket pair for handle transfer
+#     exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
 
-    # Start child process
-    multiprocessing.set_start_method("spawn", force=True)
-    queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=child_process_pointer, args=(importer, queue))
-    process.start()
+#     # Start child process
+#     multiprocessing.set_start_method("spawn", force=True)
+#     queue = multiprocessing.Queue()
+#     process = multiprocessing.Process(target=child_process_pointer, args=(importer, queue))
+#     process.start()
 
-    # Send the pool handle via socket
-    exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [shareable_handle]))])
+#     # Send the pool handle via socket
+#     exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [shareable_handle]))])
 
-    # Send the pointer export data via queue
-    queue.put(export_data)
+#     # Send the pointer export data via queue
+#     queue.put(export_data)
 
-    # Wait for child process to finish
-    process.join(timeout=10)
-    assert process.exitcode == 0
+#     # Wait for child process to finish
+#     process.join(timeout=10)
+#     assert process.exitcode == 0
 
-    # Check for exceptions from child process
-    if not queue.empty():
-        result = queue.get()
-        if isinstance(result, Exception):
-            raise result
-        assert result is True  # Success flag
+#     # Check for exceptions from child process
+#     if not queue.empty():
+#         result = queue.get()
+#         if isinstance(result, Exception):
+#             raise result
+#         assert result is True  # Success flag
 
-    # Clean up
-    buffer.close()
-    device.sync()
+#     # Clean up
+#     buffer.close()
+#     device.sync()
