@@ -5,6 +5,7 @@
 import weakref
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
+from warnings import warn
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._linker import Linker, LinkerOptions
@@ -12,6 +13,7 @@ from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils import (
     _handle_boolean_option,
     check_or_create_options,
+    driver,
     handle_return,
     is_nested_sequence,
     is_sequence,
@@ -378,6 +380,7 @@ class Program:
                 raise TypeError("c++ Program expects code argument to be a string")
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
+
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
             self._backend = "nvrtc"
             self._linker = None
@@ -414,6 +417,11 @@ class Program:
             self._linker.close()
         self._mnff.close()
 
+    def _can_load_generated_ptx(self):
+        driver_ver = handle_return(driver.cuDriverGetVersion())
+        nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
+        return nvrtc_major * 1000 + nvrtc_minor * 10 <= driver_ver
+
     def compile(self, target_type, name_expressions=(), logs=None):
         """Compile the program with a specific compilation type.
 
@@ -440,6 +448,13 @@ class Program:
             raise NotImplementedError
 
         if self._backend == "nvrtc":
+            if target_type == "ptx" and not self._can_load_generated_ptx():
+                warn(
+                    "The CUDA driver version is older than the backend version. "
+                    "The generated ptx will not be loadable by the current driver.",
+                    stacklevel=1,
+                    category=RuntimeWarning,
+                )
             if name_expressions:
                 for n in name_expressions:
                     handle_return(
