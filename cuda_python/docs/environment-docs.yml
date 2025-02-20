@@ -12,9 +12,8 @@ dependencies:
   - scipy
   - sphinx <8.2.0
   - sphinx-copybutton
-  - pip:
-    - furo
-    - myst-nb
-    - enum-tools
-    - sphinx_toolbox
-    - pyclibrary
+  - furo
+  - myst-nb
+  - enum_tools
+  - sphinx-toolbox
+  - pyclibrary
