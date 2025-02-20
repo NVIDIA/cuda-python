@@ -12,8 +12,10 @@ except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
 
+import array
 import ctypes
 import multiprocessing
+from socket import socket, socketpair, SOCK_DGRAM, AF_UNIX, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN
 
 from cuda.core.experimental import Device
 from cuda.core.experimental._memory import Buffer, MemoryResource, ShareableAllocator, SharedMempool
@@ -248,9 +250,9 @@ def child_process(shared_handle, queue):
 #             raise exception
 
 
-def child_process_allocator(size, handle, queue):
+def child_process_allocator(size, importer, queue):
     # Set the device context in the child process
-    device = Device()  # or Device(specific_device_id)
+    device = Device(0)
     device.set_current()
 
     handle_return(runtime.cudaGetLastError())
@@ -258,6 +260,16 @@ def child_process_allocator(size, handle, queue):
     # Create allocator with the same device ID
     alloc = ShareableAllocator(device.device_id)
     handle_return(runtime.cudaGetLastError())
+
+    fds = array.array("i")   # Array of ints
+    _, ancdata, _, _ = importer.recvmsg(0, CMSG_LEN(fds.itemsize))
+    assert len(ancdata) == 1
+    cmsg_level, cmsg_type, cmsg_data = ancdata[0]
+    assert cmsg_level == SOL_SOCKET and cmsg_type == SCM_RIGHTS
+    # Append data, ignoring any truncated integers at the end.
+    fds.frombytes(cmsg_data[:len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
+    handle = int(fds[0])
+    print(f"child: {handle=}")
 
     try:
         # Import the allocation from the parent
@@ -275,7 +287,7 @@ def child_process_allocator(size, handle, queue):
 
 
 def test_sharable_allocator():
-    device = Device()
+    device = Device(0)
     device.set_current()
     alloc = ShareableAllocator(device.device_id)
     size = 2097152
@@ -286,11 +298,19 @@ def test_sharable_allocator():
     assert buffer.is_device_accessible
     assert not buffer.is_host_accessible
     assert buffer.device_id == device.device_id
+    print(f"{handle=}, {size=}")
+
+    # On Linux, the returned handle (a file descriptor) must be passed
+    # via sockets. CANNOT be copied as-is!
+    exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
 
     multiprocessing.set_start_method("spawn", force=True)
     queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=child_process_allocator, args=(size, handle, queue))
+    process = multiprocessing.Process(target=child_process_allocator, args=(size, importer, queue))
     process.start()
+
+    exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [handle]))])
+
     process.join(timeout=10)
     assert process.exitcode == 0
 
