@@ -217,6 +217,7 @@ def child_process(importer, queue):
     try:
         device = Device()
         device.set_current()
+        stream = device.create_stream()
 
         # Receive the handle via socket
         fds = array.array("i")
@@ -228,9 +229,9 @@ def child_process(importer, queue):
         shared_handle = int(fds[0])
 
         mr = SharedMempool(device.device_id, shared_handle=shared_handle)
-        buffer = mr.allocate(64)
+        buffer = mr.allocate(2097152, stream=stream)  # Match parent's pool size
         ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
-        for i in range(64):
+        for i in range(64):  # Still only write 64 bytes of test data
             ptr[i] = ctypes.c_byte(i % 256)
         queue.put(True)
         buffer.close()
@@ -241,7 +242,7 @@ def child_process(importer, queue):
 def test_shared_memory_resource():
     device = Device()
     device.set_current()
-    pool_size = 2097152
+    pool_size = 2097152  # Keep consistent 2MB size
     mr = SharedMempool(device.device_id, max_size=pool_size)
     shareable_handle = mr.get_shareable_handle()
 
