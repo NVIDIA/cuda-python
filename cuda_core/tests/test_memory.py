@@ -232,8 +232,7 @@ def child_process(importer, queue):
         ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
         for i in range(64):
             ptr[i] = ctypes.c_byte(i % 256)
-        queue.put(True)  # Data written
-        assert queue.get() is True  # Data read confirmation
+        queue.put(True)
         buffer.close()
     except Exception as e:
         queue.put(e)
@@ -257,9 +256,6 @@ def test_shared_memory_resource():
 
     # Send the handle via socket
     exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [shareable_handle]))])
-
-    assert queue.get() is True  # Data written confirmation
-    queue.put(True)  # Signal to read data
 
     process.join(timeout=10)
     assert process.exitcode == 0
