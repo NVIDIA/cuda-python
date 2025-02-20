@@ -395,7 +395,7 @@ class SharedMempool(MemoryResource):
         """
         return handle_return(driver.cuMemPoolGetAttribute(self._handle, attr))
 
-    def export_pointer(self, ptr: int) -> driver.CUmemPoolPtrExportData:
+    def export_pointer(self, ptr: int) -> bytes:
         """Export a pointer allocated from this pool for sharing between processes.
 
         This method constructs export data for sharing a specific allocation from
@@ -410,7 +410,7 @@ class SharedMempool(MemoryResource):
 
         Returns
         -------
-        CUmemPoolPtrExportData
+        bytes
             Export data that can be used to import the pointer in another process
 
         Raises
@@ -418,9 +418,10 @@ class SharedMempool(MemoryResource):
         CUDAError
             If the export operation fails
         """
-        return handle_return(driver.cuMemPoolExportPointer(ptr))
+        export_data = handle_return(driver.cuMemPoolExportPointer(ptr))
+        return bytes(export_data)
 
-    def import_pointer(self, share_data: driver.CUmemPoolPtrExportData) -> int:
+    def import_pointer(self, share_data: bytes) -> Buffer:
         """Import a pointer that was exported from another process.
 
         The imported memory must not be accessed before the allocation operation
@@ -433,20 +434,23 @@ class SharedMempool(MemoryResource):
 
         Parameters
         ----------
-        share_data : CUmemPoolPtrExportData
+        share_data : bytes
             Export data obtained from export_pointer() in another process
 
         Returns
         -------
-        int
-            Pointer to the imported memory
+        Buffer
+            A Buffer object wrapping the imported pointer
 
         Raises
         ------
         CUDAError
             If the import operation fails
         """
-        return Buffer(handle_return(driver.cuMemPoolImportPointer(self._handle, share_data)), share_data.size, self)
+        # Convert bytes back to CUmemPoolPtrExportData
+        export_data = driver.CUmemPoolPtrExportData.from_bytes(share_data)
+        ptr = handle_return(driver.cuMemPoolImportPointer(self._handle, export_data))
+        return Buffer(ptr, export_data.size, self)
 
 
 class ShareableAllocator(MemoryResource):

@@ -213,7 +213,7 @@ def test_buffer_close():
     buffer_close(DummyPinnedMemoryResource(device))
 
 
-def child_process(importer, queue):
+def child_process(importer, shareable_buffer, queue):
     try:
         device = Device()
         device.set_current()
@@ -228,15 +228,7 @@ def child_process(importer, queue):
         shared_handle = int(fds[0])
 
         mr = SharedMempool.from_shared_handle(device.device_id, shared_handle)
-        # Get the exported pointer data from the queue
-        export_data = queue.get()
-        buffer = mr.import_pointer(export_data)
-
-        # # Verify we can read the data
-        # data = ctypes.cast(ptr, ctypes.POINTER(ctypes.c_byte))
-        # for i in range(64):
-        #     assert data[i] == i % 256
-
+        buffer = mr.import_pointer(shareable_buffer)
         queue.put(True)
         buffer.close()
     except Exception as e:
@@ -249,30 +241,21 @@ def test_shared_memory_resource():
     pool_size = 2097152  # Keep consistent 2MB size
     mr = SharedMempool.create(device.device_id, pool_size)
     shareable_handle = mr.get_shareable_handle()
-
-    # Allocate and initialize memory
     buffer = mr.allocate(64)
-    # ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
-    # for i in range(64):
-    #     ptr[i] = ctypes.c_byte(i % 256)
-    # device.sync()
-
-    # Export the pointer
     shareable_buffer = mr.export_pointer(buffer.handle)
-
+    print(type(shareable_buffer))
+    print(dir(shareable_buffer))
+    share_data = bytes(shareable_buffer)
     # Create socket pair for handle transfer
     exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
 
     multiprocessing.set_start_method("spawn", force=True)
     queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=child_process, args=(importer, queue))
+    process = multiprocessing.Process(target=child_process, args=(importer, share_data, queue))
     process.start()
 
     # Send the handle via socket
     exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [shareable_handle]))])
-
-    # Send the exported pointer data through the queue
-    queue.put(shareable_buffer)
 
     process.join(timeout=10)
     assert process.exitcode == 0
