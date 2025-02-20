@@ -230,9 +230,9 @@ def child_process(importer, queue):
 
         mr = SharedMempool(device.device_id, shared_handle=shared_handle)
         # Test pool attributes
-        current_used = mr.get_attribute(driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_CURRENT)
+        current_used = int(mr.get_attribute(driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_CURRENT))
         assert current_used >= 0
-        current_reserved = mr.get_attribute(driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT)
+        current_reserved = int(mr.get_attribute(driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT))
         assert current_reserved >= 0
         buffer = mr.allocate(64, stream=stream)  # Match parent's pool size
         ptr = ctypes.cast(buffer.handle, ctypes.POINTER(ctypes.c_byte))
@@ -252,9 +252,9 @@ def test_shared_memory_resource():
     shareable_handle = mr.get_shareable_handle()
 
     # Test pool attributes
-    current_used = mr.get_attribute(driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_CURRENT)
+    current_used = int(mr.get_attribute(driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_CURRENT))
     assert current_used >= 0
-    current_reserved = mr.get_attribute(driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT)
+    current_reserved = int(mr.get_attribute(driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT))
     assert current_reserved >= 0
 
     # Create socket pair for handle transfer
