@@ -333,6 +333,34 @@ class SharedMempool(MemoryResource):
         """The ID of the GPU device this memory pool is associated with."""
         return self._dev_id
 
+    def get_attribute(self, attr: driver.CUmemPool_attribute) -> int:
+        """Get a memory pool attribute.
+
+        Parameters
+        ----------
+        attr : CUmemPool_attribute
+            The attribute to query. Supported attributes are:
+            - CU_MEMPOOL_ATTR_RELEASE_THRESHOLD: Amount of reserved memory to hold before releasing
+            - CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES: Allow reuse with event dependencies
+            - CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC: Allow reuse without dependencies
+            - CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES: Allow reuse with internal dependencies
+            - CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT: Current reserved memory
+            - CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH: High watermark of reserved memory
+            - CU_MEMPOOL_ATTR_USED_MEM_CURRENT: Current used memory
+            - CU_MEMPOOL_ATTR_USED_MEM_HIGH: High watermark of used memory
+
+        Returns
+        -------
+        int
+            The value of the requested attribute
+
+        Raises
+        ------
+        CUDAError
+            If the attribute query fails
+        """
+        return handle_return(driver.cuMemPoolGetAttribute(self._handle, attr))
+
 
 class ShareableAllocator(MemoryResource):
     """Memory resource that creates allocations that can be shared between processes."""
