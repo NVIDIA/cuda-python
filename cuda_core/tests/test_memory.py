@@ -244,7 +244,7 @@ def test_shared_memory_resource():
     buffer = mr.allocate(64)
     shareable_buffer = mr.export_pointer(buffer.handle)
     print(dir(shareable_buffer))
-    share_data = bytes(shareable_buffer)
+    share_data = bytes(shareable_buffer.reserved)
     # Create socket pair for handle transfer
     exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
 
