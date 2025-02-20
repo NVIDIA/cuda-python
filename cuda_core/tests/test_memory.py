@@ -213,7 +213,7 @@ def test_buffer_close():
     buffer_close(DummyPinnedMemoryResource(device))
 
 
-def child_process(importer, shareable_buffer, queue):
+def child_process(importer, queue):
     try:
         device = Device()
         device.set_current()
@@ -227,8 +227,11 @@ def child_process(importer, shareable_buffer, queue):
         fds.frombytes(cmsg_data[: len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
         shared_handle = int(fds[0])
 
+        # Get the exported pointer data from queue
+        export_data = queue.get()
+
         mr = SharedMempool.from_shared_handle(device.device_id, shared_handle)
-        buffer = mr.import_pointer(shareable_buffer)
+        buffer = mr.import_pointer(export_data)
         queue.put(True)
         buffer.close()
     except Exception as e:
@@ -242,25 +245,31 @@ def test_shared_memory_resource():
     mr = SharedMempool.create(device.device_id, pool_size)
     shareable_handle = mr.get_shareable_handle()
     buffer = mr.allocate(64)
-    shareable_buffer = mr.export_pointer(buffer.handle)
+    export_data = mr.export_pointer(buffer.handle)
+
     # Create socket pair for handle transfer
     exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
 
     multiprocessing.set_start_method("spawn", force=True)
     queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=child_process, args=(importer, shareable_buffer, queue))
+    process = multiprocessing.Process(target=child_process, args=(importer, queue))
     process.start()
 
     # Send the handle via socket
     exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [shareable_handle]))])
 
+    # Send the exported pointer data via queue
+    queue.put(export_data)
+
     process.join(timeout=10)
     assert process.exitcode == 0
 
     if not queue.empty():
-        exception = queue.get()
-        if isinstance(exception, Exception):
-            raise exception
+        result = queue.get()
+        if isinstance(result, Exception):
+            raise result
+
+    buffer.close()
 
 
 def child_process_allocator(size, importer, queue):
