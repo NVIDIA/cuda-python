@@ -228,7 +228,9 @@ def child_process(importer, shareable_buffer, queue):
         shared_handle = int(fds[0])
 
         mr = SharedMempool.from_shared_handle(device.device_id, shared_handle)
-        buffer = mr.import_pointer(shareable_buffer)
+        share_data = driver.CUmemPoolPtrExportData()
+        share_data.reserved = shareable_buffer
+        buffer = mr.import_pointer(share_data)
         queue.put(True)
         buffer.close()
     except Exception as e:
