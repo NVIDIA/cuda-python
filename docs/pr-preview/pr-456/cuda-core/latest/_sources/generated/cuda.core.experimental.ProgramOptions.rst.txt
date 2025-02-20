@@ -1,6 +1,0 @@
-﻿cuda.core.experimental.ProgramOptions
-=====================================
-
-.. currentmodule:: cuda.core.experimental
-
-.. autoclass:: ProgramOptions
