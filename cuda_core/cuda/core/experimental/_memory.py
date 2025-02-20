@@ -446,7 +446,7 @@ class SharedMempool(MemoryResource):
         CUDAError
             If the import operation fails
         """
-        return handle_return(driver.cuMemPoolImportPointer(self._handle, share_data))
+        return Buffer(handle_return(driver.cuMemPoolImportPointer(self._handle, share_data)), share_data.size, self)
 
 
 class ShareableAllocator(MemoryResource):
