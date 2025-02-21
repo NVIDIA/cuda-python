@@ -37,12 +37,27 @@ jobs:
         run: |
           .github/scripts/install_gpu_driver.ps1
 
-      - name: Ensure GPU is working
-        run: nvidia-smi
-
       - name: Switch to WDDM
         run: |
-          Start-Process powershell -Verb RunAs -ArgumentList "-File .github/scripts/enable_wddm.ps1"
+          $process = Start-Process powershell -Verb RunAs -ArgumentList "-File .github/scripts/enable_wddm.ps1" -PassThru -Wait -RedirectStandardOutput stdout.txt -RedirectStandardError stderr.txt
+          $stdout = Get-Content stdout.txt
+          $stderr = Get-Content stderr.txt
+          $exitCode = $process.ExitCode
+          Remove-Item stdout.txt, stderr.txt
+
+          Write-Host "Standard Output:"
+          $stdout
+          if ($exitCode -eq 0) {
+              Write-Host "Script executed successfully"
+          } else {
+              Write-Host "Script failed with exit code $exitCode"
+              Write-Host "Standard Error:"
+              $stderr
+              exit $exitCode
+          }
+
+      - name: Ensure GPU is working
+        run: nvidia-smi
 
       - name: Set environment variables
         run: |
