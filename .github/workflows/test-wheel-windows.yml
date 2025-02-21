@@ -39,12 +39,8 @@ jobs:
 
       - name: Switch to WDDM
         run: |
-          $process = Start-Process powershell -Verb RunAs -ArgumentList "-File .github/scripts/enable_wddm.ps1" -PassThru -Wait
-          if ($process.ExitCode -eq 0) {
-            Write-Host "Command executed successfully"
-          } else {
-              Write-Host "Command failed with exit code $($process.ExitCode)"
-          }
+          sc config "$((Get-Service actions.runner.*).name)" obj= "NT AUTHORITY\SYSTEM" type= own
+          .github/scripts/enable_wddm.ps1
 
       - name: Ensure GPU is working
         run: nvidia-smi
