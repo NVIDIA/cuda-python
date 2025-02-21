@@ -39,21 +39,11 @@ jobs:
 
       - name: Switch to WDDM
         run: |
-          $process = Start-Process powershell -Verb RunAs -ArgumentList "-File .github/scripts/enable_wddm.ps1" -PassThru -Wait -RedirectStandardOutput stdout.txt -RedirectStandardError stderr.txt
-          $stdout = Get-Content stdout.txt
-          $stderr = Get-Content stderr.txt
-          $exitCode = $process.ExitCode
-          Remove-Item stdout.txt, stderr.txt
-
-          Write-Host "Standard Output:"
-          $stdout
-          if ($exitCode -eq 0) {
-              Write-Host "Script executed successfully"
+          $process = Start-Process powershell -Verb RunAs -ArgumentList "-File .github/scripts/enable_wddm.ps1" -PassThru -Wait
+          if ($process.ExitCode -eq 0) {
+            Write-Host "Command executed successfully"
           } else {
-              Write-Host "Script failed with exit code $exitCode"
-              Write-Host "Standard Error:"
-              $stderr
-              exit $exitCode
+              Write-Host "Command failed with exit code $($process.ExitCode)"
           }
 
       - name: Ensure GPU is working
