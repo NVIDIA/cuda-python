@@ -86,6 +86,8 @@ _DRIVER_CU_RESULT_EXPLAINED = {
 }
 
 
+# CUDA Toolkit v12.8.0
+# https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES
 _RUNTIME_CUDA_ERROR_T_EXPLANATIONS = {
     0: "The API call returned with no errors. In the case of query calls, this also means that the operation being queried is complete (see cudaEventQuery() and cudaStreamQuery()).",
     1: "This indicates that one or more of the parameters passed to the API call is not within an acceptable range of values.",
