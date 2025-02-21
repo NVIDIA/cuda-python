@@ -552,6 +552,7 @@ _RUNTIME_CUDA_ERROR_T_EXPLANATIONS = {
     914: "This error indicates one or more resources passed in are not valid resource types for the operation.",
     915: "This error indicates one or more resources are insufficient or non-applicable for the operation.",
     999: "This indicates that an unknown internal error has occurred.",
+    10000: "Pseudo code.",
 }
 
 
