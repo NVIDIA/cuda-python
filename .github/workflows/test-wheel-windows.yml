@@ -41,6 +41,7 @@ jobs:
         run: nvidia-smi
 
       - name: Switch to WDDM
+        shell: powershell -Verb RunAs -command ". '{0}'"
         run: |
           .github/scripts/enable_wddm.ps1
 
