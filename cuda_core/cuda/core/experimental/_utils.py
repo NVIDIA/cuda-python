@@ -27,49 +27,154 @@ class NVRTCError(CUDAError):
 ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
 
 
+# CUDA Toolkit v12.8.0
+# https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TYPES.html#group__CUDA__TYPES
+# noqa: E501
+_DRIVER_CU_RESULT_EXPLAINED = {
+    0: (
+        "The API call returned with no errors. In the case of query calls, this also means that the operation being "
+        "queried is complete (see cuEventQuery() and cuStreamQuery())."
+    ),
+    1: "The parameters passed to the API call are not within an acceptable range of values.",
+    2: (
+        "The API call failed because it was unable to allocate enough memory or other resources to perform the "
+        "requested operation."
+    ),
+    3: "The CUDA driver has not been initialized with cuInit() or initialization has failed.",
+    4: "The CUDA driver is in the process of shutting down.",
+    5: (
+        "The profiler is not initialized for this run. This can happen when the application is running with external "
+        "profiling tools like visual profiler."
+    ),
+    34: (
+        "The CUDA driver that the application has loaded is a stub library. Applications that run with the stub "
+        "rather than a real driver loaded will result in CUDA API returning this error."
+    ),
+    46: (
+        "The requested CUDA device is unavailable at the current time. Devices are often unavailable due to use of "
+        "CU_COMPUTEMODE_EXCLUSIVE_PROCESS or CU_COMPUTEMODE_PROHIBITED."
+    ),
+    100: "No CUDA-capable devices were detected by the installed CUDA driver.",
+    101: (
+        "The device ordinal supplied by the user does not correspond to a valid CUDA device or the action requested "
+        "is invalid for the specified device."
+    ),
+    102: "The Grid license is not applied.",
+    200: "The device kernel image is invalid. This can also indicate an invalid CUDA module.",
+    201: (
+        "There is no context bound to the current thread. This can also be returned if the context passed to an API "
+        "call is not a valid handle, if a user mixes different API versions, or if the green context passed to an "
+        "API call was not converted to a CUcontext using cuCtxFromGreenCtx API."
+    ),
+    226: (
+        "An exception occurred on the device that is now contained by the GPU's error containment capability. This "
+        "leaves the process in an inconsistent state, and any further CUDA work will return the same error. The "
+        "process must be terminated and relaunched."
+    ),
+    300: (
+        "The device kernel source is invalid. This includes compilation/linker errors encountered in device code or "
+        "user error."
+    ),
+    500: (
+        "A named symbol was not found. Examples include global/constant variable names, driver function names, "
+        "texture names, and surface names."
+    ),
+    700: (
+        "While executing a kernel, the device encountered a load or store instruction on an invalid memory address. "
+        "The process must be terminated and relaunched."
+    ),
+    999: "An unknown internal error has occurred.",
+}
+
+
+def _driver_error_info(error):
+    expl = _DRIVER_CU_RESULT_EXPLAINED.get(error)
+    err, name = driver.cuGetErrorName(error)
+    if err == driver.CUresult.CUDA_SUCCESS:
+        err, desc = driver.cuGetErrorString(error)
+        assert err == driver.CUresult.CUDA_SUCCESS
+        return (name.decode(), desc.decode(), expl)
+    else:
+        return ("INVALID ERROR CODE", None, expl)
+
+
+def _check_driver_error(error):
+    if error == driver.CUresult.CUDA_SUCCESS:
+        return
+    print(f"\nLOOOK driver.CUresult {error=}", flush=True)
+    err, name = driver.cuGetErrorName(error)
+    if err == driver.CUresult.CUDA_SUCCESS:
+        err, desc = driver.cuGetErrorString(error)
+    if err == driver.CUresult.CUDA_SUCCESS:
+        raise CUDAError(f"{name.decode()}: {desc.decode()}")
+    else:
+        raise CUDAError(f"unknown error: {error}")
+
+
+def _check_runtime_error(error):
+    if error == runtime.cudaError_t.cudaSuccess:
+        return
+    print(f"\nLOOOK runtime.cudaError_t {error=}", flush=True)
+    err, name = runtime.cudaGetErrorName(error)
+    if err == runtime.cudaError_t.cudaSuccess:
+        err, desc = runtime.cudaGetErrorString(error)
+    if err == runtime.cudaError_t.cudaSuccess:
+        raise CUDAError(f"{name.decode()}: {desc.decode()}")
+    else:
+        raise CUDAError(f"unknown error: {error}")
+
+
+def _check_nvrtc_error(error, handle):
+    if error == nvrtc.nvrtcResult.NVRTC_SUCCESS:
+        return
+    print(f"\nLOOOK nvrtc.nvrtcResult {error=}", flush=True)
+    err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}"
+    if handle is not None:
+        _, logsize = nvrtc.nvrtcGetProgramLogSize(handle)
+        log = b" " * logsize
+        _ = nvrtc.nvrtcGetProgramLog(handle, log)
+        err += f", compilation log:\n\n{log.decode()}"
+    raise NVRTCError(err)
+
+
 def _check_error(error, handle=None):
     if isinstance(error, driver.CUresult):
-        if error == driver.CUresult.CUDA_SUCCESS:
-            return
-        err, name = driver.cuGetErrorName(error)
-        if err == driver.CUresult.CUDA_SUCCESS:
-            err, desc = driver.cuGetErrorString(error)
-        if err == driver.CUresult.CUDA_SUCCESS:
-            raise CUDAError(f"{name.decode()}: {desc.decode()}")
-        else:
-            raise CUDAError(f"unknown error: {error}")
+        _check_driver_error(error)
     elif isinstance(error, runtime.cudaError_t):
-        if error == runtime.cudaError_t.cudaSuccess:
-            return
-        err, name = runtime.cudaGetErrorName(error)
-        if err == runtime.cudaError_t.cudaSuccess:
-            err, desc = runtime.cudaGetErrorString(error)
-        if err == runtime.cudaError_t.cudaSuccess:
-            raise CUDAError(f"{name.decode()}: {desc.decode()}")
-        else:
-            raise CUDAError(f"unknown error: {error}")
+        _check_runtime_error(error)
     elif isinstance(error, nvrtc.nvrtcResult):
-        if error == nvrtc.nvrtcResult.NVRTC_SUCCESS:
-            return
-        err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}"
-        if handle is not None:
-            _, logsize = nvrtc.nvrtcGetProgramLogSize(handle)
-            log = b" " * logsize
-            _ = nvrtc.nvrtcGetProgramLog(handle, log)
-            err += f", compilation log:\n\n{log.decode()}"
-        raise NVRTCError(err)
+        _check_nvrtc_error(error, handle)
     else:
         raise RuntimeError(f"Unknown error type: {error}")
 
 
-def handle_return(result, handle=None):
-    _check_error(result[0], handle=handle)
+def _strip_return_tuple(result):
     if len(result) == 1:
         return
     elif len(result) == 2:
         return result[1]
     else:
         return result[1:]
+
+
+def handle_return(result, handle=None):
+    _check_error(result[0], handle=handle)
+    return _strip_return_tuple(result)
+
+
+def raise_if_driver_error(return_tuple):
+    _check_driver_error(return_tuple[0])
+    return _strip_return_tuple(return_tuple)
+
+
+def raise_if_runtime_error(return_tuple):
+    _check_runtime_error(return_tuple[0])
+    return _strip_return_tuple(return_tuple)
+
+
+def raise_if_nvrtc_error(return_tuple, handle):
+    _check_nvrtc_error(return_tuple[0], handle)
+    return _strip_return_tuple(return_tuple)
 
 
 def check_or_create_options(cls, options, options_description, *, keep_none=False):
