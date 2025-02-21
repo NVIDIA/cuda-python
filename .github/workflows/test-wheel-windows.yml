@@ -40,6 +40,12 @@ jobs:
       - name: Ensure GPU is working
         run: nvidia-smi
 
+      - name: Switch to WDDM
+        run: |
+          Get-PnpDevice
+          Get-PnpDevice -FriendlyName 'NVIDIA'
+          nvidia-smi -i 0 -dm WDDM
+
       - name: Set environment variables
         run: |
           $PYTHON_VERSION_FORMATTED = '${{ inputs.python-version }}' -replace '\.'
