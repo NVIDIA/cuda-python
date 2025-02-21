@@ -11,7 +11,7 @@ import warnings
 
 import pytest
 
-from cuda.core.experimental import Program, ProgramOptions, system
+from cuda.core.experimental import ObjectCode, Program, ProgramOptions, system
 
 
 @pytest.fixture(scope="function")
@@ -38,7 +38,7 @@ def get_saxpy_kernel(init_cuda):
     )
 
     # run in single precision
-    return mod.get_kernel("saxpy<float>")
+    return mod.get_kernel("saxpy<float>"), mod
 
 
 def test_get_kernel(init_cuda):
@@ -78,7 +78,7 @@ def test_get_kernel(init_cuda):
     ],
 )
 def test_read_only_kernel_attributes(get_saxpy_kernel, attr, expected_type):
-    kernel = get_saxpy_kernel
+    kernel, _ = get_saxpy_kernel
     method = getattr(kernel.attributes, attr)
     # get the value without providing a device ordinal
     value = method()
@@ -88,3 +88,23 @@ def test_read_only_kernel_attributes(get_saxpy_kernel, attr, expected_type):
     for device in system.devices:
         value = method(device.device_id)
     assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
+
+
+def test_object_code_load_cubin(get_saxpy_kernel):
+    _, mod = get_saxpy_kernel
+    cubin = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(cubin, bytes)
+    mod = ObjectCode.from_cubin(cubin, symbol_mapping=sym_map)
+    mod.get_kernel("saxpy<double>")  # force loading
+
+
+def test_object_code_load_cubin_from_file(get_saxpy_kernel, tmp_path):
+    _, mod = get_saxpy_kernel
+    cubin = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(cubin, bytes)
+    cubin_file = tmp_path / "test.cubin"
+    cubin_file.write_bytes(cubin)
+    mod = ObjectCode.from_cubin(str(cubin_file), symbol_mapping=sym_map)
+    mod.get_kernel("saxpy<double>")  # force loading

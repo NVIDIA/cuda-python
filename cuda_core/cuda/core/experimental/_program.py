@@ -389,7 +389,7 @@ class Program:
             if not isinstance(code, str):
                 raise TypeError("ptx Program expects code argument to be a string")
             self._linker = Linker(
-                ObjectCode(code.encode(), code_type), options=self._translate_program_options(options)
+                ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
             self._backend = "linker"
         else:
@@ -487,7 +487,7 @@ class Program:
                     handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
                     logs.write(log.decode())
 
-            return ObjectCode(data, target_type, symbol_mapping=symbol_mapping)
+            return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
         if self._backend == "linker":
             return self._linker.link(target_type)
