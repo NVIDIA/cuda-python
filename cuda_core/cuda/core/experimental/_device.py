@@ -1029,13 +1029,11 @@ class Device:
     @property
     def compute_capability(self) -> ComputeCapability:
         """Return a named tuple with 2 fields: major and minor."""
-        major = handle_return(
-            runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, self._id)
-        )
-        minor = handle_return(
-            runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, self._id)
-        )
-        return ComputeCapability(major, minor)
+        if "compute_capability" in self.properties._cache:
+            return self.properties._cache["compute_capability"]
+        cc = ComputeCapability(self.properties.compute_capability_major, self.properties.compute_capability_minor)
+        self.properties._cache["compute_capability"] = cc
+        return cc
 
     @property
     @precondition(_check_context_initialized)
