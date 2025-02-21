@@ -29,7 +29,7 @@ ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
 
 # CUDA Toolkit v12.8.0
 # https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TYPES.html#group__CUDA__TYPES
-_DRIVER_CU_RESULT_EXPLAINED = {
+_DRIVER_CU_RESULT_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this also means that the operation being "
         "queried is complete (see cuEventQuery() and cuStreamQuery())."
@@ -556,7 +556,7 @@ _RUNTIME_CUDA_ERROR_T_EXPLANATIONS = {
 
 
 def _driver_error_info(error):
-    expl = _DRIVER_CU_RESULT_EXPLAINED.get(error)
+    expl = _DRIVER_CU_RESULT_EXPLANATIONS.get(error)
     err, name = driver.cuGetErrorName(error)
     if err == driver.CUresult.CUDA_SUCCESS:
         err, desc = driver.cuGetErrorString(error)
