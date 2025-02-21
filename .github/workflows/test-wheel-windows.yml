@@ -36,10 +36,15 @@ jobs:
       - name: Update driver
         run: |
           .github/scripts/install_gpu_driver.ps1
+          "RUNNER_NAME=$((Get-Service actions.runner.*).name)" >> $Env:GITHUB_ENV
 
+      - name: Get admin priviledge
+        shell: cmd
+        run: |
+          sc config %RUNNER_NAME% obj= "NT AUTHORITY\SYSTEM" type= own
+      
       - name: Switch to WDDM
         run: |
-          sc config "$((Get-Service actions.runner.*).name)" obj= "NT AUTHORITY\SYSTEM" type= own
           .github/scripts/enable_wddm.ps1
 
       - name: Ensure GPU is working
