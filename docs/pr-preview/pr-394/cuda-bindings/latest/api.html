@@ -211,6 +211,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/12.X.Y-notes.html">12.X.Y</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.8.0-notes.html">12.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.2-notes.html">12.6.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.1-notes.html">12.6.1</a></li>
@@ -222,6 +223,7 @@
 <li class="toctree-l2"><a class="reference internal" href="release/12.2.0-notes.html">12.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.1.0-notes.html">12.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.0.0-notes.html">12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.7-notes.html">11.8.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.6-notes.html">11.8.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.5-notes.html">11.8.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.4-notes.html">11.8.4</a></li>
@@ -246,6 +248,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module/runtime.html">runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvrtc.html">nvrtc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvvm.html">nvvm</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tips_and_tricks.html">Tips and Tricks</a></li>
@@ -1994,6 +1997,27 @@
 <li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html#types">Types</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result"><code class="docutils literal notranslate"><span class="pre">Result</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/nvjitlink.html#cuda.bindings.nvjitlink.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module/nvvm.html">nvvm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module/nvvm.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.version"><code class="docutils literal notranslate"><span class="pre">version()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.ir_version"><code class="docutils literal notranslate"><span class="pre">ir_version()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.create_program"><code class="docutils literal notranslate"><span class="pre">create_program()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.add_module_to_program"><code class="docutils literal notranslate"><span class="pre">add_module_to_program()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.lazy_add_module_to_program"><code class="docutils literal notranslate"><span class="pre">lazy_add_module_to_program()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.compile_program"><code class="docutils literal notranslate"><span class="pre">compile_program()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.verify_program"><code class="docutils literal notranslate"><span class="pre">verify_program()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.get_compiled_result_size"><code class="docutils literal notranslate"><span class="pre">get_compiled_result_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.get_compiled_result"><code class="docutils literal notranslate"><span class="pre">get_compiled_result()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.get_program_log_size"><code class="docutils literal notranslate"><span class="pre">get_program_log_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.get_program_log"><code class="docutils literal notranslate"><span class="pre">get_program_log()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvvm.html#types">Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/nvvm.html#cuda.bindings.nvvm.Result"><code class="docutils literal notranslate"><span class="pre">Result</span></code></a></li>
 </ul>
 </li>
 </ul>
