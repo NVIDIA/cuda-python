@@ -35,18 +35,14 @@ jobs:
 
       - name: Update driver
         run: |
-          .github/workflows/install_gpu_driver.ps1
+          .github/scripts/install_gpu_driver.ps1
 
       - name: Ensure GPU is working
         run: nvidia-smi
 
       - name: Switch to WDDM
         run: |
-          Get-PnpDevice
-          $gpu = Get-PnpDevice -FriendlyName 'NVIDIA*'
-          nvidia-smi -i 0 -dm WDDM
-          Disable-PnpDevice -InstanceId $gpu.InstanceId -Confirm:$false
-          Enable-PnpDevice -InstanceId $gpu.InstanceId -Confirm:$false
+          .github/scripts/enable_wddm.ps1
 
       - name: Set environment variables
         run: |
