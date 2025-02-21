@@ -11,10 +11,9 @@ import os
 import sys
 
 try:
-    from cuda.bindings import driver, nvrtc
+    from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-    from cuda import nvrtc
 import pytest
 
 from cuda.core.experimental import Device, _device
@@ -65,9 +64,3 @@ def clean_up_cffi_files():
             os.remove(f)
         except FileNotFoundError:
             pass  # noqa: SIM105
-
-
-def can_load_generated_ptx():
-    _, driver_ver = driver.cuDriverGetVersion()
-    _, nvrtc_major, nvrtc_minor = nvrtc.nvrtcVersion()
-    return nvrtc_major * 1000 + nvrtc_minor * 10 <= driver_ver
