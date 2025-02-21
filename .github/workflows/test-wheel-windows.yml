@@ -43,8 +43,10 @@ jobs:
       - name: Switch to WDDM
         run: |
           Get-PnpDevice
-          Get-PnpDevice -FriendlyName 'NVIDIA'
+          $gpu = Get-PnpDevice -FriendlyName 'NVIDIA*'
           nvidia-smi -i 0 -dm WDDM
+          Disable-PnpDevice -InstanceId $gpu.InstanceId -Confirm:$false
+          Enable-PnpDevice -InstanceId $gpu.InstanceId -Confirm:$false
 
       - name: Set environment variables
         run: |
