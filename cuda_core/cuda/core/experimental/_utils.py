@@ -558,23 +558,25 @@ _RUNTIME_CUDA_ERROR_T_EXPLANATIONS = {
 def _driver_error_info(error):
     expl = _DRIVER_CU_RESULT_EXPLANATIONS.get(error)
     err, name = driver.cuGetErrorName(error)
-    if err == driver.CUresult.CUDA_SUCCESS:
-        err, desc = driver.cuGetErrorString(error)
-        assert err == driver.CUresult.CUDA_SUCCESS
-        return (name.decode(), desc.decode(), expl)
-    else:
-        return ("INVALID ERROR CODE", None, expl)
+    assert err == driver.CUresult.CUDA_SUCCESS
+    err, desc = driver.cuGetErrorString(error)
+    assert err == driver.CUresult.CUDA_SUCCESS
+    return (name.decode(), desc.decode(), expl)
 
 
 def _runtime_error_info(error):
     expl = _RUNTIME_CUDA_ERROR_T_EXPLANATIONS.get(error)
     err, name = runtime.cudaGetErrorName(error)
-    if err == runtime.cudaError_t.cudaSuccess:
-        err, desc = runtime.cudaGetErrorString(error)
-        assert err == driver.CUresult.CUDA_SUCCESS
-        return (name.decode(), desc.decode(), expl)
-    else:
-        return ("INVALID ERROR CODE", None, expl)
+    assert err == runtime.cudaError_t.cudaSuccess
+    err, desc = runtime.cudaGetErrorString(error)
+    assert err == driver.CUresult.CUDA_SUCCESS
+    return (name.decode(), desc.decode(), expl)
+
+
+def _nvrtc_error_info(error):
+    err, desc = nvrtc.nvrtcGetErrorString(error)
+    assert err == nvrtc.nvrtcResult.NVRTC_SUCCESS
+    return desc.decode()
 
 
 def _check_driver_error(error):

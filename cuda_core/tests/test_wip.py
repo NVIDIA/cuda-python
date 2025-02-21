@@ -1,4 +1,4 @@
-from cuda.bindings import driver, runtime
+from cuda.bindings import driver, nvrtc, runtime
 from cuda.core.experimental import _utils
 
 
@@ -33,4 +33,19 @@ def test_runtime_error_info():
                 print(name)
                 print(desc)
                 print(expl)
+            print()
+
+
+def test_nvrtc_error_info():
+    for code in range(100):
+        try:
+            error = nvrtc.nvrtcResult(code)
+        except ValueError:
+            pass
+        else:
+            print(code)
+            print(error)
+            if True:
+                desc = _utils._nvrtc_error_info(error)
+                print(desc)
             print()
