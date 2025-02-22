@@ -1,6 +1,9 @@
 from cuda.bindings import driver, nvrtc, runtime
 from cuda.core.experimental import _utils
 
+err, _DRIVER_VERSION = driver.cuDriverGetVersion()
+assert err == driver.CUresult.CUDA_SUCCESS
+
 
 def test_driver_error_info():
     expl_dict = _utils._DRIVER_CU_RESULT_EXPLANATIONS
@@ -9,7 +12,8 @@ def test_driver_error_info():
         try:
             error = driver.CUresult(code)
         except ValueError:
-            assert code not in expl_dict
+            if _DRIVER_VERSION >= 12000:
+                assert code not in expl_dict
         else:
             assert code in expl_dict
             valid_codes.add(code)
@@ -34,7 +38,8 @@ def test_runtime_error_info():
         try:
             error = runtime.cudaError_t(code)
         except ValueError:
-            assert code not in expl_dict
+            if _DRIVER_VERSION >= 12000:
+                assert code not in expl_dict
         else:
             assert code in expl_dict
             valid_codes.add(code)
