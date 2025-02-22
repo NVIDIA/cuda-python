@@ -484,8 +484,13 @@ class Linker:
 
     @property
     def handle(self):
-        """Return the linker handle object."""
+        """Return the underlying handle object."""
         return self._mnff.handle
+
+    @property
+    def backend(self) -> str:
+        """Return this Linker instance's underlying backend."""
+        return "nvJitLink" if self._mnff.use_nvjitlink else "driver"
 
     def close(self):
         """Destroy this linker."""

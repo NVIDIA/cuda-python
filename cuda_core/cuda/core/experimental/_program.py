@@ -382,7 +382,7 @@ class Program:
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
-            self._backend = "nvrtc"
+            self._backend = "NVRTC"
             self._linker = None
 
         elif code_type == "ptx":
@@ -391,7 +391,7 @@ class Program:
             self._linker = Linker(
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
-            self._backend = "linker"
+            self._backend = self._linker.backend
         else:
             raise NotImplementedError
 
@@ -445,9 +445,9 @@ class Program:
 
         """
         if target_type not in self._supported_target_type:
-            raise NotImplementedError
+            raise ValueError(f"the target type {target_type} is not supported")
 
-        if self._backend == "nvrtc":
+        if self._backend == "NVRTC":
             if target_type == "ptx" and not self._can_load_generated_ptx():
                 warn(
                     "The CUDA driver version is older than the backend version. "
@@ -489,15 +489,15 @@ class Program:
 
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
-        if self._backend == "linker":
+        if self._backend in ("nvJitLink", "driver"):
             return self._linker.link(target_type)
 
     @property
-    def backend(self):
-        """Return the backend type string associated with this program."""
+    def backend(self) -> str:
+        """Return this Program instance's underlying backend."""
         return self._backend
 
     @property
     def handle(self):
-        """Return the program handle object."""
+        """Return the underlying handle object."""
         return self._mnff.handle
