@@ -130,6 +130,6 @@ class Event:
             raise CUDAError(f"unexpected error: {result}")
 
     @property
-    def handle(self) -> int:
+    def handle(self) -> "CUevent":
         """Return the underlying cudaEvent_t pointer address as Python int."""
-        return int(self._mnff.handle)
+        return self._mnff.handle

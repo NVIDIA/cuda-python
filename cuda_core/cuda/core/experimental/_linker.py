@@ -323,6 +323,10 @@ def _exception_manager(self):
         raise e
 
 
+nvJitLinkHandleT = int
+LinkerHandleT = Union[nvJitLinkHandleT, "CUlinkState"]
+
+
 class Linker:
     """Represent a linking machinery to link one or multiple object codes into
     :obj:`~cuda.core.experimental._module.ObjectCode` with the specified options.
@@ -483,7 +487,7 @@ class Linker:
         return input_type
 
     @property
-    def handle(self):
+    def handle(self) -> LinkerHandleT:
         """Return the underlying handle object."""
         return self._mnff.handle
 

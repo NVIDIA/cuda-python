@@ -147,9 +147,9 @@ class Stream:
         return (0, self.handle)
 
     @property
-    def handle(self) -> int:
+    def handle(self) -> "CUstream":
         """Return the underlying cudaStream_t pointer address as Python int."""
-        return int(self._mnff.handle)
+        return self._mnff.handle
 
     @property
     def is_nonblocking(self) -> bool:

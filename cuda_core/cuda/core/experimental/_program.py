@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple, Union
 from warnings import warn
 
 from cuda.core.experimental._device import Device
-from cuda.core.experimental._linker import Linker, LinkerOptions
+from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils import (
     _handle_boolean_option,
@@ -498,6 +498,6 @@ class Program:
         return self._backend
 
     @property
-    def handle(self):
+    def handle(self) -> Union["nvrtcProgram", LinkerHandleT]:
         """Return the underlying handle object."""
         return self._mnff.handle

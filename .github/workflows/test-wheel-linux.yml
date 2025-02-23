@@ -223,6 +223,19 @@ jobs:
           pytest -rxXs tests/
           popd
 
+          # It is a bit convoluted to run the Cython tests against CTK wheels,
+          # so let's just skip them.
+          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
+            if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+              bash tests/cython/build_tests.sh
+            elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+              # TODO: enable this once win-64 runners are up
+              exit 1
+            fi
+            pytest -rxXs tests/cython
+            popd
+          fi
+
       - name: Ensure cuda-python installable
         run: |
           if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
