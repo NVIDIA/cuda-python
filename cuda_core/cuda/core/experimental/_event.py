@@ -2,11 +2,16 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+from __future__ import annotations
+
 import weakref
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from cuda.core.experimental._utils import CUDAError, check_or_create_options, driver, handle_return
+
+if TYPE_CHECKING:
+    import cuda.bindings
 
 
 @dataclass
@@ -130,6 +135,6 @@ class Event:
             raise CUDAError(f"unexpected error: {result}")
 
     @property
-    def handle(self) -> "CUevent":
+    def handle(self) -> cuda.bindings.driver.CUevent:
         """Return the underlying cudaEvent_t pointer address as Python int."""
         return self._mnff.handle

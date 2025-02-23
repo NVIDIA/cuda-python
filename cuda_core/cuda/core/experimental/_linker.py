@@ -2,12 +2,17 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+from __future__ import annotations
+
 import ctypes
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 from warnings import warn
+
+if TYPE_CHECKING:
+    import cuda.bindings
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
@@ -324,7 +329,7 @@ def _exception_manager(self):
 
 
 nvJitLinkHandleT = int
-LinkerHandleT = Union[nvJitLinkHandleT, "CUlinkState"]
+LinkerHandleT = Union[nvJitLinkHandleT, "cuda.bindings.driver.CUlinkState"]
 
 
 class Linker:

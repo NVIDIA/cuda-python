@@ -2,10 +2,15 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+from __future__ import annotations
+
 import weakref
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 from warnings import warn
+
+if TYPE_CHECKING:
+    import cuda.bindings
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
@@ -331,6 +336,9 @@ class ProgramOptions:
         return self._formatted_options
 
 
+ProgramHandleT = Union["cuda.bindings.nvrtc.nvrtcProgram", LinkerHandleT]
+
+
 class Program:
     """Represent a compilation machinery to process programs into
     :obj:`~_module.ObjectCode`.
@@ -498,6 +506,6 @@ class Program:
         return self._backend
 
     @property
-    def handle(self) -> Union["nvrtcProgram", LinkerHandleT]:
+    def handle(self) -> ProgramHandleT:
         """Return the underlying handle object."""
         return self._mnff.handle
