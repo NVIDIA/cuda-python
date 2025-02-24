@@ -1,3 +1,7 @@
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 # distutils: language = c++
 # distutils: extra_compile_args = -std=c++17
 

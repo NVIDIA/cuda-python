@@ -1,3 +1,9 @@
+// Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+//
+// SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+#pragma once
+
 #include <type_traits>
 
 // In cuda.bindings 12.8, the private member name was renamed from "_ptr" to "_pvt_ptr".
