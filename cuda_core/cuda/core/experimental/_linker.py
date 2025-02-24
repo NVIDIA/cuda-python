@@ -493,7 +493,12 @@ class Linker:
 
     @property
     def handle(self) -> LinkerHandleT:
-        """Return the underlying handle object."""
+        """Return the underlying handle object.
+
+        .. note::
+
+           The type of the returned object depends on the backend.
+        """
         return self._mnff.handle
 
     @property

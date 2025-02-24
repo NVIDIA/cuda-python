@@ -507,5 +507,10 @@ class Program:
 
     @property
     def handle(self) -> ProgramHandleT:
-        """Return the underlying handle object."""
+        """Return the underlying handle object.
+
+        .. note::
+
+           The type of the returned object depends on the backend.
+        """
         return self._mnff.handle
