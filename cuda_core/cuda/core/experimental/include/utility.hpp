@@ -11,13 +11,13 @@
 // Since there's no std::has_member<T, member_name> so we use SFINAE to create the same effect.
 
 template <typename T,
-          std::enable_if_t<std::is_pointer_v<decltype(std::remove_pointer_t<T>::_pvt_ptr)>, bool> = true>
+          std::enable_if_t<std::is_pointer_v<decltype(std::remove_pointer_t<T>::_pvt_ptr)>, int> = 0>
 inline auto& get_cuda_native_handle(const T& obj) {
     return *(obj->_pvt_ptr);
 }
 
 template <typename T,
-          std::enable_if_t<std::is_pointer_v<decltype(std::remove_pointer_t<T>::_ptr)>, bool> = true>
+          std::enable_if_t<std::is_pointer_v<decltype(std::remove_pointer_t<T>::_ptr)>, int> = 0>
 inline auto& get_cuda_native_handle(const T& obj) {
     return *(obj->_ptr);
 }
