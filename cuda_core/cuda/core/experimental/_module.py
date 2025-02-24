@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -212,6 +212,9 @@ class Kernel:
     # TODO: implement from_handle()
 
 
+CodeTypeT = Union[bytes, bytearray, str]
+
+
 class ObjectCode:
     """Represent a compiled program to be loaded onto the device.
 
@@ -317,3 +320,8 @@ class ObjectCode:
 
         data = handle_return(self._loader["kernel"](self._handle, name))
         return Kernel._from_obj(data, self)
+
+    @property
+    def code(self) -> CodeTypeT:
+        """Return the underlying code object."""
+        return self._module
