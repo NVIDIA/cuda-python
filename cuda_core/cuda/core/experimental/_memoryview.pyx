@@ -177,11 +177,11 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef object capsule
     try:
         capsule = obj.__dlpack__(
-            stream=stream_ptr,
+            stream=int(stream_ptr) if stream_ptr else None,
             max_version=(DLPACK_MAJOR_VERSION, DLPACK_MINOR_VERSION))
     except TypeError:
         capsule = obj.__dlpack__(
-            stream=stream_ptr)
+            stream=int(stream_ptr) if stream_ptr else None)
 
     cdef void* data = NULL
     if cpython.PyCapsule_IsValid(
