@@ -9,9 +9,11 @@ from libc.stdint cimport intptr_t
 
 from cuda.bindings.driver cimport (CUstream as pyCUstream,
                                    CUevent as pyCUevent)
+from cuda.bindings.nvrtc cimport nvrtcProgram as pynvrtcProgram
 from cuda.bindings.cydriver cimport CUstream, CUevent
+from cuda.bindings.cynvrtc cimport nvrtcProgram
 
-from cuda.core.experimental import Device
+from cuda.core.experimental import Device, Program
 
 
 cdef extern from "utility.hpp":
@@ -32,5 +34,12 @@ def test_get_cuda_native_handle():
     cdef CUevent e_c = <CUevent>get_cuda_native_handle(e_py)
     assert <intptr_t>(e_c) == <intptr_t>(int(e_py))
 
+    prog = Program("extern \"C\" __global__ void dummy() {}", "c++")
+    assert prog.backend == "NVRTC"
+    cdef pynvrtcProgram prog_py = prog.handle
+    cdef nvrtcProgram prog_c = <nvrtcProgram>get_cuda_native_handle(prog_py)
+    assert <intptr_t>(prog_c) == <intptr_t>(int(prog_py))
+
+    prog.close()
     e.close()
     s.close()
