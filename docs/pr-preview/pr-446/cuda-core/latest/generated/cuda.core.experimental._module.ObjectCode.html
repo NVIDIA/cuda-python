@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
         <link rel="canonical" href="docs/generated/cuda.core.experimental._module.ObjectCode.html" />
 
-    <!-- Generated with Sphinx 8.2.1 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>cuda.core.experimental._module.ObjectCode - cuda.core 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -227,6 +227,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
@@ -299,36 +300,45 @@
 <h1>cuda.core.experimental._module.ObjectCode<a class="headerlink" href="#cuda-core-experimental-module-objectcode" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental._module.ObjectCode">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._module.</span></span><span class="sig-name descname"><span class="pre">ObjectCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jit_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.ObjectCode" title="Link to this definition">¶</a></dt>
-<dd><p>Represent a compiled program that was loaded onto the device.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._module.</span></span><span class="sig-name descname"><span class="pre">ObjectCode</span></span><a class="headerlink" href="#cuda.core.experimental._module.ObjectCode" title="Link to this definition">¶</a></dt>
+<dd><p>Represent a compiled program to be loaded onto the device.</p>
 <p>This object provides a unified interface for different types of
-compiled programs that are loaded onto the device.</p>
-<p>Loads the module library with specified module code and JIT options.</p>
+compiled programs that will be loaded onto the device.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This class has no default constructor. If you already have a cubin that you would
+like to load, use the <a class="reference internal" href="#cuda.core.experimental._module.ObjectCode.from_cubin" title="cuda.core.experimental._module.ObjectCode.from_cubin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_cubin()</span></code></a> alternative constructor. For all other
+possible code types (ex: “ptx”), only <a class="reference internal" href="cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a>
+accepts them and returns an <a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance with its
+<a class="reference internal" href="cuda.core.experimental.Program.html#cuda.core.experimental.Program.compile" title="cuda.core.experimental.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a> method.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Usage under CUDA 11.x will only load to the current device
 context.</p>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – Either a bytes object containing the module to load, or
-a file path string containing that module for loading.</p></li>
-<li><p><strong>code_type</strong> (<em>Any</em>) – String of the compiled type.
-Supported options are “ptx”, “cubin”, “ltoir” and “fatbin”.</p></li>
-<li><p><strong>jit_options</strong> (<em>Optional</em>) – Mapping of JIT options to use during module loading.
-(Default to no options)</p></li>
-<li><p><strong>symbol_mapping</strong> (<em>Optional</em>) – Keyword argument dictionary specifying how symbol names
-should be mapped before trying to retrieve them.
-(Default to no mappings)</p></li>
-</ul>
-</dd>
-</dl>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental._module.ObjectCode.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jit_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.ObjectCode.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.ObjectCode.__init__" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._module.ObjectCode.from_cubin">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cubin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.experimental._module.ObjectCode.from_cubin" title="Link to this definition">¶</a></dt>
+<dd><p>Create an <a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing cubin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>module</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – Either a bytes object containing the in-memory cubin to load, or
+a file path string pointing to the on-disk cubin to load.</p></li>
+<li><p><strong>symbol_mapping</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>]</em>) – A dictionary specifying how the unmangled symbol names (as keys)
+should be mapped to the mangled names before trying to retrieve
+them (default to no mappings).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental._module.ObjectCode.get_kernel">
@@ -391,6 +401,7 @@ should be mapped before trying to retrieve them.
 <li><a class="reference internal" href="#">cuda.core.experimental._module.ObjectCode</a><ul>
 <li><a class="reference internal" href="#cuda.core.experimental._module.ObjectCode"><code class="docutils literal notranslate"><span class="pre">ObjectCode</span></code></a><ul>
 <li><a class="reference internal" href="#cuda.core.experimental._module.ObjectCode.__init__"><code class="docutils literal notranslate"><span class="pre">ObjectCode.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._module.ObjectCode.from_cubin"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_cubin()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._module.ObjectCode.get_kernel"><code class="docutils literal notranslate"><span class="pre">ObjectCode.get_kernel()</span></code></a></li>
 </ul>
 </li>

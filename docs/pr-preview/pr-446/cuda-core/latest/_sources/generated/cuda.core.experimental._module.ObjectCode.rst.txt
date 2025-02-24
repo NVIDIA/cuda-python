@@ -11,6 +11,7 @@
 
    
    .. automethod:: __init__
+   .. automethod:: from_cubin
    .. automethod:: get_kernel
 
    
