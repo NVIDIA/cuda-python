@@ -24,7 +24,7 @@
    .. rubric:: Attributes
 
    
-   .. autoattribute:: backend
-   .. autoattribute:: handle
+   .. autoproperty:: backend
+   .. autoproperty:: handle
    
    

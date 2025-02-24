@@ -390,15 +390,15 @@ on the stream and then waiting on it.</p>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.context">
-<span class="sig-name descname"><span class="pre">context</span></span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.context" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Context</span></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.context" title="Link to this definition">¶</a></dt>
 <dd><p>Return the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> associated with this stream.</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.device">
-<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.device" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><span class="pre">Device</span></a></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.device" title="Link to this definition">¶</a></dt>
 <dd><p>Return the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code> singleton associated with this stream.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -408,21 +408,21 @@ context is set current after a stream is created.</p>
 </div>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.handle" title="Link to this definition">¶</a></dt>
-<dd><p>Return the underlying cudaStream_t pointer address as Python int.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUstream" title="(in cuda.bindings)"><span class="pre">cuda.bindings.driver.CUstream</span></a></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.handle" title="Link to this definition">¶</a></dt>
+<dd><p>Return the underlying <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> object.</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.is_nonblocking">
-<span class="sig-name descname"><span class="pre">is_nonblocking</span></span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.is_nonblocking" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_nonblocking</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.is_nonblocking" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if this is a nonblocking stream, otherwise False.</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.priority">
-<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.priority" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">priority</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.priority" title="Link to this definition">¶</a></dt>
 <dd><p>Return the stream priority.</p>
 </dd></dl>
 
