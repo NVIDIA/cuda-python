@@ -149,7 +149,7 @@ class Stream:
 
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
-        """Return the underlying cudaStream_t pointer address as Python int."""
+        """Return the underlying ``CUstream`` object."""
         return self._mnff.handle
 
     @property

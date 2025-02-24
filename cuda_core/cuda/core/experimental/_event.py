@@ -136,5 +136,5 @@ class Event:
 
     @property
     def handle(self) -> cuda.bindings.driver.CUevent:
-        """Return the underlying cudaEvent_t pointer address as Python int."""
+        """Return the underlying CUevent object."""
         return self._mnff.handle

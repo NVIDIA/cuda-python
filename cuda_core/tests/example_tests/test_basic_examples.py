@@ -14,6 +14,7 @@ import os
 import pytest
 
 from cuda.core.experimental import Device
+
 from .utils import run_example
 
 samples_path = os.path.join(os.path.dirname(__file__), "..", "..", "examples")
