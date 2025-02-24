@@ -14,7 +14,6 @@ except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
     from cuda import nvrtc
-import traceback
 
 
 class CUDAError(Exception):
@@ -36,14 +35,7 @@ def _check_error(error, handle=None):
         if err == driver.CUresult.CUDA_SUCCESS:
             err, desc = driver.cuGetErrorString(error)
         if err == driver.CUresult.CUDA_SUCCESS:
-            stack = traceback.extract_stack()
-            # Get the last 2 frames (excluding the current one)
-            relevant_stack = stack[-4:-1]
-            stack_info = "\n".join(
-                f"  File '{frame.filename}', line {frame.lineno}, in {frame.name}\n    {frame.line}"
-                for frame in relevant_stack
-            )
-            raise CUDAError(f"{name.decode()}: {desc.decode()}\n{stack_info}")
+            raise CUDAError(f"{name.decode()}: {desc.decode()}")
         else:
             raise CUDAError(f"unknown error: {error}")
     elif isinstance(error, runtime.cudaError_t):
