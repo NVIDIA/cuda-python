@@ -497,7 +497,7 @@ class Program:
 
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
-        assert self._backend in ("nvJitLink", "driver"):
+        assert self._backend in ("nvJitLink", "driver")
         return self._linker.link(target_type)
 
     @property
