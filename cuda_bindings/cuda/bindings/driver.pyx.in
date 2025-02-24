@@ -34305,7 +34305,7 @@ def cuMemPrefetchAsync_v2(devPtr, size_t count, location not None : CUmemLocatio
     to the host NUMA node closest to the current thread's CPU by specifying
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT` for
     :py:obj:`~.CUmemLocation.type`. Note when
-    :py:obj:`~.CUmemLocation.type` is etiher
+    :py:obj:`~.type` is etiher
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` OR
     :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT`,
     :py:obj:`~.CUmemLocation.id` will be ignored.
