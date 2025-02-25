@@ -262,7 +262,7 @@ def test_mempool():
     src_buffer.close()
 
     # Test error cases
-    with pytest.raises(NotImplementedError, match="directly creating a AsyncMempool object is not supported"):
+    with pytest.raises(NotImplementedError, match="directly creating an AsyncMempool object is not supported"):
         AsyncMempool()
 
     with pytest.raises(ValueError, match="max_size must be provided when creating a new memory pool"):
