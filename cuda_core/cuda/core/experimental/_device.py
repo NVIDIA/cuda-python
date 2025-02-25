@@ -949,7 +949,7 @@ class Device:
         global _is_cuInit
         if _is_cuInit is False:
             with _lock:
-                handle_return(driver.cuInit(0))
+                raise_if_driver_error(driver.cuInit(0))
                 _is_cuInit = True
 
         # important: creating a Device instance does not initialize the GPU!
@@ -963,7 +963,7 @@ class Device:
 
         # ensure Device is singleton
         if not hasattr(_tls, "devices"):
-            total = handle_return(runtime.cudaGetDeviceCount())
+            total = raise_if_driver_error(runtime.cudaGetDeviceCount())
             _tls.devices = []
             for dev_id in range(total):
                 dev = super().__new__(cls)
@@ -971,7 +971,7 @@ class Device:
                 # If the device is in TCC mode, or does not support memory pools for some other reason,
                 # use the SynchronousMemoryResource which does not use memory pools.
                 if (
-                    handle_return(
+                    raise_if_driver_error(
                         runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
                     )
                 ) == 1:

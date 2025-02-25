@@ -28,7 +28,7 @@ def test_driver_error_info():
             valid_codes.add(code)
             print(code)
             print(error, flush=True)
-            if -code not in (226, 721, 916):  # These trigger SegFaults
+            if code not in (226, 721, 916):  # These trigger SegFaults
                 name, desc, expl = _utils._driver_error_info(error)
                 print(name)
                 print(desc)
