@@ -20,6 +20,6 @@
    .. rubric:: Attributes
 
    
-   .. autoattribute:: attributes
+   .. autoproperty:: attributes
    
    
