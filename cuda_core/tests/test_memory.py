@@ -407,7 +407,7 @@ def test_ipc_mempool():
     device.set_current()
     stream = device.create_stream()
     pool_size = 2097152  # 2MB size
-    mr = AsyncMempool.create(device.device_id, pool_size, enable_ipc=True)
+    mr = AsyncMempool.create(device.device_id, pool_size, ipc_enabled=True)
 
     # Create socket pair for handle transfer
     exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
