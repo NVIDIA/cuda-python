@@ -293,7 +293,6 @@ class ObjectCode:
             them (default to no mappings).
         """
         obj = ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
-        breakpoint()
         obj._code_type = "ptx"
         return obj
 
