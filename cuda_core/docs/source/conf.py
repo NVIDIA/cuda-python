@@ -95,6 +95,7 @@ copybutton_exclude = ".linenos, .gp"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "cuda.bindings": ("https://nvidia.github.io/cuda-python/cuda-bindings/latest", None),
 }
 
 napoleon_google_docstring = False

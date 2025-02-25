@@ -20,7 +20,7 @@
    .. rubric:: {{ _('Attributes') }}
 
    {% for item in attributes %}
-   .. autoattribute:: {{ item }}
+   .. autoproperty:: {{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}
