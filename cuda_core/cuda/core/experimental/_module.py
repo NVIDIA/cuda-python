@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -203,13 +203,16 @@ class Kernel:
         return ker
 
     @property
-    def attributes(self):
+    def attributes(self) -> KernelAttributes:
         """Get the read-only attributes of this kernel."""
         if self._attributes is None:
             self._attributes = KernelAttributes._init(self._handle)
         return self._attributes
 
     # TODO: implement from_handle()
+
+
+CodeTypeT = Union[bytes, bytearray, str]
 
 
 class ObjectCode:
@@ -294,7 +297,7 @@ class ObjectCode:
                 self._handle = handle_return(self._loader["data"](module, 0, [], []))
 
     @precondition(_lazy_load_module)
-    def get_kernel(self, name):
+    def get_kernel(self, name) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
@@ -317,3 +320,8 @@ class ObjectCode:
 
         data = handle_return(self._loader["kernel"](self._handle, name))
         return Kernel._from_obj(data, self)
+
+    @property
+    def code(self) -> CodeTypeT:
+        """Return the underlying code object."""
+        return self._module

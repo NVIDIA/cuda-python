@@ -62,8 +62,16 @@ jobs:
           TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})"
           if [[ $BUILD_CUDA_MAJOR != $TEST_CUDA_MAJOR ]]; then
             SKIP_CUDA_BINDINGS_TEST=1
+            SKIP_CUDA_CORE_CYTHON_TEST=0
           else
             SKIP_CUDA_BINDINGS_TEST=0
+            BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${{ inputs.build-ctk-ver }})"
+            TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${{ inputs.cuda-version }})"
+            if [[ $BUILD_CUDA_MINOR != $TEST_CUDA_MINOR ]]; then
+              SKIP_CUDA_CORE_CYTHON_TEST=1
+            else
+              SKIP_CUDA_CORE_CYTHON_TEST=0
+            fi
           fi
 
           # make outputs from the previous job as env vars
@@ -77,6 +85,7 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
+          echo "SKIP_CUDA_CORE_CYTHON_TEST=${SKIP_CUDA_CORE_CYTHON_TEST}" >> $GITHUB_ENV
 
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
@@ -185,7 +194,7 @@ jobs:
 
           pushd ./cuda_bindings
           pip install -r requirements.txt
-          pytest -rxXs tests/
+          pytest -rxXs -v tests/
 
           # It is a bit convoluted to run the Cython tests against CTK wheels,
           # so let's just skip them.
@@ -196,9 +205,9 @@ jobs:
               # TODO: enable this once win-64 runners are up 
               exit 1
             fi  
-            pytest -rxXs tests/cython
-            popd
+            pytest -rxXs -v tests/cython
           fi
+          popd
 
       - name: Run cuda.core tests
         run: |
@@ -220,7 +229,22 @@ jobs:
 
           pushd ./cuda_core
           pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
-          pytest -rxXs tests/
+          pytest -rxXs -v tests/
+
+          # It is a bit convoluted to run the Cython tests against CTK wheels,
+          # so let's just skip them. Also, currently our CI always installs the
+          # latest bindings (from either major version). This is not compatible
+          # with the test requirements.
+          if [[ "${{ inputs.local-ctk }}" == 1 && "${SKIP_CUDA_CORE_CYTHON_TEST}" == 0 ]]; then
+            pip install cython setuptools  # setuptools needed starting PY312
+            if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+              bash tests/cython/build_tests.sh
+            elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+              # TODO: enable this once win-64 runners are up
+              exit 1
+            fi
+            pytest -rxXs -v tests/cython
+          fi
           popd
 
       - name: Ensure cuda-python installable

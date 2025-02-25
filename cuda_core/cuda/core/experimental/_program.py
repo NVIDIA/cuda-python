@@ -2,13 +2,18 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+from __future__ import annotations
+
 import weakref
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 from warnings import warn
 
+if TYPE_CHECKING:
+    import cuda.bindings
+
 from cuda.core.experimental._device import Device
-from cuda.core.experimental._linker import Linker, LinkerOptions
+from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils import (
     _handle_boolean_option,
@@ -331,6 +336,9 @@ class ProgramOptions:
         return self._formatted_options
 
 
+ProgramHandleT = Union["cuda.bindings.nvrtc.nvrtcProgram", LinkerHandleT]
+
+
 class Program:
     """Represent a compilation machinery to process programs into
     :obj:`~_module.ObjectCode`.
@@ -382,7 +390,7 @@ class Program:
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
-            self._backend = "nvrtc"
+            self._backend = "NVRTC"
             self._linker = None
 
         elif code_type == "ptx":
@@ -391,7 +399,7 @@ class Program:
             self._linker = Linker(
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
-            self._backend = "linker"
+            self._backend = self._linker.backend
         else:
             raise NotImplementedError
 
@@ -445,9 +453,9 @@ class Program:
 
         """
         if target_type not in self._supported_target_type:
-            raise NotImplementedError
+            raise ValueError(f"the target type {target_type} is not supported")
 
-        if self._backend == "nvrtc":
+        if self._backend == "NVRTC":
             if target_type == "ptx" and not self._can_load_generated_ptx():
                 warn(
                     "The CUDA driver version is older than the backend version. "
@@ -489,15 +497,20 @@ class Program:
 
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
-        if self._backend == "linker":
-            return self._linker.link(target_type)
+        assert self._backend in ("nvJitLink", "driver")
+        return self._linker.link(target_type)
 
     @property
-    def backend(self):
-        """Return the backend type string associated with this program."""
+    def backend(self) -> str:
+        """Return this Program instance's underlying backend."""
         return self._backend
 
     @property
-    def handle(self):
-        """Return the program handle object."""
+    def handle(self) -> ProgramHandleT:
+        """Return the underlying handle object.
+
+        .. note::
+
+           The type of the returned object depends on the backend.
+        """
         return self._mnff.handle

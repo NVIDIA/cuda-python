@@ -59,6 +59,9 @@ issues = "https://github.com/NVIDIA/cuda-python/issues/"
 [tool.setuptools.packages.find]
 include = ["cuda.core*"]
 
+[tool.setuptools.package-data]
+"cuda.core.experimental.include" = ["*.h", "*.hpp", "*.cuh"]
+
 [tool.setuptools.dynamic]
 version = { attr = "cuda.core._version.__version__" }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
