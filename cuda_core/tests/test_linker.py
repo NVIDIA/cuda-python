@@ -34,6 +34,11 @@ def compile_ptx_functions(init_cuda):
 
 
 @pytest.fixture(scope="function")
+def compile_ptx_functions_raw(compile_ptx_functions):
+    return tuple(obj.code for obj in compile_ptx_functions)
+
+
+@pytest.fixture(scope="function")
 def compile_ltoir_functions(init_cuda):
     object_code_a_ltoir = Program(kernel_a, "c++", ProgramOptions(link_time_optimization=True)).compile("ltoir")
     object_code_b_ltoir = Program(device_function_b, "c++", ProgramOptions(link_time_optimization=True)).compile(
@@ -114,6 +119,14 @@ def test_linker_link_ptx_culink(compile_ptx_functions):
 def test_linker_link_cubin(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)
     linker = Linker(*compile_ptx_functions, options=options)
+    linked_code = linker.link("cubin")
+    assert isinstance(linked_code, ObjectCode)
+
+
+def test_linker_link_ptx_multiple(compile_ptx_functions):
+    ptxes = tuple(ObjectCode.from_ptx(obj.code) for obj in compile_ptx_functions)
+    options = LinkerOptions(arch=ARCH)
+    linker = Linker(*ptxes, options=options)
     linked_code = linker.link("cubin")
     assert isinstance(linked_code, ObjectCode)
 
