@@ -1,10 +1,6 @@
-# Copyright 2024 NVIDIA Corporation.  All rights reserved.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import warnings
 
@@ -13,6 +9,8 @@ import pytest
 from cuda.core.experimental import _linker
 from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._program import Program, ProgramOptions
+
+is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
 
 @pytest.fixture(scope="module")
@@ -50,7 +48,7 @@ def ptx_code_object():
 def test_cpp_program_with_various_options(init_cuda, options):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++", options)
-    assert program.backend == "nvrtc"
+    assert program.backend == "NVRTC"
     program.compile("ptx")
     program.close()
     assert program.handle is None
@@ -65,8 +63,7 @@ options = [
     ProgramOptions(prec_sqrt=True),
     ProgramOptions(fma=True),
 ]
-if not _linker._decide_nvjitlink_or_driver():
-    print("Using nvjitlink as the backend because decide() returned false")
+if not is_culink_backend:
     options += [
         ProgramOptions(time=True),
         ProgramOptions(split_compile=True),
@@ -76,7 +73,7 @@ if not _linker._decide_nvjitlink_or_driver():
 @pytest.mark.parametrize("options", options)
 def test_ptx_program_with_various_options(init_cuda, ptx_code_object, options):
     program = Program(ptx_code_object._module.decode(), "ptx", options=options)
-    assert program.backend == "linker"
+    assert program.backend == ("driver" if is_culink_backend else "nvJitLink")
     program.compile("cubin")
     program.close()
     assert program.handle is None
@@ -85,7 +82,7 @@ def test_ptx_program_with_various_options(init_cuda, ptx_code_object, options):
 def test_program_init_valid_code_type():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
-    assert program.backend == "nvrtc"
+    assert program.backend == "NVRTC"
     assert program.handle is not None
 
 
@@ -125,14 +122,14 @@ def test_program_compile_valid_target_type(init_cuda):
 def test_program_compile_invalid_target_type():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         program.compile("invalid_target")
 
 
 def test_program_backend_property():
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
-    assert program.backend == "nvrtc"
+    assert program.backend == "NVRTC"
 
 
 def test_program_handle_property():

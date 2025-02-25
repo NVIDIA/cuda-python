@@ -18,7 +18,8 @@ from cuda.core.experimental._utils import (
 )
 
 _tls = threading.local()
-_tls_lock = threading.Lock()
+_lock = threading.Lock()
+_is_cuInit = False
 
 
 class DeviceProperties:
@@ -945,6 +946,12 @@ class Device:
     __slots__ = ("_id", "_mr", "_has_inited", "_properties")
 
     def __new__(cls, device_id=None):
+        global _is_cuInit
+        if _is_cuInit is False:
+            with _lock:
+                handle_return(driver.cuInit(0))
+                _is_cuInit = True
+
         # important: creating a Device instance does not initialize the GPU!
         if device_id is None:
             device_id = raise_if_driver_error(runtime.cudaGetDevice())
@@ -955,27 +962,26 @@ class Device:
                 raise ValueError(f"device_id must be within [0, {total}), got {device_id}")
 
         # ensure Device is singleton
-        with _tls_lock:
-            if not hasattr(_tls, "devices"):
-                total = raise_if_driver_error(runtime.cudaGetDeviceCount())
-                _tls.devices = []
-                for dev_id in range(total):
-                    dev = super().__new__(cls)
-                    dev._id = dev_id
-                    # If the device is in TCC mode, or does not support memory pools for some other reason,
-                    # use the SynchronousMemoryResource which does not use memory pools.
-                    if (
-                        raise_if_driver_error(
-                            runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-                        )
-                    ) == 1:
-                        dev._mr = _DefaultAsyncMempool(dev_id)
-                    else:
-                        dev._mr = _SynchronousMemoryResource(dev_id)
+        if not hasattr(_tls, "devices"):
+            total = handle_return(runtime.cudaGetDeviceCount())
+            _tls.devices = []
+            for dev_id in range(total):
+                dev = super().__new__(cls)
+                dev._id = dev_id
+                # If the device is in TCC mode, or does not support memory pools for some other reason,
+                # use the SynchronousMemoryResource which does not use memory pools.
+                if (
+                    handle_return(
+                        runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
+                    )
+                ) == 1:
+                    dev._mr = _DefaultAsyncMempool(dev_id)
+                else:
+                    dev._mr = _SynchronousMemoryResource(dev_id)
 
-                    dev._has_inited = False
-                    dev._properties = None
-                    _tls.devices.append(dev)
+                dev._has_inited = False
+                dev._properties = None
+                _tls.devices.append(dev)
 
         return _tls.devices[device_id]
 
@@ -1036,13 +1042,11 @@ class Device:
     @property
     def compute_capability(self) -> ComputeCapability:
         """Return a named tuple with 2 fields: major and minor."""
-        major = raise_if_driver_error(
-            runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, self._id)
-        )
-        minor = raise_if_driver_error(
-            runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, self._id)
-        )
-        return ComputeCapability(major, minor)
+        if "compute_capability" in self.properties._cache:
+            return self.properties._cache["compute_capability"]
+        cc = ComputeCapability(self.properties.compute_capability_major, self.properties.compute_capability_minor)
+        self.properties._cache["compute_capability"] = cc
+        return cc
 
     @property
     @precondition(_check_context_initialized)

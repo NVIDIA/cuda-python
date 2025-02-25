@@ -41,8 +41,7 @@ def _device_unset_current():
         return
     handle_return(driver.cuCtxPopCurrent())
     if hasattr(_device._tls, "devices"):
-        with _device._tls_lock:
-            del _device._tls.devices
+        del _device._tls.devices
 
 
 @pytest.fixture(scope="function")
