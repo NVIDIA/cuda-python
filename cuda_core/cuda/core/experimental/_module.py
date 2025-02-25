@@ -285,7 +285,7 @@ class ObjectCode:
         Parameters
         ----------
         module : Union[bytes, str]
-            Either a bytes object containing the in-memory cubin to load, or
+            Either a bytes object containing the in-memory ptx code to load, or
             a file path string pointing to the on-disk ptx file to load.
         symbol_mapping : Optional[dict]
             A dictionary specifying how the unmangled symbol names (as keys)
