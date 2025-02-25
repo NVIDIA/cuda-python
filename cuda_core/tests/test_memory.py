@@ -6,6 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
+import platform
 import traceback
 
 import pytest
@@ -18,7 +19,11 @@ except ImportError:
 import array
 import ctypes
 import multiprocessing
-from socket import AF_UNIX, CMSG_LEN, SCM_RIGHTS, SOCK_DGRAM, SOL_SOCKET, socketpair
+
+if platform.system() == "Linux":
+    from socket import AF_UNIX, CMSG_LEN, SCM_RIGHTS, SOCK_DGRAM, SOL_SOCKET, socketpair
+
+    pass
 
 from cuda.core.experimental import Device
 from cuda.core.experimental._memory import AsyncMempool, Buffer, MemoryResource
@@ -350,14 +355,18 @@ def mempool_child_process(importer, queue):
         device.set_current()
         stream = device.create_stream()
 
-        # Receive the handle via socket
-        fds = array.array("i")
-        _, ancdata, _, _ = importer.recvmsg(0, CMSG_LEN(fds.itemsize))
-        assert len(ancdata) == 1
-        cmsg_level, cmsg_type, cmsg_data = ancdata[0]
-        assert cmsg_level == SOL_SOCKET and cmsg_type == SCM_RIGHTS
-        fds.frombytes(cmsg_data[: len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
-        shared_handle = int(fds[0])
+        # Get the shared handle differently based on platform
+        if platform.system() == "Windows":
+            shared_handle = queue.get()  # On Windows, we pass the handle through the queue
+        else:
+            # Unix socket handle transfer
+            fds = array.array("i")
+            _, ancdata, _, _ = importer.recvmsg(0, CMSG_LEN(fds.itemsize))
+            assert len(ancdata) == 1
+            cmsg_level, cmsg_type, cmsg_data = ancdata[0]
+            assert cmsg_level == SOL_SOCKET and cmsg_type == SCM_RIGHTS
+            fds.frombytes(cmsg_data[: len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
+            shared_handle = int(fds[0])
 
         mr = AsyncMempool.from_shared_handle(device.device_id, shared_handle)
         ipc_buffer = queue.get()  # Get exported buffer data
@@ -400,17 +409,26 @@ def mempool_child_process(importer, queue):
 def test_ipc_mempool():
     if get_binding_version() < (12, 0):
         pytest.skip("Test requires CUDA 12 or higher")
+
+    # Check if IPC is supported on this platform/device
+    device = Device()
+    device.set_current()
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
     # Set multiprocessing start method before creating any multiprocessing objects
     multiprocessing.set_start_method("spawn", force=True)
 
-    device = Device()
-    device.set_current()
     stream = device.create_stream()
     pool_size = 2097152  # 2MB size
     mr = AsyncMempool.create(device.device_id, pool_size, ipc_enabled=True)
 
-    # Create socket pair for handle transfer
-    exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
+    # Create socket pair for handle transfer (only on Unix systems)
+    exporter = None
+    importer = None
+    if platform.system() == "Linux":
+        exporter, importer = socketpair(AF_UNIX, SOCK_DGRAM)
+
     queue = multiprocessing.Queue()
     process = None
 
@@ -438,11 +456,18 @@ def test_ipc_mempool():
             ipc_buffer = mr.export_buffer(buffer)
 
             # Start child process
-            process = multiprocessing.Process(target=mempool_child_process, args=(importer, queue))
+            process = multiprocessing.Process(
+                target=mempool_child_process, args=(importer if platform.system() == "Linux" else None, queue)
+            )
             process.start()
 
             # Send handles to child process
-            exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [shareable_handle]))])
+            if platform.system() == "Windows":
+                queue.put(shareable_handle)  # Send handle through queue on Windows
+            else:
+                # Use Unix socket for handle transfer
+                exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [shareable_handle]))])
+
             queue.put(ipc_buffer)
 
             # Wait for child process
@@ -482,9 +507,11 @@ def test_ipc_mempool():
             process.terminate()
             process.join(timeout=1)
         queue.close()
-        queue.join_thread()  # Ensure the queue's background thread is cleaned up
-        exporter.close()
-        importer.close()
+        queue.join_thread()
+        if exporter is not None:
+            exporter.close()
+        if importer is not None:
+            importer.close()
         # Flush any pending operations
         flush_buffer = mr.allocate(64)
         flush_buffer.close()
