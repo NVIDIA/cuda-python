@@ -210,7 +210,7 @@ class Buffer:
         raise NotImplementedError("TODO")
 
 
-class IPCBuffer(Buffer):
+class IPCBufferDescriptor:
     """Buffer class to represent a buffer description which can be shared across processes.
     It is not a valid buffer containing data, but rather a description used by the importing
     process to construct a valid buffer. It's primary use is to provide a serialization
@@ -220,15 +220,6 @@ class IPCBuffer(Buffer):
         super().__init__(0, 0)
         self.reserved = reserved
         self._size = size
-
-    def close(self):
-        raise NotImplementedError("Cannot close an IPC buffer directly")
-
-    def copy_from(self, src, size=None):
-        raise NotImplementedError("Cannot copy to an IPC buffer")
-
-    def copy_to(self, dst, size=None):
-        raise NotImplementedError("Cannot copy from an IPC buffer")
 
     def __reduce__(self):
         # This is subject to change if the CumemPoolPtrExportData struct/object changes.
@@ -444,13 +435,15 @@ class AsyncMempool(MemoryResource):
             raise RuntimeError("This memory pool was not created with IPC support enabled")
         return handle_return(driver.cuMemPoolExportToShareableHandle(self._mnff.handle, _get_platform_handle_type(), 0))
 
-    def export_buffer(self, buffer: Buffer) -> IPCBuffer:
+    def export_buffer(self, buffer: Buffer) -> IPCBufferDescriptor:
         """Export a buffer allocated from this pool for sharing between processes."""
         if not self._ipc_enabled:
             raise RuntimeError("This memory pool was not created with IPC support enabled")
-        return IPCBuffer(handle_return(driver.cuMemPoolExportPointer(buffer.handle)).reserved, buffer._mnff.size)
+        return IPCBufferDescriptor(
+            handle_return(driver.cuMemPoolExportPointer(buffer.handle)).reserved, buffer._mnff.size
+        )
 
-    def import_buffer(self, ipc_buffer: IPCBuffer) -> Buffer:
+    def import_buffer(self, ipc_buffer: IPCBufferDescriptor) -> Buffer:
         """Import a buffer that was exported from another process."""
         if not self._ipc_enabled:
             raise RuntimeError("This memory pool was not created with IPC support enabled")
