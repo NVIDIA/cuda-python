@@ -225,7 +225,7 @@ def test_mempool():
     pool_size = 2097152  # 2MB size
 
     # Test basic pool creation
-    mr = AsyncMempool.create(device.device_id, pool_size, enable_ipc=False)
+    mr = AsyncMempool.create(device.device_id, pool_size, ipc_enabled=False)
     assert mr.device_id == device.device_id
     assert mr.is_device_accessible
     assert not mr.is_host_accessible
@@ -305,7 +305,7 @@ def test_mempool_properties(property_name, expected_type):
     device = Device()
     device.set_current()
     pool_size = 2097152  # 2MB size
-    mr = AsyncMempool.create(device.device_id, pool_size, enable_ipc=False)
+    mr = AsyncMempool.create(device.device_id, pool_size, ipc_enabled=False)
 
     try:
         # Get the property value
