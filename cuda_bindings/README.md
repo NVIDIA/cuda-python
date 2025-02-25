@@ -95,10 +95,10 @@ To run these samples:
 * `python -m pytest tests/cython/` against editable installations
 * `pytest tests/cython/` against installed packages
 
-### Benchmark (WIP)
+### Benchmark
 
-Benchmarks were used for performance analysis during initial release of CUDA Python. Today they need to be updated the 12.x toolkit and are work in progress.
+Allows for analyzing binding performance using plugin [pytest-benchmark](https://github.com/ionelmc/pytest-benchmark).
 
-The intended way to run these benchmarks was:
-* `python -m pytest --benchmark-only benchmark/` against editable installations
-* `pytest --benchmark-only benchmark/` against installed packages
+To run these benchmarks:
+* `python -m pytest --benchmark-only benchmarks/` against editable installations
+* `pytest --benchmark-only benchmarks/` against installed packages
