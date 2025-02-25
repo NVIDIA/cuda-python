@@ -1,10 +1,20 @@
+import datetime
+import os
+
 from cuda.bindings import driver, nvrtc, runtime
 from cuda.core.experimental import _utils
 
+err, _DRIVER_VERSION = driver.cuDriverGetVersion()
+assert err == driver.CUresult.CUDA_SUCCESS
+
 _BINDING_VERSION = _utils.get_binding_version()
+
+_IMPORT_TIME = str(datetime.datetime.now())
 
 
 def test_driver_error_info():
+    label = f"{_IMPORT_TIME} {os.name=} {_BINDING_VERSION=} {_DRIVER_VERSION=}"
+    print(f"\n{label} ENTRY", flush=True)
     expl_dict = _utils._DRIVER_CU_RESULT_EXPLANATIONS
     valid_codes = set()
     for code in range(1000):
@@ -17,18 +27,19 @@ def test_driver_error_info():
             assert code in expl_dict
             valid_codes.add(code)
             print(code)
-            print(error)
-            if code not in (226, 721, 916):  # These trigger SegFaults
+            print(error, flush=True)
+            if -code not in (226, 721, 916):  # These trigger SegFaults
                 name, desc, expl = _utils._driver_error_info(error)
                 print(name)
                 print(desc)
-                print(expl)
-            print()
+                print(expl, flush=True)
+            print(flush=True)
     if _BINDING_VERSION >= (12, 0):
         extra_expl_codes = sorted(set(expl_dict.keys()) - valid_codes)
         assert not extra_expl_codes
     missing_expl_codes = sorted(valid_codes - set(expl_dict.keys()))
     assert not missing_expl_codes
+    print(f"{label} DONE\n", flush=True)
 
 
 def test_runtime_error_info():
