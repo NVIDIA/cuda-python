@@ -334,33 +334,33 @@ has been completed.</p>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.handle" title="Link to this definition">¶</a></dt>
-<dd><p>Return the underlying cudaEvent_t pointer address as Python int.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUevent" title="(in cuda.bindings)"><span class="pre">cuda.bindings.driver.CUevent</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.handle" title="Link to this definition">¶</a></dt>
+<dd><p>Return the underlying CUevent object.</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_done">
-<span class="sig-name descname"><span class="pre">is_done</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_done" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_done</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.is_done" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if all captured works have been completed, otherwise False.</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_ipc_supported">
-<span class="sig-name descname"><span class="pre">is_ipc_supported</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_ipc_supported" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_ipc_supported</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.is_ipc_supported" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if this event can be used as an interprocess event, otherwise False.</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_sync_busy_waited">
-<span class="sig-name descname"><span class="pre">is_sync_busy_waited</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_sync_busy_waited" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_sync_busy_waited</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.is_sync_busy_waited" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if the event synchronization would keep the CPU busy-waiting, otherwise False.</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_timing_disabled">
-<span class="sig-name descname"><span class="pre">is_timing_disabled</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_timing_disabled" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_timing_disabled</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.is_timing_disabled" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if the event does not record timing data, otherwise False.</p>
 </dd></dl>
 
