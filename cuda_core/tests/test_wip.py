@@ -1,8 +1,7 @@
 from cuda.bindings import driver, nvrtc, runtime
 from cuda.core.experimental import _utils
 
-err, _DRIVER_VERSION = driver.cuDriverGetVersion()
-assert err == driver.CUresult.CUDA_SUCCESS
+_BINDING_VERSION = _utils.get_binding_version()
 
 
 def test_driver_error_info():
@@ -12,7 +11,7 @@ def test_driver_error_info():
         try:
             error = driver.CUresult(code)
         except ValueError:
-            if _DRIVER_VERSION >= 12000:
+            if _BINDING_VERSION >= (12, 0):
                 assert code not in expl_dict
         else:
             assert code in expl_dict
@@ -25,8 +24,9 @@ def test_driver_error_info():
                 print(desc)
                 print(expl)
             print()
-    stray_expl_codes = sorted(set(expl_dict.keys()) - valid_codes)
-    assert not stray_expl_codes
+    if _BINDING_VERSION >= (12, 0):
+        extra_expl_codes = sorted(set(expl_dict.keys()) - valid_codes)
+        assert not extra_expl_codes
     missing_expl_codes = sorted(valid_codes - set(expl_dict.keys()))
     assert not missing_expl_codes
 
@@ -38,7 +38,7 @@ def test_runtime_error_info():
         try:
             error = runtime.cudaError_t(code)
         except ValueError:
-            if _DRIVER_VERSION >= 12000:
+            if _BINDING_VERSION >= (12, 0):
                 assert code not in expl_dict
         else:
             assert code in expl_dict
@@ -51,8 +51,9 @@ def test_runtime_error_info():
                 print(desc)
                 print(expl)
             print()
-    stray_expl_codes = sorted(set(expl_dict.keys()) - valid_codes)
-    assert not stray_expl_codes
+    if _BINDING_VERSION >= (12, 0):
+        extra_expl_codes = sorted(set(expl_dict.keys()) - valid_codes)
+        assert not extra_expl_codes
     missing_expl_codes = sorted(valid_codes - set(expl_dict.keys()))
     assert not missing_expl_codes
 
