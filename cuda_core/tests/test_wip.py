@@ -26,13 +26,12 @@ def test_driver_error_info():
         else:
             assert code in expl_dict
             valid_codes.add(code)
-            print(code)
-            print(error, flush=True)
-            if code not in (226, 721, 916):  # These trigger SegFaults
-                name, desc, expl = _utils._driver_error_info(error)
-                print(name)
-                print(desc)
-                print(expl, flush=True)
+            print(f"{code=}")
+            print(f"{error=}", flush=True)
+            name, desc, expl = _utils._driver_error_info(error)
+            print(f"{name=}")
+            print(f"{desc=}")
+            print(f"{expl=}")
             print(flush=True)
     if _BINDING_VERSION >= (12, 0):
         extra_expl_codes = sorted(set(expl_dict.keys()) - valid_codes)
@@ -54,14 +53,13 @@ def test_runtime_error_info():
         else:
             assert code in expl_dict
             valid_codes.add(code)
-            print(code)
-            print(error)
-            if True:
-                name, desc, expl = _utils._runtime_error_info(error)
-                print(name)
-                print(desc)
-                print(expl)
-            print()
+            print(f"{code=}")
+            print(f"{error=}", flush=True)
+            name, desc, expl = _utils._runtime_error_info(error)
+            print(f"{name=}")
+            print(f"{desc=}")
+            print(f"{expl=}")
+            print(flush=True)
     if _BINDING_VERSION >= (12, 0):
         extra_expl_codes = sorted(set(expl_dict.keys()) - valid_codes)
         assert not extra_expl_codes
@@ -76,9 +74,8 @@ def test_nvrtc_error_info():
         except ValueError:
             pass
         else:
-            print(code)
-            print(error)
-            if True:
-                desc = _utils._nvrtc_error_info(error)
-                print(desc)
-            print()
+            print(f"{code=}")
+            print(f"{error=}", flush=True)
+            desc = _utils._nvrtc_error_info(error)
+            print(f"{desc=}")
+            print(flush=True)
