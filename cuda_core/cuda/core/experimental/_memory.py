@@ -319,42 +319,108 @@ def _create_win32_security_attributes():
             ("bInheritHandle", ctypes.c_int),
         ]
 
+    # Try the pywin32 approach first
     if _PYWIN32_AVAILABLE:
-        # Create a security descriptor using pywin32
-        sd = win32security.SECURITY_DESCRIPTOR()
+        try:
+            # Create a security descriptor using pywin32
+            sd = win32security.SECURITY_DESCRIPTOR()
 
-        # Create a blank DACL (this allows all access)
-        dacl = win32security.ACL()
+            # Create a blank DACL (this allows all access)
+            dacl = win32security.ACL()
 
-        # Set the DACL to the security descriptor
-        sd.SetSecurityDescriptorDacl(1, dacl, 0)
+            # Set the DACL to the security descriptor
+            sd.SetSecurityDescriptorDacl(1, dacl, 0)
+
+            # Get the pointer to the security descriptor
+            # Different versions of pywin32 may have different ways to access the pointer
+            sd_pointer = None
+
+            # Try different methods to get the pointer
+            try:
+                # Method 1: GetSecurityDescriptorSelf
+                sd_pointer = sd.GetSecurityDescriptorSelf()
+            except (AttributeError, TypeError):
+                try:
+                    # Method 2: Direct attribute access (older versions)
+                    sd_pointer = int(sd.SECURITY_DESCRIPTOR)
+                except (AttributeError, TypeError):
+                    try:
+                        # Method 3: Convert to int (some versions)
+                        sd_pointer = int(sd)
+                    except (TypeError, ValueError):
+                        # Method 4: Last resort - use the handle if it's a PyHANDLE
+                        if hasattr(sd, "handle"):
+                            sd_pointer = sd.handle
+
+            # If we couldn't get a pointer, fall back to NULL security descriptor
+            if sd_pointer is None:
+                raise ValueError("Could not get security descriptor pointer")
+
+            # Create and initialize the security attributes structure
+            sa = SECURITY_ATTRIBUTES()
+            sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
+            sa.lpSecurityDescriptor = ctypes.c_void_p(sd_pointer)
+            sa.bInheritHandle = False
+
+            # Store the security descriptor to prevent garbage collection
+            if not hasattr(_create_win32_security_attributes, "_security_descriptors"):
+                _create_win32_security_attributes._security_descriptors = []
+            _create_win32_security_attributes._security_descriptors.append(sd)
+
+            return ctypes.addressof(sa)
+        except Exception as e:
+            print(f"Warning: Failed to create security descriptor with pywin32: {e}")
+            # Fall through to the next method
+
+    # Try direct ctypes approach if pywin32 failed or is not available
+    try:
+        # Constants for security descriptor creation
+        SECURITY_DESCRIPTOR_REVISION = 1
+        SECURITY_DESCRIPTOR_MIN_LENGTH = 1024
+        LPTR = 0x0040  # LMEM_ZEROINIT | LMEM_FIXED
+
+        # Allocate memory for the security descriptor
+        security_descriptor = ctypes.windll.kernel32.LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH)
+        if not security_descriptor:
+            raise OSError("Failed to allocate memory for security descriptor")
+
+        # Initialize the security descriptor
+        if not ctypes.windll.advapi32.InitializeSecurityDescriptor(security_descriptor, SECURITY_DESCRIPTOR_REVISION):
+            ctypes.windll.kernel32.LocalFree(security_descriptor)
+            raise OSError("Failed to initialize security descriptor")
+
+        # Set a NULL DACL which allows all access
+        if not ctypes.windll.advapi32.SetSecurityDescriptorDacl(security_descriptor, True, None, False):
+            ctypes.windll.kernel32.LocalFree(security_descriptor)
+            raise OSError("Failed to set security descriptor DACL")
 
         # Create and initialize the security attributes structure
         sa = SECURITY_ATTRIBUTES()
         sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
-        sa.lpSecurityDescriptor = ctypes.c_void_p(int(sd.SECURITY_DESCRIPTOR))
+        sa.lpSecurityDescriptor = ctypes.c_void_p(security_descriptor)
         sa.bInheritHandle = False
 
-        # Store the security descriptor to prevent garbage collection
-        if not hasattr(_create_win32_security_attributes, "_security_descriptors"):
-            _create_win32_security_attributes._security_descriptors = []
-        _create_win32_security_attributes._security_descriptors.append(sd)
+        # Store the security descriptor for cleanup
+        if not hasattr(_create_win32_security_attributes, "_security_descriptors_ctypes"):
+            _create_win32_security_attributes._security_descriptors_ctypes = []
+        _create_win32_security_attributes._security_descriptors_ctypes.append(security_descriptor)
 
         return ctypes.addressof(sa)
-    else:
-        # If pywin32 is not available, use a NULL security descriptor
-        # This is less secure but should work for testing
-        try:
-            sa = SECURITY_ATTRIBUTES()
-            sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
-            sa.lpSecurityDescriptor = ctypes.c_void_p(0)  # NULL security descriptor
-            sa.bInheritHandle = False
+    except Exception as e:
+        print(f"Warning: Failed to create security descriptor with ctypes: {e}")
+        # Fall through to the NULL security descriptor approach
 
-            return ctypes.addressof(sa)
+    # Last resort: NULL security descriptor
+    try:
+        sa = SECURITY_ATTRIBUTES()
+        sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
+        sa.lpSecurityDescriptor = ctypes.c_void_p(0)  # NULL security descriptor
+        sa.bInheritHandle = False
 
-        except Exception as e:
-            print(f"Warning: Failed to create security attributes: {e}")
-            return 0  # Return 0 as a fallback
+        return ctypes.addressof(sa)
+    except Exception as e:
+        print(f"Warning: Failed to create security attributes: {e}")
+        return 0  # Return 0 as a fallback
 
 
 # Add cleanup function for security descriptors
@@ -364,6 +430,13 @@ def _cleanup_security_descriptors():
         # The security descriptors are now pywin32 objects that will be garbage collected
         # or simple ctypes structures, so we just need to clear the list
         _create_win32_security_attributes._security_descriptors.clear()
+
+    # Clean up any ctypes security descriptors
+    if hasattr(_create_win32_security_attributes, "_security_descriptors_ctypes"):
+        for sd in _create_win32_security_attributes._security_descriptors_ctypes:
+            if sd:
+                ctypes.windll.kernel32.LocalFree(sd)
+        _create_win32_security_attributes._security_descriptors_ctypes.clear()
 
 
 atexit.register(_cleanup_security_descriptors)
