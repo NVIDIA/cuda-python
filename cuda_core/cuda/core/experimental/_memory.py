@@ -341,7 +341,7 @@ def _create_win32_security_attributes():
     sa = SECURITY_ATTRIBUTES()
     sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
     sa.lpSecurityDescriptor = sd_pointer
-    sa.bInheritHandle = False
+    sa.bInheritHandle = True
 
     # Store both the security descriptor buffer and the security attributes structure
     # to prevent garbage collection
