@@ -333,10 +333,7 @@ def _create_win32_security_attributes():
     sa.lpSecurityDescriptor = ctypes.c_void_p(sd_pointer)
     sa.bInheritHandle = False
 
-    # Store the security descriptor and buffer to prevent garbage collection
-    if not hasattr(_create_win32_security_attributes, "_security_descriptors"):
-        _create_win32_security_attributes._security_descriptors = []
-    _create_win32_security_attributes._security_descriptors.append((sd, sd_buffer))  # Keep both objects alive
+    print(f"sa: {sa}")
 
     return ctypes.addressof(sa)
 
