@@ -303,6 +303,7 @@ def _create_win32_security_attributes():
     # Define constants needed for security descriptor creation
     NULL = 0
     SECURITY_DESCRIPTOR_REVISION = 1
+    SECURITY_DESCRIPTOR_MIN_LENGTH = 40  # Minimum size for a security descriptor
 
     # Define the Windows SECURITY_ATTRIBUTES structure
     class SECURITY_ATTRIBUTES(ctypes.Structure):
@@ -321,17 +322,20 @@ def _create_win32_security_attributes():
     SetSecurityDescriptorDacl.argtypes = [wintypes.LPVOID, wintypes.BOOL, wintypes.LPVOID, wintypes.BOOL]
     SetSecurityDescriptorDacl.restype = wintypes.BOOL
 
-    # Create a security descriptor
-    sd_buffer = ctypes.create_string_buffer(64)  # Size should be sufficient for a security descriptor
+    # Create a security descriptor with proper alignment
+    # Use ctypes.create_string_buffer to ensure proper memory alignment
+    sd_buffer = ctypes.create_string_buffer(SECURITY_DESCRIPTOR_MIN_LENGTH)
     sd_pointer = ctypes.cast(sd_buffer, wintypes.LPVOID)
 
     # Initialize the security descriptor
     if not InitializeSecurityDescriptor(sd_pointer, SECURITY_DESCRIPTOR_REVISION):
-        raise ctypes.WinError()
+        error = ctypes.WinError()
+        raise RuntimeError(f"Failed to initialize security descriptor: {error}")
 
     # Set a NULL DACL (this allows all access)
     if not SetSecurityDescriptorDacl(sd_pointer, True, NULL, False):
-        raise ctypes.WinError()
+        error = ctypes.WinError()
+        raise RuntimeError(f"Failed to set security descriptor DACL: {error}")
 
     # Create and initialize the security attributes structure
     sa = SECURITY_ATTRIBUTES()
@@ -339,19 +343,23 @@ def _create_win32_security_attributes():
     sa.lpSecurityDescriptor = sd_pointer
     sa.bInheritHandle = False
 
-    # Store the security descriptor buffer to prevent garbage collection
-    if not hasattr(_create_win32_security_attributes, "_security_descriptors"):
-        _create_win32_security_attributes._security_descriptors = []
-    _create_win32_security_attributes._security_descriptors.append(sd_buffer)
+    # Store both the security descriptor buffer and the security attributes structure
+    # to prevent garbage collection
+    if not hasattr(_create_win32_security_attributes, "_security_objects"):
+        _create_win32_security_attributes._security_objects = []
 
+    # Keep both objects alive
+    _create_win32_security_attributes._security_objects.append((sd_buffer, sa))
+
+    # Return the pointer to the security attributes structure
     return ctypes.addressof(sa)
 
 
 # Add cleanup function for security descriptors
 def _cleanup_security_descriptors():
     """Free any allocated security descriptors when the module is unloaded."""
-    if hasattr(_create_win32_security_attributes, "_security_descriptors"):
-        _create_win32_security_attributes._security_descriptors.clear()
+    if hasattr(_create_win32_security_attributes, "_security_objects"):
+        _create_win32_security_attributes._security_objects.clear()
 
 
 atexit.register(_cleanup_security_descriptors)
