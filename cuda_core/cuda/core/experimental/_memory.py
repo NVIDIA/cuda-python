@@ -216,8 +216,7 @@ class IPCBufferDescriptor:
     process to construct a valid buffer. It's primary use is to provide a serialization
     mechanism for passing exported buffers between processes."""
 
-    def __init__(self, reserved: bytes, size):
-        super().__init__(0, 0)
+    def __init__(self, reserved: bytes, size: int):
         self.reserved = reserved
         self._size = size
 
