@@ -118,6 +118,14 @@ def test_linker_link_cubin(compile_ptx_functions):
     assert isinstance(linked_code, ObjectCode)
 
 
+def test_linker_link_ptx_multiple(compile_ptx_functions):
+    ptxes = tuple(ObjectCode.from_ptx(obj.code) for obj in compile_ptx_functions)
+    options = LinkerOptions(arch=ARCH)
+    linker = Linker(*ptxes, options=options)
+    linked_code = linker.link("cubin")
+    assert isinstance(linked_code, ObjectCode)
+
+
 def test_linker_link_invalid_target_type(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)
     linker = Linker(*compile_ptx_functions, options=options)
