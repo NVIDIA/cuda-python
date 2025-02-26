@@ -308,7 +308,7 @@ def _create_win32_security_attributes():
 
     # Create and initialize the security attributes structure
     sa = SECURITY_ATTRIBUTES()
-    sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
+    sa.nLength = 1  # ctypes.sizeof(SECURITY_ATTRIBUTES)
     sa.lpSecurityDescriptor = security_descriptor
     sa.bInheritHandle = 0  # Don't inherit handle
 
