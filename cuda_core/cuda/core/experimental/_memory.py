@@ -6,6 +6,9 @@ from __future__ import annotations
 
 import abc
 
+# Register cleanup function to be called at interpreter shutdown
+import atexit
+
 # Add ctypes import for Windows security attributes
 import ctypes
 import platform
@@ -284,6 +287,9 @@ def _get_platform_handle_type() -> int:
 def _create_win32_security_attributes():
     """Creates a Windows SECURITY_ATTRIBUTES structure with default settings.
 
+    The security descriptor is configured with a DACL that allows access to everyone,
+    which is appropriate for shared memory that needs to be accessible across processes.
+
     Returns:
         A pointer to a SECURITY_ATTRIBUTES structure or None if not on Windows.
     """
@@ -298,22 +304,58 @@ def _create_win32_security_attributes():
             ("bInheritHandle", ctypes.c_int),
         ]
 
-    # Create a new security descriptor
-    security_descriptor = ctypes.windll.advapi32.LocalAlloc(0, 0)
+    # Constants for security descriptor creation
+    SECURITY_DESCRIPTOR_REVISION = 1
+    SECURITY_DESCRIPTOR_MIN_LENGTH = 1024
 
-    # Initialize the security descriptor (empty one with no security)
-    if not ctypes.windll.advapi32.InitializeSecurityDescriptor(security_descriptor, 1):
+    # Create a new security descriptor - use kernel32 for memory allocation
+    # LPTR = 0x0040 (LMEM_ZEROINIT | LMEM_FIXED)
+    LPTR = 0x0040
+    security_descriptor = ctypes.windll.kernel32.LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH)
+
+    if not security_descriptor:
+        return None
+
+    # Initialize the security descriptor
+    if not ctypes.windll.advapi32.InitializeSecurityDescriptor(security_descriptor, SECURITY_DESCRIPTOR_REVISION):
+        ctypes.windll.kernel32.LocalFree(security_descriptor)
+        return None
+
+    # Set a NULL DACL which allows all access to everyone
+    # 3rd parameter is a BOOL that specifies whether to set a DACL (TRUE) or not (FALSE)
+    # 4th parameter is the DACL pointer (NULL for unrestricted access)
+    # 5th parameter is a BOOL that specifies whether the DACL was explicitly provided (TRUE) or defaulted (FALSE)
+    if not ctypes.windll.advapi32.SetSecurityDescriptorDacl(security_descriptor, True, None, False):
         ctypes.windll.kernel32.LocalFree(security_descriptor)
         return None
 
     # Create and initialize the security attributes structure
     sa = SECURITY_ATTRIBUTES()
-    sa.nLength = 1  # ctypes.sizeof(SECURITY_ATTRIBUTES)
+    sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
     sa.lpSecurityDescriptor = security_descriptor
-    sa.bInheritHandle = 0  # Don't inherit handle
+    sa.bInheritHandle = False  # Don't inherit handle
+
+    # Store the security descriptor in a global variable to prevent it from being garbage collected
+    # and to allow cleanup when the module is unloaded
+    if not hasattr(_create_win32_security_attributes, "_security_descriptors"):
+        _create_win32_security_attributes._security_descriptors = []
+    _create_win32_security_attributes._security_descriptors.append(security_descriptor)
 
     # Return a pointer that can be passed to the CUDA API
     return ctypes.addressof(sa)
+
+
+# Add cleanup function for security descriptors
+def _cleanup_security_descriptors():
+    """Free any allocated security descriptors when the module is unloaded."""
+    if hasattr(_create_win32_security_attributes, "_security_descriptors"):
+        for sd in _create_win32_security_attributes._security_descriptors:
+            if sd:
+                ctypes.windll.kernel32.LocalFree(sd)
+        _create_win32_security_attributes._security_descriptors.clear()
+
+
+atexit.register(_cleanup_security_descriptors)
 
 
 class AsyncMempool(MemoryResource):
