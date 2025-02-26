@@ -327,6 +327,9 @@ def _create_win32_security_attributes():
     # Get the pointer to the buffer
     sd_pointer = ctypes.cast(sd_buffer, ctypes.c_void_p).value
 
+    # print the contents of the buffer
+    print(f"sd_buffer: {sd_buffer}")
+
     # Create and initialize the security attributes structure
     sa = SECURITY_ATTRIBUTES()
     sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
