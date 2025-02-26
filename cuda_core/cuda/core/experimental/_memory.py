@@ -19,6 +19,21 @@ from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
 from cuda.core.experimental._utils import driver, handle_return
 
+# Check if pywin32 is available on Windows
+_PYWIN32_AVAILABLE = False
+if platform.system() == "Windows":
+    try:
+        import win32security
+
+        _PYWIN32_AVAILABLE = True
+    except ImportError:
+        import warnings
+
+        warnings.warn(
+            "pywin32 module not found. For better IPC support on Windows, " "install it with: pip install pywin32",
+            stacklevel=2,
+        )
+
 PyCapsule = TypeVar("PyCapsule")
 
 
@@ -287,8 +302,8 @@ def _get_platform_handle_type() -> int:
 def _create_win32_security_attributes():
     """Creates a Windows SECURITY_ATTRIBUTES structure with default settings.
 
-    The security descriptor is configured with a DACL that allows access to everyone,
-    which is appropriate for shared memory that needs to be accessible across processes.
+    The security descriptor is configured to allow access across processes,
+    which is appropriate for shared memory.
 
     Returns:
         A pointer to a SECURITY_ATTRIBUTES structure or None if not on Windows.
@@ -304,54 +319,50 @@ def _create_win32_security_attributes():
             ("bInheritHandle", ctypes.c_int),
         ]
 
-    # Constants for security descriptor creation
-    SECURITY_DESCRIPTOR_REVISION = 1
-    SECURITY_DESCRIPTOR_MIN_LENGTH = 1024
+    if _PYWIN32_AVAILABLE:
+        # Create a security descriptor using pywin32
+        sd = win32security.SECURITY_DESCRIPTOR()
 
-    # Create a new security descriptor - use kernel32 for memory allocation
-    # LPTR = 0x0040 (LMEM_ZEROINIT | LMEM_FIXED)
-    LPTR = 0x0040
-    security_descriptor = ctypes.windll.kernel32.LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH)
+        # Create a blank DACL (this allows all access)
+        dacl = win32security.ACL()
 
-    if not security_descriptor:
-        return None
+        # Set the DACL to the security descriptor
+        sd.SetSecurityDescriptorDacl(1, dacl, 0)
 
-    # Initialize the security descriptor
-    if not ctypes.windll.advapi32.InitializeSecurityDescriptor(security_descriptor, SECURITY_DESCRIPTOR_REVISION):
-        ctypes.windll.kernel32.LocalFree(security_descriptor)
-        return None
+        # Create and initialize the security attributes structure
+        sa = SECURITY_ATTRIBUTES()
+        sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
+        sa.lpSecurityDescriptor = ctypes.c_void_p(int(sd.SECURITY_DESCRIPTOR))
+        sa.bInheritHandle = False
 
-    # Set a NULL DACL which allows all access to everyone
-    # 3rd parameter is a BOOL that specifies whether to set a DACL (TRUE) or not (FALSE)
-    # 4th parameter is the DACL pointer (NULL for unrestricted access)
-    # 5th parameter is a BOOL that specifies whether the DACL was explicitly provided (TRUE) or defaulted (FALSE)
-    if not ctypes.windll.advapi32.SetSecurityDescriptorDacl(security_descriptor, True, None, False):
-        ctypes.windll.kernel32.LocalFree(security_descriptor)
-        return None
+        # Store the security descriptor to prevent garbage collection
+        if not hasattr(_create_win32_security_attributes, "_security_descriptors"):
+            _create_win32_security_attributes._security_descriptors = []
+        _create_win32_security_attributes._security_descriptors.append(sd)
 
-    # Create and initialize the security attributes structure
-    sa = SECURITY_ATTRIBUTES()
-    sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
-    sa.lpSecurityDescriptor = security_descriptor
-    sa.bInheritHandle = False  # Don't inherit handle
+        return ctypes.addressof(sa)
+    else:
+        # If pywin32 is not available, use a NULL security descriptor
+        # This is less secure but should work for testing
+        try:
+            sa = SECURITY_ATTRIBUTES()
+            sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
+            sa.lpSecurityDescriptor = ctypes.c_void_p(0)  # NULL security descriptor
+            sa.bInheritHandle = False
 
-    # Store the security descriptor in a global variable to prevent it from being garbage collected
-    # and to allow cleanup when the module is unloaded
-    if not hasattr(_create_win32_security_attributes, "_security_descriptors"):
-        _create_win32_security_attributes._security_descriptors = []
-    _create_win32_security_attributes._security_descriptors.append(security_descriptor)
+            return ctypes.addressof(sa)
 
-    # Return a pointer that can be passed to the CUDA API
-    return ctypes.addressof(sa)
+        except Exception as e:
+            print(f"Warning: Failed to create security attributes: {e}")
+            return 0  # Return 0 as a fallback
 
 
 # Add cleanup function for security descriptors
 def _cleanup_security_descriptors():
     """Free any allocated security descriptors when the module is unloaded."""
     if hasattr(_create_win32_security_attributes, "_security_descriptors"):
-        for sd in _create_win32_security_attributes._security_descriptors:
-            if sd:
-                ctypes.windll.kernel32.LocalFree(sd)
+        # The security descriptors are now pywin32 objects that will be garbage collected
+        # or simple ctypes structures, so we just need to clear the list
         _create_win32_security_attributes._security_descriptors.clear()
 
 
