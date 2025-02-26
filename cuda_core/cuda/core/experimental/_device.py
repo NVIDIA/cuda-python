@@ -30,7 +30,7 @@ class DeviceProperties:
     """
 
     def __init__(self):
-        raise RuntimeError("DeviceProperties should not be instantiated directly")
+        raise RuntimeError("DeviceProperties should not be instantiated directly") # SMSGD
 
     __slots__ = ("_handle", "_cache")
 
@@ -42,7 +42,7 @@ class DeviceProperties:
 
     def _get_attribute(self, attr):
         """Retrieve the attribute value directly from the driver."""
-        return raise_if_driver_error(driver.cuDeviceGetAttribute(attr, self._handle))
+        return raise_if_driver_error(driver.cuDeviceGetAttribute(attr, self._handle)) # SMSGD
 
     def _get_cached_attribute(self, attr):
         """Retrieve the attribute value, using cache if applicable."""
@@ -949,21 +949,21 @@ class Device:
         global _is_cuInit
         if _is_cuInit is False:
             with _lock:
-                raise_if_driver_error(driver.cuInit(0))
+                raise_if_driver_error(driver.cuInit(0)) # SMSGD
                 _is_cuInit = True
 
         # important: creating a Device instance does not initialize the GPU!
         if device_id is None:
-            device_id = raise_if_driver_error(runtime.cudaGetDevice())
-            assert isinstance(device_id, int), f"{device_id=}"
+            device_id = raise_if_driver_error(runtime.cudaGetDevice()) # SMSGD
+            assert isinstance(device_id, int), f"{device_id=}" # ACTNBL show type(device_it)
         else:
-            total = raise_if_driver_error(runtime.cudaGetDeviceCount())
+            total = raise_if_driver_error(runtime.cudaGetDeviceCount()) # SMSGD
             if not isinstance(device_id, int) or not (0 <= device_id < total):
-                raise ValueError(f"device_id must be within [0, {total}), got {device_id}")
+                raise ValueError(f"device_id must be within [0, {total}), got {device_id}") # SMSGD
 
         # ensure Device is singleton
         if not hasattr(_tls, "devices"):
-            total = raise_if_driver_error(runtime.cudaGetDeviceCount())
+            total = raise_if_driver_error(runtime.cudaGetDeviceCount()) # SMSGD
             _tls.devices = []
             for dev_id in range(total):
                 dev = super().__new__(cls)
@@ -971,7 +971,7 @@ class Device:
                 # If the device is in TCC mode, or does not support memory pools for some other reason,
                 # use the SynchronousMemoryResource which does not use memory pools.
                 if (
-                    raise_if_driver_error(
+                    raise_if_driver_error( # SMSGD
                         runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
                     )
                 ) == 1:
@@ -987,7 +987,7 @@ class Device:
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
-            raise CUDAError("the device is not yet initialized, perhaps you forgot to call .set_current() first?")
+            raise CUDAError(f"Device {self._id} is not yet initialized, perhaps you forgot to call .set_current() first?")
 
     @property
     def device_id(self) -> int:
@@ -997,7 +997,7 @@ class Device:
     @property
     def pci_bus_id(self) -> str:
         """Return a PCI Bus Id string for this device."""
-        bus_id = raise_if_driver_error(runtime.cudaDeviceGetPCIBusId(13, self._id))
+        bus_id = raise_if_driver_error(runtime.cudaDeviceGetPCIBusId(13, self._id)) # SMSGD
         return bus_id[:12].decode()
 
     @property
@@ -1014,11 +1014,11 @@ class Device:
         driver is older than CUDA 11.4.
 
         """
-        driver_ver = raise_if_driver_error(driver.cuDriverGetVersion())
+        driver_ver = raise_if_driver_error(driver.cuDriverGetVersion()) # SMSGD
         if driver_ver >= 11040:
-            uuid = raise_if_driver_error(driver.cuDeviceGetUuid_v2(self._id))
+            uuid = raise_if_driver_error(driver.cuDeviceGetUuid_v2(self._id)) # SMSGD
         else:
-            uuid = raise_if_driver_error(driver.cuDeviceGetUuid(self._id))
+            uuid = raise_if_driver_error(driver.cuDeviceGetUuid(self._id)) # SMSGD
         uuid = uuid.bytes.hex()
         # 8-4-4-4-12
         return f"{uuid[:8]}-{uuid[8:12]}-{uuid[12:16]}-{uuid[16:20]}-{uuid[20:]}"
@@ -1027,7 +1027,7 @@ class Device:
     def name(self) -> str:
         """Return the device name."""
         # Use 256 characters to be consistent with CUDA Runtime
-        name = raise_if_driver_error(driver.cuDeviceGetName(256, self._id))
+        name = raise_if_driver_error(driver.cuDeviceGetName(256, self._id)) # ACTNBL add self._id to message?
         name = name.split(b"\0")[0]
         return name.decode()
 
@@ -1059,7 +1059,7 @@ class Device:
 
         """
         ctx = raise_if_driver_error(driver.cuCtxGetCurrent())
-        assert int(ctx) != 0
+        assert int(ctx) != 0 # ACTNBL show self._id
         return Context._from_ctx(ctx, self._id)
 
     @property
@@ -1070,7 +1070,7 @@ class Device:
     @memory_resource.setter
     def memory_resource(self, mr):
         if not isinstance(mr, MemoryResource):
-            raise TypeError
+            raise TypeError # ACTNBL show type(mr)
         self._mr = mr
 
     @property
@@ -1125,29 +1125,29 @@ class Device:
         """
         if ctx is not None:
             if not isinstance(ctx, Context):
-                raise TypeError("a Context object is required")
+                raise TypeError("a Context object is required") # ACTNBL show type(ctx)
             if ctx._id != self._id:
                 raise RuntimeError(
                     "the provided context was created on a different "
                     f"device {ctx._id} other than the target {self._id}"
                 )
-            prev_ctx = raise_if_driver_error(driver.cuCtxPopCurrent())
-            raise_if_driver_error(driver.cuCtxPushCurrent(ctx._handle))
+            prev_ctx = raise_if_driver_error(driver.cuCtxPopCurrent()) # SMSGD
+            raise_if_driver_error(driver.cuCtxPushCurrent(ctx._handle)) # SMSGD
             self._has_inited = True
             if int(prev_ctx) != 0:
                 return Context._from_ctx(prev_ctx, self._id)
         else:
-            ctx = raise_if_driver_error(driver.cuCtxGetCurrent())
+            ctx = raise_if_driver_error(driver.cuCtxGetCurrent()) # SMSGD
             if int(ctx) == 0:
                 # use primary ctx
-                ctx = raise_if_driver_error(driver.cuDevicePrimaryCtxRetain(self._id))
-                raise_if_driver_error(driver.cuCtxPushCurrent(ctx))
+                ctx = raise_if_driver_error(driver.cuDevicePrimaryCtxRetain(self._id)) # SMSGD
+                raise_if_driver_error(driver.cuCtxPushCurrent(ctx)) # SMSGD
             else:
-                ctx_id = raise_if_driver_error(driver.cuCtxGetDevice())
+                ctx_id = raise_if_driver_error(driver.cuCtxGetDevice()) # SMSGD
                 if ctx_id != self._id:
                     # use primary ctx
-                    ctx = raise_if_driver_error(driver.cuDevicePrimaryCtxRetain(self._id))
-                    raise_if_driver_error(driver.cuCtxPushCurrent(ctx))
+                    ctx = raise_if_driver_error(driver.cuDevicePrimaryCtxRetain(self._id)) # SMSGD
+                    raise_if_driver_error(driver.cuCtxPushCurrent(ctx)) # SMSGD
                 else:
                     # no-op, a valid context already exists and is set current
                     pass
@@ -1171,7 +1171,7 @@ class Device:
             Newly created context object.
 
         """
-        raise NotImplementedError("TODO")
+        raise NotImplementedError("TODO") # ACTNBL issue number?
 
     @precondition(_check_context_initialized)
     def create_stream(self, obj=None, options: StreamOptions = None) -> Stream:
@@ -1244,4 +1244,4 @@ class Device:
         Device must be initialized.
 
         """
-        raise_if_driver_error(runtime.cudaDeviceSynchronize())
+        raise_if_driver_error(runtime.cudaDeviceSynchronize()) # SMSGD

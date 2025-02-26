@@ -68,20 +68,21 @@ class LaunchConfig:
         # thread block clusters are supported starting H100
         if self.cluster is not None:
             if not _use_ex:
-                raise CUDAError("thread block clusters require cuda.bindings & driver 11.8+")
+                raise CUDAError("thread block clusters require cuda.bindings & driver 11.8+") # ACTNBL show driver version
             if Device().compute_capability < (9, 0):
-                raise CUDAError("thread block clusters are not supported on devices with compute capability < 9.0")
+                raise CUDAError("thread block clusters are not supported on devices with compute capability < 9.0") # ACTNBL show cc version
             self.cluster = self._cast_to_3_tuple(self.cluster)
         # we handle "stream=None" in the launch API
         if self.stream is not None and not isinstance(self.stream, Stream):
             try:
                 self.stream = Stream._init(self.stream)
             except Exception as e:
-                raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e
+                raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e # ACTNBL show type(self.stream) BUT should raise from Stream._init()
         if self.shmem_size is None:
             self.shmem_size = 0
 
     def _cast_to_3_tuple(self, cfg):
+        # ACTNBL rewrite
         if isinstance(cfg, int):
             if cfg < 1:
                 raise ValueError
@@ -122,10 +123,10 @@ def launch(kernel, config, *kernel_args):
 
     """
     if not isinstance(kernel, Kernel):
-        raise ValueError
+        raise ValueError # ACTNBL show type(kernel)
     config = check_or_create_options(LaunchConfig, config, "launch config")
     if config.stream is None:
-        raise CUDAError("stream cannot be None")
+        raise CUDAError("stream cannot be None") # ACTNBL "config.stream cannot be None"
 
     # TODO: can we ensure kernel_args is valid/safe to use here?
     # TODO: merge with HelperKernelParams?
