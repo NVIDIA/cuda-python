@@ -5,6 +5,9 @@
 from __future__ import annotations
 
 import abc
+
+# Add ctypes import for Windows security attributes
+import ctypes
 import platform
 import weakref
 from typing import Optional, Tuple, TypeVar
@@ -278,6 +281,41 @@ def _get_platform_handle_type() -> int:
         raise RuntimeError(f"Unsupported platform: {system}")
 
 
+def _create_win32_security_attributes():
+    """Creates a Windows SECURITY_ATTRIBUTES structure with default settings.
+
+    Returns:
+        A pointer to a SECURITY_ATTRIBUTES structure or None if not on Windows.
+    """
+    if platform.system() != "Windows":
+        return None
+
+    # Define the Windows SECURITY_ATTRIBUTES structure
+    class SECURITY_ATTRIBUTES(ctypes.Structure):
+        _fields_ = [
+            ("nLength", ctypes.c_ulong),
+            ("lpSecurityDescriptor", ctypes.c_void_p),
+            ("bInheritHandle", ctypes.c_int),
+        ]
+
+    # Create a new security descriptor
+    security_descriptor = ctypes.windll.advapi32.LocalAlloc(0, 0)
+
+    # Initialize the security descriptor (empty one with no security)
+    if not ctypes.windll.advapi32.InitializeSecurityDescriptor(security_descriptor, 1):
+        ctypes.windll.kernel32.LocalFree(security_descriptor)
+        return None
+
+    # Create and initialize the security attributes structure
+    sa = SECURITY_ATTRIBUTES()
+    sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
+    sa.lpSecurityDescriptor = security_descriptor
+    sa.bInheritHandle = 0  # Don't inherit handle
+
+    # Return a pointer that can be passed to the CUDA API
+    return ctypes.addressof(sa)
+
+
 class AsyncMempool(MemoryResource):
     """A CUDA memory pool for efficient memory allocation.
 
@@ -365,7 +403,9 @@ class AsyncMempool(MemoryResource):
         return AsyncMempool._init(dev_id, handle, ipc_enabled=False, need_close=False)
 
     @staticmethod
-    def create(dev_id: int, max_size: int, ipc_enabled: bool = False) -> AsyncMempool:
+    def create(
+        dev_id: int, max_size: int, ipc_enabled: bool = False, win32_security_attributes: int = 0
+    ) -> AsyncMempool:
         """Create a new memory pool.
 
         Parameters
@@ -376,6 +416,9 @@ class AsyncMempool(MemoryResource):
             Maximum size in bytes that the memory pool can grow to
         ipc_enabled : bool, optional
             Whether to enable inter-process sharing capabilities. Default is False.
+        win32_security_attributes : int, optional
+            Custom Windows security attributes pointer. If 0 (default), a default security
+            attributes structure will be created when needed on Windows platforms.
 
         Returns
         -------
@@ -401,7 +444,16 @@ class AsyncMempool(MemoryResource):
         properties.location.id = dev_id
         properties.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         properties.maxSize = max_size
-        properties.win32SecurityAttributes = 0
+
+        # Set up Windows security attributes if needed
+        if platform.system() == "Windows" and ipc_enabled:
+            if win32_security_attributes == 0:
+                # Create default security attributes if none provided
+                win32_security_attributes = _create_win32_security_attributes()
+            properties.win32SecurityAttributes = win32_security_attributes
+        else:
+            properties.win32SecurityAttributes = 0
+
         properties.usage = 0
 
         handle = handle_return(driver.cuMemPoolCreate(properties))
