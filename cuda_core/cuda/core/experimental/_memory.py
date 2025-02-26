@@ -15,9 +15,9 @@ import platform
 import weakref
 from typing import Optional, Tuple, TypeVar
 
-# Import win32security directly on Windows
+# Remove pywin32 import
 if platform.system() == "Windows":
-    import win32security
+    from ctypes import windll, wintypes
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
@@ -300,43 +300,49 @@ def _create_win32_security_attributes():
     if platform.system() != "Windows":
         return None
 
+    # Define constants needed for security descriptor creation
+    NULL = 0
+    SECURITY_DESCRIPTOR_REVISION = 1
+
     # Define the Windows SECURITY_ATTRIBUTES structure
     class SECURITY_ATTRIBUTES(ctypes.Structure):
         _fields_ = [
-            ("nLength", ctypes.c_ulong),
-            ("lpSecurityDescriptor", ctypes.c_void_p),
-            ("bInheritHandle", ctypes.c_int),
+            ("nLength", wintypes.DWORD),
+            ("lpSecurityDescriptor", wintypes.LPVOID),
+            ("bInheritHandle", wintypes.BOOL),
         ]
 
-    # Create a security descriptor using pywin32
-    sd = win32security.SECURITY_DESCRIPTOR()
+    # Get function pointers from Windows DLLs
+    InitializeSecurityDescriptor = windll.advapi32.InitializeSecurityDescriptor
+    InitializeSecurityDescriptor.argtypes = [wintypes.LPVOID, wintypes.DWORD]
+    InitializeSecurityDescriptor.restype = wintypes.BOOL
 
-    # Create a blank DACL (this allows all access)
-    dacl = win32security.ACL()
+    SetSecurityDescriptorDacl = windll.advapi32.SetSecurityDescriptorDacl
+    SetSecurityDescriptorDacl.argtypes = [wintypes.LPVOID, wintypes.BOOL, wintypes.LPVOID, wintypes.BOOL]
+    SetSecurityDescriptorDacl.restype = wintypes.BOOL
 
-    # Set the DACL to the security descriptor
-    sd.SetSecurityDescriptorDacl(1, dacl, 0)
+    # Create a security descriptor
+    sd_buffer = ctypes.create_string_buffer(64)  # Size should be sufficient for a security descriptor
+    sd_pointer = ctypes.cast(sd_buffer, wintypes.LPVOID)
 
-    # Get the raw bytes of the security descriptor using the buffer protocol
-    # This works because PySECURITY_DESCRIPTOR supports the buffer protocol
-    sd_bytes = bytes(sd)
+    # Initialize the security descriptor
+    if not InitializeSecurityDescriptor(sd_pointer, SECURITY_DESCRIPTOR_REVISION):
+        raise ctypes.WinError()
 
-    # Create a ctypes buffer from the bytes
-    sd_buffer = ctypes.create_string_buffer(sd_bytes)
-
-    # Get the pointer to the buffer
-    sd_pointer = ctypes.cast(sd_buffer, ctypes.c_void_p).value
-
-    # print the contents of the buffer
-    print(f"sd_buffer: {sd_buffer}")
+    # Set a NULL DACL (this allows all access)
+    if not SetSecurityDescriptorDacl(sd_pointer, True, NULL, False):
+        raise ctypes.WinError()
 
     # Create and initialize the security attributes structure
     sa = SECURITY_ATTRIBUTES()
     sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
-    sa.lpSecurityDescriptor = ctypes.c_void_p(sd_pointer)
+    sa.lpSecurityDescriptor = sd_pointer
     sa.bInheritHandle = False
 
-    print(f"sa: {sa}")
+    # Store the security descriptor buffer to prevent garbage collection
+    if not hasattr(_create_win32_security_attributes, "_security_descriptors"):
+        _create_win32_security_attributes._security_descriptors = []
+    _create_win32_security_attributes._security_descriptors.append(sd_buffer)
 
     return ctypes.addressof(sa)
 
@@ -345,7 +351,6 @@ def _create_win32_security_attributes():
 def _cleanup_security_descriptors():
     """Free any allocated security descriptors when the module is unloaded."""
     if hasattr(_create_win32_security_attributes, "_security_descriptors"):
-        # The security descriptors are pywin32 objects that will be garbage collected
         _create_win32_security_attributes._security_descriptors.clear()
 
 
