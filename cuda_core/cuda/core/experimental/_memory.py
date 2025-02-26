@@ -317,10 +317,15 @@ def _create_win32_security_attributes():
     # Set the DACL to the security descriptor
     sd.SetSecurityDescriptorDacl(1, dacl, 0)
 
-    # Get the pointer to the security descriptor using the buffer interface
-    # PySECURITY_DESCRIPTOR objects support the buffer protocol
-    sd_view = memoryview(sd)
-    sd_pointer = ctypes.addressof(ctypes.c_char.from_buffer(sd_view))
+    # Get the raw bytes of the security descriptor using the buffer protocol
+    # This works because PySECURITY_DESCRIPTOR supports the buffer protocol
+    sd_bytes = bytes(sd)
+
+    # Create a ctypes buffer from the bytes
+    sd_buffer = ctypes.create_string_buffer(sd_bytes)
+
+    # Get the pointer to the buffer
+    sd_pointer = ctypes.cast(sd_buffer, ctypes.c_void_p).value
 
     # Create and initialize the security attributes structure
     sa = SECURITY_ATTRIBUTES()
@@ -328,10 +333,10 @@ def _create_win32_security_attributes():
     sa.lpSecurityDescriptor = ctypes.c_void_p(sd_pointer)
     sa.bInheritHandle = False
 
-    # Store the security descriptor to prevent garbage collection
+    # Store the security descriptor and buffer to prevent garbage collection
     if not hasattr(_create_win32_security_attributes, "_security_descriptors"):
         _create_win32_security_attributes._security_descriptors = []
-    _create_win32_security_attributes._security_descriptors.append((sd, sd_view))  # Keep both objects alive
+    _create_win32_security_attributes._security_descriptors.append((sd, sd_buffer))  # Keep both objects alive
 
     return ctypes.addressof(sa)
 
