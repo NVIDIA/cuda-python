@@ -6,7 +6,7 @@
 
 ## Installing
 
-CUDA Python can be installed from:
+`cuda.bindings` can be installed from:
 
 * PyPI
 * Conda (conda-forge/nvidia channels)
@@ -16,22 +16,12 @@ Differences between these options are described in [Installation](https://nvidia
 
 ## Runtime Dependencies
 
-CUDA Python is supported on all platforms that CUDA is supported. Specific dependencies are as follows:
+`cuda.bindings` is supported on all the same platforms as CUDA. Specific dependencies are as follows:
 
 * Driver: Linux (450.80.02 or later) Windows (456.38 or later)
 * CUDA Toolkit 12.x
 
 Only the NVRTC and nvJitLink redistributable components are required from the CUDA Toolkit, which can be obtained via PyPI, Conda, or local installers (as described in the CUDA Toolkit [Windows](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and [Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html) Installation Guides).
-
-### Supported Python Versions
-
-CUDA Python follows [NEP 29](https://numpy.org/neps/nep-0029-deprecation_policy.html) for supported Python version guarantee.
-
-Before dropping support, an issue will be raised to look for feedback.
-
-Source builds work for multiple Python versions, however pre-build PyPI and Conda packages are only provided for a subset:
-
-* Python 3.9 to 3.12
 
 ## Developing
 
@@ -105,10 +95,10 @@ To run these samples:
 * `python -m pytest tests/cython/` against editable installations
 * `pytest tests/cython/` against installed packages
 
-### Benchmark (WIP)
+### Benchmark
 
-Benchmarks were used for performance analysis during initial release of CUDA Python. Today they need to be updated the 12.x toolkit and are work in progress.
+Allows for analyzing binding performance using plugin [pytest-benchmark](https://github.com/ionelmc/pytest-benchmark).
 
-The intended way to run these benchmarks was:
-* `python -m pytest --benchmark-only benchmark/` against editable installations
-* `pytest --benchmark-only benchmark/` against installed packages
+To run these benchmarks:
+* `python -m pytest --benchmark-only benchmarks/` against editable installations
+* `pytest --benchmark-only benchmarks/` against installed packages

@@ -38,7 +38,7 @@ extern "C" __global__ void VecAdd_kernel(const float *A, const float *B, float *
 def main():
     print("Vector Addition (Driver API)")
     N = 50000
-    size = N * np.dtype(np.float32).itemsize
+    nbytes = N * np.dtype(np.float32).itemsize
 
     # Initialize
     checkCudaErrors(cuda.cuInit(0))
@@ -57,18 +57,18 @@ def main():
     _VecAdd_kernel = kernelHelper.getFunction(b"VecAdd_kernel")
 
     # Allocate input vectors h_A and h_B in host memory
-    h_A = np.random.rand(size).astype(dtype=np.float32)
-    h_B = np.random.rand(size).astype(dtype=np.float32)
-    h_C = np.random.rand(size).astype(dtype=np.float32)
+    h_A = np.random.rand(N).astype(dtype=np.float32)
+    h_B = np.random.rand(N).astype(dtype=np.float32)
+    h_C = np.random.rand(N).astype(dtype=np.float32)
 
     # Allocate vectors in device memory
-    d_A = checkCudaErrors(cuda.cuMemAlloc(size))
-    d_B = checkCudaErrors(cuda.cuMemAlloc(size))
-    d_C = checkCudaErrors(cuda.cuMemAlloc(size))
+    d_A = checkCudaErrors(cuda.cuMemAlloc(nbytes))
+    d_B = checkCudaErrors(cuda.cuMemAlloc(nbytes))
+    d_C = checkCudaErrors(cuda.cuMemAlloc(nbytes))
 
     # Copy vectors from host memory to device memory
-    checkCudaErrors(cuda.cuMemcpyHtoD(d_A, h_A, size))
-    checkCudaErrors(cuda.cuMemcpyHtoD(d_B, h_B, size))
+    checkCudaErrors(cuda.cuMemcpyHtoD(d_A, h_A, nbytes))
+    checkCudaErrors(cuda.cuMemcpyHtoD(d_B, h_B, nbytes))
 
     if True:
         # Grid/Block configuration
@@ -98,7 +98,7 @@ def main():
 
     # Copy result from device memory to host memory
     # h_C contains the result in host memory
-    checkCudaErrors(cuda.cuMemcpyDtoH(h_C, d_C, size))
+    checkCudaErrors(cuda.cuMemcpyDtoH(h_C, d_C, nbytes))
 
     for i in range(N):
         sum_all = h_A[i] + h_B[i]

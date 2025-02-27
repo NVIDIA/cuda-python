@@ -1,13 +1,17 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+from __future__ import annotations
+
 import weakref
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from cuda import cuda
-from cuda.core.experimental._utils import CUDAError, check_or_create_options, handle_return
+from cuda.core.experimental._utils import CUDAError, check_or_create_options, driver, handle_return
+
+if TYPE_CHECKING:
+    import cuda.bindings
 
 
 @dataclass
@@ -60,15 +64,13 @@ class Event:
 
         def close(self):
             if self.handle is not None:
-                handle_return(cuda.cuEventDestroy(self.handle))
+                handle_return(driver.cuEventDestroy(self.handle))
                 self.handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
 
     def __init__(self):
-        raise NotImplementedError(
-            "directly creating an Event object can be ambiguous. Please call call Stream.record()."
-        )
+        raise NotImplementedError("directly creating an Event object can be ambiguous. Please call Stream.record().")
 
     @staticmethod
     def _init(options: Optional[EventOptions] = None):
@@ -80,14 +82,14 @@ class Event:
         self._timing_disabled = False
         self._busy_waited = False
         if not options.enable_timing:
-            flags |= cuda.CUevent_flags.CU_EVENT_DISABLE_TIMING
+            flags |= driver.CUevent_flags.CU_EVENT_DISABLE_TIMING
             self._timing_disabled = True
         if options.busy_waited_sync:
-            flags |= cuda.CUevent_flags.CU_EVENT_BLOCKING_SYNC
+            flags |= driver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
             self._busy_waited = True
         if options.support_ipc:
             raise NotImplementedError("TODO")
-        self._mnff.handle = handle_return(cuda.cuEventCreate(flags))
+        self._mnff.handle = handle_return(driver.cuEventCreate(flags))
         return self
 
     def close(self):
@@ -119,20 +121,20 @@ class Event:
         has been completed.
 
         """
-        handle_return(cuda.cuEventSynchronize(self._mnff.handle))
+        handle_return(driver.cuEventSynchronize(self._mnff.handle))
 
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
-        (result,) = cuda.cuEventQuery(self._mnff.handle)
-        if result == cuda.CUresult.CUDA_SUCCESS:
+        (result,) = driver.cuEventQuery(self._mnff.handle)
+        if result == driver.CUresult.CUDA_SUCCESS:
             return True
-        elif result == cuda.CUresult.CUDA_ERROR_NOT_READY:
+        elif result == driver.CUresult.CUDA_ERROR_NOT_READY:
             return False
         else:
             raise CUDAError(f"unexpected error: {result}")
 
     @property
-    def handle(self) -> int:
-        """Return the underlying cudaEvent_t pointer address as Python int."""
-        return int(self._mnff.handle)
+    def handle(self) -> cuda.bindings.driver.CUevent:
+        """Return the underlying CUevent object."""
+        return self._mnff.handle

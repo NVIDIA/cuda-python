@@ -31,7 +31,7 @@ jobs:
           - "3.9"
         cuda-version:
           # Note: this is for build-time only.
-          - "12.6.2"
+          - "12.8.0"
     name: Build (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }})
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
@@ -157,10 +157,9 @@ jobs:
           $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
-      # TODO: enable this after NVIDIA/cuda-python#297 is resolved
-      # - name: Check cuda.bindings wheel
-      #   run: |
-      #     twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+      - name: Check cuda.bindings wheel
+        run: |
+          twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
         uses: actions/upload-artifact@v4
@@ -203,7 +202,7 @@ jobs:
         run: |
           echo "CUDA_VERSION=${{ matrix.cuda-version }}" >> $GITHUB_OUTPUT
 
-  test:
+  test-linux:
     strategy:
       fail-fast: false
       # TODO: add driver version here
@@ -211,8 +210,6 @@ jobs:
         host-platform:
           - linux-64
           - linux-aarch64
-          # TODO: enable testing once win-64 GPU runners are up
-          # - win-64
         python-version:
           - "3.13"
           - "3.12"
@@ -221,7 +218,7 @@ jobs:
           - "3.9"
         cuda-version:
           # Note: this is for test-time only.
-          - "12.6.2"
+          - "12.8.0"
           - "12.0.1"
           - "11.8.0"
         local-ctk:
@@ -236,7 +233,7 @@ jobs:
         include:
           - host-platform: linux-64
             python-version: "3.12"
-            cuda-version: "12.6.2"
+            cuda-version: "12.8.0"
             local-ctk: 1
             runner: H100
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }}, ${{ (matrix.local-ctk == '1' && 'local CTK') || 'CTK wheels' }})
@@ -247,7 +244,42 @@ jobs:
       - build
     secrets: inherit
     uses:
-      ./.github/workflows/test-wheel.yml
+      ./.github/workflows/test-wheel-linux.yml
+    with:
+      host-platform: ${{ matrix.host-platform }}
+      python-version: ${{ matrix.python-version }}
+      build-ctk-ver: ${{ needs.build.outputs.BUILD_CTK_VER }}
+      cuda-version: ${{ matrix.cuda-version }}
+      local-ctk: ${{ matrix.local-ctk}}
+      runner: ${{ matrix.runner }}
+
+  test-windows:
+    strategy:
+      fail-fast: false
+      # TODO: add driver version here
+      matrix:
+        host-platform:
+          - win-64
+        python-version:
+          - "3.12"
+        cuda-version:
+          # Note: this is for test-time only.
+          - "12.8.0"
+          - "11.8.0"
+        local-ctk:
+          - 1  # use mini CTK
+          - 0  # use CTK wheels
+        runner:
+          - default
+    name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }}, ${{ (matrix.local-ctk == '1' && 'local CTK') || 'CTK wheels' }})
+    if: ${{ github.repository_owner == 'nvidia' }}
+    permissions:
+      contents: read  # This is required for actions/checkout
+    needs:
+      - build
+    secrets: inherit
+    uses:
+      ./.github/workflows/test-wheel-windows.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       python-version: ${{ matrix.python-version }}
@@ -278,7 +310,8 @@ jobs:
       checks: read
     needs:
       - build
-      - test
+      - test-linux
+      - test-windows
       - doc
     secrets: inherit
     uses:

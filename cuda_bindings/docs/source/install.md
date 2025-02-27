@@ -11,17 +11,33 @@
 Only the NVRTC and nvJitLink redistributable components are required from the CUDA Toolkit, which can be obtained via PyPI, Conda, or local installers (as described in the CUDA Toolkit [Windows](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and [Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html) Installation Guides).
 ```
 
+Starting from v12.8.0, `cuda-python` becomes a meta package which currently depends only on `cuda-bindings`; in the future more sub-packages will be added to `cuda-python`. In the instructions below, we still use `cuda-python` as example to serve existing users, but everything is applicable to `cuda-bindings` as well.
+
+
 ## Installing from PyPI
 
 ```console
-$ pip install cuda-python
+$ pip install -U cuda-python
 ```
+
+Install all optional dependencies with:
+```{code-block} shell
+pip install -U cuda-python[all]
+```
+
+Where the optional dependencies are:
+
+* nvidia-cuda-nvrtc-cu12 (Provides NVRTC shared library)
+* nvidia-nvjitlink-cu12>=12.3 (Provides nvJitLink shared library)
+* nvidia-cuda-nvcc-cu12 (Provides NVVM shared library)
+
 
 ## Installing from Conda
 
 ```console
 $ conda install -c conda-forge cuda-python
 ```
+
 
 ## Installing from Source
 
@@ -42,6 +58,7 @@ See [Environment Variables](environment_variables.md) for a description of other
 ```{note}
 Only `cydriver`, `cyruntime` and `cynvrtc` are impacted by the header requirement.
 ```
+
 
 ### Editable Install
 

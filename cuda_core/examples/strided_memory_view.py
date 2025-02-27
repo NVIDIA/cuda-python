@@ -31,7 +31,7 @@ except ImportError:
     cp = None
 import numpy as np
 
-from cuda.core.experimental import Device, LaunchConfig, Program, launch
+from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 # ################################################################################
@@ -88,16 +88,13 @@ if cp:
         }
     }
     """).substitute(func_sig=func_sig)
-    gpu_prog = Program(gpu_code, code_type="c++")
+
     # To know the GPU's compute capability, we need to identify which GPU to use.
     dev = Device(0)
     dev.set_current()
     arch = "".join(f"{i}" for i in dev.compute_capability)
-    mod = gpu_prog.compile(
-        target_type="cubin",
-        # TODO: update this after NVIDIA/cuda-python#237 is merged
-        options=(f"-arch=sm_{arch}", "-std=c++11"),
-    )
+    gpu_prog = Program(gpu_code, code_type="c++", options=ProgramOptions(arch=f"sm_{arch}", std="c++11"))
+    mod = gpu_prog.compile(target_type="cubin")
     gpu_ker = mod.get_kernel(func_name)
 
 # Now we are prepared to run the code from the user's perspective!

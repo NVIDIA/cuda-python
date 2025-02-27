@@ -7,6 +7,7 @@
 # is strictly prohibited.
 import ctypes
 import math
+import platform
 import sys
 from enum import Enum
 
@@ -1140,6 +1141,10 @@ def checkKernelCompiles():
 @pytest.mark.skipif(not checkKernelCompiles(), reason="Automation filter against incompatible kernel")
 def main():
     print("[globalToShmemAsyncCopy] - Starting...")
+
+    if platform.machine() == "qnx":
+        print("globalToShmemAsyncCopy is not supported on QNX - waiving sample")
+        return
 
     version = checkCudaErrors(cuda.cuDriverGetVersion())
     if version < 11010:
