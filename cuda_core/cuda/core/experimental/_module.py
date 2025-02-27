@@ -279,7 +279,7 @@ class ObjectCode:
 
     @staticmethod
     def from_ptx(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
-        """Create an :class:`ObjectCode` instance from an existing cubin.
+        """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
         ----------
