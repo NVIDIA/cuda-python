@@ -13,7 +13,7 @@ import pytest
 
 from cuda.core.experimental import ObjectCode, Program, ProgramOptions, system
 
-code = """
+SAXPY_KERNEL = """
 template<typename T>
 __global__ void saxpy(const T a,
                     const T* x,
@@ -31,7 +31,7 @@ __global__ void saxpy(const T a,
 @pytest.fixture(scope="function")
 def get_saxpy_kernel(init_cuda):
     # prepare program
-    prog = Program(code, code_type="c++")
+    prog = Program(SAXPY_KERNEL, code_type="c++")
     mod = prog.compile(
         "cubin",
         name_expressions=("saxpy<float>", "saxpy<double>"),
@@ -43,7 +43,7 @@ def get_saxpy_kernel(init_cuda):
 
 @pytest.fixture(scope="function")
 def get_saxpy_kernel_ptx(init_cuda):
-    prog = Program(code, code_type="c++")
+    prog = Program(SAXPY_KERNEL, code_type="c++")
     mod = prog.compile(
         "ptx",
         name_expressions=("saxpy<float>", "saxpy<double>"),
@@ -114,8 +114,9 @@ def test_object_code_load_cubin(get_saxpy_kernel):
 def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     ptx, mod = get_saxpy_kernel_ptx
     sym_map = mod._sym_map
-    mod = ObjectCode.from_ptx(ptx, symbol_mapping=sym_map)
-    mod.get_kernel("saxpy<double>")
+    mod_obj = ObjectCode.from_ptx(ptx, symbol_mapping=sym_map)
+    assert mod.code == ptx
+    mod_obj.get_kernel("saxpy<double>")  # force loading
 
 
 def test_object_code_load_cubin_from_file(get_saxpy_kernel, tmp_path):
