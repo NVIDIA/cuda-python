@@ -955,7 +955,7 @@ class Device:
         # important: creating a Device instance does not initialize the GPU!
         if device_id is None:
             device_id = raise_if_driver_error(runtime.cudaGetDevice()) # SMSGD
-            assert isinstance(device_id, int), f"{device_id=}" # ACTNBL show type(device_it)
+            assert isinstance(device_id, int), f"{device_id=}" # ACTNBL show type(device_it) HAPPY_ONLY_EXERCISED
         else:
             total = raise_if_driver_error(runtime.cudaGetDeviceCount()) # SMSGD
             if not isinstance(device_id, int) or not (0 <= device_id < total):
@@ -1027,7 +1027,7 @@ class Device:
     def name(self) -> str:
         """Return the device name."""
         # Use 256 characters to be consistent with CUDA Runtime
-        name = raise_if_driver_error(driver.cuDeviceGetName(256, self._id)) # ACTNBL add self._id to message?
+        name = raise_if_driver_error(driver.cuDeviceGetName(256, self._id)) # ACTNBL add self._id to message? HAPPY_ONLY_EXERCISED
         name = name.split(b"\0")[0]
         return name.decode()
 
@@ -1059,7 +1059,7 @@ class Device:
 
         """
         ctx = raise_if_driver_error(driver.cuCtxGetCurrent())
-        assert int(ctx) != 0 # ACTNBL show self._id
+        assert int(ctx) != 0 # ACTNBL show self._id HAPPY_ONLY_EXERCISED
         return Context._from_ctx(ctx, self._id)
 
     @property
@@ -1070,7 +1070,7 @@ class Device:
     @memory_resource.setter
     def memory_resource(self, mr):
         if not isinstance(mr, MemoryResource):
-            raise TypeError # ACTNBL show type(mr)
+            raise TypeError # ACTNBL show type(mr) FN_NOT_CALLED
         self._mr = mr
 
     @property
@@ -1125,7 +1125,7 @@ class Device:
         """
         if ctx is not None:
             if not isinstance(ctx, Context):
-                raise TypeError("a Context object is required") # ACTNBL show type(ctx)
+                raise TypeError("a Context object is required") # ACTNBL show type(ctx) CODEPATH_NOT_REACHED
             if ctx._id != self._id:
                 raise RuntimeError(
                     "the provided context was created on a different "
@@ -1171,7 +1171,7 @@ class Device:
             Newly created context object.
 
         """
-        raise NotImplementedError("TODO") # ACTNBL issue number?
+        raise NotImplementedError("TODO") # ACTNBL issue number? FN_NOT_CALLED
 
     @precondition(_check_context_initialized)
     def create_stream(self, obj=None, options: StreamOptions = None) -> Stream:

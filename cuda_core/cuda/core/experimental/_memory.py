@@ -100,21 +100,21 @@ class Buffer:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
         if self._mnff.mr is not None:
             return self._mnff.mr.is_device_accessible
-        raise NotImplementedError # ACTNBL what do we want to say here?
+        raise NotImplementedError # ACTNBL what do we want to say here? HAPPY_ONLY_EXERCISED
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
         if self._mnff.mr is not None:
             return self._mnff.mr.is_host_accessible
-        raise NotImplementedError # ACTNBL what do we want to say here?
+        raise NotImplementedError # ACTNBL what do we want to say here? FN_NOT_CALLED
 
     @property
     def device_id(self) -> int:
         """Return the device ordinal of this buffer."""
         if self._mnff.mr is not None:
             return self._mnff.mr.device_id
-        raise NotImplementedError # ACTNBL what do we want to say here?
+        raise NotImplementedError # ACTNBL what do we want to say here? FN_NOT_CALLED
 
     def copy_to(self, dst: Buffer = None, *, stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
@@ -136,10 +136,10 @@ class Buffer:
             raise ValueError("stream must be provided") # SMSGD
         if dst is None:
             if self._mnff.mr is None:
-                raise ValueError("a destination buffer must be provided") # ACTNBL explain "or self._mnff.mr must exist"?
+                raise ValueError("a destination buffer must be provided") # ACTNBL explain "or self._mnff.mr must exist"? CODEPATH_NOT_REACHED
             dst = self._mnff.mr.allocate(self._mnff.size, stream)
         if dst._mnff.size != self._mnff.size:
-            raise ValueError("buffer sizes mismatch between src and dst") # ACTNBL show src and dst sizes
+            raise ValueError("buffer sizes mismatch between src and dst") # ACTNBL show src and dst sizes HAPPY_ONLY_EXERCISED
         handle_return(driver.cuMemcpyAsync(dst._mnff.ptr, self._mnff.ptr, self._mnff.size, stream.handle))
         return dst
 
@@ -158,7 +158,7 @@ class Buffer:
         if stream is None:
             raise ValueError("stream must be provided") # SMSGD
         if src._mnff.size != self._mnff.size:
-            raise ValueError("buffer sizes mismatch between src and dst") # ACTNBL show src and dst sizes
+            raise ValueError("buffer sizes mismatch between src and dst") # ACTNBL show src and dst sizes HAPPY_ONLY_EXERCISED
         handle_return(driver.cuMemcpyAsync(self._mnff.ptr, src._mnff.ptr, self._mnff.size, stream.handle))
 
     def __dlpack__(
@@ -172,11 +172,11 @@ class Buffer:
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
         if dl_device is not None or copy is True:
-            raise BufferError # ACTNBL explain two cases: 1. dl_device must be None, 2. copy must be False
+            raise BufferError # ACTNBL explain two cases: 1. dl_device must be None, 2. copy must be False FN_NOT_CALLED
         if max_version is None:
             versioned = False
         else:
-            assert len(max_version) == 2 # ACTNBL "invalid len(max_version)"
+            assert len(max_version) == 2 # ACTNBL "invalid len(max_version)" FN_NOT_CALLED
             versioned = max_version >= (1, 0)
         capsule = make_py_capsule(self, versioned)
         return capsule
@@ -190,18 +190,18 @@ class Buffer:
         elif not self.is_device_accessible and self.is_host_accessible:
             return (DLDeviceType.kDLCPU, 0)
         else:  # not self.is_device_accessible and not self.is_host_accessible
-            raise BufferError("invalid buffer") # ACTNBL explain failed conditions
+            raise BufferError("invalid buffer") # ACTNBL explain failed conditions FN_NOT_CALLED
 
     def __buffer__(self, flags: int, /) -> memoryview:
         # Support for Python-level buffer protocol as per PEP 688.
         # This raises a BufferError unless:
         #   1. Python is 3.12+
         #   2. This Buffer object is host accessible
-        raise NotImplementedError("TODO") # ACTNBL explain failed conditions
+        raise NotImplementedError("TODO") # ACTNBL explain failed conditions FN_NOT_CALLED
 
     def __release_buffer__(self, buffer: memoryview, /):
         # Supporting method paired with __buffer__.
-        raise NotImplementedError("TODO") # ACTNBL explain failed conditions
+        raise NotImplementedError("TODO") # ACTNBL explain failed conditions FN_NOT_CALLED
 
 
 class MemoryResource(abc.ABC):
@@ -291,7 +291,7 @@ class _DefaultPinnedMemorySource(MemoryResource):
 
     @property
     def device_id(self) -> int:
-        raise RuntimeError("the pinned memory resource is not bound to any GPU") # ACTNBL "a pinned ..."?
+        raise RuntimeError("the pinned memory resource is not bound to any GPU") # ACTNBL "a pinned ..."? FN_NOT_CALLED
 
 
 class _SynchronousMemoryResource(MemoryResource):

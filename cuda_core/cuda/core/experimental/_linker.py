@@ -382,12 +382,12 @@ class Linker:
         self._mnff = Linker._MembersNeededForFinalize(self, handle, use_nvjitlink)
 
         for code in object_codes:
-            assert isinstance(code, ObjectCode) # ACTNBL show type(code)
+            assert isinstance(code, ObjectCode) # ACTNBL show type(code) HAPPY_ONLY_EXERCISED
             self._add_code_object(code)
 
     def _add_code_object(self, object_code: ObjectCode):
         data = object_code._module
-        assert isinstance(data, bytes) # ACTNBL show type(data)
+        assert isinstance(data, bytes) # ACTNBL show type(data) HAPPY_ONLY_EXERCISED
         with _exception_manager(self):
             if _nvjitlink:
                 _nvjitlink.add_data(

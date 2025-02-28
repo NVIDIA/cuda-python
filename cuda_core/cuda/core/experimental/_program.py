@@ -245,16 +245,17 @@ class ProgramOptions:
             if isinstance(self.define_macro, str):
                 self._formatted_options.append(f"--define-macro={self.define_macro}")
             elif isinstance(self.define_macro, tuple):
-                assert len(self.define_macro) == 2 # ACTNBL explain
+                assert len(self.define_macro) == 2 # ACTNBL explain HAPPY_ONLY_EXERCISED
                 self._formatted_options.append(f"--define-macro={self.define_macro[0]}={self.define_macro[1]}")
             elif is_nested_sequence(self.define_macro):
                 for macro in self.define_macro:
                     if isinstance(macro, tuple):
-                        assert len(macro) == 2 # ACTNBL explain
+                        assert len(macro) == 2 # ACTNBL explain HAPPY_ONLY_EXERCISED
                         self._formatted_options.append(f"--define-macro={macro[0]}={macro[1]}")
                     else:
                         self._formatted_options.append(f"--define-macro={macro}")
-            # ACTNBL (bug fix for silent failure) this code path is meant to be unreachable
+            else:
+                # ACTNBL (bug fix for silent failure) POTENTIAL_SILENT_FAILURE
 
         if self.undefine_macro is not None:
             if isinstance(self.undefine_macro, str):
@@ -382,11 +383,11 @@ class Program:
         code_type = code_type.lower()
 
         if code_type not in self._supported_code_type:
-            raise NotImplementedError # ACTNBL move to below: show code_type, maybe supported code types
+            raise NotImplementedError # ACTNBL move to below: show code_type, maybe supported code types HAPPY_ONLY_EXERCISED
 
         if code_type == "c++":
             if not isinstance(code, str):
-                raise TypeError("c++ Program expects code argument to be a string") # ACTNBL be specific: `str`
+                raise TypeError("c++ Program expects code argument to be a string") # ACTNBL be specific: `str` UNHAPPY_EXERCISED
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
@@ -396,13 +397,13 @@ class Program:
 
         elif code_type == "ptx":
             if not isinstance(code, str):
-                raise TypeError("ptx Program expects code argument to be a string") # ACTNBL be specific: `str`
+                raise TypeError("ptx Program expects code argument to be a string") # ACTNBL be specific: `str` HAPPY_ONLY_EXERCISED
             self._linker = Linker(
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
             self._backend = self._linker.backend
         else:
-            raise NotImplementedError # ACTNBL consolidate with above
+            raise NotImplementedError # ACTNBL consolidate with above HAPPY_ONLY_EXERCISED
 
     def _translate_program_options(self, options: ProgramOptions) -> LinkerOptions:
         return LinkerOptions(
@@ -454,7 +455,7 @@ class Program:
 
         """
         if target_type not in self._supported_target_type:
-            raise ValueError(f"the target type {target_type} is not supported") # ACTNBL f"{target_type=}
+            raise ValueError(f"the target type {target_type} is not supported") # ACTNBL f"{target_type=} UNHAPPY_EXERCISED
 
         if self._backend == "NVRTC":
             if target_type == "ptx" and not self._can_load_generated_ptx():
@@ -498,7 +499,7 @@ class Program:
 
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
-        assert self._backend in ("nvJitLink", "driver") # ACTNBL show self._backend
+        assert self._backend in ("nvJitLink", "driver") # ACTNBL show self._backend HAPPY_ONLY_EXERCISED
         return self._linker.link(target_type)
 
     @property
