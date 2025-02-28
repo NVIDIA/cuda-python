@@ -104,30 +104,6 @@ class MockLibrary:
         return linked_code.get_kernel("main_workflow")
 
     def run(self, kernel):
-        from cuda.bindings import driver
-
-        e1 = e2 = None
-        N = 10**4
-        N_warmup = 10
-        ave_time = 0.0
-        for i in range(N + N_warmup):
-            if e1 is None:
-                e1 = self.stream.record(options={"enable_timing": True})
-            else:
-                self.stream.record(e1)
-            launch(kernel, self.config, self.buffer.data.ptr)
-            if e2 is None:
-                e2 = self.stream.record(options={"enable_timing": True})
-            else:
-                self.stream.record(e2)
-            e2.sync()
-            if i < N_warmup:
-                continue
-            err, t = driver.cuEventElapsedTime(e1.handle, e2.handle)
-            assert err == 0
-            ave_time += t
-        print("timing: ", ave_time / N)
-
         launch(kernel, self.config, self.buffer.data.ptr)
         self.stream.sync()
 
