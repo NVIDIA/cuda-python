@@ -58,6 +58,10 @@ NUM_BLOCKS = 64
 NUM_THREADS = 256
 
 
+def elems_to_bytes(nelems, dt):
+    return nelems * np.dtype(dt).itemsize
+
+
 def main():
     print("CUDA Clock sample")
 
@@ -75,31 +79,31 @@ def main():
     kernelHelper = common.KernelHelper(clock_nvrtc, devID)
     kernel_addr = kernelHelper.getFunction(b"timedReduction")
 
-    dinput = checkCudaErrors(cuda.cuMemAlloc(np.dtype(np.float32).itemsize * NUM_THREADS * 2))
-    doutput = checkCudaErrors(cuda.cuMemAlloc(np.dtype(np.float32).itemsize * NUM_BLOCKS))
-    dtimer = checkCudaErrors(cuda.cuMemAlloc(np.dtype(np.int64).itemsize * NUM_BLOCKS * 2))
-    checkCudaErrors(cuda.cuMemcpyHtoD(dinput, hinput, np.dtype(np.float32).itemsize * NUM_THREADS * 2))
+    dinput = checkCudaErrors(cuda.cuMemAlloc(hinput.nbytes))
+    doutput = checkCudaErrors(cuda.cuMemAlloc(elems_to_bytes(NUM_BLOCKS, np.float32)))
+    dtimer = checkCudaErrors(cuda.cuMemAlloc(timer.nbytes))
+    checkCudaErrors(cuda.cuMemcpyHtoD(dinput, hinput, hinput.nbytes))
 
-    arr = ((dinput, doutput, dtimer), (None, None, None))
+    args = ((dinput, doutput, dtimer), (None, None, None))
+    shared_memory_nbytes = elems_to_bytes(2 * NUM_THREADS, np.float32)
+
+    grid_dims = (NUM_BLOCKS, 1, 1)
+    block_dims = (NUM_THREADS, 1, 1)
 
     checkCudaErrors(
         cuda.cuLaunchKernel(
             kernel_addr,
-            NUM_BLOCKS,
-            1,
-            1,  # grid dim
-            NUM_THREADS,
-            1,
-            1,  # block dim
-            np.dtype(np.float32).itemsize * 2 * NUM_THREADS,
+            *grid_dims,  # grid dim
+            *block_dims,  # block dim
+            shared_memory_nbytes,
             0,  # shared mem, stream
-            arr,
+            args,
             0,
         )
     )  # arguments
 
     checkCudaErrors(cuda.cuCtxSynchronize())
-    checkCudaErrors(cuda.cuMemcpyDtoH(timer, dtimer, np.dtype(np.int64).itemsize * NUM_BLOCKS * 2))
+    checkCudaErrors(cuda.cuMemcpyDtoH(timer, dtimer, timer.nbytes))
     checkCudaErrors(cuda.cuMemFree(dinput))
     checkCudaErrors(cuda.cuMemFree(doutput))
     checkCudaErrors(cuda.cuMemFree(dtimer))
