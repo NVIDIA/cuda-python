@@ -9,9 +9,9 @@
 #   1. How to use the JIT LTO feature provided by the Linker class to link multiple objects together
 #   2. That linking allows for libraries to modify workflows dynamically at runtime
 #
-# This demo mimics a relationship between a library and a user. The user's sole responsability is to
-# provide device code that generates art. Where as the library is responsible for all steps involved in
-# setting up the device, launch configurations and arguments as well as linking the provided device code.
+# This demo mimics a relationship between a library and a user. The user's sole responsibility is to
+# provide device code that generates some art. Whereas the library is responsible for all steps involved in
+# setting up the device, launch configurations and arguments, as well as linking the provided device code.
 #
 # Two algorithms are implemented:
 #   1. A Mandelbrot set
@@ -37,9 +37,9 @@ from cuda.core.experimental import Device, LaunchConfig, Linker, LinkerOptions, 
 # The provided device code must contain a function with the signature `void generate_art(float* Data)`
 class MockLibrary:
     def __init__(self):
-        # For this mock library, the main workflow is intentially kept simple by limiting itself to only calling the
+        # For this mock library, the main workflow is intentionally kept simple by limiting itself to only calling the
         # externally defined generate_art function. More involved libraries have the option of applying pre and post
-        # processing steps before calling user-defined device code. Conversely, these responsabilities can be reversed
+        # processing steps before calling user-defined device code. Conversely, these responsibilities can be reversed
         # such that the library owns the bulk of the workflow while allowing users to provide customized pre/post
         # processing steps.
         code_main = r"""
@@ -61,8 +61,7 @@ class MockLibrary:
 
         # Most of the launch configurations can be preemptively done before the user provides their device code
         # Therefore lets compile our main workflow device code now, and link the remaining pieces at a later time
-        self.arch = "".join(f"{i}" for i in Device().compute_capability)
-        self.program_options = ProgramOptions(std="c++11", arch=f"sm_{self.arch}", relocatable_device_code=True)
+        self.program_options = ProgramOptions(relocatable_device_code=True)
         self.main_object_code = Program(code_main, "c++", options=self.program_options).compile("ptx")
 
         # Setup device state
@@ -70,24 +69,24 @@ class MockLibrary:
         self.dev.set_current()
         self.stream = self.dev.create_stream()
 
-        # Setup buffer to store our results
+        # Setup a buffer to store the RGBA results for the width and height specified
         self.width = 1024
         self.height = 512
         self.buffer = cp.empty(self.width * self.height * 4, dtype=cp.float32)
 
         # Setup the launch configuration such that each thread will be generating one pixel, and subdivide
         # the problem into 16x16 chunks.
-        self.grid = (self.width / 16, self.height / 16, 1)
+        self.grid = (self.width / 16, self.height / 16, 1.0)
         self.block = (16, 16, 1)
         self.config = LaunchConfig(grid=self.grid, block=self.block, stream=self.stream)
 
     def link(self, user_code, target_type):
         if target_type == "ltoir":
-            program_options = ProgramOptions(std="c++11", arch=f"sm_{self.arch}", link_time_optimization=True)
-            linker_options = LinkerOptions(arch=f"sm_{self.arch}", link_time_optimization=True)
+            program_options = ProgramOptions(link_time_optimization=True)
+            linker_options = LinkerOptions(link_time_optimization=True)
         elif target_type == "ptx":
             program_options = self.program_options
-            linker_options = LinkerOptions(arch=f"sm_{self.arch}")
+            linker_options = LinkerOptions()
         else:
             raise AssertionError
 
@@ -119,7 +118,7 @@ class MockLibrary:
 # http://en.wikipedia.org/wiki/Mandelbrot_set
 #
 # Note that this kernel is meant to be a simple, straight-forward
-# implementation, and so may not represent optimized GPU code.
+# implementation. No attempt is made to optimize this GPU code.
 code_mandelbrot = r"""
 __device__
 void generate_art(float* Data) {
@@ -168,10 +167,11 @@ void generate_art(float* Data) {
     B = (float)ColorB / 25.0f;
     A = 1.0f;
 
-    Data[DataY*Width*4+DataX*4+0] = R;
-    Data[DataY*Width*4+DataX*4+1] = G;
-    Data[DataY*Width*4+DataX*4+2] = B;
-    Data[DataY*Width*4+DataX*4+3] = A;
+    unsigned i = DataY*Width*4+DataX*4;
+    Data[i+0] = R;
+    Data[i+1] = G;
+    Data[i+2] = B;
+    Data[i+3] = A;
 }
 """
 
@@ -179,7 +179,7 @@ void generate_art(float* Data) {
 # http://en.wikipedia.org/wiki/Julia_set
 #
 # Note that this kernel is meant to be a simple, straight-forward
-# implementation, and so may not represent optimized GPU code.
+# implementation. No attempt is made to optimize this GPU code.
 code_julia = r"""
 __device__
 void generate_art(float* Data) {
@@ -224,15 +224,16 @@ void generate_art(float* Data) {
     B = (float)ColorB / 25.0f;
     A = 1.0f;
 
-    Data[DataY*Width*4+DataX*4+0] = R;
-    Data[DataY*Width*4+DataX*4+1] = G;
-    Data[DataY*Width*4+DataX*4+2] = B;
-    Data[DataY*Width*4+DataX*4+3] = A;
+    unsigned i = DataY*Width*4+DataX*4;
+    Data[i+0] = R;
+    Data[i+1] = G;
+    Data[i+2] = B;
+    Data[i+3] = A;
 }
 """
 
 
-if __name__ == "__main__":
+def main():
     # Parse command line arguments
     # Two different kernels are implemented with unique algorithms, and the user can choose which one should be used
     # Both kernels fulfill the signature required by the MockLibrary: `void generate_art(float* Data)`
@@ -296,3 +297,7 @@ if __name__ == "__main__":
         plt.show()
 
     print("done!")
+
+
+if __name__ == "__main__":
+    main()
