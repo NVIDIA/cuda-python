@@ -48,7 +48,7 @@ def _lazy_init():
 
 class KernelAttributes:
     def __init__(self):
-        raise RuntimeError("KernelAttributes should not be instantiated directly")
+        raise RuntimeError("KernelAttributes should not be instantiated directly") # ACTNBL advice how to construct
 
     slots = ("_handle", "_cache", "_backend_version", "_loader")
 
@@ -190,12 +190,12 @@ class Kernel:
     __slots__ = ("_handle", "_module", "_attributes")
 
     def __init__(self):
-        raise RuntimeError("directly constructing a Kernel instance is not supported")
+        raise RuntimeError("directly constructing a Kernel instance is not supported") # ACTNBL advice how to construct
 
     @staticmethod
     def _from_obj(obj, mod):
-        assert isinstance(obj, _kernel_ctypes)
-        assert isinstance(mod, ObjectCode)
+        assert isinstance(obj, _kernel_ctypes) # ACTNBL show type(obj)
+        assert isinstance(mod, ObjectCode) # ACTNBL show type(obj)
         ker = Kernel.__new__(Kernel)
         ker._handle = obj
         ker._module = mod
@@ -239,7 +239,7 @@ class ObjectCode:
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
     def __init__(self):
-        raise NotImplementedError(
+        raise NotImplementedError( # ACTNBL Change to RuntimeError for consistency
             "directly creating an ObjectCode object can be ambiguous. Please either call Program.compile() "
             "or one of the ObjectCode.from_*() constructors"
         )
@@ -247,7 +247,7 @@ class ObjectCode:
     @staticmethod
     def _init(module, code_type, *, symbol_mapping: Optional[dict] = None):
         self = ObjectCode.__new__(ObjectCode)
-        assert code_type in self._supported_code_type, f"{code_type=} is not supported"
+        assert code_type in self._supported_code_type, f"{code_type=} is not supported" # SMSGD
         _lazy_init()
 
         # handle is assigned during _lazy_load
@@ -290,7 +290,7 @@ class ObjectCode:
             else:  # "old" backend
                 self._handle = handle_return(self._loader["file"](module.encode()))
         else:
-            assert isinstance(module, bytes)
+            assert isinstance(module, bytes) # ACTNBL explain: _module must be str or bytes
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
             else:  # "old" backend
@@ -312,7 +312,7 @@ class ObjectCode:
 
         """
         if self._code_type not in ("cubin", "ptx", "fatbin"):
-            raise RuntimeError(f"get_kernel() is not supported for {self._code_type}")
+            raise RuntimeError(f"get_kernel() is not supported for {self._code_type}") # ACTNBL ... for code type "ptx" (with quotes)
         try:
             name = self._sym_map[name]
         except KeyError:

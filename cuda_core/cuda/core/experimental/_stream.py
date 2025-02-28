@@ -74,7 +74,7 @@ class Stream:
     __slots__ = ("__weakref__", "_mnff", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
 
     def __init__(self):
-        raise NotImplementedError(
+        raise NotImplementedError( # ACTNBL change to RuntimeError for consistency
             "directly creating a Stream object can be ambiguous. Please either "
             "call Device.create_stream() or, if a stream pointer is already "
             "available from somewhere else, Stream.from_handle()"
@@ -86,12 +86,12 @@ class Stream:
         self._mnff = Stream._MembersNeededForFinalize(self, None, None, False)
 
         if obj is not None and options is not None:
-            raise ValueError("obj and options cannot be both specified")
+            raise ValueError("obj and options cannot be both specified") # SMSGD
         if obj is not None:
             try:
                 info = obj.__cuda_stream__()
             except AttributeError as e:
-                raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' method") from e
+                raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' method") from e # SMSGD
             except TypeError:
                 info = obj.__cuda_stream__
                 warnings.simplefilter("once", DeprecationWarning)
@@ -101,7 +101,7 @@ class Stream:
                     category=DeprecationWarning,
                 )
 
-            assert info[0] == 0
+            assert info[0] == 0 # ACTNBL explain and show value
             self._mnff.handle = driver.CUstream(info[1])
             # TODO: check if obj is created under the current context/device
             self._mnff.owner = obj
@@ -120,7 +120,7 @@ class Stream:
         high, low = handle_return(runtime.cudaDeviceGetStreamPriorityRange())
         if priority is not None:
             if not (low <= priority <= high):
-                raise ValueError(f"{priority=} is out of range {[low, high]}")
+                raise ValueError(f"{priority=} is out of range {[low, high]}") # SMSGD
         else:
             priority = high
 
@@ -200,7 +200,7 @@ class Stream:
         if event is None:
             event = Event._init(options)
         elif not isinstance(event, Event):
-            raise TypeError("record only takes an Event object")
+            raise TypeError("record only takes an Event object") # ACTNBL show type(event)
         handle_return(driver.cuEventRecord(event.handle, self._mnff.handle))
         return event
 
@@ -222,7 +222,7 @@ class Stream:
                 try:
                     stream = Stream._init(event_or_stream)
                 except Exception as e:
-                    raise ValueError("only an Event, Stream, or object supporting __cuda_stream__ can be waited") from e
+                    raise ValueError("only an Event, Stream, or object supporting __cuda_stream__ can be waited") from e # ACTNBL show type(event_or_stream)
             else:
                 stream = event_or_stream
             event = handle_return(driver.cuEventCreate(driver.CUevent_flags.CU_EVENT_DISABLE_TIMING))

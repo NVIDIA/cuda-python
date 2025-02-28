@@ -245,15 +245,16 @@ class ProgramOptions:
             if isinstance(self.define_macro, str):
                 self._formatted_options.append(f"--define-macro={self.define_macro}")
             elif isinstance(self.define_macro, tuple):
-                assert len(self.define_macro) == 2
+                assert len(self.define_macro) == 2 # ACTNBL explain
                 self._formatted_options.append(f"--define-macro={self.define_macro[0]}={self.define_macro[1]}")
             elif is_nested_sequence(self.define_macro):
                 for macro in self.define_macro:
                     if isinstance(macro, tuple):
-                        assert len(macro) == 2
+                        assert len(macro) == 2 # ACTNBL explain
                         self._formatted_options.append(f"--define-macro={macro[0]}={macro[1]}")
                     else:
                         self._formatted_options.append(f"--define-macro={macro}")
+            # ACTNBL (bug fix for silent failure) this code path is meant to be unreachable
 
         if self.undefine_macro is not None:
             if isinstance(self.undefine_macro, str):
@@ -381,11 +382,11 @@ class Program:
         code_type = code_type.lower()
 
         if code_type not in self._supported_code_type:
-            raise NotImplementedError
+            raise NotImplementedError # ACTNBL move to below: show code_type, maybe supported code types
 
         if code_type == "c++":
             if not isinstance(code, str):
-                raise TypeError("c++ Program expects code argument to be a string")
+                raise TypeError("c++ Program expects code argument to be a string") # ACTNBL be specific: `str`
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
@@ -395,13 +396,13 @@ class Program:
 
         elif code_type == "ptx":
             if not isinstance(code, str):
-                raise TypeError("ptx Program expects code argument to be a string")
+                raise TypeError("ptx Program expects code argument to be a string") # ACTNBL be specific: `str`
             self._linker = Linker(
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
             self._backend = self._linker.backend
         else:
-            raise NotImplementedError
+            raise NotImplementedError # ACTNBL consolidate with above
 
     def _translate_program_options(self, options: ProgramOptions) -> LinkerOptions:
         return LinkerOptions(
@@ -453,7 +454,7 @@ class Program:
 
         """
         if target_type not in self._supported_target_type:
-            raise ValueError(f"the target type {target_type} is not supported")
+            raise ValueError(f"the target type {target_type} is not supported") # ACTNBL f"{target_type=}
 
         if self._backend == "NVRTC":
             if target_type == "ptx" and not self._can_load_generated_ptx():
@@ -497,7 +498,7 @@ class Program:
 
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
-        assert self._backend in ("nvJitLink", "driver")
+        assert self._backend in ("nvJitLink", "driver") # ACTNBL show self._backend
         return self._linker.link(target_type)
 
     @property
