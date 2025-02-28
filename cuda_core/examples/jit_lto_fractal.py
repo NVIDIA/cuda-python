@@ -81,22 +81,58 @@ class MockLibrary:
         self.block = (16, 16, 1)
         self.config = LaunchConfig(grid=self.grid, block=self.block, stream=self.stream)
 
-    def link_and_run_code(self, user_code):
+    def link(self, user_code, target_type):
+        if target_type == "ltoir":
+            program_options = ProgramOptions(std="c++11", arch=f"sm_{self.arch}", link_time_optimization=True)
+            linker_options = LinkerOptions(arch=f"sm_{self.arch}", link_time_optimization=True)
+        elif target_type == "ptx":
+            program_options = self.program_options
+            linker_options = LinkerOptions(arch=f"sm_{self.arch}")
+        else:
+            raise AssertionError
+
         # First, user-defined code is compiled into a PTX object code
-        user_object_code = Program(user_code, "c++", options=self.program_options).compile("ptx")
+        user_object_code = Program(user_code, "c++", options=program_options).compile(target_type)
 
         # Then a Linker is created to link the main object code with the user-defined code
-        linker_options = LinkerOptions(arch=f"sm_{self.arch}")
         linker = Linker(self.main_object_code, user_object_code, options=linker_options)
+
+        # We emit the linked code as cubin
         linked_code = linker.link("cubin")
 
         # Now we're ready to retrieve the main device function and execute our library's workflow
-        kernel = linked_code.get_kernel("main_workflow")
+        return linked_code.get_kernel("main_workflow")
+
+    def run(self, kernel):
+        from cuda.bindings import driver
+
+        e1 = e2 = None
+        N = 10**4
+        N_warmup = 10
+        ave_time = 0.0
+        for i in range(N + N_warmup):
+            if e1 is None:
+                e1 = self.stream.record(options={"enable_timing": True})
+            else:
+                self.stream.record(e1)
+            launch(kernel, self.config, self.buffer.data.ptr)
+            if e2 is None:
+                e2 = self.stream.record(options={"enable_timing": True})
+            else:
+                self.stream.record(e2)
+            e2.sync()
+            if i < N_warmup:
+                continue
+            err, t = driver.cuEventElapsedTime(e1.handle, e2.handle)
+            assert err == 0
+            ave_time += t
+        print("timing: ", ave_time / N)
+
         launch(kernel, self.config, self.buffer.data.ptr)
         self.stream.sync()
 
-        # Return the result buffer as a CUPY array
-        return self.buffer.get().astype(float).reshape(self.height, self.width, 4)
+        # Return the result buffer as a CuPy array
+        return cp.asnumpy(self.buffer).reshape(self.height, self.width, 4)
 
 
 # Now lets proceed with code from the user's perspective!
@@ -219,56 +255,68 @@ void generate_art(float* Data) {
 }
 """
 
-# Parse command line arguments
-# Two different kernels are implemented with unique algorithms, and the user can choose which one should be used
-# Both kernels fulfill the signature required by the MockLibrary: `void generate_art(float* Data)`
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--target",
-    "-t",
-    type=str,
-    default="all",
-    choices=["mandelbrot", "julia", "all"],
-    help="Type of visualization to generate (mandelbrot, julia, or all)",
-)
-parser.add_argument(
-    "--display",
-    "-d",
-    action="store_true",
-    help="Display the generated images",
-)
-args = parser.parse_args()
 
-if args.display:
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError:
-        print("this example requires matplotlib installed in order to display the image", file=sys.stderr)
-        sys.exit(0)
+if __name__ == "__main__":
+    # Parse command line arguments
+    # Two different kernels are implemented with unique algorithms, and the user can choose which one should be used
+    # Both kernels fulfill the signature required by the MockLibrary: `void generate_art(float* Data)`
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--target",
+        "-t",
+        type=str,
+        default="all",
+        choices=["mandelbrot", "julia", "all"],
+        help="Type of visualization to generate",
+    )
+    parser.add_argument(
+        "--format",
+        "-f",
+        type=str,
+        default="ltoir",
+        choices=["ptx", "ltoir"],
+        help="Type of intermediate format for the device functions to be linked",
+    )
+    parser.add_argument(
+        "--display",
+        "-d",
+        action="store_true",
+        help="Display the generated images",
+    )
+    args = parser.parse_args()
 
-result_to_display = []
-lib = MockLibrary()
+    if args.display:
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            print("this example requires matplotlib installed in order to display the image", file=sys.stderr)
+            sys.exit(0)
 
-# Process mandelbrot option
-if args.target in ("mandelbrot", "all"):
-    # The library will compile and link their main kernel with the provided Mandelbrot kernel
-    result = lib.link_and_run_code(code_mandelbrot)
-    result_to_display.append((result, "Mandelbrot"))
+    result_to_display = []
+    lib = MockLibrary()
 
-# Process julia option
-if args.target in ("julia", "all"):
-    # Likewise, the same library can be configured to instead use the provided Julia kernel
-    result = lib.link_and_run_code(code_julia)
-    result_to_display.append((result, "Julia"))
+    # Process mandelbrot option
+    if args.target in ("mandelbrot", "all"):
+        # The library will compile and link their main kernel with the provided Mandelbrot kernel
+        kernel = lib.link(code_mandelbrot, args.format)
+        result = lib.run(kernel)
+        result_to_display.append((result, "Mandelbrot"))
 
-# Display the generated images if requested
-if args.display:
-    fig = plt.figure()
-    for i, (image, title) in enumerate(result_to_display):
-        axs = fig.add_subplot(len(result_to_display), 1, i + 1)
-        axs.imshow(image)
-        axs.set_title(title)
-        axs.axis("off")
-    plt.show()
+    # Process julia option
+    if args.target in ("julia", "all"):
+        # Likewise, the same library can be configured to instead use the provided Julia kernel
+        kernel = lib.link(code_julia, args.format)
+        result = lib.run(kernel)
+        result_to_display.append((result, "Julia"))
 
-print("done!")
+    # Display the generated images if requested
+    if args.display:
+        fig = plt.figure()
+        for i, (image, title) in enumerate(result_to_display):
+            axs = fig.add_subplot(len(result_to_display), 1, i + 1)
+            axs.imshow(image)
+            axs.set_title(title)
+            axs.axis("off")
+        plt.show()
+
+    print("done!")
