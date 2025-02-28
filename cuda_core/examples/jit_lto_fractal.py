@@ -296,8 +296,7 @@ def main():
             axs.axis("off")
         plt.show()
 
-    print("done!")
-
 
 if __name__ == "__main__":
     main()
+    print("done!")
