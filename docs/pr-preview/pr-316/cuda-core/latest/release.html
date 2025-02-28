@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="cuda.core v0.2.0 Release notes" href="release/0.2.0-notes.html" /><link rel="prev" title="cuda.core: Pythonic access to CUDA core functionalities" href="index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="cuda.core 0.2.0 Release Notes" href="release/0.2.0-notes.html" /><link rel="prev" title="cuda.core: Pythonic access to CUDA core functionalities" href="index.html" />
         <link rel="canonical" href="docs/release.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
@@ -158,7 +158,11 @@
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
-
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/316">PR 316</a>! 
+  </aside>
+</div>
 
 <div class="page">
   <header class="mobile-header">
@@ -208,9 +212,9 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">Release Notes</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html">    0.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html">    0.1.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html">    0.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
@@ -223,6 +227,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
@@ -270,7 +276,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/release.md.txt" title="View this page">
+  <a class="muted-link" href="_sources/release.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -294,20 +300,23 @@
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="release/0.2.0-notes.html">    0.2.0</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html#highlights">Highlights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html#breaking-changes">Breaking Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html#new-features">New features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html#limitations">Limitations</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="release/0.1.1-notes.html">    0.1.1</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html#hightlights">Hightlights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html#highlights">Highlights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html#new-features">New features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html#enhancements">Enhancements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html#bug-fixes">Bug fixes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html#limitations">Limitations</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="release/0.1.0-notes.html">    0.1.0</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html#hightlights">Hightlights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html#highlights">Highlights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html#limitations">Limitations</a></li>
 </ul>
 </li>
@@ -325,7 +334,7 @@
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> v0.2.0 Release notes</div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

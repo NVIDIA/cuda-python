@@ -17,4 +17,9 @@
 
    
    
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: attributes
+   
    

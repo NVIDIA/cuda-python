@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/release/11.8.4-notes.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>CUDA Python 11.8.4 Release notes - cuda.bindings 12.6.3 documentation</title>
+        <title>CUDA Python 11.8.4 Release notes - cuda.bindings 12.8.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -157,7 +157,11 @@
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
-
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/316">PR 316</a>! 
+  </aside>
+</div>
 
 <div class="page">
   <header class="mobile-header">
@@ -168,7 +172,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">cuda.bindings 12.6.3 documentation</div></a>
+      <a href="../index.html"><div class="brand">cuda.bindings 12.8.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -196,7 +200,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">cuda.bindings 12.6.3 documentation</span>
+  <span class="sidebar-brand-text">cuda.bindings 12.8.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -206,44 +210,49 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../release.html">Release Notes</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="12.X.Y-notes.html">12.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.8.0-notes.html">12.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.6.2-notes.html">12.6.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.6.1-notes.html">12.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.6.0-notes.html">12.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.5.0-notes.html">12.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.4.0-notes.html">12.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.3.0-notes.html">12.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.2.1-notes.html">12.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.2.0-notes.html">12.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.1.0-notes.html">12.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.0.0-notes.html">12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.7-notes.html">11.8.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.6-notes.html">11.8.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.5-notes.html">11.8.5</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">11.8.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.3-notes.html">11.8.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.2-notes.html">11.8.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.1-notes.html">11.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.0-notes.html">11.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.7.1-notes.html">11.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.7.0-notes.html">11.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.6.1-notes.html">11.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.6.0-notes.html">11.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.5.0-notes.html">11.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.4.0-notes.html">11.4.0</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../motivation.html">Motivation</a></li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../release.html">Release Notes</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="12.x.y-notes.html">    12.x.y</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.6.2-notes.html">    12.6.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.6.1-notes.html">    12.6.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.6.0-notes.html">    12.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.5.0-notes.html">    12.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.4.0-notes.html">    12.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.3.0-notes.html">    12.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.2.1-notes.html">    12.2.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.2.0-notes.html">    12.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.1.0-notes.html">    12.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12.0.0-notes.html">    12.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.8.5-notes.html">    11.8.5</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">    11.8.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.8.3-notes.html">    11.8.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.8.2-notes.html">    11.8.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.8.1-notes.html">    11.8.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.8.0-notes.html">    11.8.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.7.1-notes.html">    11.7.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.7.0-notes.html">    11.7.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.6.1-notes.html">    11.6.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.6.0-notes.html">    11.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.5.0-notes.html">    11.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11.4.0-notes.html">    11.4.0</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">CUDA Python API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of CUDA Python API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../module/driver.html">driver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module/runtime.html">runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module/nvrtc.html">nvrtc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module/nvjitlink.html">nvjitlink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/nvvm.html">nvvm</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
 </ul>
 
 </div>
@@ -451,7 +460,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=dabec1d4"></script>
+</div><script src="../_static/documentation_options.js?v=2a80ae63"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

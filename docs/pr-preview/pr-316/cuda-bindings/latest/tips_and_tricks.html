@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="nvjitlink" href="module/nvjitlink.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="cuda.bindings Support Policy" href="support.html" /><link rel="prev" title="nvvm" href="module/nvvm.html" />
         <link rel="canonical" href="docs/tips_and_tricks.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Tips and Tricks - cuda.bindings 12.6.3 documentation</title>
+        <title>Tips and Tricks - cuda.bindings 12.8.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -157,7 +157,11 @@
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
-
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/316">PR 316</a>! 
+  </aside>
+</div>
 
 <div class="page">
   <header class="mobile-header">
@@ -168,7 +172,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">cuda.bindings 12.6.3 documentation</div></a>
+      <a href="index.html"><div class="brand">cuda.bindings 12.8.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -196,7 +200,7 @@
     <img class="sidebar-logo only-dark" src="_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">cuda.bindings 12.6.3 documentation</span>
+  <span class="sidebar-brand-text">cuda.bindings 12.8.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -206,44 +210,49 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/12.X.Y-notes.html">12.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.8.0-notes.html">12.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.6.2-notes.html">12.6.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.6.1-notes.html">12.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.6.0-notes.html">12.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.5.0-notes.html">12.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.4.0-notes.html">12.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.3.0-notes.html">12.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.2.1-notes.html">12.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.2.0-notes.html">12.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.1.0-notes.html">12.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.0.0-notes.html">12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.7-notes.html">11.8.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.6-notes.html">11.8.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.5-notes.html">11.8.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.4-notes.html">11.8.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.3-notes.html">11.8.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.2-notes.html">11.8.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.1-notes.html">11.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.0-notes.html">11.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.7.1-notes.html">11.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.7.0-notes.html">11.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.6.1-notes.html">11.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.6.0-notes.html">11.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.5.0-notes.html">11.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.4.0-notes.html">11.4.0</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/12.x.y-notes.html">    12.x.y</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.6.2-notes.html">    12.6.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.6.1-notes.html">    12.6.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.6.0-notes.html">    12.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.5.0-notes.html">    12.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.4.0-notes.html">    12.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.3.0-notes.html">    12.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.2.1-notes.html">    12.2.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.2.0-notes.html">    12.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.1.0-notes.html">    12.1.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.0.0-notes.html">    12.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.8.5-notes.html">    11.8.5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.8.4-notes.html">    11.8.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.8.3-notes.html">    11.8.3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.8.2-notes.html">    11.8.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.8.1-notes.html">    11.8.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.8.0-notes.html">    11.8.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.7.1-notes.html">    11.7.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.7.0-notes.html">    11.7.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.6.1-notes.html">    11.6.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.6.0-notes.html">    11.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.5.0-notes.html">    11.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/11.4.0-notes.html">    11.4.0</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">CUDA Python API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of CUDA Python API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="module/driver.html">driver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/runtime.html">runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvrtc.html">nvrtc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvvm.html">nvvm</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Tips and Tricks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
 </ul>
 
 </div>
@@ -313,6 +322,29 @@
 <p>All CUDA C types are exposed to Python as Python classes. For example, the <a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUstream</span></code></a> type is exposed as a class with methods <a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUstream.getPtr" title="cuda.bindings.driver.CUstream.getPtr"><code class="xref py py-meth docutils literal notranslate"><span class="pre">getPtr()</span></code></a> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">__int__()</span></code> implemented.</p>
 <p>There is an important distinction between the <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> method and the behaviour of <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. If you need to get the pointer address <em>of</em> the underlying <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> C object wrapped in the Python class, you can do so by calling <code class="docutils literal notranslate"><span class="pre">int(instance_of_CUstream)</span></code>, which returns the address as a Python <cite>int</cite>, while calling <code class="docutils literal notranslate"><span class="pre">instance_of_CUstream.getPtr()</span></code> returns the pointer <em>to</em> the <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> C object (that is, <code class="docutils literal notranslate"><span class="pre">&amp;CUstream</span></code>) as a Python <cite>int</cite>.</p>
 </section>
+<section id="lifetime-management-of-the-cuda-objects">
+<h2>Lifetime management of the CUDA objects<a class="headerlink" href="#lifetime-management-of-the-cuda-objects" title="Link to this heading">¶</a></h2>
+<p>All of the Python classes do not manage the lifetime of the underlying CUDA C objects. It is the user’s responsibility to use the appropriate APIs to explicitly destruct the objects following the CUDA Programming Guide.</p>
+</section>
+<section id="getting-and-setting-attributes-of-extension-types">
+<h2>Getting and setting attributes of extension types<a class="headerlink" href="#getting-and-setting-attributes-of-extension-types" title="Link to this heading">¶</a></h2>
+<p>While the bindings outwardly present the attributes of extension types in a pythonic way, they can’t always be interacted with in a Pythonic style. Often the getters/setters (__getitem__(), __setitem__()) are actually a translation step to convert values between Python and C. For example, in some cases, attempting to modify an attribute in place, will lead to unexpected behavior due to the design of the underlying implementation. For this reason, users should use the getters and setters directly when interacting with extension types.</p>
+<p>An example of this is the <code class="xref py py-class docutils literal notranslate"><span class="pre">CULaunchConfig</span></code> type.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">CUlaunchConfig</span><span class="p">()</span>
+
+<span class="n">cfg</span><span class="o">.</span><span class="n">numAttrs</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">attr</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">CUlaunchAttribute</span><span class="p">()</span>
+
+<span class="o">...</span>
+
+<span class="c1"># This works. We are passing the new attribute to the setter</span>
+<span class="n">drv_cfg</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+
+<span class="c1"># This does not work. We are only modifying the returned attribute in place</span>
+<span class="n">drv_cfg</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 
         </article>
@@ -320,15 +352,23 @@
       <footer>
         
         <div class="related-pages">
-          
-          <a class="prev-page" href="module/nvjitlink.html">
+          <a class="next-page" href="support.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="module/nvvm.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">nvjitlink</div>
+                <div class="title">nvvm</div>
                 
               </div>
             </a>
@@ -364,6 +404,8 @@
             <ul>
 <li><a class="reference internal" href="#">Tips and Tricks</a><ul>
 <li><a class="reference internal" href="#getting-the-address-of-underlying-c-objects-from-the-low-level-bindings">Getting the address of underlying C objects from the low-level bindings</a></li>
+<li><a class="reference internal" href="#lifetime-management-of-the-cuda-objects">Lifetime management of the CUDA objects</a></li>
+<li><a class="reference internal" href="#getting-and-setting-attributes-of-extension-types">Getting and setting attributes of extension types</a></li>
 </ul>
 </li>
 </ul>
@@ -375,7 +417,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=dabec1d4"></script>
+</div><script src="_static/documentation_options.js?v=2a80ae63"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

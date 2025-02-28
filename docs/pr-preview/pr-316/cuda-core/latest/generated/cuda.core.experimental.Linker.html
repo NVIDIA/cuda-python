@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cuda.core.experimental.LinkerOptions" href="cuda.core.experimental.LinkerOptions.html" /><link rel="prev" title="cuda.core.experimental.Program" href="cuda.core.experimental.Program.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cuda.core.experimental.ObjectCode" href="cuda.core.experimental.ObjectCode.html" /><link rel="prev" title="cuda.core.experimental.Program" href="cuda.core.experimental.Program.html" />
         <link rel="canonical" href="docs/generated/cuda.core.experimental.Linker.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
@@ -158,7 +158,11 @@
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
-
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/316">PR 316</a>! 
+  </aside>
+</div>
 
 <div class="page">
   <header class="mobile-header">
@@ -208,9 +212,9 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.2.0-notes.html">    0.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.1.1-notes.html">    0.1.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.1.0-notes.html">    0.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
@@ -223,6 +227,8 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cuda.core.experimental.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
@@ -294,15 +300,15 @@
 <h1>cuda.core.experimental.Linker<a class="headerlink" href="#cuda-core-experimental-linker" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental.Linker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Linker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">object_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._module.ObjectCode.html#cuda.core.experimental._module.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental._linker.LinkerOptions"><span class="pre">LinkerOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Linker" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Linker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">object_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental._linker.LinkerOptions"><span class="pre">LinkerOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Linker" title="Link to this definition">¶</a></dt>
 <dd><p>Represent a linking machinery to link one or multiple object codes into
-<a class="reference internal" href="cuda.core.experimental._module.ObjectCode.html#cuda.core.experimental._module.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> with the specified options.</p>
+<a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> with the specified options.</p>
 <p>This object provides a unified interface to multiple underlying
 linker libraries (such as nvJitLink or cuLink* from CUDA driver).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>object_codes</strong> (<a class="reference internal" href="cuda.core.experimental._module.ObjectCode.html#cuda.core.experimental._module.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><em>ObjectCode</em></a>) – One or more ObjectCode objects to be linked.</p></li>
+<li><p><strong>object_codes</strong> (<a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental.ObjectCode"><em>ObjectCode</em></a>) – One or more ObjectCode objects to be linked.</p></li>
 <li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental.LinkerOptions"><em>LinkerOptions</em></a><em>, </em><em>optional</em>) – Options for the linker. If not provided, default options will be used.</p></li>
 </ul>
 </dd>
@@ -310,7 +316,7 @@ linker libraries (such as nvJitLink or cuLink* from CUDA driver).</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.Linker.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">object_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._module.ObjectCode.html#cuda.core.experimental._module.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental._linker.LinkerOptions"><span class="pre">LinkerOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Linker.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">object_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental._linker.LinkerOptions"><span class="pre">LinkerOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Linker.__init__" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -349,7 +355,7 @@ linker libraries (such as nvJitLink or cuLink* from CUDA driver).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.Linker.link">
-<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental._module.ObjectCode.html#cuda.core.experimental._module.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Linker.link" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Linker.link" title="Link to this definition">¶</a></dt>
 <dd><p>Links the provided object codes into a single output of the specified target type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -359,7 +365,7 @@ linker libraries (such as nvJitLink or cuLink* from CUDA driver).</p>
 <dd class="field-even"><p>The linked object code of the specified target type.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._module.ObjectCode.html#cuda.core.experimental._module.ObjectCode" title="cuda.core.experimental._module.ObjectCode">ObjectCode</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental.ObjectCode">ObjectCode</a></p>
 </dd>
 </dl>
 <div class="admonition note">
@@ -370,10 +376,20 @@ correctly compiled for linking.</p>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
-<dl class="py attribute">
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.Linker.backend">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></em><a class="headerlink" href="#cuda.core.experimental.Linker.backend" title="Link to this definition">¶</a></dt>
+<dd><p>Return this Linker instance’s underlying backend.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental.Linker.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.experimental.Linker.handle" title="Link to this definition">¶</a></dt>
-<dd><p>Return the linker handle object.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LinkerHandleT</span></em><a class="headerlink" href="#cuda.core.experimental.Linker.handle" title="Link to this definition">¶</a></dt>
+<dd><p>Return the underlying handle object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The type of the returned object depends on the backend.</p>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -385,12 +401,12 @@ correctly compiled for linking.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="cuda.core.experimental.LinkerOptions.html">
+          <a class="next-page" href="cuda.core.experimental.ObjectCode.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">cuda.core.experimental.LinkerOptions</div>
+                <div class="title">cuda.core.experimental.ObjectCode</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -442,6 +458,7 @@ correctly compiled for linking.</p>
 <li><a class="reference internal" href="#cuda.core.experimental.Linker.get_error_log"><code class="docutils literal notranslate"><span class="pre">Linker.get_error_log()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.Linker.get_info_log"><code class="docutils literal notranslate"><span class="pre">Linker.get_info_log()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.Linker.link"><code class="docutils literal notranslate"><span class="pre">Linker.link()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Linker.backend"><code class="docutils literal notranslate"><span class="pre">Linker.backend</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.Linker.handle"><code class="docutils literal notranslate"><span class="pre">Linker.handle</span></code></a></li>
 </ul>
 </li>

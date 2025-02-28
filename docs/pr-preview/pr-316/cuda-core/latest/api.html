@@ -158,7 +158,11 @@
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
-
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/316">PR 316</a>! 
+  </aside>
+</div>
 
 <div class="page">
   <header class="mobile-header">
@@ -208,9 +212,9 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html">    0.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html">    0.1.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html">    0.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
@@ -223,6 +227,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
@@ -324,13 +330,19 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Program</span></code></a>(code, code_type)</p></td>
-<td><p>Represent a compilation machinery to process programs into <a class="reference internal" href="generated/cuda.core.experimental._module.ObjectCode.html#cuda.core.experimental._module.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Program</span></code></a>(code, code_type[, options])</p></td>
+<td><p>Represent a compilation machinery to process programs into <a class="reference internal" href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker" title="cuda.core.experimental.Linker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Linker</span></code></a>(*object_codes[, options])</p></td>
-<td><p>Represent a linking machinery to link one or multiple object codes into <a class="reference internal" href="generated/cuda.core.experimental._module.ObjectCode.html#cuda.core.experimental._module.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> with the specified options.</p></td>
+<td><p>Represent a linking machinery to link one or multiple object codes into <a class="reference internal" href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> with the specified options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental.LinkerOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinkerOptions</span></code></a>(arch[, max_register_count, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>()</p></td>
+<td><p>Represent a compiled program to be loaded onto the device.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions" title="cuda.core.experimental.ProgramOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a>([arch, ...])</p></td>
+<td><p>Customizable options for configuring <cite>Program</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental.LinkerOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinkerOptions</span></code></a>([arch, max_register_count, ...])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker" title="cuda.core.experimental.Linker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Linker</span></code></a> options.</p></td>
 </tr>
 </tbody>
@@ -339,43 +351,52 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 </section>
 <section id="cuda-system-information">
 <h2>CUDA system information<a class="headerlink" href="#cuda-system-information" title="Link to this heading">¶</a></h2>
-<dl class="py data">
-<dt class="sig sig-object py" id="cuda.core.experimental.system.driver_version">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">driver_version</span></span><a class="headerlink" href="#cuda.core.experimental.system.driver_version" title="Link to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Query the CUDA driver version.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental._system.System.driver_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">System.</span></span><span class="sig-name descname"><span class="pre">driver_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cuda.core.experimental._system.System.driver_version" title="Link to this definition">¶</a></dt>
+<dd><dl class="py data">
+<dt class="sig sig-object py" id="cuda.core.experimental._system.System.cuda.core.experimental.system.driver_version">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">driver_version</span></span><a class="headerlink" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.driver_version" title="Link to this definition">¶</a></dt>
+<dd><p>Query the CUDA driver version.</p>
 <p class="rubric">Returns</p>
 <dl class="simple">
 <dt>tuple of int</dt><dd><p>A 2-tuple of (major, minor) version numbers.</p>
 </dd>
 </dl>
-</div></blockquote>
 </dd></dl>
 
-<dl class="py data">
-<dt class="sig sig-object py" id="cuda.core.experimental.system.num_devices">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">num_devices</span></span><a class="headerlink" href="#cuda.core.experimental.system.num_devices" title="Link to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Query the number of available GPUs.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental._system.System.num_devices">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">System.</span></span><span class="sig-name descname"><span class="pre">num_devices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental._system.System.num_devices" title="Link to this definition">¶</a></dt>
+<dd><dl class="py data">
+<dt class="sig sig-object py" id="cuda.core.experimental._system.System.cuda.core.experimental.system.num_devices">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">num_devices</span></span><a class="headerlink" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.num_devices" title="Link to this definition">¶</a></dt>
+<dd><p>Query the number of available GPUs.</p>
 <p class="rubric">Returns</p>
 <dl class="simple">
 <dt>int</dt><dd><p>The number of available GPU devices.</p>
 </dd>
 </dl>
-</div></blockquote>
 </dd></dl>
 
-<dl class="py data">
-<dt class="sig sig-object py" id="cuda.core.experimental.system.devices">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">devices</span></span><a class="headerlink" href="#cuda.core.experimental.system.devices" title="Link to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Query the available device instances.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental._system.System.devices">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">System.</span></span><span class="sig-name descname"><span class="pre">devices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></em><a class="headerlink" href="#cuda.core.experimental._system.System.devices" title="Link to this definition">¶</a></dt>
+<dd><dl class="py data">
+<dt class="sig sig-object py" id="cuda.core.experimental._system.System.cuda.core.experimental.system.devices">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">devices</span></span><a class="headerlink" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.devices" title="Link to this definition">¶</a></dt>
+<dd><p>Query the available device instances.</p>
 <p class="rubric">Returns</p>
 <dl class="simple">
 <dt>tuple of Device</dt><dd><p>A tuple containing instances of available devices.</p>
 </dd>
 </dl>
-</div></blockquote>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -455,9 +476,18 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 <li><a class="reference internal" href="#cuda-runtime">CUDA runtime</a></li>
 <li><a class="reference internal" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a></li>
 <li><a class="reference internal" href="#cuda-system-information">CUDA system information</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.system.driver_version"><code class="docutils literal notranslate"><span class="pre">driver_version</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.system.num_devices"><code class="docutils literal notranslate"><span class="pre">num_devices</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.system.devices"><code class="docutils literal notranslate"><span class="pre">devices</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._system.System.driver_version"><code class="docutils literal notranslate"><span class="pre">System.driver_version</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.driver_version"><code class="docutils literal notranslate"><span class="pre">System.cuda.core.experimental.system.driver_version</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cuda.core.experimental._system.System.num_devices"><code class="docutils literal notranslate"><span class="pre">System.num_devices</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.num_devices"><code class="docutils literal notranslate"><span class="pre">System.cuda.core.experimental.system.num_devices</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cuda.core.experimental._system.System.devices"><code class="docutils literal notranslate"><span class="pre">System.devices</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.devices"><code class="docutils literal notranslate"><span class="pre">System.cuda.core.experimental.system.devices</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#utility-functions">Utility functions</a></li>
