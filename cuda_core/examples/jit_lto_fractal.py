@@ -88,7 +88,7 @@ class MockLibrary:
             program_options = self.program_options
             linker_options = LinkerOptions()
         else:
-            raise AssertionError
+            raise AssertionError(f"Invalid {target_type=}")
 
         # First, user-defined code is compiled into a PTX object code
         user_object_code = Program(user_code, "c++", options=program_options).compile(target_type)
@@ -106,7 +106,7 @@ class MockLibrary:
         launch(kernel, self.config, self.buffer.data.ptr)
         self.stream.sync()
 
-        # Return the result buffer as a CuPy array
+        # Return the result as a NumPy array (on host).
         return cp.asnumpy(self.buffer).reshape(self.height, self.width, 4)
 
 
