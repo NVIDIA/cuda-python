@@ -94,7 +94,7 @@ cp_stream0 = StreamAdaptor(cp.cuda.get_current_stream())
 stream0.wait(cp_stream0)
 
 # Launch the add kernel on GPU 0 / stream 0
-launch(ker_add, config0, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
+launch(config0, ker_add, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
 
 # Allocate memory on GPU 1
 # Note: This runs on CuPy's current stream for GPU 1.
@@ -108,7 +108,7 @@ cp_stream1 = StreamAdaptor(cp.cuda.get_current_stream())
 stream1.wait(cp_stream1)
 
 # Launch the subtract kernel on GPU 1 / stream 1
-launch(ker_sub, config1, x.data.ptr, y.data.ptr, z.data.ptr, cp.uint64(size))
+launch(config1, ker_sub, x.data.ptr, y.data.ptr, z.data.ptr, cp.uint64(size))
 
 # Synchronize both GPUs are validate the results
 dev0.set_current()
