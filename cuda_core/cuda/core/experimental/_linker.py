@@ -265,7 +265,7 @@ class LinkerOptions:
             self.formatted_options.append(self.max_register_count)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_MAX_REGISTERS)
         if self.time is not None:
-            raise ValueError("time option is not supported by the driver API") # SMSGD
+            raise ValueError("time option is not supported by the driver API")
         if self.verbose is not None:
             self.formatted_options.append(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_LOG_VERBOSE)
@@ -273,7 +273,7 @@ class LinkerOptions:
             self.formatted_options.append(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_LTO)
         if self.ptx is not None:
-            raise ValueError("ptx option is not supported by the driver API") # SMSGD
+            raise ValueError("ptx option is not supported by the driver API")
         if self.optimization_level is not None:
             self.formatted_options.append(self.optimization_level)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_OPTIMIZATION_LEVEL)
@@ -298,11 +298,11 @@ class LinkerOptions:
         if self.optimize_unused_variables is not None:
             warn("optimize_unused_variables is deprecated in the driver API", DeprecationWarning, stacklevel=3)
         if self.ptxas_options is not None:
-            raise ValueError("ptxas_options option is not supported by the driver API") # SMSGD
+            raise ValueError("ptxas_options option is not supported by the driver API")
         if self.split_compile is not None:
-            raise ValueError("split_compile option is not supported by the driver API") # SMSGD
+            raise ValueError("split_compile option is not supported by the driver API")
         if self.split_compile_extended is not None:
-            raise ValueError("split_compile_extended option is not supported by the driver API") # SMSGD
+            raise ValueError("split_compile_extended option is not supported by the driver API")
         if self.no_cache is True:
             self.formatted_options.append(_driver.CUjit_cacheMode.CU_JIT_CACHE_OPTION_NONE)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_CACHE_MODE)
@@ -367,7 +367,7 @@ class Linker:
 
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
         if len(object_codes) == 0:
-            raise ValueError("At least one ObjectCode object must be provided") # SMSGD
+            raise ValueError("At least one ObjectCode object must be provided")
 
         self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
         with _exception_manager(self):
@@ -431,7 +431,7 @@ class Linker:
         correctly compiled for linking.
         """
         if target_type not in ("cubin", "ptx"):
-            raise ValueError(f"Unsupported target type: {target_type}") # SMSGD
+            raise ValueError(f"Unsupported target type: {target_type}")
         with _exception_manager(self):
             if _nvjitlink:
                 _nvjitlink.complete(self._mnff.handle)
@@ -488,7 +488,7 @@ class Linker:
         input_type = _nvjitlink_input_types.get(code_type) if _nvjitlink else _driver_input_types.get(code_type)
 
         if input_type is None:
-            raise ValueError(f"Unknown code_type associated with ObjectCode: {code_type}") # SMSGD
+            raise ValueError(f"Unknown code_type associated with ObjectCode: {code_type}")
         return input_type
 
     @property

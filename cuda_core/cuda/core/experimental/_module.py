@@ -246,7 +246,7 @@ class ObjectCode:
     @staticmethod
     def _init(module, code_type, *, symbol_mapping: Optional[dict] = None):
         self = ObjectCode.__new__(ObjectCode)
-        assert code_type in self._supported_code_type, f"{code_type=} is not supported" # SMSGD
+        assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
 
         # handle is assigned during _lazy_load

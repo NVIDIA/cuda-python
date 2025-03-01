@@ -133,7 +133,7 @@ class Buffer:
 
         """
         if stream is None:
-            raise ValueError("stream must be provided") # SMSGD
+            raise ValueError("stream must be provided")
         if dst is None:
             if self._mnff.mr is None:
                 raise ValueError("a destination buffer must be provided") # ACTNBL explain "or self._mnff.mr must exist"? CODEPATH_NOT_REACHED
@@ -156,7 +156,7 @@ class Buffer:
 
         """
         if stream is None:
-            raise ValueError("stream must be provided") # SMSGD
+            raise ValueError("stream must be provided")
         if src._mnff.size != self._mnff.size:
             raise ValueError("buffer sizes mismatch between src and dst") # ACTNBL show src and dst sizes HAPPY_ONLY_EXERCISED
         handle_return(driver.cuMemcpyAsync(self._mnff.ptr, src._mnff.ptr, self._mnff.size, stream.handle))

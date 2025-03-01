@@ -70,7 +70,7 @@ class Event:
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
 
     def __init__(self):
-        raise NotImplementedError("directly creating an Event object can be ambiguous. Please call Stream.record().") # SMSGD
+        raise NotImplementedError("directly creating an Event object can be ambiguous. Please call Stream.record().")
 
     @staticmethod
     def _init(options: Optional[EventOptions] = None):

@@ -86,12 +86,12 @@ class Stream:
         self._mnff = Stream._MembersNeededForFinalize(self, None, None, False)
 
         if obj is not None and options is not None:
-            raise ValueError("obj and options cannot be both specified") # SMSGD
+            raise ValueError("obj and options cannot be both specified")
         if obj is not None:
             try:
                 info = obj.__cuda_stream__()
             except AttributeError as e:
-                raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' method") from e # SMSGD
+                raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' method") from e
             except TypeError:
                 info = obj.__cuda_stream__
                 warnings.simplefilter("once", DeprecationWarning)
@@ -120,7 +120,7 @@ class Stream:
         high, low = handle_return(runtime.cudaDeviceGetStreamPriorityRange())
         if priority is not None:
             if not (low <= priority <= high):
-                raise ValueError(f"{priority=} is out of range {[low, high]}") # SMSGD
+                raise ValueError(f"{priority=} is out of range {[low, high]}")
         else:
             priority = high
 
