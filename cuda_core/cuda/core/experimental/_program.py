@@ -427,7 +427,8 @@ class Program:
             self._linker.close()
         self._mnff.close()
 
-    def _can_load_generated_ptx(self):
+    @staticmethod
+    def _can_load_generated_ptx():
         driver_ver = handle_return(driver.cuDriverGetVersion())
         nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
         return nvrtc_major * 1000 + nvrtc_minor * 10 <= driver_ver
