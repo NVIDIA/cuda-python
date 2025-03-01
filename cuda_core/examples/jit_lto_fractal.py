@@ -103,7 +103,7 @@ class MockLibrary:
         return linked_code.get_kernel("main_workflow")
 
     def run(self, kernel):
-        launch(kernel, self.config, self.buffer.data.ptr)
+        launch(self.config, kernel, self.buffer.data.ptr)
         self.stream.sync()
 
         # Return the result as a NumPy array (on host).
