@@ -224,10 +224,9 @@ class ObjectCode:
     Note
     ----
     This class has no default constructor. If you already have a cubin that you would
-    like to load, use the :meth:`from_cubin` alternative constructor. For all other
-    possible code types (ex: "ptx"), only :class:`~cuda.core.experimental.Program`
-    accepts them and returns an :class:`ObjectCode` instance with its
-    :meth:`~cuda.core.experimental.Program.compile` method.
+    like to load, use the :meth:`from_cubin` alternative constructor. Constructing directly
+    from all other possible code types should be avoided in favor of compilation through
+    :class:`~cuda.core.experimental.Program`
 
     Note
     ----
@@ -277,6 +276,22 @@ class ObjectCode:
             them (default to no mappings).
         """
         return ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
+
+    @staticmethod
+    def from_ptx(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing PTX.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory ptx code to load, or
+            a file path string pointing to the on-disk ptx file to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "ptx", symbol_mapping=symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
