@@ -12,6 +12,7 @@ from warnings import warn
 if TYPE_CHECKING:
     import cuda.bindings
 
+from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
@@ -256,6 +257,7 @@ class ProgramOptions:
                         self._formatted_options.append(f"--define-macro={macro}")
             else:
                 # ACTNBL (bug fix for silent failure) POTENTIAL_SILENT_FAILURE
+                pass
 
         if self.undefine_macro is not None:
             if isinstance(self.undefine_macro, str):
@@ -386,8 +388,7 @@ class Program:
             raise NotImplementedError # ACTNBL move to below: show code_type, maybe supported code types HAPPY_ONLY_EXERCISED
 
         if code_type == "c++":
-            if not isinstance(code, str):
-                raise TypeError("c++ Program expects code argument to be a string") # ACTNBL be specific: `str` UNHAPPY_EXERCISED
+            assert_type(code, str)
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
@@ -396,8 +397,7 @@ class Program:
             self._linker = None
 
         elif code_type == "ptx":
-            if not isinstance(code, str):
-                raise TypeError("ptx Program expects code argument to be a string") # ACTNBL be specific: `str` HAPPY_ONLY_EXERCISED
+            assert_type(code, str)
             self._linker = Linker(
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )

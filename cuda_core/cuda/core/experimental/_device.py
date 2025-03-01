@@ -5,6 +5,7 @@
 import threading
 from typing import Union
 
+from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
@@ -955,10 +956,11 @@ class Device:
         # important: creating a Device instance does not initialize the GPU!
         if device_id is None:
             device_id = raise_if_driver_error(runtime.cudaGetDevice())
-            assert isinstance(device_id, int), f"{device_id=}" # ACTNBL show type(device_it) HAPPY_ONLY_EXERCISED
+            assert_type(device_id, int)
         else:
             total = raise_if_driver_error(runtime.cudaGetDeviceCount())
-            if not isinstance(device_id, int) or not (0 <= device_id < total):
+            assert_type(device_id, int)
+            if not (0 <= device_id < total):
                 raise ValueError(f"device_id must be within [0, {total}), got {device_id}")
 
         # ensure Device is singleton
@@ -1069,8 +1071,7 @@ class Device:
 
     @memory_resource.setter
     def memory_resource(self, mr):
-        if not isinstance(mr, MemoryResource):
-            raise TypeError # ACTNBL show type(mr) FN_NOT_CALLED
+        assert_type(mr, MemoryResource)
         self._mr = mr
 
     @property
@@ -1124,12 +1125,11 @@ class Device:
 
         """
         if ctx is not None:
-            if not isinstance(ctx, Context):
-                raise TypeError("a Context object is required") # ACTNBL show type(ctx) CODEPATH_NOT_REACHED
+            assert_type(ctx, Context)
             if ctx._id != self._id:
                 raise RuntimeError(
-                    "the provided context was created on a different "
-                    f"device {ctx._id} other than the target {self._id}"
+                    "the provided context was created on the device with"
+                    f" id={ctx._id}, which is different from the target id={self._id}"
                 )
             prev_ctx = raise_if_driver_error(driver.cuCtxPopCurrent())
             raise_if_driver_error(driver.cuCtxPushCurrent(ctx._handle))

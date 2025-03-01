@@ -5,6 +5,7 @@
 from typing import Optional, Union
 from warnings import warn
 
+from cuda.core.experimental._clear_error_support import assert_type, assert_type_str_or_bytes, raise_code_path_meant_to_be_unreachable
 from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
@@ -194,8 +195,8 @@ class Kernel:
 
     @staticmethod
     def _from_obj(obj, mod):
-        assert isinstance(obj, _kernel_ctypes) # ACTNBL show type(obj) HAPPY_ONLY_EXERCISED
-        assert isinstance(mod, ObjectCode) # ACTNBL show type(obj) HAPPY_ONLY_EXERCISED
+        assert_type(obj, _kernel_ctypes)
+        assert_type(mod, ObjectCode)
         ker = Kernel.__new__(Kernel)
         ker._handle = obj
         ker._module = mod
@@ -299,17 +300,20 @@ class ObjectCode:
         if self._handle is not None:
             return
         module = self._module
+        assert_type_str_or_bytes(module)
         if isinstance(module, str):
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
             else:  # "old" backend
                 self._handle = handle_return(self._loader["file"](module.encode()))
-        else:
-            assert isinstance(module, bytes) # ACTNBL explain: _module must be str or bytes HAPPY_ONLY_EXERCISED
+            return
+        if isinstance(module, bytes):
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
             else:  # "old" backend
                 self._handle = handle_return(self._loader["data"](module, 0, [], []))
+            return
+        raise_code_path_meant_to_be_unreachable()
 
     @precondition(_lazy_load_module)
     def get_kernel(self, name) -> Kernel:

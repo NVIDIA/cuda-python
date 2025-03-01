@@ -94,7 +94,7 @@ def test_program_init_invalid_code_type():
 
 def test_program_init_invalid_code_format():
     code = 12345
-    with pytest.raises(TypeError):
+    with pytest.raises(AssertionError):
         Program(code, "c++")
 
 

@@ -5,6 +5,7 @@
 from dataclasses import dataclass
 from typing import Optional, Union
 
+from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._module import Kernel
@@ -122,8 +123,7 @@ def launch(kernel, config, *kernel_args):
         launching kernel.
 
     """
-    if not isinstance(kernel, Kernel):
-        raise ValueError # ACTNBL show type(kernel) FN_NOT_CALLED
+    assert_type(kernel, Kernel)
     config = check_or_create_options(LaunchConfig, config, "launch config")
     if config.stream is None:
         raise CUDAError("stream cannot be None") # ACTNBL "config.stream cannot be None" FN_NOT_CALLED

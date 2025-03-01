@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Optional, Tuple, Union
 if TYPE_CHECKING:
     import cuda.bindings
     from cuda.core.experimental._device import Device
+from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._utils import check_or_create_options, driver, get_device_from_ctx, handle_return, runtime
@@ -199,8 +200,7 @@ class Stream:
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
         if event is None:
             event = Event._init(options)
-        elif not isinstance(event, Event):
-            raise TypeError("record only takes an Event object") # ACTNBL show type(event) UNHAPPY_EXERCISED
+        assert_type(event, Event)
         handle_return(driver.cuEventRecord(event.handle, self._mnff.handle))
         return event
 
