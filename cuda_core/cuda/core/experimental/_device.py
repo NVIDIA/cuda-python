@@ -30,13 +30,14 @@ class DeviceProperties:
     Attributes are read-only and provide information about the device.
     """
 
-    def __init__(self):
-        raise RuntimeError("DeviceProperties should not be instantiated directly")
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("DeviceProperties cannot be instantiated directly. Please use Device APIs.")
 
     __slots__ = ("_handle", "_cache")
 
-    def _init(handle):
-        self = DeviceProperties.__new__(DeviceProperties)
+    @classmethod
+    def _init(cls, handle):
+        self = super().__new__(cls)
         self._handle = handle
         self._cache = {}
         return self

@@ -15,7 +15,7 @@ from cuda.core.experimental._utils import driver
 
 
 def test_stream_init():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(RuntimeError):
         Stream()
 
 
