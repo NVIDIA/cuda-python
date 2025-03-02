@@ -98,23 +98,26 @@ class Buffer:
     @property
     def is_device_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
+        # EXRCSTHS
         if self._mnff.mr is not None:
             return self._mnff.mr.is_device_accessible
-        raise NotImplementedError # ACTNBL what do we want to say here? HAPPY_ONLY_EXERCISED
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
+        # EXRCSTHS
         if self._mnff.mr is not None:
             return self._mnff.mr.is_host_accessible
-        raise NotImplementedError # ACTNBL what do we want to say here? FN_NOT_CALLED
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def device_id(self) -> int:
         """Return the device ordinal of this buffer."""
         if self._mnff.mr is not None:
             return self._mnff.mr.device_id
-        raise NotImplementedError # ACTNBL what do we want to say here? FN_NOT_CALLED
+        # EXRCSTHS
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     def copy_to(self, dst: Buffer = None, *, stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
@@ -197,11 +200,11 @@ class Buffer:
         # This raises a BufferError unless:
         #   1. Python is 3.12+
         #   2. This Buffer object is host accessible
-        raise NotImplementedError("TODO") # ACTNBL explain failed conditions FN_NOT_CALLED
+        raise NotImplementedError("WIP: Buffer.__buffer__ hasn't been implemented yet.")
 
     def __release_buffer__(self, buffer: memoryview, /):
         # Supporting method paired with __buffer__.
-        raise NotImplementedError("TODO") # ACTNBL explain failed conditions FN_NOT_CALLED
+        raise NotImplementedError("WIP: Buffer.__release_buffer__ hasn't been implemented yet.")
 
 
 class MemoryResource(abc.ABC):

@@ -1171,7 +1171,7 @@ class Device:
             Newly created context object.
 
         """
-        raise NotImplementedError("TODO") # ACTNBL issue number? FN_NOT_CALLED
+        raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
     @precondition(_check_context_initialized)
     def create_stream(self, obj=None, options: StreamOptions = None) -> Stream:

@@ -17,7 +17,9 @@ class Context:
     __slots__ = ("_handle", "_id")
 
     def __init__(self):
-        raise NotImplementedError("TODO") # ACTNBL do not instantiate directly? FN_NOT_CALLED
+        raise NotImplementedError(
+            "directly creating a Context object can be ambiguous. Please use "
+            "Device or Stream methods.")
 
     @staticmethod
     def _from_ctx(obj, dev_id):

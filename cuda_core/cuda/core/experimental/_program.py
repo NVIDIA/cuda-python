@@ -375,17 +375,13 @@ class Program:
                 self.handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
-    _supported_code_type = ("c++", "ptx")
-    _supported_target_type = ("ptx", "cubin", "ltoir")
+    _supported_target_types = ("ptx", "cubin", "ltoir")
 
     def __init__(self, code, code_type, options: ProgramOptions = None):
         self._mnff = Program._MembersNeededForFinalize(self, None)
 
         self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
         code_type = code_type.lower()
-
-        if code_type not in self._supported_code_type:
-            raise NotImplementedError # ACTNBL move to below: show code_type, maybe supported code types HAPPY_ONLY_EXERCISED
 
         if code_type == "c++":
             assert_type(code, str)
@@ -403,7 +399,10 @@ class Program:
             )
             self._backend = self._linker.backend
         else:
-            raise NotImplementedError # ACTNBL consolidate with above HAPPY_ONLY_EXERCISED
+            # EXRCSTHS
+            supported_code_types = ("c++", "ptx")
+            assert code_type not in supported_code_types, f"{code_type=}"
+            raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
 
     def _translate_program_options(self, options: ProgramOptions) -> LinkerOptions:
         return LinkerOptions(
@@ -455,7 +454,7 @@ class Program:
             Newly created code object.
 
         """
-        if target_type not in self._supported_target_type:
+        if target_type not in self._supported_target_types:
             raise ValueError(f"the target type {target_type} is not supported") # ACTNBL f"{target_type=} UNHAPPY_EXERCISED
 
         if self._backend == "NVRTC":

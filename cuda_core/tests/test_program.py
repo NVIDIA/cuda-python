@@ -88,7 +88,7 @@ def test_program_init_valid_code_type():
 
 def test_program_init_invalid_code_type():
     code = 'extern "C" __global__ void my_kernel() {}'
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(RuntimeError):
         Program(code, "python")
 
 

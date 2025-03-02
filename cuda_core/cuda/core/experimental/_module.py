@@ -239,9 +239,10 @@ class ObjectCode:
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
     def __init__(self):
-        raise NotImplementedError( # ACTNBL Change to RuntimeError for consistency FN_NOT_CALLED
-            "directly creating an ObjectCode object can be ambiguous. Please either call Program.compile() "
-            "or one of the ObjectCode.from_*() constructors"
+        # EXRCSTHS
+        raise NotImplementedError(
+            "directly creating an ObjectCode object can be ambiguous. Please either call Program methods "
+            "or one of the ObjectCode from_* factory functions."
         )
 
     @staticmethod

@@ -75,10 +75,9 @@ class Stream:
     __slots__ = ("__weakref__", "_mnff", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
 
     def __init__(self):
-        raise NotImplementedError( # ACTNBL change to RuntimeError for consistency UNHAPPY_EXERCISED
-            "directly creating a Stream object can be ambiguous. Please either "
-            "call Device.create_stream() or, if a stream pointer is already "
-            "available from somewhere else, Stream.from_handle()"
+        # EXRCSTHS
+        raise NotImplementedError(
+            "directly creating a Stream object can be ambiguous. Please use Device or Stream methods."
         )
 
     @staticmethod
