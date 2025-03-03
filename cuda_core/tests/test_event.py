@@ -6,6 +6,8 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
+import time
+
 import pytest
 
 from cuda.core.experimental import Device, EventOptions
@@ -15,8 +17,17 @@ from cuda.core.experimental import Device, EventOptions
 def test_timing(init_cuda, enable_timing):
     options = EventOptions(enable_timing=enable_timing)
     stream = Device().create_stream()
-    event = stream.record(options=options)
-    assert event.is_timing_disabled == (not enable_timing if enable_timing is not None else True)
+    n_seconds = 0.5
+    e1 = stream.record(options=options)
+    time.sleep(n_seconds)
+    e2 = stream.record(options=options)
+    for e in (e1, e2):
+        assert e.is_timing_disabled == (not enable_timing if enable_timing is not None else True)
+    if enable_timing:
+        e2.sync()
+        elapsed_time = e2 - e1
+        assert isinstance(elapsed_time, float)
+        assert n_seconds * 1000 <= elapsed_time < n_seconds * 1000 + 2  # tolerance 2 ms
 
 
 def test_is_sync_busy_waited(init_cuda):
