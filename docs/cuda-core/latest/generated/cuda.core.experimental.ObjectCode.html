@@ -307,10 +307,9 @@ compiled programs that will be loaded onto the device.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This class has no default constructor. If you already have a cubin that you would
-like to load, use the <a class="reference internal" href="#cuda.core.experimental.ObjectCode.from_cubin" title="cuda.core.experimental.ObjectCode.from_cubin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_cubin()</span></code></a> alternative constructor. For all other
-possible code types (ex: “ptx”), only <a class="reference internal" href="cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a>
-accepts them and returns an <a class="reference internal" href="#cuda.core.experimental.ObjectCode" title="cuda.core.experimental.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance with its
-<a class="reference internal" href="cuda.core.experimental.Program.html#cuda.core.experimental.Program.compile" title="cuda.core.experimental.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a> method.</p>
+like to load, use the <a class="reference internal" href="#cuda.core.experimental.ObjectCode.from_cubin" title="cuda.core.experimental.ObjectCode.from_cubin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_cubin()</span></code></a> alternative constructor. Constructing directly
+from all other possible code types should be avoided in favor of compilation through
+<a class="reference internal" href="cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a></p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -332,6 +331,23 @@ context.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>module</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – Either a bytes object containing the in-memory cubin to load, or
 a file path string pointing to the on-disk cubin to load.</p></li>
+<li><p><strong>symbol_mapping</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>]</em>) – A dictionary specifying how the unmangled symbol names (as keys)
+should be mapped to the mangled names before trying to retrieve
+them (default to no mappings).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.ObjectCode.from_ptx">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ptx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.ObjectCode.from_ptx" title="Link to this definition">¶</a></dt>
+<dd><p>Create an <a class="reference internal" href="#cuda.core.experimental.ObjectCode" title="cuda.core.experimental.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing PTX.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>module</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – Either a bytes object containing the in-memory ptx code to load, or
+a file path string pointing to the on-disk ptx file to load.</p></li>
 <li><p><strong>symbol_mapping</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>]</em>) – A dictionary specifying how the unmangled symbol names (as keys)
 should be mapped to the mangled names before trying to retrieve
 them (default to no mappings).</p></li>
@@ -427,6 +443,7 @@ them (default to no mappings).</p></li>
 <li><a class="reference internal" href="#cuda.core.experimental.ObjectCode"><code class="docutils literal notranslate"><span class="pre">ObjectCode</span></code></a><ul>
 <li><a class="reference internal" href="#cuda.core.experimental.ObjectCode.__init__"><code class="docutils literal notranslate"><span class="pre">ObjectCode.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.ObjectCode.from_cubin"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_cubin()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.ObjectCode.from_ptx"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_ptx()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.ObjectCode.get_kernel"><code class="docutils literal notranslate"><span class="pre">ObjectCode.get_kernel()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.ObjectCode.code"><code class="docutils literal notranslate"><span class="pre">ObjectCode.code</span></code></a></li>
 </ul>
