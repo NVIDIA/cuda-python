@@ -57,10 +57,10 @@ def test_launch_invalid_values(init_cuda):
     with pytest.raises(ValueError):
         launch(None, ker, config)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         launch(stream, None, config)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         launch(stream, ker, None)
 
     launch(stream, config, ker)

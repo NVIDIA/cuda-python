@@ -5,6 +5,7 @@
 from dataclasses import dataclass
 from typing import Optional, Union
 
+from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._module import Kernel
@@ -71,10 +72,15 @@ class LaunchConfig:
         # thread block clusters are supported starting H100
         if self.cluster is not None:
             if not _use_ex:
-                raise CUDAError("thread block clusters require cuda.bindings & driver 11.8+")
-            if Device().compute_capability < (9, 0):
-                raise CUDAError("thread block clusters are not supported on devices with compute capability < 9.0")
-            self.cluster = self._cast_to_3_tuple(self.cluster)
+                err, drvers = driver.cuDriverGetVersion()
+                drvers_fmt = f" (got driver version {drvers})" if err == driver.CUresult.CUDA_SUCCESS else ""
+                raise CUDAError(f"thread block clusters require cuda.bindings & driver 11.8+{drvers_fmt}")
+            cc = Device().compute_capability
+            if cc < (9, 0):
+                raise CUDAError(
+                    f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
+                )
+            self.cluster = cast_to_3_tuple("LaunchConfig.cluster", self.cluster)
         if self.shmem_size is None:
             self.shmem_size = 0
 
@@ -104,9 +110,10 @@ def launch(stream, config, kernel, *kernel_args):
         try:
             stream = Stream._init(stream)
         except Exception as e:
-            raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e
-    if not isinstance(kernel, Kernel):
-        raise ValueError
+            raise ValueError(
+                f"stream must either be a Stream object or support __cuda_stream__ (got {type(stream)})"
+            ) from e
+    assert_type(kernel, Kernel)
     config = check_or_create_options(LaunchConfig, config, "launch config")
 
     # TODO: can we ensure kernel_args is valid/safe to use here?
