@@ -54,11 +54,11 @@ dev.sync()  # cupy runs on a different stream from s, so sync before accessing
 # prepare launch
 block = 32
 grid = int((size + block - 1) // block)
-config = LaunchConfig(grid=grid, block=block, stream=s)
+config = LaunchConfig(grid=grid, block=block)
 ker_args = (a, x.data.ptr, y.data.ptr, out.data.ptr, size)
 
 # launch kernel on stream s
-launch(config, ker, *ker_args)
+launch(s, config, ker, *ker_args)
 s.sync()
 
 # check result
@@ -85,11 +85,11 @@ buf = dev.allocate(
 # prepare launch
 block = 64
 grid = int((size + block - 1) // block)
-config = LaunchConfig(grid=grid, block=block, stream=s)
+config = LaunchConfig(grid=grid, block=block)
 ker_args = (a, x.data.ptr, y.data.ptr, buf, size)
 
 # launch kernel on stream s
-launch(config, ker, *ker_args)
+launch(s, config, ker, *ker_args)
 s.sync()
 
 # check result

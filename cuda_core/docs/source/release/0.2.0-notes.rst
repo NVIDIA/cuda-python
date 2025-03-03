@@ -14,7 +14,8 @@ Highlights
 Breaking Changes
 ----------------
 
-- The positional arguments to :func:`~launch` are swapped, so the signature is now ``(config, kernel, *kernel_args)``
+- The ``stream`` attribute is removed from :class:`~LaunchConfig`. Instead, the :class:`Stream` object should now be directly passed to :func:`~launch` as an argument.
+- The signature for :func:`~launch` is changed by swapping positional arguments, the new signature is now ``(stream, config, kernel, *kernel_args)``
 - Change ``__cuda_stream__`` from attribute to method.
 - The :meth:`Program.compile` method no longer accepts the ``options`` argument. Instead, you can optionally pass an instance of :class:`ProgramOptions` to the constructor of :class:`Program`.
 - :meth:`Device.properties` now provides attribute getters instead of a dictionary interface.
