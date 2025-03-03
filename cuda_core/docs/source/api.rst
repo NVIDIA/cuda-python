@@ -32,6 +32,7 @@ CUDA compilation toolchain
 
    Program
    Linker
+   ObjectCode
 
    :template: dataclass.rst
 

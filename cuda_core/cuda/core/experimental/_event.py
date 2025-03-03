@@ -1,12 +1,17 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+from __future__ import annotations
+
 import weakref
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from cuda.core.experimental._utils import CUDAError, check_or_create_options, driver, handle_return
+
+if TYPE_CHECKING:
+    import cuda.bindings
 
 
 @dataclass
@@ -65,9 +70,7 @@ class Event:
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
 
     def __init__(self):
-        raise NotImplementedError(
-            "directly creating an Event object can be ambiguous. Please call call Stream.record()."
-        )
+        raise NotImplementedError("directly creating an Event object can be ambiguous. Please call Stream.record().")
 
     @staticmethod
     def _init(options: Optional[EventOptions] = None):
@@ -132,6 +135,6 @@ class Event:
             raise CUDAError(f"unexpected error: {result}")
 
     @property
-    def handle(self) -> int:
-        """Return the underlying cudaEvent_t pointer address as Python int."""
-        return int(self._mnff.handle)
+    def handle(self) -> cuda.bindings.driver.CUevent:
+        """Return the underlying CUevent object."""
+        return self._mnff.handle

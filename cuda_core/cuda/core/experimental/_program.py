@@ -2,16 +2,23 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+from __future__ import annotations
+
 import weakref
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from warnings import warn
+
+if TYPE_CHECKING:
+    import cuda.bindings
 
 from cuda.core.experimental._device import Device
-from cuda.core.experimental._linker import Linker, LinkerOptions
+from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils import (
     _handle_boolean_option,
     check_or_create_options,
+    driver,
     handle_return,
     is_nested_sequence,
     is_sequence,
@@ -329,6 +336,9 @@ class ProgramOptions:
         return self._formatted_options
 
 
+ProgramHandleT = Union["cuda.bindings.nvrtc.nvrtcProgram", LinkerHandleT]
+
+
 class Program:
     """Represent a compilation machinery to process programs into
     :obj:`~_module.ObjectCode`.
@@ -378,17 +388,18 @@ class Program:
                 raise TypeError("c++ Program expects code argument to be a string")
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
+
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
-            self._backend = "nvrtc"
+            self._backend = "NVRTC"
             self._linker = None
 
         elif code_type == "ptx":
             if not isinstance(code, str):
                 raise TypeError("ptx Program expects code argument to be a string")
             self._linker = Linker(
-                ObjectCode(code.encode(), code_type), options=self._translate_program_options(options)
+                ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
-            self._backend = "linker"
+            self._backend = self._linker.backend
         else:
             raise NotImplementedError
 
@@ -414,6 +425,12 @@ class Program:
             self._linker.close()
         self._mnff.close()
 
+    @staticmethod
+    def _can_load_generated_ptx():
+        driver_ver = handle_return(driver.cuDriverGetVersion())
+        nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
+        return nvrtc_major * 1000 + nvrtc_minor * 10 <= driver_ver
+
     def compile(self, target_type, name_expressions=(), logs=None):
         """Compile the program with a specific compilation type.
 
@@ -437,9 +454,16 @@ class Program:
 
         """
         if target_type not in self._supported_target_type:
-            raise NotImplementedError
+            raise ValueError(f"the target type {target_type} is not supported")
 
-        if self._backend == "nvrtc":
+        if self._backend == "NVRTC":
+            if target_type == "ptx" and not self._can_load_generated_ptx():
+                warn(
+                    "The CUDA driver version is older than the backend version. "
+                    "The generated ptx will not be loadable by the current driver.",
+                    stacklevel=1,
+                    category=RuntimeWarning,
+                )
             if name_expressions:
                 for n in name_expressions:
                     handle_return(
@@ -472,17 +496,22 @@ class Program:
                     handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
                     logs.write(log.decode())
 
-            return ObjectCode(data, target_type, symbol_mapping=symbol_mapping)
+            return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
-        if self._backend == "linker":
-            return self._linker.link(target_type)
+        assert self._backend in ("nvJitLink", "driver")
+        return self._linker.link(target_type)
 
     @property
-    def backend(self):
-        """Return the backend type string associated with this program."""
+    def backend(self) -> str:
+        """Return this Program instance's underlying backend."""
         return self._backend
 
     @property
-    def handle(self):
-        """Return the program handle object."""
+    def handle(self) -> ProgramHandleT:
+        """Return the underlying handle object.
+
+        .. note::
+
+           The type of the returned object depends on the backend.
+        """
         return self._mnff.handle

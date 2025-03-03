@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -18,17 +18,15 @@ __global__ void A() { int result = C(B(), 1);}
 device_function_b = "__device__ int B() { return 0; }"
 device_function_c = "__device__ int C(int a, int b) { return a + b; }"
 
-culink_backend = _linker._decide_nvjitlink_or_driver()
-
-
-class nvJitLinkError_(Exception):
-    pass
-
-
-if not culink_backend:
+is_culink_backend = _linker._decide_nvjitlink_or_driver()
+if not is_culink_backend:
     from cuda.bindings import nvjitlink
 
-    nvJitLinkError_ = nvjitlink.nvJitLinkError
+    nvJitLinkError = nvjitlink.nvJitLinkError
+else:
+
+    class nvJitLinkError(Exception):
+        pass
 
 
 @pytest.fixture(scope="function")
@@ -63,7 +61,7 @@ options = [
     LinkerOptions(arch=ARCH, debug=True),
     LinkerOptions(arch=ARCH, lineinfo=True),
 ]
-if not culink_backend:
+if not is_culink_backend:
     options += [
         LinkerOptions(arch=ARCH, time=True),
         LinkerOptions(arch=ARCH, optimize_unused_variables=True),
@@ -94,16 +92,17 @@ def test_linker_init(compile_ptx_functions, options):
     linker = Linker(*compile_ptx_functions, options=options)
     object_code = linker.link("cubin")
     assert isinstance(object_code, ObjectCode)
+    assert linker.backend == ("driver" if is_culink_backend else "nvJitLink")
 
 
 def test_linker_init_invalid_arch(compile_ptx_functions):
-    err = AttributeError if culink_backend else nvjitlink.nvJitLinkError
+    err = AttributeError if is_culink_backend else nvjitlink.nvJitLinkError
     with pytest.raises(err):
         options = LinkerOptions(arch="99", ptx=True)
         Linker(*compile_ptx_functions, options=options)
 
 
-@pytest.mark.skipif(culink_backend, reason="culink does not support ptx option")
+@pytest.mark.skipif(is_culink_backend, reason="culink does not support ptx option")
 def test_linker_link_ptx_nvjitlink(compile_ltoir_functions):
     options = LinkerOptions(arch=ARCH, link_time_optimization=True, ptx=True)
     linker = Linker(*compile_ltoir_functions, options=options)
@@ -111,7 +110,7 @@ def test_linker_link_ptx_nvjitlink(compile_ltoir_functions):
     assert isinstance(linked_code, ObjectCode)
 
 
-@pytest.mark.skipif(not culink_backend, reason="nvjitlink requires lto for ptx linking")
+@pytest.mark.skipif(not is_culink_backend, reason="nvjitlink requires lto for ptx linking")
 def test_linker_link_ptx_culink(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)
     linker = Linker(*compile_ptx_functions, options=options)
@@ -122,6 +121,14 @@ def test_linker_link_ptx_culink(compile_ptx_functions):
 def test_linker_link_cubin(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)
     linker = Linker(*compile_ptx_functions, options=options)
+    linked_code = linker.link("cubin")
+    assert isinstance(linked_code, ObjectCode)
+
+
+def test_linker_link_ptx_multiple(compile_ptx_functions):
+    ptxes = tuple(ObjectCode.from_ptx(obj.code) for obj in compile_ptx_functions)
+    options = LinkerOptions(arch=ARCH)
+    linker = Linker(*ptxes, options=options)
     linked_code = linker.link("cubin")
     assert isinstance(linked_code, ObjectCode)
 
@@ -146,11 +153,11 @@ __global__ void A() { int result = C(Z(), 1);}
     try:
         linker.link("cubin")
 
-    except (nvJitLinkError_, CUDAError):
+    except (nvJitLinkError, CUDAError):
         log = linker.get_error_log()
         assert isinstance(log, str)
         # TODO when 4902246 is addressed, we can update this to cover nvjitlink as well
-        if culink_backend:
+        if is_culink_backend:
             assert log.rstrip("\x00") == "error   : Undefined reference to '_Z1Zv' in 'None_ptx'"
 
 
