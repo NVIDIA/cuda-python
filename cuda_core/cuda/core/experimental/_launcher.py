@@ -69,16 +69,24 @@ class LaunchConfig:
         # thread block clusters are supported starting H100
         if self.cluster is not None:
             if not _use_ex:
-                raise CUDAError("thread block clusters require cuda.bindings & driver 11.8+") # ACTNBL show driver version HAPPY_ONLY_EXERCISED
-            if Device().compute_capability < (9, 0):
-                raise CUDAError("thread block clusters are not supported on devices with compute capability < 9.0") # ACTNBL show cc version HAPPY_ONLY_EXERCISED
+                err, drvers = driver.cuDriverGetVersion()
+                drvers_fmt = f" (got driver version {drvers})" if err == driver.CUresult.CUDA_SUCCESS else ""
+                raise CUDAError(f"thread block clusters require cuda.bindings & driver 11.8+{drvers_fmt}")
+            cc = Device().compute_capability
+            if cc < (9, 0):
+                raise CUDAError(
+                    f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
+                )
             self.cluster = self._cast_to_3_tuple(self.cluster)
         # we handle "stream=None" in the launch API
         if self.stream is not None and not isinstance(self.stream, Stream):
             try:
                 self.stream = Stream._init(self.stream)
             except Exception as e:
-                raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e # ACTNBL show type(self.stream) BUT should raise from Stream._init() UNHAPPY_EXERCISED
+                raise ValueError(
+                    "Invalid LaunchConfig.stream object (must either be a Stream object or support __cuda_stream__,"
+                    f" got {type(self.stream)})"
+                ) from e
         if self.shmem_size is None:
             self.shmem_size = 0
 
@@ -126,7 +134,7 @@ def launch(kernel, config, *kernel_args):
     assert_type(kernel, Kernel)
     config = check_or_create_options(LaunchConfig, config, "launch config")
     if config.stream is None:
-        raise CUDAError("stream cannot be None") # ACTNBL "config.stream cannot be None" FN_NOT_CALLED
+        raise CUDAError("config.stream cannot be None")
 
     # TODO: can we ensure kernel_args is valid/safe to use here?
     # TODO: merge with HelperKernelParams?
