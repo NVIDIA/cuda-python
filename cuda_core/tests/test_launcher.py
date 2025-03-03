@@ -8,7 +8,7 @@
 
 import pytest
 
-from cuda.core.experimental import Device, LaunchConfig, Stream
+from cuda.core.experimental import LaunchConfig
 
 
 def test_launch_config_init(init_cuda):
