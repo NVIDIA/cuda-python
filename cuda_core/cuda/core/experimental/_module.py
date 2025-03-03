@@ -48,7 +48,6 @@ def _lazy_init():
 
 
 class KernelAttributes:
-
     def __new__(self, *args, **kwargs):
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
@@ -243,7 +242,7 @@ class ObjectCode:
     def __new__(self, *args, **kwargs):
         raise RuntimeError(
             "ObjectCode objects cannot be instantiated directly. "
-            "Please use one of the ObjectCode from_* factory functions or Program APIs."
+            "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
         )
 
     @classmethod

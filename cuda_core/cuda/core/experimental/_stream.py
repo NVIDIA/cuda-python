@@ -75,13 +75,13 @@ class Stream:
     def __new__(self, *args, **kwargs):
         raise RuntimeError(
             "Stream objects cannot be instantiated directly. "
-            "Please use Device APIs or other Stream APIs (from_handle, wait)."
+            "Please use Device APIs (create_stream) or other Stream APIs (from_handle)."
         )
 
     __slots__ = ("__weakref__", "_mnff", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
 
     @classmethod
-    def _LegacyDefault(cls):
+    def _legacy_default(cls):
         self = super().__new__(cls)
         self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_LEGACY), None, True)
         self._nonblocking = None  # delayed
@@ -90,9 +90,8 @@ class Stream:
         self._ctx_handle = None  # delayed
         return self
 
-
     @classmethod
-    def _PerThreadDefault(cls):
+    def _per_thread_default(cls):
         self = super().__new__(cls)
         self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_PER_THREAD), None, True)
         self._nonblocking = None  # delayed
@@ -315,8 +314,8 @@ class Stream:
         return Stream._init(obj=_stream_holder())
 
 
-LEGACY_DEFAULT_STREAM = Stream._LegacyDefault()
-PER_THREAD_DEFAULT_STREAM = Stream._PerThreadDefault()
+LEGACY_DEFAULT_STREAM = Stream._legacy_default()
+PER_THREAD_DEFAULT_STREAM = Stream._per_thread_default()
 
 
 def default_stream():

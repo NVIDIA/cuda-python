@@ -68,7 +68,7 @@ class Event:
                 self.handle = None
 
     def __new__(self, *args, **kwargs):
-        raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs.")
+        raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
 
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
 
