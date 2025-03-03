@@ -124,8 +124,8 @@ def my_func(arr, work_stream):
     if view.is_device_accessible:
         block = 256
         grid = (size + block - 1) // block
-        config = LaunchConfig(grid=grid, block=block, stream=work_stream)
-        launch(gpu_ker, config, view.ptr, np.uint64(size))
+        config = LaunchConfig(grid=grid, block=block)
+        launch(work_stream, config, gpu_ker, view.ptr, np.uint64(size))
         # Here we're being conservative and synchronize over our work stream,
         # assuming we do not know the data stream; if we know then we could
         # just order the data stream after the work stream here, e.g.

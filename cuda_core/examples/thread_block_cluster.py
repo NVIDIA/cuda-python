@@ -56,10 +56,10 @@ ker = mod.get_kernel("check_cluster_info")
 grid = 4
 cluster = 2
 block = 32
-config = LaunchConfig(grid=grid, cluster=cluster, block=block, stream=dev.default_stream)
+config = LaunchConfig(grid=grid, cluster=cluster, block=block)
 
 # launch kernel on the default stream
-launch(ker, config)
+launch(dev.default_stream, config, ker)
 dev.sync()
 
 print("done!")

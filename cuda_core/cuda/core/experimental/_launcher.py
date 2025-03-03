@@ -45,9 +45,6 @@ class LaunchConfig:
         Group of threads (Thread Block) that will execute on the same
         streaming multiprocessor (SM). Threads within a thread blocks have
         access to shared memory and can be explicitly synchronized.
-    stream : :obj:`~_stream.Stream`
-        The stream establishing the stream ordering semantic of a
-        launch.
     shmem_size : int, optional
         Dynamic shared-memory size per thread block in bytes.
         (Default to size 0)
@@ -58,7 +55,6 @@ class LaunchConfig:
     grid: Union[tuple, int] = None
     cluster: Union[tuple, int] = None
     block: Union[tuple, int] = None
-    stream: Stream = None
     shmem_size: Optional[int] = None
 
     def __post_init__(self):
@@ -72,12 +68,6 @@ class LaunchConfig:
             if Device().compute_capability < (9, 0):
                 raise CUDAError("thread block clusters are not supported on devices with compute capability < 9.0")
             self.cluster = self._cast_to_3_tuple(self.cluster)
-        # we handle "stream=None" in the launch API
-        if self.stream is not None and not isinstance(self.stream, Stream):
-            try:
-                self.stream = Stream._init(self.stream)
-            except Exception as e:
-                raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e
         if self.shmem_size is None:
             self.shmem_size = 0
 
@@ -105,27 +95,35 @@ class LaunchConfig:
             raise ValueError
 
 
-def launch(kernel, config, *kernel_args):
+def launch(stream, config, kernel, *kernel_args):
     """Launches a :obj:`~_module.Kernel`
     object with launch-time configuration.
 
     Parameters
     ----------
-    kernel : :obj:`~_module.Kernel`
-        Kernel to launch.
+    stream : :obj:`~_stream.Stream`
+        The stream establishing the stream ordering semantic of a
+        launch.
     config : :obj:`~_launcher.LaunchConfig`
         Launch configurations inline with options provided by
         :obj:`~_launcher.LaunchConfig` dataclass.
+    kernel : :obj:`~_module.Kernel`
+        Kernel to launch.
     *kernel_args : Any
         Variable length argument list that is provided to the
         launching kernel.
 
     """
+    if stream is None:
+        raise ValueError("stream cannot be None, stream must either be a Stream object or support __cuda_stream__")
+    if not isinstance(stream, Stream):
+        try:
+            stream = Stream._init(stream)
+        except Exception as e:
+            raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e
     if not isinstance(kernel, Kernel):
         raise ValueError
     config = check_or_create_options(LaunchConfig, config, "launch config")
-    if config.stream is None:
-        raise CUDAError("stream cannot be None")
 
     # TODO: can we ensure kernel_args is valid/safe to use here?
     # TODO: merge with HelperKernelParams?
@@ -141,7 +139,7 @@ def launch(kernel, config, *kernel_args):
         drv_cfg = driver.CUlaunchConfig()
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
         drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
-        drv_cfg.hStream = config.stream.handle
+        drv_cfg.hStream = stream.handle
         drv_cfg.sharedMemBytes = config.shmem_size
         attrs = []  # TODO: support more attributes
         if config.cluster:
@@ -157,6 +155,6 @@ def launch(kernel, config, *kernel_args):
         # TODO: check if config has any unsupported attrs
         handle_return(
             driver.cuLaunchKernel(
-                int(kernel._handle), *config.grid, *config.block, config.shmem_size, config.stream._handle, args_ptr, 0
+                int(kernel._handle), *config.grid, *config.block, config.shmem_size, stream._handle, args_ptr, 0
             )
         )
