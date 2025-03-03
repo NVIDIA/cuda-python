@@ -14,9 +14,9 @@ from cuda.core.experimental._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEF
 from cuda.core.experimental._utils import driver
 
 
-def test_stream_init():
-    with pytest.raises(NotImplementedError):
-        Stream()
+def test_stream_init_disabled():
+    with pytest.raises(RuntimeError, match=r"^Stream objects cannot be instantiated directly\."):
+        Stream()  # Reject at front door.
 
 
 def test_stream_init_with_options(init_cuda):
