@@ -25,18 +25,6 @@ def test_launch_config_init(init_cuda):
     assert config.shmem_size == 1024
 
 
-def test_launch_config_cast_to_3_tuple():
-    config = LaunchConfig(grid=1, block=1)
-    assert config._cast_to_3_tuple(1) == (1, 1, 1)
-    assert config._cast_to_3_tuple((1, 2)) == (1, 2, 1)
-    assert config._cast_to_3_tuple((1, 2, 3)) == (1, 2, 3)
-
-    # Edge cases
-    assert config._cast_to_3_tuple(999) == (999, 1, 1)
-    assert config._cast_to_3_tuple((999, 888)) == (999, 888, 1)
-    assert config._cast_to_3_tuple((999, 888, 777)) == (999, 888, 777)
-
-
 def test_launch_config_invalid_values():
     with pytest.raises(ValueError):
         LaunchConfig(grid=0, block=1)

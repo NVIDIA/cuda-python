@@ -10,7 +10,7 @@ from cuda.core.experimental._device import Device
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
-from cuda.core.experimental._utils import CUDAError, check_or_create_options, driver, get_binding_version, handle_return
+from cuda.core.experimental._utils import CUDAError, cast_to_3_tuple, check_or_create_options, driver, get_binding_version, handle_return
 
 # TODO: revisit this treatment for py313t builds
 _inited = False
@@ -64,8 +64,8 @@ class LaunchConfig:
 
     def __post_init__(self):
         _lazy_init()
-        self.grid = self._cast_to_3_tuple(self.grid)
-        self.block = self._cast_to_3_tuple(self.block)
+        self.grid = cast_to_3_tuple("LaunchConfig.grid", self.grid)
+        self.block = cast_to_3_tuple("LaunchConfig.block", self.block)
         # thread block clusters are supported starting H100
         if self.cluster is not None:
             if not _use_ex:
@@ -77,7 +77,7 @@ class LaunchConfig:
                 raise CUDAError(
                     f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
                 )
-            self.cluster = self._cast_to_3_tuple(self.cluster)
+            self.cluster = cast_to_3_tuple("LaunchConfig.cluster", self.cluster)
         # we handle "stream=None" in the launch API
         if self.stream is not None and not isinstance(self.stream, Stream):
             try:
@@ -89,30 +89,6 @@ class LaunchConfig:
                 ) from e
         if self.shmem_size is None:
             self.shmem_size = 0
-
-    def _cast_to_3_tuple(self, cfg):
-        # ACTNBL rewrite UNHAPPY_EXERCISED
-        if isinstance(cfg, int):
-            if cfg < 1:
-                raise ValueError
-            return (cfg, 1, 1)
-        elif isinstance(cfg, tuple):
-            size = len(cfg)
-            if size == 1:
-                cfg = cfg[0]
-                if cfg < 1:
-                    raise ValueError
-                return (cfg, 1, 1)
-            elif size == 2:
-                if cfg[0] < 1 or cfg[1] < 1:
-                    raise ValueError
-                return (*cfg, 1)
-            elif size == 3:
-                if cfg[0] < 1 or cfg[1] < 1 or cfg[2] < 1:
-                    raise ValueError
-                return cfg
-        else:
-            raise ValueError
 
 
 def launch(kernel, config, *kernel_args):
