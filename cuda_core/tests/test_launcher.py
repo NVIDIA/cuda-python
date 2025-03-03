@@ -8,7 +8,7 @@
 
 import pytest
 
-from cuda.core.experimental import LaunchConfig
+from cuda.core.experimental import Device, LaunchConfig, Program, launch
 
 
 def test_launch_config_init(init_cuda):
@@ -55,3 +55,24 @@ def test_launch_config_shmem_size():
 
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1))
     assert config.shmem_size == 0
+
+
+def test_launch_invalid_values(init_cuda):
+    code = 'extern "C" __global__ void my_kernel() {}'
+    program = Program(code, "c++")
+    mod = program.compile("cubin")
+
+    stream = Device().create_stream()
+    ker = mod.get_kernel("my_kernel")
+    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), shmem_size=0)
+
+    with pytest.raises(ValueError):
+        launch(None, ker, config)
+
+    with pytest.raises(ValueError):
+        launch(stream, None, config)
+
+    with pytest.raises(ValueError):
+        launch(stream, ker, None)
+
+    launch(stream, config, ker)
