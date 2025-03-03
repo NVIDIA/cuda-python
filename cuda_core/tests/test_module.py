@@ -11,6 +11,7 @@ import warnings
 
 import pytest
 
+import cuda.core.experimental
 from cuda.core.experimental import ObjectCode, Program, ProgramOptions, system
 
 SAXPY_KERNEL = """
@@ -26,6 +27,21 @@ __global__ void saxpy(const T a,
     }
 }
 """
+
+
+def test_kernel_attributes_init_disabled():
+    with pytest.raises(RuntimeError, match=r"^KernelAttributes cannot be instantiated directly\."):
+        cuda.core.experimental._module.KernelAttributes()  # Ensure back door is locked.
+
+
+def test_kernel_init_disabled():
+    with pytest.raises(RuntimeError, match=r"^Kernel objects cannot be instantiated directly\."):
+        cuda.core.experimental._module.Kernel()  # Ensure back door is locked.
+
+
+def test_object_code_init_disabled():
+    with pytest.raises(RuntimeError, match=r"^ObjectCode objects cannot be instantiated directly\."):
+        ObjectCode()  # Reject at front door.
 
 
 @pytest.fixture(scope="function")

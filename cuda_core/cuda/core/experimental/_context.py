@@ -15,13 +15,13 @@ class ContextOptions:
 class Context:
     __slots__ = ("_handle", "_id")
 
-    def __init__(self):
-        raise NotImplementedError("TODO")
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("Context objects cannot be instantiated directly. Please use Device or Stream APIs.")
 
-    @staticmethod
-    def _from_ctx(obj, dev_id):
+    @classmethod
+    def _from_ctx(cls, obj, dev_id):
         assert isinstance(obj, driver.CUcontext)
-        ctx = Context.__new__(Context)
+        ctx = super().__new__(cls)
         ctx._handle = obj
         ctx._id = dev_id
         return ctx

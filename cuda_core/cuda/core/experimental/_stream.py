@@ -71,18 +71,37 @@ class Stream:
                 self.owner = None
             self.handle = None
 
-    __slots__ = ("__weakref__", "_mnff", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
-
-    def __init__(self):
-        raise NotImplementedError(
-            "directly creating a Stream object can be ambiguous. Please either "
-            "call Device.create_stream() or, if a stream pointer is already "
-            "available from somewhere else, Stream.from_handle()"
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError(
+            "Stream objects cannot be instantiated directly. "
+            "Please use Device APIs (create_stream) or other Stream APIs (from_handle)."
         )
 
-    @staticmethod
-    def _init(obj=None, *, options: Optional[StreamOptions] = None):
-        self = Stream.__new__(Stream)
+    __slots__ = ("__weakref__", "_mnff", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
+
+    @classmethod
+    def _legacy_default(cls):
+        self = super().__new__(cls)
+        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_LEGACY), None, True)
+        self._nonblocking = None  # delayed
+        self._priority = None  # delayed
+        self._device_id = None  # delayed
+        self._ctx_handle = None  # delayed
+        return self
+
+    @classmethod
+    def _per_thread_default(cls):
+        self = super().__new__(cls)
+        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_PER_THREAD), None, True)
+        self._nonblocking = None  # delayed
+        self._priority = None  # delayed
+        self._device_id = None  # delayed
+        self._ctx_handle = None  # delayed
+        return self
+
+    @classmethod
+    def _init(cls, obj=None, *, options: Optional[StreamOptions] = None):
+        self = super().__new__(cls)
         self._mnff = Stream._MembersNeededForFinalize(self, None, None, False)
 
         if obj is not None and options is not None:
@@ -295,22 +314,8 @@ class Stream:
         return Stream._init(obj=_stream_holder())
 
 
-class _LegacyDefaultStream(Stream):
-    def __init__(self):
-        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_LEGACY), None, True)
-        self._nonblocking = None  # delayed
-        self._priority = None  # delayed
-
-
-class _PerThreadDefaultStream(Stream):
-    def __init__(self):
-        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_PER_THREAD), None, True)
-        self._nonblocking = None  # delayed
-        self._priority = None  # delayed
-
-
-LEGACY_DEFAULT_STREAM = _LegacyDefaultStream()
-PER_THREAD_DEFAULT_STREAM = _PerThreadDefaultStream()
+LEGACY_DEFAULT_STREAM = Stream._legacy_default()
+PER_THREAD_DEFAULT_STREAM = Stream._per_thread_default()
 
 
 def default_stream():
