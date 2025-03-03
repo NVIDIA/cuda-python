@@ -375,7 +375,6 @@ class Program:
                 self.handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
-    _supported_target_types = ("ptx", "cubin", "ltoir")
 
     def __init__(self, code, code_type, options: ProgramOptions = None):
         self._mnff = Program._MembersNeededForFinalize(self, None)
@@ -454,8 +453,9 @@ class Program:
             Newly created code object.
 
         """
-        if target_type not in self._supported_target_types:
-            raise ValueError(f"the target type {target_type} is not supported") # ACTNBL f"{target_type=} UNHAPPY_EXERCISED
+        supported_target_types = ("ptx", "cubin", "ltoir")
+        if target_type not in supported_target_types:
+            raise ValueError(f'Unsupported target_type="{target_type}" ({supported_target_types=})')
 
         if self._backend == "NVRTC":
             if target_type == "ptx" and not self._can_load_generated_ptx():
@@ -499,7 +499,9 @@ class Program:
 
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
-        assert self._backend in ("nvJitLink", "driver") # ACTNBL show self._backend HAPPY_ONLY_EXERCISED
+        supported_backends = ("nvJitLink", "driver")
+        if self._backend not in supported_backends:
+            raise ValueError(f'Unsupported backend="{self._backend}" ({supported_backends=})')
         return self._linker.link(target_type)
 
     @property
