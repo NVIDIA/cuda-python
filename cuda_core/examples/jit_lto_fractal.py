@@ -78,7 +78,7 @@ class MockLibrary:
         # the problem into 16x16 chunks.
         self.grid = (self.width / 16, self.height / 16, 1.0)
         self.block = (16, 16, 1)
-        self.config = LaunchConfig(grid=self.grid, block=self.block, stream=self.stream)
+        self.config = LaunchConfig(grid=self.grid, block=self.block)
 
     def link(self, user_code, target_type):
         if target_type == "ltoir":
@@ -103,7 +103,7 @@ class MockLibrary:
         return linked_code.get_kernel("main_workflow")
 
     def run(self, kernel):
-        launch(kernel, self.config, self.buffer.data.ptr)
+        launch(self.stream, self.config, kernel, self.buffer.data.ptr)
         self.stream.sync()
 
         # Return the result as a NumPy array (on host).
