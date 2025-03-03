@@ -5,6 +5,7 @@
 from typing import Optional, Union
 from warnings import warn
 
+from cuda.core.experimental._clear_error_support import assert_type, assert_type_str_or_bytes, raise_code_path_meant_to_be_unreachable
 from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
@@ -47,13 +48,15 @@ def _lazy_init():
 
 
 class KernelAttributes:
-    def __init__(self):
-        raise RuntimeError("KernelAttributes should not be instantiated directly")
+
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     slots = ("_handle", "_cache", "_backend_version", "_loader")
 
-    def _init(handle):
-        self = KernelAttributes.__new__(KernelAttributes)
+    @classmethod
+    def _init(cls, handle):
+        self = super().__new__(cls)
         self._handle = handle
         self._cache = {}
 
@@ -189,14 +192,14 @@ class Kernel:
 
     __slots__ = ("_handle", "_module", "_attributes")
 
-    def __init__(self):
-        raise RuntimeError("directly constructing a Kernel instance is not supported")
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
-    @staticmethod
-    def _from_obj(obj, mod):
-        assert isinstance(obj, _kernel_ctypes)
-        assert isinstance(mod, ObjectCode)
-        ker = Kernel.__new__(Kernel)
+    @classmethod
+    def _from_obj(cls, obj, mod):
+        assert_type(obj, _kernel_ctypes)
+        assert_type(mod, ObjectCode)
+        ker = super().__new__(cls)
         ker._handle = obj
         ker._module = mod
         ker._attributes = None
@@ -237,15 +240,15 @@ class ObjectCode:
     __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self):
-        raise NotImplementedError(
-            "directly creating an ObjectCode object can be ambiguous. Please either call Program.compile() "
-            "or one of the ObjectCode.from_*() constructors"
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError(
+            "ObjectCode objects cannot be instantiated directly. "
+            "Please use one of the ObjectCode from_* factory functions or Program APIs."
         )
 
-    @staticmethod
-    def _init(module, code_type, *, symbol_mapping: Optional[dict] = None):
-        self = ObjectCode.__new__(ObjectCode)
+    @classmethod
+    def _init(cls, module, code_type, *, symbol_mapping: Optional[dict] = None):
+        self = super().__new__(cls)
         assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
 
@@ -299,17 +302,20 @@ class ObjectCode:
         if self._handle is not None:
             return
         module = self._module
+        assert_type_str_or_bytes(module)
         if isinstance(module, str):
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
             else:  # "old" backend
                 self._handle = handle_return(self._loader["file"](module.encode()))
-        else:
-            assert isinstance(module, bytes)
+            return
+        if isinstance(module, bytes):
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
             else:  # "old" backend
                 self._handle = handle_return(self._loader["data"](module, 0, [], []))
+            return
+        raise_code_path_meant_to_be_unreachable()
 
     @precondition(_lazy_load_module)
     def get_kernel(self, name) -> Kernel:
@@ -327,7 +333,7 @@ class ObjectCode:
 
         """
         if self._code_type not in ("cubin", "ptx", "fatbin"):
-            raise RuntimeError(f"get_kernel() is not supported for {self._code_type}")
+            raise RuntimeError(f"get_kernel() is not supported for {self._code_type}") # ACTNBL ... for code type "ptx" (with quotes) HAPPY_ONLY_EXERCISED
         try:
             name = self._sym_map[name]
         except KeyError:

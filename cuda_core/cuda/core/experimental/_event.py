@@ -67,14 +67,14 @@ class Event:
                 handle_return(driver.cuEventDestroy(self.handle))
                 self.handle = None
 
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs.")
+
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
 
-    def __init__(self):
-        raise NotImplementedError("directly creating an Event object can be ambiguous. Please call Stream.record().")
-
-    @staticmethod
-    def _init(options: Optional[EventOptions] = None):
-        self = Event.__new__(Event)
+    @classmethod
+    def _init(cls, options: Optional[EventOptions] = None):
+        self = super().__new__(cls)
         self._mnff = Event._MembersNeededForFinalize(self, None)
 
         options = check_or_create_options(EventOptions, options, "Event options")
@@ -88,7 +88,7 @@ class Event:
             flags |= driver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
             self._busy_waited = True
         if options.support_ipc:
-            raise NotImplementedError("TODO")
+            raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
         self._mnff.handle = handle_return(driver.cuEventCreate(flags))
         return self
 
@@ -109,7 +109,7 @@ class Event:
     @property
     def is_ipc_supported(self) -> bool:
         """Return True if this event can be used as an interprocess event, otherwise False."""
-        raise NotImplementedError("TODO")
+        raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
 
     def sync(self):
         """Synchronize until the event completes.
@@ -132,7 +132,7 @@ class Event:
         elif result == driver.CUresult.CUDA_ERROR_NOT_READY:
             return False
         else:
-            raise CUDAError(f"unexpected error: {result}")
+            raise CUDAError(f"unexpected error: {result}") # ACTNBL f"cuEventQuery() unexpected error: {result}" HAPPY_ONLY_EXERCISED
 
     @property
     def handle(self) -> cuda.bindings.driver.CUevent:

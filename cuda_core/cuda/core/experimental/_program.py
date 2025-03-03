@@ -12,6 +12,7 @@ from warnings import warn
 if TYPE_CHECKING:
     import cuda.bindings
 
+from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
@@ -245,15 +246,18 @@ class ProgramOptions:
             if isinstance(self.define_macro, str):
                 self._formatted_options.append(f"--define-macro={self.define_macro}")
             elif isinstance(self.define_macro, tuple):
-                assert len(self.define_macro) == 2
+                assert len(self.define_macro) == 2 # ACTNBL explain HAPPY_ONLY_EXERCISED
                 self._formatted_options.append(f"--define-macro={self.define_macro[0]}={self.define_macro[1]}")
             elif is_nested_sequence(self.define_macro):
                 for macro in self.define_macro:
                     if isinstance(macro, tuple):
-                        assert len(macro) == 2
+                        assert len(macro) == 2 # ACTNBL explain HAPPY_ONLY_EXERCISED
                         self._formatted_options.append(f"--define-macro={macro[0]}={macro[1]}")
                     else:
                         self._formatted_options.append(f"--define-macro={macro}")
+            else:
+                # ACTNBL (bug fix for silent failure) POTENTIAL_SILENT_FAILURE
+                pass
 
         if self.undefine_macro is not None:
             if isinstance(self.undefine_macro, str):
@@ -371,8 +375,7 @@ class Program:
                 self.handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
-    _supported_code_type = ("c++", "ptx")
-    _supported_target_type = ("ptx", "cubin", "ltoir")
+    _supported_target_types = ("ptx", "cubin", "ltoir")
 
     def __init__(self, code, code_type, options: ProgramOptions = None):
         self._mnff = Program._MembersNeededForFinalize(self, None)
@@ -380,12 +383,8 @@ class Program:
         self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
         code_type = code_type.lower()
 
-        if code_type not in self._supported_code_type:
-            raise NotImplementedError
-
         if code_type == "c++":
-            if not isinstance(code, str):
-                raise TypeError("c++ Program expects code argument to be a string")
+            assert_type(code, str)
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
@@ -394,14 +393,16 @@ class Program:
             self._linker = None
 
         elif code_type == "ptx":
-            if not isinstance(code, str):
-                raise TypeError("ptx Program expects code argument to be a string")
+            assert_type(code, str)
             self._linker = Linker(
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
             self._backend = self._linker.backend
         else:
-            raise NotImplementedError
+            # EXRCSTHS
+            supported_code_types = ("c++", "ptx")
+            assert code_type not in supported_code_types, f"{code_type=}"
+            raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
 
     def _translate_program_options(self, options: ProgramOptions) -> LinkerOptions:
         return LinkerOptions(
@@ -453,8 +454,8 @@ class Program:
             Newly created code object.
 
         """
-        if target_type not in self._supported_target_type:
-            raise ValueError(f"the target type {target_type} is not supported")
+        if target_type not in self._supported_target_types:
+            raise ValueError(f"the target type {target_type} is not supported") # ACTNBL f"{target_type=} UNHAPPY_EXERCISED
 
         if self._backend == "NVRTC":
             if target_type == "ptx" and not self._can_load_generated_ptx():
@@ -498,7 +499,7 @@ class Program:
 
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
-        assert self._backend in ("nvJitLink", "driver")
+        assert self._backend in ("nvJitLink", "driver") # ACTNBL show self._backend HAPPY_ONLY_EXERCISED
         return self._linker.link(target_type)
 
     @property

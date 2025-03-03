@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Optional, Tuple, Union
 if TYPE_CHECKING:
     import cuda.bindings
     from cuda.core.experimental._device import Device
+from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._utils import check_or_create_options, driver, get_device_from_ctx, handle_return, runtime
@@ -71,18 +72,38 @@ class Stream:
                 self.owner = None
             self.handle = None
 
-    __slots__ = ("__weakref__", "_mnff", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
-
-    def __init__(self):
-        raise NotImplementedError(
-            "directly creating a Stream object can be ambiguous. Please either "
-            "call Device.create_stream() or, if a stream pointer is already "
-            "available from somewhere else, Stream.from_handle()"
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError(
+            "Stream objects cannot be instantiated directly. "
+            "Please use Device APIs or other Stream APIs (from_handle, wait)."
         )
 
-    @staticmethod
-    def _init(obj=None, *, options: Optional[StreamOptions] = None):
-        self = Stream.__new__(Stream)
+    __slots__ = ("__weakref__", "_mnff", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
+
+    @classmethod
+    def _LegacyDefault(cls):
+        self = super().__new__(cls)
+        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_LEGACY), None, True)
+        self._nonblocking = None  # delayed
+        self._priority = None  # delayed
+        self._device_id = None  # delayed
+        self._ctx_handle = None  # delayed
+        return self
+
+
+    @classmethod
+    def _PerThreadDefault(cls):
+        self = super().__new__(cls)
+        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_PER_THREAD), None, True)
+        self._nonblocking = None  # delayed
+        self._priority = None  # delayed
+        self._device_id = None  # delayed
+        self._ctx_handle = None  # delayed
+        return self
+
+    @classmethod
+    def _init(cls, obj=None, *, options: Optional[StreamOptions] = None):
+        self = super().__new__(cls)
         self._mnff = Stream._MembersNeededForFinalize(self, None, None, False)
 
         if obj is not None and options is not None:
@@ -101,7 +122,7 @@ class Stream:
                     category=DeprecationWarning,
                 )
 
-            assert info[0] == 0
+            assert info[0] == 0 # ACTNBL explain and show value HAPPY_ONLY_EXERCISED
             self._mnff.handle = driver.CUstream(info[1])
             # TODO: check if obj is created under the current context/device
             self._mnff.owner = obj
@@ -199,8 +220,7 @@ class Stream:
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
         if event is None:
             event = Event._init(options)
-        elif not isinstance(event, Event):
-            raise TypeError("record only takes an Event object")
+        assert_type(event, Event)
         handle_return(driver.cuEventRecord(event.handle, self._mnff.handle))
         return event
 
@@ -222,7 +242,7 @@ class Stream:
                 try:
                     stream = Stream._init(event_or_stream)
                 except Exception as e:
-                    raise ValueError("only an Event, Stream, or object supporting __cuda_stream__ can be waited") from e
+                    raise ValueError("only an Event, Stream, or object supporting __cuda_stream__ can be waited") from e # ACTNBL show type(event_or_stream) UNHAPPY_EXERCISED
             else:
                 stream = event_or_stream
             event = handle_return(driver.cuEventCreate(driver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
@@ -295,22 +315,8 @@ class Stream:
         return Stream._init(obj=_stream_holder())
 
 
-class _LegacyDefaultStream(Stream):
-    def __init__(self):
-        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_LEGACY), None, True)
-        self._nonblocking = None  # delayed
-        self._priority = None  # delayed
-
-
-class _PerThreadDefaultStream(Stream):
-    def __init__(self):
-        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_PER_THREAD), None, True)
-        self._nonblocking = None  # delayed
-        self._priority = None  # delayed
-
-
-LEGACY_DEFAULT_STREAM = _LegacyDefaultStream()
-PER_THREAD_DEFAULT_STREAM = _PerThreadDefaultStream()
+LEGACY_DEFAULT_STREAM = Stream._LegacyDefault()
+PER_THREAD_DEFAULT_STREAM = Stream._PerThreadDefault()
 
 
 def default_stream():

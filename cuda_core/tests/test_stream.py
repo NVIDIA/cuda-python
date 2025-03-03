@@ -15,7 +15,7 @@ from cuda.core.experimental._utils import driver
 
 
 def test_stream_init():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(RuntimeError):
         Stream()
 
 
@@ -57,7 +57,7 @@ def test_stream_record(init_cuda):
 
 def test_stream_record_invalid_event(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
-    with pytest.raises(TypeError):
+    with pytest.raises(AssertionError):
         stream.record(event="invalid_event")
 
 

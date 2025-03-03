@@ -88,13 +88,13 @@ def test_program_init_valid_code_type():
 
 def test_program_init_invalid_code_type():
     code = 'extern "C" __global__ void my_kernel() {}'
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(RuntimeError):
         Program(code, "python")
 
 
 def test_program_init_invalid_code_format():
     code = 12345
-    with pytest.raises(TypeError):
+    with pytest.raises(AssertionError):
         Program(code, "c++")
 
 
