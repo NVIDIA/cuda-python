@@ -25,14 +25,14 @@
    .. rubric:: Attributes
 
    
-   .. autoattribute:: compute_capability
-   .. autoattribute:: context
-   .. autoattribute:: default_stream
-   .. autoattribute:: device_id
-   .. autoattribute:: memory_resource
-   .. autoattribute:: name
-   .. autoattribute:: pci_bus_id
-   .. autoattribute:: properties
-   .. autoattribute:: uuid
+   .. autoproperty:: compute_capability
+   .. autoproperty:: context
+   .. autoproperty:: default_stream
+   .. autoproperty:: device_id
+   .. autoproperty:: memory_resource
+   .. autoproperty:: name
+   .. autoproperty:: pci_bus_id
+   .. autoproperty:: properties
+   .. autoproperty:: uuid
    
    

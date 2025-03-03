@@ -209,6 +209,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/12.X.Y-notes.html">12.X.Y</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.8.0-notes.html">12.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.2-notes.html">12.6.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.1-notes.html">12.6.1</a></li>
@@ -220,6 +221,7 @@
 <li class="toctree-l2"><a class="reference internal" href="release/12.2.0-notes.html">12.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.1.0-notes.html">12.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.0.0-notes.html">12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.7-notes.html">11.8.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.6-notes.html">11.8.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.5-notes.html">11.8.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.4-notes.html">11.8.4</a></li>
@@ -244,6 +246,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module/runtime.html">runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvrtc.html">nvrtc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvvm.html">nvvm</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tips_and_tricks.html">Tips and Tricks</a></li>
@@ -388,6 +391,8 @@
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.add_data">add_data() (in module cuda.bindings.nvjitlink)</a>
 </li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.add_file">add_file() (in module cuda.bindings.nvjitlink)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.add_module_to_program">add_module_to_program() (in module cuda.bindings.nvvm)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_TEXTURE_DESC.addressMode">addressMode (cuda.bindings.driver.CUDA_TEXTURE_DESC attribute)</a>
 
@@ -685,6 +690,8 @@
           <li><a href="module/runtime.html#cuda.bindings.runtime.cudaLaunchAttributeValue.clusterSchedulingPolicyPreference">(cuda.bindings.runtime.cudaLaunchAttributeValue attribute)</a>, <a href="module/runtime.html#id32">[1]</a>
 </li>
         </ul></li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.compile_program">compile_program() (in module cuda.bindings.nvvm)</a>
+</li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.complete">complete() (in module cuda.bindings.nvjitlink)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.computeMode">computeMode (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
@@ -752,6 +759,8 @@
 </li>
         </ul></li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.create">create() (in module cuda.bindings.nvjitlink)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.create_program">create_program() (in module cuda.bindings.nvvm)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS.ctx">ctx (cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS attribute)</a>
 
@@ -3801,10 +3810,10 @@
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20GRBG">cudaEglColorFormatBayer20GRBG (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
 </li>
-        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20RGGB">cudaEglColorFormatBayer20RGGB (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer20RGGB">cudaEglColorFormatBayer20RGGB (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
+</li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerBCCR">cudaEglColorFormatBayerBCCR (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayerBGGR">cudaEglColorFormatBayerBGGR (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
@@ -7433,15 +7442,37 @@
           <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphInstantiateParams_st.errNode_out">(cuda.bindings.runtime.cudaGraphInstantiateParams_st attribute)</a>
 </li>
         </ul></li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_CANCELLED">ERROR_CANCELLED (cuda.bindings.nvvm.Result attribute)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_COMPILATION">ERROR_COMPILATION (cuda.bindings.nvvm.Result attribute)</a>
+</li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_FINALIZE">ERROR_FINALIZE (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_INTERNAL">ERROR_INTERNAL (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_INVALID_INPUT">ERROR_INVALID_INPUT (cuda.bindings.nvjitlink.Result attribute)</a>
+
+        <ul>
+          <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_INVALID_INPUT">(cuda.bindings.nvvm.Result attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_INVALID_IR">ERROR_INVALID_IR (cuda.bindings.nvvm.Result attribute)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_INVALID_OPTION">ERROR_INVALID_OPTION (cuda.bindings.nvvm.Result attribute)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_INVALID_PROGRAM">ERROR_INVALID_PROGRAM (cuda.bindings.nvvm.Result attribute)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_IR_VERSION_MISMATCH">ERROR_IR_VERSION_MISMATCH (cuda.bindings.nvvm.Result attribute)</a>
 </li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_MISSING_ARCH">ERROR_MISSING_ARCH (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_NO_MODULE_IN_PROGRAM">ERROR_NO_MODULE_IN_PROGRAM (cuda.bindings.nvvm.Result attribute)</a>
+</li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_NVVM_COMPILE">ERROR_NVVM_COMPILE (cuda.bindings.nvjitlink.Result attribute)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_OUT_OF_MEMORY">ERROR_OUT_OF_MEMORY (cuda.bindings.nvvm.Result attribute)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_PROGRAM_CREATION_FAILURE">ERROR_PROGRAM_CREATION_FAILURE (cuda.bindings.nvvm.Result attribute)</a>
 </li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_PTX_COMPILE">ERROR_PTX_COMPILE (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
@@ -7489,6 +7520,8 @@
           <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEventWaitNodeParams.event">(cuda.bindings.runtime.cudaEventWaitNodeParams attribute)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeParams.eventRecord">eventRecord (cuda.bindings.driver.CUgraphNodeParams attribute)</a>
 
         <ul>
@@ -7497,8 +7530,6 @@
           <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeParams.eventRecord">(cuda.bindings.runtime.cudaGraphNodeParams attribute)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeParams.eventWait">eventWait (cuda.bindings.driver.CUgraphNodeParams attribute)</a>
 
         <ul>
@@ -7919,6 +7950,10 @@
   <h2>G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.get_compiled_result">get_compiled_result() (in module cuda.bindings.nvvm)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.get_compiled_result_size">get_compiled_result_size() (in module cuda.bindings.nvvm)</a>
+</li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_error_log">get_error_log() (in module cuda.bindings.nvjitlink)</a>
 </li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_error_log_size">get_error_log_size() (in module cuda.bindings.nvjitlink)</a>
@@ -7934,6 +7969,10 @@
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_linked_ptx">get_linked_ptx() (in module cuda.bindings.nvjitlink)</a>
 </li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_linked_ptx_size">get_linked_ptx_size() (in module cuda.bindings.nvjitlink)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.get_program_log">get_program_log() (in module cuda.bindings.nvvm)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.get_program_log_size">get_program_log_size() (in module cuda.bindings.nvvm)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.getLocalRuntimeVersion">getLocalRuntimeVersion() (in module cuda.bindings.runtime)</a>
 </li>
@@ -8965,10 +9004,10 @@
           <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemLocation.id">(cuda.bindings.runtime.cudaMemLocation attribute)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.InputType.INDEX">INDEX (cuda.bindings.nvjitlink.InputType attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUasyncNotificationInfo.info">info (cuda.bindings.driver.CUasyncNotificationInfo attribute)</a>
 
         <ul>
@@ -8984,6 +9023,8 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.integrated">integrated (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.ipcEventSupported">ipcEventSupported (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
+</li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.ir_version">ir_version() (in module cuda.bindings.nvvm)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.isMultiGpuBoard">isMultiGpuBoard (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
 </li>
@@ -9093,6 +9134,8 @@
           <li><a href="module/runtime.html#cuda.bindings.runtime.cudaLaunchAttributeValue.launchCompletionEvent">(cuda.bindings.runtime.cudaLaunchAttributeValue attribute)</a>, <a href="module/runtime.html#id39">[1]</a>
 </li>
         </ul></li>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.lazy_add_module_to_program">lazy_add_module_to_program() (in module cuda.bindings.nvvm)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.InputType.LIBRARY">LIBRARY (cuda.bindings.nvjitlink.InputType attribute)</a>
@@ -10266,7 +10309,11 @@
 </li>
         </ul></li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result">Result (class in cuda.bindings.nvjitlink)</a>
+
+        <ul>
+          <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result">(class in cuda.bindings.nvvm)</a>
 </li>
+        </ul></li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUgraphExecUpdateResultInfo.result">result (cuda.bindings.driver.CUgraphExecUpdateResultInfo attribute)</a>
 
         <ul>
@@ -10712,7 +10759,11 @@
 </li>
         </ul></li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.SUCCESS">SUCCESS (cuda.bindings.nvjitlink.Result attribute)</a>
+
+        <ul>
+          <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.SUCCESS">(cuda.bindings.nvvm.Result attribute)</a>
 </li>
+        </ul></li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.surfaceAlignment">surfaceAlignment (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUkernelNodeAttrValue.syncPolicy">syncPolicy (cuda.bindings.driver.CUkernelNodeAttrValue attribute)</a>
@@ -10971,8 +11022,14 @@
           <li><a href="module/driver.html#cuda.bindings.driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1.vaSpaceToken">(cuda.bindings.driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1 attribute)</a>
 </li>
         </ul></li>
-        <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.version">version() (in module cuda.bindings.nvjitlink)</a>
+        <li><a href="module/nvvm.html#cuda.bindings.nvvm.verify_program">verify_program() (in module cuda.bindings.nvvm)</a>
 </li>
+        <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.version">version() (in module cuda.bindings.nvjitlink)</a>
+
+        <ul>
+          <li><a href="module/nvvm.html#cuda.bindings.nvvm.version">(in module cuda.bindings.nvvm)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>

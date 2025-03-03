@@ -23,11 +23,11 @@
    .. rubric:: Attributes
 
    
-   .. autoattribute:: device_id
-   .. autoattribute:: handle
-   .. autoattribute:: is_device_accessible
-   .. autoattribute:: is_host_accessible
-   .. autoattribute:: memory_resource
-   .. autoattribute:: size
+   .. autoproperty:: device_id
+   .. autoproperty:: handle
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_host_accessible
+   .. autoproperty:: memory_resource
+   .. autoproperty:: size
    
    
