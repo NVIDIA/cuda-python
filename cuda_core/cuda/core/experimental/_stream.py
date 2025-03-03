@@ -74,7 +74,7 @@ class Stream:
     def __new__(self, *args, **kwargs):
         raise RuntimeError(
             "Stream objects cannot be instantiated directly. "
-            "Please use Device APIs (create_stream) or other Stream APIs (from_handle, wait)."
+            "Please use Device APIs (create_stream) or other Stream APIs (from_handle)."
         )
 
     __slots__ = ("__weakref__", "_mnff", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
