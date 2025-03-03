@@ -8,7 +8,7 @@ import weakref
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from cuda.core.experimental._utils import CUDAError, check_or_create_options, driver, handle_return
+from cuda.core.experimental._utils import check_or_create_options, driver, handle_return
 
 if TYPE_CHECKING:
     import cuda.bindings
@@ -129,10 +129,9 @@ class Event:
         (result,) = driver.cuEventQuery(self._mnff.handle)
         if result == driver.CUresult.CUDA_SUCCESS:
             return True
-        elif result == driver.CUresult.CUDA_ERROR_NOT_READY:
+        if result == driver.CUresult.CUDA_ERROR_NOT_READY:
             return False
-        else:
-            raise CUDAError(f"unexpected error: {result}") # ACTNBL f"cuEventQuery() unexpected error: {result}" HAPPY_ONLY_EXERCISED
+        handle_return(result)
 
     @property
     def handle(self) -> cuda.bindings.driver.CUevent:
