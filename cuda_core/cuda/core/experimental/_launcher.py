@@ -116,14 +116,14 @@ def launch(stream, config, kernel, *kernel_args):
     """
     if stream is None:
         raise ValueError("stream cannot be None, stream must either be a Stream object or support __cuda_stream__")
-    if not isinstance(kernel, Kernel):
-        raise ValueError
-    config = check_or_create_options(LaunchConfig, config, "launch config")
     if not isinstance(stream, Stream):
         try:
             stream = Stream._init(stream)
         except Exception as e:
             raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e
+    if not isinstance(kernel, Kernel):
+        raise ValueError
+    config = check_or_create_options(LaunchConfig, config, "launch config")
 
     # TODO: can we ensure kernel_args is valid/safe to use here?
     # TODO: merge with HelperKernelParams?
