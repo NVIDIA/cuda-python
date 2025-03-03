@@ -990,7 +990,9 @@ class Device:
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
-            raise CUDAError(f"Device {self._id} is not yet initialized, perhaps you forgot to call .set_current() first?")
+            raise CUDAError(
+                f"Device {self._id} is not yet initialized, perhaps you forgot to call .set_current() first?"
+            )
 
     @property
     def device_id(self) -> int:
@@ -1030,7 +1032,7 @@ class Device:
     def name(self) -> str:
         """Return the device name."""
         # Use 256 characters to be consistent with CUDA Runtime
-        name = raise_if_driver_error(driver.cuDeviceGetName(256, self._id)) # ACTNBL add self._id to message? HAPPY_ONLY_EXERCISED
+        name = raise_if_driver_error(driver.cuDeviceGetName(256, self._id))
         name = name.split(b"\0")[0]
         return name.decode()
 
@@ -1062,7 +1064,8 @@ class Device:
 
         """
         ctx = raise_if_driver_error(driver.cuCtxGetCurrent())
-        assert int(ctx) != 0 # ACTNBL show self._id HAPPY_ONLY_EXERCISED
+        if int(ctx) == 0:
+            raise CUDAError("No context is bound to the calling CPU thread.")
         return Context._from_ctx(ctx, self._id)
 
     @property
