@@ -13,8 +13,14 @@ except ImportError:
     from cuda import cudart as runtime
 import pytest
 
+import cuda.core.experimental
 from cuda.core.experimental import Device
 from cuda.core.experimental._utils import ComputeCapability, get_binding_version, handle_return
+
+
+def test_device_init_disabled():
+    with pytest.raises(RuntimeError, match=r"^DeviceProperties cannot be instantiated directly\."):
+        cuda.core.experimental._device.DeviceProperties()  # Ensure back door is locked.
 
 
 @pytest.fixture(scope="module")
