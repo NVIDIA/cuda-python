@@ -309,7 +309,7 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a>([device_id])</p></td>
 <td><p>Represent a GPU and act as an entry point for cuda.core features.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.launch.html#cuda.core.experimental.launch" title="cuda.core.experimental.launch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch</span></code></a>(config, kernel, *kernel_args)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.launch.html#cuda.core.experimental.launch" title="cuda.core.experimental.launch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch</span></code></a>(stream, config, kernel, *kernel_args)</p></td>
 <td><p>Launches a <a class="reference internal" href="generated/cuda.core.experimental._module.Kernel.html#cuda.core.experimental._module.Kernel" title="cuda.core.experimental._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> object with launch-time configuration.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions" title="cuda.core.experimental.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([enable_timing, ...])</p></td>
@@ -318,7 +318,7 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions" title="cuda.core.experimental.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, stream, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, shmem_size])</p></td>
 <td><p>Customizable launch options.</p></td>
 </tr>
 </tbody>
@@ -336,7 +336,7 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker" title="cuda.core.experimental.Linker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Linker</span></code></a>(*object_codes[, options])</p></td>
 <td><p>Represent a linking machinery to link one or multiple object codes into <a class="reference internal" href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> with the specified options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a compiled program to be loaded onto the device.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions" title="cuda.core.experimental.ProgramOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a>([arch, ...])</p></td>
