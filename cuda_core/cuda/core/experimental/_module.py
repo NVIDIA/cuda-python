@@ -5,7 +5,11 @@
 from typing import Optional, Union
 from warnings import warn
 
-from cuda.core.experimental._clear_error_support import assert_type, assert_type_str_or_bytes, raise_code_path_meant_to_be_unreachable
+from cuda.core.experimental._clear_error_support import (
+    assert_type,
+    assert_type_str_or_bytes,
+    raise_code_path_meant_to_be_unreachable,
+)
 from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
@@ -331,8 +335,9 @@ class ObjectCode:
             Newly created kernel object.
 
         """
-        if self._code_type not in ("cubin", "ptx", "fatbin"):
-            raise RuntimeError(f"get_kernel() is not supported for {self._code_type}") # ACTNBL ... for code type "ptx" (with quotes) HAPPY_ONLY_EXERCISED
+        supported_code_types = ("cubin", "ptx", "fatbin")
+        if self._code_type not in supported_code_types:
+            raise RuntimeError(f'Unsupported code type "{self._code_type}" ({supported_code_types=})')
         try:
             name = self._sym_map[name]
         except KeyError:
