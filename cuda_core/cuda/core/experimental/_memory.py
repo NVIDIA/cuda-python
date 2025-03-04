@@ -139,10 +139,12 @@ class Buffer:
             raise ValueError("stream must be provided")
         if dst is None:
             if self._mnff.mr is None:
-                raise ValueError("a destination buffer must be provided") # ACTNBL explain "or self._mnff.mr must exist"? CODEPATH_NOT_REACHED
+                raise ValueError("a destination buffer must be provided (this buffer does not have a memory_resource)")
             dst = self._mnff.mr.allocate(self._mnff.size, stream)
         if dst._mnff.size != self._mnff.size:
-            raise ValueError("buffer sizes mismatch between src and dst") # ACTNBL show src and dst sizes HAPPY_ONLY_EXERCISED
+            raise ValueError(
+                f"buffer sizes mismatch between src and dst (sizes are: src={self._mnff.size}, dst={dst._mnff.size})"
+            )
         handle_return(driver.cuMemcpyAsync(dst._mnff.ptr, self._mnff.ptr, self._mnff.size, stream.handle))
         return dst
 
@@ -161,7 +163,9 @@ class Buffer:
         if stream is None:
             raise ValueError("stream must be provided")
         if src._mnff.size != self._mnff.size:
-            raise ValueError("buffer sizes mismatch between src and dst") # ACTNBL show src and dst sizes HAPPY_ONLY_EXERCISED
+            raise ValueError(
+                f"buffer sizes mismatch between src and dst (sizes are: src={src._mnff.size}, dst={self._mnff.size})"
+            )
         handle_return(driver.cuMemcpyAsync(self._mnff.ptr, src._mnff.ptr, self._mnff.size, stream.handle))
 
     def __dlpack__(
@@ -174,26 +178,29 @@ class Buffer:
     ) -> PyCapsule:
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
-        if dl_device is not None or copy is True:
-            raise BufferError # ACTNBL explain two cases: 1. dl_device must be None, 2. copy must be False FN_NOT_CALLED
+        if dl_device is not None:
+            raise BufferError("Sorry not supported: dl_device other than None")
+        if copy is True:
+            raise BufferError("Sorry not supported: copy=True")
         if max_version is None:
             versioned = False
         else:
-            assert len(max_version) == 2 # ACTNBL "invalid len(max_version)" FN_NOT_CALLED
+            if not isinstance(max_version, tuple) or len(max_version) != 2:
+                raise RuntimeError(f"Expected max_version Tuple[int, int], got {max_version}")
             versioned = max_version >= (1, 0)
         capsule = make_py_capsule(self, versioned)
         return capsule
 
     def __dlpack_device__(self) -> Tuple[int, int]:
-        if self.is_device_accessible and not self.is_host_accessible:
+        d_h = (bool(self.is_device_accessible), bool(self.is_host_accessible))
+        if d_h == (True, False):
             return (DLDeviceType.kDLCUDA, self.device_id)
-        elif self.is_device_accessible and self.is_host_accessible:
+        if d_h == (True, True):
             # TODO: this can also be kDLCUDAManaged, we need more fine-grained checks
             return (DLDeviceType.kDLCUDAHost, 0)
-        elif not self.is_device_accessible and self.is_host_accessible:
+        if d_h == (False, True):
             return (DLDeviceType.kDLCPU, 0)
-        else:  # not self.is_device_accessible and not self.is_host_accessible
-            raise BufferError("invalid buffer") # ACTNBL explain failed conditions FN_NOT_CALLED
+        raise BufferError("buffer is neither device-accessible nor host-accessible")
 
     def __buffer__(self, flags: int, /) -> memoryview:
         # Support for Python-level buffer protocol as per PEP 688.
@@ -294,7 +301,7 @@ class _DefaultPinnedMemorySource(MemoryResource):
 
     @property
     def device_id(self) -> int:
-        raise RuntimeError("the pinned memory resource is not bound to any GPU") # ACTNBL "a pinned ..."? FN_NOT_CALLED
+        raise RuntimeError("a pinned memory resource is not bound to any GPU")
 
 
 class _SynchronousMemoryResource(MemoryResource):
