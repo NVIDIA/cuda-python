@@ -48,7 +48,8 @@ class Event:
 
     Events can be used to monitor device's progress, query completion
     of work up to event's record, help establish dependencies
-    between GPU work submissions, and record the elapsed time on GPU:
+    between GPU work submissions, and record the elapsed time (in milliseconds)
+    on GPU:
 
     .. code-block:: python
 
@@ -58,14 +59,14 @@ class Event:
         # ... run some GPU works ...
         e2 = s.record(options={"enable_timing": True})
         e2.sync()
-        print(f"time = {e2 - e1}")
+        print(f"time = {e2 - e1} milliseconds")
 
         # Or, if events are already created:
         s.record(e1)
         # ... run some more GPU works ...
         s.record(e2)
         e2.sync()
-        print(f"time = {e2 - e1}")
+        print(f"time = {e2 - e1} milliseconds")
 
     Directly creating an :obj:`~_event.Event` is not supported due to ambiguity,
     and they should instead be created through a :obj:`~_stream.Stream` object.
@@ -120,7 +121,7 @@ class Event:
         return NotImplemented
 
     def __sub__(self, other):
-        # return self - other
+        # return self - other (in milliseconds)
         timing = handle_return(driver.cuEventElapsedTime(other.handle, self.handle))
         return timing
 

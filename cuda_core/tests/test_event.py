@@ -11,23 +11,28 @@ import time
 import pytest
 
 from cuda.core.experimental import Device, EventOptions
+from cuda.core.experimental._utils import CUDAError
 
 
 @pytest.mark.parametrize("enable_timing", [True, False, None])
 def test_timing(init_cuda, enable_timing):
     options = EventOptions(enable_timing=enable_timing)
     stream = Device().create_stream()
-    n_seconds = 0.5
+    delay_seconds = 0.5
     e1 = stream.record(options=options)
-    time.sleep(n_seconds)
+    time.sleep(delay_seconds)
     e2 = stream.record(options=options)
+    e2.sync()
     for e in (e1, e2):
-        assert e.is_timing_disabled == (not enable_timing if enable_timing is not None else True)
+        assert e.is_timing_disabled == (True if enable_timing is None else not enable_timing)
     if enable_timing:
-        e2.sync()
-        elapsed_time = e2 - e1
-        assert isinstance(elapsed_time, float)
-        assert n_seconds * 1000 <= elapsed_time < n_seconds * 1000 + 2  # tolerance 2 ms
+        elapsed_time_ms = e2 - e1
+        assert isinstance(elapsed_time_ms, float)
+        assert delay_seconds * 1000 <= elapsed_time_ms < delay_seconds * 1000 + 2  # tolerance 2 ms
+    else:
+        with pytest.raises(CUDAError) as e:
+            elapsed_time_ms = e2 - e1
+            assert "CUDA_ERROR_INVALID_HANDLE" in str(e)
 
 
 def test_is_sync_busy_waited(init_cuda):
