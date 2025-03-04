@@ -27,6 +27,30 @@ from cuda.core.experimental._utils import (
 )
 
 
+def _process_define_macro_inner(formatted_options, macro):
+    if isinstance(macro, str):
+        formatted_options.append(f"--define-macro={macro}")
+        return True
+    if isinstance(macro, tuple):
+        if len(macro) != 2 or any(not isinstance(val, str) for val in macro):
+            raise RuntimeError(f"Expected define_macro Tuple[str, str], got {macro}")
+        formatted_options.append(f"--define-macro={macro[0]}={macro[1]}")
+        return True
+    return False
+
+
+def _process_define_macro(formatted_options, macro):
+    union_type = "Union[str, Tuple[str, str]]"
+    if _process_define_macro_inner(formatted_options, macro):
+        return
+    if is_nested_sequence(macro):
+        for seq_macro in macro:
+            if not _process_define_macro_inner(formatted_options, seq_macro):
+                raise RuntimeError(f"Expected define_macro {union_type}, got {seq_macro}")
+        return
+    raise RuntimeError(f"Expected define_macro {union_type}, List[{union_type}], got {macro}")
+
+
 @dataclass
 class ProgramOptions:
     """Customizable options for configuring `Program`.
@@ -243,22 +267,7 @@ class ProgramOptions:
         if self.gen_opt_lto is not None and self.gen_opt_lto:
             self._formatted_options.append("--gen-opt-lto")
         if self.define_macro is not None:
-            if isinstance(self.define_macro, str):
-                self._formatted_options.append(f"--define-macro={self.define_macro}")
-            elif isinstance(self.define_macro, tuple):
-                assert len(self.define_macro) == 2 # ACTNBL explain HAPPY_ONLY_EXERCISED
-                self._formatted_options.append(f"--define-macro={self.define_macro[0]}={self.define_macro[1]}")
-            elif is_nested_sequence(self.define_macro):
-                for macro in self.define_macro:
-                    if isinstance(macro, tuple):
-                        assert len(macro) == 2 # ACTNBL explain HAPPY_ONLY_EXERCISED
-                        self._formatted_options.append(f"--define-macro={macro[0]}={macro[1]}")
-                    else:
-                        self._formatted_options.append(f"--define-macro={macro}")
-            else:
-                # ACTNBL (bug fix for silent failure) POTENTIAL_SILENT_FAILURE
-                pass
-
+            _process_define_macro(self._formatted_options, self.define_macro)
         if self.undefine_macro is not None:
             if isinstance(self.undefine_macro, str):
                 self._formatted_options.append(f"--undefine-macro={self.undefine_macro}")
