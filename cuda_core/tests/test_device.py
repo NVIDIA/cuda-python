@@ -58,6 +58,13 @@ def test_device_create_stream(init_cuda):
     assert stream.handle
 
 
+def test_device_create_event(init_cuda):
+    device = Device()
+    event = device.create_event()
+    assert event is not None
+    assert event.handle
+
+
 def test_pci_bus_id():
     device = Device()
     bus_id = handle_return(runtime.cudaDeviceGetPCIBusId(13, device.device_id))
