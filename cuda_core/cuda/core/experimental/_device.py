@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import threading
-from typing import Union, Optional
+from typing import Optional, Union
 
 from cuda.core.experimental._context import Context, ContextOptions
+from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils import ComputeCapability, CUDAError, driver, handle_return, precondition, runtime
-from cuda.core.experimental._event import Event, EventOptions
 
 _tls = threading.local()
 _lock = threading.Lock()
