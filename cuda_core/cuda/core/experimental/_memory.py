@@ -7,17 +7,9 @@ from __future__ import annotations
 import abc
 
 # Register cleanup function to be called at interpreter shutdown
-import atexit
-
-# Add ctypes import for Windows security attributes
-import ctypes
 import platform
 import weakref
 from typing import Optional, Tuple, TypeVar
-
-# Remove pywin32 import
-if platform.system() == "Windows":
-    from ctypes import windll, wintypes
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
@@ -283,86 +275,9 @@ def _get_platform_handle_type() -> int:
     if system == "Linux":
         return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
     elif system == "Windows":
-        return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32
+        raise RuntimeError("IPC support is not yet available on Windows")
     else:
         raise RuntimeError(f"Unsupported platform: {system}")
-
-
-def _create_win32_security_attributes():
-    """Creates a Windows SECURITY_ATTRIBUTES structure with default settings.
-
-    The security descriptor is configured to allow access across processes,
-    which is appropriate for shared memory.
-
-    Returns:
-        A pointer to a SECURITY_ATTRIBUTES structure or None if not on Windows.
-    """
-    if platform.system() != "Windows":
-        return None
-
-    # Define constants needed for security descriptor creation
-    NULL = 0
-    SECURITY_DESCRIPTOR_REVISION = 1
-    SECURITY_DESCRIPTOR_MIN_LENGTH = 40  # Minimum size for a security descriptor
-
-    # Define the Windows SECURITY_ATTRIBUTES structure
-    class SECURITY_ATTRIBUTES(ctypes.Structure):
-        _fields_ = [
-            ("nLength", wintypes.DWORD),
-            ("lpSecurityDescriptor", wintypes.LPVOID),
-            ("bInheritHandle", wintypes.BOOL),
-        ]
-
-    # Get function pointers from Windows DLLs
-    InitializeSecurityDescriptor = windll.advapi32.InitializeSecurityDescriptor
-    InitializeSecurityDescriptor.argtypes = [wintypes.LPVOID, wintypes.DWORD]
-    InitializeSecurityDescriptor.restype = wintypes.BOOL
-
-    SetSecurityDescriptorDacl = windll.advapi32.SetSecurityDescriptorDacl
-    SetSecurityDescriptorDacl.argtypes = [wintypes.LPVOID, wintypes.BOOL, wintypes.LPVOID, wintypes.BOOL]
-    SetSecurityDescriptorDacl.restype = wintypes.BOOL
-
-    # Create a security descriptor with proper alignment
-    # Use ctypes.create_string_buffer to ensure proper memory alignment
-    sd_buffer = ctypes.create_string_buffer(SECURITY_DESCRIPTOR_MIN_LENGTH)
-    sd_pointer = ctypes.cast(sd_buffer, wintypes.LPVOID)
-
-    # Initialize the security descriptor
-    if not InitializeSecurityDescriptor(sd_pointer, SECURITY_DESCRIPTOR_REVISION):
-        error = ctypes.WinError()
-        raise RuntimeError(f"Failed to initialize security descriptor: {error}")
-
-    # Set a NULL DACL (this allows all access)
-    if not SetSecurityDescriptorDacl(sd_pointer, True, NULL, False):
-        error = ctypes.WinError()
-        raise RuntimeError(f"Failed to set security descriptor DACL: {error}")
-
-    # Create and initialize the security attributes structure
-    sa = SECURITY_ATTRIBUTES()
-    sa.nLength = ctypes.sizeof(SECURITY_ATTRIBUTES)
-    sa.lpSecurityDescriptor = sd_pointer
-    sa.bInheritHandle = True
-
-    # Store both the security descriptor buffer and the security attributes structure
-    # to prevent garbage collection
-    if not hasattr(_create_win32_security_attributes, "_security_objects"):
-        _create_win32_security_attributes._security_objects = []
-
-    # Keep both objects alive
-    _create_win32_security_attributes._security_objects.append((sd_buffer, sa))
-
-    # Return the pointer to the security attributes structure
-    return ctypes.addressof(sa)
-
-
-# Add cleanup function for security descriptors
-def _cleanup_security_descriptors():
-    """Free any allocated security descriptors when the module is unloaded."""
-    if hasattr(_create_win32_security_attributes, "_security_objects"):
-        _create_win32_security_attributes._security_objects.clear()
-
-
-atexit.register(_cleanup_security_descriptors)
 
 
 class AsyncMempool(MemoryResource):
@@ -452,9 +367,7 @@ class AsyncMempool(MemoryResource):
         return AsyncMempool._init(dev_id, handle, ipc_enabled=False, need_close=False)
 
     @staticmethod
-    def create(
-        dev_id: int, max_size: int, ipc_enabled: bool = False, win32_security_attributes: int = 0
-    ) -> AsyncMempool:
+    def create(dev_id: int, max_size: int, ipc_enabled: bool = False) -> AsyncMempool:
         """Create a new memory pool.
 
         Parameters
@@ -465,10 +378,7 @@ class AsyncMempool(MemoryResource):
             Maximum size in bytes that the memory pool can grow to
         ipc_enabled : bool, optional
             Whether to enable inter-process sharing capabilities. Default is False.
-            Note: On Windows, the pywin32 package is required for IPC support.
-        win32_security_attributes : int, optional
-            Custom Windows security attributes pointer. If 0 (default), a default security
-            attributes structure will be created when needed on Windows platforms.
+            Note: IPC support is not yet available on Windows.
 
         Returns
         -------
@@ -479,13 +389,16 @@ class AsyncMempool(MemoryResource):
         ------
         ValueError
             If max_size is None
-        ImportError
-            If ipc_enabled is True on Windows but pywin32 is not installed
+        RuntimeError
+            If ipc_enabled is True on Windows (not yet supported)
         CUDAError
             If pool creation fails
         """
         if max_size is None:
             raise ValueError("max_size must be provided when creating a new memory pool")
+
+        if platform.system() == "Windows" and ipc_enabled:
+            raise RuntimeError("IPC support is not yet available on Windows")
 
         properties = driver.CUmemPoolProps()
         properties.allocType = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
@@ -496,16 +409,7 @@ class AsyncMempool(MemoryResource):
         properties.location.id = dev_id
         properties.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         properties.maxSize = max_size
-
-        # Set up Windows security attributes if needed
-        if platform.system() == "Windows" and ipc_enabled:
-            if win32_security_attributes == 0:
-                # Create default security attributes if none provided
-                win32_security_attributes = _create_win32_security_attributes()
-            properties.win32SecurityAttributes = win32_security_attributes
-        else:
-            properties.win32SecurityAttributes = 0
-
+        properties.win32SecurityAttributes = 0
         properties.usage = 0
 
         handle = handle_return(driver.cuMemPoolCreate(properties))
