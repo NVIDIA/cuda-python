@@ -179,14 +179,14 @@ class Buffer:
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
         if dl_device is not None:
-            raise BufferError("Sorry not supported: dl_device other than None")
+            raise BufferError("Sorry, not supported: dl_device other than None")
         if copy is True:
-            raise BufferError("Sorry not supported: copy=True")
+            raise BufferError("Sorry, not supported: copy=True")
         if max_version is None:
             versioned = False
         else:
             if not isinstance(max_version, tuple) or len(max_version) != 2:
-                raise RuntimeError(f"Expected max_version Tuple[int, int], got {max_version}")
+                raise BufferError(f"Expected max_version Tuple[int, int], got {max_version}")
             versioned = max_version >= (1, 0)
         capsule = make_py_capsule(self, versioned)
         return capsule
