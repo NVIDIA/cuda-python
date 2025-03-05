@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import threading
-from typing import Union
+from typing import Optional, Union
 
 from cuda.core.experimental._context import Context, ContextOptions
+from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils import ComputeCapability, CUDAError, driver, handle_return, precondition, runtime
@@ -1197,6 +1198,27 @@ class Device:
 
         """
         return Stream._init(obj=obj, options=options)
+
+    @precondition(_check_context_initialized)
+    def create_event(self, options: Optional[EventOptions] = None) -> Event:
+        """Create an Event object without recording it to a Stream.
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        options : :obj:`EventOptions`, optional
+            Customizable dataclass for event creation options.
+
+        Returns
+        -------
+        :obj:`~_event.Event`
+            Newly created event object.
+
+        """
+        return Event._init(options)
 
     @precondition(_check_context_initialized)
     def allocate(self, size, stream=None) -> Buffer:
