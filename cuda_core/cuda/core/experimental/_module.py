@@ -5,7 +5,7 @@
 from typing import Optional, Union
 from warnings import warn
 
-from cuda.core.experimental._clear_error_support import (
+from cuda.core.experimental._utils.clear_error_support import (
     assert_type,
     assert_type_str_or_bytes,
     raise_code_path_meant_to_be_unreachable,

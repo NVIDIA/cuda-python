@@ -1,3 +1,8 @@
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+
 def assert_type(obj, expected_type):
     """Ensure obj is of expected_type, else raise AssertionError with a clear message."""
     if not isinstance(obj, expected_type):

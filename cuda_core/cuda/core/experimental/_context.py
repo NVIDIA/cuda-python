@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass
 
-from cuda.core.experimental._clear_error_support import assert_type
+from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import driver
 
 

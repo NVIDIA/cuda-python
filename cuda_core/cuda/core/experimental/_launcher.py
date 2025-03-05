@@ -5,11 +5,11 @@
 from dataclasses import dataclass
 from typing import Optional, Union
 
-from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
+from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     cast_to_3_tuple,
