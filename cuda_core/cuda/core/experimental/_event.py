@@ -67,14 +67,14 @@ class Event:
                 handle_return(driver.cuEventDestroy(self.handle))
                 self.handle = None
 
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
+
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
 
-    def __init__(self):
-        raise NotImplementedError("directly creating an Event object can be ambiguous. Please call Stream.record().")
-
-    @staticmethod
-    def _init(options: Optional[EventOptions] = None):
-        self = Event.__new__(Event)
+    @classmethod
+    def _init(cls, options: Optional[EventOptions] = None):
+        self = super().__new__(cls)
         self._mnff = Event._MembersNeededForFinalize(self, None)
 
         options = check_or_create_options(EventOptions, options, "Event options")

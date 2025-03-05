@@ -6,7 +6,6 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 import ctypes
-import math
 import sys
 import time
 
@@ -103,18 +102,11 @@ def main():
     num_faces = 6
     num_layers = 1
     cubemap_size = width * width * num_faces
-    size = cubemap_size * num_layers * np.dtype(np.float32).itemsize
-    h_data = np.zeros(cubemap_size * num_layers, dtype="float32")
-
-    for i in range(cubemap_size * num_layers):
-        h_data[i] = i
+    h_data = np.arange(cubemap_size * num_layers, dtype="float32")
+    size = h_data.nbytes
 
     # This is the expected transformation of the input data (the expected output)
-    h_data_ref = np.zeros(cubemap_size * num_layers, dtype="float32")
-
-    for layer in range(num_layers):
-        for i in range(cubemap_size):
-            h_data_ref[layer * cubemap_size + i] = -h_data[layer * cubemap_size + i] + layer
+    h_data_ref = np.repeat(np.arange(num_layers, dtype=h_data.dtype), cubemap_size) - h_data
 
     # Allocate device memory for result
     d_data = checkCudaErrors(cudart.cudaMalloc(size))
@@ -130,10 +122,11 @@ def main():
             cudart.cudaArrayCubemap,
         )
     )
+    width_nbytes = h_data[:width].nbytes
     myparms = cudart.cudaMemcpy3DParms()
     myparms.srcPos = cudart.make_cudaPos(0, 0, 0)
     myparms.dstPos = cudart.make_cudaPos(0, 0, 0)
-    myparms.srcPtr = cudart.make_cudaPitchedPtr(h_data, width * np.dtype(np.float32).itemsize, width, width)
+    myparms.srcPtr = cudart.make_cudaPitchedPtr(h_data, width_nbytes, width, width)
     myparms.dstArray = cu_3darray
     myparms.extent = cudart.make_cudaExtent(width, width, num_faces)
     myparms.kind = cudart.cudaMemcpyKind.cudaMemcpyHostToDevice
@@ -211,22 +204,20 @@ def main():
     print(f"{cubemap_size / ((stop - start + 1) / 1000.0) / 1e6:.2f} Mtexlookups/sec")
 
     # Allocate mem for the result on host side
-    h_odata = np.zeros(cubemap_size * num_layers, dtype="float32")
+    h_odata = np.empty_like(h_data)
     # Copy result from device to host
     checkCudaErrors(cudart.cudaMemcpy(h_odata, d_data, size, cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost))
-
-    print("Comparing kernel output to expected data")
-    MIN_EPSILON_ERROR = 5.0e-3
-    for i in range(cubemap_size * num_layers):
-        d = h_odata[i] - h_data_ref[i]
-        if math.fabs(d) > MIN_EPSILON_ERROR:
-            print("Failed")
-            sys.exit(-1)
-    print("Passed")
 
     checkCudaErrors(cudart.cudaDestroyTextureObject(tex))
     checkCudaErrors(cudart.cudaFree(d_data))
     checkCudaErrors(cudart.cudaFreeArray(cu_3darray))
+
+    print("Comparing kernel output to expected data")
+    MIN_EPSILON_ERROR = 5.0e-3
+    if np.max(np.abs(h_odata - h_data_ref)) > MIN_EPSILON_ERROR:
+        print("Failed")
+        sys.exit(-1)
+    print("Passed")
 
 
 if __name__ == "__main__":
