@@ -227,6 +227,10 @@ def test_mempool():
         pytest.skip("Test requires CUDA 12 or higher")
     device = Device()
     device.set_current()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
     pool_size = 2097152  # 2MB size
 
     # Test basic pool creation
@@ -309,6 +313,10 @@ def test_mempool_properties(property_name, expected_type):
 
     device = Device()
     device.set_current()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
     pool_size = 2097152  # 2MB size
     mr = AsyncMempool.create(device.device_id, pool_size, ipc_enabled=False)
 
