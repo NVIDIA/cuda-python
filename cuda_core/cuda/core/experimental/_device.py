@@ -9,7 +9,14 @@ from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
-from cuda.core.experimental._utils import ComputeCapability, CUDAError, driver, handle_return, precondition, runtime
+from cuda.core.experimental._utils.cuda_utils import (
+    ComputeCapability,
+    CUDAError,
+    driver,
+    handle_return,
+    precondition,
+    runtime,
+)
 
 _tls = threading.local()
 _lock = threading.Lock()

@@ -15,7 +15,7 @@ import pytest
 
 import cuda.core.experimental
 from cuda.core.experimental import Device
-from cuda.core.experimental._utils import ComputeCapability, get_binding_version, handle_return
+from cuda.core.experimental._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
 
 
 def test_device_init_disabled():

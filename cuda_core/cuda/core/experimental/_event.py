@@ -8,7 +8,7 @@ import weakref
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from cuda.core.experimental._utils import check_or_create_options, driver, handle_return
+from cuda.core.experimental._utils.cuda_utils import check_or_create_options, driver, handle_return
 
 if TYPE_CHECKING:
     import cuda.bindings

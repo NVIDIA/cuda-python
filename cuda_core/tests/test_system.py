@@ -5,7 +5,7 @@ except ImportError:
     from cuda import cudart as runtime
 
 from cuda.core.experimental import Device, system
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 def test_system_singleton():

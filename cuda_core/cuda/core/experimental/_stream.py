@@ -16,7 +16,13 @@ if TYPE_CHECKING:
 from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._utils import check_or_create_options, driver, get_device_from_ctx, handle_return, runtime
+from cuda.core.experimental._utils.cuda_utils import (
+    check_or_create_options,
+    driver,
+    get_device_from_ctx,
+    handle_return,
+    runtime,
+)
 
 
 @dataclass

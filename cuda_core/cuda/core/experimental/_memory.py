@@ -10,7 +10,7 @@ from typing import Optional, Tuple, TypeVar
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
-from cuda.core.experimental._utils import driver, handle_return
+from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
 PyCapsule = TypeVar("PyCapsule")
 

@@ -10,7 +10,7 @@ from cuda.core.experimental._clear_error_support import (
     assert_type_str_or_bytes,
     raise_code_path_meant_to_be_unreachable,
 )
-from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
+from cuda.core.experimental._utils.cuda_utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
     "old": {

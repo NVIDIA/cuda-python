@@ -16,7 +16,7 @@ from cuda.core.experimental._clear_error_support import assert_type
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import (
+from cuda.core.experimental._utils.cuda_utils import (
     _handle_boolean_option,
     check_or_create_options,
     driver,
