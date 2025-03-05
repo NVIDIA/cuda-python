@@ -22279,7 +22279,7 @@ def cuGetErrorName(error not None : CUresult):
     cdef cydriver.CUresult cyerror = error.value
     cdef const char* pStr = NULL
     err = cydriver.cuGetErrorName(cyerror, &pStr)
-    return (CUresult(err), <bytes>pStr if pStr != NULL else None)
+    return (CUresult(err), <bytes>pStr)
 {{endif}}
 
 {{if 'cuInit' in found_functions}}
