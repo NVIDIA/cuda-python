@@ -12,6 +12,7 @@
    
    .. automethod:: __init__
    .. automethod:: from_cubin
+   .. automethod:: from_ptx
    .. automethod:: get_kernel
 
    
