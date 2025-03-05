@@ -407,7 +407,6 @@ class Program:
             )
             self._backend = self._linker.backend
         else:
-            # EXRCSTHS
             supported_code_types = ("c++", "ptx")
             assert code_type not in supported_code_types, f"{code_type=}"
             raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
