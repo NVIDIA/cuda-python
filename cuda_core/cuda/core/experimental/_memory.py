@@ -98,7 +98,6 @@ class Buffer:
     @property
     def is_device_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
-        # EXRCSTHS
         if self._mnff.mr is not None:
             return self._mnff.mr.is_device_accessible
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
@@ -106,7 +105,6 @@ class Buffer:
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
-        # EXRCSTHS
         if self._mnff.mr is not None:
             return self._mnff.mr.is_host_accessible
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
@@ -116,7 +114,6 @@ class Buffer:
         """Return the device ordinal of this buffer."""
         if self._mnff.mr is not None:
             return self._mnff.mr.device_id
-        # EXRCSTHS
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     def copy_to(self, dst: Buffer = None, *, stream) -> Buffer:
