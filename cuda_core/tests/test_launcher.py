@@ -8,20 +8,18 @@
 
 import pytest
 
-from cuda.core.experimental import Device, LaunchConfig, Stream
+from cuda.core.experimental import Device, LaunchConfig, Program, launch
 
 
 def test_launch_config_init(init_cuda):
-    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None, shmem_size=0)
+    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), shmem_size=0)
     assert config.grid == (1, 1, 1)
     assert config.block == (1, 1, 1)
-    assert config.stream is None
     assert config.shmem_size == 0
 
-    config = LaunchConfig(grid=(2, 2, 2), block=(2, 2, 2), stream=Device().create_stream(), shmem_size=1024)
+    config = LaunchConfig(grid=(2, 2, 2), block=(2, 2, 2), shmem_size=1024)
     assert config.grid == (2, 2, 2)
     assert config.block == (2, 2, 2)
-    assert isinstance(config.stream, Stream)
     assert config.shmem_size == 1024
 
 
@@ -51,18 +49,30 @@ def test_launch_config_invalid_values():
         LaunchConfig(grid=(1, 1, 1), block=(0, 1))
 
 
-def test_launch_config_stream(init_cuda):
-    stream = Device().create_stream()
-    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=stream, shmem_size=0)
-    assert config.stream == stream
-
-    with pytest.raises(ValueError):
-        LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream="invalid_stream", shmem_size=0)
-
-
 def test_launch_config_shmem_size():
-    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None, shmem_size=2048)
+    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), shmem_size=2048)
     assert config.shmem_size == 2048
 
-    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), stream=None)
+    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1))
     assert config.shmem_size == 0
+
+
+def test_launch_invalid_values(init_cuda):
+    code = 'extern "C" __global__ void my_kernel() {}'
+    program = Program(code, "c++")
+    mod = program.compile("cubin")
+
+    stream = Device().create_stream()
+    ker = mod.get_kernel("my_kernel")
+    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), shmem_size=0)
+
+    with pytest.raises(ValueError):
+        launch(None, ker, config)
+
+    with pytest.raises(ValueError):
+        launch(stream, None, config)
+
+    with pytest.raises(ValueError):
+        launch(stream, ker, None)
+
+    launch(stream, config, ker)

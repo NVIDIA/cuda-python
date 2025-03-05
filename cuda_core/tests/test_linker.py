@@ -6,6 +6,7 @@ import pytest
 
 from cuda.core.experimental import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core.experimental._module import ObjectCode
+from cuda.core.experimental._utils import CUDAError
 
 ARCH = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
 
@@ -20,6 +21,12 @@ device_function_c = "__device__ int C(int a, int b) { return a + b; }"
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 if not is_culink_backend:
     from cuda.bindings import nvjitlink
+
+    nvJitLinkError = nvjitlink.nvJitLinkError
+else:
+
+    class nvJitLinkError(Exception):
+        pass
 
 
 @pytest.fixture(scope="function")
@@ -118,6 +125,14 @@ def test_linker_link_cubin(compile_ptx_functions):
     assert isinstance(linked_code, ObjectCode)
 
 
+def test_linker_link_ptx_multiple(compile_ptx_functions):
+    ptxes = tuple(ObjectCode.from_ptx(obj.code) for obj in compile_ptx_functions)
+    options = LinkerOptions(arch=ARCH)
+    linker = Linker(*ptxes, options=options)
+    linked_code = linker.link("cubin")
+    assert isinstance(linked_code, ObjectCode)
+
+
 def test_linker_link_invalid_target_type(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)
     linker = Linker(*compile_ptx_functions, options=options)
@@ -127,10 +142,23 @@ def test_linker_link_invalid_target_type(compile_ptx_functions):
 
 def test_linker_get_error_log(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)
-    linker = Linker(*compile_ptx_functions, options=options)
-    linker.link("cubin")
-    log = linker.get_error_log()
-    assert isinstance(log, str)
+
+    replacement_kernel = """
+extern __device__ int Z();
+extern __device__ int C(int a, int b);
+__global__ void A() { int result = C(Z(), 1);}
+"""
+    dummy_program = Program(replacement_kernel, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    linker = Linker(dummy_program, *(compile_ptx_functions[1:]), options=options)
+    try:
+        linker.link("cubin")
+
+    except (nvJitLinkError, CUDAError):
+        log = linker.get_error_log()
+        assert isinstance(log, str)
+        # TODO when 4902246 is addressed, we can update this to cover nvjitlink as well
+        if is_culink_backend:
+            assert log.rstrip("\x00") == "error   : Undefined reference to '_Z1Zv' in 'None_ptx'"
 
 
 def test_linker_get_info_log(compile_ptx_functions):
