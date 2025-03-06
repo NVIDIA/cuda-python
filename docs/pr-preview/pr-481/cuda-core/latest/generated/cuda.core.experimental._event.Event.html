@@ -300,28 +300,24 @@
 <h1>cuda.core.experimental._event.Event<a class="headerlink" href="#cuda-core-experimental-event-event" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._event.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._event.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._event.Event" title="Link to this definition">¶</a></dt>
 <dd><p>Represent a record at a specific point of execution within a CUDA stream.</p>
 <p>Applications can asynchronously record events at any point in
 the program. An event keeps a record of all previous work within
 the last recorded stream.</p>
 <p>Events can be used to monitor device’s progress, query completion
 of work up to event’s record, help establish dependencies
-between GPU work submissions, and record the elapsed time on GPU:</p>
+between GPU work submissions, and record the elapsed time (in milliseconds)
+on GPU:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># To create events and record the timing:</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">Device</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">create_stream</span><span class="p">()</span>
-<span class="n">e1</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;enable_timing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
-<span class="c1"># ... run some GPU works ...</span>
-<span class="n">e2</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;enable_timing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
-<span class="n">e2</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;time = </span><span class="si">{</span><span class="n">e2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># Or, if events are already created:</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_stream</span><span class="p">()</span>
+<span class="n">e1</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;enable_timing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="n">e2</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;enable_timing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 <span class="n">s</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">e1</span><span class="p">)</span>
-<span class="c1"># ... run some more GPU works ...</span>
+<span class="c1"># ... run some GPU works ...</span>
 <span class="n">s</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
 <span class="n">e2</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;time = </span><span class="si">{</span><span class="n">e2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;time = </span><span class="si">{</span><span class="n">e2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="si">}</span><span class="s2"> milliseconds&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Directly creating an <code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code> is not supported due to ambiguity,
