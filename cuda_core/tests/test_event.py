@@ -12,7 +12,6 @@ import pytest
 
 import cuda.core.experimental
 from cuda.core.experimental import Device, EventOptions
-from cuda.core.experimental._utils import CUDAError
 
 
 def test_event_init_disabled():
@@ -36,9 +35,11 @@ def test_timing(init_cuda, enable_timing):
         assert isinstance(elapsed_time_ms, float)
         assert delay_seconds * 1000 <= elapsed_time_ms < delay_seconds * 1000 + 2  # tolerance 2 ms
     else:
-        with pytest.raises(CUDAError) as e:
+        with pytest.raises(RuntimeError) as e:
             elapsed_time_ms = e2 - e1
-            assert "CUDA_ERROR_INVALID_HANDLE" in str(e)
+            msg = str(e)
+            assert "disabled by default" in msg
+            assert "CUDA_ERROR_INVALID_HANDLE" in msg
 
 
 def test_is_sync_busy_waited(init_cuda):

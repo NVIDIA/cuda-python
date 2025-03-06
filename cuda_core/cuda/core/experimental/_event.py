@@ -117,7 +117,12 @@ class Event:
 
     def __sub__(self, other):
         # return self - other (in milliseconds)
-        timing = handle_return(driver.cuEventElapsedTime(other.handle, self.handle))
+        try:
+            timing = handle_return(driver.cuEventElapsedTime(other.handle, self.handle))
+        except CUDAError as e:
+            raise RuntimeError(
+                "Timing capability must be enabled in order to subtract two Events; timing is disabled by default."
+            ) from e
         return timing
 
     @property
