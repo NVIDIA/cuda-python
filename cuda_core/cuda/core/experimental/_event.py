@@ -47,8 +47,21 @@ class Event:
     the last recorded stream.
 
     Events can be used to monitor device's progress, query completion
-    of work up to event's record, and help establish dependencies
-    between GPU work submissions.
+    of work up to event's record, help establish dependencies
+    between GPU work submissions, and record the elapsed time (in milliseconds)
+    on GPU:
+
+    .. code-block:: python
+
+        # To create events and record the timing:
+        s = Device().create_stream()
+        e1 = Device().create_event({"enable_timing": True})
+        e2 = Device().create_event({"enable_timing": True})
+        s.record(e1)
+        # ... run some GPU works ...
+        s.record(e2)
+        e2.sync()
+        print(f"time = {e2 - e1} milliseconds")
 
     Directly creating an :obj:`~_event.Event` is not supported due to ambiguity,
     and they should instead be created through a :obj:`~_stream.Stream` object.
@@ -95,6 +108,22 @@ class Event:
     def close(self):
         """Destroy the event."""
         self._mnff.close()
+
+    def __isub__(self, other):
+        return NotImplemented
+
+    def __rsub__(self, other):
+        return NotImplemented
+
+    def __sub__(self, other):
+        # return self - other (in milliseconds)
+        try:
+            timing = handle_return(driver.cuEventElapsedTime(other.handle, self.handle))
+        except CUDAError as e:
+            raise RuntimeError(
+                "Timing capability must be enabled in order to subtract two Events; timing is disabled by default."
+            ) from e
+        return timing
 
     @property
     def is_timing_disabled(self) -> bool:
