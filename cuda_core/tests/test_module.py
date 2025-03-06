@@ -68,6 +68,16 @@ def get_saxpy_kernel_ptx(init_cuda):
     return ptx, mod
 
 
+@pytest.fixture(scope="function")
+def get_saxpy_object_code(init_cuda):
+    prog = Program(SAXPY_KERNEL, code_type="c++")
+    mod = prog.compile(
+        "cubin",
+        name_expressions=("saxpy<float>", "saxpy<double>"),
+    )
+    return mod
+
+
 def test_get_kernel(init_cuda):
     kernel = """extern "C" __global__ void ABC() { }"""
 
@@ -147,3 +157,8 @@ def test_object_code_load_cubin_from_file(get_saxpy_kernel, tmp_path):
     mod = ObjectCode.from_cubin(str(cubin_file), symbol_mapping=sym_map)
     assert mod.code == str(cubin_file)
     mod.get_kernel("saxpy<double>")  # force loading
+
+
+def test_object_code_handle(get_saxpy_object_code):
+    mod = get_saxpy_object_code
+    assert mod.handle is not None
