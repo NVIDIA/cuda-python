@@ -54,16 +54,11 @@ class Event:
     .. code-block:: python
 
         # To create events and record the timing:
-        s = Device(0).create_stream()
-        e1 = s.record(options={"enable_timing": True})
-        # ... run some GPU works ...
-        e2 = s.record(options={"enable_timing": True})
-        e2.sync()
-        print(f"time = {e2 - e1} milliseconds")
-
-        # Or, if events are already created:
+        s = Device().create_stream()
+        e1 = Device().create_event({"enable_timing": True})
+        e2 = Device().create_event({"enable_timing": True})
         s.record(e1)
-        # ... run some more GPU works ...
+        # ... run some GPU works ...
         s.record(e2)
         e2.sync()
         print(f"time = {e2 - e1} milliseconds")
