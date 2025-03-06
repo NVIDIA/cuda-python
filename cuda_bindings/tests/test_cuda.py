@@ -970,6 +970,9 @@ def test_all_CUresult_codes(max_code=1000):
                 # (example: cuda-bindings built with CTK 12.8, driver from CTK 12.0)
                 assert name is None
                 assert err_name == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+                err_desc, desc = cuda.cuGetErrorString(error)
+                assert err_desc == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+                assert desc is None
     # Super-simple smoke check: Do we have at least some "good" codes?
     # The number will increase over time as new enums are added and support for
     # old CTKs is dropped, but it is not critical that this number is updated.
