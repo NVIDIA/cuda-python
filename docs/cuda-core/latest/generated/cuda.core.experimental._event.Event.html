@@ -306,8 +306,20 @@
 the program. An event keeps a record of all previous work within
 the last recorded stream.</p>
 <p>Events can be used to monitor device’s progress, query completion
-of work up to event’s record, and help establish dependencies
-between GPU work submissions.</p>
+of work up to event’s record, help establish dependencies
+between GPU work submissions, and record the elapsed time (in milliseconds)
+on GPU:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># To create events and record the timing:</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_stream</span><span class="p">()</span>
+<span class="n">e1</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;enable_timing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="n">e2</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;enable_timing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="n">s</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">e1</span><span class="p">)</span>
+<span class="c1"># ... run some GPU works ...</span>
+<span class="n">s</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
+<span class="n">e2</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;time = </span><span class="si">{</span><span class="n">e2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="si">}</span><span class="s2"> milliseconds&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Directly creating an <code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code> is not supported due to ambiguity,
 and they should instead be created through a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> object.</p>
 <p class="rubric">Methods</p>
