@@ -977,3 +977,15 @@ def test_all_CUresult_codes(max_code=1000):
     # The number will increase over time as new enums are added and support for
     # old CTKs is dropped, but it is not critical that this number is updated.
     assert num_good >= 76  # CTK 11.0.3_450.51.06
+
+
+def test_cuKernelGetName_failure():
+    err, name = cuda.cuKernelGetName(0)
+    assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+    assert name is None
+
+
+def test_cuFuncGetName_failure():
+    err, name = cuda.cuFuncGetName(0)
+    assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+    assert name is None
