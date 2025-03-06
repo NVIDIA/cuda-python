@@ -47,13 +47,14 @@ def _lazy_init():
 
 
 class KernelAttributes:
-    def __init__(self):
-        raise RuntimeError("KernelAttributes should not be instantiated directly")
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     slots = ("_handle", "_cache", "_backend_version", "_loader")
 
-    def _init(handle):
-        self = KernelAttributes.__new__(KernelAttributes)
+    @classmethod
+    def _init(cls, handle):
+        self = super().__new__(cls)
         self._handle = handle
         self._cache = {}
 
@@ -189,14 +190,14 @@ class Kernel:
 
     __slots__ = ("_handle", "_module", "_attributes")
 
-    def __init__(self):
-        raise RuntimeError("directly constructing a Kernel instance is not supported")
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
-    @staticmethod
-    def _from_obj(obj, mod):
+    @classmethod
+    def _from_obj(cls, obj, mod):
         assert isinstance(obj, _kernel_ctypes)
         assert isinstance(mod, ObjectCode)
-        ker = Kernel.__new__(Kernel)
+        ker = super().__new__(cls)
         ker._handle = obj
         ker._module = mod
         ker._attributes = None
@@ -237,15 +238,15 @@ class ObjectCode:
     __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self):
-        raise NotImplementedError(
-            "directly creating an ObjectCode object can be ambiguous. Please either call Program.compile() "
-            "or one of the ObjectCode.from_*() constructors"
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError(
+            "ObjectCode objects cannot be instantiated directly. "
+            "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
         )
 
-    @staticmethod
-    def _init(module, code_type, *, symbol_mapping: Optional[dict] = None):
-        self = ObjectCode.__new__(ObjectCode)
+    @classmethod
+    def _init(cls, module, code_type, *, symbol_mapping: Optional[dict] = None):
+        self = super().__new__(cls)
         assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
 

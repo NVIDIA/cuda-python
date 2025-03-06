@@ -10,8 +10,14 @@ import time
 
 import pytest
 
+import cuda.core.experimental
 from cuda.core.experimental import Device, EventOptions
 from cuda.core.experimental._utils import CUDAError
+
+
+def test_event_init_disabled():
+    with pytest.raises(RuntimeError, match=r"^Event objects cannot be instantiated directly\."):
+        cuda.core.experimental._event.Event()  # Ensure back door is locked.
 
 
 @pytest.mark.parametrize("enable_timing", [True, False, None])
