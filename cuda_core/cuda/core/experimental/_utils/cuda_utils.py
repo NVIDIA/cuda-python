@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -25,6 +25,24 @@ class NVRTCError(CUDAError):
 
 
 ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
+
+
+def cast_to_3_tuple(label, cfg):
+    cfg_orig = cfg
+    if isinstance(cfg, int):
+        cfg = (cfg,)
+    else:
+        common = "must be an int, or a tuple with up to 3 ints"
+        if not isinstance(cfg, tuple):
+            raise ValueError(f"{label} {common} (got {type(cfg)})")
+        if len(cfg) > 3:
+            raise ValueError(f"{label} {common} (got tuple with length {len(cfg)})")
+        if any(not isinstance(val, int) for val in cfg):
+            raise ValueError(f"{label} {common} (got {cfg})")
+    if any(val < 1 for val in cfg):
+        plural_s = "" if len(cfg) == 1 else "s"
+        raise ValueError(f"{label} value{plural_s} must be >= 1 (got {cfg_orig})")
+    return cfg + (1,) * (3 - len(cfg))
 
 
 def _check_error(error, handle=None):

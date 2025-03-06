@@ -16,7 +16,8 @@ if TYPE_CHECKING:
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import check_or_create_options, driver, handle_return, is_sequence
+from cuda.core.experimental._utils.clear_error_support import assert_type
+from cuda.core.experimental._utils.cuda_utils import check_or_create_options, driver, handle_return, is_sequence
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used
@@ -382,12 +383,12 @@ class Linker:
         self._mnff = Linker._MembersNeededForFinalize(self, handle, use_nvjitlink)
 
         for code in object_codes:
-            assert isinstance(code, ObjectCode)
+            assert_type(code, ObjectCode)
             self._add_code_object(code)
 
     def _add_code_object(self, object_code: ObjectCode):
         data = object_code._module
-        assert isinstance(data, bytes)
+        assert_type(data, bytes)
         with _exception_manager(self):
             if _nvjitlink:
                 _nvjitlink.add_data(

@@ -15,7 +15,14 @@ if TYPE_CHECKING:
     from cuda.core.experimental._device import Device
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._utils import check_or_create_options, driver, get_device_from_ctx, handle_return, runtime
+from cuda.core.experimental._utils.clear_error_support import assert_type
+from cuda.core.experimental._utils.cuda_utils import (
+    check_or_create_options,
+    driver,
+    get_device_from_ctx,
+    handle_return,
+    runtime,
+)
 
 
 @dataclass
@@ -107,20 +114,34 @@ class Stream:
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
         if obj is not None:
-            try:
-                info = obj.__cuda_stream__()
-            except AttributeError as e:
-                raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' method") from e
-            except TypeError:
-                info = obj.__cuda_stream__
+            cuda_stream_attr = getattr(obj, "__cuda_stream__", None)
+            if cuda_stream_attr is None:
+                raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' attribute")
+            if callable(cuda_stream_attr):
+                info = cuda_stream_attr()
+            else:
+                info = cuda_stream_attr
                 warnings.simplefilter("once", DeprecationWarning)
                 warnings.warn(
                     "Implementing __cuda_stream__ as an attribute is deprecated; it must be implemented as a method",
                     stacklevel=3,
                     category=DeprecationWarning,
                 )
+            try:
+                len_info = len(info)
+            except Exception as e:
+                raise RuntimeError(
+                    f"obj.__cuda_stream__ must return a sequence with 2 elements, got {type(info)}"
+                ) from e
+            if len_info != 2:
+                raise RuntimeError(
+                    f"obj.__cuda_stream__ must return a sequence with 2 elements, got {len_info} elements"
+                )
+            if info[0] != 0:
+                raise RuntimeError(
+                    f"The first element of the sequence returned by obj.__cuda_stream__ must be 0, got {repr(info[0])}"
+                )
 
-            assert info[0] == 0
             self._mnff.handle = driver.CUstream(info[1])
             # TODO: check if obj is created under the current context/device
             self._mnff.owner = obj
@@ -218,8 +239,7 @@ class Stream:
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
         if event is None:
             event = Event._init(options)
-        elif not isinstance(event, Event):
-            raise TypeError("record only takes an Event object")
+        assert_type(event, Event)
         handle_return(driver.cuEventRecord(event.handle, self._mnff.handle))
         return event
 
@@ -237,13 +257,16 @@ class Stream:
             event = event_or_stream.handle
             discard_event = False
         else:
-            if not isinstance(event_or_stream, Stream):
+            if isinstance(event_or_stream, Stream):
+                stream = event_or_stream
+            else:
                 try:
                     stream = Stream._init(event_or_stream)
                 except Exception as e:
-                    raise ValueError("only an Event, Stream, or object supporting __cuda_stream__ can be waited") from e
-            else:
-                stream = event_or_stream
+                    raise ValueError(
+                        "only an Event, Stream, or object supporting __cuda_stream__ can be waited,"
+                        f" got {type(event_or_stream)}"
+                    ) from e
             event = handle_return(driver.cuEventCreate(driver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
             handle_return(driver.cuEventRecord(event, stream.handle))
             discard_event = True

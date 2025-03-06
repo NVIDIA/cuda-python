@@ -5,7 +5,12 @@
 from typing import Optional, Union
 from warnings import warn
 
-from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
+from cuda.core.experimental._utils.clear_error_support import (
+    assert_type,
+    assert_type_str_or_bytes,
+    raise_code_path_meant_to_be_unreachable,
+)
+from cuda.core.experimental._utils.cuda_utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
     "old": {
@@ -195,8 +200,8 @@ class Kernel:
 
     @classmethod
     def _from_obj(cls, obj, mod):
-        assert isinstance(obj, _kernel_ctypes)
-        assert isinstance(mod, ObjectCode)
+        assert_type(obj, _kernel_ctypes)
+        assert_type(mod, ObjectCode)
         ker = super().__new__(cls)
         ker._handle = obj
         ker._module = mod
@@ -300,17 +305,20 @@ class ObjectCode:
         if self._handle is not None:
             return
         module = self._module
+        assert_type_str_or_bytes(module)
         if isinstance(module, str):
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
             else:  # "old" backend
                 self._handle = handle_return(self._loader["file"](module.encode()))
-        else:
-            assert isinstance(module, bytes)
+            return
+        if isinstance(module, bytes):
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
             else:  # "old" backend
                 self._handle = handle_return(self._loader["data"](module, 0, [], []))
+            return
+        raise_code_path_meant_to_be_unreachable()
 
     @precondition(_lazy_load_module)
     def get_kernel(self, name) -> Kernel:
@@ -327,8 +335,9 @@ class ObjectCode:
             Newly created kernel object.
 
         """
-        if self._code_type not in ("cubin", "ptx", "fatbin"):
-            raise RuntimeError(f"get_kernel() is not supported for {self._code_type}")
+        supported_code_types = ("cubin", "ptx", "fatbin")
+        if self._code_type not in supported_code_types:
+            raise RuntimeError(f'Unsupported code type "{self._code_type}" ({supported_code_types=})')
         try:
             name = self._sym_map[name]
         except KeyError:
@@ -341,3 +350,9 @@ class ObjectCode:
     def code(self) -> CodeTypeT:
         """Return the underlying code object."""
         return self._module
+
+    @property
+    @precondition(_lazy_load_module)
+    def handle(self):
+        """Return the underlying handle object."""
+        return self._handle

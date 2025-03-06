@@ -9,7 +9,15 @@ from cuda.core.experimental._device import Device
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
-from cuda.core.experimental._utils import CUDAError, check_or_create_options, driver, get_binding_version, handle_return
+from cuda.core.experimental._utils.clear_error_support import assert_type
+from cuda.core.experimental._utils.cuda_utils import (
+    CUDAError,
+    cast_to_3_tuple,
+    check_or_create_options,
+    driver,
+    get_binding_version,
+    handle_return,
+)
 
 # TODO: revisit this treatment for py313t builds
 _inited = False
@@ -59,40 +67,22 @@ class LaunchConfig:
 
     def __post_init__(self):
         _lazy_init()
-        self.grid = self._cast_to_3_tuple(self.grid)
-        self.block = self._cast_to_3_tuple(self.block)
+        self.grid = cast_to_3_tuple("LaunchConfig.grid", self.grid)
+        self.block = cast_to_3_tuple("LaunchConfig.block", self.block)
         # thread block clusters are supported starting H100
         if self.cluster is not None:
             if not _use_ex:
-                raise CUDAError("thread block clusters require cuda.bindings & driver 11.8+")
-            if Device().compute_capability < (9, 0):
-                raise CUDAError("thread block clusters are not supported on devices with compute capability < 9.0")
-            self.cluster = self._cast_to_3_tuple(self.cluster)
+                err, drvers = driver.cuDriverGetVersion()
+                drvers_fmt = f" (got driver version {drvers})" if err == driver.CUresult.CUDA_SUCCESS else ""
+                raise CUDAError(f"thread block clusters require cuda.bindings & driver 11.8+{drvers_fmt}")
+            cc = Device().compute_capability
+            if cc < (9, 0):
+                raise CUDAError(
+                    f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
+                )
+            self.cluster = cast_to_3_tuple("LaunchConfig.cluster", self.cluster)
         if self.shmem_size is None:
             self.shmem_size = 0
-
-    def _cast_to_3_tuple(self, cfg):
-        if isinstance(cfg, int):
-            if cfg < 1:
-                raise ValueError
-            return (cfg, 1, 1)
-        elif isinstance(cfg, tuple):
-            size = len(cfg)
-            if size == 1:
-                cfg = cfg[0]
-                if cfg < 1:
-                    raise ValueError
-                return (cfg, 1, 1)
-            elif size == 2:
-                if cfg[0] < 1 or cfg[1] < 1:
-                    raise ValueError
-                return (*cfg, 1)
-            elif size == 3:
-                if cfg[0] < 1 or cfg[1] < 1 or cfg[2] < 1:
-                    raise ValueError
-                return cfg
-        else:
-            raise ValueError
 
 
 def launch(stream, config, kernel, *kernel_args):
@@ -120,9 +110,10 @@ def launch(stream, config, kernel, *kernel_args):
         try:
             stream = Stream._init(stream)
         except Exception as e:
-            raise ValueError("stream must either be a Stream object or support __cuda_stream__") from e
-    if not isinstance(kernel, Kernel):
-        raise ValueError
+            raise ValueError(
+                f"stream must either be a Stream object or support __cuda_stream__ (got {type(stream)})"
+            ) from e
+    assert_type(kernel, Kernel)
     config = check_or_create_options(LaunchConfig, config, "launch config")
 
     # TODO: can we ensure kernel_args is valid/safe to use here?

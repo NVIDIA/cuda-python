@@ -6,7 +6,7 @@ import pytest
 
 from cuda.core.experimental import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import CUDAError
+from cuda.core.experimental._utils.cuda_utils import CUDAError
 
 ARCH = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
 
