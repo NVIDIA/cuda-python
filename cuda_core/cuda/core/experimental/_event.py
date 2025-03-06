@@ -8,7 +8,7 @@ import weakref
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from cuda.core.experimental._utils import CUDAError, check_or_create_options, driver, handle_return
+from cuda.core.experimental._utils.cuda_utils import check_or_create_options, driver, handle_return
 
 if TYPE_CHECKING:
     import cuda.bindings
@@ -88,7 +88,7 @@ class Event:
             flags |= driver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
             self._busy_waited = True
         if options.support_ipc:
-            raise NotImplementedError("TODO")
+            raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
         self._mnff.handle = handle_return(driver.cuEventCreate(flags))
         return self
 
@@ -109,7 +109,7 @@ class Event:
     @property
     def is_ipc_supported(self) -> bool:
         """Return True if this event can be used as an interprocess event, otherwise False."""
-        raise NotImplementedError("TODO")
+        raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
 
     def sync(self):
         """Synchronize until the event completes.
@@ -129,10 +129,9 @@ class Event:
         (result,) = driver.cuEventQuery(self._mnff.handle)
         if result == driver.CUresult.CUDA_SUCCESS:
             return True
-        elif result == driver.CUresult.CUDA_ERROR_NOT_READY:
+        if result == driver.CUresult.CUDA_ERROR_NOT_READY:
             return False
-        else:
-            raise CUDAError(f"unexpected error: {result}")
+        handle_return(result)
 
     @property
     def handle(self) -> cuda.bindings.driver.CUevent:

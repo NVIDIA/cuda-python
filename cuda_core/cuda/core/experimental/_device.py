@@ -9,7 +9,15 @@ from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
-from cuda.core.experimental._utils import ComputeCapability, CUDAError, driver, handle_return, precondition, runtime
+from cuda.core.experimental._utils.clear_error_support import assert_type
+from cuda.core.experimental._utils.cuda_utils import (
+    ComputeCapability,
+    CUDAError,
+    driver,
+    handle_return,
+    precondition,
+    runtime,
+)
 
 _tls = threading.local()
 _lock = threading.Lock()
@@ -950,10 +958,11 @@ class Device:
         # important: creating a Device instance does not initialize the GPU!
         if device_id is None:
             device_id = handle_return(runtime.cudaGetDevice())
-            assert isinstance(device_id, int), f"{device_id=}"
+            assert_type(device_id, int)
         else:
             total = handle_return(runtime.cudaGetDeviceCount())
-            if not isinstance(device_id, int) or not (0 <= device_id < total):
+            assert_type(device_id, int)
+            if not (0 <= device_id < total):
                 raise ValueError(f"device_id must be within [0, {total}), got {device_id}")
 
         # ensure Device is singleton
@@ -982,7 +991,9 @@ class Device:
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
-            raise CUDAError("the device is not yet initialized, perhaps you forgot to call .set_current() first?")
+            raise CUDAError(
+                f"Device {self._id} is not yet initialized, perhaps you forgot to call .set_current() first?"
+            )
 
     @property
     def device_id(self) -> int:
@@ -1054,7 +1065,8 @@ class Device:
 
         """
         ctx = handle_return(driver.cuCtxGetCurrent())
-        assert int(ctx) != 0
+        if int(ctx) == 0:
+            raise CUDAError("No context is bound to the calling CPU thread.")
         return Context._from_ctx(ctx, self._id)
 
     @property
@@ -1064,8 +1076,7 @@ class Device:
 
     @memory_resource.setter
     def memory_resource(self, mr):
-        if not isinstance(mr, MemoryResource):
-            raise TypeError
+        assert_type(mr, MemoryResource)
         self._mr = mr
 
     @property
@@ -1119,12 +1130,11 @@ class Device:
 
         """
         if ctx is not None:
-            if not isinstance(ctx, Context):
-                raise TypeError("a Context object is required")
+            assert_type(ctx, Context)
             if ctx._id != self._id:
                 raise RuntimeError(
-                    "the provided context was created on a different "
-                    f"device {ctx._id} other than the target {self._id}"
+                    "the provided context was created on the device with"
+                    f" id={ctx._id}, which is different from the target id={self._id}"
                 )
             prev_ctx = handle_return(driver.cuCtxPopCurrent())
             handle_return(driver.cuCtxPushCurrent(ctx._handle))
@@ -1166,7 +1176,7 @@ class Device:
             Newly created context object.
 
         """
-        raise NotImplementedError("TODO")
+        raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
     @precondition(_check_context_initialized)
     def create_stream(self, obj=None, options: StreamOptions = None) -> Stream:
