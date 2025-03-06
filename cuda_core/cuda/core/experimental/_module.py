@@ -341,3 +341,9 @@ class ObjectCode:
     def code(self) -> CodeTypeT:
         """Return the underlying code object."""
         return self._module
+
+    @property
+    @precondition(_lazy_load_module)
+    def handle(self):
+        """Return the underlying handle object."""
+        return self._handle
