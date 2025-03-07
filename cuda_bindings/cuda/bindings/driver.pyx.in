@@ -22246,7 +22246,7 @@ def cuGetErrorString(error not None : CUresult):
     cdef cydriver.CUresult cyerror = error.value
     cdef const char* pStr = NULL
     err = cydriver.cuGetErrorString(cyerror, &pStr)
-    return (CUresult(err), <bytes>pStr)
+    return (CUresult(err), <bytes>pStr if pStr != NULL else None)
 {{endif}}
 
 {{if 'cuGetErrorName' in found_functions}}
@@ -22279,7 +22279,7 @@ def cuGetErrorName(error not None : CUresult):
     cdef cydriver.CUresult cyerror = error.value
     cdef const char* pStr = NULL
     err = cydriver.cuGetErrorName(cyerror, &pStr)
-    return (CUresult(err), <bytes>pStr)
+    return (CUresult(err), <bytes>pStr if pStr != NULL else None)
 {{endif}}
 
 {{if 'cuInit' in found_functions}}
@@ -27132,7 +27132,7 @@ def cuKernelGetName(hfunc):
         cyhfunc = <cydriver.CUkernel><void_ptr>phfunc
     cdef const char* name = NULL
     err = cydriver.cuKernelGetName(&name, cyhfunc)
-    return (CUresult(err), <bytes>name)
+    return (CUresult(err), <bytes>name if name != NULL else None)
 {{endif}}
 
 {{if 'cuKernelGetParamInfo' in found_functions}}
@@ -38744,7 +38744,7 @@ def cuFuncGetName(hfunc):
         cyhfunc = <cydriver.CUfunction><void_ptr>phfunc
     cdef const char* name = NULL
     err = cydriver.cuFuncGetName(&name, cyhfunc)
-    return (CUresult(err), <bytes>name)
+    return (CUresult(err), <bytes>name if name != NULL else None)
 {{endif}}
 
 {{if 'cuFuncGetParamInfo' in found_functions}}
