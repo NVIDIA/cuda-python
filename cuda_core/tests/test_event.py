@@ -33,12 +33,7 @@ def test_timing(init_cuda, enable_timing):
     if enable_timing:
         elapsed_time_ms = e2 - e1
         assert isinstance(elapsed_time_ms, float)
-        # Using a generous tolerance, to avoid flaky tests:
-        # We only want to exercise the __sub__ method, this test is not meant
-        # to stress-test the CUDA driver or time.sleep().
-        delay_ms = delay_seconds * 1000
-        generous_tolerance = 20
-        assert delay_ms <= elapsed_time_ms < delay_ms + generous_tolerance
+        assert delay_seconds * 1000 <= elapsed_time_ms < delay_seconds * 1000 + 2  # tolerance 2 ms
     else:
         with pytest.raises(RuntimeError) as e:
             elapsed_time_ms = e2 - e1
