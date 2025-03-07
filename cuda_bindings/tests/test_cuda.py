@@ -948,3 +948,44 @@ def test_conditional():
 def test_CUmemDecompressParams_st():
     desc = cuda.CUmemDecompressParams_st()
     assert int(desc.dstActBytes) == 0
+
+
+def test_all_CUresult_codes(max_code=1000):
+    num_good = 0
+    for code in range(max_code + 1):
+        try:
+            error = cuda.CUresult(code)
+        except ValueError:
+            pass  # cython-generated enum does not exist for this code
+        else:
+            err_name, name = cuda.cuGetErrorName(error)
+            if err_name == cuda.CUresult.CUDA_SUCCESS:
+                assert name
+                err_desc, desc = cuda.cuGetErrorString(error)
+                assert err_desc == cuda.CUresult.CUDA_SUCCESS
+                assert desc
+                num_good += 1
+            else:
+                # cython-generated enum exists but is not known to an older driver
+                # (example: cuda-bindings built with CTK 12.8, driver from CTK 12.0)
+                assert name is None
+                assert err_name == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+                err_desc, desc = cuda.cuGetErrorString(error)
+                assert err_desc == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+                assert desc is None
+    # Super-simple smoke check: Do we have at least some "good" codes?
+    # The number will increase over time as new enums are added and support for
+    # old CTKs is dropped, but it is not critical that this number is updated.
+    assert num_good >= 76  # CTK 11.0.3_450.51.06
+
+
+def test_cuKernelGetName_failure():
+    err, name = cuda.cuKernelGetName(0)
+    assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+    assert name is None
+
+
+def test_cuFuncGetName_failure():
+    err, name = cuda.cuFuncGetName(0)
+    assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+    assert name is None
