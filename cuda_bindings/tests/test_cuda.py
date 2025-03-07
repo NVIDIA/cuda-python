@@ -950,9 +950,12 @@ def test_CUmemDecompressParams_st():
     assert int(desc.dstActBytes) == 0
 
 
-def test_all_CUresult_codes(max_code=1000):
+def test_all_CUresult_codes():
+    max_code = int(max(cuda.CUresult))
+    # Smoke test. CUDA_ERROR_UNKNOWN = 999, but intentionally using literal value.
+    assert max_code >= 999
     num_good = 0
-    for code in range(max_code + 1):
+    for code in range(max_code + 2):  # One past max_code
         try:
             error = cuda.CUresult(code)
         except ValueError:
@@ -973,7 +976,7 @@ def test_all_CUresult_codes(max_code=1000):
                 err_desc, desc = cuda.cuGetErrorString(error)
                 assert err_desc == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
                 assert desc is None
-    # Super-simple smoke check: Do we have at least some "good" codes?
+    # Smoke test: Do we have at least some "good" codes?
     # The number will increase over time as new enums are added and support for
     # old CTKs is dropped, but it is not critical that this number is updated.
     assert num_good >= 76  # CTK 11.0.3_450.51.06
