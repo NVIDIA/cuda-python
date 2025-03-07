@@ -859,25 +859,17 @@ def nvrtcGetLoweredName(prog, char* name_expression):
     --------
     nvrtcAddNameExpression
     """
-    print("\nLOOOK nvrtcGetLoweredName ENTRY", flush=True)
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        print("LOOOK nvrtcGetLoweredName prog is None", flush=True)
         cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
     elif isinstance(prog, (nvrtcProgram,)):
-        print("LOOOK nvrtcGetLoweredName isinstance(prog, (nvrtcProgram,))", flush=True)
         pprog = int(prog)
-        print("LOOOK nvrtcGetLoweredName AFTER int(prog)", flush=True)
         cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
-        print("LOOOK nvrtcGetLoweredName else", flush=True)
         pprog = int(nvrtcProgram(prog))
-        print("LOOOK nvrtcGetLoweredName AFTER int(nvrtcProgram(prog))", flush=True)
         cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cdef const char* lowered_name = NULL
-    print("LOOOK nvrtcGetLoweredName BEFORE cynvrtc.nvrtcGetLoweredName(cyprog, name_expression, &lowered_name)", flush=True)
     err = cynvrtc.nvrtcGetLoweredName(cyprog, name_expression, &lowered_name)
-    print("LOOOK nvrtcGetLoweredName RETURN\n", flush=True)
     return (nvrtcResult(err), <bytes>lowered_name if lowered_name != NULL else None)
 {{endif}}
 
