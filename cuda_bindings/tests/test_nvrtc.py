@@ -32,6 +32,9 @@ def test_nvrtcGetSupportedArchs():
 
 
 def test_nvrtcGetLoweredName_failure():
-    err, name = nvrtc.nvrtcGetLoweredName(0, b"I'm an elevated name!")
+    err, name = nvrtc.nvrtcGetLoweredName(None, b"I'm an elevated name!")
+    assert err == nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM
+    assert name is None
+    err, name = nvrtc.nvrtcGetLoweredName(0, b"I'm another elevated name!")
     assert err == nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM
     assert name is None
