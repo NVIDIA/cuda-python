@@ -715,7 +715,7 @@ def nvrtcGetLoweredName(prog, char* name_expression):
         cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cdef const char* lowered_name = NULL
     err = cynvrtc.nvrtcGetLoweredName(cyprog, name_expression, &lowered_name)
-    return (nvrtcResult(err), <bytes>lowered_name)
+    return (nvrtcResult(err), <bytes>lowered_name if lowered_name != NULL else None)
 {{endif}}
 
 @cython.embedsignature(True)

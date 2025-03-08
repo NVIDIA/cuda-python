@@ -644,3 +644,35 @@ def test_char_range():
     for x in range(0, 256):
         val.reserved = [x] * 64
         assert(val.reserved[0] == x)
+
+
+def test_all_CUresult_codes():
+    max_code = int(max(cuda.CUresult))
+    # Smoke test. CUDA_ERROR_UNKNOWN = 999, but intentionally using literal value.
+    assert max_code >= 999
+    num_good = 0
+    for code in range(max_code + 2):  # One past max_code
+        try:
+            error = cuda.CUresult(code)
+        except ValueError:
+            pass  # cython-generated enum does not exist for this code
+        else:
+            err_name, name = cuda.cuGetErrorName(error)
+            if err_name == cuda.CUresult.CUDA_SUCCESS:
+                assert name
+                err_desc, desc = cuda.cuGetErrorString(error)
+                assert err_desc == cuda.CUresult.CUDA_SUCCESS
+                assert desc
+                num_good += 1
+            else:
+                # cython-generated enum exists but is not known to an older driver
+                # (example: cuda-bindings built with CTK 12.8, driver from CTK 12.0)
+                assert name is None
+                assert err_name == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+                err_desc, desc = cuda.cuGetErrorString(error)
+                assert err_desc == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+                assert desc is None
+    # Smoke test: Do we have at least some "good" codes?
+    # The number will increase over time as new enums are added and support for
+    # old CTKs is dropped, but it is not critical that this number is updated.
+    assert num_good >= 76  # CTK 11.0.3_450.51.06
