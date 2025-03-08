@@ -1,6 +1,29 @@
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+# To regenerate the dictionary below, navigate to:
+#     https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES
+# (Chrome was used before, but probably it works with other browsers, too.)
+# Search for:
+#     enum cudaError
+# With the mouse, select the entire region with the enum definitions:
+#     cudaSuccess = 0
+#     ...
+#     cudaErrorApiFailureBase = 10000
+# Paste into a file, e.g. raw.txt
+# curl -O https://raw.githubusercontent.com/rwgk/stuff/master/cuda-python/reformat_cuda_enums_from_web_as_py.py
+# python reformat_cuda_enums_from_web_as_py.py raw.txt > raw.py
+# ruff format raw.py
+# Copy raw.py into this file (discarding the `DATA = {`, `}` lines).
+# Apply this manual fix:
+#     -     10000: "MISSING EXPLANATION",
+#     +     10000: "Pseudo code.",
+# Also update the CUDA Toolkit version number below.
+# Done.
+
 # CUDA Toolkit v12.8.0
-# https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES
-RUNTIME_CUDA_ERROR_T_EXPLANATIONS = {
+RUNTIME_CUDA_ERROR_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this also means that the operation"
         " being queried is complete (see cudaEventQuery() and cudaStreamQuery())."
@@ -147,7 +170,7 @@ RUNTIME_CUDA_ERROR_T_EXPLANATIONS = {
         "context using the driver API. The Driver context may be incompatible either because the Driver "
         "context was created using an older version of the API, because the Runtime API call expects a "
         "primary driver context and the Driver context is not primary, or because the Driver context has been"
-        ' destroyed. Please see Interactions with the CUDA Driver API\\" for more information.'
+        ' destroyed. Please see Interactions with the CUDA Driver API" for more information.'
     ),
     52: (
         "The device function being invoked (usually via cudaLaunchKernel()) was not previously configured via"

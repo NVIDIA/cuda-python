@@ -1,5 +1,26 @@
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+# To regenerate the dictionary below, navigate to:
+#     https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TYPES.html#group__CUDA__TYPES
+# (Chrome was used before, but probably it works with other browsers, too.)
+# Search for:
+#     enum CUresult
+# With the mouse, select the entire region with the enum definitions:
+#     CUDA_SUCCESS = 0
+#     ...
+#     CUDA_ERROR_UNKNOWN = 999
+#         This indicates that an unknown internal error has occurred.
+# Paste into a file, e.g. raw.txt
+# curl -O https://raw.githubusercontent.com/rwgk/stuff/master/cuda-python/reformat_cuda_enums_from_web_as_py.py
+# python reformat_cuda_enums_from_web_as_py.py raw.txt > raw.py
+# ruff format raw.py
+# Copy raw.py into this file (discarding the `DATA = {`, `}` lines).
+# Also update the CUDA Toolkit version number below.
+# Done.
+
 # CUDA Toolkit v12.8.0
-# https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TYPES.html#group__CUDA__TYPES
 DRIVER_CU_RESULT_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this also means that the operation"
