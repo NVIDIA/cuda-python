@@ -27,7 +27,6 @@ def test_nvrtcGetSupportedArchs():
     assert len(supportedArchs) != 0
 
 
-@pytest.mark.skipif(nvrtcVersionLessThan(12, 1), reason="Preempt Segmentation Fault (see #499)")
 def test_nvrtcGetLoweredName_failure():
     err, name = nvrtc.nvrtcGetLoweredName(None, b"I'm an elevated name!")
     assert err == nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM
