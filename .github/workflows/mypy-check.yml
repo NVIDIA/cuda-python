@@ -35,4 +35,5 @@ jobs:
 
       - name: Run Mypy
         run: |
+          cd cuda_core
           mypy --no-namespace-packages . || true
