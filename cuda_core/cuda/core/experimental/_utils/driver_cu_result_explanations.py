@@ -13,8 +13,7 @@
 #     CUDA_ERROR_UNKNOWN = 999
 #         This indicates that an unknown internal error has occurred.
 # Paste into a file, e.g. raw.txt
-# curl -O https://raw.githubusercontent.com/rwgk/stuff/master/cuda-python/reformat_cuda_enums_from_web_as_py.py
-# python reformat_cuda_enums_from_web_as_py.py raw.txt > raw.py
+# python ../../../../../toolshed/reformat_cuda_enums_from_web_as_py.py raw.txt > raw.py
 # ruff format raw.py
 # Copy raw.py into this file (discarding the `DATA = {`, `}` lines).
 # Also update the CUDA Toolkit version number below.
