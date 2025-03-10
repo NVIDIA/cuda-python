@@ -1,0 +1,38 @@
+name: "Optional mypy check"
+
+on:
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+      - "main"
+    required: false
+
+jobs:
+  mypy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # WAR: setup-python is not relocatable...
+      # see https://github.com/actions/setup-python/issues/871
+      - name: Set up Python ${{ matrix.python-version }}
+        if: ${{ startsWith(matrix.host-platform, 'linux') }}
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          cd cuda_core
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install mypy
+
+      - name: Run Mypy
+        run: |
+          mypy --no-namespace-packages . || true
