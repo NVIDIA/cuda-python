@@ -32,6 +32,7 @@ CUDA compilation toolchain
 
    Program
    Linker
+   ObjectCode
 
    :template: dataclass.rst
 
@@ -42,12 +43,9 @@ CUDA compilation toolchain
 CUDA system information
 -----------------------
 
-.. autodata:: cuda.core.experimental.system.driver_version
-   :no-value:
-.. autodata:: cuda.core.experimental.system.num_devices
-   :no-value:
-.. autodata:: cuda.core.experimental.system.devices
-   :no-value:
+.. autoproperty:: cuda.core.experimental._system.System.driver_version
+.. autoproperty:: cuda.core.experimental._system.System.num_devices
+.. autoproperty:: cuda.core.experimental._system.System.devices
 
 
 .. module:: cuda.core.experimental.utils

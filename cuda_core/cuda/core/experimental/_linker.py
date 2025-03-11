@@ -1,17 +1,23 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+from __future__ import annotations
 
 import ctypes
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 from warnings import warn
+
+if TYPE_CHECKING:
+    import cuda.bindings
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import check_or_create_options, driver, handle_return
+from cuda.core.experimental._utils.clear_error_support import assert_type
+from cuda.core.experimental._utils.cuda_utils import check_or_create_options, driver, handle_return, is_sequence
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used
@@ -130,15 +136,14 @@ class LinkerOptions:
     fma : bool, optional
         Use fast multiply-add.
         Default: True.
-    kernels_used : List[str], optional
-        Pass list of kernels that are used; any not in the list can be removed. This option can be specified multiple
-        times.
-    variables_used : List[str], optional
-        Pass a list of variables that are used; any not in the list can be removed.
+    kernels_used : [Union[str, Tuple[str], List[str]]], optional
+        Pass a kernel or sequence of kernels that are used; any not in the list can be removed.
+    variables_used : [Union[str, Tuple[str], List[str]]], optional
+        Pass a variable or sequence of variables that are used; any not in the list can be removed.
     optimize_unused_variables : bool, optional
         Assume that if a variable is not referenced in device code, it can be removed.
         Default: False.
-    ptxas_options : List[str], optional
+    ptxas_options : [Union[str, Tuple[str], List[str]]], optional
         Pass options to PTXAS.
     split_compile : int, optional
         Split compilation maximum thread count. Use 0 to use all available processors. Value of 1 disables split
@@ -167,10 +172,10 @@ class LinkerOptions:
     prec_div: Optional[bool] = None
     prec_sqrt: Optional[bool] = None
     fma: Optional[bool] = None
-    kernels_used: Optional[List[str]] = None
-    variables_used: Optional[List[str]] = None
+    kernels_used: Optional[Union[str, Tuple[str], List[str]]] = None
+    variables_used: Optional[Union[str, Tuple[str], List[str]]] = None
     optimize_unused_variables: Optional[bool] = None
-    ptxas_options: Optional[List[str]] = None
+    ptxas_options: Optional[Union[str, Tuple[str], List[str]]] = None
     split_compile: Optional[int] = None
     split_compile_extended: Optional[int] = None
     no_cache: Optional[bool] = None
@@ -213,16 +218,25 @@ class LinkerOptions:
         if self.fma is not None:
             self.formatted_options.append(f"-fma={'true' if self.fma else 'false'}")
         if self.kernels_used is not None:
-            for kernel in self.kernels_used:
-                self.formatted_options.append(f"-kernels-used={kernel}")
+            if isinstance(self.kernels_used, str):
+                self.formatted_options.append(f"-kernels-used={self.kernels_used}")
+            elif isinstance(self.kernels_used, list):
+                for kernel in self.kernels_used:
+                    self.formatted_options.append(f"-kernels-used={kernel}")
         if self.variables_used is not None:
-            for variable in self.variables_used:
-                self.formatted_options.append(f"-variables-used={variable}")
+            if isinstance(self.variables_used, str):
+                self.formatted_options.append(f"-variables-used={self.variables_used}")
+            elif isinstance(self.variables_used, list):
+                for variable in self.variables_used:
+                    self.formatted_options.append(f"-variables-used={variable}")
         if self.optimize_unused_variables is not None:
             self.formatted_options.append("-optimize-unused-variables")
         if self.ptxas_options is not None:
-            for opt in self.ptxas_options:
-                self.formatted_options.append(f"-Xptxas={opt}")
+            if isinstance(self.ptxas_options, str):
+                self.formatted_options.append(f"-Xptxas={self.ptxas_options}")
+            elif is_sequence(self.ptxas_options):
+                for opt in self.ptxas_options:
+                    self.formatted_options.append(f"-Xptxas={opt}")
         if self.split_compile is not None:
             self.formatted_options.append(f"-split-compile={self.split_compile}")
         if self.split_compile_extended is not None:
@@ -315,6 +329,10 @@ def _exception_manager(self):
         raise e
 
 
+nvJitLinkHandleT = int
+LinkerHandleT = Union[nvJitLinkHandleT, "cuda.bindings.driver.CUlinkState"]
+
+
 class Linker:
     """Represent a linking machinery to link one or multiple object codes into
     :obj:`~cuda.core.experimental._module.ObjectCode` with the specified options.
@@ -365,12 +383,12 @@ class Linker:
         self._mnff = Linker._MembersNeededForFinalize(self, handle, use_nvjitlink)
 
         for code in object_codes:
-            assert isinstance(code, ObjectCode)
+            assert_type(code, ObjectCode)
             self._add_code_object(code)
 
     def _add_code_object(self, object_code: ObjectCode):
         data = object_code._module
-        assert isinstance(data, bytes)
+        assert_type(data, bytes)
         with _exception_manager(self):
             if _nvjitlink:
                 _nvjitlink.add_data(
@@ -431,7 +449,7 @@ class Linker:
                 addr, size = handle_return(_driver.cuLinkComplete(self._mnff.handle))
                 code = (ctypes.c_char * size).from_address(addr)
 
-        return ObjectCode(bytes(code), target_type)
+        return ObjectCode._init(bytes(code), target_type)
 
     def get_error_log(self) -> str:
         """Get the error log generated by the linker.
@@ -475,9 +493,19 @@ class Linker:
         return input_type
 
     @property
-    def handle(self):
-        """Return the linker handle object."""
+    def handle(self) -> LinkerHandleT:
+        """Return the underlying handle object.
+
+        .. note::
+
+           The type of the returned object depends on the backend.
+        """
         return self._mnff.handle
+
+    @property
+    def backend(self) -> str:
+        """Return this Linker instance's underlying backend."""
+        return "nvJitLink" if self._mnff.use_nvjitlink else "driver"
 
     def close(self):
         """Destroy this linker."""

@@ -10,7 +10,7 @@ from typing import Optional, Tuple, TypeVar
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
-from cuda.core.experimental._utils import driver, handle_return
+from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
 PyCapsule = TypeVar("PyCapsule")
 
@@ -100,21 +100,21 @@ class Buffer:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
         if self._mnff.mr is not None:
             return self._mnff.mr.is_device_accessible
-        raise NotImplementedError
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
         if self._mnff.mr is not None:
             return self._mnff.mr.is_host_accessible
-        raise NotImplementedError
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def device_id(self) -> int:
         """Return the device ordinal of this buffer."""
         if self._mnff.mr is not None:
             return self._mnff.mr.device_id
-        raise NotImplementedError
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     def copy_to(self, dst: Buffer = None, *, stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
@@ -136,10 +136,12 @@ class Buffer:
             raise ValueError("stream must be provided")
         if dst is None:
             if self._mnff.mr is None:
-                raise ValueError("a destination buffer must be provided")
+                raise ValueError("a destination buffer must be provided (this buffer does not have a memory_resource)")
             dst = self._mnff.mr.allocate(self._mnff.size, stream)
         if dst._mnff.size != self._mnff.size:
-            raise ValueError("buffer sizes mismatch between src and dst")
+            raise ValueError(
+                f"buffer sizes mismatch between src and dst (sizes are: src={self._mnff.size}, dst={dst._mnff.size})"
+            )
         handle_return(driver.cuMemcpyAsync(dst._mnff.ptr, self._mnff.ptr, self._mnff.size, stream.handle))
         return dst
 
@@ -158,7 +160,9 @@ class Buffer:
         if stream is None:
             raise ValueError("stream must be provided")
         if src._mnff.size != self._mnff.size:
-            raise ValueError("buffer sizes mismatch between src and dst")
+            raise ValueError(
+                f"buffer sizes mismatch between src and dst (sizes are: src={src._mnff.size}, dst={self._mnff.size})"
+            )
         handle_return(driver.cuMemcpyAsync(self._mnff.ptr, src._mnff.ptr, self._mnff.size, stream.handle))
 
     def __dlpack__(
@@ -171,37 +175,40 @@ class Buffer:
     ) -> PyCapsule:
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
-        if dl_device is not None or copy is True:
-            raise BufferError
+        if dl_device is not None:
+            raise BufferError("Sorry, not supported: dl_device other than None")
+        if copy is True:
+            raise BufferError("Sorry, not supported: copy=True")
         if max_version is None:
             versioned = False
         else:
-            assert len(max_version) == 2
+            if not isinstance(max_version, tuple) or len(max_version) != 2:
+                raise BufferError(f"Expected max_version Tuple[int, int], got {max_version}")
             versioned = max_version >= (1, 0)
         capsule = make_py_capsule(self, versioned)
         return capsule
 
     def __dlpack_device__(self) -> Tuple[int, int]:
-        if self.is_device_accessible and not self.is_host_accessible:
+        d_h = (bool(self.is_device_accessible), bool(self.is_host_accessible))
+        if d_h == (True, False):
             return (DLDeviceType.kDLCUDA, self.device_id)
-        elif self.is_device_accessible and self.is_host_accessible:
+        if d_h == (True, True):
             # TODO: this can also be kDLCUDAManaged, we need more fine-grained checks
             return (DLDeviceType.kDLCUDAHost, 0)
-        elif not self.is_device_accessible and self.is_host_accessible:
+        if d_h == (False, True):
             return (DLDeviceType.kDLCPU, 0)
-        else:  # not self.is_device_accessible and not self.is_host_accessible
-            raise BufferError("invalid buffer")
+        raise BufferError("buffer is neither device-accessible nor host-accessible")
 
     def __buffer__(self, flags: int, /) -> memoryview:
         # Support for Python-level buffer protocol as per PEP 688.
         # This raises a BufferError unless:
         #   1. Python is 3.12+
         #   2. This Buffer object is host accessible
-        raise NotImplementedError("TODO")
+        raise NotImplementedError("WIP: Buffer.__buffer__ hasn't been implemented yet.")
 
     def __release_buffer__(self, buffer: memoryview, /):
         # Supporting method paired with __buffer__.
-        raise NotImplementedError("TODO")
+        raise NotImplementedError("WIP: Buffer.__release_buffer__ hasn't been implemented yet.")
 
 
 class MemoryResource(abc.ABC):
@@ -291,7 +298,7 @@ class _DefaultPinnedMemorySource(MemoryResource):
 
     @property
     def device_id(self) -> int:
-        raise RuntimeError("the pinned memory resource is not bound to any GPU")
+        raise RuntimeError("a pinned memory resource is not bound to any GPU")
 
 
 class _SynchronousMemoryResource(MemoryResource):

@@ -34,14 +34,8 @@ __global__ void vector_add(const float* A,
 }
 """
 arch0 = "".join(f"{i}" for i in dev0.compute_capability)
-prog_add = Program(code_add, code_type="c++")
-mod_add = prog_add.compile(
-    "cubin",
-    options=(
-        "-std=c++17",
-        "-arch=sm_" + arch0,
-    ),
-)
+prog_add = Program(code_add, code_type="c++", options={"std": "c++17", "arch": f"sm_{arch0}"})
+mod_add = prog_add.compile("cubin")
 ker_add = mod_add.get_kernel("vector_add")
 
 # Set GPU 1
@@ -63,14 +57,8 @@ __global__ void vector_sub(const float* A,
 }
 """
 arch1 = "".join(f"{i}" for i in dev1.compute_capability)
-prog_sub = Program(code_sub, code_type="c++")
-mod_sub = prog_sub.compile(
-    "cubin",
-    options=(
-        "-std=c++17",
-        "-arch=sm_" + arch1,
-    ),
-)
+prog_sub = Program(code_sub, code_type="c++", options={"std": "c++17", "arch": f"sm_{arch1}"})
+mod_sub = prog_sub.compile("cubin")
 ker_sub = mod_sub.get_kernel("vector_sub")
 
 
@@ -90,8 +78,8 @@ class StreamAdaptor:
 # CUDA streams.
 block = 256
 grid = (size + block - 1) // block
-config0 = LaunchConfig(grid=grid, block=block, stream=stream0)
-config1 = LaunchConfig(grid=grid, block=block, stream=stream1)
+config0 = LaunchConfig(grid=grid, block=block)
+config1 = LaunchConfig(grid=grid, block=block)
 
 # Allocate memory on GPU 0
 # Note: This runs on CuPy's current stream for GPU 0
@@ -106,7 +94,7 @@ cp_stream0 = StreamAdaptor(cp.cuda.get_current_stream())
 stream0.wait(cp_stream0)
 
 # Launch the add kernel on GPU 0 / stream 0
-launch(ker_add, config0, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
+launch(stream0, config0, ker_add, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
 
 # Allocate memory on GPU 1
 # Note: This runs on CuPy's current stream for GPU 1.
@@ -120,7 +108,7 @@ cp_stream1 = StreamAdaptor(cp.cuda.get_current_stream())
 stream1.wait(cp_stream1)
 
 # Launch the subtract kernel on GPU 1 / stream 1
-launch(ker_sub, config1, x.data.ptr, y.data.ptr, z.data.ptr, cp.uint64(size))
+launch(stream1, config1, ker_sub, x.data.ptr, y.data.ptr, z.data.ptr, cp.uint64(size))
 
 # Synchronize both GPUs are validate the results
 dev0.set_current()

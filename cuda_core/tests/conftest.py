@@ -11,14 +11,13 @@ import os
 import sys
 
 try:
-    from cuda.bindings import driver, nvrtc
+    from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-    from cuda import nvrtc
 import pytest
 
 from cuda.core.experimental import Device, _device
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -42,8 +41,7 @@ def _device_unset_current():
         return
     handle_return(driver.cuCtxPopCurrent())
     if hasattr(_device._tls, "devices"):
-        with _device._tls_lock:
-            del _device._tls.devices
+        del _device._tls.devices
 
 
 @pytest.fixture(scope="function")
@@ -66,9 +64,3 @@ def clean_up_cffi_files():
             os.remove(f)
         except FileNotFoundError:
             pass  # noqa: SIM105
-
-
-def can_load_generated_ptx():
-    _, driver_ver = driver.cuDriverGetVersion()
-    _, nvrtc_major, nvrtc_minor = nvrtc.nvrtcVersion()
-    return nvrtc_major * 1000 + nvrtc_minor * 10 <= driver_ver

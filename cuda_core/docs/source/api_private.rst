@@ -16,6 +16,8 @@ CUDA runtime
    _memory.Buffer
    _stream.Stream
    _event.Event
+   _device.DeviceProperties
+   _module.KernelAttributes
 
 
 CUDA compilation toolchain
@@ -25,4 +27,3 @@ CUDA compilation toolchain
    :toctree: generated/
 
    _module.Kernel
-   _module.ObjectCode

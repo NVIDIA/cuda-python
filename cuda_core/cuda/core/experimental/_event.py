@@ -1,12 +1,17 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+from __future__ import annotations
+
 import weakref
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from cuda.core.experimental._utils import CUDAError, check_or_create_options, driver, handle_return
+from cuda.core.experimental._utils.cuda_utils import CUDAError, check_or_create_options, driver, handle_return
+
+if TYPE_CHECKING:
+    import cuda.bindings
 
 
 @dataclass
@@ -42,8 +47,21 @@ class Event:
     the last recorded stream.
 
     Events can be used to monitor device's progress, query completion
-    of work up to event's record, and help establish dependencies
-    between GPU work submissions.
+    of work up to event's record, help establish dependencies
+    between GPU work submissions, and record the elapsed time (in milliseconds)
+    on GPU:
+
+    .. code-block:: python
+
+        # To create events and record the timing:
+        s = Device().create_stream()
+        e1 = Device().create_event({"enable_timing": True})
+        e2 = Device().create_event({"enable_timing": True})
+        s.record(e1)
+        # ... run some GPU works ...
+        s.record(e2)
+        e2.sync()
+        print(f"time = {e2 - e1} milliseconds")
 
     Directly creating an :obj:`~_event.Event` is not supported due to ambiguity,
     and they should instead be created through a :obj:`~_stream.Stream` object.
@@ -62,16 +80,14 @@ class Event:
                 handle_return(driver.cuEventDestroy(self.handle))
                 self.handle = None
 
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
+
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
 
-    def __init__(self):
-        raise NotImplementedError(
-            "directly creating an Event object can be ambiguous. Please call call Stream.record()."
-        )
-
-    @staticmethod
-    def _init(options: Optional[EventOptions] = None):
-        self = Event.__new__(Event)
+    @classmethod
+    def _init(cls, options: Optional[EventOptions] = None):
+        self = super().__new__(cls)
         self._mnff = Event._MembersNeededForFinalize(self, None)
 
         options = check_or_create_options(EventOptions, options, "Event options")
@@ -85,13 +101,29 @@ class Event:
             flags |= driver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
             self._busy_waited = True
         if options.support_ipc:
-            raise NotImplementedError("TODO")
+            raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
         self._mnff.handle = handle_return(driver.cuEventCreate(flags))
         return self
 
     def close(self):
         """Destroy the event."""
         self._mnff.close()
+
+    def __isub__(self, other):
+        return NotImplemented
+
+    def __rsub__(self, other):
+        return NotImplemented
+
+    def __sub__(self, other):
+        # return self - other (in milliseconds)
+        try:
+            timing = handle_return(driver.cuEventElapsedTime(other.handle, self.handle))
+        except CUDAError as e:
+            raise RuntimeError(
+                "Timing capability must be enabled in order to subtract two Events; timing is disabled by default."
+            ) from e
+        return timing
 
     @property
     def is_timing_disabled(self) -> bool:
@@ -106,7 +138,7 @@ class Event:
     @property
     def is_ipc_supported(self) -> bool:
         """Return True if this event can be used as an interprocess event, otherwise False."""
-        raise NotImplementedError("TODO")
+        raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
 
     def sync(self):
         """Synchronize until the event completes.
@@ -126,12 +158,11 @@ class Event:
         (result,) = driver.cuEventQuery(self._mnff.handle)
         if result == driver.CUresult.CUDA_SUCCESS:
             return True
-        elif result == driver.CUresult.CUDA_ERROR_NOT_READY:
+        if result == driver.CUresult.CUDA_ERROR_NOT_READY:
             return False
-        else:
-            raise CUDAError(f"unexpected error: {result}")
+        handle_return(result)
 
     @property
-    def handle(self) -> int:
-        """Return the underlying cudaEvent_t pointer address as Python int."""
-        return int(self._mnff.handle)
+    def handle(self) -> cuda.bindings.driver.CUevent:
+        """Return the underlying CUevent object."""
+        return self._mnff.handle

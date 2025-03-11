@@ -48,10 +48,10 @@ dev.sync()
 # prepare launch
 block = 256
 grid = (size + block - 1) // block
-config = LaunchConfig(grid=grid, block=block, stream=s)
+config = LaunchConfig(grid=grid, block=block)
 
 # launch kernel on stream s
-launch(ker, config, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
+launch(s, config, ker, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
 s.sync()
 
 # check result

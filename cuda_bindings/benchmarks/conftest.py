@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -25,7 +25,7 @@ def ASSERT_DRV(err):
         raise RuntimeError(f"Unknown error type: {err}")
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def init_cuda():
     # Initialize
     (err,) = cuda.cuInit(0)
@@ -47,7 +47,7 @@ def init_cuda():
     ASSERT_DRV(err)
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def load_module():
     module = None
 

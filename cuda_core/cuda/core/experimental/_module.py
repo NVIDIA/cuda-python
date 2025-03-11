@@ -1,11 +1,16 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-
+from typing import Optional, Union
 from warnings import warn
 
-from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
+from cuda.core.experimental._utils.clear_error_support import (
+    assert_type,
+    assert_type_str_or_bytes,
+    raise_code_path_meant_to_be_unreachable,
+)
+from cuda.core.experimental._utils.cuda_utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
     "old": {
@@ -47,13 +52,14 @@ def _lazy_init():
 
 
 class KernelAttributes:
-    def __init__(self):
-        raise RuntimeError("KernelAttributes should not be instantiated directly")
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     slots = ("_handle", "_cache", "_backend_version", "_loader")
 
-    def _init(handle):
-        self = KernelAttributes.__new__(KernelAttributes)
+    @classmethod
+    def _init(cls, handle):
+        self = super().__new__(cls)
         self._handle = handle
         self._cache = {}
 
@@ -189,21 +195,21 @@ class Kernel:
 
     __slots__ = ("_handle", "_module", "_attributes")
 
-    def __init__(self):
-        raise RuntimeError("directly constructing a Kernel instance is not supported")
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
-    @staticmethod
-    def _from_obj(obj, mod):
-        assert isinstance(obj, _kernel_ctypes)
-        assert isinstance(mod, ObjectCode)
-        ker = Kernel.__new__(Kernel)
+    @classmethod
+    def _from_obj(cls, obj, mod):
+        assert_type(obj, _kernel_ctypes)
+        assert_type(mod, ObjectCode)
+        ker = super().__new__(cls)
         ker._handle = obj
         ker._module = mod
         ker._attributes = None
         return ker
 
     @property
-    def attributes(self):
+    def attributes(self) -> KernelAttributes:
         """Get the read-only attributes of this kernel."""
         if self._attributes is None:
             self._attributes = KernelAttributes._init(self._handle)
@@ -212,48 +218,45 @@ class Kernel:
     # TODO: implement from_handle()
 
 
+CodeTypeT = Union[bytes, bytearray, str]
+
+
 class ObjectCode:
-    """Represent a compiled program that was loaded onto the device.
+    """Represent a compiled program to be loaded onto the device.
 
     This object provides a unified interface for different types of
-    compiled programs that are loaded onto the device.
+    compiled programs that will be loaded onto the device.
 
-    Loads the module library with specified module code and JIT options.
+    Note
+    ----
+    This class has no default constructor. If you already have a cubin that you would
+    like to load, use the :meth:`from_cubin` alternative constructor. Constructing directly
+    from all other possible code types should be avoided in favor of compilation through
+    :class:`~cuda.core.experimental.Program`
 
     Note
     ----
     Usage under CUDA 11.x will only load to the current device
     context.
-
-    Parameters
-    ----------
-    module : Union[bytes, str]
-        Either a bytes object containing the module to load, or
-        a file path string containing that module for loading.
-    code_type : Any
-        String of the compiled type.
-        Supported options are "ptx", "cubin", "ltoir" and "fatbin".
-    jit_options : Optional
-        Mapping of JIT options to use during module loading.
-        (Default to no options)
-    symbol_mapping : Optional
-        Keyword argument dictionary specifying how symbol names
-        should be mapped before trying to retrieve them.
-        (Default to no mappings)
-
     """
 
-    __slots__ = ("_handle", "_backend_version", "_jit_options", "_code_type", "_module", "_loader", "_sym_map")
+    __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self, module, code_type, jit_options=None, *, symbol_mapping=None):
-        if code_type not in self._supported_code_type:
-            raise ValueError
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError(
+            "ObjectCode objects cannot be instantiated directly. "
+            "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
+        )
+
+    @classmethod
+    def _init(cls, module, code_type, *, symbol_mapping: Optional[dict] = None):
+        self = super().__new__(cls)
+        assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
 
         # handle is assigned during _lazy_load
         self._handle = None
-        self._jit_options = jit_options
 
         self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
         self._loader = _backend[self._backend_version]
@@ -262,45 +265,63 @@ class ObjectCode:
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
 
+        return self
+
+    @staticmethod
+    def from_cubin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing cubin.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory cubin to load, or
+            a file path string pointing to the on-disk cubin to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
+
+    @staticmethod
+    def from_ptx(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing PTX.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory ptx code to load, or
+            a file path string pointing to the on-disk ptx file to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "ptx", symbol_mapping=symbol_mapping)
+
     # TODO: do we want to unload in a finalizer? Probably not..
 
     def _lazy_load_module(self, *args, **kwargs):
         if self._handle is not None:
             return
-        jit_options = self._jit_options
         module = self._module
+        assert_type_str_or_bytes(module)
         if isinstance(module, str):
-            # TODO: this option is only taken by the new library APIs, but we have
-            # a bug that we can't easily support it just yet (NVIDIA/cuda-python#73).
-            if jit_options is not None:
-                raise ValueError
-            self._handle = handle_return(self._loader["file"](module))
-        else:
-            assert isinstance(module, bytes)
-            if jit_options is None:
-                jit_options = {}
             if self._backend_version == "new":
-                args = (
-                    module,
-                    list(jit_options.keys()),
-                    list(jit_options.values()),
-                    len(jit_options),
-                    # TODO: support library options
-                    [],
-                    [],
-                    0,
-                )
+                self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
             else:  # "old" backend
-                args = (
-                    module,
-                    len(jit_options),
-                    list(jit_options.keys()),
-                    list(jit_options.values()),
-                )
-            self._handle = handle_return(self._loader["data"](*args))
+                self._handle = handle_return(self._loader["file"](module.encode()))
+            return
+        if isinstance(module, bytes):
+            if self._backend_version == "new":
+                self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
+            else:  # "old" backend
+                self._handle = handle_return(self._loader["data"](module, 0, [], []))
+            return
+        raise_code_path_meant_to_be_unreachable()
 
     @precondition(_lazy_load_module)
-    def get_kernel(self, name):
+    def get_kernel(self, name) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
@@ -314,6 +335,9 @@ class ObjectCode:
             Newly created kernel object.
 
         """
+        supported_code_types = ("cubin", "ptx", "fatbin")
+        if self._code_type not in supported_code_types:
+            raise RuntimeError(f'Unsupported code type "{self._code_type}" ({supported_code_types=})')
         try:
             name = self._sym_map[name]
         except KeyError:
@@ -322,4 +346,13 @@ class ObjectCode:
         data = handle_return(self._loader["kernel"](self._handle, name))
         return Kernel._from_obj(data, self)
 
-    # TODO: implement from_handle()
+    @property
+    def code(self) -> CodeTypeT:
+        """Return the underlying code object."""
+        return self._module
+
+    @property
+    @precondition(_lazy_load_module)
+    def handle(self):
+        """Return the underlying handle object."""
+        return self._handle

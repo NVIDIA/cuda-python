@@ -2,21 +2,53 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+from __future__ import annotations
+
 import weakref
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from warnings import warn
+
+if TYPE_CHECKING:
+    import cuda.bindings
 
 from cuda.core.experimental._device import Device
-from cuda.core.experimental._linker import Linker, LinkerOptions
+from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils import (
+from cuda.core.experimental._utils.clear_error_support import assert_type
+from cuda.core.experimental._utils.cuda_utils import (
     _handle_boolean_option,
     check_or_create_options,
+    driver,
     handle_return,
     is_nested_sequence,
     is_sequence,
     nvrtc,
 )
+
+
+def _process_define_macro_inner(formatted_options, macro):
+    if isinstance(macro, str):
+        formatted_options.append(f"--define-macro={macro}")
+        return True
+    if isinstance(macro, tuple):
+        if len(macro) != 2 or any(not isinstance(val, str) for val in macro):
+            raise RuntimeError(f"Expected define_macro Tuple[str, str], got {macro}")
+        formatted_options.append(f"--define-macro={macro[0]}={macro[1]}")
+        return True
+    return False
+
+
+def _process_define_macro(formatted_options, macro):
+    union_type = "Union[str, Tuple[str, str]]"
+    if _process_define_macro_inner(formatted_options, macro):
+        return
+    if is_nested_sequence(macro):
+        for seq_macro in macro:
+            if not _process_define_macro_inner(formatted_options, seq_macro):
+                raise RuntimeError(f"Expected define_macro {union_type}, got {seq_macro}")
+        return
+    raise RuntimeError(f"Expected define_macro {union_type}, List[{union_type}], got {macro}")
 
 
 @dataclass
@@ -235,19 +267,7 @@ class ProgramOptions:
         if self.gen_opt_lto is not None and self.gen_opt_lto:
             self._formatted_options.append("--gen-opt-lto")
         if self.define_macro is not None:
-            if isinstance(self.define_macro, str):
-                self._formatted_options.append(f"--define-macro={self.define_macro}")
-            elif isinstance(self.define_macro, tuple):
-                assert len(self.define_macro) == 2
-                self._formatted_options.append(f"--define-macro={self.define_macro[0]}={self.define_macro[1]}")
-            elif is_nested_sequence(self.define_macro):
-                for macro in self.define_macro:
-                    if isinstance(macro, tuple):
-                        assert len(macro) == 2
-                        self._formatted_options.append(f"--define-macro={macro[0]}={macro[1]}")
-                    else:
-                        self._formatted_options.append(f"--define-macro={macro}")
-
+            _process_define_macro(self._formatted_options, self.define_macro)
         if self.undefine_macro is not None:
             if isinstance(self.undefine_macro, str):
                 self._formatted_options.append(f"--undefine-macro={self.undefine_macro}")
@@ -329,6 +349,9 @@ class ProgramOptions:
         return self._formatted_options
 
 
+ProgramHandleT = Union["cuda.bindings.nvrtc.nvrtcProgram", LinkerHandleT]
+
+
 class Program:
     """Represent a compilation machinery to process programs into
     :obj:`~_module.ObjectCode`.
@@ -361,8 +384,6 @@ class Program:
                 self.handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
-    _supported_code_type = ("c++", "ptx")
-    _supported_target_type = ("ptx", "cubin", "ltoir")
 
     def __init__(self, code, code_type, options: ProgramOptions = None):
         self._mnff = Program._MembersNeededForFinalize(self, None)
@@ -370,27 +391,25 @@ class Program:
         self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
         code_type = code_type.lower()
 
-        if code_type not in self._supported_code_type:
-            raise NotImplementedError
-
         if code_type == "c++":
-            if not isinstance(code, str):
-                raise TypeError("c++ Program expects code argument to be a string")
+            assert_type(code, str)
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
+
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
-            self._backend = "nvrtc"
+            self._backend = "NVRTC"
             self._linker = None
 
         elif code_type == "ptx":
-            if not isinstance(code, str):
-                raise TypeError("ptx Program expects code argument to be a string")
+            assert_type(code, str)
             self._linker = Linker(
-                ObjectCode(code.encode(), code_type), options=self._translate_program_options(options)
+                ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
-            self._backend = "linker"
+            self._backend = self._linker.backend
         else:
-            raise NotImplementedError
+            supported_code_types = ("c++", "ptx")
+            assert code_type not in supported_code_types, f"{code_type=}"
+            raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
 
     def _translate_program_options(self, options: ProgramOptions) -> LinkerOptions:
         return LinkerOptions(
@@ -414,6 +433,12 @@ class Program:
             self._linker.close()
         self._mnff.close()
 
+    @staticmethod
+    def _can_load_generated_ptx():
+        driver_ver = handle_return(driver.cuDriverGetVersion())
+        nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
+        return nvrtc_major * 1000 + nvrtc_minor * 10 <= driver_ver
+
     def compile(self, target_type, name_expressions=(), logs=None):
         """Compile the program with a specific compilation type.
 
@@ -436,10 +461,18 @@ class Program:
             Newly created code object.
 
         """
-        if target_type not in self._supported_target_type:
-            raise NotImplementedError
+        supported_target_types = ("ptx", "cubin", "ltoir")
+        if target_type not in supported_target_types:
+            raise ValueError(f'Unsupported target_type="{target_type}" ({supported_target_types=})')
 
-        if self._backend == "nvrtc":
+        if self._backend == "NVRTC":
+            if target_type == "ptx" and not self._can_load_generated_ptx():
+                warn(
+                    "The CUDA driver version is older than the backend version. "
+                    "The generated ptx will not be loadable by the current driver.",
+                    stacklevel=1,
+                    category=RuntimeWarning,
+                )
             if name_expressions:
                 for n in name_expressions:
                     handle_return(
@@ -472,17 +505,24 @@ class Program:
                     handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
                     logs.write(log.decode())
 
-            return ObjectCode(data, target_type, symbol_mapping=symbol_mapping)
+            return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
-        if self._backend == "linker":
-            return self._linker.link(target_type)
+        supported_backends = ("nvJitLink", "driver")
+        if self._backend not in supported_backends:
+            raise ValueError(f'Unsupported backend="{self._backend}" ({supported_backends=})')
+        return self._linker.link(target_type)
 
     @property
-    def backend(self):
-        """Return the backend type string associated with this program."""
+    def backend(self) -> str:
+        """Return this Program instance's underlying backend."""
         return self._backend
 
     @property
-    def handle(self):
-        """Return the program handle object."""
+    def handle(self) -> ProgramHandleT:
+        """Return the underlying handle object.
+
+        .. note::
+
+           The type of the returned object depends on the backend.
+        """
         return self._mnff.handle
