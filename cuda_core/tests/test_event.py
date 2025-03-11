@@ -6,6 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
+import os
 import time
 
 import pytest
@@ -37,8 +38,13 @@ def test_timing(init_cuda, enable_timing):
         # We only want to exercise the __sub__ method, this test is not meant
         # to stress-test the CUDA driver or time.sleep().
         delay_ms = delay_seconds * 1000
-        generous_tolerance = 20
-        assert delay_ms <= elapsed_time_ms < delay_ms + generous_tolerance
+        if os.name == "nt":  # noqa: SIM108
+            # Windows timer resolution is typically limited to 15.6 ms by default.
+            generous_tolerance = 100
+        else:
+            # Most modern Linux kernels have a default timer resolution of 1 ms.
+            generous_tolerance = 20
+        assert delay_ms - generous_tolerance <= elapsed_time_ms < delay_ms + generous_tolerance
     else:
         with pytest.raises(RuntimeError) as e:
             elapsed_time_ms = e2 - e1
