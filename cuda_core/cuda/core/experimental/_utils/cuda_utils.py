@@ -182,6 +182,7 @@ def is_nested_sequence(obj):
     return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
 
 
+@functools.lru_cache
 def get_binding_version():
     try:
         major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
