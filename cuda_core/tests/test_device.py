@@ -50,7 +50,13 @@ def test_device_alloc(deinit_cuda):
     device.sync()
     assert buffer.handle != 0
     assert buffer.size == 1024
-    assert buffer.device_id == handle_return(runtime.cudaGetDevice())
+    assert buffer.device_id == int(device)
+
+
+def test_device_id(deinit_cuda):
+    for device in cuda.core.experimental.system.devices:
+        device.set_current()
+        assert device.device_id == handle_return(runtime.cudaGetDevice())
 
 
 def test_device_create_stream(init_cuda):
