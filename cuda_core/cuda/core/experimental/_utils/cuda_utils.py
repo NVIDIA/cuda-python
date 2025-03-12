@@ -74,7 +74,7 @@ def _check_error(error, handle=None):
             _, logsize = nvrtc.nvrtcGetProgramLogSize(handle)
             log = b" " * logsize
             _ = nvrtc.nvrtcGetProgramLog(handle, log)
-            err += f", compilation log:\n\n{log.decode()}"
+            err += f", compilation log:\n\n{log.decode('utf-8', errors='backslashreplace')}"
         raise NVRTCError(err)
     else:
         raise RuntimeError(f"Unknown error type: {error}")

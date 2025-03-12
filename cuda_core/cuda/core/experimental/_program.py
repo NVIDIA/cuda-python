@@ -503,7 +503,7 @@ class Program:
                 if logsize > 1:
                     log = b" " * logsize
                     handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
-                    logs.write(log.decode())
+                    logs.write(log.decode("utf-8", errors="backslashreplace"))
 
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
