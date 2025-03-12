@@ -39,7 +39,7 @@ def test_timing(init_cuda, enable_timing):
         # to stress-test the CUDA driver or time.sleep().
         delay_ms = delay_seconds * 1000
         if os.name == "nt":  # noqa: SIM108
-            # Windows timer resolution is typically limited to 15.6 ms by default.
+            # For Python <=3.10, the Windows timer resolution is typically limited to 15.6 ms by default.
             generous_tolerance = 100
         else:
             # Most modern Linux kernels have a default timer resolution of 1 ms.
