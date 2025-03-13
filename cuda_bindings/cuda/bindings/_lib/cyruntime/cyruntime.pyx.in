@@ -2206,6 +2206,7 @@ cdef cudaError_t _cudaGetTextureObjectResourceDesc(cudaResourceDesc* pResDesc, c
     return err
 
 {{endif}}
+{{if True}}
 
 cdef cudaError_t _cudaEGLStreamProducerPresentFrame(cudaEglStreamConnection* conn, cudaEglFrame eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef cudaError_t err = cudaSuccess
@@ -2221,6 +2222,9 @@ cdef cudaError_t _cudaEGLStreamProducerPresentFrame(cudaEglStreamConnection* con
     if err != cudaSuccess:
         _setLastError(err)
     return err
+
+{{endif}}
+{{if True}}
 
 cdef cudaError_t _cudaEGLStreamProducerReturnFrame(cudaEglStreamConnection* conn, cudaEglFrame* eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef cudaError_t err = cudaSuccess
@@ -2242,6 +2246,9 @@ cdef cudaError_t _cudaEGLStreamProducerReturnFrame(cudaEglStreamConnection* conn
         return err
     return err
 
+{{endif}}
+{{if True}}
+
 cdef cudaError_t _cudaGraphicsResourceGetMappedEglFrame(cudaEglFrame* eglFrame, cudaGraphicsResource_t resource, unsigned int index, unsigned int mipLevel) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef cudaError_t err = cudaSuccess
     err = m_global.lazyInitContextState()
@@ -2259,9 +2266,13 @@ cdef cudaError_t _cudaGraphicsResourceGetMappedEglFrame(cudaEglFrame* eglFrame, 
         return err
     return err
 
+{{endif}}
+{{if True}}
+
 cdef cudaError_t _cudaVDPAUSetVDPAUDevice(int device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) except ?cudaErrorCallRequiresNewerDriver nogil:
     return cudaErrorNotSupported
 
+{{endif}}
 {{if 'cudaArrayGetMemoryRequirements' in found_functions}}
 
 cdef cudaError_t _cudaArrayGetMemoryRequirements(cudaArrayMemoryRequirements* memoryRequirements, cudaArray_t array, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
