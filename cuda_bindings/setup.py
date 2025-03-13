@@ -100,7 +100,7 @@ for library, header_list in required_headers.items():
 if missing_headers:
     error_message = "Couldn't find required headers: "
     error_message += ", ".join([header for header in missing_headers])
-    raise RuntimeError(f"{error_message}\nIs CUDA_HOME setup correctly? (CUDA_HOME=\"{CUDA_HOME}\")")
+    raise RuntimeError(f'{error_message}\nIs CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
 
 replace = {
     " __device_builtin__ ": " ",
