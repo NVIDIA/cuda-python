@@ -281,6 +281,7 @@ class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
+        print("\nLOOOK ObjectCode.from_cubin", flush=True)
         return ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
 
     @staticmethod
@@ -297,6 +298,7 @@ class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
+        print("\nLOOOK ObjectCode.from_ptx", flush=True)
         return ObjectCode._init(module, "ptx", symbol_mapping=symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..

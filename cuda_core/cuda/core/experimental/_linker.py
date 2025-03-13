@@ -38,6 +38,8 @@ def _decide_nvjitlink_or_driver() -> bool:
     _driver_ver = handle_return(driver.cuDriverGetVersion())
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
     try:
+        if 0:
+            import BLOCK_NVJITLINK_IMPORT
         from cuda.bindings import nvjitlink as _nvjitlink
         from cuda.bindings._internal import nvjitlink as inner_nvjitlink
     except ImportError:
@@ -48,6 +50,10 @@ def _decide_nvjitlink_or_driver() -> bool:
             # binding is available, but nvJitLink is not installed
             _nvjitlink = None
 
+    if 0:
+        print("\nLOOOK FORCING _driver = driver", flush=True)
+        _driver = driver
+        return True
     if _nvjitlink is None:
         warn(
             "nvJitLink is not installed or too old (<12.3). Therefore it is not usable "
@@ -349,11 +355,12 @@ class Linker:
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = ("handle", "use_nvjitlink")
+        __slots__ = ("handle", "use_nvjitlink", "const_char_keep_alive")
 
         def __init__(self, program_obj, handle, use_nvjitlink):
             self.handle = handle
             self.use_nvjitlink = use_nvjitlink
+            self.const_char_keep_alive = []
             weakref.finalize(program_obj, self.close)
 
         def close(self):
@@ -390,27 +397,30 @@ class Linker:
         data = object_code._module
         assert_type(data, bytes)
         with _exception_manager(self):
+            name_str = f"{object_code._handle}_{object_code._code_type}"
             if _nvjitlink:
                 _nvjitlink.add_data(
                     self._mnff.handle,
                     self._input_type_from_code_type(object_code._code_type),
                     data,
                     len(data),
-                    f"{object_code._handle}_{object_code._code_type}",
+                    name_str,
                 )
             else:
+                name_bytes = name_str.encode()
                 handle_return(
                     _driver.cuLinkAddData(
                         self._mnff.handle,
                         self._input_type_from_code_type(object_code._code_type),
                         data,
                         len(data),
-                        f"{object_code._handle}_{object_code._code_type}".encode(),
+                        name_bytes,
                         0,
                         None,
                         None,
                     )
                 )
+                self._mnff.handle.const_char_keep_alive.append(name_bytes)
 
     def link(self, target_type) -> ObjectCode:
         """
@@ -435,6 +445,7 @@ class Linker:
             raise ValueError(f"Unsupported target type: {target_type}")
         with _exception_manager(self):
             if _nvjitlink:
+                print("\nlink with _nvjitlink.complete", flush=True)
                 _nvjitlink.complete(self._mnff.handle)
                 if target_type == "cubin":
                     get_size = _nvjitlink.get_linked_cubin_size
@@ -446,6 +457,7 @@ class Linker:
                 code = bytearray(size)
                 get_code(self._mnff.handle, code)
             else:
+                print("\nlink with _driver.cuLinkComplete", flush=True)
                 addr, size = handle_return(_driver.cuLinkComplete(self._mnff.handle))
                 code = (ctypes.c_char * size).from_address(addr)
 
