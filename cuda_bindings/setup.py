@@ -76,49 +76,30 @@ required_headers = {
     # - cuda_device_runtime_api.h
 }
 
-# Assert that all headers exist
-header_dict = {}
-missing_headers = []
-include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
 
-for library, header_list in required_headers.items():
-    header_paths = []
-    for header in header_list:
-        path_candidate = [os.path.join(path, header) for path in include_path_list]
-        for path in path_candidate:
-            if os.path.exists(path):
-                header_paths += [path]
-                break
-        if not os.path.exists(path):
-            missing_headers += [header]
+def fetch_header_paths(required_headers, include_path_list):
+    header_dict = {}
+    missing_headers = []
+    for library, header_list in required_headers.items():
+        header_paths = []
+        for header in header_list:
+            path_candidate = [os.path.join(path, header) for path in include_path_list]
+            for path in path_candidate:
+                if os.path.exists(path):
+                    header_paths += [path]
+                    break
+            else:
+                missing_headers += [header]
 
-    # Update dictionary with validated paths to headers
-    header_dict[library] = header_paths
+        # Update dictionary with validated paths to headers
+        header_dict[library] = header_paths
 
-if missing_headers:
-    error_message = "Couldn't find required headers: "
-    error_message += ", ".join([header for header in missing_headers])
-    raise RuntimeError(f'{error_message}\nIs CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
+    if missing_headers:
+        error_message = "Couldn't find required headers: "
+        error_message += ", ".join([header for header in missing_headers])
+        raise RuntimeError(f'{error_message}\nIs CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
 
-replace = {
-    " __device_builtin__ ": " ",
-    "CUDARTAPI ": " ",
-    "typedef __device_builtin__ enum cudaError cudaError_t;": "typedef cudaError cudaError_t;",
-    "typedef __device_builtin__ enum cudaOutputMode cudaOutputMode_t;": "typedef cudaOutputMode cudaOutputMode_t;",
-    "typedef enum cudaError cudaError_t;": "typedef cudaError cudaError_t;",
-    "typedef enum cudaOutputMode cudaOutputMode_t;": "typedef cudaOutputMode cudaOutputMode_t;",
-    "typedef enum cudaDataType_t cudaDataType_t;": "",
-    "typedef enum libraryPropertyType_t libraryPropertyType_t;": "",
-    "  enum ": "   ",
-    ", enum ": ", ",
-    "\\(enum ": "(",
-}
-
-found_types = []
-found_functions = []
-found_values = []
-found_struct = []
-struct_list = {}
+    return header_dict
 
 
 class Struct:
@@ -149,38 +130,66 @@ class Struct:
         return f"{self._name}: {self._member_names} with types {self._member_types}"
 
 
-print(f'Parsing headers in "{include_path_list}" (Caching = {PARSER_CACHING})')
-for library, header_paths in header_dict.items():
-    print(f"Parsing {library} headers")
-    parser = CParser(
-        header_paths, cache="./cache_{}".format(library.split(".")[0]) if PARSER_CACHING else None, replace=replace
-    )
+def parse_headers(header_dict):
+    found_types = []
+    found_functions = []
+    found_values = []
+    found_struct = []
+    struct_list = {}
 
-    if library == "driver":
-        CUDA_VERSION = parser.defs["macros"].get("CUDA_VERSION", "Unknown")
-        print(f"Found CUDA_VERSION: {CUDA_VERSION}")
+    replace = {
+        " __device_builtin__ ": " ",
+        "CUDARTAPI ": " ",
+        "typedef __device_builtin__ enum cudaError cudaError_t;": "typedef cudaError cudaError_t;",
+        "typedef __device_builtin__ enum cudaOutputMode cudaOutputMode_t;": "typedef cudaOutputMode cudaOutputMode_t;",
+        "typedef enum cudaError cudaError_t;": "typedef cudaError cudaError_t;",
+        "typedef enum cudaOutputMode cudaOutputMode_t;": "typedef cudaOutputMode cudaOutputMode_t;",
+        "typedef enum cudaDataType_t cudaDataType_t;": "",
+        "typedef enum libraryPropertyType_t libraryPropertyType_t;": "",
+        "  enum ": "   ",
+        ", enum ": ", ",
+        "\\(enum ": "(",
+    }
 
-    # Combine types with others since they sometimes get tangled
-    found_types += {key for key in parser.defs["types"]}
-    found_types += {key for key in parser.defs["structs"]}
-    found_types += {key for key in parser.defs["unions"]}
-    found_types += {key for key in parser.defs["enums"]}
-    found_functions += {key for key in parser.defs["functions"]}
-    found_values += {key for key in parser.defs["values"]}
+    print(f'Parsing headers in "{include_path_list}" (Caching = {PARSER_CACHING})')
+    for library, header_paths in header_dict.items():
+        print(f"Parsing {library} headers")
+        parser = CParser(
+            header_paths, cache="./cache_{}".format(library.split(".")[0]) if PARSER_CACHING else None, replace=replace
+        )
 
-    for key, value in parser.defs["structs"].items():
-        struct_list[key] = Struct(key, value["members"])
-    for key, value in parser.defs["unions"].items():
-        struct_list[key] = Struct(key, value["members"])
+        if library == "driver":
+            CUDA_VERSION = parser.defs["macros"].get("CUDA_VERSION", "Unknown")
+            print(f"Found CUDA_VERSION: {CUDA_VERSION}")
 
-    for key, value in struct_list.items():
-        if key.startswith("anon_union") or key.startswith("anon_struct"):
-            continue
+        # Combine types with others since they sometimes get tangled
+        found_types += {key for key in parser.defs["types"]}
+        found_types += {key for key in parser.defs["structs"]}
+        found_types += {key for key in parser.defs["unions"]}
+        found_types += {key for key in parser.defs["enums"]}
+        found_functions += {key for key in parser.defs["functions"]}
+        found_values += {key for key in parser.defs["values"]}
 
-        found_struct += [key]
-        discovered = value.discoverMembers(struct_list, key)
-        if discovered:
-            found_struct += discovered
+        for key, value in parser.defs["structs"].items():
+            struct_list[key] = Struct(key, value["members"])
+        for key, value in parser.defs["unions"].items():
+            struct_list[key] = Struct(key, value["members"])
+
+        for key, value in struct_list.items():
+            if key.startswith("anon_union") or key.startswith("anon_struct"):
+                continue
+
+            found_struct += [key]
+            discovered = value.discoverMembers(struct_list, key)
+            if discovered:
+                found_struct += discovered
+
+    return found_types, found_functions, found_values, found_struct, struct_list
+
+
+include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
+header_dict = fetch_header_paths(required_headers, include_path_list)
+found_types, found_functions, found_values, found_struct, struct_list = parse_headers(header_dict)
 
 # ----------------------------------------------------------------------
 # Generate
