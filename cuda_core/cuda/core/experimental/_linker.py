@@ -414,7 +414,7 @@ class Linker:
                         None,
                     )
                 )
-                self._mnff.handle.const_char_keep_alive.append(name_bytes)
+                self._mnff.const_char_keep_alive.append(name_bytes)
 
     def link(self, target_type) -> ObjectCode:
         """
