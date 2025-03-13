@@ -396,7 +396,7 @@ class Program:
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
-            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"HELLO", 0, [], []))
+            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
             self._backend = "NVRTC"
             self._linker = None
 
@@ -461,7 +461,6 @@ class Program:
             Newly created code object.
 
         """
-        print(f"\nLOOOK {target_type=} {name_expressions=}", flush=True)
         supported_target_types = ("ptx", "cubin", "ltoir")
         if target_type not in supported_target_types:
             raise ValueError(f'Unsupported target_type="{target_type}" ({supported_target_types=})')
@@ -481,7 +480,6 @@ class Program:
                         handle=self._mnff.handle,
                     )
             options = self._options._as_bytes()
-            print(f"\nLOOOK {options=}", flush=True)
             handle_return(
                 nvrtc.nvrtcCompileProgram(self._mnff.handle, len(options), options),
                 handle=self._mnff.handle,
@@ -507,13 +505,11 @@ class Program:
                     handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
                     logs.write(log.decode("utf-8", errors="backslashreplace"))
 
-            print("\nLOOOK compile using ObjectCode._init()", flush=True)
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
 
         supported_backends = ("nvJitLink", "driver")
         if self._backend not in supported_backends:
             raise ValueError(f'Unsupported backend="{self._backend}" ({supported_backends=})')
-        print("\nLOOOK compile using self._linker.link()", flush=True)
         return self._linker.link(target_type)
 
     @property
