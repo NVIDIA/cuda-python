@@ -69,13 +69,11 @@ required_headers = {
         "nvrtc.h",
     ],
     # During compilation, Cython will reference C headers that are not
-    # explicitly parsed above. The following headers are known dependencies:
+    # explicitly parsed above. These are the known dependencies:
     #
     # - crt/host_defines.h
     # - builtin_types.h
     # - cuda_device_runtime_api.h
-    #
-    # These are the dependencies of the headers we parse.
 }
 
 # Assert that all headers exist
