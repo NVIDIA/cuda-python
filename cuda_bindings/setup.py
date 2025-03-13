@@ -75,7 +75,7 @@ required_headers = {
     # - builtin_types.h
     # - cuda_device_runtime_api.h
     #
-    # These dependencies are specified through the headers above.
+    # These are the dependencies of the headers we parse.
 }
 
 # Assert that all headers exist
