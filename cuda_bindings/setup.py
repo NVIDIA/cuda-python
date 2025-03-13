@@ -48,8 +48,11 @@ PARSER_CACHING = bool(PARSER_CACHING)
 # ----------------------------------------------------------------------
 # Parse user-provided CUDA headers
 
-header_dict = {
-    "driver": ["cuda.h", "cudaProfiler.h", "cudaEGL.h", "cudaGL.h", "cudaVDPAU.h"],
+required_headers = {
+    "driver": [
+        "cuda.h",
+        "cudaProfiler.h",
+    ],
     "runtime": [
         "driver_types.h",
         "vector_types.h",
@@ -61,12 +64,43 @@ header_dict = {
         "device_types.h",
         "driver_functions.h",
         "cuda_profiler_api.h",
-        "cuda_egl_interop.h",
-        "cuda_gl_interop.h",
-        "cuda_vdpau_interop.h",
     ],
-    "nvrtc": ["nvrtc.h"],
+    "nvrtc": [
+        "nvrtc.h",
+    ],
+    # During compilation, Cython will reference C headers that are not
+    # explicitly parsed above. The following headers are known dependencies:
+    #
+    # - crt/host_defines.h
+    # - builtin_types.h
+    # - cuda_device_runtime_api.h
+    #
+    # These dependencies are specified through the headers above.
 }
+
+# Assert that all headers exist
+header_dict = {}
+missing_headers = []
+include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
+
+for library, header_list in required_headers.items():
+    header_paths = []
+    for header in header_list:
+        path_candidate = [os.path.join(path, header) for path in include_path_list]
+        for path in path_candidate:
+            if os.path.exists(path):
+                header_paths += [path]
+                break
+        if not os.path.exists(path):
+            missing_headers += [header]
+
+    # Update dictionary with validated paths to headers
+    header_dict[library] = header_paths
+
+if missing_headers:
+    error_message = "Couldn't find required headers: "
+    error_message += ", ".join([header for header in missing_headers])
+    raise RuntimeError(f"{error_message}\nIs CUDA_HOME setup correctly? (CUDA_HOME=\"{CUDA_HOME}\")")
 
 replace = {
     " __device_builtin__ ": " ",
@@ -117,19 +151,8 @@ class Struct:
         return f"{self._name}: {self._member_names} with types {self._member_types}"
 
 
-include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
 print(f'Parsing headers in "{include_path_list}" (Caching = {PARSER_CACHING})')
-for library, header_list in header_dict.items():
-    header_paths = []
-    for header in header_list:
-        path_candidate = [os.path.join(path, header) for path in include_path_list]
-        for path in path_candidate:
-            if os.path.exists(path):
-                header_paths += [path]
-                break
-        if not os.path.exists(path):
-            print(f"Missing header {header}")
-
+for library, header_paths in header_dict.items():
     print(f"Parsing {library} headers")
     parser = CParser(
         header_paths, cache="./cache_{}".format(library.split(".")[0]) if PARSER_CACHING else None, replace=replace
@@ -160,9 +183,6 @@ for library, header_list in header_dict.items():
         discovered = value.discoverMembers(struct_list, key)
         if discovered:
             found_struct += discovered
-
-if len(found_functions) == 0:
-    raise RuntimeError(f'Parser found no functions. Is CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
 
 # ----------------------------------------------------------------------
 # Generate
