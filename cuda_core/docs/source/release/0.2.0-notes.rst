@@ -35,7 +35,6 @@ Minor fixes and enhancements
 - Fix a dangling pointer problem in _linker.py (#516)
 - Add ``@functools.lru_cache`` decorator for ``get_binding_version()`` (#512)
 - Change selected ``.decode()`` to ``.decode("utf-8", errors="backslashreplace")`` (#510)
-- Add :class:`Event` to public API (#501)
 
 Test fixes
 ----------
