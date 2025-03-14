@@ -349,11 +349,12 @@ class Linker:
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = ("handle", "use_nvjitlink")
+        __slots__ = ("handle", "use_nvjitlink", "const_char_keep_alive")
 
         def __init__(self, program_obj, handle, use_nvjitlink):
             self.handle = handle
             self.use_nvjitlink = use_nvjitlink
+            self.const_char_keep_alive = []
             weakref.finalize(program_obj, self.close)
 
         def close(self):
@@ -390,27 +391,30 @@ class Linker:
         data = object_code._module
         assert_type(data, bytes)
         with _exception_manager(self):
+            name_str = f"{object_code._handle}_{object_code._code_type}"
             if _nvjitlink:
                 _nvjitlink.add_data(
                     self._mnff.handle,
                     self._input_type_from_code_type(object_code._code_type),
                     data,
                     len(data),
-                    f"{object_code._handle}_{object_code._code_type}",
+                    name_str,
                 )
             else:
+                name_bytes = name_str.encode()
                 handle_return(
                     _driver.cuLinkAddData(
                         self._mnff.handle,
                         self._input_type_from_code_type(object_code._code_type),
                         data,
                         len(data),
-                        f"{object_code._handle}_{object_code._code_type}".encode(),
+                        name_bytes,
                         0,
                         None,
                         None,
                     )
                 )
+                self._mnff.const_char_keep_alive.append(name_bytes)
 
     def link(self, target_type) -> ObjectCode:
         """
