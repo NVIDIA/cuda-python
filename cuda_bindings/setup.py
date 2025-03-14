@@ -265,7 +265,7 @@ cmdclass = {}
 # Cythonize
 
 
-def prep_extensions(sources):
+def prep_extensions(sources, libraries=[]):
     pattern = sources[0]
     files = glob.glob(pattern)
     exts = []
@@ -278,7 +278,7 @@ def prep_extensions(sources):
                 include_dirs=include_dirs,
                 library_dirs=library_dirs,
                 runtime_library_dirs=[],
-                libraries=[],
+                libraries=libraries,
                 language="c++",
                 extra_compile_args=extra_compile_args,
             )
@@ -346,7 +346,7 @@ sources_list = [
 ]
 
 for sources in sources_list:
-    extensions += prep_extensions(sources)
+    extensions += prep_extensions(sources, ["cudart_static"])
 
 # ---------------------------------------------------------------------
 # Custom cmdclass extensions
