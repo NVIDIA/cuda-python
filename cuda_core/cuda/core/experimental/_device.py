@@ -969,6 +969,7 @@ class Device:
         if not hasattr(_tls, "devices"):
             total = handle_return(runtime.cudaGetDeviceCount())
             _tls.devices = []
+            print("COMPUTE _tls.devices START", flush=True)
             for dev_id in range(total):
                 dev = super().__new__(cls)
                 dev._id = dev_id
@@ -986,6 +987,7 @@ class Device:
                 dev._has_inited = False
                 dev._properties = None
                 _tls.devices.append(dev)
+            print("COMPUTE _tls.devices END", flush=True)
 
         return _tls.devices[device_id]
 
