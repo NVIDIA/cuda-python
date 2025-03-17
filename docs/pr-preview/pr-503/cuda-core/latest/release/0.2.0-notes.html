@@ -298,7 +298,7 @@
         <article role="main" id="furo-main-content">
           <section id="cuda-core-0-2-0-release-notes">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes<a class="headerlink" href="#cuda-core-0-2-0-release-notes" title="Link to this heading">¶</a></h1>
-<p>Released on &lt;TODO&gt;, 2025</p>
+<p>Released on March 17, 2025</p>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">¶</a></h2>
 <ul class="simple">
@@ -323,14 +323,36 @@
 <li><p>Expose <a class="reference internal" href="../generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> as a public API, which allows loading cubins from memory or disk. For loading other kinds of code types, please continue using <a class="reference internal" href="../generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a>.</p></li>
 <li><p>A C++ helper function <code class="docutils literal notranslate"><span class="pre">get_cuda_native_handle()</span></code> is provided in the new <code class="docutils literal notranslate"><span class="pre">include/utility.cuh</span></code> header to retrive the underlying CUDA C objects (ex: <code class="docutils literal notranslate"><span class="pre">CUstream</span></code>) from a Python object returned by the <code class="docutils literal notranslate"><span class="pre">.handle</span></code> attribute (ex: <code class="xref py py-attr docutils literal notranslate"><span class="pre">Stream.handle</span></code>).</p></li>
 <li><p>For objects such as <a class="reference internal" href="../generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> and <a class="reference internal" href="../generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker" title="cuda.core.experimental.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> that could dispatch to different backends, a new <code class="docutils literal notranslate"><span class="pre">.backend</span></code> attribute is provided to query this information.</p></li>
-<li><p>Support CUDA event timing.</p></li>
-<li><p>An <a class="reference internal" href="../generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> may now be created without recording it to a <a class="reference internal" href="../generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> using the <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.create_event" title="cuda.core.experimental.Device.create_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_event()</span></code></a> method.</p></li>
+<li><p>Support CUDA <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code> timing. (#481, #498, #508)</p></li>
+<li><p>An <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code> may now be created without recording it to a <a class="reference internal" href="../generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> using the <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.create_event" title="cuda.core.experimental.Device.create_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_event()</span></code></a> method.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> now supports the additional <code class="docutils literal notranslate"><span class="pre">PTX</span></code> code type. (#317)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker.link" title="cuda.core.experimental.Linker.link"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Linker.link()</span></code></a> exceptions now include the original error log. (#423)</p></li>
+<li><p>In a systematic sweep through the cuda.core implementations, many exceptions messages were made more consistent and informative. (#458)</p></li>
 </ul>
 </section>
-<section id="limitations">
-<h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">¶</a></h2>
+<section id="new-examples">
+<h2>New examples<a class="headerlink" href="#new-examples" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>&lt;TODO&gt;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jit_lto_fractal.py</span></code> — Demonstrates just-in-time link-time optimization for fractal generation. (<a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a>, <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>, <a class="reference internal" href="../generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker" title="cuda.core.experimental.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a>, <a class="reference internal" href="../generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental.LinkerOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinkerOptions</span></code></a>, <a class="reference internal" href="../generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a>, <a class="reference internal" href="../generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions" title="cuda.core.experimental.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a>) (#475)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">simple_multi_gpu_example.py</span></code> — Example of using multiple GPUs. (<a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a>, <a class="reference internal" href="../generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a>, <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>) (#304)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">show_device_properties.py</span></code> — Displays detailed device properties. (<a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a>) (#474)</p></li>
+</ul>
+</section>
+<section id="minor-fixes-and-enhancements">
+<h2>Minor fixes and enhancements<a class="headerlink" href="#minor-fixes-and-enhancements" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>A dangling pointer problem in <code class="docutils literal notranslate"><span class="pre">_linker.py</span></code> was fixed. (#516)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">&#64;functools.lru_cache</span></code> decorator for <code class="xref py py-func docutils literal notranslate"><span class="pre">get_binding_version()</span></code>. (#512)</p></li>
+<li><p>Selected <code class="docutils literal notranslate"><span class="pre">.decode()</span></code> were changed to <code class="docutils literal notranslate"><span class="pre">.decode(&quot;utf-8&quot;,</span> <span class="pre">errors=&quot;backslashreplace&quot;)</span></code> to ensure that decoding error messages does not abort the process. (#510)</p></li>
+<li><p>The performance of <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.compute_capability" title="cuda.core.experimental.Device.compute_capability"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.compute_capability()</span></code></a> was improved. (#459)</p></li>
+<li><p>The <a class="reference internal" href="../generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> constructor now issues a warning when falling back to <code class="xref py py-func docutils literal notranslate"><span class="pre">cuLink()</span></code>. (#315)</p></li>
+<li><p>To avoid deprecation warnings, the cuda.bindings imports in the cuda.core implementations were cleaned up. (#404)</p></li>
+</ul>
+</section>
+<section id="test-fixes">
+<h2>Test fixes<a class="headerlink" href="#test-fixes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Clean up device initialization in some tests. (#507)</p></li>
 </ul>
 </section>
 </section>
@@ -394,7 +416,9 @@
 <li><a class="reference internal" href="#highlights">Highlights</a></li>
 <li><a class="reference internal" href="#breaking-changes">Breaking Changes</a></li>
 <li><a class="reference internal" href="#new-features">New features</a></li>
-<li><a class="reference internal" href="#limitations">Limitations</a></li>
+<li><a class="reference internal" href="#new-examples">New examples</a></li>
+<li><a class="reference internal" href="#minor-fixes-and-enhancements">Minor fixes and enhancements</a></li>
+<li><a class="reference internal" href="#test-fixes">Test fixes</a></li>
 </ul>
 </li>
 </ul>
