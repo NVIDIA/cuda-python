@@ -3,7 +3,7 @@
 ``cuda.core`` 0.2.0 Release Notes
 =================================
 
-Released on <TODO>, 2025
+Released on March 17, 2025
 
 Highlights
 ----------
@@ -51,8 +51,3 @@ Minor fixes and enhancements
 Test fixes
 ----------
 - Clean up device initialization in some tests. (#507)
-
-Limitations
------------
-
-- <TODO>
