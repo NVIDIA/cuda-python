@@ -6,8 +6,8 @@ multiple components:
 
 - `cuda.core`_: Pythonic access to CUDA runtime and other core functionalities
 - `cuda.bindings`_: Low-level Python bindings to CUDA C APIs
-- `cuda.cooperative`_: Pythonic exposure of CUB cooperative algorithms
-- `cuda.parallel`_: Pythonic exposure of Thrust parallel algorithms
+- `cuda.cooperative`_: Exposure of CUB cooperative algorithms for use in Python kernels
+- `cuda.parallel`_: Pythonic exposure of Thrust parallel algorithms launched from the host
 
 For access to NVIDIA CPU & GPU Math Libraries, please refer to `nvmath-python`_.
 

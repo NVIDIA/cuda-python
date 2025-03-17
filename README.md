@@ -4,8 +4,8 @@ CUDA Python is the home for accessing NVIDIA’s CUDA platform from Python. It c
 
 * [cuda.core](https://nvidia.github.io/cuda-python/cuda-core/latest): Pythonic access to CUDA Runtime and other core functionalities
 * [cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest): Low-level Python bindings to CUDA C APIs
-* [cuda.cooperative](https://nvidia.github.io/cccl/cuda_cooperative/): Pythonic exposure of CUB cooperative algorithms
-* [cuda.parallel](https://nvidia.github.io/cccl/cuda_parallel/): Pythonic exposure of Thrust parallel algorithms
+* [cuda.cooperative](https://nvidia.github.io/cccl/cuda_cooperative/): Exposure of CUB cooperative algorithms for use in Python kernels
+* [cuda.parallel](https://nvidia.github.io/cccl/cuda_parallel/): Pythonic exposure of Thrust parallel algorithms launched from the host
 
 For access to NVIDIA CPU & GPU Math Libraries, please refer to [nvmath-python](https://docs.nvidia.com/cuda/nvmath-python/latest).
 
