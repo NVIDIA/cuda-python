@@ -74,7 +74,7 @@ def _check_error(error, handle=None):
             _, logsize = nvrtc.nvrtcGetProgramLogSize(handle)
             log = b" " * logsize
             _ = nvrtc.nvrtcGetProgramLog(handle, log)
-            err += f", compilation log:\n\n{log.decode()}"
+            err += f", compilation log:\n\n{log.decode('utf-8', errors='backslashreplace')}"
         raise NVRTCError(err)
     else:
         raise RuntimeError(f"Unknown error type: {error}")
@@ -182,6 +182,7 @@ def is_nested_sequence(obj):
     return is_sequence(obj) and any(is_sequence(elem) for elem in obj)
 
 
+@functools.lru_cache
 def get_binding_version():
     try:
         major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
