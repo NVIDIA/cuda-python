@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import threading
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
@@ -37,17 +37,17 @@ class DeviceProperties:
     __slots__ = ("_handle", "_cache")
 
     @classmethod
-    def _init(cls, handle):
+    def _init(cls, handle: int) -> "DeviceProperties":
         self = super().__new__(cls)
         self._handle = handle
         self._cache = {}
         return self
 
-    def _get_attribute(self, attr):
+    def _get_attribute(self, attr: int) -> int:
         """Retrieve the attribute value directly from the driver."""
         return handle_return(driver.cuDeviceGetAttribute(attr, self._handle))
 
-    def _get_cached_attribute(self, attr):
+    def _get_cached_attribute(self, attr: int) -> int:
         """Retrieve the attribute value, using cache if applicable."""
         if attr not in self._cache:
             self._cache[attr] = self._get_attribute(attr)
@@ -948,7 +948,7 @@ class Device:
 
     __slots__ = ("_id", "_mr", "_has_inited", "_properties")
 
-    def __new__(cls, device_id=None):
+    def __new__(cls, device_id: Optional[int] = None) -> "Device":
         global _is_cuInit
         if _is_cuInit is False:
             with _lock:
@@ -989,7 +989,7 @@ class Device:
 
         return _tls.devices[device_id]
 
-    def _check_context_initialized(self, *args, **kwargs):
+    def _check_context_initialized(self, *args: Any, **kwargs: Any) -> None:
         if not self._has_inited:
             raise CUDAError(
                 f"Device {self._id} is not yet initialized, perhaps you forgot to call .set_current() first?"
@@ -997,29 +997,18 @@ class Device:
 
     @property
     def device_id(self) -> int:
-        """Return device ordinal."""
+        """int: The device ordinal."""
         return self._id
 
     @property
     def pci_bus_id(self) -> str:
-        """Return a PCI Bus Id string for this device."""
+        """str: The PCI bus ID of the device."""
         bus_id = handle_return(runtime.cudaDeviceGetPCIBusId(13, self._id))
         return bus_id[:12].decode()
 
     @property
     def uuid(self) -> str:
-        """Return a UUID for the device.
-
-        Returns 16-octets identifying the device. If the device is in
-        MIG mode, returns its MIG UUID which uniquely identifies the
-        subscribed MIG compute instance.
-
-        Note
-        ----
-        MIG UUID is only returned when device is in MIG mode and the
-        driver is older than CUDA 11.4.
-
-        """
+        """str: The UUID of the device."""
         driver_ver = handle_return(driver.cuDriverGetVersion())
         if driver_ver >= 11040:
             uuid = handle_return(driver.cuDeviceGetUuid_v2(self._id))
@@ -1031,7 +1020,7 @@ class Device:
 
     @property
     def name(self) -> str:
-        """Return the device name."""
+        """str: The name of the device."""
         # Use 256 characters to be consistent with CUDA Runtime
         name = handle_return(driver.cuDeviceGetName(256, self._id))
         name = name.split(b"\0")[0]
@@ -1039,7 +1028,7 @@ class Device:
 
     @property
     def properties(self) -> DeviceProperties:
-        """Return a :obj:`~_device.DeviceProperties` class with information about the device."""
+        """DeviceProperties: The properties of the device."""
         if self._properties is None:
             self._properties = DeviceProperties._init(self._id)
 
@@ -1047,7 +1036,7 @@ class Device:
 
     @property
     def compute_capability(self) -> ComputeCapability:
-        """Return a named tuple with 2 fields: major and minor."""
+        """ComputeCapability: The compute capability of the device."""
         if "compute_capability" in self.properties._cache:
             return self.properties._cache["compute_capability"]
         cc = ComputeCapability(self.properties.compute_capability_major, self.properties.compute_capability_minor)
@@ -1057,13 +1046,7 @@ class Device:
     @property
     @precondition(_check_context_initialized)
     def context(self) -> Context:
-        """Return the current :obj:`~_context.Context` associated with this device.
-
-        Note
-        ----
-        Device must be initialized.
-
-        """
+        """Context: The current context."""
         ctx = handle_return(driver.cuCtxGetCurrent())
         if int(ctx) == 0:
             raise CUDAError("No context is bound to the calling CPU thread.")
@@ -1071,203 +1054,60 @@ class Device:
 
     @property
     def memory_resource(self) -> MemoryResource:
-        """Return :obj:`~_memory.MemoryResource` associated with this device."""
+        """MemoryResource: The current memory resource."""
         return self._mr
 
     @memory_resource.setter
-    def memory_resource(self, mr):
+    def memory_resource(self, mr: MemoryResource) -> None:
+        """Set the memory resource."""
         assert_type(mr, MemoryResource)
         self._mr = mr
 
     @property
     def default_stream(self) -> Stream:
-        """Return default CUDA :obj:`~_stream.Stream` associated with this device.
-
-        The type of default stream returned depends on if the environment
-        variable CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set.
-
-        If set, returns a per-thread default stream. Otherwise returns
-        the legacy stream.
-
-        """
+        """Stream: The default stream."""
         return default_stream()
 
-    def __int__(self):
-        """Return device_id."""
+    def __int__(self) -> int:
+        """Return the device ID."""
         return self._id
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Return a string representation of the device."""
         return f"<Device {self._id} ({self.name})>"
 
-    def set_current(self, ctx: Context = None) -> Union[Context, None]:
-        """Set device to be used for GPU executions.
+    def set_current(self, ctx: Optional[Context] = None) -> Optional[Context]:
+        """Set the current context."""
+        if ctx is None:
+            ctx = self.create_context()
+        ctx.set_current()
+        return ctx
 
-        Initializes CUDA and sets the calling thread to a valid CUDA
-        context. By default the primary context is used, but optional `ctx`
-        parameter can be used to explicitly supply a :obj:`~_context.Context` object.
-
-        Providing a `ctx` causes the previous set context to be popped and returned.
-
-        Parameters
-        ----------
-        ctx : :obj:`~_context.Context`, optional
-            Optional context to push onto this device's current thread stack.
-
-        Returns
-        -------
-        Union[:obj:`~_context.Context`, None], optional
-            Popped context.
-
-        Examples
-        --------
-        Acts as an entry point of this object. Users always start a code by
-        calling this method, e.g.
-
-        >>> from cuda.core.experimental import Device
-        >>> dev0 = Device(0)
-        >>> dev0.set_current()
-        >>> # ... do work on device 0 ...
-
-        """
-        if ctx is not None:
-            assert_type(ctx, Context)
-            if ctx._id != self._id:
-                raise RuntimeError(
-                    "the provided context was created on the device with"
-                    f" id={ctx._id}, which is different from the target id={self._id}"
-                )
-            prev_ctx = handle_return(driver.cuCtxPopCurrent())
-            handle_return(driver.cuCtxPushCurrent(ctx._handle))
+    def create_context(self, options: Optional[ContextOptions] = None) -> Context:
+        """Create a new context."""
+        if not self._has_inited:
             self._has_inited = True
-            if int(prev_ctx) != 0:
-                return Context._from_ctx(prev_ctx, self._id)
-        else:
-            ctx = handle_return(driver.cuCtxGetCurrent())
-            if int(ctx) == 0:
-                # use primary ctx
-                ctx = handle_return(driver.cuDevicePrimaryCtxRetain(self._id))
-                handle_return(driver.cuCtxPushCurrent(ctx))
-            else:
-                ctx_id = handle_return(driver.cuCtxGetDevice())
-                if ctx_id != self._id:
-                    # use primary ctx
-                    ctx = handle_return(driver.cuDevicePrimaryCtxRetain(self._id))
-                    handle_return(driver.cuCtxPushCurrent(ctx))
-                else:
-                    # no-op, a valid context already exists and is set current
-                    pass
-            self._has_inited = True
-
-    def create_context(self, options: ContextOptions = None) -> Context:
-        """Create a new :obj:`~_context.Context` object.
-
-        Note
-        ----
-        The newly context will not be set as current.
-
-        Parameters
-        ----------
-        options : :obj:`~_context.ContextOptions`, optional
-            Customizable dataclass for context creation options.
-
-        Returns
-        -------
-        :obj:`~_context.Context`
-            Newly created context object.
-
-        """
-        raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
+            return Context._init(self._id, options)
+        return Context.current()
 
     @precondition(_check_context_initialized)
-    def create_stream(self, obj=None, options: StreamOptions = None) -> Stream:
-        """Create a Stream object.
-
-        New stream objects can be created in two different ways:
-
-        1) Create a new CUDA stream with customizable `options`.
-        2) Wrap an existing foreign `obj` supporting the __cuda_stream__ protocol.
-
-        Option (2) internally holds a reference to the foreign object
-        such that the lifetime is managed.
-
-        Note
-        ----
-        Device must be initialized.
-
-        Parameters
-        ----------
-        obj : Any, optional
-            Any object supporting the __cuda_stream__ protocol.
-        options : :obj:`~_stream.StreamOptions`, optional
-            Customizable dataclass for stream creation options.
-
-        Returns
-        -------
-        :obj:`~_stream.Stream`
-            Newly created stream object.
-
-        """
+    def create_stream(self, obj: Optional[Any] = None, options: Optional[StreamOptions] = None) -> Stream:
+        """Create a new stream."""
         return Stream._init(obj=obj, options=options)
 
     @precondition(_check_context_initialized)
     def create_event(self, options: Optional[EventOptions] = None) -> Event:
-        """Create an Event object without recording it to a Stream.
-
-        Note
-        ----
-        Device must be initialized.
-
-        Parameters
-        ----------
-        options : :obj:`EventOptions`, optional
-            Customizable dataclass for event creation options.
-
-        Returns
-        -------
-        :obj:`~_event.Event`
-            Newly created event object.
-
-        """
+        """Create a new event."""
         return Event._init(options)
 
     @precondition(_check_context_initialized)
-    def allocate(self, size, stream=None) -> Buffer:
-        """Allocate device memory from a specified stream.
-
-        Allocates device memory of `size` bytes on the specified `stream`
-        using the memory resource currently associated with this Device.
-
-        Parameter `stream` is optional, using a default stream by default.
-
-        Note
-        ----
-        Device must be initialized.
-
-        Parameters
-        ----------
-        size : int
-            Number of bytes to allocate.
-        stream : :obj:`~_stream.Stream`, optional
-            The stream establishing the stream ordering semantic.
-            Default value of `None` uses default stream.
-
-        Returns
-        -------
-        :obj:`~_memory.Buffer`
-            Newly created buffer object.
-
-        """
+    def allocate(self, size: int, stream: Optional[Stream] = None) -> Buffer:
+        """Allocate memory on the device."""
         if stream is None:
             stream = default_stream()
         return self._mr.allocate(size, stream)
 
     @precondition(_check_context_initialized)
-    def sync(self):
-        """Synchronize the device.
-
-        Note
-        ----
-        Device must be initialized.
-
-        """
+    def sync(self) -> None:
+        """Synchronize the device."""
         handle_return(runtime.cudaDeviceSynchronize())

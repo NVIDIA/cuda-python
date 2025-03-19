@@ -6,7 +6,7 @@ import functools
 import importlib.metadata
 from collections import namedtuple
 from collections.abc import Sequence
-from typing import Callable, Dict
+from typing import Callable, Dict, Any, Optional, Tuple, Union, TypeVar, Type
 
 try:
     from cuda.bindings import driver, nvrtc, runtime
@@ -27,7 +27,7 @@ class NVRTCError(CUDAError):
 ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
 
 
-def cast_to_3_tuple(label, cfg):
+def cast_to_3_tuple(label: str, cfg: Union[int, Tuple[int, ...]]) -> Tuple[int, int, int]:
     cfg_orig = cfg
     if isinstance(cfg, int):
         cfg = (cfg,)
@@ -45,7 +45,7 @@ def cast_to_3_tuple(label, cfg):
     return cfg + (1,) * (3 - len(cfg))
 
 
-def _check_error(error, handle=None):
+def _check_error(error: Union[driver.CUresult, runtime.cudaError_t, nvrtc.nvrtcResult], handle: Optional[Any] = None) -> None:
     if isinstance(error, driver.CUresult):
         if error == driver.CUresult.CUDA_SUCCESS:
             return
@@ -80,7 +80,7 @@ def _check_error(error, handle=None):
         raise RuntimeError(f"Unknown error type: {error}")
 
 
-def handle_return(result, handle=None):
+def handle_return(result: Tuple[Any, ...], handle: Optional[Any] = None) -> Any:
     _check_error(result[0], handle=handle)
     if len(result) == 1:
         return
@@ -90,11 +90,12 @@ def handle_return(result, handle=None):
         return result[1:]
 
 
-def check_or_create_options(cls, options, options_description, *, keep_none=False):
+T = TypeVar('T')
+
+def check_or_create_options(cls: Type[T], options: Optional[Union[T, Dict[str, Any]]], options_description: str, *, keep_none: bool = False) -> Optional[T]:
     """
     Create the specified options dataclass from a dictionary of options or None.
     """
-
     if options is None:
         if keep_none:
             return options
@@ -132,13 +133,13 @@ def precondition(checker: Callable[..., None], what: str = "") -> Callable:
         Callable: A decorator that creates the wrapping.
     """
 
-    def outer(wrapped_function):
+    def outer(wrapped_function: Callable) -> Callable:
         """
         A decorator that actually wraps the function for checking preconditions.
         """
 
         @functools.wraps(wrapped_function)
-        def inner(*args, **kwargs):
+        def inner(*args: Any, **kwargs: Any) -> Any:
             """
             Check preconditions and if they are met, call the wrapped function.
             """
@@ -152,7 +153,7 @@ def precondition(checker: Callable[..., None], what: str = "") -> Callable:
     return outer
 
 
-def get_device_from_ctx(ctx_handle) -> int:
+def get_device_from_ctx(ctx_handle: Any) -> int:
     """Get device ID from the given ctx."""
     from cuda.core.experimental._device import Device  # avoid circular import
 
@@ -168,14 +169,14 @@ def get_device_from_ctx(ctx_handle) -> int:
     return device_id
 
 
-def is_sequence(obj):
+def is_sequence(obj: Any) -> bool:
     """
     Check if the given object is a sequence (list or tuple).
     """
     return isinstance(obj, Sequence)
 
 
-def is_nested_sequence(obj):
+def is_nested_sequence(obj: Any) -> bool:
     """
     Check if the given object is a nested sequence (list or tuple with atleast one list or tuple element).
     """
@@ -183,7 +184,7 @@ def is_nested_sequence(obj):
 
 
 @functools.lru_cache
-def get_binding_version():
+def get_binding_version() -> Tuple[int, int]:
     try:
         major_minor = importlib.metadata.version("cuda-bindings").split(".")[:2]
     except importlib.metadata.PackageNotFoundError:

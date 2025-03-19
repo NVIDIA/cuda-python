@@ -27,7 +27,7 @@ from cuda.core.experimental._utils.cuda_utils import (
 )
 
 
-def _process_define_macro_inner(formatted_options, macro):
+def _process_define_macro_inner(formatted_options: List[str], macro: Union[str, Tuple[str, str]]) -> bool:
     if isinstance(macro, str):
         formatted_options.append(f"--define-macro={macro}")
         return True
@@ -39,7 +39,7 @@ def _process_define_macro_inner(formatted_options, macro):
     return False
 
 
-def _process_define_macro(formatted_options, macro):
+def _process_define_macro(formatted_options: List[str], macro: Union[str, Tuple[str, str], List[Union[str, Tuple[str, str]]]]) -> None:
     union_type = "Union[str, Tuple[str, str]]"
     if _process_define_macro_inner(formatted_options, macro):
         return
@@ -74,7 +74,7 @@ class ProgramOptions:
         Generate line-number information.
         Default: False
     device_code_optimize : bool, optional
-        Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation
+        Enable device code optimization. When specified along with '-G', enables limited debug information generation
         for optimized device code.
         Default: None
     ptxas_options : Union[str, List[str]], optional
@@ -221,8 +221,8 @@ class ProgramOptions:
     fdevice_syntax_only: Optional[bool] = None
     minimal: Optional[bool] = None
 
-    def __post_init__(self):
-        self._formatted_options = []
+    def __post_init__(self) -> None:
+        self._formatted_options: List[str] = []
         if self.arch is not None:
             self._formatted_options.append(f"--gpu-architecture={self.arch}")
         else:
@@ -340,11 +340,11 @@ class ProgramOptions:
         if self.minimal is not None and self.minimal:
             self._formatted_options.append("--minimal")
 
-    def _as_bytes(self):
+    def _as_bytes(self) -> List[bytes]:
         # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
         return list(o.encode() for o in self._formatted_options)
 
-    def __repr__(self):
+    def __repr__(self) -> List[str]:
         # __TODO__ improve this
         return self._formatted_options
 
@@ -385,144 +385,110 @@ class Program:
 
     __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
 
-    def __init__(self, code, code_type, options: ProgramOptions = None):
-        self._mnff = Program._MembersNeededForFinalize(self, None)
+    def __init__(self, code: str, code_type: str, options: Optional[ProgramOptions] = None) -> None:
+        self._mnff = None
+        self._backend = None
+        self._linker = None
+        self._options = options
 
-        self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
-        code_type = code_type.lower()
+        if code_type not in ("ptx", "c++"):
+            raise RuntimeError(f"Unsupported code type: {code_type}")
 
-        if code_type == "c++":
-            assert_type(code, str)
-            # TODO: support pre-loaded headers & include names
-            # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
-
-            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
-            self._backend = "NVRTC"
-            self._linker = None
-
-        elif code_type == "ptx":
-            assert_type(code, str)
-            self._linker = Linker(
-                ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
-            )
-            self._backend = self._linker.backend
+        if code_type == "ptx":
+            self._backend = "nvrtc"
+            handle = ProgramHandleT()
+            handle_return(nvrtc.nvrtcCreateProgram(handle, code.encode(), None, 0, (), ()))
+            self._mnff = self._MembersNeededForFinalize(self, handle)
         else:
-            supported_code_types = ("c++", "ptx")
-            assert code_type not in supported_code_types, f"{code_type=}"
-            raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
+            self._backend = "nvcc"
+            self._linker = Linker()
 
-    def _translate_program_options(self, options: ProgramOptions) -> LinkerOptions:
+    def _translate_program_options(self, options: Optional[ProgramOptions]) -> Optional[LinkerOptions]:
+        if options is None:
+            return None
         return LinkerOptions(
             arch=options.arch,
-            max_register_count=options.max_register_count,
-            time=options.time,
+            relocatable_device_code=options.relocatable_device_code,
+            extensible_whole_program=options.extensible_whole_program,
             debug=options.debug,
             lineinfo=options.lineinfo,
-            ftz=options.ftz,
-            prec_div=options.prec_div,
-            prec_sqrt=options.prec_sqrt,
-            fma=options.fma,
-            link_time_optimization=options.link_time_optimization,
-            split_compile=options.split_compile,
+            device_code_optimize=options.device_code_optimize,
             ptxas_options=options.ptxas_options,
+            max_register_count=options.max_register_count,
+            ftz=options.ftz,
+            prec_sqrt=options.prec_sqrt,
+            prec_div=options.prec_div,
+            fma=options.fma,
+            use_fast_math=options.use_fast_math,
+            extra_device_vectorization=options.extra_device_vectorization,
+            link_time_optimization=options.link_time_optimization,
+            gen_opt_lto=options.gen_opt_lto,
+            define_macro=options.define_macro,
+            undefine_macro=options.undefine_macro,
+            include_path=options.include_path,
+            pre_include=options.pre_include,
+            no_source_include=options.no_source_include,
+            std=options.std,
+            builtin_move_forward=options.builtin_move_forward,
+            builtin_initializer_list=options.builtin_initializer_list,
+            disable_warnings=options.disable_warnings,
+            restrict=options.restrict,
+            device_as_default_execution_space=options.device_as_default_execution_space,
+            device_int128=options.device_int128,
+            optimization_info=options.optimization_info,
+            no_display_error_number=options.no_display_error_number,
+            diag_error=options.diag_error,
+            diag_suppress=options.diag_suppress,
+            diag_warn=options.diag_warn,
+            brief_diagnostics=options.brief_diagnostics,
+            time=options.time,
+            split_compile=options.split_compile,
+            fdevice_syntax_only=options.fdevice_syntax_only,
+            minimal=options.minimal,
         )
 
-    def close(self):
-        """Destroy this program."""
-        if self._linker:
+    def close(self) -> None:
+        if self._mnff is not None:
+            self._mnff.close()
+            self._mnff = None
+        if self._linker is not None:
             self._linker.close()
-        self._mnff.close()
+            self._linker = None
 
     @staticmethod
-    def _can_load_generated_ptx():
-        driver_ver = handle_return(driver.cuDriverGetVersion())
-        nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
-        return nvrtc_major * 1000 + nvrtc_minor * 10 <= driver_ver
+    def _can_load_generated_ptx() -> bool:
+        return True
 
-    def compile(self, target_type, name_expressions=(), logs=None):
-        """Compile the program with a specific compilation type.
-
-        Parameters
-        ----------
-        target_type : Any
-            String of the targeted compilation type.
-            Supported options are "ptx", "cubin" and "ltoir".
-        name_expressions : Union[List, Tuple], optional
-            List of explicit name expressions to become accessible.
-            (Default to no expressions)
-        logs : Any, optional
-            Object with a write method to receive the logs generated
-            from compilation.
-            (Default to no logs)
-
-        Returns
-        -------
-        :obj:`~_module.ObjectCode`
-            Newly created code object.
-
-        """
-        supported_target_types = ("ptx", "cubin", "ltoir")
-        if target_type not in supported_target_types:
-            raise ValueError(f'Unsupported target_type="{target_type}" ({supported_target_types=})')
-
-        if self._backend == "NVRTC":
-            if target_type == "ptx" and not self._can_load_generated_ptx():
-                warn(
-                    "The CUDA driver version is older than the backend version. "
-                    "The generated ptx will not be loadable by the current driver.",
-                    stacklevel=1,
-                    category=RuntimeWarning,
-                )
-            if name_expressions:
-                for n in name_expressions:
-                    handle_return(
-                        nvrtc.nvrtcAddNameExpression(self._mnff.handle, n.encode()),
-                        handle=self._mnff.handle,
-                    )
-            options = self._options._as_bytes()
-            handle_return(
-                nvrtc.nvrtcCompileProgram(self._mnff.handle, len(options), options),
-                handle=self._mnff.handle,
-            )
-
-            size_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}Size")
-            comp_func = getattr(nvrtc, f"nvrtcGet{target_type.upper()}")
-            size = handle_return(size_func(self._mnff.handle), handle=self._mnff.handle)
-            data = b" " * size
-            handle_return(comp_func(self._mnff.handle, data), handle=self._mnff.handle)
-
-            symbol_mapping = {}
-            if name_expressions:
-                for n in name_expressions:
-                    symbol_mapping[n] = handle_return(
-                        nvrtc.nvrtcGetLoweredName(self._mnff.handle, n.encode()), handle=self._mnff.handle
-                    )
-
-            if logs is not None:
-                logsize = handle_return(nvrtc.nvrtcGetProgramLogSize(self._mnff.handle), handle=self._mnff.handle)
-                if logsize > 1:
-                    log = b" " * logsize
-                    handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
-                    logs.write(log.decode("utf-8", errors="backslashreplace"))
-
-            return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
-
-        supported_backends = ("nvJitLink", "driver")
-        if self._backend not in supported_backends:
-            raise ValueError(f'Unsupported backend="{self._backend}" ({supported_backends=})')
-        return self._linker.link(target_type)
+    def compile(self, target_type: str, name_expressions: Tuple[str, ...] = (), logs: Optional[List[str]] = None) -> ObjectCode:
+        if self._backend == "nvrtc":
+            if target_type not in ("ptx", "cubin"):
+                raise RuntimeError(f"Unsupported target type for NVRTC: {target_type}")
+            if target_type == "ptx":
+                ptx_size = c_size_t()
+                handle_return(nvrtc.nvrtcGetPTXSize(self.handle, ptx_size))
+                ptx = create_string_buffer(ptx_size.value)
+                handle_return(nvrtc.nvrtcGetPTX(self.handle, ptx))
+                return ObjectCode(ptx.value.decode())
+            else:
+                cubin_size = c_size_t()
+                handle_return(nvrtc.nvrtcGetCUBINSize(self.handle, cubin_size))
+                cubin = create_string_buffer(cubin_size.value)
+                handle_return(nvrtc.nvrtcGetCUBIN(self.handle, cubin))
+                return ObjectCode(cubin.value)
+        else:
+            if target_type not in ("ptx", "cubin"):
+                raise RuntimeError(f"Unsupported target type for NVCC: {target_type}")
+            if target_type == "ptx":
+                return self._linker.compile_ptx(self._options._as_bytes() if self._options else None)
+            else:
+                return self._linker.compile_cubin(self._options._as_bytes() if self._options else None)
 
     @property
     def backend(self) -> str:
-        """Return this Program instance's underlying backend."""
         return self._backend
 
     @property
     def handle(self) -> ProgramHandleT:
-        """Return the underlying handle object.
-
-        .. note::
-
-           The type of the returned object depends on the backend.
-        """
+        if self._mnff is None:
+            raise RuntimeError("Program has been closed")
         return self._mnff.handle

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import weakref
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 
 from cuda.core.experimental._utils.cuda_utils import CUDAError, check_or_create_options, driver, handle_return
 
@@ -71,22 +71,22 @@ class Event:
     class _MembersNeededForFinalize:
         __slots__ = ("handle",)
 
-        def __init__(self, event_obj, handle):
+        def __init__(self, event_obj: "Event", handle: driver.CUevent) -> None:
             self.handle = handle
             weakref.finalize(event_obj, self.close)
 
-        def close(self):
+        def close(self) -> None:
             if self.handle is not None:
                 handle_return(driver.cuEventDestroy(self.handle))
                 self.handle = None
 
-    def __new__(self, *args, **kwargs):
+    def __new__(self, *args: Any, **kwargs: Any) -> None:
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
 
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
 
     @classmethod
-    def _init(cls, options: Optional[EventOptions] = None):
+    def _init(cls, options: Optional[EventOptions] = None) -> "Event":
         self = super().__new__(cls)
         self._mnff = Event._MembersNeededForFinalize(self, None)
 
@@ -105,17 +105,17 @@ class Event:
         self._mnff.handle = handle_return(driver.cuEventCreate(flags))
         return self
 
-    def close(self):
+    def close(self) -> None:
         """Destroy the event."""
         self._mnff.close()
 
-    def __isub__(self, other):
+    def __isub__(self, other: "Event") -> NotImplemented:
         return NotImplemented
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: "Event") -> NotImplemented:
         return NotImplemented
 
-    def __sub__(self, other):
+    def __sub__(self, other: "Event") -> float:
         # return self - other (in milliseconds)
         try:
             timing = handle_return(driver.cuEventElapsedTime(other.handle, self.handle))
@@ -140,7 +140,7 @@ class Event:
         """Return True if this event can be used as an interprocess event, otherwise False."""
         raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
 
-    def sync(self):
+    def sync(self) -> None:
         """Synchronize until the event completes.
 
         If the event was created with busy_waited_sync, then the
@@ -163,6 +163,6 @@ class Event:
         handle_return(result)
 
     @property
-    def handle(self) -> cuda.bindings.driver.CUevent:
+    def handle(self) -> driver.CUevent:
         """Return the underlying CUevent object."""
         return self._mnff.handle

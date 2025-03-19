@@ -6,10 +6,10 @@ from __future__ import annotations
 
 import abc
 import weakref
-from typing import Optional, Tuple, TypeVar
+from typing import Optional, Tuple, TypeVar, Any, Union
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
-from cuda.core.experimental._stream import default_stream
+from cuda.core.experimental._stream import default_stream, Stream
 from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
 PyCapsule = TypeVar("PyCapsule")
@@ -44,13 +44,13 @@ class Buffer:
     class _MembersNeededForFinalize:
         __slots__ = ("ptr", "size", "mr")
 
-        def __init__(self, buffer_obj, ptr, size, mr):
+        def __init__(self, buffer_obj: "Buffer", ptr: Any, size: int, mr: Optional["MemoryResource"]) -> None:
             self.ptr = ptr
             self.size = size
             self.mr = mr
             weakref.finalize(buffer_obj, self.close)
 
-        def close(self, stream=None):
+        def close(self, stream: Optional[Stream] = None) -> None:
             if self.ptr and self.mr is not None:
                 if stream is None:
                     stream = default_stream()
@@ -61,10 +61,10 @@ class Buffer:
     # TODO: handle ownership? (_mr could be None)
     __slots__ = ("__weakref__", "_mnff")
 
-    def __init__(self, ptr, size, mr: MemoryResource = None):
+    def __init__(self, ptr: Any, size: int, mr: Optional["MemoryResource"] = None) -> None:
         self._mnff = Buffer._MembersNeededForFinalize(self, ptr, size, mr)
 
-    def close(self, stream=None):
+    def close(self, stream: Optional[Stream] = None) -> None:
         """Deallocate this buffer asynchronously on the given stream.
 
         This buffer is released back to their memory resource
@@ -81,17 +81,17 @@ class Buffer:
         self._mnff.close(stream)
 
     @property
-    def handle(self):
+    def handle(self) -> Any:
         """Return the buffer handle object."""
         return self._mnff.ptr
 
     @property
-    def size(self):
+    def size(self) -> int:
         """Return the memory size of this buffer."""
         return self._mnff.size
 
     @property
-    def memory_resource(self) -> MemoryResource:
+    def memory_resource(self) -> Optional["MemoryResource"]:
         """Return the memory resource associated with this buffer."""
         return self._mnff.mr
 
@@ -116,7 +116,7 @@ class Buffer:
             return self._mnff.mr.device_id
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
-    def copy_to(self, dst: Buffer = None, *, stream) -> Buffer:
+    def copy_to(self, dst: Optional["Buffer"] = None, *, stream: Stream) -> "Buffer":
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -145,7 +145,7 @@ class Buffer:
         handle_return(driver.cuMemcpyAsync(dst._mnff.ptr, self._mnff.ptr, self._mnff.size, stream.handle))
         return dst
 
-    def copy_from(self, src: Buffer, *, stream):
+    def copy_from(self, src: "Buffer", *, stream: Stream) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
@@ -215,13 +215,13 @@ class MemoryResource(abc.ABC):
     __slots__ = ("_handle",)
 
     @abc.abstractmethod
-    def __init__(self, *args, **kwargs): ...
+    def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     @abc.abstractmethod
-    def allocate(self, size, stream=None) -> Buffer: ...
+    def allocate(self, size: int, stream: Optional[Stream] = None) -> Buffer: ...
 
     @abc.abstractmethod
-    def deallocate(self, ptr, size, stream=None): ...
+    def deallocate(self, ptr: Any, size: int, stream: Optional[Stream] = None) -> None: ...
 
     @property
     @abc.abstractmethod
@@ -248,17 +248,17 @@ class MemoryResource(abc.ABC):
 class _DefaultAsyncMempool(MemoryResource):
     __slots__ = ("_dev_id",)
 
-    def __init__(self, dev_id):
+    def __init__(self, dev_id: int) -> None:
         self._handle = handle_return(driver.cuDeviceGetMemPool(dev_id))
         self._dev_id = dev_id
 
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size: int, stream: Optional[Stream] = None) -> Buffer:
         if stream is None:
             stream = default_stream()
         ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, self._handle, stream.handle))
         return Buffer(ptr, size, self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr: Any, size: int, stream: Optional[Stream] = None) -> None:
         if stream is None:
             stream = default_stream()
         handle_return(driver.cuMemFreeAsync(ptr, stream.handle))
@@ -277,15 +277,15 @@ class _DefaultAsyncMempool(MemoryResource):
 
 
 class _DefaultPinnedMemorySource(MemoryResource):
-    def __init__(self):
+    def __init__(self) -> None:
         # TODO: support flags from cuMemHostAlloc?
         self._handle = None
 
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size: int, stream: Optional[Stream] = None) -> Buffer:
         ptr = handle_return(driver.cuMemAllocHost(size))
         return Buffer(ptr, size, self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr: Any, size: int, stream: Optional[Stream] = None) -> None:
         handle_return(driver.cuMemFreeHost(ptr))
 
     @property
@@ -304,15 +304,15 @@ class _DefaultPinnedMemorySource(MemoryResource):
 class _SynchronousMemoryResource(MemoryResource):
     __slots__ = ("_dev_id",)
 
-    def __init__(self, dev_id):
+    def __init__(self, dev_id: int) -> None:
         self._handle = None
         self._dev_id = dev_id
 
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size: int, stream: Optional[Stream] = None) -> Buffer:
         ptr = handle_return(driver.cuMemAlloc(size))
         return Buffer(ptr, size, self)
 
-    def deallocate(self, ptr, size, stream=None):
+    def deallocate(self, ptr: Any, size: int, stream: Optional[Stream] = None) -> None:
         if stream is None:
             stream = default_stream()
         stream.sync()
