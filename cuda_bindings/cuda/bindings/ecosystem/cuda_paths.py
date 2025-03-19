@@ -3,14 +3,50 @@ import platform
 import re
 import site
 import sys
+import traceback
+import warnings
 from collections import namedtuple
 from pathlib import Path
 
-from numba import config
-from numba.core.config import IS_WIN32
-from numba.misc.findlib import find_file, find_lib
+from .findlib import find_file, find_lib
+
+IS_WIN32 = sys.platform.startswith("win32")
 
 _env_path_tuple = namedtuple("_env_path_tuple", ["by", "info"])
+
+
+def _get_numba_CUDA_INCLUDE_PATH():
+    # From numba/numba/core/config.py
+
+    def _readenv(name, ctor, default):
+        value = os.environ.get(name)
+        if value is None:
+            return default() if callable(default) else default
+        try:
+            return ctor(value)
+        except Exception:
+            warnings.warn(  # noqa: B028
+                f"Environment variable '{name}' is defined but "
+                f"its associated value '{value}' could not be "
+                "parsed.\nThe parse failed with exception:\n"
+                f"{traceback.format_exc()}",
+                RuntimeWarning,
+            )
+            return default
+
+    if IS_WIN32:
+        cuda_path = os.environ.get("CUDA_PATH")
+        if cuda_path:  # noqa: SIM108
+            default_cuda_include_path = os.path.join(cuda_path, "include")
+        else:
+            default_cuda_include_path = "cuda_include_not_found"
+    else:
+        default_cuda_include_path = os.path.join(os.sep, "usr", "local", "cuda", "include")
+    CUDA_INCLUDE_PATH = _readenv("NUMBA_CUDA_INCLUDE_PATH", str, default_cuda_include_path)
+    return CUDA_INCLUDE_PATH
+
+
+config_CUDA_INCLUDE_PATH = _get_numba_CUDA_INCLUDE_PATH()
 
 
 def _find_valid_path(options):
@@ -221,7 +257,7 @@ def get_nvidia_static_cudalib_ctk():
     if not nvvm_ctk:
         return
 
-    if IS_WIN32 and ("Library" not in nvvm_ctk):
+    if IS_WIN32 and ("Library" not in nvvm_ctk):  # noqa: SIM108
         # Location specific to CUDA 11.x packages on Windows
         dirs = ("Lib", "x64")
     else:
@@ -360,7 +396,7 @@ def _get_include_dir():
     """Find the root include directory."""
     options = [
         ("Conda environment (NVIDIA package)", get_conda_include_dir()),
-        ("CUDA_INCLUDE_PATH Config Entry", config.CUDA_INCLUDE_PATH),
+        ("CUDA_INCLUDE_PATH Config Entry", config_CUDA_INCLUDE_PATH),
         # TODO: add others
     ]
     by, include_dir = _find_valid_path(options)
