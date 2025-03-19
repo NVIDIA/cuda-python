@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from typing import Optional, Union
+from typing import Optional, Union, Any, Dict, TypeVar, Type, Tuple, List
 from warnings import warn
 
 from cuda.core.experimental._utils.clear_error_support import (
@@ -29,7 +29,7 @@ _driver_ver = None
 _kernel_ctypes = None
 
 
-def _lazy_init():
+def _lazy_init() -> None:
     global _inited
     if _inited:
         return
@@ -52,13 +52,13 @@ def _lazy_init():
 
 
 class KernelAttributes:
-    def __new__(self, *args, **kwargs):
+    def __new__(self, *args: Any, **kwargs: Any) -> None:
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     slots = ("_handle", "_cache", "_backend_version", "_loader")
 
     @classmethod
-    def _init(cls, handle):
+    def _init(cls, handle: Any) -> "KernelAttributes":
         self = super().__new__(cls)
         self._handle = handle
         self._cache = {}
@@ -67,7 +67,7 @@ class KernelAttributes:
         self._loader = _backend[self._backend_version]
         return self
 
-    def _get_cached_attribute(self, device_id: int, attribute: driver.CUfunction_attribute) -> int:
+    def _get_cached_attribute(self, device_id: Optional[int], attribute: driver.CUfunction_attribute) -> int:
         """Helper function to get a cached attribute or fetch and cache it if not present."""
         if device_id in self._cache and attribute in self._cache[device_id]:
             return self._cache[device_id][attribute]
@@ -85,62 +85,62 @@ class KernelAttributes:
         self._cache[device_id][attribute] = result
         return result
 
-    def max_threads_per_block(self, device_id: int = None) -> int:
+    def max_threads_per_block(self, device_id: Optional[int] = None) -> int:
         """int : The maximum number of threads per block.
         This attribute is read-only."""
         return self._get_cached_attribute(
             device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
         )
 
-    def shared_size_bytes(self, device_id: int = None) -> int:
+    def shared_size_bytes(self, device_id: Optional[int] = None) -> int:
         """int : The size in bytes of statically-allocated shared memory required by this function.
         This attribute is read-only."""
         return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES)
 
-    def const_size_bytes(self, device_id: int = None) -> int:
+    def const_size_bytes(self, device_id: Optional[int] = None) -> int:
         """int : The size in bytes of user-allocated constant memory required by this function.
         This attribute is read-only."""
         return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES)
 
-    def local_size_bytes(self, device_id: int = None) -> int:
+    def local_size_bytes(self, device_id: Optional[int] = None) -> int:
         """int : The size in bytes of local memory used by each thread of this function.
         This attribute is read-only."""
         return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES)
 
-    def num_regs(self, device_id: int = None) -> int:
+    def num_regs(self, device_id: Optional[int] = None) -> int:
         """int : The number of registers used by each thread of this function.
         This attribute is read-only."""
         return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NUM_REGS)
 
-    def ptx_version(self, device_id: int = None) -> int:
+    def ptx_version(self, device_id: Optional[int] = None) -> int:
         """int : The PTX virtual architecture version for which the function was compiled.
         This attribute is read-only."""
         return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PTX_VERSION)
 
-    def binary_version(self, device_id: int = None) -> int:
+    def binary_version(self, device_id: Optional[int] = None) -> int:
         """int : The binary architecture version for which the function was compiled.
         This attribute is read-only."""
         return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_BINARY_VERSION)
 
-    def cache_mode_ca(self, device_id: int = None) -> bool:
+    def cache_mode_ca(self, device_id: Optional[int] = None) -> bool:
         """bool : Whether the function has been compiled with user specified option "-Xptxas --dlcm=ca" set.
         This attribute is read-only."""
         return bool(self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA))
 
-    def max_dynamic_shared_size_bytes(self, device_id: int = None) -> int:
+    def max_dynamic_shared_size_bytes(self, device_id: Optional[int] = None) -> int:
         """int : The maximum size in bytes of dynamically-allocated shared memory that can be used
         by this function."""
         return self._get_cached_attribute(
             device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
         )
 
-    def preferred_shared_memory_carveout(self, device_id: int = None) -> int:
+    def preferred_shared_memory_carveout(self, device_id: Optional[int] = None) -> int:
         """int : The shared memory carveout preference, in percent of the total shared memory."""
         return self._get_cached_attribute(
             device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
         )
 
-    def cluster_size_must_be_set(self, device_id: int = None) -> bool:
+    def cluster_size_must_be_set(self, device_id: Optional[int] = None) -> bool:
         """bool : The kernel must launch with a valid cluster size specified.
         This attribute is read-only."""
         return bool(
@@ -149,25 +149,25 @@ class KernelAttributes:
             )
         )
 
-    def required_cluster_width(self, device_id: int = None) -> int:
+    def required_cluster_width(self, device_id: Optional[int] = None) -> int:
         """int : The required cluster width in blocks."""
         return self._get_cached_attribute(
             device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
         )
 
-    def required_cluster_height(self, device_id: int = None) -> int:
+    def required_cluster_height(self, device_id: Optional[int] = None) -> int:
         """int : The required cluster height in blocks."""
         return self._get_cached_attribute(
             device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
         )
 
-    def required_cluster_depth(self, device_id: int = None) -> int:
+    def required_cluster_depth(self, device_id: Optional[int] = None) -> int:
         """int : The required cluster depth in blocks."""
         return self._get_cached_attribute(
             device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
         )
 
-    def non_portable_cluster_size_allowed(self, device_id: int = None) -> bool:
+    def non_portable_cluster_size_allowed(self, device_id: Optional[int] = None) -> bool:
         """bool : Whether the function can be launched with non-portable cluster size."""
         return bool(
             self._get_cached_attribute(
@@ -175,7 +175,7 @@ class KernelAttributes:
             )
         )
 
-    def cluster_scheduling_policy_preference(self, device_id: int = None) -> int:
+    def cluster_scheduling_policy_preference(self, device_id: Optional[int] = None) -> int:
         """int : The block scheduling policy of a function."""
         return self._get_cached_attribute(
             device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
@@ -195,11 +195,11 @@ class Kernel:
 
     __slots__ = ("_handle", "_module", "_attributes")
 
-    def __new__(self, *args, **kwargs):
+    def __new__(self, *args: Any, **kwargs: Any) -> None:
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
     @classmethod
-    def _from_obj(cls, obj, mod):
+    def _from_obj(cls, obj: Any, mod: "ObjectCode") -> "Kernel":
         assert_type(obj, _kernel_ctypes)
         assert_type(mod, ObjectCode)
         ker = super().__new__(cls)
@@ -243,32 +243,28 @@ class ObjectCode:
     __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __new__(self, *args, **kwargs):
+    def __new__(self, *args: Any, **kwargs: Any) -> None:
         raise RuntimeError(
             "ObjectCode objects cannot be instantiated directly. "
             "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
         )
 
     @classmethod
-    def _init(cls, module, code_type, *, symbol_mapping: Optional[dict] = None):
-        self = super().__new__(cls)
-        assert code_type in self._supported_code_type, f"{code_type=} is not supported"
+    def _init(cls, module: Any, code_type: str, *, symbol_mapping: Optional[Dict[str, str]] = None) -> "ObjectCode":
+        """Initialize a new ObjectCode instance."""
         _lazy_init()
-
-        # handle is assigned during _lazy_load
+        self = super().__new__(cls)
+        assert code_type in cls._supported_code_type, f"{code_type=} is not supported"
         self._handle = None
-
         self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
-        self._loader = _backend[self._backend_version]
-
         self._code_type = code_type
         self._module = module
+        self._loader = _backend[self._backend_version]
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
-
         return self
 
     @staticmethod
-    def from_cubin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_cubin(module: Union[bytes, str], *, symbol_mapping: Optional[Dict[str, str]] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -284,7 +280,7 @@ class ObjectCode:
         return ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_ptx(module: Union[bytes, str], *, symbol_mapping: Optional[Dict[str, str]] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -301,14 +297,15 @@ class ObjectCode:
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
-    def _lazy_load_module(self, *args, **kwargs):
+    def _lazy_load_module(self, *args: Any, **kwargs: Any) -> None:
+        """Load the module if it hasn't been loaded yet."""
         if self._handle is not None:
             return
         module = self._module
         assert_type_str_or_bytes(module)
         if isinstance(module, str):
             if self._backend_version == "new":
-                self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
+                self._handle = handle_return(self._loader["file"](module.encode()))
             else:  # "old" backend
                 self._handle = handle_return(self._loader["file"](module.encode()))
             return
@@ -321,7 +318,7 @@ class ObjectCode:
         raise_code_path_meant_to_be_unreachable()
 
     @precondition(_lazy_load_module)
-    def get_kernel(self, name) -> Kernel:
+    def get_kernel(self, name: str) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
@@ -353,6 +350,6 @@ class ObjectCode:
 
     @property
     @precondition(_lazy_load_module)
-    def handle(self):
+    def handle(self) -> Any:
         """Return the underlying handle object."""
         return self._handle
