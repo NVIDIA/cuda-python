@@ -8,7 +8,7 @@ import warnings
 from collections import namedtuple
 from pathlib import Path
 
-from .findlib import find_file, find_lib
+from ._path_finder_utils.findlib import find_file, find_lib
 
 IS_WIN32 = sys.platform.startswith("win32")
 
