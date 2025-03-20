@@ -265,7 +265,7 @@ cmdclass = {}
 # Cythonize
 
 
-def prep_extensions(sources, libraries=[]):
+def prep_extensions(sources, libraries):
     pattern = sources[0]
     files = glob.glob(pattern)
     exts = []
