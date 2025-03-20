@@ -345,8 +345,11 @@ sources_list = [
     ["cuda/bindings/_internal/utils.pyx"],
 ]
 
+libraries = ["cudart_static"]
+if sys.platform == "linux":
+    libraries += ["rt"]
 for sources in sources_list:
-    extensions += prep_extensions(sources, ["cudart_static"])
+    extensions += prep_extensions(sources, libraries)
 
 # ---------------------------------------------------------------------
 # Custom cmdclass extensions

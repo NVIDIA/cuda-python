@@ -7,6 +7,11 @@
 # is strictly prohibited.
 #
 # This code was automatically generated with version 12.8.0. Do not modify it directly.
+cdef extern from "":
+    """
+    #define CUDA_API_PER_THREAD_DEFAULT_STREAM
+    """
+
 cimport cuda.bindings.cyruntime as cyruntime
 
 {{if 'cudaDeviceReset' in found_functions}}
