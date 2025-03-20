@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -7,6 +7,9 @@
 # is strictly prohibited.
 #
 # This code was automatically generated with version 12.8.0. Do not modify it directly.
+import cython
+from libcpp.map cimport map
+from libc.stdlib cimport malloc, free
 cimport cuda.bindings._bindings.cydriver as cydriver
 
 {{if 'cuGetErrorString' in found_functions}}
@@ -599,14 +602,47 @@ cdef CUresult cuMemAllocManaged(CUdeviceptr* dptr, size_t bytesize, unsigned int
 
 {{if 'cuDeviceRegisterAsyncNotification' in found_functions}}
 
+ctypedef struct cuAsyncCallbackData_st:
+    CUasyncCallback callback
+    void *userData
+
+ctypedef cuAsyncCallbackData_st cuAsyncCallbackData
+
+@cython.show_performance_hints(False)
+cdef void cuAsyncNotificationCallbackWrapper(CUasyncNotificationInfo *info, void *data, CUasyncCallbackHandle handle) nogil:
+    cdef cuAsyncCallbackData *cbData = <cuAsyncCallbackData *>data
+    with gil:
+        cbData.callback(info, cbData.userData, handle)
+
+
 cdef CUresult cuDeviceRegisterAsyncNotification(CUdevice device, CUasyncCallback callbackFunc, void* userData, CUasyncCallbackHandle* callback) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuDeviceRegisterAsyncNotification(device, callbackFunc, userData, callback)
+    cdef cuAsyncCallbackData *cbData = NULL
+    cdef CUresult err = CUDA_SUCCESS
+    cbData = <cuAsyncCallbackData *>malloc(sizeof(cbData[0]))
+
+    if cbData == NULL:
+        return CUDA_ERROR_OUT_OF_MEMORY
+
+    cbData.callback = callbackFunc
+    cbData.userData = userData
+    err = cydriver._cuDeviceRegisterAsyncNotification(device, <CUasyncCallback>cuAsyncNotificationCallbackWrapper, <void *>cbData, callback)
+    if err != CUDA_SUCCESS:
+        free(cbData)
+        return err
+
+    m_global._asyncCallbackDataMap[callback[0]] = cbData
+    return err
 {{endif}}
 
 {{if 'cuDeviceUnregisterAsyncNotification' in found_functions}}
 
 cdef CUresult cuDeviceUnregisterAsyncNotification(CUdevice device, CUasyncCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuDeviceUnregisterAsyncNotification(device, callback)
+    cdef CUresult err = CUDA_SUCCESS
+    err = cydriver._cuDeviceUnregisterAsyncNotification(device, callback)
+    if err == CUDA_SUCCESS:
+        free(m_global._asyncCallbackDataMap[callback])
+        m_global._asyncCallbackDataMap.erase(callback)
+    return err
 {{endif}}
 
 {{if 'cuDeviceGetByPCIBusId' in found_functions}}
@@ -1295,8 +1331,35 @@ cdef CUresult cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned int F
 
 {{if 'cuStreamAddCallback' in found_functions}}
 
+ctypedef struct cuStreamCallbackData_st:
+    CUstreamCallback callback
+    void *userData
+
+ctypedef cuStreamCallbackData_st cuStreamCallbackData
+
+@cython.show_performance_hints(False)
+cdef void cuStreamCallbackWrapper(CUstream stream, CUresult status, void *data) nogil:
+    cdef cuStreamCallbackData *cbData = <cuStreamCallbackData *>data
+    with gil:
+        cbData.callback(stream, status, cbData.userData)
+    free(cbData)
+
+
 cdef CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, void* userData, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuStreamAddCallback(hStream, callback, userData, flags)
+    cdef cuStreamCallbackData *cbData = NULL
+    cdef CUresult err = CUDA_SUCCESS
+    cbData = <cuStreamCallbackData *>malloc(sizeof(cbData[0]))
+
+    if cbData == NULL:
+        return CUDA_ERROR_OUT_OF_MEMORY
+
+    cbData.callback = callback
+    cbData.userData = userData
+    err = cydriver._cuStreamAddCallback(hStream, <CUstreamCallback>cuStreamCallbackWrapper, <void *>cbData, flags)
+    if err != CUDA_SUCCESS:
+        free(cbData)
+        return err
+    return err
 {{endif}}
 
 {{if 'cuStreamBeginCapture_v2' in found_functions}}
@@ -1595,8 +1658,35 @@ cdef CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS* launchPar
 
 {{if 'cuLaunchHostFunc' in found_functions}}
 
+ctypedef struct cuHostCallbackData_st:
+    CUhostFn callback
+    void *userData
+
+ctypedef cuHostCallbackData_st cuHostCallbackData
+
+@cython.show_performance_hints(False)
+cdef void cuHostCallbackWrapper(void *data) nogil:
+    cdef cuHostCallbackData *cbData = <cuHostCallbackData *>data
+    with gil:
+        cbData.callback(cbData.userData)
+    free(cbData)
+
+
 cdef CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuLaunchHostFunc(hStream, fn, userData)
+    cdef cuHostCallbackData *cbData = NULL
+    cdef CUresult err = CUDA_SUCCESS
+    cbData = <cuHostCallbackData *>malloc(sizeof(cbData[0]))
+
+    if cbData == NULL:
+        return CUDA_ERROR_OUT_OF_MEMORY
+
+    cbData.callback = fn
+    cbData.userData = userData
+    err = cydriver._cuLaunchHostFunc(hStream, <CUhostFn>cuHostCallbackWrapper, <void *>cbData)
+    if err != CUDA_SUCCESS:
+        free(cbData)
+        return err
+    return err
 {{endif}}
 
 {{if 'cuFuncSetBlockShape' in found_functions}}
@@ -2816,3 +2906,19 @@ cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResou
 cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuGraphicsVDPAURegisterOutputSurface(pCudaResource, vdpSurface, flags)
 {{endif}}
+
+
+cdef class cudaBindingsDriverGlobal:
+    {{if 'cuDeviceRegisterAsyncNotification' in found_functions}}
+    cdef map[CUasyncCallbackHandle, cuAsyncCallbackData*] _asyncCallbackDataMap
+    {{endif}}
+
+    def __dealloc__(self):
+        pass
+        {{if 'cuDeviceRegisterAsyncNotification' in found_functions}}
+        for item_asyncCallbackDataMap in self._asyncCallbackDataMap:
+            free(item_asyncCallbackDataMap.second)
+        self._asyncCallbackDataMap.clear()
+        {{endif}}
+
+cdef cudaBindingsDriverGlobal m_global = cudaBindingsDriverGlobal()

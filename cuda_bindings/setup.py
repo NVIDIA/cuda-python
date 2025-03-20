@@ -265,7 +265,7 @@ cmdclass = {}
 # Cythonize
 
 
-def prep_extensions(sources):
+def prep_extensions(sources, libraries):
     pattern = sources[0]
     files = glob.glob(pattern)
     exts = []
@@ -278,7 +278,7 @@ def prep_extensions(sources):
                 include_dirs=include_dirs,
                 library_dirs=library_dirs,
                 runtime_library_dirs=[],
-                libraries=[],
+                libraries=libraries,
                 language="c++",
                 extra_compile_args=extra_compile_args,
             )
@@ -331,6 +331,8 @@ sources_list = [
     # private
     ["cuda/bindings/_bindings/cydriver.pyx", "cuda/bindings/_bindings/loader.cpp"],
     ["cuda/bindings/_bindings/cynvrtc.pyx"],
+    ["cuda/bindings/_bindings/cyruntime.pyx"],
+    ["cuda/bindings/_bindings/cyruntime_ptds.pyx"],
     # utils
     ["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"],
     ["cuda/bindings/_lib/cyruntime/cyruntime.pyx"],
@@ -345,8 +347,11 @@ sources_list = [
     ["cuda/bindings/_internal/utils.pyx"],
 ]
 
+libraries = ["cudart_static"]
+if sys.platform == "linux":
+    libraries += ["rt"]
 for sources in sources_list:
-    extensions += prep_extensions(sources)
+    extensions += prep_extensions(sources, libraries)
 
 # ---------------------------------------------------------------------
 # Custom cmdclass extensions
