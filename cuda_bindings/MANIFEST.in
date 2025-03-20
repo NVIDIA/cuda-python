@@ -2,3 +2,4 @@ recursive-include cuda/ *.pyx *.pxd
 # at least with setuptools 75.0.0 this folder was added erroneously
 # to the payload, causing file copying to the build environment failed
 exclude cuda/bindings cuda?bindings
+exclude cuda/bindings/_bindings cuda?bindings?_bindings
