@@ -167,4 +167,3 @@ cdef bint is_nested_sequence(data)
 cdef void* get_buffer_pointer(buf, Py_ssize_t size, readonly=*) except*
 
 cdef tuple get_nvjitlink_dso_version_suffix(int driver_ver)
-cdef tuple get_nvvm_dso_version_suffix(int driver_ver)
