@@ -56,12 +56,11 @@ cdef void* load_library(const int driver_ver) except* with gil:
     paths_nvvm = paths["nvvm"]
     if paths_nvvm:
         so_name = paths_nvvm.info
-        if so_name:
-            handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
-            if handle == NULL:
-                err_msg = dlerror()
-                raise RuntimeError(f'Failed to dlopen {so_name} ({err_msg.decode()})')
-            return handle
+        handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
+        if handle == NULL:
+            err_msg = dlerror()
+            raise RuntimeError(f'Failed to dlopen {so_name} ({err_msg.decode()})')
+        return handle
     raise RuntimeError('Unable to locate libnvvm.so')
 
 
