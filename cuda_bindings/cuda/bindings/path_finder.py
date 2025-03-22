@@ -93,7 +93,7 @@ def _get_nvvm_path_decision():
     ]
     # need to ensure nvvm dir actually exists
     nvvm_ctk_dir = get_system_ctk(*_nvvm_lib_dir())
-    if os.path.exists(nvvm_ctk_dir):
+    if nvvm_ctk_dir and os.path.exists(nvvm_ctk_dir):
         options.append(("System", nvvm_ctk_dir))
 
     by, path = _find_valid_path(options)
