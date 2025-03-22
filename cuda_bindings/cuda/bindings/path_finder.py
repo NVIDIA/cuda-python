@@ -70,7 +70,7 @@ def _get_libdevice_path_decision():
         ("NVIDIA NVCC Wheel", get_libdevice_wheel()),
     ]
     libdevice_ctk_dir = get_system_ctk("nvvm", "libdevice")
-    if os.path.exists(libdevice_ctk_dir):
+    if libdevice_ctk_dir and os.path.exists(libdevice_ctk_dir):
         options.append(("System", libdevice_ctk_dir))
 
     by, libdir = _find_valid_path(options)
