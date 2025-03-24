@@ -11,4 +11,3 @@ Highlights
   `libNVVM C API <https://docs.nvidia.com/cuda/libnvvm-api/>`_.
 * Source build error checking added for missing required headers
 * Statically link CUDA Runtime instead of reimplementing it
-* Call all callback functions with the GIL
