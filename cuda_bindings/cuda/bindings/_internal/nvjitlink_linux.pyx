@@ -58,6 +58,14 @@ cdef void* load_library(const int driver_ver) except* with gil:
         so_name = "libnvJitLink.so" + (f".{suffix}" if suffix else suffix)
         handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
         if handle != NULL:
+            # Scan /proc/self/maps to find the loaded library
+            num_print = 0
+            with open("/proc/self/maps", "r") as f:
+                for line in f:
+                    if so_name in line:
+                        full_path = line.strip().split()[-1]
+                        num_print += 1
+                        print(f"\nLOOOK {num_print} Loaded from: {full_path}")
             break
     else:
         err_msg = dlerror()
