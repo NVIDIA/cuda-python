@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -7,6 +7,9 @@
 # is strictly prohibited.
 #
 # This code was automatically generated with version 12.8.0. Do not modify it directly.
+import cython
+from libcpp.map cimport map
+from libc.stdlib cimport malloc, free
 cimport cuda.bindings._bindings.cynvrtc as cynvrtc
 
 {{if 'nvrtcGetErrorString' in found_functions}}
@@ -164,3 +167,5 @@ cdef nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) ex
 cdef nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     return cynvrtc._nvrtcSetFlowCallback(prog, callback, payload)
 {{endif}}
+
+

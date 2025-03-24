@@ -268,6 +268,7 @@ cmdclass = {}
 def prep_extensions(sources, libraries):
     pattern = sources[0]
     files = glob.glob(pattern)
+    libraries = libraries if libraries else []
     exts = []
     for pyx in files:
         mod_name = pyx.replace(".pyx", "").replace(os.sep, ".").replace("/", ".")
@@ -327,30 +328,27 @@ def do_cythonize(extensions):
     )
 
 
+static_runtime_libraries = ["cudart_static", "rt"] if sys.platform == "linux" else ["cudart_static"]
 sources_list = [
     # private
-    ["cuda/bindings/_bindings/cydriver.pyx", "cuda/bindings/_bindings/loader.cpp"],
-    ["cuda/bindings/_bindings/cynvrtc.pyx"],
-    ["cuda/bindings/_bindings/cyruntime.pyx"],
-    ["cuda/bindings/_bindings/cyruntime_ptds.pyx"],
+    (["cuda/bindings/_bindings/cydriver.pyx", "cuda/bindings/_bindings/loader.cpp"], None),
+    (["cuda/bindings/_bindings/cynvrtc.pyx"], None),
+    (["cuda/bindings/_bindings/cyruntime.pyx"], static_runtime_libraries),
+    (["cuda/bindings/_bindings/cyruntime_ptds.pyx"], static_runtime_libraries),
     # utils
-    ["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"],
-    ["cuda/bindings/_lib/cyruntime/cyruntime.pyx"],
-    ["cuda/bindings/_lib/cyruntime/utils.pyx"],
+    (["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"], None),
+    (["cuda/bindings/_lib/cyruntime/cyruntime.pyx"], None),
+    (["cuda/bindings/_lib/cyruntime/utils.pyx"], None),
     # public
-    ["cuda/bindings/*.pyx"],
+    (["cuda/bindings/*.pyx"], None),
     # public (deprecated, to be removed)
-    ["cuda/*.pyx"],
+    (["cuda/*.pyx"], None),
     # internal files used by generated bindings
-    ["cuda/bindings/_internal/nvjitlink.pyx"],
-    ["cuda/bindings/_internal/nvvm.pyx"],
-    ["cuda/bindings/_internal/utils.pyx"],
+    (["cuda/bindings/_internal/nvjitlink.pyx"], None),
+    (["cuda/bindings/_internal/utils.pyx"], None),
 ]
 
-libraries = ["cudart_static"]
-if sys.platform == "linux":
-    libraries += ["rt"]
-for sources in sources_list:
+for sources, libraries in sources_list:
     extensions += prep_extensions(sources, libraries)
 
 # ---------------------------------------------------------------------
