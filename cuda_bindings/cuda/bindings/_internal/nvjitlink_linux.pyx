@@ -89,7 +89,13 @@ cdef void* load_library(const int driver_ver) except* with gil:
                 return handle
             err_msg = dlerror().decode(errors="backslashreplace")
             error_messages.append(f"Failed to dlopen {so_name}: {err_msg}")
-    raise RuntimeError(f"Unable to load {so_basename}: {', '.join(error_messages)}")
+    attachment = []
+    for so_dirname in candidate_so_dirs:
+        attachment.append(f"  listdir({repr(so_dirname)}):")
+        for node in sorted(os.listdir(so_dirname)):
+            attachment.append(f"    {node}")
+    attachment = "\n".join(attachment)
+    raise RuntimeError(f"Unable to load {so_basename} from: {', '.join(error_messages)}\n{attachment}")
 
 
 cdef int _check_or_init_nvjitlink() except -1 nogil:
