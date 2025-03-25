@@ -8,11 +8,12 @@ import ctypes
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union, Any, TypeVar, ContextManager
 from warnings import warn
 
 if TYPE_CHECKING:
     import cuda.bindings
+    from cuda.bindings import driver as driver_type
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import ObjectCode
@@ -27,8 +28,9 @@ _inited = False
 _nvjitlink = None  # populated if nvJitLink can be used
 _nvjitlink_input_types = None  # populated if nvJitLink cannot be used
 
+LinkerHandleT = TypeVar('LinkerHandleT', bound=Union['driver_type.CUlinkState', Any])
 
-# Note: this function is reused in the tests
+
 def _decide_nvjitlink_or_driver() -> bool:
     """Returns True if falling back to the cuLink* driver APIs."""
     global _driver_ver, _driver, _nvjitlink
@@ -61,7 +63,7 @@ def _decide_nvjitlink_or_driver() -> bool:
         return False
 
 
-def _lazy_init():
+def _lazy_init() -> None:
     global _inited, _nvjitlink_input_types, _driver_input_types
     if _inited:
         return
@@ -180,7 +182,7 @@ class LinkerOptions:
     split_compile_extended: Optional[int] = None
     no_cache: Optional[bool] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         _lazy_init()
         self.formatted_options = []
         if _nvjitlink:
@@ -188,7 +190,7 @@ class LinkerOptions:
         else:
             self._init_driver()
 
-    def _init_nvjitlink(self):
+    def _init_nvjitlink(self) -> None:
         if self.arch is not None:
             self.formatted_options.append(f"-arch={self.arch}")
         else:
@@ -244,7 +246,7 @@ class LinkerOptions:
         if self.no_cache is True:
             self.formatted_options.append("-no-cache")
 
-    def _init_driver(self):
+    def _init_driver(self) -> None:
         self.option_keys = []
         # allocate 4 KiB each for info/error logs
         size = 4194304
@@ -309,12 +311,9 @@ class LinkerOptions:
             self.option_keys.append(_driver.CUjit_option.CU_JIT_CACHE_MODE)
 
 
-# This needs to be a free function not a method, as it's disallowed by contextmanager.
 @contextmanager
-def _exception_manager(self):
-    """
-    A helper function to improve the error message of exceptions raised by the linker backend.
-    """
+def _exception_manager(self) -> ContextManager[None]:
+    """Context manager to handle exceptions during linking."""
     try:
         yield
     except Exception as e:
@@ -327,10 +326,6 @@ def _exception_manager(self):
         # Here we rely on both CUDAError and nvJitLinkError have the error string placed in .args[0].
         e.args = (e.args[0] + (f"\nLinker error log: {error_log}" if error_log else ""), *e.args[1:])
         raise e
-
-
-nvJitLinkHandleT = int
-LinkerHandleT = Union[nvJitLinkHandleT, "cuda.bindings.driver.CUlinkState"]
 
 
 class Linker:
@@ -351,13 +346,13 @@ class Linker:
     class _MembersNeededForFinalize:
         __slots__ = ("handle", "use_nvjitlink", "const_char_keep_alive")
 
-        def __init__(self, program_obj, handle, use_nvjitlink):
+        def __init__(self, program_obj: "Linker", handle: LinkerHandleT, use_nvjitlink: bool) -> None:
             self.handle = handle
             self.use_nvjitlink = use_nvjitlink
             self.const_char_keep_alive = []
             weakref.finalize(program_obj, self.close)
 
-        def close(self):
+        def close(self) -> None:
             if self.handle is not None:
                 if self.use_nvjitlink:
                     _nvjitlink.destroy(self.handle)
@@ -367,11 +362,12 @@ class Linker:
 
     __slots__ = ("__weakref__", "_mnff", "_options")
 
-    def __init__(self, *object_codes: ObjectCode, options: LinkerOptions = None):
+    def __init__(self, *object_codes: ObjectCode, options: Optional[LinkerOptions] = None) -> None:
+        """Initialize a new Linker instance."""
         if len(object_codes) == 0:
             raise ValueError("At least one ObjectCode object must be provided")
 
-        self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
+        self._options = check_or_create_options(LinkerOptions, options, "Linker options")
         with _exception_manager(self):
             if _nvjitlink:
                 handle = _nvjitlink.create(len(options.formatted_options), options.formatted_options)
@@ -387,7 +383,8 @@ class Linker:
             assert_type(code, ObjectCode)
             self._add_code_object(code)
 
-    def _add_code_object(self, object_code: ObjectCode):
+    def _add_code_object(self, object_code: ObjectCode) -> None:
+        """Add an object code to be linked."""
         data = object_code._module
         assert_type(data, bytes)
         with _exception_manager(self):
@@ -416,25 +413,8 @@ class Linker:
                 )
                 self._mnff.const_char_keep_alive.append(name_bytes)
 
-    def link(self, target_type) -> ObjectCode:
-        """
-        Links the provided object codes into a single output of the specified target type.
-
-        Parameters
-        ----------
-        target_type : str
-            The type of the target output. Must be either "cubin" or "ptx".
-
-        Returns
-        -------
-        ObjectCode
-            The linked object code of the specified target type.
-
-        Note
-        ------
-        See nvrtc compiler options documnetation to ensure the input object codes are
-        correctly compiled for linking.
-        """
+    def link(self, target_type: str) -> ObjectCode:
+        """Link the added object codes into a new ObjectCode."""
         if target_type not in ("cubin", "ptx"):
             raise ValueError(f"Unsupported target type: {target_type}")
         with _exception_manager(self):
@@ -456,13 +436,7 @@ class Linker:
         return ObjectCode._init(bytes(code), target_type)
 
     def get_error_log(self) -> str:
-        """Get the error log generated by the linker.
-
-        Returns
-        -------
-        str
-            The error log.
-        """
+        """Get the error log from the linker."""
         if _nvjitlink:
             log_size = _nvjitlink.get_error_log_size(self._mnff.handle)
             log = bytearray(log_size)
@@ -472,13 +446,7 @@ class Linker:
         return log.decode("utf-8", errors="backslashreplace")
 
     def get_info_log(self) -> str:
-        """Get the info log generated by the linker.
-
-        Returns
-        -------
-        str
-            The info log.
-        """
+        """Get the info log from the linker."""
         if _nvjitlink:
             log_size = _nvjitlink.get_info_log_size(self._mnff.handle)
             log = bytearray(log_size)
@@ -487,7 +455,8 @@ class Linker:
             log = self._options.formatted_options[0]
         return log.decode("utf-8", errors="backslashreplace")
 
-    def _input_type_from_code_type(self, code_type: str):
+    def _input_type_from_code_type(self, code_type: str) -> Any:
+        """Get the input type from code type."""
         # this list is based on the supported values for code_type in the ObjectCode class definition.
         # nvJitLink/driver support other options for input type
         input_type = _nvjitlink_input_types.get(code_type) if _nvjitlink else _driver_input_types.get(code_type)
@@ -498,12 +467,7 @@ class Linker:
 
     @property
     def handle(self) -> LinkerHandleT:
-        """Return the underlying handle object.
-
-        .. note::
-
-           The type of the returned object depends on the backend.
-        """
+        """Return the underlying linker handle."""
         return self._mnff.handle
 
     @property
@@ -511,6 +475,6 @@ class Linker:
         """Return this Linker instance's underlying backend."""
         return "nvJitLink" if self._mnff.use_nvjitlink else "driver"
 
-    def close(self):
-        """Destroy this linker."""
+    def close(self) -> None:
+        """Close the linker."""
         self._mnff.close()

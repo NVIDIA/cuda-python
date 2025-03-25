@@ -8,7 +8,7 @@ import os
 import warnings
 import weakref
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Optional, Tuple, Union, Any
 
 if TYPE_CHECKING:
     import cuda.bindings
@@ -64,13 +64,13 @@ class Stream:
     class _MembersNeededForFinalize:
         __slots__ = ("handle", "owner", "builtin")
 
-        def __init__(self, stream_obj, handle, owner, builtin):
+        def __init__(self, stream_obj: "Stream", handle: driver.CUstream, owner: Optional[Any], builtin: bool) -> None:
             self.handle = handle
             self.owner = owner
             self.builtin = builtin
             weakref.finalize(stream_obj, self.close)
 
-        def close(self):
+        def close(self) -> None:
             if self.owner is None:
                 if self.handle and not self.builtin:
                     handle_return(driver.cuStreamDestroy(self.handle))
@@ -78,7 +78,7 @@ class Stream:
                 self.owner = None
             self.handle = None
 
-    def __new__(self, *args, **kwargs):
+    def __new__(self, *args: Any, **kwargs: Any) -> None:
         raise RuntimeError(
             "Stream objects cannot be instantiated directly. "
             "Please use Device APIs (create_stream) or other Stream APIs (from_handle)."
@@ -87,7 +87,7 @@ class Stream:
     __slots__ = ("__weakref__", "_mnff", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
 
     @classmethod
-    def _legacy_default(cls):
+    def _legacy_default(cls) -> "Stream":
         self = super().__new__(cls)
         self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_LEGACY), None, True)
         self._nonblocking = None  # delayed
@@ -97,7 +97,7 @@ class Stream:
         return self
 
     @classmethod
-    def _per_thread_default(cls):
+    def _per_thread_default(cls) -> "Stream":
         self = super().__new__(cls)
         self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_PER_THREAD), None, True)
         self._nonblocking = None  # delayed
@@ -107,7 +107,7 @@ class Stream:
         return self
 
     @classmethod
-    def _init(cls, obj=None, *, options: Optional[StreamOptions] = None):
+    def _init(cls, obj: Optional[Any] = None, *, options: Optional[StreamOptions] = None) -> "Stream":
         self = super().__new__(cls)
         self._mnff = Stream._MembersNeededForFinalize(self, None, None, False)
 
@@ -174,7 +174,7 @@ class Stream:
         self._ctx_handle = None  # delayed
         return self
 
-    def close(self):
+    def close(self) -> None:
         """Destroy the stream.
 
         Destroy the stream if we own it. Borrowed foreign stream
@@ -188,7 +188,7 @@ class Stream:
         return (0, self.handle)
 
     @property
-    def handle(self) -> cuda.bindings.driver.CUstream:
+    def handle(self) -> driver.CUstream:
         """Return the underlying ``CUstream`` object."""
         return self._mnff.handle
 
@@ -211,11 +211,11 @@ class Stream:
             self._priority = prio
         return self._priority
 
-    def sync(self):
+    def sync(self) -> None:
         """Synchronize the stream."""
         handle_return(driver.cuStreamSynchronize(self._mnff.handle))
 
-    def record(self, event: Event = None, options: EventOptions = None) -> Event:
+    def record(self, event: Optional[Event] = None, options: Optional[EventOptions] = None) -> Event:
         """Record an event onto the stream.
 
         Creates an Event object (or reuses the given one) by
@@ -243,106 +243,64 @@ class Stream:
         handle_return(driver.cuEventRecord(event.handle, self._mnff.handle))
         return event
 
-    def wait(self, event_or_stream: Union[Event, Stream]):
+    def wait(self, event_or_stream: Union[Event, "Stream"]) -> None:
         """Wait for a CUDA event or a CUDA stream.
 
         Waiting for an event or a stream establishes a stream order.
 
-        If a :obj:`~_stream.Stream` is provided, then wait until the stream's
-        work is completed. This is done by recording a new :obj:`~_event.Event`
-        on the stream and then waiting on it.
+        Parameters
+        ----------
+        event_or_stream : Union[:obj:`~_event.Event`, :obj:`~_stream.Stream`]
+            The event or stream to wait for.
 
         """
         if isinstance(event_or_stream, Event):
-            event = event_or_stream.handle
-            discard_event = False
+            handle_return(driver.cuStreamWaitEvent(self._mnff.handle, event_or_stream.handle, 0))
         else:
-            if isinstance(event_or_stream, Stream):
-                stream = event_or_stream
-            else:
-                try:
-                    stream = Stream._init(event_or_stream)
-                except Exception as e:
-                    raise ValueError(
-                        "only an Event, Stream, or object supporting __cuda_stream__ can be waited,"
-                        f" got {type(event_or_stream)}"
-                    ) from e
-            event = handle_return(driver.cuEventCreate(driver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
-            handle_return(driver.cuEventRecord(event, stream.handle))
-            discard_event = True
-
-        # TODO: support flags other than 0?
-        handle_return(driver.cuStreamWaitEvent(self._mnff.handle, event, 0))
-        if discard_event:
-            handle_return(driver.cuEventDestroy(event))
+            handle_return(driver.cuStreamWaitStream(self._mnff.handle, event_or_stream.handle, 0))
 
     @property
-    def device(self) -> Device:
-        """Return the :obj:`~_device.Device` singleton associated with this stream.
-
-        Note
-        ----
-        The current context on the device may differ from this
-        stream's context. This case occurs when a different CUDA
-        context is set current after a stream is created.
-
-        """
-        from cuda.core.experimental._device import Device  # avoid circular import
-
+    def device(self) -> "Device":
+        """Return the device associated with this stream."""
         if self._device_id is None:
-            # Get the stream context first
-            if self._ctx_handle is None:
-                self._ctx_handle = handle_return(driver.cuStreamGetCtx(self._mnff.handle))
-            self._device_id = get_device_from_ctx(self._ctx_handle)
+            self._device_id = int(handle_return(driver.cuCtxGetDevice()))
         return Device(self._device_id)
 
     @property
     def context(self) -> Context:
-        """Return the :obj:`~_context.Context` associated with this stream."""
+        """Return the context associated with this stream."""
         if self._ctx_handle is None:
-            self._ctx_handle = handle_return(driver.cuStreamGetCtx(self._mnff.handle))
-        if self._device_id is None:
-            self._device_id = get_device_from_ctx(self._ctx_handle)
+            self._ctx_handle = handle_return(driver.cuCtxGetCurrent())
         return Context._from_ctx(self._ctx_handle, self._device_id)
 
     @staticmethod
-    def from_handle(handle: int) -> Stream:
-        """Create a new :obj:`~_stream.Stream` object from a foreign stream handle.
-
-        Uses a cudaStream_t pointer address represented as a Python int
-        to create a new :obj:`~_stream.Stream` object.
-
-        Note
-        ----
-        Stream lifetime is not managed, foreign object must remain
-        alive while this steam is active.
+    def from_handle(handle: int) -> "Stream":
+        """Create a Stream object from an existing CUDA stream handle.
 
         Parameters
         ----------
         handle : int
-            Stream handle representing the address of a foreign
-            stream object.
+            The CUDA stream handle.
 
         Returns
         -------
         :obj:`~_stream.Stream`
-            Newly created stream object.
+            A new Stream object.
 
         """
-
         class _stream_holder:
-            def __cuda_stream__(self):
+            def __cuda_stream__(self) -> Tuple[int, int]:
                 return (0, handle)
 
-        return Stream._init(obj=_stream_holder())
+        return Stream._init(_stream_holder())
 
 
 LEGACY_DEFAULT_STREAM = Stream._legacy_default()
 PER_THREAD_DEFAULT_STREAM = Stream._per_thread_default()
 
 
-def default_stream():
-    """Return the default CUDA :obj:`~_stream.Stream`.
+def default_stream() -> Stream:
+    """Return the default stream.
 
     The type of default stream returned depends on if the environment
     variable CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set.
@@ -350,10 +308,12 @@ def default_stream():
     If set, returns a per-thread default stream. Otherwise returns
     the legacy stream.
 
+    Returns
+    -------
+    :obj:`~_stream.Stream`
+        The default stream.
+
     """
-    # TODO: flip the default
-    use_ptds = int(os.environ.get("CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM", 0))
-    if use_ptds:
-        return PER_THREAD_DEFAULT_STREAM
-    else:
-        return LEGACY_DEFAULT_STREAM
+    if os.environ.get("CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM") is not None:
+        return Stream._per_thread_default()
+    return Stream._legacy_default()
