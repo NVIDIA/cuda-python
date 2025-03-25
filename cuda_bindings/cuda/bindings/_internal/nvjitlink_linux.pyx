@@ -72,7 +72,7 @@ cdef void* load_library(const int driver_ver) except* with gil:
                 err_msg = dlerror()
                 raise RuntimeError(f'Failed to dlopen {so_name} ({err_msg.decode()})')
             return handle
-    raise RuntimeError('Unable to locate {so_basename}')
+    raise RuntimeError(f'Unable to locate {so_basename}')
 
 
 cdef int _check_or_init_nvjitlink() except -1 nogil:
