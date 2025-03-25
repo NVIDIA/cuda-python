@@ -59,7 +59,10 @@ cdef void* load_library(const int driver_ver) except* with gil:
     paths = path_finder.get_cuda_paths()
     paths_cudalib_dir = paths["cudalib_dir"]
     if paths_cudalib_dir:
+        # TODO(rwgk): Produce the correct so_name in path_finder.py
         so_name = os.path.join(paths_cudalib_dir.info, "libnvJitLink.so")
+        if not os.path.exists(so_name) and so_name.count("/lib64/") == 1:
+            so_name = so_name.replace("/lib64/", "/lib/")
         handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
         if handle == NULL:
             err_msg = dlerror()
