@@ -8,6 +8,8 @@ import os
 
 from libc.stdint cimport intptr_t
 
+from .utils cimport get_nvjitlink_dso_version_suffix
+
 from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.bindings import path_finder
@@ -55,6 +57,10 @@ cdef void* __nvJitLinkVersion = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
+    # TODO(rwgk): Move the version check here.
+    # Intentionally ignoring returned value:
+    get_nvjitlink_dso_version_suffix(driver_ver)
+
     so_basename = "libnvJitLink.so"
     cdef void* handle = NULL;
     paths = path_finder.get_cuda_paths()
