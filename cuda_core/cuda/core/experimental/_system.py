@@ -5,7 +5,7 @@
 from typing import Tuple
 
 from cuda.core.experimental._device import Device
-from cuda.core.experimental._utils import driver, handle_return, runtime
+from cuda.core.experimental._utils.cuda_utils import driver, handle_return, runtime
 
 
 class System:

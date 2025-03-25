@@ -11,7 +11,7 @@ from typing import Any, Optional
 
 import numpy
 
-from cuda.core.experimental._utils import handle_return, driver
+from cuda.core.experimental._utils.cuda_utils import handle_return, driver
 
 
 # TODO(leofang): support NumPy structured dtypes

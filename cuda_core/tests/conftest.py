@@ -17,7 +17,7 @@ except ImportError:
 import pytest
 
 from cuda.core.experimental import Device, _device
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 @pytest.fixture(scope="session", autouse=True)

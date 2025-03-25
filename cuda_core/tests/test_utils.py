@@ -13,8 +13,37 @@ except ImportError:
 import numpy as np
 import pytest
 
+import cuda.core.experimental
 from cuda.core.experimental import Device
 from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
+
+
+def test_cast_to_3_tuple_success():
+    c3t = cuda.core.experimental._utils.cuda_utils.cast_to_3_tuple
+    assert c3t("", ()) == (1, 1, 1)
+    assert c3t("", 2) == (2, 1, 1)
+    assert c3t("", (2,)) == (2, 1, 1)
+    assert c3t("", (2, 3)) == (2, 3, 1)
+    assert c3t("", (2, 3, 4)) == (2, 3, 4)
+
+
+_cast_to_3_tuple_value_error_test_cases = {
+    "not tuple": ([], r"^Lbl must be an int, or a tuple with up to 3 ints \(got .*\)$"),
+    "len 4": ((1, 2, 3, 4), r"^Lbl must be an int, or a tuple with up to 3 ints \(got tuple with length 4\)$"),
+    "not int": (("bAd",), r"^Lbl must be an int, or a tuple with up to 3 ints \(got \('bAd',\)\)$"),
+    "isolated negative": (-9, r"^Lbl value must be >= 1 \(got -9\)$"),
+    "tuple negative": ((-9,), r"^Lbl value must be >= 1 \(got \(-9,\)\)$"),
+}
+
+
+@pytest.mark.parametrize(
+    ("cfg", "expected"),
+    _cast_to_3_tuple_value_error_test_cases.values(),
+    ids=_cast_to_3_tuple_value_error_test_cases.keys(),
+)
+def test_cast_to_3_tuple_value_error(cfg, expected):
+    with pytest.raises(ValueError, match=expected):
+        cuda.core.experimental._utils.cuda_utils.cast_to_3_tuple("Lbl", cfg)
 
 
 def convert_strides_to_counts(strides, itemsize):

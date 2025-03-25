@@ -13,9 +13,11 @@ except ImportError:
 
 import ctypes
 
+import pytest
+
 from cuda.core.experimental import Device
-from cuda.core.experimental._memory import Buffer, MemoryResource
-from cuda.core.experimental._utils import handle_return
+from cuda.core.experimental._memory import Buffer, DLDeviceType, MemoryResource
+from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 class DummyDeviceMemoryResource(MemoryResource):
@@ -116,6 +118,12 @@ class DummyPinnedMemoryResource(MemoryResource):
         raise RuntimeError("the pinned memory resource is not bound to any GPU")
 
 
+class NullMemoryResource(DummyHostMemoryResource):
+    @property
+    def is_host_accessible(self) -> bool:
+        return False
+
+
 def buffer_initialization(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)
     assert buffer.handle != 0
@@ -211,3 +219,46 @@ def test_buffer_close():
     buffer_close(DummyHostMemoryResource())
     buffer_close(DummyUnifiedMemoryResource(device))
     buffer_close(DummyPinnedMemoryResource(device))
+
+
+def test_buffer_dunder_dlpack():
+    device = Device()
+    device.set_current()
+    dummy_mr = DummyDeviceMemoryResource(device)
+    buffer = dummy_mr.allocate(size=1024)
+    capsule = buffer.__dlpack__()
+    assert "dltensor" in repr(capsule)
+    capsule = buffer.__dlpack__(max_version=(1, 0))
+    assert "dltensor" in repr(capsule)
+    with pytest.raises(BufferError, match=r"^Sorry, not supported: dl_device other than None$"):
+        buffer.__dlpack__(dl_device=[])
+    with pytest.raises(BufferError, match=r"^Sorry, not supported: copy=True$"):
+        buffer.__dlpack__(copy=True)
+    with pytest.raises(BufferError, match=r"^Expected max_version Tuple\[int, int\], got \[\]$"):
+        buffer.__dlpack__(max_version=[])
+    with pytest.raises(BufferError, match=r"^Expected max_version Tuple\[int, int\], got \(9, 8, 7\)$"):
+        buffer.__dlpack__(max_version=(9, 8, 7))
+
+
+@pytest.mark.parametrize(
+    ("DummyMR", "expected"),
+    [
+        (DummyDeviceMemoryResource, (DLDeviceType.kDLCUDA, 0)),
+        (DummyHostMemoryResource, (DLDeviceType.kDLCPU, 0)),
+        (DummyUnifiedMemoryResource, (DLDeviceType.kDLCUDAHost, 0)),
+        (DummyPinnedMemoryResource, (DLDeviceType.kDLCUDAHost, 0)),
+    ],
+)
+def test_buffer_dunder_dlpack_device_success(DummyMR, expected):
+    device = Device()
+    device.set_current()
+    dummy_mr = DummyMR() if DummyMR is DummyHostMemoryResource else DummyMR(device)
+    buffer = dummy_mr.allocate(size=1024)
+    assert buffer.__dlpack_device__() == expected
+
+
+def test_buffer_dunder_dlpack_device_failure():
+    dummy_mr = NullMemoryResource()
+    buffer = dummy_mr.allocate(size=1024)
+    with pytest.raises(BufferError, match=r"^buffer is neither device-accessible nor host-accessible$"):
+        buffer.__dlpack_device__()

@@ -87,9 +87,11 @@ def test_program_init_valid_code_type():
 
 
 def test_program_init_invalid_code_type():
-    code = 'extern "C" __global__ void my_kernel() {}'
-    with pytest.raises(NotImplementedError):
-        Program(code, "python")
+    code = "goto 100"
+    with pytest.raises(
+        RuntimeError, match=r"^Unsupported code_type='fortran' \(supported_code_types=\('c\+\+', 'ptx'\)\)$"
+    ):
+        Program(code, "FORTRAN")
 
 
 def test_program_init_invalid_code_format():
