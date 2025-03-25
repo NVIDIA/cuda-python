@@ -55,20 +55,24 @@ cdef void* __nvJitLinkVersion = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
+    so_basename = "libnvJitLink.so"
     cdef void* handle = NULL;
     paths = path_finder.get_cuda_paths()
     paths_cudalib_dir = paths["cudalib_dir"]
-    if paths_cudalib_dir:
+    if (paths_cudalib_dir and
+        paths_cudalib_dir.info and
+        os.path.isdir(paths_cudalib_dir.info)):
         # TODO(rwgk): Produce the correct so_name in path_finder.py
-        so_name = os.path.join(paths_cudalib_dir.info, "libnvJitLink.so")
+        so_name = os.path.join(paths_cudalib_dir.info, so_basename)
         if not os.path.exists(so_name) and so_name.count("/lib64/") == 1:
             so_name = so_name.replace("/lib64/", "/lib/")
-        handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
-        if handle == NULL:
-            err_msg = dlerror()
-            raise RuntimeError(f'Failed to dlopen {so_name} ({err_msg.decode()})')
-        return handle
-    raise RuntimeError('Unable to locate libnvJitLink.so')
+        if os.path.exists(so_name):
+            handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
+            if handle == NULL:
+                err_msg = dlerror()
+                raise RuntimeError(f'Failed to dlopen {so_name} ({err_msg.decode()})')
+            return handle
+    raise RuntimeError('Unable to locate {so_basename}')
 
 
 cdef int _check_or_init_nvjitlink() except -1 nogil:
