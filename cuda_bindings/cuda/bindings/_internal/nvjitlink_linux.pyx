@@ -69,15 +69,16 @@ cdef void* load_library(const int driver_ver) except* with gil:
         raise RuntimeError("Failure obtaining paths_cudalib_dir")
     if not paths_cudalib_dir.info:
         raise RuntimeError("Failure obtaining paths_cudalib_dir.info")
-    candidate_so_dirs = [paths_cudalib_dir.info]
+    primary_so_dir = paths_cudalib_dir.info + "/"
+    candidate_so_dirs = [primary_so_dir]
     libs = ["/lib/", "/lib64/"]
     for _ in range(2):
-        alt_dir = libs[0].join(paths_cudalib_dir.info.rsplit(libs[1], 1))
+        alt_dir = libs[0].join(primary_so_dir.rsplit(libs[1], 1))
         if alt_dir not in candidate_so_dirs:
             candidate_so_dirs.append(alt_dir)
         libs.reverse()
     candidate_so_names = [
-        os.path.join(so_dirname, so_basename)
+        so_dirname + so_basename
         for so_dirname in candidate_so_dirs]
     error_messages = []
     for so_name in candidate_so_names:
