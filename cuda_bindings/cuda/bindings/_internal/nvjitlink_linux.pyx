@@ -92,8 +92,11 @@ cdef void* load_library(const int driver_ver) except* with gil:
     attachment = []
     for so_dirname in candidate_so_dirs:
         attachment.append(f"  listdir({repr(so_dirname)}):")
-        for node in sorted(os.listdir(so_dirname)):
-            attachment.append(f"    {node}")
+        if not os.path.isdir(so_dirname):
+            attachment.append("    DIRECTORY DOES NOT EXIST")
+        else:
+            for node in sorted(os.listdir(so_dirname)):
+                attachment.append(f"    {node}")
     attachment = "\n".join(attachment)
     raise RuntimeError(f"Unable to load {so_basename} from: {', '.join(error_messages)}\n{attachment}")
 
