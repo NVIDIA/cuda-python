@@ -51,17 +51,12 @@ cdef void* __nvvmGetProgramLog = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
-    cdef void* handle = NULL;
-    paths = path_finder.get_cuda_paths()
-    paths_nvvm = paths["nvvm"]
-    if paths_nvvm:
-        so_name = paths_nvvm.info
-        handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
-        if handle == NULL:
-            err_msg = dlerror()
-            raise RuntimeError(f'Failed to dlopen {so_name} ({err_msg.decode()})')
+    so_name = path_finder.find_nvidia_dynamic_library("nvvm")
+    cdef void* handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
+    if handle != NULL:
         return handle
-    raise RuntimeError('Unable to locate libnvvm.so')
+    err_msg = dlerror().decode(errors="backslashreplace")
+    raise RuntimeError(f"Failed to dlopen {so_name}: {err_msg}")
 
 
 cdef int _check_or_init_nvvm() except -1 nogil:

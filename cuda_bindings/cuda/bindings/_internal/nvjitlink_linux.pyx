@@ -8,8 +8,6 @@ import os
 
 from libc.stdint cimport intptr_t
 
-from .utils cimport get_nvjitlink_dso_version_suffix
-
 from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.bindings import path_finder
@@ -57,49 +55,12 @@ cdef void* __nvJitLinkVersion = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
-    # TODO(rwgk): Move the version check here.
-    # Intentionally ignoring returned value:
-    get_nvjitlink_dso_version_suffix(driver_ver)
-
-    so_basename = "libnvJitLink.so"
-    cdef void* handle = NULL;
-    paths = path_finder.get_cuda_paths()
-    paths_cudalib_dir = paths["cudalib_dir"]
-    if not paths_cudalib_dir:
-        raise RuntimeError("Failure obtaining paths_cudalib_dir")
-    if not paths_cudalib_dir.info:
-        raise RuntimeError("Failure obtaining paths_cudalib_dir.info")
-    primary_so_dir = paths_cudalib_dir.info + "/"
-    candidate_so_dirs = [primary_so_dir]
-    libs = ["/lib/", "/lib64/"]
-    for _ in range(2):
-        alt_dir = libs[0].join(primary_so_dir.rsplit(libs[1], 1))
-        if alt_dir not in candidate_so_dirs:
-            candidate_so_dirs.append(alt_dir)
-        libs.reverse()
-    candidate_so_names = [
-        so_dirname + so_basename
-        for so_dirname in candidate_so_dirs]
-    error_messages = []
-    for so_name in candidate_so_names:
-        if not os.path.exists(so_name):
-            error_messages.append(f"No such file: {so_name}")
-        else:
-            handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
-            if handle != NULL:
-                return handle
-            err_msg = dlerror().decode(errors="backslashreplace")
-            error_messages.append(f"Failed to dlopen {so_name}: {err_msg}")
-    attachment = []
-    for so_dirname in candidate_so_dirs:
-        attachment.append(f"  listdir({repr(so_dirname)}):")
-        if not os.path.isdir(so_dirname):
-            attachment.append("    DIRECTORY DOES NOT EXIST")
-        else:
-            for node in sorted(os.listdir(so_dirname)):
-                attachment.append(f"    {node}")
-    attachment = "\n".join(attachment)
-    raise RuntimeError(f"Unable to load {so_basename} from: {', '.join(error_messages)}\n{attachment}")
+    so_name = path_finder.find_nvidia_dynamic_library("nvJitLink")
+    cdef void* handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
+    if handle != NULL:
+        return handle
+    err_msg = dlerror().decode(errors="backslashreplace")
+    raise RuntimeError(f"Failed to dlopen {so_name}: {err_msg}")
 
 
 cdef int _check_or_init_nvjitlink() except -1 nogil:
