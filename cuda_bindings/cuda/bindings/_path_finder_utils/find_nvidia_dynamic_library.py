@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
+import glob
 import os
 
 from .cuda_paths import get_cuda_paths
@@ -10,11 +11,19 @@ from .find_nvidia_lib_dirs import find_nvidia_lib_dirs
 
 
 def _find_using_nvidia_lib_dirs(so_basename, error_messages, attachments):
+    so_wild = so_basename + "*"
     for lib_dir in find_nvidia_lib_dirs():
+        # First look for an exact match
         so_name = os.path.join(lib_dir, so_basename)
         if os.path.isfile(so_name):
             return so_name
-        error_messages.append(f"No such file: {so_name}")
+        # Look for a versioned library
+        # Using sort here mainly to make the result deterministic.
+        for node in sorted(glob.glob(so_wild, root_dir=lib_dir)):
+            so_name = os.path.join(lib_dir, node)
+            if os.path.isfile(so_name):
+                return so_name
+    error_messages.append(f"No such file: {so_wild}")
     for lib_dir in find_nvidia_lib_dirs():
         attachments.append(f"  listdir({repr(lib_dir)}):")
         for node in sorted(os.listdir(lib_dir)):
@@ -33,7 +42,7 @@ def _get_cuda_paths_info(key, error_messages):
     return env_path_tuple.info
 
 
-def _find_using_lib_dir(so_basename, error_messages, attachments):
+def _find_using_cudalib_dir(so_basename, error_messages, attachments):
     lib_dir = _get_cuda_paths_info("cudalib_dir", error_messages)
     if lib_dir is None:
         return None
@@ -71,8 +80,8 @@ def find_nvidia_dynamic_library(libbasename):
         if libbasename == "nvvm":
             so_name = _get_cuda_paths_info("nvvm", error_messages)
         else:
-            so_name = _find_using_lib_dir(so_basename, error_messages, attachments)
+            so_name = _find_using_cudalib_dir(so_basename, error_messages, attachments)
     if so_name is None:
         attachments = "\n".join(attachments)
-        raise RuntimeError(f"Unable to load {so_basename} from: {', '.join(error_messages)}\n{attachments}")
+        raise RuntimeError(f"Failure finding {so_basename}: {', '.join(error_messages)}\n{attachments}")
     return so_name
