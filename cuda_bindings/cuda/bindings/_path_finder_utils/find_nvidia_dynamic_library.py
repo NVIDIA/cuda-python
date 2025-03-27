@@ -19,7 +19,7 @@ def _find_using_nvidia_lib_dirs(so_basename, error_messages, attachments):
             return so_name
         # Look for a versioned library
         # Using sort here mainly to make the result deterministic.
-        for node in sorted(glob.glob(so_wild, root_dir=lib_dir)):
+        for node in sorted(glob.glob(os.path.join(lib_dir, so_wild))):
             so_name = os.path.join(lib_dir, node)
             if os.path.isfile(so_name):
                 return so_name
