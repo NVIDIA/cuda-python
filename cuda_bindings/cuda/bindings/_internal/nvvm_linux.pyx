@@ -6,9 +6,9 @@
 
 from libc.stdint cimport intptr_t
 
-from .utils cimport get_nvvm_dso_version_suffix
-
 from .utils import FunctionNotFoundError, NotSupportedError
+
+from cuda.bindings import path_finder
 
 ###############################################################################
 # Extern
@@ -51,16 +51,12 @@ cdef void* __nvvmGetProgramLog = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
-    cdef void* handle
-    for suffix in get_nvvm_dso_version_suffix(driver_ver):
-        so_name = "libnvvm.so" + (f".{suffix}" if suffix else suffix)
-        handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
-        if handle != NULL:
-            break
-    else:
-        err_msg = dlerror()
-        raise RuntimeError(f'Failed to dlopen libnvvm ({err_msg.decode()})')
-    return handle
+    so_name = path_finder.find_nvidia_dynamic_library("nvvm")
+    cdef void* handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
+    if handle != NULL:
+        return handle
+    err_msg = dlerror().decode(errors="backslashreplace")
+    raise RuntimeError(f"Failed to dlopen {so_name}: {err_msg}")
 
 
 cdef int _check_or_init_nvvm() except -1 nogil:

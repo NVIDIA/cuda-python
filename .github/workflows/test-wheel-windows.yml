@@ -186,7 +186,7 @@ jobs:
 
           Push-Location ./cuda_bindings
           pip install -r requirements.txt
-          pytest -rxXs -v tests/
+          pytest -ra -s -v tests/
           # skip Cython tests for now (NVIDIA/cuda-python#466)
           Pop-Location
 
@@ -210,7 +210,7 @@ jobs:
 
           Push-Location ./cuda_core
           pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
-          pytest -rxXs -v tests/
+          pytest -ra -s -v tests/
           Pop-Location
 
       - name: Ensure cuda-python installable
