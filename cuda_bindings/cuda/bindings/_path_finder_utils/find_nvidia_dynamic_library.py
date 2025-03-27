@@ -35,6 +35,8 @@ def _get_cuda_paths_info(key, error_messages):
 
 def _find_using_lib_dir(so_basename, error_messages, attachments):
     lib_dir = _get_cuda_paths_info("cudalib_dir", error_messages)
+    if lib_dir is None:
+        return None
     primary_so_dir = lib_dir + "/"
     candidate_so_dirs = [primary_so_dir]
     libs = ["/lib/", "/lib64/"]
