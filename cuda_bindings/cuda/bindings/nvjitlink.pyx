@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 12.6.2. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 12.8.0. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -29,6 +29,7 @@ class Result(_IntEnum):
     ERROR_THREADPOOL = NVJITLINK_ERROR_THREADPOOL
     ERROR_UNRECOGNIZED_INPUT = NVJITLINK_ERROR_UNRECOGNIZED_INPUT
     ERROR_FINALIZE = NVJITLINK_ERROR_FINALIZE
+    _P_NVJITLINKINTERNAL_LOADING_ERROR = _NVJITLINKRESULT_INTERNAL_LOADING_ERROR
 
 class InputType(_IntEnum):
     """See `nvJitLinkInputType`."""
