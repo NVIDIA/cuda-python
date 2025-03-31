@@ -6,12 +6,9 @@
 
 from libc.stdint cimport intptr_t
 
-from .utils cimport get_nvjitlink_dso_version_suffix
-
 from .utils import FunctionNotFoundError, NotSupportedError
 
-import os
-import site
+from cuda.bindings import path_finder
 
 import win32api
 
@@ -42,54 +39,32 @@ cdef void* __nvJitLinkGetInfoLog = NULL
 cdef void* __nvJitLinkVersion = NULL
 
 
-cdef inline list get_site_packages():
-    return [site.getusersitepackages()] + site.getsitepackages()
-
-
 cdef load_library(const int driver_ver):
-    handle = 0
+    dll_name = path_finder.find_nvidia_dynamic_library("nvJitLink")
 
-    for suffix in get_nvjitlink_dso_version_suffix(driver_ver):
-        if len(suffix) == 0:
-            continue
-        dll_name = f"nvJitLink_{suffix}0_0.dll"
+    errors = [f"Failed to load {dll_name}", "Exceptions encountered:"]
 
-        # First check if the DLL has been loaded by 3rd parties
-        try:
-            handle = win32api.GetModuleHandle(dll_name)
-        except:
-            pass
-        else:
-            break
+    # First check if the DLL has been loaded by 3rd parties
+    try:
+        return win32api.GetModuleHandle(dll_name)
+    except BaseException as e:
+        errors.append(f"{type(e)}: {str(e)}")
 
-        # Next, check if DLLs are installed via pip
-        for sp in get_site_packages():
-            mod_path = os.path.join(sp, "nvidia", "nvJitLink", "bin")
-            if not os.path.isdir(mod_path):
-                continue
-            os.add_dll_directory(mod_path)
-        try:
-            handle = win32api.LoadLibraryEx(
-                # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
-                os.path.join(mod_path, dll_name),
-                0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
-        except:
-            pass
-        else:
-            break
+    try:
+        return win32api.LoadLibraryEx(
+            # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
+            dll_name,
+            0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+    except BaseException as e:
+        errors.append(f"{type(e)}: {str(e)}")
 
-        # Finally, try default search
-        try:
-            handle = win32api.LoadLibrary(dll_name)
-        except:
-            pass
-        else:
-            break
-    else:
-        raise RuntimeError('Failed to load nvJitLink')
+    # Finally, try default search
+    try:
+        return win32api.LoadLibrary(dll_name)
+    except BaseException as e:
+        errors.append(f"{type(e)}: {str(e)}")
 
-    assert handle != 0
-    return handle
+    raise RuntimeError("\n".join(errors))
 
 
 cdef int _check_or_init_nvjitlink() except -1 nogil:
