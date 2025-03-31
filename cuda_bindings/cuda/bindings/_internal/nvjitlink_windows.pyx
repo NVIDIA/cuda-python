@@ -10,6 +10,8 @@ from .utils cimport get_nvjitlink_dso_version_suffix
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
+from cuda.bindings import path_finder
+
 import os
 import site
 
@@ -87,6 +89,8 @@ cdef load_library(const int driver_ver):
             break
     else:
         raise RuntimeError('Failed to load nvJitLink')
+
+    path_finder.find_nvidia_dynamic_library("nvJitLink", handle)
 
     assert handle != 0
     return handle

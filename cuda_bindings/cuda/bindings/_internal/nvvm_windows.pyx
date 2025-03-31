@@ -10,6 +10,8 @@ from .utils cimport get_nvvm_dso_version_suffix
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
+from cuda.bindings import path_finder
+
 import os
 import site
 
@@ -85,6 +87,8 @@ cdef load_library(const int driver_ver):
             break
     else:
         raise RuntimeError('Failed to load nvvm')
+
+    path_finder.find_nvidia_dynamic_library("nvvm", handle)
 
     assert handle != 0
     return handle

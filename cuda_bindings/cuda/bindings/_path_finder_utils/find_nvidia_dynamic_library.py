@@ -5,8 +5,10 @@
 import functools
 import glob
 import os
+import sys
+import traceback
 
-from .cuda_paths import get_cuda_paths
+from .cuda_paths import IS_WIN32, get_cuda_paths
 from .find_nvidia_lib_dirs import find_nvidia_lib_dirs
 
 
@@ -70,8 +72,38 @@ def _find_using_cudalib_dir(so_basename, error_messages, attachments):
     return None
 
 
+def _inspect_environment(libbasename, handle):
+    if IS_WIN32:
+        import win32api
+
+        dll_path = win32api.GetModuleFileName(handle)
+        print(f"LOOOK {libbasename=} Loaded DLL path:", dll_path)
+    error_messages = []
+    lib_dir = _get_cuda_paths_info("cudalib_dir", error_messages)
+    if lib_dir is None:
+        print(f"LOOOK {libbasename=} {error_messages=}")
+    elif not os.path.isdir(lib_dir):
+        print(f"LOOOK {libbasename=} not isdir({lib_dir=})")
+    else:
+        print(f"LOOOK {libbasename=} cudalib_dir {lib_dir=}")
+        for node in sorted(os.listdir(lib_dir)):
+            print(f"LOOOK     {node}")
+    for lib_dir in find_nvidia_lib_dirs():
+        print(f"LOOOK {libbasename=} NVIDIA {lib_dir=}")
+        for node in sorted(os.listdir(lib_dir)):
+            print(f"LOOOK     {node}")
+
+
 @functools.cache
-def find_nvidia_dynamic_library(libbasename):
+def find_nvidia_dynamic_library(libbasename, handle=None):
+    if handle is not None:
+        try:
+            _inspect_environment(libbasename, handle)
+        except Exception as e:
+            print("LOOOK EXCEPTION:")
+            traceback.print_exception(type(e), e, e.__traceback__, file=sys.stdout)
+        if IS_WIN32:
+            return
     so_basename = f"lib{libbasename}.so"
     error_messages = []
     attachments = []
