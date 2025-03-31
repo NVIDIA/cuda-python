@@ -27,7 +27,7 @@ jobs:
           # Note: this is for build-time only.
           - "12.8.0"
     name: Build (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }})
-    # if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
       contents: read  # This is required for actions/checkout
     runs-on: ${{ (matrix.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
@@ -269,7 +269,7 @@ jobs:
         runner:
           - default
     name: Test (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }}, Runner ${{ matrix.runner }}, ${{ (matrix.local-ctk == '1' && 'local CTK') || 'CTK wheels' }})
-    # if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
