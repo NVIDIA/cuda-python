@@ -20,6 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         host-platform:
+          - linux-64
           - win-64
         python-version:
           - "3.12"
@@ -199,7 +200,6 @@ jobs:
           echo "CUDA_VERSION=${{ matrix.cuda-version }}" >> $GITHUB_OUTPUT
 
   test-linux:
-    if: false  # jobs disabled
     strategy:
       fail-fast: false
       # TODO: add driver version here
