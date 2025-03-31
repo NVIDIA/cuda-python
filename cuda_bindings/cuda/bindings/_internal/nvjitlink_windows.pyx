@@ -109,7 +109,7 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
             __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'cuDriverGetVersion')
             if __cuDriverGetVersion == NULL:
                 raise RuntimeError('something went wrong')
-        err = (<int (*)(int*) nogil>__cuDriverGetVersion)(&driver_ver)
+        err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
         if err != 0:
             raise RuntimeError('something went wrong')
 

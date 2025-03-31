@@ -84,7 +84,7 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
         with gil:
             raise RuntimeError('something went wrong')
     cdef int err, driver_ver
-    err = (<int (*)(int*) nogil>__cuDriverGetVersion)(&driver_ver)
+    err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
     if err != 0:
         with gil:
             raise RuntimeError('something went wrong')
