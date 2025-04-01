@@ -90,7 +90,7 @@ cdef load_library(const int driver_ver):
     else:
         raise RuntimeError('Failed to load nvJitLink')
 
-    path_finder.find_nvidia_dynamic_library("nvJitLink", handle)
+    path_finder.find_nvidia_dynamic_library("nvJitLink")
 
     assert handle != 0
     return handle

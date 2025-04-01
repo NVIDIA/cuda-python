@@ -88,7 +88,7 @@ cdef load_library(const int driver_ver):
     else:
         raise RuntimeError('Failed to load nvvm')
 
-    path_finder.find_nvidia_dynamic_library("nvvm", handle)
+    path_finder.find_nvidia_dynamic_library("nvvm")
 
     assert handle != 0
     return handle
