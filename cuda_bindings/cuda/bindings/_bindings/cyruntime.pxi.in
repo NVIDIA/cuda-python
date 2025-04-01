@@ -7,6 +7,7 @@
 # is strictly prohibited.
 #
 # This code was automatically generated with version 12.8.0. Do not modify it directly.
+cimport cython
 cimport cuda.bindings.cyruntime as cyruntime
 
 cdef extern from "cuda_runtime_api.h":
@@ -898,7 +899,7 @@ cdef extern from "cuda_runtime_api.h":
     {{endif}}
     {{if 'cudaCreateChannelDesc' in found_functions}}
 
-    cyruntime.cudaChannelFormatDesc cudaCreateChannelDesc(int x, int y, int z, int w, cyruntime.cudaChannelFormatKind f) nogil
+    cyruntime.cudaChannelFormatDesc cudaCreateChannelDesc(int x, int y, int z, int w, cyruntime.cudaChannelFormatKind f) except* nogil
 
     {{endif}}
     {{if 'cudaCreateTextureObject' in found_functions}}
@@ -1466,17 +1467,17 @@ cdef extern from "cuda_runtime.h":
 
     {{if 'make_cudaPitchedPtr' in found_functions}}
 
-    cyruntime.cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) nogil
+    cyruntime.cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) except* nogil
 
     {{endif}}
     {{if 'make_cudaPos' in found_functions}}
 
-    cyruntime.cudaPos make_cudaPos(size_t x, size_t y, size_t z) nogil
+    cyruntime.cudaPos make_cudaPos(size_t x, size_t y, size_t z) except* nogil
 
     {{endif}}
     {{if 'make_cudaExtent' in found_functions}}
 
-    cyruntime.cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) nogil
+    cyruntime.cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) except* nogil
 
     {{endif}}
 
