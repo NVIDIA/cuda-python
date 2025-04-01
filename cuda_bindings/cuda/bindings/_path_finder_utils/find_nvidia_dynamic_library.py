@@ -5,31 +5,52 @@
 import functools
 import glob
 import os
-import sys
-import traceback
 
 from .cuda_paths import IS_WIN32, get_cuda_paths
-from .find_nvidia_lib_dirs import find_nvidia_lib_dirs
+from .sys_path_find_sub_dirs import sys_path_find_sub_dirs
 
 
-def _find_using_nvidia_lib_dirs(so_basename, error_messages, attachments):
-    so_wild = so_basename + "*"
-    for lib_dir in find_nvidia_lib_dirs():
+def _no_such_file_in_sub_dirs(sub_dirs, file_wild, error_messages, attachments):
+    error_messages.append(f"No such file: {file_wild}")
+    for sub_dir in sys_path_find_sub_dirs(sub_dirs):
+        attachments.append(f'  listdir("{sub_dir}"):')
+        for node in sorted(os.listdir(sub_dir)):
+            attachments.append(f"    {node}")
+
+
+def _find_so_using_nvidia_lib_dirs(libbasename, so_basename, error_messages, attachments):
+    if libbasename == "nvvm":  # noqa: SIM108
+        nvidia_sub_dirs = ("nvidia", "*", "nvvm", "lib64")
+    else:
+        nvidia_sub_dirs = ("nvidia", "*", "lib")
+    file_wild = so_basename + "*"
+    for lib_dir in sys_path_find_sub_dirs(nvidia_sub_dirs):
         # First look for an exact match
         so_name = os.path.join(lib_dir, so_basename)
         if os.path.isfile(so_name):
             return so_name
         # Look for a versioned library
         # Using sort here mainly to make the result deterministic.
-        for node in sorted(glob.glob(os.path.join(lib_dir, so_wild))):
+        for node in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
             so_name = os.path.join(lib_dir, node)
             if os.path.isfile(so_name):
                 return so_name
-    error_messages.append(f"No such file: {so_wild}")
-    for lib_dir in find_nvidia_lib_dirs():
-        attachments.append(f"  listdir({repr(lib_dir)}):")
-        for node in sorted(os.listdir(lib_dir)):
-            attachments.append(f"    {node}")
+    _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
+    return None
+
+
+def _find_dll_using_nvidia_bin_dirs(libbasename, error_messages, attachments):
+    if libbasename == "nvvm":  # noqa: SIM108
+        nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin")
+    else:
+        nvidia_sub_dirs = ("nvidia", "*", "bin")
+    file_wild = libbasename + "*.dll"
+    for bin_dir in sys_path_find_sub_dirs(nvidia_sub_dirs):
+        for node in sorted(glob.glob(os.path.join(bin_dir, file_wild))):
+            dll_name = os.path.join(bin_dir, node)
+            if os.path.isfile(dll_name):
+                return dll_name
+    _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
     return None
 
 
@@ -44,11 +65,11 @@ def _get_cuda_paths_info(key, error_messages):
     return env_path_tuple.info
 
 
-def _find_using_cudalib_dir(so_basename, error_messages, attachments):
-    lib_dir = _get_cuda_paths_info("cudalib_dir", error_messages)
-    if lib_dir is None:
+def _find_so_using_cudalib_dir(so_basename, error_messages, attachments):
+    cudalib_dir = _get_cuda_paths_info("cudalib_dir", error_messages)
+    if cudalib_dir is None:
         return None
-    primary_so_dir = lib_dir + "/"
+    primary_so_dir = cudalib_dir + "/"
     candidate_so_dirs = [primary_so_dir]
     libs = ["/lib/", "/lib64/"]
     for _ in range(2):
@@ -63,7 +84,7 @@ def _find_using_cudalib_dir(so_basename, error_messages, attachments):
             return so_name
         error_messages.append(f"No such file: {so_name}")
     for so_dirname in candidate_so_dirs:
-        attachments.append(f"  listdir({repr(so_dirname)}):")
+        attachments.append(f'  listdir("{so_dirname}"):')
         if not os.path.isdir(so_dirname):
             attachments.append("    DIRECTORY DOES NOT EXIST")
         else:
@@ -72,47 +93,46 @@ def _find_using_cudalib_dir(so_basename, error_messages, attachments):
     return None
 
 
-def _inspect_environment(libbasename, handle):
-    if IS_WIN32:
-        import win32api
-
-        dll_path = win32api.GetModuleFileName(handle)
-        print(f"LOOOK {libbasename=} Loaded DLL path:", dll_path)
-    error_messages = []
-    lib_dir = _get_cuda_paths_info("cudalib_dir", error_messages)
-    if lib_dir is None:
-        print(f"LOOOK {libbasename=} {error_messages=}")
-    elif not os.path.isdir(lib_dir):
-        print(f"LOOOK {libbasename=} not isdir({lib_dir=})")
-    else:
-        print(f"LOOOK {libbasename=} cudalib_dir {lib_dir=}")
-        for node in sorted(os.listdir(lib_dir)):
-            print(f"LOOOK     {node}")
-    for lib_dir in find_nvidia_lib_dirs():
-        print(f"LOOOK {libbasename=} NVIDIA {lib_dir=}")
-        for node in sorted(os.listdir(lib_dir)):
-            print(f"LOOOK     {node}")
+def _find_dll_using_cudalib_dir(libbasename, error_messages, attachments):
+    cudalib_dir = _get_cuda_paths_info("cudalib_dir", error_messages)
+    if cudalib_dir is None:
+        return None
+    file_wild = libbasename + "*.dll"
+    for node in sorted(glob.glob(os.path.join(cudalib_dir, file_wild))):
+        dll_name = os.path.join(cudalib_dir, node)
+        if os.path.isfile(dll_name):
+            return dll_name
+    error_messages.append(f"No such file: {file_wild}")
+    attachments.append(f'  listdir("{cudalib_dir}"):')
+    for node in sorted(os.listdir(cudalib_dir)):
+        attachments.append(f"    {node}")
+    return None
 
 
 @functools.cache
-def find_nvidia_dynamic_library(libbasename, handle=None):
-    if handle is not None:
-        try:
-            _inspect_environment(libbasename, handle)
-        except Exception as e:
-            print("LOOOK EXCEPTION:")
-            traceback.print_exception(type(e), e, e.__traceback__, file=sys.stdout)
-        if IS_WIN32:
-            return
-    so_basename = f"lib{libbasename}.so"
+def find_nvidia_dynamic_library(libbasename):
     error_messages = []
     attachments = []
-    so_name = _find_using_nvidia_lib_dirs(so_basename, error_messages, attachments)
+
+    if IS_WIN32:
+        dll_name = _find_dll_using_nvidia_bin_dirs(libbasename, error_messages, attachments)
+        if dll_name is None:
+            if libbasename == "nvvm":
+                dll_name = _get_cuda_paths_info("nvvm", error_messages)
+            else:
+                dll_name = _find_dll_using_cudalib_dir(libbasename, error_messages, attachments)
+        if dll_name is None:
+            attachments = "\n".join(attachments)
+            raise RuntimeError(f"Failure finding {libbasename}*.dll: {', '.join(error_messages)}\n{attachments}")
+        return dll_name
+
+    so_basename = f"lib{libbasename}.so"
+    so_name = _find_so_using_nvidia_lib_dirs(libbasename, so_basename, error_messages, attachments)
     if so_name is None:
         if libbasename == "nvvm":
             so_name = _get_cuda_paths_info("nvvm", error_messages)
         else:
-            so_name = _find_using_cudalib_dir(so_basename, error_messages, attachments)
+            so_name = _find_so_using_cudalib_dir(so_basename, error_messages, attachments)
     if so_name is None:
         attachments = "\n".join(attachments)
         raise RuntimeError(f"Failure finding {so_basename}: {', '.join(error_messages)}\n{attachments}")
