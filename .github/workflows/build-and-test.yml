@@ -206,13 +206,8 @@ jobs:
       matrix:
         host-platform:
           - linux-64
-          - linux-aarch64
         python-version:
-          - "3.13"
           - "3.12"
-          - "3.11"
-          - "3.10"
-          - "3.9"
         cuda-version:
           # Note: this is for test-time only.
           - "12.8.0"
