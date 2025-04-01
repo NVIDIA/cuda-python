@@ -336,7 +336,7 @@ void testkernel(int i, int *pi,
 ```
 
 The first step is to create array objects with types corresponding to your kernel arguments.
-NumPy's user guide for [Kernel arguments](https://docs.cupy.dev/en/stable/user_guide/kernel.html#kernel-arguments) describes how primitive Numpy types correspond to kernel types,
+CuPy's user guide for [Kernel arguments](https://docs.cupy.dev/en/stable/user_guide/kernel.html#kernel-arguments) describes how primitive Numpy types correspond to kernel types,
 as well as how custom user types can be made.
 
 For this example we have:
@@ -477,7 +477,7 @@ checkCudaErrors(cuda.cuLaunchKernel(
 
 Certain CUDA kernels use native CUDA types as their parameters such as `cudaTextureObject_t`. These types require special handling since they're neither a primative ctype nor a custom user type. Since `cuda.bindings` exposes each of them as Python clases, they they each implement `getPtr()` and `__int__()`. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under [Tips and Tricks](https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#).
 
-For this example, lets use the `transformKernel` from [examples/0_Introduction/simpleCubemapTexture_test.py](https://github.com/NVIDIA/cuda-python/blob/73fa3c035c1111fa8e82b8ba24ed0e33eb65e6c8/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py):
+For this example, lets use the `transformKernel` from [examples/0_Introduction/simpleCubemapTexture_test.py](https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py):
 
 ```python
 simpleCubemapTexture = """\
