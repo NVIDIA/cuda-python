@@ -621,10 +621,78 @@ maximize performance (<a class="reference internal" href="#figure-1"><span class
 <span class="s2">&quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<p>The first step is to create array objects with types corresponding to your kernel arguments.
-CuPy’s user guide for <a class="reference external" href="https://docs.cupy.dev/en/stable/user_guide/kernel.html#kernel-arguments">Kernel arguments</a> describes how primitive Numpy types correspond to kernel types,
-as well as how custom user types can be made.</p>
-<p>For this example we have:</p>
+<p>The first step is to create array objects with types corresponding to your kernel arguments. Primative Numpy types have the following corresponding kernel types:</p>
+<div class="table-wrapper docutils container" id="id2">
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Correspondence between NumPy types and kernel types.</span><a class="headerlink" href="#id2" title="Link to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>NumPy type</p></th>
+<th class="head"><p>Corresponding kernel types</p></th>
+<th class="head"><p>itemsize (bytes)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bool</p></td>
+<td><p>bool</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>int8</p></td>
+<td><p>char, signed char</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>int16</p></td>
+<td><p>short, signed short</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>int32</p></td>
+<td><p>int, signed int</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-even"><td><p>int64</p></td>
+<td><p>long long, signed long long</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>uint8</p></td>
+<td><p>unsigned char</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>uint16</p></td>
+<td><p>unsigned short</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>uint32</p></td>
+<td><p>unsigned int</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-even"><td><p>uint64</p></td>
+<td><p>unsigned long long</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>float16</p></td>
+<td><p>half</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>float32</p></td>
+<td><p>float</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-odd"><td><p>float64</p></td>
+<td><p>double</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-even"><td><p>complex64</p></td>
+<td><p>float2, cuFloatComplex, complex&lt;float&gt;</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>complex128</p></td>
+<td><p>double2, cuDoubleComplex, complex&lt;double&gt;</p></td>
+<td><p>16</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Furthermore, custom NumPy types can be used to support both platform-dependent types and user-defined structures as kernel arguments.</p>
+<p>This example uses the following types:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">int</span></code> is <code class="docutils literal notranslate"><span class="pre">np.uint32</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">float</span></code> is <code class="docutils literal notranslate"><span class="pre">np.float32</span></code></p></li>
