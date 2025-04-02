@@ -6,8 +6,6 @@
 
 from libc.stdint cimport intptr_t
 
-from .utils cimport get_nvjitlink_dso_version_suffix
-
 from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.bindings import path_finder
@@ -16,6 +14,7 @@ import os
 import site
 
 import win32api
+import pywintypes
 
 
 ###############################################################################
@@ -44,55 +43,25 @@ cdef void* __nvJitLinkGetInfoLog = NULL
 cdef void* __nvJitLinkVersion = NULL
 
 
-cdef inline list get_site_packages():
-    return [site.getusersitepackages()] + site.getsitepackages()
-
-
 cdef load_library(const int driver_ver):
-    handle = 0
+    cdef str dll_path = path_finder.find_nvidia_dynamic_library("nvJitLink")
+    cdef str dll_name = os.path.basename(dll_path)
+    cdef intptr_t handle = 0
 
-    for suffix in get_nvjitlink_dso_version_suffix(driver_ver):
-        if len(suffix) == 0:
-            continue
-        dll_name = f"nvJitLink_{suffix}0_0.dll"
-
-        # First check if the DLL has been loaded by 3rd parties
-        try:
-            handle = win32api.GetModuleHandle(dll_name)
-        except:
-            pass
-        else:
-            break
-
-        # Next, check if DLLs are installed via pip
-        for sp in get_site_packages():
-            mod_path = os.path.join(sp, "nvidia", "nvJitLink", "bin")
-            if not os.path.isdir(mod_path):
-                continue
-            os.add_dll_directory(mod_path)
-        try:
-            handle = win32api.LoadLibraryEx(
-                # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
-                os.path.join(mod_path, dll_name),
-                0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
-        except:
-            pass
-        else:
-            break
-
-        # Finally, try default search
-        try:
-            handle = win32api.LoadLibrary(dll_name)
-        except:
-            pass
-        else:
-            break
+    # Check if already loaded
+    try:
+        handle = win32api.GetModuleHandle(dll_name)
+    except pywintypes.error:
+        pass
     else:
-        raise RuntimeError('Failed to load nvJitLink')
+        return handle
 
-    path_finder.find_nvidia_dynamic_library("nvJitLink")
+    # Not already loaded; load it
+    try:
+        handle = win32api.LoadLibrary(dll_path)
+    except pywintypes.error as e:
+        raise RuntimeError(f"Failed to load NVVM DLL at {dll_path}: {e}")
 
-    assert handle != 0
     return handle
 
 
