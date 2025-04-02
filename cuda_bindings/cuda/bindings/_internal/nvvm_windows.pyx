@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 11.0.3 to 12.8.0. Do not modify it directly.
 
-from libc.stdint cimport intptr_t
+from libc.stdint cimport intptr_t, uintptr_t
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
@@ -14,7 +14,6 @@ import os
 import site
 
 import win32api
-import pywintypes
 
 
 ###############################################################################
@@ -42,25 +41,8 @@ cdef void* __nvvmGetProgramLog = NULL
 
 
 cdef load_library(const int driver_ver):
-    cdef str dll_path = path_finder.find_nvidia_dynamic_library("nvvm")
-    cdef str dll_name = os.path.basename(dll_path)
-    cdef intptr_t handle = 0
-
-    # Check if already loaded
-    try:
-        handle = win32api.GetModuleHandle(dll_name)
-    except pywintypes.error:
-        pass
-    else:
-        return handle
-
-    # Not already loaded; load it
-    try:
-        handle = win32api.LoadLibrary(dll_path)
-    except pywintypes.error as e:
-        raise RuntimeError(f"Failed to load NVVM DLL at {dll_path}: {e}")
-
-    return handle
+    cdef uintptr_t handle = path_finder.load_nvidia_dynamic_library("nvvm")
+    return <void*>handle
 
 
 cdef int _check_or_init_nvvm() except -1 nogil:
