@@ -622,7 +622,7 @@ maximize performance (<a class="reference internal" href="#figure-1"><span class
 </pre></div>
 </div>
 <p>The first step is to create array objects with types corresponding to your kernel arguments.
-NumPy’s user guide for <a class="reference external" href="https://docs.cupy.dev/en/stable/user_guide/kernel.html#kernel-arguments">Kernel arguments</a> describes how primitive Numpy types correspond to kernel types,
+CuPy’s user guide for <a class="reference external" href="https://docs.cupy.dev/en/stable/user_guide/kernel.html#kernel-arguments">Kernel arguments</a> describes how primitive Numpy types correspond to kernel types,
 as well as how custom user types can be made.</p>
 <p>For this example we have:</p>
 <ul class="simple">
@@ -749,7 +749,7 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
 <section id="cuda-objects">
 <h3>CUDA objects<a class="headerlink" href="#cuda-objects" title="Link to this heading">¶</a></h3>
 <p>Certain CUDA kernels use native CUDA types as their parameters such as <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>. These types require special handling since they’re neither a primative ctype nor a custom user type. Since <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> exposes each of them as Python clases, they they each implement <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#">Tips and Tricks</a>.</p>
-<p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/73fa3c035c1111fa8e82b8ba24ed0e33eb65e6c8/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py">examples/0_Introduction/simpleCubemapTexture_test.py</a>:</p>
+<p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py">examples/0_Introduction/simpleCubemapTexture_test.py</a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
 <span class="s2">extern &quot;C&quot;</span>
 <span class="s2">__global__ void transformKernel(float *g_odata, int width, cudaTextureObject_t tex)</span>
