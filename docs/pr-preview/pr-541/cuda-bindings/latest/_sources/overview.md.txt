@@ -546,7 +546,7 @@ def main():
     ...
 ```
 
-For NumPy, we can convert these CUDA types by leveraging the `__int__()` call to fetch the adress of the underlining `cudaTextureObject_t` C object and wrapping it in a NumPy object array of type `np.uint64`:
+For NumPy, we can convert these CUDA types by leveraging the `__int__()` call to fetch the address of the underlying `cudaTextureObject_t` C object and wrapping it in a NumPy object array of type `np.uint64`:
 
 ```python
 kernelValues = (
