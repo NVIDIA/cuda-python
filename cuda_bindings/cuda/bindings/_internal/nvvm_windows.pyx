@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 11.0.3 to 12.8.0. Do not modify it directly.
 
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport intptr_t
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
@@ -39,7 +39,7 @@ cdef void* __nvvmGetProgramLog = NULL
 
 
 cdef void* load_library(int driver_ver) except* with gil:
-    cdef uintptr_t handle = path_finder.load_nvidia_dynamic_library("nvvm")
+    cdef intptr_t handle = path_finder.load_nvidia_dynamic_library("nvvm")
     return <void*>handle
 
 
@@ -49,7 +49,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         return 0
 
     cdef int err, driver_ver
-    cdef uintptr_t handle
+    cdef intptr_t handle
     with gil:
         # Load driver to check version
         try:
@@ -58,7 +58,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             raise NotSupportedError(f'CUDA driver is not found ({e})')
         global __cuDriverGetVersion
         if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = <void*><uintptr_t>win32api.GetProcAddress(nvcuda_handle, 'cuDriverGetVersion')
+            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(nvcuda_handle, 'cuDriverGetVersion')
             if __cuDriverGetVersion == NULL:
                 raise RuntimeError('something went wrong')
         err = (<int (*)(int*) nogil>__cuDriverGetVersion)(&driver_ver)
@@ -66,78 +66,78 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             raise RuntimeError('something went wrong')
 
         # Load library
-        handle = <uintptr_t>load_library(driver_ver)
+        handle = <intptr_t>load_library(driver_ver)
 
         # Load function
         global __nvvmVersion
         try:
-            __nvvmVersion = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmVersion')
+            __nvvmVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmVersion')
         except:
             pass
 
         global __nvvmIRVersion
         try:
-            __nvvmIRVersion = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmIRVersion')
+            __nvvmIRVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmIRVersion')
         except:
             pass
 
         global __nvvmCreateProgram
         try:
-            __nvvmCreateProgram = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmCreateProgram')
+            __nvvmCreateProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmCreateProgram')
         except:
             pass
 
         global __nvvmDestroyProgram
         try:
-            __nvvmDestroyProgram = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmDestroyProgram')
+            __nvvmDestroyProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmDestroyProgram')
         except:
             pass
 
         global __nvvmAddModuleToProgram
         try:
-            __nvvmAddModuleToProgram = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmAddModuleToProgram')
+            __nvvmAddModuleToProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmAddModuleToProgram')
         except:
             pass
 
         global __nvvmLazyAddModuleToProgram
         try:
-            __nvvmLazyAddModuleToProgram = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmLazyAddModuleToProgram')
+            __nvvmLazyAddModuleToProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmLazyAddModuleToProgram')
         except:
             pass
 
         global __nvvmCompileProgram
         try:
-            __nvvmCompileProgram = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmCompileProgram')
+            __nvvmCompileProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmCompileProgram')
         except:
             pass
 
         global __nvvmVerifyProgram
         try:
-            __nvvmVerifyProgram = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmVerifyProgram')
+            __nvvmVerifyProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmVerifyProgram')
         except:
             pass
 
         global __nvvmGetCompiledResultSize
         try:
-            __nvvmGetCompiledResultSize = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmGetCompiledResultSize')
+            __nvvmGetCompiledResultSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmGetCompiledResultSize')
         except:
             pass
 
         global __nvvmGetCompiledResult
         try:
-            __nvvmGetCompiledResult = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmGetCompiledResult')
+            __nvvmGetCompiledResult = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmGetCompiledResult')
         except:
             pass
 
         global __nvvmGetProgramLogSize
         try:
-            __nvvmGetProgramLogSize = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmGetProgramLogSize')
+            __nvvmGetProgramLogSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmGetProgramLogSize')
         except:
             pass
 
         global __nvvmGetProgramLog
         try:
-            __nvvmGetProgramLog = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvvmGetProgramLog')
+            __nvvmGetProgramLog = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmGetProgramLog')
         except:
             pass
 
@@ -157,40 +157,40 @@ cpdef dict _inspect_function_pointers():
     cdef dict data = {}
 
     global __nvvmVersion
-    data["__nvvmVersion"] = <uintptr_t>__nvvmVersion
+    data["__nvvmVersion"] = <intptr_t>__nvvmVersion
 
     global __nvvmIRVersion
-    data["__nvvmIRVersion"] = <uintptr_t>__nvvmIRVersion
+    data["__nvvmIRVersion"] = <intptr_t>__nvvmIRVersion
 
     global __nvvmCreateProgram
-    data["__nvvmCreateProgram"] = <uintptr_t>__nvvmCreateProgram
+    data["__nvvmCreateProgram"] = <intptr_t>__nvvmCreateProgram
 
     global __nvvmDestroyProgram
-    data["__nvvmDestroyProgram"] = <uintptr_t>__nvvmDestroyProgram
+    data["__nvvmDestroyProgram"] = <intptr_t>__nvvmDestroyProgram
 
     global __nvvmAddModuleToProgram
-    data["__nvvmAddModuleToProgram"] = <uintptr_t>__nvvmAddModuleToProgram
+    data["__nvvmAddModuleToProgram"] = <intptr_t>__nvvmAddModuleToProgram
 
     global __nvvmLazyAddModuleToProgram
-    data["__nvvmLazyAddModuleToProgram"] = <uintptr_t>__nvvmLazyAddModuleToProgram
+    data["__nvvmLazyAddModuleToProgram"] = <intptr_t>__nvvmLazyAddModuleToProgram
 
     global __nvvmCompileProgram
-    data["__nvvmCompileProgram"] = <uintptr_t>__nvvmCompileProgram
+    data["__nvvmCompileProgram"] = <intptr_t>__nvvmCompileProgram
 
     global __nvvmVerifyProgram
-    data["__nvvmVerifyProgram"] = <uintptr_t>__nvvmVerifyProgram
+    data["__nvvmVerifyProgram"] = <intptr_t>__nvvmVerifyProgram
 
     global __nvvmGetCompiledResultSize
-    data["__nvvmGetCompiledResultSize"] = <uintptr_t>__nvvmGetCompiledResultSize
+    data["__nvvmGetCompiledResultSize"] = <intptr_t>__nvvmGetCompiledResultSize
 
     global __nvvmGetCompiledResult
-    data["__nvvmGetCompiledResult"] = <uintptr_t>__nvvmGetCompiledResult
+    data["__nvvmGetCompiledResult"] = <intptr_t>__nvvmGetCompiledResult
 
     global __nvvmGetProgramLogSize
-    data["__nvvmGetProgramLogSize"] = <uintptr_t>__nvvmGetProgramLogSize
+    data["__nvvmGetProgramLogSize"] = <intptr_t>__nvvmGetProgramLogSize
 
     global __nvvmGetProgramLog
-    data["__nvvmGetProgramLog"] = <uintptr_t>__nvvmGetProgramLog
+    data["__nvvmGetProgramLog"] = <intptr_t>__nvvmGetProgramLog
 
     func_ptrs = data
     return data

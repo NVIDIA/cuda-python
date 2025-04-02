@@ -16,10 +16,12 @@ def load_nvidia_dynamic_library(name: str) -> int:
                 raise ctypes.WinError(ctypes.get_last_error())
         except Exception as e:
             raise RuntimeError(f"Failed to load DLL at {dl_path}: {e}") from e
-        return ctypes.c_size_t(handle).value  # Ensures unsigned result
+        # Use `cdef void* ptr = <void*><intptr_t>` in cython to convert back to void*
+        return handle  # C signed int, matches win32api.GetProcAddress
     else:
         try:
             handle = ctypes.CDLL(dl_path, mode=os.RTLD_NOW | os.RTLD_GLOBAL)
-            return handle._handle  # Raw void* as unsigned int
         except OSError as e:
             raise RuntimeError(f"Failed to dlopen {dl_path}: {e}") from e
+        # Use `cdef void* ptr = <void*><uintptr_t>` in cython to convert back to void*
+        return handle._handle  # C unsigned int
