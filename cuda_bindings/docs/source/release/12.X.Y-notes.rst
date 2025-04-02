@@ -11,4 +11,4 @@ Highlights
   `libNVVM C API <https://docs.nvidia.com/cuda/libnvvm-api/>`_.
 * Source build error checking added for missing required headers
 * Statically link CUDA Runtime instead of reimplementing it
-* Fix performance hit warnings raised by Cython 3
+* Fix performance hint warnings raised by Cython 3
