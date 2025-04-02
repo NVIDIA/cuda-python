@@ -10,7 +10,6 @@ from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.bindings import path_finder
 
-import os
 import win32api
 
 

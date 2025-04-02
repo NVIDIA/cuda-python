@@ -4,8 +4,6 @@
 #
 # This code was automatically generated across versions from 12.0.1 to 12.6.2. Do not modify it directly.
 
-import os
-
 from libc.stdint cimport intptr_t, uintptr_t
 
 from .utils import FunctionNotFoundError, NotSupportedError
