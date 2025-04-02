@@ -1827,12 +1827,12 @@ cdef extern from "cuda_runtime_api.h" nogil:
     {{endif}}
     {{if 'cudaGetErrorName' in found_functions}}
 
-    const char* cudaGetErrorName(cudaError_t error) except ?NULL nogil
+    const char* cudaGetErrorName(cudaError_t error)
 
     {{endif}}
     {{if 'cudaGetErrorString' in found_functions}}
 
-    const char* cudaGetErrorString(cudaError_t error) except ?NULL nogil
+    const char* cudaGetErrorString(cudaError_t error)
 
     {{endif}}
     {{if 'cudaGetDeviceCount' in found_functions}}
@@ -2602,7 +2602,7 @@ cdef extern from "cuda_runtime_api.h" nogil:
     {{endif}}
     {{if 'cudaCreateChannelDesc' in found_functions}}
 
-    cudaChannelFormatDesc cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) except* nogil
+    cudaChannelFormatDesc cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f)
 
     {{endif}}
     {{if 'cudaCreateTextureObject' in found_functions}}
@@ -3170,17 +3170,17 @@ cdef extern from "cuda_runtime.h":
 
     {{if 'make_cudaPitchedPtr' in found_functions}}
 
-    cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) except* nogil
+    cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz)
 
     {{endif}}
     {{if 'make_cudaPos' in found_functions}}
 
-    cudaPos make_cudaPos(size_t x, size_t y, size_t z) except* nogil
+    cudaPos make_cudaPos(size_t x, size_t y, size_t z)
 
     {{endif}}
     {{if 'make_cudaExtent' in found_functions}}
 
-    cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) except* nogil
+    cudaExtent make_cudaExtent(size_t w, size_t h, size_t d)
 
     {{endif}}
 
