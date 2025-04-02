@@ -335,11 +335,61 @@ void testkernel(int i, int *pi,
 """
 ```
 
-The first step is to create array objects with types corresponding to your kernel arguments.
-CuPy's user guide for [Kernel arguments](https://docs.cupy.dev/en/stable/user_guide/kernel.html#kernel-arguments) describes how primitive Numpy types correspond to kernel types,
-as well as how custom user types can be made.
+The first step is to create array objects with types corresponding to your kernel arguments. Primative Numpy types have the following corresponding kernel types:
 
-For this example we have:
+```{list-table} Correspondence between NumPy types and kernel types.
+:header-rows: 1
+
+* - NumPy type
+  - Corresponding kernel types
+  - itemsize (bytes)
+* - bool
+  - bool
+  - 1
+* - int8
+  - char, signed char
+  - 1
+* - int16
+  - short, signed short
+  - 2
+* - int32
+  - int, signed int
+  - 4
+* - int64
+  - long long, signed long long
+  - 8
+* - uint8
+  - unsigned char
+  - 1
+* - uint16
+  - unsigned short
+  - 2
+* - uint32
+  - unsigned int
+  - 4
+* - uint64
+  - unsigned long long
+  - 8
+* - float16
+  - half
+  - 2
+* - float32
+  - float
+  - 4
+* - float64
+  - double
+  - 8
+* - complex64
+  - float2, cuFloatComplex, complex&lt;float&gt;
+  - 8
+* - complex128
+  - double2, cuDoubleComplex, complex&lt;double&gt;
+  - 16
+```
+
+Furthermore, custom NumPy types can be used to support both platform-dependent types and user-defined structures as kernel arguments.
+
+This example uses the following types:
 * `int` is `np.uint32`
 * `float` is `np.float32`
 * `int*` and `float*` is `np.uint64`
