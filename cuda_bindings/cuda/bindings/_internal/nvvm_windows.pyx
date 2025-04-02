@@ -51,7 +51,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         return 0
 
     cdef int err, driver_ver
-    cdef void* handle
+    cdef intptr_t handle
     with gil:
         # Load driver to check version
         try:
@@ -68,7 +68,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             raise RuntimeError('something went wrong')
 
         # Load library
-        handle = load_library(driver_ver)
+        handle = <intptr_t>load_library(driver_ver)
 
         # Load function
         global __nvvmVersion
