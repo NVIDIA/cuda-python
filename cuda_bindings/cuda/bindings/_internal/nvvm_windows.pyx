@@ -51,15 +51,16 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         return 0
 
     cdef int err, driver_ver
+    cdef void* handle
     with gil:
         # Load driver to check version
         try:
-            handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
+            nvcuda_handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
         except Exception as e:
             raise NotSupportedError(f'CUDA driver is not found ({e})')
         global __cuDriverGetVersion
         if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'cuDriverGetVersion')
+            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(nvcuda_handle, 'cuDriverGetVersion')
             if __cuDriverGetVersion == NULL:
                 raise RuntimeError('something went wrong')
         err = (<int (*)(int*) nogil>__cuDriverGetVersion)(&driver_ver)
