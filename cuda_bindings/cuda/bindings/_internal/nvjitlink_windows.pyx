@@ -4,15 +4,13 @@
 #
 # This code was automatically generated across versions from 12.0.1 to 12.6.2. Do not modify it directly.
 
-from libc.stdint cimport intptr_t, uintptr_t
+from libc.stdint cimport uintptr_t
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.bindings import path_finder
 
 import os
-import site
-
 import win32api
 
 
@@ -53,7 +51,7 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
         return 0
 
     cdef int err, driver_ver
-    cdef intptr_t handle
+    cdef uintptr_t handle
     with gil:
         # Load driver to check version
         try:
@@ -62,7 +60,7 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
             raise NotSupportedError(f'CUDA driver is not found ({e})')
         global __cuDriverGetVersion
         if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(nvcuda_handle, 'cuDriverGetVersion')
+            __cuDriverGetVersion = <void*><uintptr_t>win32api.GetProcAddress(nvcuda_handle, 'cuDriverGetVersion')
             if __cuDriverGetVersion == NULL:
                 raise RuntimeError('something went wrong')
         err = (<int (*)(int*) nogil>__cuDriverGetVersion)(&driver_ver)
@@ -70,90 +68,90 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
             raise RuntimeError('something went wrong')
 
         # Load library
-        handle = <intptr_t>load_library(driver_ver)
+        handle = <uintptr_t>load_library(driver_ver)
 
         # Load function
         global __nvJitLinkCreate
         try:
-            __nvJitLinkCreate = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkCreate')
+            __nvJitLinkCreate = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkCreate')
         except:
             pass
     
         global __nvJitLinkDestroy
         try:
-            __nvJitLinkDestroy = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkDestroy')
+            __nvJitLinkDestroy = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkDestroy')
         except:
             pass
     
         global __nvJitLinkAddData
         try:
-            __nvJitLinkAddData = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkAddData')
+            __nvJitLinkAddData = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkAddData')
         except:
             pass
     
         global __nvJitLinkAddFile
         try:
-            __nvJitLinkAddFile = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkAddFile')
+            __nvJitLinkAddFile = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkAddFile')
         except:
             pass
     
         global __nvJitLinkComplete
         try:
-            __nvJitLinkComplete = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkComplete')
+            __nvJitLinkComplete = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkComplete')
         except:
             pass
     
         global __nvJitLinkGetLinkedCubinSize
         try:
-            __nvJitLinkGetLinkedCubinSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedCubinSize')
+            __nvJitLinkGetLinkedCubinSize = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedCubinSize')
         except:
             pass
     
         global __nvJitLinkGetLinkedCubin
         try:
-            __nvJitLinkGetLinkedCubin = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedCubin')
+            __nvJitLinkGetLinkedCubin = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedCubin')
         except:
             pass
     
         global __nvJitLinkGetLinkedPtxSize
         try:
-            __nvJitLinkGetLinkedPtxSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedPtxSize')
+            __nvJitLinkGetLinkedPtxSize = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedPtxSize')
         except:
             pass
     
         global __nvJitLinkGetLinkedPtx
         try:
-            __nvJitLinkGetLinkedPtx = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedPtx')
+            __nvJitLinkGetLinkedPtx = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedPtx')
         except:
             pass
     
         global __nvJitLinkGetErrorLogSize
         try:
-            __nvJitLinkGetErrorLogSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetErrorLogSize')
+            __nvJitLinkGetErrorLogSize = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetErrorLogSize')
         except:
             pass
     
         global __nvJitLinkGetErrorLog
         try:
-            __nvJitLinkGetErrorLog = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetErrorLog')
+            __nvJitLinkGetErrorLog = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetErrorLog')
         except:
             pass
     
         global __nvJitLinkGetInfoLogSize
         try:
-            __nvJitLinkGetInfoLogSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetInfoLogSize')
+            __nvJitLinkGetInfoLogSize = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetInfoLogSize')
         except:
             pass
     
         global __nvJitLinkGetInfoLog
         try:
-            __nvJitLinkGetInfoLog = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetInfoLog')
+            __nvJitLinkGetInfoLog = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetInfoLog')
         except:
             pass
     
         global __nvJitLinkVersion
         try:
-            __nvJitLinkVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkVersion')
+            __nvJitLinkVersion = <void*><uintptr_t>win32api.GetProcAddress(handle, 'nvJitLinkVersion')
         except:
             pass
 
@@ -173,46 +171,46 @@ cpdef dict _inspect_function_pointers():
     cdef dict data = {}
 
     global __nvJitLinkCreate
-    data["__nvJitLinkCreate"] = <intptr_t>__nvJitLinkCreate
+    data["__nvJitLinkCreate"] = <uintptr_t>__nvJitLinkCreate
     
     global __nvJitLinkDestroy
-    data["__nvJitLinkDestroy"] = <intptr_t>__nvJitLinkDestroy
+    data["__nvJitLinkDestroy"] = <uintptr_t>__nvJitLinkDestroy
     
     global __nvJitLinkAddData
-    data["__nvJitLinkAddData"] = <intptr_t>__nvJitLinkAddData
+    data["__nvJitLinkAddData"] = <uintptr_t>__nvJitLinkAddData
     
     global __nvJitLinkAddFile
-    data["__nvJitLinkAddFile"] = <intptr_t>__nvJitLinkAddFile
+    data["__nvJitLinkAddFile"] = <uintptr_t>__nvJitLinkAddFile
     
     global __nvJitLinkComplete
-    data["__nvJitLinkComplete"] = <intptr_t>__nvJitLinkComplete
+    data["__nvJitLinkComplete"] = <uintptr_t>__nvJitLinkComplete
     
     global __nvJitLinkGetLinkedCubinSize
-    data["__nvJitLinkGetLinkedCubinSize"] = <intptr_t>__nvJitLinkGetLinkedCubinSize
+    data["__nvJitLinkGetLinkedCubinSize"] = <uintptr_t>__nvJitLinkGetLinkedCubinSize
     
     global __nvJitLinkGetLinkedCubin
-    data["__nvJitLinkGetLinkedCubin"] = <intptr_t>__nvJitLinkGetLinkedCubin
+    data["__nvJitLinkGetLinkedCubin"] = <uintptr_t>__nvJitLinkGetLinkedCubin
     
     global __nvJitLinkGetLinkedPtxSize
-    data["__nvJitLinkGetLinkedPtxSize"] = <intptr_t>__nvJitLinkGetLinkedPtxSize
+    data["__nvJitLinkGetLinkedPtxSize"] = <uintptr_t>__nvJitLinkGetLinkedPtxSize
     
     global __nvJitLinkGetLinkedPtx
-    data["__nvJitLinkGetLinkedPtx"] = <intptr_t>__nvJitLinkGetLinkedPtx
+    data["__nvJitLinkGetLinkedPtx"] = <uintptr_t>__nvJitLinkGetLinkedPtx
     
     global __nvJitLinkGetErrorLogSize
-    data["__nvJitLinkGetErrorLogSize"] = <intptr_t>__nvJitLinkGetErrorLogSize
+    data["__nvJitLinkGetErrorLogSize"] = <uintptr_t>__nvJitLinkGetErrorLogSize
     
     global __nvJitLinkGetErrorLog
-    data["__nvJitLinkGetErrorLog"] = <intptr_t>__nvJitLinkGetErrorLog
+    data["__nvJitLinkGetErrorLog"] = <uintptr_t>__nvJitLinkGetErrorLog
     
     global __nvJitLinkGetInfoLogSize
-    data["__nvJitLinkGetInfoLogSize"] = <intptr_t>__nvJitLinkGetInfoLogSize
+    data["__nvJitLinkGetInfoLogSize"] = <uintptr_t>__nvJitLinkGetInfoLogSize
     
     global __nvJitLinkGetInfoLog
-    data["__nvJitLinkGetInfoLog"] = <intptr_t>__nvJitLinkGetInfoLog
+    data["__nvJitLinkGetInfoLog"] = <uintptr_t>__nvJitLinkGetInfoLog
     
     global __nvJitLinkVersion
-    data["__nvJitLinkVersion"] = <intptr_t>__nvJitLinkVersion
+    data["__nvJitLinkVersion"] = <uintptr_t>__nvJitLinkVersion
 
     func_ptrs = data
     return data
