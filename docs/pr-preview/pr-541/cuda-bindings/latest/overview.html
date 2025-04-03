@@ -497,7 +497,7 @@ associated XXclass as a Python <code class="docutils literal notranslate"><span 
 <p>The launch API <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> also expects a pointer input for the argument list
 but this time it’s of type <code class="docutils literal notranslate"><span class="pre">void**</span></code>. What this means is that our argument list needs to
 be a contiguous array of <code class="docutils literal notranslate"><span class="pre">void*</span></code> elements, where each element is the pointer to a kernel
-argument. Since we already prepared each of our arguments into a <code class="docutils literal notranslate"><span class="pre">np.array</span></code> type, the
+argument on either host or device. Since we already prepared each of our arguments into a <code class="docutils literal notranslate"><span class="pre">np.array</span></code> type, the
 construction of our final contiguous array is done by retrieving the <code class="docutils literal notranslate"><span class="pre">XX.ctypes.data</span></code>
 of each kernel argument.</p>
 <p>Now the kernel can be launched:</p>
@@ -605,14 +605,14 @@ maximize performance (<a class="reference internal" href="#figure-1"><span class
 <p>NumPy <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.html">Array objects</a> can be used to fulfill each of these conditions directly.</p>
 <p>Let’s use the following kernel definition as an example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernel_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
-<span class="s2">struct testStruct {</span>
+<span class="s2">typedef struct {</span>
 <span class="s2">    int value;</span>
-<span class="s2">};</span>
+<span class="s2">} testStruct;</span>
 
 <span class="s2">extern &quot;C&quot; __global__</span>
 <span class="s2">void testkernel(int i, int *pi,</span>
 <span class="s2">                float f, float *pf,</span>
-<span class="s2">                struct testStruct s, struct testStruct *ps)</span>
+<span class="s2">                testStruct s, testStruct *ps)</span>
 <span class="s2">{</span>
 <span class="s2">    *pi = i;</span>
 <span class="s2">    *pf = f;</span>
@@ -637,15 +637,15 @@ maximize performance (<a class="reference internal" href="#figure-1"><span class
 <td><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p>int8</p></td>
-<td><p>char, signed char</p></td>
+<td><p>char, signed char, int8_t</p></td>
 <td><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p>int16</p></td>
-<td><p>short, signed short</p></td>
+<td><p>short, signed short, int16_t</p></td>
 <td><p>2</p></td>
 </tr>
 <tr class="row-odd"><td><p>int32</p></td>
-<td><p>int, signed int</p></td>
+<td><p>int, signed int, int32_t</p></td>
 <td><p>4</p></td>
 </tr>
 <tr class="row-even"><td><p>int64</p></td>
@@ -665,7 +665,7 @@ maximize performance (<a class="reference internal" href="#figure-1"><span class
 <td><p>4</p></td>
 </tr>
 <tr class="row-even"><td><p>uint64</p></td>
-<td><p>unsigned long long</p></td>
+<td><p>unsigned long long, uint64_t</p></td>
 <td><p>8</p></td>
 </tr>
 <tr class="row-odd"><td><p>float16</p></td>
@@ -696,13 +696,13 @@ maximize performance (<a class="reference internal" href="#figure-1"><span class
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">int</span></code> is <code class="docutils literal notranslate"><span class="pre">np.uint32</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">float</span></code> is <code class="docutils literal notranslate"><span class="pre">np.float32</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">int*</span></code> and <code class="docutils literal notranslate"><span class="pre">float*</span></code> is <code class="docutils literal notranslate"><span class="pre">np.uint64</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">testStruct</span></code> is a custom user type <code class="docutils literal notranslate"><span class="pre">np.dtype([(&quot;value&quot;,</span> <span class="pre">np.int32)])</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">int*</span></code>, <code class="docutils literal notranslate"><span class="pre">float*</span></code> and <code class="docutils literal notranslate"><span class="pre">testStruct*</span></code> is <code class="docutils literal notranslate"><span class="pre">np.intp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testStruct</span></code> is a custom user type <code class="docutils literal notranslate"><span class="pre">np.dtype([(&quot;value&quot;,</span> <span class="pre">np.int32)],</span> <span class="pre">align=True)</span></code></p></li>
 </ul>
-<p>Note how both of the pointers are <code class="docutils literal notranslate"><span class="pre">np.uint64</span></code> since the pointers values are always a representation of an address space.</p>
+<p>Note how both of the pointers are <code class="docutils literal notranslate"><span class="pre">np.intp</span></code> since the pointers values are always a representation of an address space.</p>
 <p>Putting it all together:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a custom type</span>
-<span class="n">testStruct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)])</span>
+<span class="n">testStruct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)],</span> <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Allocate host memory</span>
 <span class="n">pInt_host</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaHostAlloc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="n">itemsize</span><span class="p">,</span> <span class="n">cudart</span><span class="o">.</span><span class="n">cudaHostAllocMapped</span><span class="p">))</span>
@@ -712,18 +712,18 @@ maximize performance (<a class="reference internal" href="#figure-1"><span class
 <span class="c1"># Collect all input kernel arguments into a single tuple for further processing</span>
 <span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">),</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pInt_host</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pInt_host</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
     <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mf">123.456</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pFloat_host</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pFloat_host</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
     <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">],</span> <span class="n">testStruct</span><span class="p">),</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pStruct_host</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pStruct_host</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>The final step is to construct a <code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> argument that fulfills all of the launch API conditions. This is made easy because each array object comes
 with a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.ctypes.html#numpy.ndarray.ctypes">ctypes</a> data attribute that returns the underlying <code class="docutils literal notranslate"><span class="pre">void*</span></code> pointer value.</p>
 <p>By having the final array object contain all pointers, we fulfill the contiguous array requirement:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernelParams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kernelValues</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernelParams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kernelValues</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The launch API supports <a class="reference external" href="https://docs.python.org/3/c-api/buffer.html">Buffer Protocol</a> objects, therefore we can pass the array object directly.</p>
@@ -834,13 +834,13 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
     <span class="o">...</span>
 </pre></div>
 </div>
-<p>For NumPy, we can convert these CUDA types by leveraging the <code class="docutils literal notranslate"><span class="pre">__int__()</span></code> call to fetch the address of the underlying <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code> C object and wrapping it in a NumPy object array of type <code class="docutils literal notranslate"><span class="pre">np.uint64</span></code>:</p>
+<p>For NumPy, we can convert these CUDA types by leveraging the <code class="docutils literal notranslate"><span class="pre">__int__()</span></code> call to fetch the address of the underlying <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code> C object and wrapping it in a NumPy object array of type <code class="docutils literal notranslate"><span class="pre">np.intp</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d_data</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d_data</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
     <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">),</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">tex</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">tex</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="n">kernelArgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kernelValues</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+<span class="n">kernelArgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kernelValues</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For ctypes, we leverage the special handling of <code class="docutils literal notranslate"><span class="pre">None</span></code> type since each Python class already implements <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code>:</p>

@@ -201,7 +201,7 @@ dOut = np.array([int(dOutclass)], dtype=np.uint64)
 The launch API `cuLaunchKernel` also expects a pointer input for the argument list
 but this time it's of type `void**`. What this means is that our argument list needs to
 be a contiguous array of `void*` elements, where each element is the pointer to a kernel
-argument. Since we already prepared each of our arguments into a `np.array` type, the
+argument on either host or device. Since we already prepared each of our arguments into a `np.array` type, the
 construction of our final contiguous array is done by retrieving the `XX.ctypes.data`
 of each kernel argument.
 
@@ -319,14 +319,14 @@ NumPy [Array objects](https://numpy.org/doc/stable/reference/arrays.html) can be
 Let's use the following kernel definition as an example:
 ```python
 kernel_string = """\
-struct testStruct {
+typedef struct {
     int value;
-};
+} testStruct;
 
 extern "C" __global__
 void testkernel(int i, int *pi,
                 float f, float *pf,
-                struct testStruct s, struct testStruct *ps)
+                testStruct s, testStruct *ps)
 {
     *pi = i;
     *pf = f;
@@ -347,13 +347,13 @@ The first step is to create array objects with types corresponding to your kerne
   - bool
   - 1
 * - int8
-  - char, signed char
+  - char, signed char, int8_t
   - 1
 * - int16
-  - short, signed short
+  - short, signed short, int16_t
   - 2
 * - int32
-  - int, signed int
+  - int, signed int, int32_t
   - 4
 * - int64
   - long long, signed long long
@@ -368,7 +368,7 @@ The first step is to create array objects with types corresponding to your kerne
   - unsigned int
   - 4
 * - uint64
-  - unsigned long long
+  - unsigned long long, uint64_t
   - 8
 * - float16
   - half
@@ -392,15 +392,15 @@ Furthermore, custom NumPy types can be used to support both platform-dependent t
 This example uses the following types:
 * `int` is `np.uint32`
 * `float` is `np.float32`
-* `int*` and `float*` is `np.uint64`
-* `testStruct` is a custom user type `np.dtype([("value", np.int32)])`
+* `int*`, `float*` and `testStruct*` is `np.intp`
+* `testStruct` is a custom user type `np.dtype([("value", np.int32)], align=True)`
 
-Note how both of the pointers are `np.uint64` since the pointers values are always a representation of an address space.
+Note how both of the pointers are `np.intp` since the pointers values are always a representation of an address space.
 
 Putting it all together:
 ```python
 # Define a custom type
-testStruct = np.dtype([("value", np.int32)])
+testStruct = np.dtype([("value", np.int32)], align=True)
 
 # Allocate host memory
 pInt_host = checkCudaErrors(cudart.cudaHostAlloc(np.dtype(np.int32).itemsize, cudart.cudaHostAllocMapped))
@@ -410,11 +410,11 @@ pStruct_host = checkCudaErrors(cudart.cudaHostAlloc(testStruct.itemsize, cudart.
 # Collect all input kernel arguments into a single tuple for further processing
 kernelValues = (
     np.array(1, dtype=np.uint32),
-    np.array([pInt_host], dtype=np.uint64),
+    np.array([pInt_host], dtype=np.intp),
     np.array(123.456, dtype=np.float32),
-    np.array([pFloat_host], dtype=np.uint64),
+    np.array([pFloat_host], dtype=np.intp),
     np.array([5], testStruct),
-    np.array([pStruct_host], dtype=np.uint64),
+    np.array([pStruct_host], dtype=np.intp),
 )
 ```
 
@@ -424,7 +424,7 @@ with a [ctypes](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.c
 By having the final array object contain all pointers, we fulfill the contiguous array requirement:
 
 ```python
-kernelParams = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.uint64)
+kernelParams = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.intp)
 ```
 
 The launch API supports [Buffer Protocol](https://docs.python.org/3/c-api/buffer.html) objects, therefore we can pass the array object directly.
@@ -546,15 +546,15 @@ def main():
     ...
 ```
 
-For NumPy, we can convert these CUDA types by leveraging the `__int__()` call to fetch the address of the underlying `cudaTextureObject_t` C object and wrapping it in a NumPy object array of type `np.uint64`:
+For NumPy, we can convert these CUDA types by leveraging the `__int__()` call to fetch the address of the underlying `cudaTextureObject_t` C object and wrapping it in a NumPy object array of type `np.intp`:
 
 ```python
 kernelValues = (
-    np.array([d_data], dtype=np.uint64),
+    np.array([d_data], dtype=np.intp),
     np.array(width, dtype=np.uint32),
-    np.array([int(tex)], dtype=np.uint64),
+    np.array([int(tex)], dtype=np.intp),
 )
-kernelArgs = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.uint64)
+kernelArgs = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.intp)
 ```
 
 For ctypes, we leverage the special handling of `None` type since each Python class already implements `getPtr()`:
