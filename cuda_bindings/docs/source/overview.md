@@ -393,7 +393,7 @@ This example uses the following types:
 * `int` is `np.uint32`
 * `float` is `np.float32`
 * `int*` and `float*` is `np.uint64`
-* `testStruct` is a custom user type `np.dtype([("value", np.int32)])`
+* `testStruct` is a custom user type `np.dtype([("value", np.int32)], align=True)`
 
 Note how both of the pointers are `np.uint64` since the pointers values are always a representation of an address space.
 
