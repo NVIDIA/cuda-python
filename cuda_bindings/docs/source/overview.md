@@ -350,7 +350,7 @@ The first step is to create array objects with types corresponding to your kerne
   - char, signed char, int8_t
   - 1
 * - int16
-  - short, signed short
+  - short, signed short, int16_t
   - 2
 * - int32
   - int, signed int
