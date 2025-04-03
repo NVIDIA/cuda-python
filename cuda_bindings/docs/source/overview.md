@@ -319,14 +319,14 @@ NumPy [Array objects](https://numpy.org/doc/stable/reference/arrays.html) can be
 Let's use the following kernel definition as an example:
 ```python
 kernel_string = """\
-struct testStruct {
+typedef struct {
     int value;
-};
+} testStruct;
 
 extern "C" __global__
 void testkernel(int i, int *pi,
                 float f, float *pf,
-                struct testStruct s, struct testStruct *ps)
+                testStruct s, testStruct *ps)
 {
     *pi = i;
     *pf = f;
