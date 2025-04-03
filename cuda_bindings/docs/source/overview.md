@@ -400,7 +400,7 @@ Note how both of the pointers are `np.uint64` since the pointers values are alwa
 Putting it all together:
 ```python
 # Define a custom type
-testStruct = np.dtype([("value", np.int32)])
+testStruct = np.dtype([("value", np.int32)], align=True)
 
 # Allocate host memory
 pInt_host = checkCudaErrors(cudart.cudaHostAlloc(np.dtype(np.int32).itemsize, cudart.cudaHostAllocMapped))
