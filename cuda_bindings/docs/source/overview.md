@@ -201,7 +201,7 @@ dOut = np.array([int(dOutclass)], dtype=np.uint64)
 The launch API `cuLaunchKernel` also expects a pointer input for the argument list
 but this time it's of type `void**`. What this means is that our argument list needs to
 be a contiguous array of `void*` elements, where each element is the pointer to a kernel
-argument. Since we already prepared each of our arguments into a `np.array` type, the
+argument on either host or device. Since we already prepared each of our arguments into a `np.array` type, the
 construction of our final contiguous array is done by retrieving the `XX.ctypes.data`
 of each kernel argument.
 
