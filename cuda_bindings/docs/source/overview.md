@@ -368,7 +368,7 @@ The first step is to create array objects with types corresponding to your kerne
   - unsigned int
   - 4
 * - uint64
-  - unsigned long long
+  - unsigned long long, uint64_t
   - 8
 * - float16
   - half
