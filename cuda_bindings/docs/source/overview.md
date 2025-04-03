@@ -347,7 +347,7 @@ The first step is to create array objects with types corresponding to your kerne
   - bool
   - 1
 * - int8
-  - char, signed char
+  - char, signed char, int8_t
   - 1
 * - int16
   - short, signed short
