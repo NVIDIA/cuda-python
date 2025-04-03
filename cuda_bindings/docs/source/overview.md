@@ -353,7 +353,7 @@ The first step is to create array objects with types corresponding to your kerne
   - short, signed short, int16_t
   - 2
 * - int32
-  - int, signed int
+  - int, signed int, int32_t
   - 4
 * - int64
   - long long, signed long long
