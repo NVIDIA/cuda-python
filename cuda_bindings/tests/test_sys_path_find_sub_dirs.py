@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from cuda.bindings._path_finder_utils.sys_path_find_sub_dirs import _impl
+from cuda.bindings._path_finder.sys_path_find_sub_dirs import _impl
 
 
 @pytest.fixture

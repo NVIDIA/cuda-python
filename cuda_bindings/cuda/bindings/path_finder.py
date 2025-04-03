@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-from cuda.bindings._path_finder_utils.cuda_paths import (
+from cuda.bindings._path_finder.cuda_paths import (
     get_conda_ctk,
     get_conda_include_dir,
     get_cuda_home,
@@ -16,8 +16,8 @@ from cuda.bindings._path_finder_utils.cuda_paths import (
     get_nvidia_static_cudalib_ctk,
     get_system_ctk,
 )
-from cuda.bindings._path_finder_utils.find_nvidia_dynamic_library import find_nvidia_dynamic_library
-from cuda.bindings._path_finder_utils.load_nvidia_dynamic_library import load_nvidia_dynamic_library
+from cuda.bindings._path_finder.find_nvidia_dynamic_library import find_nvidia_dynamic_library
+from cuda.bindings._path_finder.load_nvidia_dynamic_library import load_nvidia_dynamic_library
 
 __all__ = [
     "find_nvidia_dynamic_library",
