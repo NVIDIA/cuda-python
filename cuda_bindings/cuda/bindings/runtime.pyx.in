@@ -18501,7 +18501,7 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
     cdef cudaAsyncCallbackData *cbData = NULL
     cbData = <cudaAsyncCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
-        return cudaError_t.cudaErrorMemoryAllocation
+        return (cudaError_t.cudaErrorMemoryAllocation, None)
     cbData.callback = cycallbackFunc
     cbData.userData = cyuserData_ptr
 
@@ -20692,7 +20692,7 @@ def cudaStreamAddCallback(stream, callback, userData, unsigned int flags):
     cdef cudaStreamCallbackData *cbData = NULL
     cbData = <cudaStreamCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
-        return cudaError_t.cudaErrorMemoryAllocation
+        return (cudaError_t.cudaErrorMemoryAllocation,)
     cbData.callback = cycallback
     cbData.userData = cyuserData_ptr
 
@@ -23072,7 +23072,7 @@ def cudaLaunchHostFunc(stream, fn, userData):
     cdef cudaStreamHostCallbackData *cbData = NULL
     cbData = <cudaStreamHostCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
-        return cudaError_t.cudaErrorMemoryAllocation
+        return (cudaError_t.cudaErrorMemoryAllocation,)
     cbData.callback = cyfn
     cbData.userData = cyuserData_ptr
 

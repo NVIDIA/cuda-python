@@ -27841,7 +27841,7 @@ def cuDeviceRegisterAsyncNotification(device, callbackFunc, userData):
     cdef cuAsyncCallbackData *cbData = NULL
     cbData = <cuAsyncCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
-        return CUresult.CUDA_ERROR_OUT_OF_MEMORY
+        return (CUresult.CUDA_ERROR_OUT_OF_MEMORY, None)
     cbData.callback = cycallbackFunc
     cbData.userData = cyuserData_ptr
 
@@ -35589,7 +35589,7 @@ def cuStreamAddCallback(hStream, callback, userData, unsigned int flags):
     cdef cuStreamCallbackData *cbData = NULL
     cbData = <cuStreamCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
-        return CUresult.CUDA_ERROR_OUT_OF_MEMORY
+        return (CUresult.CUDA_ERROR_OUT_OF_MEMORY,)
     cbData.callback = cycallback
     cbData.userData = cyuserData_ptr
 
@@ -39422,7 +39422,7 @@ def cuLaunchHostFunc(hStream, fn, userData):
     cdef cuHostCallbackData *cbData = NULL
     cbData = <cuHostCallbackData *>malloc(sizeof(cbData[0]))
     if cbData == NULL:
-        return CUresult.CUDA_ERROR_OUT_OF_MEMORY
+        return (CUresult.CUDA_ERROR_OUT_OF_MEMORY,)
     cbData.callback = cyfn
     cbData.userData = cyuserData_ptr
 
