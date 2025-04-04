@@ -82,7 +82,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         with gil:
             raise RuntimeError('something went wrong')
     cdef int err, driver_ver
-    err = (<int (*)(int*) nogil>__cuDriverGetVersion)(&driver_ver)
+    err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
     if err != 0:
         with gil:
             raise RuntimeError('something went wrong')
@@ -240,121 +240,121 @@ cpdef _inspect_function_pointer(str name):
 # Wrapper functions
 ###############################################################################
 
-cdef nvvmResult _nvvmVersion(int* major, int* minor) except* nogil:
+cdef nvvmResult _nvvmVersion(int* major, int* minor) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmVersion
     _check_or_init_nvvm()
     if __nvvmVersion == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmVersion is not found")
-    return (<nvvmResult (*)(int*, int*) nogil>__nvvmVersion)(
+    return (<nvvmResult (*)(int*, int*) noexcept nogil>__nvvmVersion)(
         major, minor)
 
 
-cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except* nogil:
+cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmIRVersion
     _check_or_init_nvvm()
     if __nvvmIRVersion == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmIRVersion is not found")
-    return (<nvvmResult (*)(int*, int*, int*, int*) nogil>__nvvmIRVersion)(
+    return (<nvvmResult (*)(int*, int*, int*, int*) noexcept nogil>__nvvmIRVersion)(
         majorIR, minorIR, majorDbg, minorDbg)
 
 
-cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except* nogil:
+cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmCreateProgram
     _check_or_init_nvvm()
     if __nvvmCreateProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmCreateProgram is not found")
-    return (<nvvmResult (*)(nvvmProgram*) nogil>__nvvmCreateProgram)(
+    return (<nvvmResult (*)(nvvmProgram*) noexcept nogil>__nvvmCreateProgram)(
         prog)
 
 
-cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except* nogil:
+cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmDestroyProgram
     _check_or_init_nvvm()
     if __nvvmDestroyProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmDestroyProgram is not found")
-    return (<nvvmResult (*)(nvvmProgram*) nogil>__nvvmDestroyProgram)(
+    return (<nvvmResult (*)(nvvmProgram*) noexcept nogil>__nvvmDestroyProgram)(
         prog)
 
 
-cdef nvvmResult _nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except* nogil:
+cdef nvvmResult _nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmAddModuleToProgram
     _check_or_init_nvvm()
     if __nvvmAddModuleToProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmAddModuleToProgram is not found")
-    return (<nvvmResult (*)(nvvmProgram, const char*, size_t, const char*) nogil>__nvvmAddModuleToProgram)(
+    return (<nvvmResult (*)(nvvmProgram, const char*, size_t, const char*) noexcept nogil>__nvvmAddModuleToProgram)(
         prog, buffer, size, name)
 
 
-cdef nvvmResult _nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except* nogil:
+cdef nvvmResult _nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmLazyAddModuleToProgram
     _check_or_init_nvvm()
     if __nvvmLazyAddModuleToProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmLazyAddModuleToProgram is not found")
-    return (<nvvmResult (*)(nvvmProgram, const char*, size_t, const char*) nogil>__nvvmLazyAddModuleToProgram)(
+    return (<nvvmResult (*)(nvvmProgram, const char*, size_t, const char*) noexcept nogil>__nvvmLazyAddModuleToProgram)(
         prog, buffer, size, name)
 
 
-cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil:
+cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmCompileProgram
     _check_or_init_nvvm()
     if __nvvmCompileProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmCompileProgram is not found")
-    return (<nvvmResult (*)(nvvmProgram, int, const char**) nogil>__nvvmCompileProgram)(
+    return (<nvvmResult (*)(nvvmProgram, int, const char**) noexcept nogil>__nvvmCompileProgram)(
         prog, numOptions, options)
 
 
-cdef nvvmResult _nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except* nogil:
+cdef nvvmResult _nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmVerifyProgram
     _check_or_init_nvvm()
     if __nvvmVerifyProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmVerifyProgram is not found")
-    return (<nvvmResult (*)(nvvmProgram, int, const char**) nogil>__nvvmVerifyProgram)(
+    return (<nvvmResult (*)(nvvmProgram, int, const char**) noexcept nogil>__nvvmVerifyProgram)(
         prog, numOptions, options)
 
 
-cdef nvvmResult _nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except* nogil:
+cdef nvvmResult _nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmGetCompiledResultSize
     _check_or_init_nvvm()
     if __nvvmGetCompiledResultSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmGetCompiledResultSize is not found")
-    return (<nvvmResult (*)(nvvmProgram, size_t*) nogil>__nvvmGetCompiledResultSize)(
+    return (<nvvmResult (*)(nvvmProgram, size_t*) noexcept nogil>__nvvmGetCompiledResultSize)(
         prog, bufferSizeRet)
 
 
-cdef nvvmResult _nvvmGetCompiledResult(nvvmProgram prog, char* buffer) except* nogil:
+cdef nvvmResult _nvvmGetCompiledResult(nvvmProgram prog, char* buffer) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmGetCompiledResult
     _check_or_init_nvvm()
     if __nvvmGetCompiledResult == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmGetCompiledResult is not found")
-    return (<nvvmResult (*)(nvvmProgram, char*) nogil>__nvvmGetCompiledResult)(
+    return (<nvvmResult (*)(nvvmProgram, char*) noexcept nogil>__nvvmGetCompiledResult)(
         prog, buffer)
 
 
-cdef nvvmResult _nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except* nogil:
+cdef nvvmResult _nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmGetProgramLogSize
     _check_or_init_nvvm()
     if __nvvmGetProgramLogSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmGetProgramLogSize is not found")
-    return (<nvvmResult (*)(nvvmProgram, size_t*) nogil>__nvvmGetProgramLogSize)(
+    return (<nvvmResult (*)(nvvmProgram, size_t*) noexcept nogil>__nvvmGetProgramLogSize)(
         prog, bufferSizeRet)
 
 
-cdef nvvmResult _nvvmGetProgramLog(nvvmProgram prog, char* buffer) except* nogil:
+cdef nvvmResult _nvvmGetProgramLog(nvvmProgram prog, char* buffer) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmGetProgramLog
     _check_or_init_nvvm()
     if __nvvmGetProgramLog == NULL:
         with gil:
             raise FunctionNotFoundError("function nvvmGetProgramLog is not found")
-    return (<nvvmResult (*)(nvvmProgram, char*) nogil>__nvvmGetProgramLog)(
+    return (<nvvmResult (*)(nvvmProgram, char*) noexcept nogil>__nvvmGetProgramLog)(
         prog, buffer)
