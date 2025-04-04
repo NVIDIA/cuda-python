@@ -402,19 +402,19 @@ Putting it all together:
 # Define a custom type
 testStruct = np.dtype([("value", np.int32)], align=True)
 
-# Allocate host memory
-pInt_host = checkCudaErrors(cudart.cudaHostAlloc(np.dtype(np.int32).itemsize, cudart.cudaHostAllocMapped))
-pFloat_host = checkCudaErrors(cudart.cudaHostAlloc(np.dtype(np.float32).itemsize, cudart.cudaHostAllocMapped))
-pStruct_host = checkCudaErrors(cudart.cudaHostAlloc(testStruct.itemsize, cudart.cudaHostAllocMapped))
+# Allocate device memory
+pInt = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.int32).itemsize))
+pFloat = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.float32).itemsize))
+pStruct = checkCudaErrors(cudart.cudaMalloc(testStruct.itemsize))
 
 # Collect all input kernel arguments into a single tuple for further processing
 kernelValues = (
     np.array(1, dtype=np.uint32),
-    np.array([pInt_host], dtype=np.intp),
+    np.array([pInt], dtype=np.intp),
     np.array(123.456, dtype=np.float32),
-    np.array([pFloat_host], dtype=np.intp),
+    np.array([pFloat], dtype=np.intp),
     np.array([5], testStruct),
-    np.array([pStruct_host], dtype=np.intp),
+    np.array([pStruct], dtype=np.intp),
 )
 ```
 
@@ -444,24 +444,7 @@ checkCudaErrors(cuda.cuLaunchKernel(
 
 The [ctypes](https://docs.python.org/3/library/ctypes.html) approach relaxes the parameter preparation requirement by delegating the contiguous memory requirement to the API launch call.
 
-Let's use the following kernel definition as an example:
-```python
-kernel_string = """\
-struct testStruct {
-    int value;
-};
-
-extern "C" __global__
-void testkernel(int i, int *pi,
-                float f, float *pf,
-                struct testStruct s, struct testStruct *ps)
-{
-    *pi = i;
-    *pf = f;
-    ps->value = s.value;
-}
-"""
-```
+Let's use the same kernel definition as the previous section for the example.
 
 The ctypes approach treats the `kernelParams` argument as a pair of two tuples: `kernel_values` and `kernel_types`.
 
@@ -478,19 +461,19 @@ For this example the result becomes:
 class testStruct(ctypes.Structure):
     _fields_ = [("value", ctypes.c_int)]
 
-# Allocate host memory
-pInt_host = checkCudaErrors(cudart.cudaHostAlloc(ctypes.sizeof(ctypes.c_int), cudart.cudaHostAllocMapped))
-pFloat_host = checkCudaErrors(cudart.cudaHostAlloc(ctypes.sizeof(ctypes.c_float), cudart.cudaHostAllocMapped))
-pStruct_host = checkCudaErrors(cudart.cudaHostAlloc(ctypes.sizeof(testStruct), cudart.cudaHostAllocMapped))
+# Allocate device memory
+pInt = checkCudaErrors(cudart.cudaMalloc(ctypes.sizeof(ctypes.c_int)))
+pFloat = checkCudaErrors(cudart.cudaMalloc(ctypes.sizeof(ctypes.c_float)))
+pStruct = checkCudaErrors(cudart.cudaMalloc(ctypes.sizeof(testStruct)))
 
 # Collect all input kernel arguments into a single tuple for further processing
 kernelValues = (
     1,
-    pInt_host,
+    pInt,
     123.456,
-    pFloat_host,
+    pFloat,
     testStruct(5),
-    pStruct_host,
+    pStruct,
 )
 kernelTypes = (
     ctypes.c_int,
