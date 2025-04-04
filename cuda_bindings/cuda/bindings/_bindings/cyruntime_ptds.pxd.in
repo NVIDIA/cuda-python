@@ -886,7 +886,7 @@ cdef cyruntime.cudaError_t _cudaGetChannelDesc(cyruntime.cudaChannelFormatDesc* 
 
 {{if 'cudaCreateChannelDesc' in found_functions}}
 
-cdef cyruntime.cudaChannelFormatDesc _cudaCreateChannelDesc(int x, int y, int z, int w, cyruntime.cudaChannelFormatKind f) nogil
+cdef cyruntime.cudaChannelFormatDesc _cudaCreateChannelDesc(int x, int y, int z, int w, cyruntime.cudaChannelFormatKind f) except* nogil
 {{endif}}
 
 {{if 'cudaCreateTextureObject' in found_functions}}
@@ -1451,17 +1451,17 @@ cdef cyruntime.cudaError_t _cudaGetKernel(cyruntime.cudaKernel_t* kernelPtr, con
 
 {{if 'make_cudaPitchedPtr' in found_functions}}
 
-cdef cyruntime.cudaPitchedPtr _make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) nogil
+cdef cyruntime.cudaPitchedPtr _make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) except* nogil
 {{endif}}
 
 {{if 'make_cudaPos' in found_functions}}
 
-cdef cyruntime.cudaPos _make_cudaPos(size_t x, size_t y, size_t z) nogil
+cdef cyruntime.cudaPos _make_cudaPos(size_t x, size_t y, size_t z) except* nogil
 {{endif}}
 
 {{if 'make_cudaExtent' in found_functions}}
 
-cdef cyruntime.cudaExtent _make_cudaExtent(size_t w, size_t h, size_t d) nogil
+cdef cyruntime.cudaExtent _make_cudaExtent(size_t w, size_t h, size_t d) except* nogil
 {{endif}}
 
 {{if 'cudaProfilerStart' in found_functions}}
