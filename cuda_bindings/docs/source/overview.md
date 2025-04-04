@@ -356,16 +356,16 @@ The first step is to create array objects with types corresponding to your kerne
   - int, signed int, int32_t
   - 4
 * - int64
-  - long long, signed long long
+  - long long, signed long long, int64_t
   - 8
 * - uint8
-  - unsigned char
+  - unsigned char, uint8_t
   - 1
 * - uint16
-  - unsigned short
+  - unsigned short, uint16_t
   - 2
 * - uint32
-  - unsigned int
+  - unsigned int, uint32_t
   - 4
 * - uint64
   - unsigned long long, uint64_t
@@ -468,7 +468,7 @@ The ctypes approach treats the `kernelParams` argument as a pair of two tuples: 
 * `kernel_values` contain Python values to be used as an input to your kernel
 * `kernel_types` contain the data types that your kernel_values should be converted into
 
-The ctypes [Fundamental data types](https://docs.python.org/3/library/ctypes.html#fundamental-data-types) documentation describes the compatibility between different Python types and C types.
+The ctypes [fundamental data types](https://docs.python.org/3/library/ctypes.html#fundamental-data-types) documentation describes the compatibility between different Python types and C types.
 Furthermore, [custom data types](https://docs.python.org/3/library/ctypes.html#calling-functions-with-your-own-custom-data-types) can be used to support kernels with custom types.
 
 For this example the result becomes:
@@ -502,13 +502,13 @@ kernelTypes = (
 )
 ```
 
-Values that are assigned a `None` type has a special meaning:
+Values that are set to `None` have a special meaning:
 
 1. The value supports a callable `getPtr` that returns the pointer address of the underlining C object address (e.g. all CUDA C types that are exposed to Python as Python classes)
 2. The value is an instance of `ctypes.Structure`
 3. The value is an `Enum`
 
-In each of these three cases, the API call will fetch the underlining pointer value and construct a contiguous array with other kernel parameters.
+In all three cases, the API call will fetch the underlying pointer value and construct a contiguous array with other kernel parameters.
 
 With the setup complete, the kernel can be launched:
 
