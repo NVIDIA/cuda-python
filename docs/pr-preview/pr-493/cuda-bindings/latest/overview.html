@@ -317,8 +317,6 @@
         <article role="main" id="furo-main-content">
           <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h1>
-<p style="font-size: 14px; color: grey; text-align: right;">by <a
-href="https://developer.nvidia.com/blog/author/mnicely/">Matthew Nicely</a></p>
 <p>Python plays a key role within the science, engineering, data analytics, and
 deep learning application ecosystem. NVIDIA has long been committed to helping
 the Python ecosystem leverage the accelerated massively parallel performance of
@@ -326,18 +324,16 @@ GPUs to deliver standardized libraries, tools, and applications. Today, we’re
 introducing another step towards simplification of the developer experience with
 improved Python code portability and compatibility.</p>
 <p>Our goal is to help unify the Python CUDA ecosystem with a single standard set
-of low-level interfaces, providing full coverage of and access to the CUDA host
+of low-level interfaces, providing full coverage and access to the CUDA host
 APIs from Python. We want to provide an ecosystem foundation to allow
 interoperability among different accelerated libraries. Most importantly, it
 should be easy for Python developers to use NVIDIA GPUs.</p>
-<section id="cuda-python-workflow">
-<h2>CUDA Python workflow<a class="headerlink" href="#cuda-python-workflow" title="Link to this heading">¶</a></h2>
+<section id="cuda-bindings-workflow">
+<h2><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> workflow<a class="headerlink" href="#cuda-bindings-workflow" title="Link to this heading">¶</a></h2>
 <p>Because Python is an interpreted language, you need a way to compile the device
 code into
 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX</a> and
-then extract the function to be called at a later point in the application. It’s
-not important for understanding CUDA Python, but Parallel Thread Execution (PTX)
-is a low-level virtual machine and instruction set architecture (ISA). You
+then extract the function to be called at a later point in the application. You
 construct your device code in the form of a string and compile it with
 <a class="reference external" href="http://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC</a>, a runtime compilation
 library for CUDA C++. Using the NVIDIA <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-driver-api/index.html">Driver
@@ -348,17 +344,18 @@ overview, jump into a commonly used example for parallel programming:
 <a class="reference external" href="https://developer.nvidia.com/blog/six-ways-saxpy/">SAXPY</a>.</p>
 <p>The first thing to do is import the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/index.html">Driver
 API</a> and
-<a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC</a> modules from the CUDA
-Python package. In this example, you copy data from the host to device. You need
-<a class="reference external" href="https://numpy.org/doc/stable/contents.html">NumPy</a> to store data on the host.</p>
+<a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC</a> modules from the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>
+package. Next, we consider how to store host data and pass it to the device. Different
+approaches can be used to accomplish this and are described in <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html#preparing-kernel-arguments">Preparing kernel
+arguments</a>.
+In this example, we will use NumPy to store host data and pass it to the device, so let’s
+import this dependency as well.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.bindings</span><span class="w"> </span><span class="kn">import</span> <span class="n">driver</span><span class="p">,</span> <span class="n">nvrtc</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 </pre></div>
 </div>
-<p>Error checking is a fundamental best practice in code development and a code
-example is provided.
-In a future release, this may automatically raise exceptions using a Python
-object model.</p>
+<p>Error checking is a fundamental best practice when working with low-level interfaces.
+The following code snippet lets us validate each API call and raise exceptions in case of error.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_cudaGetErrorEnum</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">driver</span><span class="o">.</span><span class="n">CUresult</span><span class="p">):</span>
         <span class="n">err</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">cuGetErrorName</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
@@ -405,7 +402,7 @@ CUDA</a>.</p>
 </ul>
 <p>In the following code example, the Driver API is initialized so that the NVIDIA driver
 and GPU are accessible. Next, the GPU is queried for their compute capability. Finally,
-the program is compiled to target our local compute capability architecture with FMAD enabled.</p>
+the program is compiled to target our local compute capability architecture with FMAD disabled.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize CUDA Driver API</span>
 <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuInit</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
@@ -471,8 +468,8 @@ more overlap between compute and data movement, use the asynchronous function
 <code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoDAsync</span></code>. It returns control to the CPU immediately following command
 execution.</p>
 <p>Python doesn’t have a natural concept of pointers, yet <code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoDAsync</span></code> expects
-<code class="docutils literal notranslate"><span class="pre">void*</span></code>. Therefore, <code class="docutils literal notranslate"><span class="pre">XX.ctypes.data</span></code> retrieves the pointer value associated with
-XX.</p>
+<code class="docutils literal notranslate"><span class="pre">void*</span></code>. This is where we leverage NumPy’s data types to retrieve each host data pointer
+by calling <code class="docutils literal notranslate"><span class="pre">XX.ctypes.data</span></code> for the associated XX.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dXclass</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemAlloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">))</span>
 <span class="n">dYclass</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemAlloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">))</span>
 <span class="n">dOutclass</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemAlloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">))</span>
@@ -490,21 +487,19 @@ XX.</p>
 <p>With data prep and resources allocation finished, the kernel is ready to be
 launched. To pass the location of the data on the device to the kernel execution
 configuration, you must retrieve the device pointer. In the following code
-example, <code class="docutils literal notranslate"><span class="pre">int(dXclass)</span></code> retries the pointer value of <code class="docutils literal notranslate"><span class="pre">dXclass</span></code>, which is
-<code class="docutils literal notranslate"><span class="pre">CUdeviceptr</span></code>, and assigns a memory size to store this value using <code class="docutils literal notranslate"><span class="pre">np.array</span></code>.</p>
-<p>Like <code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoDAsync</span></code>, <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> expects <code class="docutils literal notranslate"><span class="pre">void**</span></code> in the argument list. In
-the earlier code example, it creates <code class="docutils literal notranslate"><span class="pre">void**</span></code> by grabbing the <code class="docutils literal notranslate"><span class="pre">void*</span></code> value of each
-individual argument and placing them into its own contiguous memory.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following code example is not intuitive </span>
-<span class="c1"># Subject to change in a future release</span>
-<span class="n">dX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">dXclass</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+example, we call <code class="docutils literal notranslate"><span class="pre">int(XXclass)</span></code> to retrieve the device pointer value for the
+associated XXclass as a Python <code class="docutils literal notranslate"><span class="pre">int</span></code> and wrap it in a <code class="docutils literal notranslate"><span class="pre">np.array</span></code> type.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">dXclass</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
 <span class="n">dY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">dYclass</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
 <span class="n">dOut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">dOutclass</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
-
-<span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">dY</span><span class="p">,</span> <span class="n">dOut</span><span class="p">,</span> <span class="n">n</span><span class="p">]</span>
-<span class="n">args</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>The launch API <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> also expects a pointer input for the argument list
+but this time it’s of type <code class="docutils literal notranslate"><span class="pre">void**</span></code>. What this means is that our argument list needs to
+be a contiguous array of <code class="docutils literal notranslate"><span class="pre">void*</span></code> elements, where each element is the pointer to a kernel
+argument on either host or device. Since we already prepared each of our arguments into a <code class="docutils literal notranslate"><span class="pre">np.array</span></code> type, the
+construction of our final contiguous array is done by retrieving the <code class="docutils literal notranslate"><span class="pre">XX.ctypes.data</span></code>
+of each kernel argument.</p>
 <p>Now the kernel can be launched:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuLaunchKernel</span><span class="p">(</span>
    <span class="n">kernel</span><span class="p">,</span>
@@ -584,24 +579,268 @@ was used for application performance.</p>
 </tbody>
 </table>
 </div>
-<p>CUDA Python is also compatible with <a class="reference external" href="https://developer.nvidia.com/nsight-compute">NVIDIA Nsight
+<p><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> is also compatible with <a class="reference external" href="https://developer.nvidia.com/nsight-compute">NVIDIA Nsight
 Compute</a>, which is an
 interactive kernel profiler for CUDA applications. It allows you to have
 detailed insights into kernel performance. This is useful when you’re trying to
 maximize performance (<a class="reference internal" href="#figure-1"><span class="std std-numref">Fig. 1</span></a>).</p>
 <figure class="align-default" id="figure-1">
-<img alt="_images/Nsigth-Compute-CLI-625x473.png" src="_images/Nsigth-Compute-CLI-625x473.png" />
+<img alt="_images/Nsight-Compute-CLI-625x473.png" src="_images/Nsight-Compute-CLI-625x473.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Screenshot of Nsight Compute CLI output of CUDA Python example.</span><a class="headerlink" href="#figure-1" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Screenshot of Nsight Compute CLI output of <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> example.</span><a class="headerlink" href="#figure-1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="future-of-cuda-python">
-<h2>Future of CUDA Python<a class="headerlink" href="#future-of-cuda-python" title="Link to this heading">¶</a></h2>
-<p>The current bindings are built to match the C APIs as closely as possible.</p>
-<p>The next goal is to build a higher-level “object oriented” API on top of
-current CUDA Python bindings and provide an overall more Pythonic experience.
-One such example would be to raise exceptions on errors.</p>
+<section id="preparing-kernel-arguments">
+<h2>Preparing kernel arguments<a class="headerlink" href="#preparing-kernel-arguments" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> API bindings retain low-level CUDA argument preparation requirements:</p>
+<ul class="simple">
+<li><p>Each kernel argument is a <code class="docutils literal notranslate"><span class="pre">void*</span></code> (i.e. pointer to the argument)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> is a <code class="docutils literal notranslate"><span class="pre">void**</span></code> (i.e. pointer to a list of kernel arguments)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> arguments are in contiguous memory</p></li>
+</ul>
+<p>These requirements can be met with two different approaches, using either NumPy or ctypes.</p>
+<section id="using-numpy">
+<h3>Using NumPy<a class="headerlink" href="#using-numpy" title="Link to this heading">¶</a></h3>
+<p>NumPy <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.html">Array objects</a> can be used to fulfill each of these conditions directly.</p>
+<p>Let’s use the following kernel definition as an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernel_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">typedef struct {</span>
+<span class="s2">    int value;</span>
+<span class="s2">} testStruct;</span>
+
+<span class="s2">extern &quot;C&quot; __global__</span>
+<span class="s2">void testkernel(int i, int *pi,</span>
+<span class="s2">                float f, float *pf,</span>
+<span class="s2">                testStruct s, testStruct *ps)</span>
+<span class="s2">{</span>
+<span class="s2">    *pi = i;</span>
+<span class="s2">    *pf = f;</span>
+<span class="s2">    ps-&gt;value = s.value;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>The first step is to create array objects with types corresponding to your kernel arguments. Primitive NumPy types have the following corresponding kernel types:</p>
+<div class="table-wrapper docutils container" id="id2">
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Correspondence between NumPy types and kernel types.</span><a class="headerlink" href="#id2" title="Link to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>NumPy type</p></th>
+<th class="head"><p>Corresponding kernel types</p></th>
+<th class="head"><p>itemsize (bytes)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bool</p></td>
+<td><p>bool</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>int8</p></td>
+<td><p>char, signed char, int8_t</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>int16</p></td>
+<td><p>short, signed short, int16_t</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>int32</p></td>
+<td><p>int, signed int, int32_t</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-even"><td><p>int64</p></td>
+<td><p>long long, signed long long, int64_t</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>uint8</p></td>
+<td><p>unsigned char, uint8_t</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>uint16</p></td>
+<td><p>unsigned short, uint16_t</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>uint32</p></td>
+<td><p>unsigned int, uint32_t</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-even"><td><p>uint64</p></td>
+<td><p>unsigned long long, uint64_t</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>float16</p></td>
+<td><p>half</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>float32</p></td>
+<td><p>float</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-odd"><td><p>float64</p></td>
+<td><p>double</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-even"><td><p>complex64</p></td>
+<td><p>float2, cuFloatComplex, complex&lt;float&gt;</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>complex128</p></td>
+<td><p>double2, cuDoubleComplex, complex&lt;double&gt;</p></td>
+<td><p>16</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Furthermore, custom NumPy types can be used to support both platform-dependent types and user-defined structures as kernel arguments.</p>
+<p>This example uses the following types:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">int</span></code> is <code class="docutils literal notranslate"><span class="pre">np.uint32</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">float</span></code> is <code class="docutils literal notranslate"><span class="pre">np.float32</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">int*</span></code>, <code class="docutils literal notranslate"><span class="pre">float*</span></code> and <code class="docutils literal notranslate"><span class="pre">testStruct*</span></code> are <code class="docutils literal notranslate"><span class="pre">np.intp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testStruct</span></code> is a custom user type <code class="docutils literal notranslate"><span class="pre">np.dtype([(&quot;value&quot;,</span> <span class="pre">np.int32)],</span> <span class="pre">align=True)</span></code></p></li>
+</ul>
+<p>Note how all three pointers are <code class="docutils literal notranslate"><span class="pre">np.intp</span></code> since the pointer values are always a representation of an address space.</p>
+<p>Putting it all together:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a custom type</span>
+<span class="n">testStruct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)],</span> <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Allocate device memory</span>
+<span class="n">pInt</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="n">itemsize</span><span class="p">))</span>
+<span class="n">pFloat</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">itemsize</span><span class="p">))</span>
+<span class="n">pStruct</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">testStruct</span><span class="o">.</span><span class="n">itemsize</span><span class="p">))</span>
+
+<span class="c1"># Collect all input kernel arguments into a single tuple for further processing</span>
+<span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pInt</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mf">123.456</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pFloat</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">],</span> <span class="n">testStruct</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pStruct</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The final step is to construct a <code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> argument that fulfills all of the launch API conditions. This is made easy because each array object comes
+with a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.ctypes.html#numpy.ndarray.ctypes">ctypes</a> data attribute that returns the underlying <code class="docutils literal notranslate"><span class="pre">void*</span></code> pointer value.</p>
+<p>By having the final array object contain all pointers, we fulfill the contiguous array requirement:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernelParams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kernelValues</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The launch API supports <a class="reference external" href="https://docs.python.org/3/c-api/buffer.html">Buffer Protocol</a> objects, therefore we can pass the array object directly.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cuda</span><span class="o">.</span><span class="n">cuLaunchKernel</span><span class="p">(</span>
+    <span class="n">kernel</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># grid dim</span>
+    <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># block dim</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span>  <span class="c1"># shared mem and stream</span>
+    <span class="n">kernelParams</span><span class="o">=</span><span class="n">kernelParams</span><span class="p">,</span>
+    <span class="n">extra</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="using-ctypes">
+<h3>Using ctypes<a class="headerlink" href="#using-ctypes" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference external" href="https://docs.python.org/3/library/ctypes.html">ctypes</a> approach relaxes the parameter preparation requirement by delegating the contiguous memory requirement to the API launch call.</p>
+<p>Let’s use the same kernel definition as the previous section for the example.</p>
+<p>The ctypes approach treats the <code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> argument as a pair of two tuples: <code class="docutils literal notranslate"><span class="pre">kernel_values</span></code> and <code class="docutils literal notranslate"><span class="pre">kernel_types</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kernel_values</span></code> contain Python values to be used as an input to your kernel</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kernel_types</span></code> contain the data types that your kernel_values should be converted into</p></li>
+</ul>
+<p>The ctypes <a class="reference external" href="https://docs.python.org/3/library/ctypes.html#fundamental-data-types">fundamental data types</a> documentation describes the compatibility between different Python types and C types.
+Furthermore, <a class="reference external" href="https://docs.python.org/3/library/ctypes.html#calling-functions-with-your-own-custom-data-types">custom data types</a> can be used to support kernels with custom types.</p>
+<p>For this example the result becomes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a custom type</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">testStruct</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># Allocate device memory</span>
+<span class="n">pInt</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">)))</span>
+<span class="n">pFloat</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_float</span><span class="p">)))</span>
+<span class="n">pStruct</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">testStruct</span><span class="p">)))</span>
+
+<span class="c1"># Collect all input kernel arguments into a single tuple for further processing</span>
+<span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="mi">1</span><span class="p">,</span>
+    <span class="n">pInt</span><span class="p">,</span>
+    <span class="mf">123.456</span><span class="p">,</span>
+    <span class="n">pFloat</span><span class="p">,</span>
+    <span class="n">testStruct</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
+    <span class="n">pStruct</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">kernelTypes</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">,</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_float</span><span class="p">,</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Values that are set to <code class="docutils literal notranslate"><span class="pre">None</span></code> have a special meaning:</p>
+<ol class="arabic simple">
+<li><p>The value supports a callable <code class="docutils literal notranslate"><span class="pre">getPtr</span></code> that returns the pointer address of the underlining C object address (e.g. all CUDA C types that are exposed to Python as Python classes)</p></li>
+<li><p>The value is an instance of <code class="docutils literal notranslate"><span class="pre">ctypes.Structure</span></code></p></li>
+<li><p>The value is an <code class="docutils literal notranslate"><span class="pre">Enum</span></code></p></li>
+</ol>
+<p>In all three cases, the API call will fetch the underlying pointer value and construct a contiguous array with other kernel parameters.</p>
+<p>With the setup complete, the kernel can be launched:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cuda</span><span class="o">.</span><span class="n">cuLaunchKernel</span><span class="p">(</span>
+    <span class="n">kernel</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># grid dim</span>
+    <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># block dim</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span>  <span class="c1"># shared mem and stream</span>
+    <span class="n">kernelParams</span><span class="o">=</span><span class="p">(</span><span class="n">kernelValues</span><span class="p">,</span> <span class="n">kernelTypes</span><span class="p">),</span>
+    <span class="n">extra</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="cuda-objects">
+<h3>CUDA objects<a class="headerlink" href="#cuda-objects" title="Link to this heading">¶</a></h3>
+<p>Certain CUDA kernels use native CUDA types as their parameters such as <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>. These types require special handling since they’re neither a primitive ctype nor a custom user type. Since <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> exposes each of them as Python classes, they each implement <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#">Tips and Tricks</a>.</p>
+<p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py">examples/0_Introduction/simpleCubemapTexture_test.py</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">extern &quot;C&quot;</span>
+<span class="s2">__global__ void transformKernel(float *g_odata, int width, cudaTextureObject_t tex)</span>
+<span class="s2">{</span>
+<span class="s2">    ...</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="o">...</span>
+    <span class="n">d_data</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">tex</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaCreateTextureObject</span><span class="p">(</span><span class="n">texRes</span><span class="p">,</span> <span class="n">texDescr</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>For NumPy, we can convert these CUDA types by leveraging the <code class="docutils literal notranslate"><span class="pre">__int__()</span></code> call to fetch the address of the underlying <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code> C object and wrapping it in a NumPy object array of type <code class="docutils literal notranslate"><span class="pre">np.intp</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d_data</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">tex</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">kernelArgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kernelValues</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For ctypes, we leverage the special handling of <code class="docutils literal notranslate"><span class="pre">None</span></code> type since each Python class already implements <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">d_data</span><span class="p">,</span>
+    <span class="n">width</span><span class="p">,</span>
+    <span class="n">tex</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">kernelTypes</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">kernelArgs</span> <span class="o">=</span> <span class="p">(</span><span class="n">kernelValues</span><span class="p">,</span> <span class="n">kernelTypes</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 
@@ -661,9 +900,14 @@ One such example would be to raise exceptions on errors.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Overview</a><ul>
-<li><a class="reference internal" href="#cuda-python-workflow">CUDA Python workflow</a></li>
+<li><a class="reference internal" href="#cuda-bindings-workflow"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> workflow</a></li>
 <li><a class="reference internal" href="#performance">Performance</a></li>
-<li><a class="reference internal" href="#future-of-cuda-python">Future of CUDA Python</a></li>
+<li><a class="reference internal" href="#preparing-kernel-arguments">Preparing kernel arguments</a><ul>
+<li><a class="reference internal" href="#using-numpy">Using NumPy</a></li>
+<li><a class="reference internal" href="#using-ctypes">Using ctypes</a></li>
+<li><a class="reference internal" href="#cuda-objects">CUDA objects</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -9,3 +9,7 @@ Highlights
 
 * The ``cuda.bindings.nvvm`` Python module was added, wrapping the
   `libNVVM C API <https://docs.nvidia.com/cuda/libnvvm-api/>`_.
+* Source build error checking added for missing required headers
+* Statically link CUDA Runtime instead of reimplementing it
+* Fix performance hint warnings raised by Cython 3
+* Move stream callback wrappers to the Python layer

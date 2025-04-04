@@ -24,5 +24,6 @@
 
    
    .. autoproperty:: code
+   .. autoproperty:: handle
    
    
