@@ -1591,8 +1591,8 @@ cdef cyruntime.cudaError_t _cudaGetChannelDesc(cyruntime.cudaChannelFormatDesc* 
 {{endif}}
 
 {{if 'cudaCreateChannelDesc' in found_functions}}
-
-cdef cyruntime.cudaChannelFormatDesc _cudaCreateChannelDesc(int x, int y, int z, int w, cyruntime.cudaChannelFormatKind f) nogil:
+@cython.show_performance_hints(False)
+cdef cyruntime.cudaChannelFormatDesc _cudaCreateChannelDesc(int x, int y, int z, int w, cyruntime.cudaChannelFormatKind f) except* nogil:
     cdef bint usePTDS = cudaPythonInit()
     if usePTDS:
         return ptds._cudaCreateChannelDesc(x, y, z, w, f)
@@ -2608,8 +2608,8 @@ cdef cyruntime.cudaError_t _cudaGetKernel(cyruntime.cudaKernel_t* kernelPtr, con
 {{endif}}
 
 {{if 'make_cudaPitchedPtr' in found_functions}}
-
-cdef cyruntime.cudaPitchedPtr _make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) nogil:
+@cython.show_performance_hints(False)
+cdef cyruntime.cudaPitchedPtr _make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) except* nogil:
     cdef bint usePTDS = cudaPythonInit()
     if usePTDS:
         return ptds._make_cudaPitchedPtr(d, p, xsz, ysz)
@@ -2617,8 +2617,8 @@ cdef cyruntime.cudaPitchedPtr _make_cudaPitchedPtr(void* d, size_t p, size_t xsz
 {{endif}}
 
 {{if 'make_cudaPos' in found_functions}}
-
-cdef cyruntime.cudaPos _make_cudaPos(size_t x, size_t y, size_t z) nogil:
+@cython.show_performance_hints(False)
+cdef cyruntime.cudaPos _make_cudaPos(size_t x, size_t y, size_t z) except* nogil:
     cdef bint usePTDS = cudaPythonInit()
     if usePTDS:
         return ptds._make_cudaPos(x, y, z)
@@ -2626,8 +2626,8 @@ cdef cyruntime.cudaPos _make_cudaPos(size_t x, size_t y, size_t z) nogil:
 {{endif}}
 
 {{if 'make_cudaExtent' in found_functions}}
-
-cdef cyruntime.cudaExtent _make_cudaExtent(size_t w, size_t h, size_t d) nogil:
+@cython.show_performance_hints(False)
+cdef cyruntime.cudaExtent _make_cudaExtent(size_t w, size_t h, size_t d) except* nogil:
     cdef bint usePTDS = cudaPythonInit()
     if usePTDS:
         return ptds._make_cudaExtent(w, h, d)

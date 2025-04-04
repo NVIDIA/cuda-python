@@ -7,6 +7,7 @@
 # is strictly prohibited.
 #
 # This code was automatically generated with version 12.8.0. Do not modify it directly.
+cimport cython
 cimport cuda.bindings._bindings.cyruntime as cyruntime
 cimport cuda.bindings._lib.cyruntime.cyruntime as custom_cyruntime
 
@@ -1055,8 +1056,8 @@ cdef cudaError_t cudaGetChannelDesc(cudaChannelFormatDesc* desc, cudaArray_const
 {{endif}}
 
 {{if 'cudaCreateChannelDesc' in found_functions}}
-
-cdef cudaChannelFormatDesc cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) nogil:
+@cython.show_performance_hints(False)
+cdef cudaChannelFormatDesc cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) except* nogil:
     return cyruntime._cudaCreateChannelDesc(x, y, z, w, f)
 {{endif}}
 
@@ -1733,20 +1734,20 @@ cdef cudaError_t cudaGetKernel(cudaKernel_t* kernelPtr, const void* entryFuncAdd
 {{endif}}
 
 {{if 'make_cudaPitchedPtr' in found_functions}}
-
-cdef cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) nogil:
+@cython.show_performance_hints(False)
+cdef cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) except* nogil:
     return cyruntime._make_cudaPitchedPtr(d, p, xsz, ysz)
 {{endif}}
 
 {{if 'make_cudaPos' in found_functions}}
-
-cdef cudaPos make_cudaPos(size_t x, size_t y, size_t z) nogil:
+@cython.show_performance_hints(False)
+cdef cudaPos make_cudaPos(size_t x, size_t y, size_t z) except* nogil:
     return cyruntime._make_cudaPos(x, y, z)
 {{endif}}
 
 {{if 'make_cudaExtent' in found_functions}}
-
-cdef cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) nogil:
+@cython.show_performance_hints(False)
+cdef cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) except* nogil:
     return cyruntime._make_cudaExtent(w, h, d)
 {{endif}}
 

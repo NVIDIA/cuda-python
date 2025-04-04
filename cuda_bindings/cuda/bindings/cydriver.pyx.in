@@ -7,6 +7,7 @@
 # is strictly prohibited.
 #
 # This code was automatically generated with version 12.8.0. Do not modify it directly.
+cimport cython
 cimport cuda.bindings._bindings.cydriver as cydriver
 
 {{if 'cuGetErrorString' in found_functions}}
