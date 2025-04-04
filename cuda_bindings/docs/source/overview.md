@@ -335,7 +335,7 @@ void testkernel(int i, int *pi,
 """
 ```
 
-The first step is to create array objects with types corresponding to your kernel arguments. Primative Numpy types have the following corresponding kernel types:
+The first step is to create array objects with types corresponding to your kernel arguments. Primitive NumPy types have the following corresponding kernel types:
 
 ```{list-table} Correspondence between NumPy types and kernel types.
 :header-rows: 1
@@ -392,10 +392,10 @@ Furthermore, custom NumPy types can be used to support both platform-dependent t
 This example uses the following types:
 * `int` is `np.uint32`
 * `float` is `np.float32`
-* `int*`, `float*` and `testStruct*` is `np.intp`
+* `int*`, `float*` and `testStruct*` are `np.intp`
 * `testStruct` is a custom user type `np.dtype([("value", np.int32)], align=True)`
 
-Note how both of the pointers are `np.intp` since the pointers values are always a representation of an address space.
+Note how all three pointers are `np.intp` since the pointer values are always a representation of an address space.
 
 Putting it all together:
 ```python
@@ -525,7 +525,7 @@ checkCudaErrors(cuda.cuLaunchKernel(
 
 ### CUDA objects
 
-Certain CUDA kernels use native CUDA types as their parameters such as `cudaTextureObject_t`. These types require special handling since they're neither a primative ctype nor a custom user type. Since `cuda.bindings` exposes each of them as Python clases, they they each implement `getPtr()` and `__int__()`. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under [Tips and Tricks](https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#).
+Certain CUDA kernels use native CUDA types as their parameters such as `cudaTextureObject_t`. These types require special handling since they're neither a primitive ctype nor a custom user type. Since `cuda.bindings` exposes each of them as Python classes, they each implement `getPtr()` and `__int__()`. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under [Tips and Tricks](https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#).
 
 For this example, lets use the `transformKernel` from [examples/0_Introduction/simpleCubemapTexture_test.py](https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py):
 
