@@ -7,10 +7,7 @@
 # is strictly prohibited.
 #
 # This code was automatically generated with version 12.8.0. Do not modify it directly.
-import cython
 cimport cython
-from libcpp.map cimport map
-from libc.stdlib cimport malloc, free
 cimport cuda.bindings._bindings.cydriver as cydriver
 
 {{if 'cuGetErrorString' in found_functions}}
@@ -2820,5 +2817,3 @@ cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResou
 cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuGraphicsVDPAURegisterOutputSurface(pCudaResource, vdpSurface, flags)
 {{endif}}
-
-

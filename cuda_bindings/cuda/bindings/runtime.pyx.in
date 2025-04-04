@@ -11,7 +11,7 @@ from typing import List, Tuple, Any, Optional
 from enum import IntEnum
 import cython
 import ctypes
-from libc.stdlib cimport calloc, free
+from libc.stdlib cimport calloc, malloc, free
 from libc cimport string
 from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
 from libc.stddef cimport wchar_t
@@ -20,6 +20,7 @@ from libcpp.vector cimport vector
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
 from cpython.bytes cimport PyBytes_FromStringAndSize
 import cuda.bindings.driver
+from libcpp.map cimport map
 
 ctypedef unsigned long long signed_char_ptr
 ctypedef unsigned long long unsigned_char_ptr
@@ -18173,13 +18174,12 @@ def cudaIpcGetEventHandle(event):
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     cdef cudaIpcEventHandle_t handle = cudaIpcEventHandle_t()
     err = cyruntime.cudaIpcGetEventHandle(<cyruntime.cudaIpcEventHandle_t*>handle._pvt_ptr, cyevent)
     return (cudaError_t(err), handle)
@@ -18432,6 +18432,18 @@ def cudaDeviceFlushGPUDirectRDMAWrites(target not None : cudaFlushGPUDirectRDMAW
 
 {{if 'cudaDeviceRegisterAsyncNotification' in found_functions}}
 
+ctypedef struct cudaAsyncCallbackData_st:
+    cyruntime.cudaAsyncCallback callback
+    void *userData
+
+ctypedef cudaAsyncCallbackData_st cudaAsyncCallbackData
+
+@cython.show_performance_hints(False)
+cdef void cudaAsyncNotificationCallbackWrapper(cyruntime.cudaAsyncNotificationInfo_t *info, void *data, cyruntime.cudaAsyncCallbackHandle_t handle) nogil:
+    cdef cudaAsyncCallbackData *cbData = <cudaAsyncCallbackData *>data
+    with gil:
+        cbData.callback(info, cbData.userData, handle)
+
 @cython.embedsignature(True)
 def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
     """ Registers a callback function to receive async notifications.
@@ -18477,17 +18489,30 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
     """
     cdef cyruntime.cudaAsyncCallback cycallbackFunc
     if callbackFunc is None:
-        cycallbackFunc = <cyruntime.cudaAsyncCallback><void_ptr>0
+        pcallbackFunc = 0
     elif isinstance(callbackFunc, (cudaAsyncCallback,)):
         pcallbackFunc = int(callbackFunc)
-        cycallbackFunc = <cyruntime.cudaAsyncCallback><void_ptr>pcallbackFunc
     else:
         pcallbackFunc = int(cudaAsyncCallback(callbackFunc))
-        cycallbackFunc = <cyruntime.cudaAsyncCallback><void_ptr>pcallbackFunc
+    cycallbackFunc = <cyruntime.cudaAsyncCallback><void_ptr>pcallbackFunc
     cyuserData = utils.HelperInputVoidPtr(userData)
     cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
+
+    cdef cudaAsyncCallbackData *cbData = NULL
+    cbData = <cudaAsyncCallbackData *>malloc(sizeof(cbData[0]))
+    if cbData == NULL:
+        return (cudaError_t.cudaErrorMemoryAllocation, None)
+    cbData.callback = cycallbackFunc
+    cbData.userData = cyuserData_ptr
+
     cdef cudaAsyncCallbackHandle_t callback = cudaAsyncCallbackHandle_t()
-    err = cyruntime.cudaDeviceRegisterAsyncNotification(device, cycallbackFunc, cyuserData_ptr, <cyruntime.cudaAsyncCallbackHandle_t*>callback._pvt_ptr)
+    with nogil:
+        err = cyruntime.cudaDeviceRegisterAsyncNotification(device, <cyruntime.cudaAsyncCallback>cudaAsyncNotificationCallbackWrapper, <void *>cbData, <cyruntime.cudaAsyncCallbackHandle_t*>callback._pvt_ptr)
+
+    if err != cyruntime.cudaSuccess:
+        free(cbData)
+    else:
+        m_global._allocated[int(callback)] = cbData
     return (cudaError_t(err), callback)
 {{endif}}
 
@@ -18519,14 +18544,16 @@ def cudaDeviceUnregisterAsyncNotification(int device, callback):
     """
     cdef cyruntime.cudaAsyncCallbackHandle_t cycallback
     if callback is None:
-        cycallback = <cyruntime.cudaAsyncCallbackHandle_t><void_ptr>0
+        pcallback = 0
     elif isinstance(callback, (cudaAsyncCallbackHandle_t,)):
         pcallback = int(callback)
-        cycallback = <cyruntime.cudaAsyncCallbackHandle_t><void_ptr>pcallback
     else:
         pcallback = int(cudaAsyncCallbackHandle_t(callback))
-        cycallback = <cyruntime.cudaAsyncCallbackHandle_t><void_ptr>pcallback
+    cycallback = <cyruntime.cudaAsyncCallbackHandle_t><void_ptr>pcallback
     err = cyruntime.cudaDeviceUnregisterAsyncNotification(device, cycallback)
+    if err == cyruntime.cudaSuccess:
+        free(m_global._allocated[pcallback])
+        m_global._allocated.erase(<void_ptr>pcallback)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -19537,13 +19564,12 @@ def cudaDeviceSetMemPool(int device, memPool):
     """
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>0
+        pmemPool = 0
     elif isinstance(memPool, (cudaMemPool_t,driver.CUmemoryPool)):
         pmemPool = int(memPool)
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     else:
         pmemPool = int(cudaMemPool_t(memPool))
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
+    cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     with nogil:
         err = cyruntime.cudaDeviceSetMemPool(device, cymemPool)
 
@@ -20172,13 +20198,12 @@ def cudaStreamGetPriority(hStream):
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>0
+        phStream = 0
     elif isinstance(hStream, (cudaStream_t,driver.CUstream)):
         phStream = int(hStream)
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     else:
         phStream = int(cudaStream_t(hStream))
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
+    cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     cdef int priority = 0
     err = cyruntime.cudaStreamGetPriority(cyhStream, &priority)
     return (cudaError_t(err), priority)
@@ -20212,13 +20237,12 @@ def cudaStreamGetFlags(hStream):
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>0
+        phStream = 0
     elif isinstance(hStream, (cudaStream_t,driver.CUstream)):
         phStream = int(hStream)
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     else:
         phStream = int(cudaStream_t(hStream))
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
+    cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     cdef unsigned int flags = 0
     err = cyruntime.cudaStreamGetFlags(cyhStream, &flags)
     return (cudaError_t(err), flags)
@@ -20266,13 +20290,12 @@ def cudaStreamGetId(hStream):
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>0
+        phStream = 0
     elif isinstance(hStream, (cudaStream_t,driver.CUstream)):
         phStream = int(hStream)
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     else:
         phStream = int(cudaStream_t(hStream))
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
+    cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     cdef unsigned long long streamId = 0
     err = cyruntime.cudaStreamGetId(cyhStream, &streamId)
     return (cudaError_t(err), streamId)
@@ -20304,13 +20327,12 @@ def cudaStreamGetDevice(hStream):
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>0
+        phStream = 0
     elif isinstance(hStream, (cudaStream_t,driver.CUstream)):
         phStream = int(hStream)
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     else:
         phStream = int(cudaStream_t(hStream))
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
+    cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     cdef int device = 0
     err = cyruntime.cudaStreamGetDevice(cyhStream, &device)
     return (cudaError_t(err), device)
@@ -20365,22 +20387,20 @@ def cudaStreamCopyAttributes(dst, src):
     """
     cdef cyruntime.cudaStream_t cysrc
     if src is None:
-        cysrc = <cyruntime.cudaStream_t><void_ptr>0
+        psrc = 0
     elif isinstance(src, (cudaStream_t,driver.CUstream)):
         psrc = int(src)
-        cysrc = <cyruntime.cudaStream_t><void_ptr>psrc
     else:
         psrc = int(cudaStream_t(src))
-        cysrc = <cyruntime.cudaStream_t><void_ptr>psrc
+    cysrc = <cyruntime.cudaStream_t><void_ptr>psrc
     cdef cyruntime.cudaStream_t cydst
     if dst is None:
-        cydst = <cyruntime.cudaStream_t><void_ptr>0
+        pdst = 0
     elif isinstance(dst, (cudaStream_t,driver.CUstream)):
         pdst = int(dst)
-        cydst = <cyruntime.cudaStream_t><void_ptr>pdst
     else:
         pdst = int(cudaStream_t(dst))
-        cydst = <cyruntime.cudaStream_t><void_ptr>pdst
+    cydst = <cyruntime.cudaStream_t><void_ptr>pdst
     err = cyruntime.cudaStreamCopyAttributes(cydst, cysrc)
     return (cudaError_t(err),)
 {{endif}}
@@ -20414,13 +20434,12 @@ def cudaStreamGetAttribute(hStream, attr not None : cudaStreamAttrID):
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>0
+        phStream = 0
     elif isinstance(hStream, (cudaStream_t,driver.CUstream)):
         phStream = int(hStream)
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     else:
         phStream = int(cudaStream_t(hStream))
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
+    cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     cdef cyruntime.cudaStreamAttrID cyattr = attr.value
     cdef cudaStreamAttrValue value_out = cudaStreamAttrValue()
     err = cyruntime.cudaStreamGetAttribute(cyhStream, cyattr, <cyruntime.cudaStreamAttrValue*>value_out._pvt_ptr)
@@ -20457,13 +20476,12 @@ def cudaStreamSetAttribute(hStream, attr not None : cudaStreamAttrID, value : Op
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>0
+        phStream = 0
     elif isinstance(hStream, (cudaStream_t,driver.CUstream)):
         phStream = int(hStream)
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     else:
         phStream = int(cudaStream_t(hStream))
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
+    cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     cdef cyruntime.cudaStreamAttrID cyattr = attr.value
     cdef cyruntime.cudaStreamAttrValue* cyvalue_ptr = value._pvt_ptr if value != None else NULL
     err = cyruntime.cudaStreamSetAttribute(cyhStream, cyattr, cyvalue_ptr)
@@ -20499,13 +20517,12 @@ def cudaStreamDestroy(stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     err = cyruntime.cudaStreamDestroy(cystream)
     return (cudaError_t(err),)
 {{endif}}
@@ -20549,22 +20566,20 @@ def cudaStreamWaitEvent(stream, event, unsigned int flags):
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     with nogil:
         err = cyruntime.cudaStreamWaitEvent(cystream, cyevent, flags)
 
@@ -20572,6 +20587,19 @@ def cudaStreamWaitEvent(stream, event, unsigned int flags):
 {{endif}}
 
 {{if 'cudaStreamAddCallback' in found_functions}}
+
+ctypedef struct cudaStreamCallbackData_st:
+    cyruntime.cudaStreamCallback_t callback
+    void *userData
+
+ctypedef cudaStreamCallbackData_st cudaStreamCallbackData
+
+@cython.show_performance_hints(False)
+cdef void cudaStreamRtCallbackWrapper(cyruntime.cudaStream_t stream, cyruntime.cudaError_t status, void *data) nogil:
+    cdef cudaStreamCallbackData *cbData = <cudaStreamCallbackData *>data
+    with gil:
+        cbData.callback(stream, status, cbData.userData)
+    free(cbData)
 
 @cython.embedsignature(True)
 def cudaStreamAddCallback(stream, callback, userData, unsigned int flags):
@@ -20644,27 +20672,35 @@ def cudaStreamAddCallback(stream, callback, userData, unsigned int flags):
     """
     cdef cyruntime.cudaStreamCallback_t cycallback
     if callback is None:
-        cycallback = <cyruntime.cudaStreamCallback_t><void_ptr>0
+        pcallback = 0
     elif isinstance(callback, (cudaStreamCallback_t,)):
         pcallback = int(callback)
-        cycallback = <cyruntime.cudaStreamCallback_t><void_ptr>pcallback
     else:
         pcallback = int(cudaStreamCallback_t(callback))
-        cycallback = <cyruntime.cudaStreamCallback_t><void_ptr>pcallback
+    cycallback = <cyruntime.cudaStreamCallback_t><void_ptr>pcallback
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cyuserData = utils.HelperInputVoidPtr(userData)
     cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
-    with nogil:
-        err = cyruntime.cudaStreamAddCallback(cystream, cycallback, cyuserData_ptr, flags)
 
+    cdef cudaStreamCallbackData *cbData = NULL
+    cbData = <cudaStreamCallbackData *>malloc(sizeof(cbData[0]))
+    if cbData == NULL:
+        return (cudaError_t.cudaErrorMemoryAllocation,)
+    cbData.callback = cycallback
+    cbData.userData = cyuserData_ptr
+
+    with nogil:
+        err = cyruntime.cudaStreamAddCallback(cystream, <cyruntime.cudaStreamCallback_t>cudaStreamRtCallbackWrapper, <void *>cbData, flags)
+
+    if err != cyruntime.cudaSuccess:
+        free(cbData)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -20695,13 +20731,12 @@ def cudaStreamSynchronize(stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     with nogil:
         err = cyruntime.cudaStreamSynchronize(cystream)
 
@@ -20737,13 +20772,12 @@ def cudaStreamQuery(stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     err = cyruntime.cudaStreamQuery(cystream)
     return (cudaError_t(err),)
 {{endif}}
@@ -20846,13 +20880,12 @@ def cudaStreamAttachMemAsync(stream, devPtr, size_t length, unsigned int flags):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cydevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     err = cyruntime.cudaStreamAttachMemAsync(cystream, cydevPtr_ptr, length, flags)
@@ -20904,13 +20937,12 @@ def cudaStreamBeginCapture(stream, mode not None : cudaStreamCaptureMode):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaStreamCaptureMode cymode = mode.value
     err = cyruntime.cudaStreamBeginCapture(cystream, cymode)
     return (cudaError_t(err),)
@@ -20977,22 +21009,20 @@ def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[Tuple[c
         raise TypeError("Argument 'dependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaGraphNode_t* cydependencies = NULL
     if len(dependencies) > 0:
         cydependencies = <cyruntime.cudaGraphNode_t*> calloc(len(dependencies), sizeof(cyruntime.cudaGraphNode_t))
@@ -21123,13 +21153,12 @@ def cudaStreamEndCapture(stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cudaGraph_t pGraph = cudaGraph_t()
     err = cyruntime.cudaStreamEndCapture(cystream, <cyruntime.cudaGraph_t*>pGraph._pvt_ptr)
     return (cudaError_t(err), pGraph)
@@ -21183,13 +21212,12 @@ def cudaStreamIsCapturing(stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaStreamCaptureStatus pCaptureStatus
     err = cyruntime.cudaStreamIsCapturing(cystream, &pCaptureStatus)
     return (cudaError_t(err), cudaStreamCaptureStatus(pCaptureStatus))
@@ -21258,13 +21286,12 @@ def cudaStreamGetCaptureInfo(stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaStreamCaptureStatus captureStatus_out
     cdef unsigned long long id_out = 0
     cdef cudaGraph_t graph_out = cudaGraph_t()
@@ -21352,13 +21379,12 @@ def cudaStreamGetCaptureInfo_v3(stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaStreamCaptureStatus captureStatus_out
     cdef unsigned long long id_out = 0
     cdef cudaGraph_t graph_out = cudaGraph_t()
@@ -21427,13 +21453,12 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[Tuple[cu
         raise TypeError("Argument 'dependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaGraphNode_t* cydependencies = NULL
     if len(dependencies) > 0:
         cydependencies = <cyruntime.cudaGraphNode_t*> calloc(len(dependencies), sizeof(cyruntime.cudaGraphNode_t))
@@ -21502,13 +21527,12 @@ def cudaStreamUpdateCaptureDependencies_v2(stream, dependencies : Optional[Tuple
         raise TypeError("Argument 'dependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaGraphNode_t* cydependencies = NULL
     if len(dependencies) > 0:
         cydependencies = <cyruntime.cudaGraphNode_t*> calloc(len(dependencies), sizeof(cyruntime.cudaGraphNode_t))
@@ -21646,22 +21670,20 @@ def cudaEventRecord(event, stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     err = cyruntime.cudaEventRecord(cyevent, cystream)
     return (cudaError_t(err),)
 {{endif}}
@@ -21715,22 +21737,20 @@ def cudaEventRecordWithFlags(event, stream, unsigned int flags):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     err = cyruntime.cudaEventRecordWithFlags(cyevent, cystream, flags)
     return (cudaError_t(err),)
 {{endif}}
@@ -21769,13 +21789,12 @@ def cudaEventQuery(event):
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     err = cyruntime.cudaEventQuery(cyevent)
     return (cudaError_t(err),)
 {{endif}}
@@ -21813,13 +21832,12 @@ def cudaEventSynchronize(event):
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     err = cyruntime.cudaEventSynchronize(cyevent)
     return (cudaError_t(err),)
 {{endif}}
@@ -21854,13 +21872,12 @@ def cudaEventDestroy(event):
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     err = cyruntime.cudaEventDestroy(cyevent)
     return (cudaError_t(err),)
 {{endif}}
@@ -21912,22 +21929,20 @@ def cudaEventElapsedTime(start, end):
     """
     cdef cyruntime.cudaEvent_t cyend
     if end is None:
-        cyend = <cyruntime.cudaEvent_t><void_ptr>0
+        pend = 0
     elif isinstance(end, (cudaEvent_t,driver.CUevent)):
         pend = int(end)
-        cyend = <cyruntime.cudaEvent_t><void_ptr>pend
     else:
         pend = int(cudaEvent_t(end))
-        cyend = <cyruntime.cudaEvent_t><void_ptr>pend
+    cyend = <cyruntime.cudaEvent_t><void_ptr>pend
     cdef cyruntime.cudaEvent_t cystart
     if start is None:
-        cystart = <cyruntime.cudaEvent_t><void_ptr>0
+        pstart = 0
     elif isinstance(start, (cudaEvent_t,driver.CUevent)):
         pstart = int(start)
-        cystart = <cyruntime.cudaEvent_t><void_ptr>pstart
     else:
         pstart = int(cudaEvent_t(start))
-        cystart = <cyruntime.cudaEvent_t><void_ptr>pstart
+    cystart = <cyruntime.cudaEvent_t><void_ptr>pstart
     cdef float ms = 0
     err = cyruntime.cudaEventElapsedTime(&ms, cystart, cyend)
     return (cudaError_t(err), ms)
@@ -21984,22 +21999,20 @@ def cudaEventElapsedTime_v2(start, end):
     """
     cdef cyruntime.cudaEvent_t cyend
     if end is None:
-        cyend = <cyruntime.cudaEvent_t><void_ptr>0
+        pend = 0
     elif isinstance(end, (cudaEvent_t,driver.CUevent)):
         pend = int(end)
-        cyend = <cyruntime.cudaEvent_t><void_ptr>pend
     else:
         pend = int(cudaEvent_t(end))
-        cyend = <cyruntime.cudaEvent_t><void_ptr>pend
+    cyend = <cyruntime.cudaEvent_t><void_ptr>pend
     cdef cyruntime.cudaEvent_t cystart
     if start is None:
-        cystart = <cyruntime.cudaEvent_t><void_ptr>0
+        pstart = 0
     elif isinstance(start, (cudaEvent_t,driver.CUevent)):
         pstart = int(start)
-        cystart = <cyruntime.cudaEvent_t><void_ptr>pstart
     else:
         pstart = int(cudaEvent_t(start))
-        cystart = <cyruntime.cudaEvent_t><void_ptr>pstart
+    cystart = <cyruntime.cudaEvent_t><void_ptr>pstart
     cdef float ms = 0
     err = cyruntime.cudaEventElapsedTime_v2(&ms, cystart, cyend)
     return (cudaError_t(err), ms)
@@ -22209,13 +22222,12 @@ def cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc : Optional[cudaExternal
     """
     cdef cyruntime.cudaExternalMemory_t cyextMem
     if extMem is None:
-        cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>0
+        pextMem = 0
     elif isinstance(extMem, (cudaExternalMemory_t,)):
         pextMem = int(extMem)
-        cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
     else:
         pextMem = int(cudaExternalMemory_t(extMem))
-        cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
+    cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
     cdef void_ptr devPtr = 0
     cdef cyruntime.cudaExternalMemoryBufferDesc* cybufferDesc_ptr = bufferDesc._pvt_ptr if bufferDesc != None else NULL
     err = cyruntime.cudaExternalMemoryGetMappedBuffer(<void**>&devPtr, cyextMem, cybufferDesc_ptr)
@@ -22279,13 +22291,12 @@ def cudaExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : Optional[cuda
     """
     cdef cyruntime.cudaExternalMemory_t cyextMem
     if extMem is None:
-        cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>0
+        pextMem = 0
     elif isinstance(extMem, (cudaExternalMemory_t,)):
         pextMem = int(extMem)
-        cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
     else:
         pextMem = int(cudaExternalMemory_t(extMem))
-        cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
+    cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
     cdef cudaMipmappedArray_t mipmap = cudaMipmappedArray_t()
     cdef cyruntime.cudaExternalMemoryMipmappedArrayDesc* cymipmapDesc_ptr = mipmapDesc._pvt_ptr if mipmapDesc != None else NULL
     err = cyruntime.cudaExternalMemoryGetMappedMipmappedArray(<cyruntime.cudaMipmappedArray_t*>mipmap._pvt_ptr, cyextMem, cymipmapDesc_ptr)
@@ -22319,13 +22330,12 @@ def cudaDestroyExternalMemory(extMem):
     """
     cdef cyruntime.cudaExternalMemory_t cyextMem
     if extMem is None:
-        cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>0
+        pextMem = 0
     elif isinstance(extMem, (cudaExternalMemory_t,)):
         pextMem = int(extMem)
-        cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
     else:
         pextMem = int(cudaExternalMemory_t(extMem))
-        cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
+    cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
     err = cyruntime.cudaDestroyExternalMemory(cyextMem)
     return (cudaError_t(err),)
 {{endif}}
@@ -22574,13 +22584,12 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalS
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     paramsArray = [] if paramsArray is None else paramsArray
     if not all(isinstance(_x, (cudaExternalSemaphoreSignalParams,)) for _x in paramsArray):
         raise TypeError("Argument 'paramsArray' is not instance of type (expected Tuple[cyruntime.cudaExternalSemaphoreSignalParams,] or List[cyruntime.cudaExternalSemaphoreSignalParams,]")
@@ -22699,13 +22708,12 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalSem
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     paramsArray = [] if paramsArray is None else paramsArray
     if not all(isinstance(_x, (cudaExternalSemaphoreWaitParams,)) for _x in paramsArray):
         raise TypeError("Argument 'paramsArray' is not instance of type (expected Tuple[cyruntime.cudaExternalSemaphoreWaitParams,] or List[cyruntime.cudaExternalSemaphoreWaitParams,]")
@@ -22763,13 +22771,12 @@ def cudaDestroyExternalSemaphore(extSem):
     """
     cdef cyruntime.cudaExternalSemaphore_t cyextSem
     if extSem is None:
-        cyextSem = <cyruntime.cudaExternalSemaphore_t><void_ptr>0
+        pextSem = 0
     elif isinstance(extSem, (cudaExternalSemaphore_t,)):
         pextSem = int(extSem)
-        cyextSem = <cyruntime.cudaExternalSemaphore_t><void_ptr>pextSem
     else:
         pextSem = int(cudaExternalSemaphore_t(extSem))
-        cyextSem = <cyruntime.cudaExternalSemaphore_t><void_ptr>pextSem
+    cyextSem = <cyruntime.cudaExternalSemaphore_t><void_ptr>pextSem
     err = cyruntime.cudaDestroyExternalSemaphore(cyextSem)
     return (cudaError_t(err),)
 {{endif}}
@@ -22968,6 +22975,19 @@ def cudaFuncSetAttribute(func, attr not None : cudaFuncAttribute, int value):
 
 {{if 'cudaLaunchHostFunc' in found_functions}}
 
+ctypedef struct cudaStreamHostCallbackData_st:
+    cyruntime.cudaHostFn_t callback
+    void *userData
+
+ctypedef cudaStreamHostCallbackData_st cudaStreamHostCallbackData
+
+@cython.show_performance_hints(False)
+cdef void cudaStreamRtHostCallbackWrapper(void *data) nogil:
+    cdef cudaStreamHostCallbackData *cbData = <cudaStreamHostCallbackData *>data
+    with gil:
+        cbData.callback(cbData.userData)
+    free(cbData)
+
 @cython.embedsignature(True)
 def cudaLaunchHostFunc(stream, fn, userData):
     """ Enqueues a host function call in a stream.
@@ -23032,27 +23052,35 @@ def cudaLaunchHostFunc(stream, fn, userData):
     """
     cdef cyruntime.cudaHostFn_t cyfn
     if fn is None:
-        cyfn = <cyruntime.cudaHostFn_t><void_ptr>0
+        pfn = 0
     elif isinstance(fn, (cudaHostFn_t,)):
         pfn = int(fn)
-        cyfn = <cyruntime.cudaHostFn_t><void_ptr>pfn
     else:
         pfn = int(cudaHostFn_t(fn))
-        cyfn = <cyruntime.cudaHostFn_t><void_ptr>pfn
+    cyfn = <cyruntime.cudaHostFn_t><void_ptr>pfn
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cyuserData = utils.HelperInputVoidPtr(userData)
     cdef void* cyuserData_ptr = <void*><void_ptr>cyuserData.cptr
-    with nogil:
-        err = cyruntime.cudaLaunchHostFunc(cystream, cyfn, cyuserData_ptr)
 
+    cdef cudaStreamHostCallbackData *cbData = NULL
+    cbData = <cudaStreamHostCallbackData *>malloc(sizeof(cbData[0]))
+    if cbData == NULL:
+        return (cudaError_t.cudaErrorMemoryAllocation,)
+    cbData.callback = cyfn
+    cbData.userData = cyuserData_ptr
+
+    with nogil:
+        err = cyruntime.cudaLaunchHostFunc(cystream, <cyruntime.cudaHostFn_t>cudaStreamRtHostCallbackWrapper, <void *>cbData)
+
+    if err != cyruntime.cudaSuccess:
+        free(cbData)
     return (cudaError_t(err),)
 {{endif}}
 
@@ -23702,13 +23730,12 @@ def cudaFreeArray(array):
     """
     cdef cyruntime.cudaArray_t cyarray
     if array is None:
-        cyarray = <cyruntime.cudaArray_t><void_ptr>0
+        parray = 0
     elif isinstance(array, (cudaArray_t,)):
         parray = int(array)
-        cyarray = <cyruntime.cudaArray_t><void_ptr>parray
     else:
         parray = int(cudaArray_t(array))
-        cyarray = <cyruntime.cudaArray_t><void_ptr>parray
+    cyarray = <cyruntime.cudaArray_t><void_ptr>parray
     with nogil:
         err = cyruntime.cudaFreeArray(cyarray)
 
@@ -23741,13 +23768,12 @@ def cudaFreeMipmappedArray(mipmappedArray):
     """
     cdef cyruntime.cudaMipmappedArray_t cymipmappedArray
     if mipmappedArray is None:
-        cymipmappedArray = <cyruntime.cudaMipmappedArray_t><void_ptr>0
+        pmipmappedArray = 0
     elif isinstance(mipmappedArray, (cudaMipmappedArray_t,)):
         pmipmappedArray = int(mipmappedArray)
-        cymipmappedArray = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmappedArray
     else:
         pmipmappedArray = int(cudaMipmappedArray_t(mipmappedArray))
-        cymipmappedArray = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmappedArray
+    cymipmappedArray = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmappedArray
     err = cyruntime.cudaFreeMipmappedArray(cymipmappedArray)
     return (cudaError_t(err),)
 {{endif}}
@@ -24405,13 +24431,12 @@ def cudaGetMipmappedArrayLevel(mipmappedArray, unsigned int level):
     """
     cdef cyruntime.cudaMipmappedArray_const_t cymipmappedArray
     if mipmappedArray is None:
-        cymipmappedArray = <cyruntime.cudaMipmappedArray_const_t><void_ptr>0
+        pmipmappedArray = 0
     elif isinstance(mipmappedArray, (cudaMipmappedArray_const_t,)):
         pmipmappedArray = int(mipmappedArray)
-        cymipmappedArray = <cyruntime.cudaMipmappedArray_const_t><void_ptr>pmipmappedArray
     else:
         pmipmappedArray = int(cudaMipmappedArray_const_t(mipmappedArray))
-        cymipmappedArray = <cyruntime.cudaMipmappedArray_const_t><void_ptr>pmipmappedArray
+    cymipmappedArray = <cyruntime.cudaMipmappedArray_const_t><void_ptr>pmipmappedArray
     cdef cudaArray_t levelArray = cudaArray_t()
     err = cyruntime.cudaGetMipmappedArrayLevel(<cyruntime.cudaArray_t*>levelArray._pvt_ptr, cymipmappedArray, level)
     return (cudaError_t(err), levelArray)
@@ -24631,13 +24656,12 @@ def cudaMemcpy3DAsync(p : Optional[cudaMemcpy3DParms], stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaMemcpy3DParms* cyp_ptr = p._pvt_ptr if p != None else NULL
     with nogil:
         err = cyruntime.cudaMemcpy3DAsync(cyp_ptr, cystream)
@@ -24673,13 +24697,12 @@ def cudaMemcpy3DPeerAsync(p : Optional[cudaMemcpy3DPeerParms], stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaMemcpy3DPeerParms* cyp_ptr = p._pvt_ptr if p != None else NULL
     err = cyruntime.cudaMemcpy3DPeerAsync(cyp_ptr, cystream)
     return (cudaError_t(err),)
@@ -24760,13 +24783,12 @@ def cudaArrayGetInfo(array):
     """
     cdef cyruntime.cudaArray_t cyarray
     if array is None:
-        cyarray = <cyruntime.cudaArray_t><void_ptr>0
+        parray = 0
     elif isinstance(array, (cudaArray_t,)):
         parray = int(array)
-        cyarray = <cyruntime.cudaArray_t><void_ptr>parray
     else:
         parray = int(cudaArray_t(array))
-        cyarray = <cyruntime.cudaArray_t><void_ptr>parray
+    cyarray = <cyruntime.cudaArray_t><void_ptr>parray
     cdef cudaChannelFormatDesc desc = cudaChannelFormatDesc()
     cdef cudaExtent extent = cudaExtent()
     cdef unsigned int flags = 0
@@ -24816,13 +24838,12 @@ def cudaArrayGetPlane(hArray, unsigned int planeIdx):
     """
     cdef cyruntime.cudaArray_t cyhArray
     if hArray is None:
-        cyhArray = <cyruntime.cudaArray_t><void_ptr>0
+        phArray = 0
     elif isinstance(hArray, (cudaArray_t,)):
         phArray = int(hArray)
-        cyhArray = <cyruntime.cudaArray_t><void_ptr>phArray
     else:
         phArray = int(cudaArray_t(hArray))
-        cyhArray = <cyruntime.cudaArray_t><void_ptr>phArray
+    cyhArray = <cyruntime.cudaArray_t><void_ptr>phArray
     cdef cudaArray_t pPlaneArray = cudaArray_t()
     err = cyruntime.cudaArrayGetPlane(<cyruntime.cudaArray_t*>pPlaneArray._pvt_ptr, cyhArray, planeIdx)
     return (cudaError_t(err), pPlaneArray)
@@ -24864,13 +24885,12 @@ def cudaArrayGetMemoryRequirements(array, int device):
     """
     cdef cyruntime.cudaArray_t cyarray
     if array is None:
-        cyarray = <cyruntime.cudaArray_t><void_ptr>0
+        parray = 0
     elif isinstance(array, (cudaArray_t,)):
         parray = int(array)
-        cyarray = <cyruntime.cudaArray_t><void_ptr>parray
     else:
         parray = int(cudaArray_t(array))
-        cyarray = <cyruntime.cudaArray_t><void_ptr>parray
+    cyarray = <cyruntime.cudaArray_t><void_ptr>parray
     cdef cudaArrayMemoryRequirements memoryRequirements = cudaArrayMemoryRequirements()
     err = cyruntime.cudaArrayGetMemoryRequirements(<cyruntime.cudaArrayMemoryRequirements*>memoryRequirements._pvt_ptr, cyarray, device)
     return (cudaError_t(err), memoryRequirements)
@@ -24912,13 +24932,12 @@ def cudaMipmappedArrayGetMemoryRequirements(mipmap, int device):
     """
     cdef cyruntime.cudaMipmappedArray_t cymipmap
     if mipmap is None:
-        cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>0
+        pmipmap = 0
     elif isinstance(mipmap, (cudaMipmappedArray_t,)):
         pmipmap = int(mipmap)
-        cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
     else:
         pmipmap = int(cudaMipmappedArray_t(mipmap))
-        cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
+    cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
     cdef cudaArrayMemoryRequirements memoryRequirements = cudaArrayMemoryRequirements()
     err = cyruntime.cudaMipmappedArrayGetMemoryRequirements(<cyruntime.cudaArrayMemoryRequirements*>memoryRequirements._pvt_ptr, cymipmap, device)
     return (cudaError_t(err), memoryRequirements)
@@ -24966,13 +24985,12 @@ def cudaArrayGetSparseProperties(array):
     """
     cdef cyruntime.cudaArray_t cyarray
     if array is None:
-        cyarray = <cyruntime.cudaArray_t><void_ptr>0
+        parray = 0
     elif isinstance(array, (cudaArray_t,)):
         parray = int(array)
-        cyarray = <cyruntime.cudaArray_t><void_ptr>parray
     else:
         parray = int(cudaArray_t(array))
-        cyarray = <cyruntime.cudaArray_t><void_ptr>parray
+    cyarray = <cyruntime.cudaArray_t><void_ptr>parray
     cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties()
     err = cyruntime.cudaArrayGetSparseProperties(<cyruntime.cudaArraySparseProperties*>sparseProperties._pvt_ptr, cyarray)
     return (cudaError_t(err), sparseProperties)
@@ -25020,13 +25038,12 @@ def cudaMipmappedArrayGetSparseProperties(mipmap):
     """
     cdef cyruntime.cudaMipmappedArray_t cymipmap
     if mipmap is None:
-        cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>0
+        pmipmap = 0
     elif isinstance(mipmap, (cudaMipmappedArray_t,)):
         pmipmap = int(mipmap)
-        cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
     else:
         pmipmap = int(cudaMipmappedArray_t(mipmap))
-        cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
+    cymipmap = <cyruntime.cudaMipmappedArray_t><void_ptr>pmipmap
     cdef cudaArraySparseProperties sparseProperties = cudaArraySparseProperties()
     err = cyruntime.cudaMipmappedArrayGetSparseProperties(<cyruntime.cudaArraySparseProperties*>sparseProperties._pvt_ptr, cymipmap)
     return (cudaError_t(err), sparseProperties)
@@ -25246,13 +25263,12 @@ def cudaMemcpy2DToArray(dst, size_t wOffset, size_t hOffset, src, size_t spitch,
     """
     cdef cyruntime.cudaArray_t cydst
     if dst is None:
-        cydst = <cyruntime.cudaArray_t><void_ptr>0
+        pdst = 0
     elif isinstance(dst, (cudaArray_t,)):
         pdst = int(dst)
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     else:
         pdst = int(cudaArray_t(dst))
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
+    cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     cysrc = utils.HelperInputVoidPtr(src)
     cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
     cdef cyruntime.cudaMemcpyKind cykind = kind.value
@@ -25315,13 +25331,12 @@ def cudaMemcpy2DFromArray(dst, size_t dpitch, src, size_t wOffset, size_t hOffse
     """
     cdef cyruntime.cudaArray_const_t cysrc
     if src is None:
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>0
+        psrc = 0
     elif isinstance(src, (cudaArray_const_t,)):
         psrc = int(src)
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     else:
         psrc = int(cudaArray_const_t(src))
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
+    cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     cydst = utils.HelperInputVoidPtr(dst)
     cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
     cdef cyruntime.cudaMemcpyKind cykind = kind.value
@@ -25384,22 +25399,20 @@ def cudaMemcpy2DArrayToArray(dst, size_t wOffsetDst, size_t hOffsetDst, src, siz
     """
     cdef cyruntime.cudaArray_const_t cysrc
     if src is None:
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>0
+        psrc = 0
     elif isinstance(src, (cudaArray_const_t,)):
         psrc = int(src)
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     else:
         psrc = int(cudaArray_const_t(src))
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
+    cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     cdef cyruntime.cudaArray_t cydst
     if dst is None:
-        cydst = <cyruntime.cudaArray_t><void_ptr>0
+        pdst = 0
     elif isinstance(dst, (cudaArray_t,)):
         pdst = int(dst)
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     else:
         pdst = int(cudaArray_t(dst))
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
+    cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     cdef cyruntime.cudaMemcpyKind cykind = kind.value
     err = cyruntime.cudaMemcpy2DArrayToArray(cydst, wOffsetDst, hOffsetDst, cysrc, wOffsetSrc, hOffsetSrc, width, height, cykind)
     return (cudaError_t(err),)
@@ -25459,13 +25472,12 @@ def cudaMemcpyAsync(dst, src, size_t count, kind not None : cudaMemcpyKind, stre
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cydst = utils.HelperInputVoidPtr(dst)
     cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
     cysrc = utils.HelperInputVoidPtr(src)
@@ -25518,13 +25530,12 @@ def cudaMemcpyPeerAsync(dst, int dstDevice, src, int srcDevice, size_t count, st
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cydst = utils.HelperInputVoidPtr(dst)
     cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
     cysrc = utils.HelperInputVoidPtr(src)
@@ -25649,13 +25660,12 @@ def cudaMemcpyBatchAsync(dsts : Optional[Tuple[Any] | List[Any]], srcs : Optiona
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     if not all(isinstance(_x, (int)) for _x in attrsIdxs):
         raise TypeError("Argument 'attrsIdxs' is not instance of type (expected Tuple[int] or List[int]")
     attrs = [] if attrs is None else attrs
@@ -25802,13 +25812,12 @@ def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[Tuple[cudaMemcpy3DBa
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     opList = [] if opList is None else opList
     if not all(isinstance(_x, (cudaMemcpy3DBatchOp,)) for _x in opList):
         raise TypeError("Argument 'opList' is not instance of type (expected Tuple[cyruntime.cudaMemcpy3DBatchOp,] or List[cyruntime.cudaMemcpy3DBatchOp,]")
@@ -25892,13 +25901,12 @@ def cudaMemcpy2DAsync(dst, size_t dpitch, src, size_t spitch, size_t width, size
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cydst = utils.HelperInputVoidPtr(dst)
     cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
     cysrc = utils.HelperInputVoidPtr(src)
@@ -25976,22 +25984,20 @@ def cudaMemcpy2DToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t sp
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaArray_t cydst
     if dst is None:
-        cydst = <cyruntime.cudaArray_t><void_ptr>0
+        pdst = 0
     elif isinstance(dst, (cudaArray_t,)):
         pdst = int(dst)
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     else:
         pdst = int(cudaArray_t(dst))
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
+    cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     cysrc = utils.HelperInputVoidPtr(src)
     cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
     cdef cyruntime.cudaMemcpyKind cykind = kind.value
@@ -26066,22 +26072,20 @@ def cudaMemcpy2DFromArrayAsync(dst, size_t dpitch, src, size_t wOffset, size_t h
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaArray_const_t cysrc
     if src is None:
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>0
+        psrc = 0
     elif isinstance(src, (cudaArray_const_t,)):
         psrc = int(src)
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     else:
         psrc = int(cudaArray_const_t(src))
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
+    cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     cydst = utils.HelperInputVoidPtr(dst)
     cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
     cdef cyruntime.cudaMemcpyKind cykind = kind.value
@@ -26265,13 +26269,12 @@ def cudaMemsetAsync(devPtr, int value, size_t count, stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cydevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
@@ -26327,13 +26330,12 @@ def cudaMemset2DAsync(devPtr, size_t pitch, int value, size_t width, size_t heig
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cydevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     err = cyruntime.cudaMemset2DAsync(cydevPtr_ptr, pitch, value, width, height, cystream)
@@ -26399,13 +26401,12 @@ def cudaMemset3DAsync(pitchedDevPtr not None : cudaPitchedPtr, int value, extent
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     err = cyruntime.cudaMemset3DAsync(pitchedDevPtr._pvt_ptr[0], value, extent._pvt_ptr[0], cystream)
     return (cudaError_t(err),)
 {{endif}}
@@ -26496,13 +26497,12 @@ def cudaMemPrefetchAsync(devPtr, size_t count, int dstDevice, stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cydevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
@@ -26615,13 +26615,12 @@ def cudaMemPrefetchAsync_v2(devPtr, size_t count, location not None : cudaMemLoc
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cydevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
@@ -27266,13 +27265,12 @@ def cudaMemcpyToArray(dst, size_t wOffset, size_t hOffset, src, size_t count, ki
     """
     cdef cyruntime.cudaArray_t cydst
     if dst is None:
-        cydst = <cyruntime.cudaArray_t><void_ptr>0
+        pdst = 0
     elif isinstance(dst, (cudaArray_t,)):
         pdst = int(dst)
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     else:
         pdst = int(cudaArray_t(dst))
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
+    cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     cysrc = utils.HelperInputVoidPtr(src)
     cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
     cdef cyruntime.cudaMemcpyKind cykind = kind.value
@@ -27325,13 +27323,12 @@ def cudaMemcpyFromArray(dst, src, size_t wOffset, size_t hOffset, size_t count, 
     """
     cdef cyruntime.cudaArray_const_t cysrc
     if src is None:
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>0
+        psrc = 0
     elif isinstance(src, (cudaArray_const_t,)):
         psrc = int(src)
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     else:
         psrc = int(cudaArray_const_t(src))
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
+    cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     cydst = utils.HelperInputVoidPtr(dst)
     cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
     cdef cyruntime.cudaMemcpyKind cykind = kind.value
@@ -27389,22 +27386,20 @@ def cudaMemcpyArrayToArray(dst, size_t wOffsetDst, size_t hOffsetDst, src, size_
     """
     cdef cyruntime.cudaArray_const_t cysrc
     if src is None:
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>0
+        psrc = 0
     elif isinstance(src, (cudaArray_const_t,)):
         psrc = int(src)
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     else:
         psrc = int(cudaArray_const_t(src))
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
+    cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     cdef cyruntime.cudaArray_t cydst
     if dst is None:
-        cydst = <cyruntime.cudaArray_t><void_ptr>0
+        pdst = 0
     elif isinstance(dst, (cudaArray_t,)):
         pdst = int(dst)
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     else:
         pdst = int(cudaArray_t(dst))
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
+    cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     cdef cyruntime.cudaMemcpyKind cykind = kind.value
     err = cyruntime.cudaMemcpyArrayToArray(cydst, wOffsetDst, hOffsetDst, cysrc, wOffsetSrc, hOffsetSrc, count, cykind)
     return (cudaError_t(err),)
@@ -27464,22 +27459,20 @@ def cudaMemcpyToArrayAsync(dst, size_t wOffset, size_t hOffset, src, size_t coun
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaArray_t cydst
     if dst is None:
-        cydst = <cyruntime.cudaArray_t><void_ptr>0
+        pdst = 0
     elif isinstance(dst, (cudaArray_t,)):
         pdst = int(dst)
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     else:
         pdst = int(cudaArray_t(dst))
-        cydst = <cyruntime.cudaArray_t><void_ptr>pdst
+    cydst = <cyruntime.cudaArray_t><void_ptr>pdst
     cysrc = utils.HelperInputVoidPtr(src)
     cdef void* cysrc_ptr = <void*><void_ptr>cysrc.cptr
     cdef cyruntime.cudaMemcpyKind cykind = kind.value
@@ -27541,22 +27534,20 @@ def cudaMemcpyFromArrayAsync(dst, src, size_t wOffset, size_t hOffset, size_t co
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaArray_const_t cysrc
     if src is None:
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>0
+        psrc = 0
     elif isinstance(src, (cudaArray_const_t,)):
         psrc = int(src)
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     else:
         psrc = int(cudaArray_const_t(src))
-        cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
+    cysrc = <cyruntime.cudaArray_const_t><void_ptr>psrc
     cydst = utils.HelperInputVoidPtr(dst)
     cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
     cdef cyruntime.cudaMemcpyKind cykind = kind.value
@@ -27605,13 +27596,12 @@ def cudaMallocAsync(size_t size, hStream):
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>0
+        phStream = 0
     elif isinstance(hStream, (cudaStream_t,driver.CUstream)):
         phStream = int(hStream)
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     else:
         phStream = int(cudaStream_t(hStream))
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
+    cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     cdef void_ptr devPtr = 0
     with nogil:
         err = cyruntime.cudaMallocAsync(<void**>&devPtr, size, cyhStream)
@@ -27652,13 +27642,12 @@ def cudaFreeAsync(devPtr, hStream):
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>0
+        phStream = 0
     elif isinstance(hStream, (cudaStream_t,driver.CUstream)):
         phStream = int(hStream)
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     else:
         phStream = int(cudaStream_t(hStream))
-        cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
+    cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     cydevPtr = utils.HelperInputVoidPtr(devPtr)
     cdef void* cydevPtr_ptr = <void*><void_ptr>cydevPtr.cptr
     with nogil:
@@ -27706,13 +27695,12 @@ def cudaMemPoolTrimTo(memPool, size_t minBytesToKeep):
     """
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>0
+        pmemPool = 0
     elif isinstance(memPool, (cudaMemPool_t,driver.CUmemoryPool)):
         pmemPool = int(memPool)
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     else:
         pmemPool = int(cudaMemPool_t(memPool))
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
+    cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     with nogil:
         err = cyruntime.cudaMemPoolTrimTo(cymemPool, minBytesToKeep)
 
@@ -27781,13 +27769,12 @@ def cudaMemPoolSetAttribute(memPool, attr not None : cudaMemPoolAttr, value):
     """
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>0
+        pmemPool = 0
     elif isinstance(memPool, (cudaMemPool_t,driver.CUmemoryPool)):
         pmemPool = int(memPool)
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     else:
         pmemPool = int(cudaMemPool_t(memPool))
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
+    cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     cdef cyruntime.cudaMemPoolAttr cyattr = attr.value
     cdef utils.HelperCUmemPool_attribute cyvalue = utils.HelperCUmemPool_attribute(attr, value, is_getter=False)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
@@ -27865,13 +27852,12 @@ def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
     """
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>0
+        pmemPool = 0
     elif isinstance(memPool, (cudaMemPool_t,driver.CUmemoryPool)):
         pmemPool = int(memPool)
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     else:
         pmemPool = int(cudaMemPool_t(memPool))
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
+    cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     cdef cyruntime.cudaMemPoolAttr cyattr = attr.value
     cdef utils.HelperCUmemPool_attribute cyvalue = utils.HelperCUmemPool_attribute(attr, 0, is_getter=True)
     cdef void* cyvalue_ptr = <void*><void_ptr>cyvalue.cptr
@@ -27911,13 +27897,12 @@ def cudaMemPoolSetAccess(memPool, descList : Optional[Tuple[cudaMemAccessDesc] |
         raise TypeError("Argument 'descList' is not instance of type (expected Tuple[cyruntime.cudaMemAccessDesc,] or List[cyruntime.cudaMemAccessDesc,]")
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>0
+        pmemPool = 0
     elif isinstance(memPool, (cudaMemPool_t,driver.CUmemoryPool)):
         pmemPool = int(memPool)
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     else:
         pmemPool = int(cudaMemPool_t(memPool))
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
+    cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     cdef cyruntime.cudaMemAccessDesc* cydescList = NULL
     if len(descList) > 0:
         cydescList = <cyruntime.cudaMemAccessDesc*> calloc(len(descList), sizeof(cyruntime.cudaMemAccessDesc))
@@ -27961,13 +27946,12 @@ def cudaMemPoolGetAccess(memPool, location : Optional[cudaMemLocation]):
     """
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>0
+        pmemPool = 0
     elif isinstance(memPool, (cudaMemPool_t,driver.CUmemoryPool)):
         pmemPool = int(memPool)
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     else:
         pmemPool = int(cudaMemPool_t(memPool))
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
+    cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     cdef cyruntime.cudaMemAccessFlags flags
     cdef cyruntime.cudaMemLocation* cylocation_ptr = location._pvt_ptr if location != None else NULL
     err = cyruntime.cudaMemPoolGetAccess(&flags, cymemPool, cylocation_ptr)
@@ -28082,13 +28066,12 @@ def cudaMemPoolDestroy(memPool):
     """
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>0
+        pmemPool = 0
     elif isinstance(memPool, (cudaMemPool_t,driver.CUmemoryPool)):
         pmemPool = int(memPool)
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     else:
         pmemPool = int(cudaMemPool_t(memPool))
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
+    cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     err = cyruntime.cudaMemPoolDestroy(cymemPool)
     return (cudaError_t(err),)
 {{endif}}
@@ -28130,22 +28113,20 @@ def cudaMallocFromPoolAsync(size_t size, memPool, stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>0
+        pmemPool = 0
     elif isinstance(memPool, (cudaMemPool_t,driver.CUmemoryPool)):
         pmemPool = int(memPool)
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     else:
         pmemPool = int(cudaMemPool_t(memPool))
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
+    cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     cdef void_ptr ptr = 0
     err = cyruntime.cudaMallocFromPoolAsync(<void**>&ptr, size, cymemPool, cystream)
     return (cudaError_t(err), ptr)
@@ -28192,13 +28173,12 @@ def cudaMemPoolExportToShareableHandle(memPool, handleType not None : cudaMemAll
     """
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>0
+        pmemPool = 0
     elif isinstance(memPool, (cudaMemPool_t,driver.CUmemoryPool)):
         pmemPool = int(memPool)
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     else:
         pmemPool = int(cudaMemPool_t(memPool))
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
+    cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     cdef utils.HelperCUmemAllocationHandleType cyshareableHandle = utils.HelperCUmemAllocationHandleType(handleType)
     cdef void* cyshareableHandle_ptr = <void*><void_ptr>cyshareableHandle.cptr
     cdef cyruntime.cudaMemAllocationHandleType cyhandleType = handleType.value
@@ -28319,13 +28299,12 @@ def cudaMemPoolImportPointer(memPool, exportData : Optional[cudaMemPoolPtrExport
     """
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>0
+        pmemPool = 0
     elif isinstance(memPool, (cudaMemPool_t,driver.CUmemoryPool)):
         pmemPool = int(memPool)
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     else:
         pmemPool = int(cudaMemPool_t(memPool))
-        cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
+    cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     cdef void_ptr ptr = 0
     cdef cyruntime.cudaMemPoolPtrExportData* cyexportData_ptr = exportData._pvt_ptr if exportData != None else NULL
     err = cyruntime.cudaMemPoolImportPointer(<void**>&ptr, cymemPool, cyexportData_ptr)
@@ -28543,13 +28522,12 @@ def cudaGraphicsUnregisterResource(resource):
     """
     cdef cyruntime.cudaGraphicsResource_t cyresource
     if resource is None:
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>0
+        presource = 0
     elif isinstance(resource, (cudaGraphicsResource_t,)):
         presource = int(resource)
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     else:
         presource = int(cudaGraphicsResource_t(resource))
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
+    cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     err = cyruntime.cudaGraphicsUnregisterResource(cyresource)
     return (cudaError_t(err),)
 {{endif}}
@@ -28599,13 +28577,12 @@ def cudaGraphicsResourceSetMapFlags(resource, unsigned int flags):
     """
     cdef cyruntime.cudaGraphicsResource_t cyresource
     if resource is None:
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>0
+        presource = 0
     elif isinstance(resource, (cudaGraphicsResource_t,)):
         presource = int(resource)
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     else:
         presource = int(cudaGraphicsResource_t(resource))
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
+    cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     err = cyruntime.cudaGraphicsResourceSetMapFlags(cyresource, flags)
     return (cudaError_t(err),)
 {{endif}}
@@ -28652,13 +28629,12 @@ def cudaGraphicsMapResources(int count, resources, stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaGraphicsResource_t *cyresources
     if resources is None:
         cyresources = <cyruntime.cudaGraphicsResource_t*><void_ptr>NULL
@@ -28713,13 +28689,12 @@ def cudaGraphicsUnmapResources(int count, resources, stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaGraphicsResource_t *cyresources
     if resources is None:
         cyresources = <cyruntime.cudaGraphicsResource_t*><void_ptr>NULL
@@ -28765,13 +28740,12 @@ def cudaGraphicsResourceGetMappedPointer(resource):
     """
     cdef cyruntime.cudaGraphicsResource_t cyresource
     if resource is None:
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>0
+        presource = 0
     elif isinstance(resource, (cudaGraphicsResource_t,)):
         presource = int(resource)
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     else:
         presource = int(cudaGraphicsResource_t(resource))
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
+    cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     cdef void_ptr devPtr = 0
     cdef size_t size = 0
     err = cyruntime.cudaGraphicsResourceGetMappedPointer(<void**>&devPtr, &size, cyresource)
@@ -28821,13 +28795,12 @@ def cudaGraphicsSubResourceGetMappedArray(resource, unsigned int arrayIndex, uns
     """
     cdef cyruntime.cudaGraphicsResource_t cyresource
     if resource is None:
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>0
+        presource = 0
     elif isinstance(resource, (cudaGraphicsResource_t,)):
         presource = int(resource)
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     else:
         presource = int(cudaGraphicsResource_t(resource))
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
+    cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     cdef cudaArray_t array = cudaArray_t()
     err = cyruntime.cudaGraphicsSubResourceGetMappedArray(<cyruntime.cudaArray_t*>array._pvt_ptr, cyresource, arrayIndex, mipLevel)
     return (cudaError_t(err), array)
@@ -28865,13 +28838,12 @@ def cudaGraphicsResourceGetMappedMipmappedArray(resource):
     """
     cdef cyruntime.cudaGraphicsResource_t cyresource
     if resource is None:
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>0
+        presource = 0
     elif isinstance(resource, (cudaGraphicsResource_t,)):
         presource = int(resource)
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     else:
         presource = int(cudaGraphicsResource_t(resource))
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
+    cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     cdef cudaMipmappedArray_t mipmappedArray = cudaMipmappedArray_t()
     err = cyruntime.cudaGraphicsResourceGetMappedMipmappedArray(<cyruntime.cudaMipmappedArray_t*>mipmappedArray._pvt_ptr, cyresource)
     return (cudaError_t(err), mipmappedArray)
@@ -28903,13 +28875,12 @@ def cudaGetChannelDesc(array):
     """
     cdef cyruntime.cudaArray_const_t cyarray
     if array is None:
-        cyarray = <cyruntime.cudaArray_const_t><void_ptr>0
+        parray = 0
     elif isinstance(array, (cudaArray_const_t,)):
         parray = int(array)
-        cyarray = <cyruntime.cudaArray_const_t><void_ptr>parray
     else:
         parray = int(cudaArray_const_t(array))
-        cyarray = <cyruntime.cudaArray_const_t><void_ptr>parray
+    cyarray = <cyruntime.cudaArray_const_t><void_ptr>parray
     cdef cudaChannelFormatDesc desc = cudaChannelFormatDesc()
     with nogil:
         err = cyruntime.cudaGetChannelDesc(<cyruntime.cudaChannelFormatDesc*>desc._pvt_ptr, cyarray)
@@ -29231,13 +29202,12 @@ def cudaDestroyTextureObject(texObject):
     """
     cdef cyruntime.cudaTextureObject_t cytexObject
     if texObject is None:
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>0
+        ptexObject = 0
     elif isinstance(texObject, (cudaTextureObject_t,)):
         ptexObject = int(texObject)
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
     else:
         ptexObject = int(cudaTextureObject_t(texObject))
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
+    cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
     with nogil:
         err = cyruntime.cudaDestroyTextureObject(cytexObject)
 
@@ -29271,13 +29241,12 @@ def cudaGetTextureObjectResourceDesc(texObject):
     """
     cdef cyruntime.cudaTextureObject_t cytexObject
     if texObject is None:
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>0
+        ptexObject = 0
     elif isinstance(texObject, (cudaTextureObject_t,)):
         ptexObject = int(texObject)
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
     else:
         ptexObject = int(cudaTextureObject_t(texObject))
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
+    cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
     cdef cudaResourceDesc pResDesc = cudaResourceDesc()
     with nogil:
         err = cyruntime.cudaGetTextureObjectResourceDesc(<cyruntime.cudaResourceDesc*>pResDesc._pvt_ptr, cytexObject)
@@ -29312,13 +29281,12 @@ def cudaGetTextureObjectTextureDesc(texObject):
     """
     cdef cyruntime.cudaTextureObject_t cytexObject
     if texObject is None:
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>0
+        ptexObject = 0
     elif isinstance(texObject, (cudaTextureObject_t,)):
         ptexObject = int(texObject)
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
     else:
         ptexObject = int(cudaTextureObject_t(texObject))
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
+    cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
     cdef cudaTextureDesc pTexDesc = cudaTextureDesc()
     with nogil:
         err = cyruntime.cudaGetTextureObjectTextureDesc(<cyruntime.cudaTextureDesc*>pTexDesc._pvt_ptr, cytexObject)
@@ -29354,13 +29322,12 @@ def cudaGetTextureObjectResourceViewDesc(texObject):
     """
     cdef cyruntime.cudaTextureObject_t cytexObject
     if texObject is None:
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>0
+        ptexObject = 0
     elif isinstance(texObject, (cudaTextureObject_t,)):
         ptexObject = int(texObject)
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
     else:
         ptexObject = int(cudaTextureObject_t(texObject))
-        cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
+    cytexObject = <cyruntime.cudaTextureObject_t><void_ptr>ptexObject
     cdef cudaResourceViewDesc pResViewDesc = cudaResourceViewDesc()
     err = cyruntime.cudaGetTextureObjectResourceViewDesc(<cyruntime.cudaResourceViewDesc*>pResViewDesc._pvt_ptr, cytexObject)
     return (cudaError_t(err), pResViewDesc)
@@ -29431,13 +29398,12 @@ def cudaDestroySurfaceObject(surfObject):
     """
     cdef cyruntime.cudaSurfaceObject_t cysurfObject
     if surfObject is None:
-        cysurfObject = <cyruntime.cudaSurfaceObject_t><void_ptr>0
+        psurfObject = 0
     elif isinstance(surfObject, (cudaSurfaceObject_t,)):
         psurfObject = int(surfObject)
-        cysurfObject = <cyruntime.cudaSurfaceObject_t><void_ptr>psurfObject
     else:
         psurfObject = int(cudaSurfaceObject_t(surfObject))
-        cysurfObject = <cyruntime.cudaSurfaceObject_t><void_ptr>psurfObject
+    cysurfObject = <cyruntime.cudaSurfaceObject_t><void_ptr>psurfObject
     with nogil:
         err = cyruntime.cudaDestroySurfaceObject(cysurfObject)
 
@@ -29468,13 +29434,12 @@ def cudaGetSurfaceObjectResourceDesc(surfObject):
     """
     cdef cyruntime.cudaSurfaceObject_t cysurfObject
     if surfObject is None:
-        cysurfObject = <cyruntime.cudaSurfaceObject_t><void_ptr>0
+        psurfObject = 0
     elif isinstance(surfObject, (cudaSurfaceObject_t,)):
         psurfObject = int(surfObject)
-        cysurfObject = <cyruntime.cudaSurfaceObject_t><void_ptr>psurfObject
     else:
         psurfObject = int(cudaSurfaceObject_t(surfObject))
-        cysurfObject = <cyruntime.cudaSurfaceObject_t><void_ptr>psurfObject
+    cysurfObject = <cyruntime.cudaSurfaceObject_t><void_ptr>psurfObject
     cdef cudaResourceDesc pResDesc = cudaResourceDesc()
     err = cyruntime.cudaGetSurfaceObjectResourceDesc(<cyruntime.cudaResourceDesc*>pResDesc._pvt_ptr, cysurfObject)
     return (cudaError_t(err), pResDesc)
@@ -29666,13 +29631,12 @@ def cudaGraphAddKernelNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -29725,13 +29689,12 @@ def cudaGraphKernelNodeGetParams(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cudaKernelNodeParams pNodeParams = cudaKernelNodeParams()
     err = cyruntime.cudaGraphKernelNodeGetParams(cynode, <cyruntime.cudaKernelNodeParams*>pNodeParams._pvt_ptr)
     return (cudaError_t(err), pNodeParams)
@@ -29763,13 +29726,12 @@ def cudaGraphKernelNodeSetParams(node, pNodeParams : Optional[cudaKernelNodePara
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     err = cyruntime.cudaGraphKernelNodeSetParams(cynode, cypNodeParams_ptr)
     return (cudaError_t(err),)
@@ -29803,22 +29765,20 @@ def cudaGraphKernelNodeCopyAttributes(hSrc, hDst):
     """
     cdef cyruntime.cudaGraphNode_t cyhDst
     if hDst is None:
-        cyhDst = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phDst = 0
     elif isinstance(hDst, (cudaGraphNode_t,driver.CUgraphNode)):
         phDst = int(hDst)
-        cyhDst = <cyruntime.cudaGraphNode_t><void_ptr>phDst
     else:
         phDst = int(cudaGraphNode_t(hDst))
-        cyhDst = <cyruntime.cudaGraphNode_t><void_ptr>phDst
+    cyhDst = <cyruntime.cudaGraphNode_t><void_ptr>phDst
     cdef cyruntime.cudaGraphNode_t cyhSrc
     if hSrc is None:
-        cyhSrc = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phSrc = 0
     elif isinstance(hSrc, (cudaGraphNode_t,driver.CUgraphNode)):
         phSrc = int(hSrc)
-        cyhSrc = <cyruntime.cudaGraphNode_t><void_ptr>phSrc
     else:
         phSrc = int(cudaGraphNode_t(hSrc))
-        cyhSrc = <cyruntime.cudaGraphNode_t><void_ptr>phSrc
+    cyhSrc = <cyruntime.cudaGraphNode_t><void_ptr>phSrc
     err = cyruntime.cudaGraphKernelNodeCopyAttributes(cyhSrc, cyhDst)
     return (cudaError_t(err),)
 {{endif}}
@@ -29852,13 +29812,12 @@ def cudaGraphKernelNodeGetAttribute(hNode, attr not None : cudaKernelNodeAttrID)
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaKernelNodeAttrID cyattr = attr.value
     cdef cudaKernelNodeAttrValue value_out = cudaKernelNodeAttrValue()
     err = cyruntime.cudaGraphKernelNodeGetAttribute(cyhNode, cyattr, <cyruntime.cudaKernelNodeAttrValue*>value_out._pvt_ptr)
@@ -29894,13 +29853,12 @@ def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID,
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaKernelNodeAttrID cyattr = attr.value
     cdef cyruntime.cudaKernelNodeAttrValue* cyvalue_ptr = value._pvt_ptr if value != None else NULL
     err = cyruntime.cudaGraphKernelNodeSetAttribute(cyhNode, cyattr, cyvalue_ptr)
@@ -29955,13 +29913,12 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -30043,13 +30000,12 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[Tuple[cudaGraphNode
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -30096,13 +30052,12 @@ def cudaGraphMemcpyNodeGetParams(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cudaMemcpy3DParms pNodeParams = cudaMemcpy3DParms()
     err = cyruntime.cudaGraphMemcpyNodeGetParams(cynode, <cyruntime.cudaMemcpy3DParms*>pNodeParams._pvt_ptr)
     return (cudaError_t(err), pNodeParams)
@@ -30134,13 +30089,12 @@ def cudaGraphMemcpyNodeSetParams(node, pNodeParams : Optional[cudaMemcpy3DParms]
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaMemcpy3DParms* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     err = cyruntime.cudaGraphMemcpyNodeSetParams(cynode, cypNodeParams_ptr)
     return (cudaError_t(err),)
@@ -30192,13 +30146,12 @@ def cudaGraphMemcpyNodeSetParams1D(node, dst, src, size_t count, kind not None :
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cydst = utils.HelperInputVoidPtr(dst)
     cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
     cysrc = utils.HelperInputVoidPtr(src)
@@ -30250,13 +30203,12 @@ def cudaGraphAddMemsetNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -30300,13 +30252,12 @@ def cudaGraphMemsetNodeGetParams(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cudaMemsetParams pNodeParams = cudaMemsetParams()
     err = cyruntime.cudaGraphMemsetNodeGetParams(cynode, <cyruntime.cudaMemsetParams*>pNodeParams._pvt_ptr)
     return (cudaError_t(err), pNodeParams)
@@ -30338,13 +30289,12 @@ def cudaGraphMemsetNodeSetParams(node, pNodeParams : Optional[cudaMemsetParams])
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaMemsetParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     err = cyruntime.cudaGraphMemsetNodeSetParams(cynode, cypNodeParams_ptr)
     return (cudaError_t(err),)
@@ -30393,13 +30343,12 @@ def cudaGraphAddHostNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] 
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -30443,13 +30392,12 @@ def cudaGraphHostNodeGetParams(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cudaHostNodeParams pNodeParams = cudaHostNodeParams()
     err = cyruntime.cudaGraphHostNodeGetParams(cynode, <cyruntime.cudaHostNodeParams*>pNodeParams._pvt_ptr)
     return (cudaError_t(err), pNodeParams)
@@ -30481,13 +30429,12 @@ def cudaGraphHostNodeSetParams(node, pNodeParams : Optional[cudaHostNodeParams])
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     err = cyruntime.cudaGraphHostNodeSetParams(cynode, cypNodeParams_ptr)
     return (cudaError_t(err),)
@@ -30536,25 +30483,23 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[Tuple[cudaGraphNo
     """
     cdef cyruntime.cudaGraph_t cychildGraph
     if childGraph is None:
-        cychildGraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pchildGraph = 0
     elif isinstance(childGraph, (cudaGraph_t,driver.CUgraph)):
         pchildGraph = int(childGraph)
-        cychildGraph = <cyruntime.cudaGraph_t><void_ptr>pchildGraph
     else:
         pchildGraph = int(cudaGraph_t(childGraph))
-        cychildGraph = <cyruntime.cudaGraph_t><void_ptr>pchildGraph
+    cychildGraph = <cyruntime.cudaGraph_t><void_ptr>pchildGraph
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -30602,13 +30547,12 @@ def cudaGraphChildGraphNodeGetGraph(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cudaGraph_t pGraph = cudaGraph_t()
     err = cyruntime.cudaGraphChildGraphNodeGetGraph(cynode, <cyruntime.cudaGraph_t*>pGraph._pvt_ptr)
     return (cudaError_t(err), pGraph)
@@ -30658,13 +30602,12 @@ def cudaGraphAddEmptyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t]
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -30723,25 +30666,23 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[Tuple[cudaGraphN
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -30784,13 +30725,12 @@ def cudaGraphEventRecordNodeGetEvent(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cudaEvent_t event_out = cudaEvent_t()
     err = cyruntime.cudaGraphEventRecordNodeGetEvent(cynode, <cyruntime.cudaEvent_t*>event_out._pvt_ptr)
     return (cudaError_t(err), event_out)
@@ -30822,22 +30762,20 @@ def cudaGraphEventRecordNodeSetEvent(node, event):
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     err = cyruntime.cudaGraphEventRecordNodeSetEvent(cynode, cyevent)
     return (cudaError_t(err),)
 {{endif}}
@@ -30887,25 +30825,23 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[Tuple[cudaGraphNod
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -30948,13 +30884,12 @@ def cudaGraphEventWaitNodeGetEvent(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cudaEvent_t event_out = cudaEvent_t()
     err = cyruntime.cudaGraphEventWaitNodeGetEvent(cynode, <cyruntime.cudaEvent_t*>event_out._pvt_ptr)
     return (cudaError_t(err), event_out)
@@ -30986,22 +30921,20 @@ def cudaGraphEventWaitNodeSetEvent(node, event):
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     err = cyruntime.cudaGraphEventWaitNodeSetEvent(cynode, cyevent)
     return (cudaError_t(err),)
 {{endif}}
@@ -31050,13 +30983,12 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[Tup
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -31106,13 +31038,12 @@ def cudaGraphExternalSemaphoresSignalNodeGetParams(hNode):
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cudaExternalSemaphoreSignalNodeParams params_out = cudaExternalSemaphoreSignalNodeParams()
     err = cyruntime.cudaGraphExternalSemaphoresSignalNodeGetParams(cyhNode, <cyruntime.cudaExternalSemaphoreSignalNodeParams*>params_out._pvt_ptr)
     return (cudaError_t(err), params_out)
@@ -31145,13 +31076,12 @@ def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     err = cyruntime.cudaGraphExternalSemaphoresSignalNodeSetParams(cyhNode, cynodeParams_ptr)
     return (cudaError_t(err),)
@@ -31201,13 +31131,12 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[Tuple
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -31257,13 +31186,12 @@ def cudaGraphExternalSemaphoresWaitNodeGetParams(hNode):
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cudaExternalSemaphoreWaitNodeParams params_out = cudaExternalSemaphoreWaitNodeParams()
     err = cyruntime.cudaGraphExternalSemaphoresWaitNodeGetParams(cyhNode, <cyruntime.cudaExternalSemaphoreWaitNodeParams*>params_out._pvt_ptr)
     return (cudaError_t(err), params_out)
@@ -31296,13 +31224,12 @@ def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[cu
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     err = cyruntime.cudaGraphExternalSemaphoresWaitNodeSetParams(cyhNode, cynodeParams_ptr)
     return (cudaError_t(err),)
@@ -31390,13 +31317,12 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[Tuple[cudaGraphNode
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -31443,13 +31369,12 @@ def cudaGraphMemAllocNodeGetParams(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cudaMemAllocNodeParams params_out = cudaMemAllocNodeParams()
     err = cyruntime.cudaGraphMemAllocNodeGetParams(cynode, <cyruntime.cudaMemAllocNodeParams*>params_out._pvt_ptr)
     return (cudaError_t(err), params_out)
@@ -31515,13 +31440,12 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -31566,13 +31490,12 @@ def cudaGraphMemFreeNodeGetParams(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef void_ptr dptr_out = 0
     cdef void* cydptr_out_ptr = <void*>&dptr_out
     err = cyruntime.cudaGraphMemFreeNodeGetParams(cynode, cydptr_out_ptr)
@@ -31728,13 +31651,12 @@ def cudaGraphClone(originalGraph):
     """
     cdef cyruntime.cudaGraph_t cyoriginalGraph
     if originalGraph is None:
-        cyoriginalGraph = <cyruntime.cudaGraph_t><void_ptr>0
+        poriginalGraph = 0
     elif isinstance(originalGraph, (cudaGraph_t,driver.CUgraph)):
         poriginalGraph = int(originalGraph)
-        cyoriginalGraph = <cyruntime.cudaGraph_t><void_ptr>poriginalGraph
     else:
         poriginalGraph = int(cudaGraph_t(originalGraph))
-        cyoriginalGraph = <cyruntime.cudaGraph_t><void_ptr>poriginalGraph
+    cyoriginalGraph = <cyruntime.cudaGraph_t><void_ptr>poriginalGraph
     cdef cudaGraph_t pGraphClone = cudaGraph_t()
     err = cyruntime.cudaGraphClone(<cyruntime.cudaGraph_t*>pGraphClone._pvt_ptr, cyoriginalGraph)
     return (cudaError_t(err), pGraphClone)
@@ -31775,22 +31697,20 @@ def cudaGraphNodeFindInClone(originalNode, clonedGraph):
     """
     cdef cyruntime.cudaGraph_t cyclonedGraph
     if clonedGraph is None:
-        cyclonedGraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pclonedGraph = 0
     elif isinstance(clonedGraph, (cudaGraph_t,driver.CUgraph)):
         pclonedGraph = int(clonedGraph)
-        cyclonedGraph = <cyruntime.cudaGraph_t><void_ptr>pclonedGraph
     else:
         pclonedGraph = int(cudaGraph_t(clonedGraph))
-        cyclonedGraph = <cyruntime.cudaGraph_t><void_ptr>pclonedGraph
+    cyclonedGraph = <cyruntime.cudaGraph_t><void_ptr>pclonedGraph
     cdef cyruntime.cudaGraphNode_t cyoriginalNode
     if originalNode is None:
-        cyoriginalNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        poriginalNode = 0
     elif isinstance(originalNode, (cudaGraphNode_t,driver.CUgraphNode)):
         poriginalNode = int(originalNode)
-        cyoriginalNode = <cyruntime.cudaGraphNode_t><void_ptr>poriginalNode
     else:
         poriginalNode = int(cudaGraphNode_t(originalNode))
-        cyoriginalNode = <cyruntime.cudaGraphNode_t><void_ptr>poriginalNode
+    cyoriginalNode = <cyruntime.cudaGraphNode_t><void_ptr>poriginalNode
     cdef cudaGraphNode_t pNode = cudaGraphNode_t()
     err = cyruntime.cudaGraphNodeFindInClone(<cyruntime.cudaGraphNode_t*>pNode._pvt_ptr, cyoriginalNode, cyclonedGraph)
     return (cudaError_t(err), pNode)
@@ -31822,13 +31742,12 @@ def cudaGraphNodeGetType(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphNodeType pType
     err = cyruntime.cudaGraphNodeGetType(cynode, &pType)
     return (cudaError_t(err), cudaGraphNodeType(pType))
@@ -31870,13 +31789,12 @@ def cudaGraphGetNodes(graph, size_t numNodes = 0):
     cdef size_t _graph_length = numNodes
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cyruntime.cudaGraphNode_t* cynodes = NULL
     pynodes = []
     if _graph_length != 0:
@@ -31927,13 +31845,12 @@ def cudaGraphGetRootNodes(graph, size_t pNumRootNodes = 0):
     cdef size_t _graph_length = pNumRootNodes
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cyruntime.cudaGraphNode_t* cypRootNodes = NULL
     pypRootNodes = []
     if _graph_length != 0:
@@ -31988,13 +31905,12 @@ def cudaGraphGetEdges(graph, size_t numEdges = 0):
     cdef size_t _graph_length = numEdges
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cyruntime.cudaGraphNode_t* cyfrom_ = NULL
     pyfrom_ = []
     if _graph_length != 0:
@@ -32066,13 +31982,12 @@ def cudaGraphGetEdges_v2(graph, size_t numEdges = 0):
     cdef size_t _graph_length = numEdges
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cyruntime.cudaGraphNode_t* cyfrom_ = NULL
     pyfrom_ = []
     if _graph_length != 0:
@@ -32144,13 +32059,12 @@ def cudaGraphNodeGetDependencies(node, size_t pNumDependencies = 0):
     cdef size_t _graph_length = pNumDependencies
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     pypDependencies = []
     if _graph_length != 0:
@@ -32209,13 +32123,12 @@ def cudaGraphNodeGetDependencies_v2(node, size_t pNumDependencies = 0):
     cdef size_t _graph_length = pNumDependencies
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     pypDependencies = []
     if _graph_length != 0:
@@ -32277,13 +32190,12 @@ def cudaGraphNodeGetDependentNodes(node, size_t pNumDependentNodes = 0):
     cdef size_t _graph_length = pNumDependentNodes
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphNode_t* cypDependentNodes = NULL
     pypDependentNodes = []
     if _graph_length != 0:
@@ -32342,13 +32254,12 @@ def cudaGraphNodeGetDependentNodes_v2(node, size_t pNumDependentNodes = 0):
     cdef size_t _graph_length = pNumDependentNodes
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphNode_t* cypDependentNodes = NULL
     pypDependentNodes = []
     if _graph_length != 0:
@@ -32414,13 +32325,12 @@ def cudaGraphAddDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] | Li
         raise TypeError("Argument 'from_' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cyruntime.cudaGraphNode_t* cyfrom_ = NULL
     if len(from_) > 0:
         cyfrom_ = <cyruntime.cudaGraphNode_t*> calloc(len(from_), sizeof(cyruntime.cudaGraphNode_t))
@@ -32494,13 +32404,12 @@ def cudaGraphAddDependencies_v2(graph, from_ : Optional[Tuple[cudaGraphNode_t] |
         raise TypeError("Argument 'from_' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cyruntime.cudaGraphNode_t* cyfrom_ = NULL
     if len(from_) > 0:
         cyfrom_ = <cyruntime.cudaGraphNode_t*> calloc(len(from_), sizeof(cyruntime.cudaGraphNode_t))
@@ -32576,13 +32485,12 @@ def cudaGraphRemoveDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] |
         raise TypeError("Argument 'from_' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cyruntime.cudaGraphNode_t* cyfrom_ = NULL
     if len(from_) > 0:
         cyfrom_ = <cyruntime.cudaGraphNode_t*> calloc(len(from_), sizeof(cyruntime.cudaGraphNode_t))
@@ -32659,13 +32567,12 @@ def cudaGraphRemoveDependencies_v2(graph, from_ : Optional[Tuple[cudaGraphNode_t
         raise TypeError("Argument 'from_' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cyruntime.cudaGraphNode_t* cyfrom_ = NULL
     if len(from_) > 0:
         cyfrom_ = <cyruntime.cudaGraphNode_t*> calloc(len(from_), sizeof(cyruntime.cudaGraphNode_t))
@@ -32727,13 +32634,12 @@ def cudaGraphDestroyNode(node):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     err = cyruntime.cudaGraphDestroyNode(cynode)
     return (cudaError_t(err),)
 {{endif}}
@@ -32828,13 +32734,12 @@ def cudaGraphInstantiate(graph, unsigned long long flags):
     """
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphExec_t pGraphExec = cudaGraphExec_t()
     err = cyruntime.cudaGraphInstantiate(<cyruntime.cudaGraphExec_t*>pGraphExec._pvt_ptr, cygraph, flags)
     return (cudaError_t(err), pGraphExec)
@@ -32932,13 +32837,12 @@ def cudaGraphInstantiateWithFlags(graph, unsigned long long flags):
     """
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphExec_t pGraphExec = cudaGraphExec_t()
     err = cyruntime.cudaGraphInstantiateWithFlags(<cyruntime.cudaGraphExec_t*>pGraphExec._pvt_ptr, cygraph, flags)
     return (cudaError_t(err), pGraphExec)
@@ -33076,13 +32980,12 @@ def cudaGraphInstantiateWithParams(graph, instantiateParams : Optional[cudaGraph
     """
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphExec_t pGraphExec = cudaGraphExec_t()
     cdef cyruntime.cudaGraphInstantiateParams* cyinstantiateParams_ptr = instantiateParams._pvt_ptr if instantiateParams != None else NULL
     err = cyruntime.cudaGraphInstantiateWithParams(<cyruntime.cudaGraphExec_t*>pGraphExec._pvt_ptr, cygraph, cyinstantiateParams_ptr)
@@ -33118,13 +33021,12 @@ def cudaGraphExecGetFlags(graphExec):
     """
     cdef cyruntime.cudaGraphExec_t cygraphExec
     if graphExec is None:
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        pgraphExec = 0
     elif isinstance(graphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         pgraphExec = int(graphExec)
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     else:
         pgraphExec = int(cudaGraphExec_t(graphExec))
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
+    cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     cdef unsigned long long flags = 0
     err = cyruntime.cudaGraphExecGetFlags(cygraphExec, &flags)
     return (cudaError_t(err), flags)
@@ -33192,22 +33094,20 @@ def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     err = cyruntime.cudaGraphExecKernelNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (cudaError_t(err),)
@@ -33258,22 +33158,20 @@ def cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     cdef cyruntime.cudaMemcpy3DParms* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     err = cyruntime.cudaGraphExecMemcpyNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (cudaError_t(err),)
@@ -33328,22 +33226,20 @@ def cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, size_t count,
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     cydst = utils.HelperInputVoidPtr(dst)
     cdef void* cydst_ptr = <void*><void_ptr>cydst.cptr
     cysrc = utils.HelperInputVoidPtr(src)
@@ -33403,22 +33299,20 @@ def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     cdef cyruntime.cudaMemsetParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     err = cyruntime.cudaGraphExecMemsetNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (cudaError_t(err),)
@@ -33459,22 +33353,20 @@ def cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams : Optional[cuda
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     err = cyruntime.cudaGraphExecHostNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (cudaError_t(err),)
@@ -33523,31 +33415,28 @@ def cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph):
     """
     cdef cyruntime.cudaGraph_t cychildGraph
     if childGraph is None:
-        cychildGraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pchildGraph = 0
     elif isinstance(childGraph, (cudaGraph_t,driver.CUgraph)):
         pchildGraph = int(childGraph)
-        cychildGraph = <cyruntime.cudaGraph_t><void_ptr>pchildGraph
     else:
         pchildGraph = int(cudaGraph_t(childGraph))
-        cychildGraph = <cyruntime.cudaGraph_t><void_ptr>pchildGraph
+    cychildGraph = <cyruntime.cudaGraph_t><void_ptr>pchildGraph
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     err = cyruntime.cudaGraphExecChildGraphNodeSetParams(cyhGraphExec, cynode, cychildGraph)
     return (cudaError_t(err),)
 {{endif}}
@@ -33588,31 +33477,28 @@ def cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event):
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     err = cyruntime.cudaGraphExecEventRecordNodeSetEvent(cyhGraphExec, cyhNode, cyevent)
     return (cudaError_t(err),)
 {{endif}}
@@ -33653,31 +33539,28 @@ def cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
     """
     cdef cyruntime.cudaEvent_t cyevent
     if event is None:
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>0
+        pevent = 0
     elif isinstance(event, (cudaEvent_t,driver.CUevent)):
         pevent = int(event)
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     else:
         pevent = int(cudaEvent_t(event))
-        cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     err = cyruntime.cudaGraphExecEventWaitNodeSetEvent(cyhGraphExec, cyhNode, cyevent)
     return (cudaError_t(err),)
 {{endif}}
@@ -33722,22 +33605,20 @@ def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePa
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     err = cyruntime.cudaGraphExecExternalSemaphoresSignalNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (cudaError_t(err),)
@@ -33783,22 +33664,20 @@ def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodePara
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     err = cyruntime.cudaGraphExecExternalSemaphoresWaitNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (cudaError_t(err),)
@@ -33848,22 +33727,20 @@ def cudaGraphNodeSetEnabled(hGraphExec, hNode, unsigned int isEnabled):
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     err = cyruntime.cudaGraphNodeSetEnabled(cyhGraphExec, cyhNode, isEnabled)
     return (cudaError_t(err),)
 {{endif}}
@@ -33905,22 +33782,20 @@ def cudaGraphNodeGetEnabled(hGraphExec, hNode):
     """
     cdef cyruntime.cudaGraphNode_t cyhNode
     if hNode is None:
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        phNode = 0
     elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
         phNode = int(hNode)
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     else:
         phNode = int(cudaGraphNode_t(hNode))
-        cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     cdef unsigned int isEnabled = 0
     err = cyruntime.cudaGraphNodeGetEnabled(cyhGraphExec, cyhNode, &isEnabled)
     return (cudaError_t(err), isEnabled)
@@ -34080,22 +33955,20 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
     """
     cdef cyruntime.cudaGraph_t cyhGraph
     if hGraph is None:
-        cyhGraph = <cyruntime.cudaGraph_t><void_ptr>0
+        phGraph = 0
     elif isinstance(hGraph, (cudaGraph_t,driver.CUgraph)):
         phGraph = int(hGraph)
-        cyhGraph = <cyruntime.cudaGraph_t><void_ptr>phGraph
     else:
         phGraph = int(cudaGraph_t(hGraph))
-        cyhGraph = <cyruntime.cudaGraph_t><void_ptr>phGraph
+    cyhGraph = <cyruntime.cudaGraph_t><void_ptr>phGraph
     cdef cyruntime.cudaGraphExec_t cyhGraphExec
     if hGraphExec is None:
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        phGraphExec = 0
     elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         phGraphExec = int(hGraphExec)
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
-        cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
     cdef cudaGraphExecUpdateResultInfo resultInfo = cudaGraphExecUpdateResultInfo()
     err = cyruntime.cudaGraphExecUpdate(cyhGraphExec, cyhGraph, <cyruntime.cudaGraphExecUpdateResultInfo*>resultInfo._pvt_ptr)
     return (cudaError_t(err), resultInfo)
@@ -34131,22 +34004,20 @@ def cudaGraphUpload(graphExec, stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaGraphExec_t cygraphExec
     if graphExec is None:
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        pgraphExec = 0
     elif isinstance(graphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         pgraphExec = int(graphExec)
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     else:
         pgraphExec = int(cudaGraphExec_t(graphExec))
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
+    cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     err = cyruntime.cudaGraphUpload(cygraphExec, cystream)
     return (cudaError_t(err),)
 {{endif}}
@@ -34186,22 +34057,20 @@ def cudaGraphLaunch(graphExec, stream):
     """
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
-        cystream = <cyruntime.cudaStream_t><void_ptr>0
+        pstream = 0
     elif isinstance(stream, (cudaStream_t,driver.CUstream)):
         pstream = int(stream)
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     else:
         pstream = int(cudaStream_t(stream))
-        cystream = <cyruntime.cudaStream_t><void_ptr>pstream
+    cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     cdef cyruntime.cudaGraphExec_t cygraphExec
     if graphExec is None:
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        pgraphExec = 0
     elif isinstance(graphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         pgraphExec = int(graphExec)
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     else:
         pgraphExec = int(cudaGraphExec_t(graphExec))
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
+    cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     err = cyruntime.cudaGraphLaunch(cygraphExec, cystream)
     return (cudaError_t(err),)
 {{endif}}
@@ -34230,13 +34099,12 @@ def cudaGraphExecDestroy(graphExec):
     """
     cdef cyruntime.cudaGraphExec_t cygraphExec
     if graphExec is None:
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        pgraphExec = 0
     elif isinstance(graphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         pgraphExec = int(graphExec)
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     else:
         pgraphExec = int(cudaGraphExec_t(graphExec))
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
+    cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     err = cyruntime.cudaGraphExecDestroy(cygraphExec)
     return (cudaError_t(err),)
 {{endif}}
@@ -34265,13 +34133,12 @@ def cudaGraphDestroy(graph):
     """
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     err = cyruntime.cudaGraphDestroy(cygraph)
     return (cudaError_t(err),)
 {{endif}}
@@ -34305,13 +34172,12 @@ def cudaGraphDebugDotPrint(graph, char* path, unsigned int flags):
     """
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     err = cyruntime.cudaGraphDebugDotPrint(cygraph, path, flags)
     return (cudaError_t(err),)
 {{endif}}
@@ -34362,13 +34228,12 @@ def cudaUserObjectCreate(ptr, destroy, unsigned int initialRefcount, unsigned in
     """
     cdef cyruntime.cudaHostFn_t cydestroy
     if destroy is None:
-        cydestroy = <cyruntime.cudaHostFn_t><void_ptr>0
+        pdestroy = 0
     elif isinstance(destroy, (cudaHostFn_t,)):
         pdestroy = int(destroy)
-        cydestroy = <cyruntime.cudaHostFn_t><void_ptr>pdestroy
     else:
         pdestroy = int(cudaHostFn_t(destroy))
-        cydestroy = <cyruntime.cudaHostFn_t><void_ptr>pdestroy
+    cydestroy = <cyruntime.cudaHostFn_t><void_ptr>pdestroy
     cdef cudaUserObject_t object_out = cudaUserObject_t()
     cyptr = utils.HelperInputVoidPtr(ptr)
     cdef void* cyptr_ptr = <void*><void_ptr>cyptr.cptr
@@ -34407,13 +34272,12 @@ def cudaUserObjectRetain(object, unsigned int count):
     """
     cdef cyruntime.cudaUserObject_t cyobject
     if object is None:
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>0
+        pobject = 0
     elif isinstance(object, (cudaUserObject_t,driver.CUuserObject)):
         pobject = int(object)
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
     else:
         pobject = int(cudaUserObject_t(object))
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
+    cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
     err = cyruntime.cudaUserObjectRetain(cyobject, count)
     return (cudaError_t(err),)
 {{endif}}
@@ -34452,13 +34316,12 @@ def cudaUserObjectRelease(object, unsigned int count):
     """
     cdef cyruntime.cudaUserObject_t cyobject
     if object is None:
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>0
+        pobject = 0
     elif isinstance(object, (cudaUserObject_t,driver.CUuserObject)):
         pobject = int(object)
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
     else:
         pobject = int(cudaUserObject_t(object))
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
+    cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
     err = cyruntime.cudaUserObjectRelease(cyobject, count)
     return (cudaError_t(err),)
 {{endif}}
@@ -34500,22 +34363,20 @@ def cudaGraphRetainUserObject(graph, object, unsigned int count, unsigned int fl
     """
     cdef cyruntime.cudaUserObject_t cyobject
     if object is None:
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>0
+        pobject = 0
     elif isinstance(object, (cudaUserObject_t,driver.CUuserObject)):
         pobject = int(object)
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
     else:
         pobject = int(cudaUserObject_t(object))
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
+    cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     err = cyruntime.cudaGraphRetainUserObject(cygraph, cyobject, count, flags)
     return (cudaError_t(err),)
 {{endif}}
@@ -34552,22 +34413,20 @@ def cudaGraphReleaseUserObject(graph, object, unsigned int count):
     """
     cdef cyruntime.cudaUserObject_t cyobject
     if object is None:
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>0
+        pobject = 0
     elif isinstance(object, (cudaUserObject_t,driver.CUuserObject)):
         pobject = int(object)
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
     else:
         pobject = int(cudaUserObject_t(object))
-        cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
+    cyobject = <cyruntime.cudaUserObject_t><void_ptr>pobject
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     err = cyruntime.cudaGraphReleaseUserObject(cygraph, cyobject, count)
     return (cudaError_t(err),)
 {{endif}}
@@ -34624,13 +34483,12 @@ def cudaGraphAddNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | Li
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -34706,13 +34564,12 @@ def cudaGraphAddNode_v2(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] |
         raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphNode_t pGraphNode = cudaGraphNode_t()
     cdef cyruntime.cudaGraphNode_t* cypDependencies = NULL
     if len(pDependencies) > 0:
@@ -34772,13 +34629,12 @@ def cudaGraphNodeSetParams(node, nodeParams : Optional[cudaGraphNodeParams]):
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     err = cyruntime.cudaGraphNodeSetParams(cynode, cynodeParams_ptr)
     return (cudaError_t(err),)
@@ -34824,22 +34680,20 @@ def cudaGraphExecNodeSetParams(graphExec, node, nodeParams : Optional[cudaGraphN
     """
     cdef cyruntime.cudaGraphNode_t cynode
     if node is None:
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>0
+        pnode = 0
     elif isinstance(node, (cudaGraphNode_t,driver.CUgraphNode)):
         pnode = int(node)
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     else:
         pnode = int(cudaGraphNode_t(node))
-        cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
+    cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
     cdef cyruntime.cudaGraphExec_t cygraphExec
     if graphExec is None:
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>0
+        pgraphExec = 0
     elif isinstance(graphExec, (cudaGraphExec_t,driver.CUgraphExec)):
         pgraphExec = int(graphExec)
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     else:
         pgraphExec = int(cudaGraphExec_t(graphExec))
-        cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
+    cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
     cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     err = cyruntime.cudaGraphExecNodeSetParams(cygraphExec, cynode, cynodeParams_ptr)
     return (cudaError_t(err),)
@@ -34883,13 +34737,12 @@ def cudaGraphConditionalHandleCreate(graph, unsigned int defaultLaunchValue, uns
     """
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>0
+        pgraph = 0
     elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
         pgraph = int(graph)
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     else:
         pgraph = int(cudaGraph_t(graph))
-        cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphConditionalHandle pHandle_out = cudaGraphConditionalHandle()
     err = cyruntime.cudaGraphConditionalHandleCreate(<cyruntime.cudaGraphConditionalHandle*>pHandle_out._pvt_ptr, cygraph, defaultLaunchValue, flags)
     return (cudaError_t(err), pHandle_out)
@@ -35303,13 +35156,12 @@ def cudaLibraryUnload(library):
     """
     cdef cyruntime.cudaLibrary_t cylibrary
     if library is None:
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>0
+        plibrary = 0
     elif isinstance(library, (cudaLibrary_t,)):
         plibrary = int(library)
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     else:
         plibrary = int(cudaLibrary_t(library))
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
+    cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     err = cyruntime.cudaLibraryUnload(cylibrary)
     return (cudaError_t(err),)
 {{endif}}
@@ -35344,13 +35196,12 @@ def cudaLibraryGetKernel(library, char* name):
     """
     cdef cyruntime.cudaLibrary_t cylibrary
     if library is None:
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>0
+        plibrary = 0
     elif isinstance(library, (cudaLibrary_t,)):
         plibrary = int(library)
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     else:
         plibrary = int(cudaLibrary_t(library))
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
+    cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     cdef cudaKernel_t pKernel = cudaKernel_t()
     err = cyruntime.cudaLibraryGetKernel(<cyruntime.cudaKernel_t*>pKernel._pvt_ptr, cylibrary, name)
     return (cudaError_t(err), pKernel)
@@ -35393,13 +35244,12 @@ def cudaLibraryGetGlobal(library, char* name):
     """
     cdef cyruntime.cudaLibrary_t cylibrary
     if library is None:
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>0
+        plibrary = 0
     elif isinstance(library, (cudaLibrary_t,)):
         plibrary = int(library)
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     else:
         plibrary = int(cudaLibrary_t(library))
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
+    cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     cdef void_ptr dptr = 0
     cdef size_t numbytes = 0
     err = cyruntime.cudaLibraryGetGlobal(<void**>&dptr, &numbytes, cylibrary, name)
@@ -35445,13 +35295,12 @@ def cudaLibraryGetManaged(library, char* name):
     """
     cdef cyruntime.cudaLibrary_t cylibrary
     if library is None:
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>0
+        plibrary = 0
     elif isinstance(library, (cudaLibrary_t,)):
         plibrary = int(library)
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     else:
         plibrary = int(cudaLibrary_t(library))
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
+    cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     cdef void_ptr dptr = 0
     cdef size_t numbytes = 0
     err = cyruntime.cudaLibraryGetManaged(<void**>&dptr, &numbytes, cylibrary, name)
@@ -35490,13 +35339,12 @@ def cudaLibraryGetUnifiedFunction(library, char* symbol):
     """
     cdef cyruntime.cudaLibrary_t cylibrary
     if library is None:
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>0
+        plibrary = 0
     elif isinstance(library, (cudaLibrary_t,)):
         plibrary = int(library)
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     else:
         plibrary = int(cudaLibrary_t(library))
-        cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
+    cylibrary = <cyruntime.cudaLibrary_t><void_ptr>plibrary
     cdef void_ptr fptr = 0
     err = cyruntime.cudaLibraryGetUnifiedFunction(<void**>&fptr, cylibrary, symbol)
     return (cudaError_t(err), fptr)
@@ -35528,13 +35376,12 @@ def cudaLibraryGetKernelCount(lib):
     """
     cdef cyruntime.cudaLibrary_t cylib
     if lib is None:
-        cylib = <cyruntime.cudaLibrary_t><void_ptr>0
+        plib = 0
     elif isinstance(lib, (cudaLibrary_t,)):
         plib = int(lib)
-        cylib = <cyruntime.cudaLibrary_t><void_ptr>plib
     else:
         plib = int(cudaLibrary_t(lib))
-        cylib = <cyruntime.cudaLibrary_t><void_ptr>plib
+    cylib = <cyruntime.cudaLibrary_t><void_ptr>plib
     cdef unsigned int count = 0
     err = cyruntime.cudaLibraryGetKernelCount(&count, cylib)
     return (cudaError_t(err), count)
@@ -35570,13 +35417,12 @@ def cudaLibraryEnumerateKernels(unsigned int numKernels, lib):
     """
     cdef cyruntime.cudaLibrary_t cylib
     if lib is None:
-        cylib = <cyruntime.cudaLibrary_t><void_ptr>0
+        plib = 0
     elif isinstance(lib, (cudaLibrary_t,)):
         plib = int(lib)
-        cylib = <cyruntime.cudaLibrary_t><void_ptr>plib
     else:
         plib = int(cudaLibrary_t(lib))
-        cylib = <cyruntime.cudaLibrary_t><void_ptr>plib
+    cylib = <cyruntime.cudaLibrary_t><void_ptr>plib
     cdef cyruntime.cudaKernel_t* cykernels = NULL
     pykernels = []
     if numKernels != 0:
@@ -35685,13 +35531,12 @@ def cudaKernelSetAttributeForDevice(kernel, attr not None : cudaFuncAttribute, i
     """
     cdef cyruntime.cudaKernel_t cykernel
     if kernel is None:
-        cykernel = <cyruntime.cudaKernel_t><void_ptr>0
+        pkernel = 0
     elif isinstance(kernel, (cudaKernel_t,)):
         pkernel = int(kernel)
-        cykernel = <cyruntime.cudaKernel_t><void_ptr>pkernel
     else:
         pkernel = int(cudaKernel_t(kernel))
-        cykernel = <cyruntime.cudaKernel_t><void_ptr>pkernel
+    cykernel = <cyruntime.cudaKernel_t><void_ptr>pkernel
     cdef cyruntime.cudaFuncAttribute cyattr = attr.value
     err = cyruntime.cudaKernelSetAttributeForDevice(cykernel, cyattr, value, device)
     return (cudaError_t(err),)
@@ -35921,13 +35766,12 @@ def cudaGraphicsEGLRegisterImage(image, unsigned int flags):
     """
     cdef cyruntime.EGLImageKHR cyimage
     if image is None:
-        cyimage = <cyruntime.EGLImageKHR><void_ptr>0
+        pimage = 0
     elif isinstance(image, (EGLImageKHR,)):
         pimage = int(image)
-        cyimage = <cyruntime.EGLImageKHR><void_ptr>pimage
     else:
         pimage = int(EGLImageKHR(image))
-        cyimage = <cyruntime.EGLImageKHR><void_ptr>pimage
+    cyimage = <cyruntime.EGLImageKHR><void_ptr>pimage
     cdef cudaGraphicsResource_t pCudaResource = cudaGraphicsResource_t()
     err = cyruntime.cudaGraphicsEGLRegisterImage(pCudaResource._pvt_ptr, cyimage, flags)
     return (cudaError_t(err), pCudaResource)
@@ -35962,13 +35806,12 @@ def cudaEGLStreamConsumerConnect(eglStream):
     """
     cdef cyruntime.EGLStreamKHR cyeglStream
     if eglStream is None:
-        cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>0
+        peglStream = 0
     elif isinstance(eglStream, (EGLStreamKHR,)):
         peglStream = int(eglStream)
-        cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>peglStream
     else:
         peglStream = int(EGLStreamKHR(eglStream))
-        cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>peglStream
+    cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>peglStream
     cdef cudaEglStreamConnection conn = cudaEglStreamConnection()
     err = cyruntime.cudaEGLStreamConsumerConnect(<cyruntime.cudaEglStreamConnection*>conn._pvt_ptr, cyeglStream)
     return (cudaError_t(err), conn)
@@ -36007,13 +35850,12 @@ def cudaEGLStreamConsumerConnectWithFlags(eglStream, unsigned int flags):
     """
     cdef cyruntime.EGLStreamKHR cyeglStream
     if eglStream is None:
-        cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>0
+        peglStream = 0
     elif isinstance(eglStream, (EGLStreamKHR,)):
         peglStream = int(eglStream)
-        cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>peglStream
     else:
         peglStream = int(EGLStreamKHR(eglStream))
-        cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>peglStream
+    cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>peglStream
     cdef cudaEglStreamConnection conn = cudaEglStreamConnection()
     err = cyruntime.cudaEGLStreamConsumerConnectWithFlags(<cyruntime.cudaEglStreamConnection*>conn._pvt_ptr, cyeglStream, flags)
     return (cudaError_t(err), conn)
@@ -36159,13 +36001,12 @@ def cudaEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream):
         raise TypeError("Argument 'pStream' is not instance of type (expected <class 'int, runtime.cudaStream_t'>, found " + str(type(pStream)))
     cdef cyruntime.cudaGraphicsResource_t cypCudaResource
     if pCudaResource is None:
-        cypCudaResource = <cyruntime.cudaGraphicsResource_t><void_ptr>0
+        ppCudaResource = 0
     elif isinstance(pCudaResource, (cudaGraphicsResource_t,)):
         ppCudaResource = int(pCudaResource)
-        cypCudaResource = <cyruntime.cudaGraphicsResource_t><void_ptr>ppCudaResource
     else:
         ppCudaResource = int(cudaGraphicsResource_t(pCudaResource))
-        cypCudaResource = <cyruntime.cudaGraphicsResource_t><void_ptr>ppCudaResource
+    cypCudaResource = <cyruntime.cudaGraphicsResource_t><void_ptr>ppCudaResource
     cdef cyruntime.cudaEglStreamConnection *cyconn
     if conn is None:
         cyconn = <cyruntime.cudaEglStreamConnection*><void_ptr>NULL
@@ -36213,31 +36054,28 @@ def cudaEGLStreamProducerConnect(eglStream, width, height):
     """
     cdef cyruntime.EGLint cyheight
     if height is None:
-        cyheight = <cyruntime.EGLint><void_ptr>0
+        pheight = 0
     elif isinstance(height, (EGLint,)):
         pheight = int(height)
-        cyheight = <cyruntime.EGLint><void_ptr>pheight
     else:
         pheight = int(EGLint(height))
-        cyheight = <cyruntime.EGLint><void_ptr>pheight
+    cyheight = <cyruntime.EGLint><void_ptr>pheight
     cdef cyruntime.EGLint cywidth
     if width is None:
-        cywidth = <cyruntime.EGLint><void_ptr>0
+        pwidth = 0
     elif isinstance(width, (EGLint,)):
         pwidth = int(width)
-        cywidth = <cyruntime.EGLint><void_ptr>pwidth
     else:
         pwidth = int(EGLint(width))
-        cywidth = <cyruntime.EGLint><void_ptr>pwidth
+    cywidth = <cyruntime.EGLint><void_ptr>pwidth
     cdef cyruntime.EGLStreamKHR cyeglStream
     if eglStream is None:
-        cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>0
+        peglStream = 0
     elif isinstance(eglStream, (EGLStreamKHR,)):
         peglStream = int(eglStream)
-        cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>peglStream
     else:
         peglStream = int(EGLStreamKHR(eglStream))
-        cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>peglStream
+    cyeglStream = <cyruntime.EGLStreamKHR><void_ptr>peglStream
     cdef cudaEglStreamConnection conn = cudaEglStreamConnection()
     err = cyruntime.cudaEGLStreamProducerConnect(<cyruntime.cudaEglStreamConnection*>conn._pvt_ptr, cyeglStream, cywidth, cyheight)
     return (cudaError_t(err), conn)
@@ -36432,13 +36270,12 @@ def cudaGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned
     """
     cdef cyruntime.cudaGraphicsResource_t cyresource
     if resource is None:
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>0
+        presource = 0
     elif isinstance(resource, (cudaGraphicsResource_t,)):
         presource = int(resource)
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     else:
         presource = int(cudaGraphicsResource_t(resource))
-        cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
+    cyresource = <cyruntime.cudaGraphicsResource_t><void_ptr>presource
     cdef cudaEglFrame eglFrame = cudaEglFrame()
     err = cyruntime.cudaGraphicsResourceGetMappedEglFrame(<cyruntime.cudaEglFrame*>eglFrame._pvt_ptr, cyresource, index, mipLevel)
     return (cudaError_t(err), eglFrame)
@@ -36486,13 +36323,12 @@ def cudaEventCreateFromEGLSync(eglSync, unsigned int flags):
     """
     cdef cyruntime.EGLSyncKHR cyeglSync
     if eglSync is None:
-        cyeglSync = <cyruntime.EGLSyncKHR><void_ptr>0
+        peglSync = 0
     elif isinstance(eglSync, (EGLSyncKHR,)):
         peglSync = int(eglSync)
-        cyeglSync = <cyruntime.EGLSyncKHR><void_ptr>peglSync
     else:
         peglSync = int(EGLSyncKHR(eglSync))
-        cyeglSync = <cyruntime.EGLSyncKHR><void_ptr>peglSync
+    cyeglSync = <cyruntime.EGLSyncKHR><void_ptr>peglSync
     cdef cudaEvent_t phEvent = cudaEvent_t()
     err = cyruntime.cudaEventCreateFromEGLSync(<cyruntime.cudaEvent_t*>phEvent._pvt_ptr, cyeglSync, flags)
     return (cudaError_t(err), phEvent)
@@ -36695,22 +36531,20 @@ def cudaGraphicsGLRegisterImage(image, target, unsigned int flags):
     """
     cdef cyruntime.GLenum cytarget
     if target is None:
-        cytarget = <cyruntime.GLenum><void_ptr>0
+        ptarget = 0
     elif isinstance(target, (GLenum,)):
         ptarget = int(target)
-        cytarget = <cyruntime.GLenum><void_ptr>ptarget
     else:
         ptarget = int(GLenum(target))
-        cytarget = <cyruntime.GLenum><void_ptr>ptarget
+    cytarget = <cyruntime.GLenum><void_ptr>ptarget
     cdef cyruntime.GLuint cyimage
     if image is None:
-        cyimage = <cyruntime.GLuint><void_ptr>0
+        pimage = 0
     elif isinstance(image, (GLuint,)):
         pimage = int(image)
-        cyimage = <cyruntime.GLuint><void_ptr>pimage
     else:
         pimage = int(GLuint(image))
-        cyimage = <cyruntime.GLuint><void_ptr>pimage
+    cyimage = <cyruntime.GLuint><void_ptr>pimage
     cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
     err = cyruntime.cudaGraphicsGLRegisterImage(resource._pvt_ptr, cyimage, cytarget, flags)
     return (cudaError_t(err), resource)
@@ -36759,13 +36593,12 @@ def cudaGraphicsGLRegisterBuffer(buffer, unsigned int flags):
     """
     cdef cyruntime.GLuint cybuffer
     if buffer is None:
-        cybuffer = <cyruntime.GLuint><void_ptr>0
+        pbuffer = 0
     elif isinstance(buffer, (GLuint,)):
         pbuffer = int(buffer)
-        cybuffer = <cyruntime.GLuint><void_ptr>pbuffer
     else:
         pbuffer = int(GLuint(buffer))
-        cybuffer = <cyruntime.GLuint><void_ptr>pbuffer
+    cybuffer = <cyruntime.GLuint><void_ptr>pbuffer
     cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
     err = cyruntime.cudaGraphicsGLRegisterBuffer(resource._pvt_ptr, cybuffer, flags)
     return (cudaError_t(err), resource)
@@ -36810,13 +36643,12 @@ def cudaVDPAUGetDevice(vdpDevice, vdpGetProcAddress):
         raise TypeError("Argument 'vdpGetProcAddress' is not instance of type (expected <class 'int, runtime.VdpGetProcAddress'>, found " + str(type(vdpGetProcAddress)))
     cdef cyruntime.VdpDevice cyvdpDevice
     if vdpDevice is None:
-        cyvdpDevice = <cyruntime.VdpDevice><void_ptr>0
+        pvdpDevice = 0
     elif isinstance(vdpDevice, (VdpDevice,)):
         pvdpDevice = int(vdpDevice)
-        cyvdpDevice = <cyruntime.VdpDevice><void_ptr>pvdpDevice
     else:
         pvdpDevice = int(VdpDevice(vdpDevice))
-        cyvdpDevice = <cyruntime.VdpDevice><void_ptr>pvdpDevice
+    cyvdpDevice = <cyruntime.VdpDevice><void_ptr>pvdpDevice
     cdef int device = 0
     err = cyruntime.cudaVDPAUGetDevice(&device, cyvdpDevice, cyvdpGetProcAddress)
     return (cudaError_t(err), device)
@@ -36870,13 +36702,12 @@ def cudaVDPAUSetVDPAUDevice(int device, vdpDevice, vdpGetProcAddress):
         raise TypeError("Argument 'vdpGetProcAddress' is not instance of type (expected <class 'int, runtime.VdpGetProcAddress'>, found " + str(type(vdpGetProcAddress)))
     cdef cyruntime.VdpDevice cyvdpDevice
     if vdpDevice is None:
-        cyvdpDevice = <cyruntime.VdpDevice><void_ptr>0
+        pvdpDevice = 0
     elif isinstance(vdpDevice, (VdpDevice,)):
         pvdpDevice = int(vdpDevice)
-        cyvdpDevice = <cyruntime.VdpDevice><void_ptr>pvdpDevice
     else:
         pvdpDevice = int(VdpDevice(vdpDevice))
-        cyvdpDevice = <cyruntime.VdpDevice><void_ptr>pvdpDevice
+    cyvdpDevice = <cyruntime.VdpDevice><void_ptr>pvdpDevice
     err = cyruntime.cudaVDPAUSetVDPAUDevice(device, cyvdpDevice, cyvdpGetProcAddress)
     return (cudaError_t(err),)
 {{endif}}
@@ -36924,13 +36755,12 @@ def cudaGraphicsVDPAURegisterVideoSurface(vdpSurface, unsigned int flags):
     """
     cdef cyruntime.VdpVideoSurface cyvdpSurface
     if vdpSurface is None:
-        cyvdpSurface = <cyruntime.VdpVideoSurface><void_ptr>0
+        pvdpSurface = 0
     elif isinstance(vdpSurface, (VdpVideoSurface,)):
         pvdpSurface = int(vdpSurface)
-        cyvdpSurface = <cyruntime.VdpVideoSurface><void_ptr>pvdpSurface
     else:
         pvdpSurface = int(VdpVideoSurface(vdpSurface))
-        cyvdpSurface = <cyruntime.VdpVideoSurface><void_ptr>pvdpSurface
+    cyvdpSurface = <cyruntime.VdpVideoSurface><void_ptr>pvdpSurface
     cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
     err = cyruntime.cudaGraphicsVDPAURegisterVideoSurface(resource._pvt_ptr, cyvdpSurface, flags)
     return (cudaError_t(err), resource)
@@ -36979,13 +36809,12 @@ def cudaGraphicsVDPAURegisterOutputSurface(vdpSurface, unsigned int flags):
     """
     cdef cyruntime.VdpOutputSurface cyvdpSurface
     if vdpSurface is None:
-        cyvdpSurface = <cyruntime.VdpOutputSurface><void_ptr>0
+        pvdpSurface = 0
     elif isinstance(vdpSurface, (VdpOutputSurface,)):
         pvdpSurface = int(vdpSurface)
-        cyvdpSurface = <cyruntime.VdpOutputSurface><void_ptr>pvdpSurface
     else:
         pvdpSurface = int(VdpOutputSurface(vdpSurface))
-        cyvdpSurface = <cyruntime.VdpOutputSurface><void_ptr>pvdpSurface
+    cyvdpSurface = <cyruntime.VdpOutputSurface><void_ptr>pvdpSurface
     cdef cudaGraphicsResource_t resource = cudaGraphicsResource_t()
     err = cyruntime.cudaGraphicsVDPAURegisterOutputSurface(resource._pvt_ptr, cyvdpSurface, flags)
     return (cudaError_t(err), resource)
@@ -37021,6 +36850,17 @@ def getLocalRuntimeVersion():
     cdef int runtimeVersion = 0
     err = cyruntime.getLocalRuntimeVersion(&runtimeVersion)
     return (cudaError_t(err), runtimeVersion)
+
+
+cdef class cudaBindingsRuntimeGlobal:
+    cdef map[void_ptr, void*] _allocated
+
+    def __dealloc__(self):
+        for item in self._allocated:
+            free(item.second)
+        self._allocated.clear()
+
+cdef cudaBindingsRuntimeGlobal m_global = cudaBindingsRuntimeGlobal()
 
 
 @cython.embedsignature(True)
