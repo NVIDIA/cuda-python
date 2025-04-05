@@ -44,13 +44,17 @@ $ conda install -c conda-forge cuda-python
 ### Requirements
 
 * CUDA Toolkit headers[^1]
+* static CUDA runtime[^2]
 
 [^1]: User projects that `cimport` CUDA symbols in Cython must also use CUDA Toolkit (CTK) types as provided by the `cuda.bindings` major.minor version. This results in CTK headers becoming a transitive dependency of downstream projects through CUDA Python.
+
+[^2]: The static CUDA runtime (`libcudart_static.a` on Linux, `cudart_static.lib` on Windows) is part of CUDA Toolkit. If CUDA is installed from conda, it is contained in the `cuda-cudart-static` package.
 
 Source builds require that the provided CUDA headers are of the same major.minor version as the `cuda.bindings` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the `CUDA_HOME` (or `CUDA_PATH`) environment variable to specify the location of your headers. For example, if your headers are located in `/usr/local/cuda/include`, then you should set `CUDA_HOME` with:
 
 ```console
 $ export CUDA_HOME=/usr/local/cuda
+$ export LIBRARY_PATH=$CUDA_HOME/lib64:$LIBRARY_PATH
 ```
 
 See [Environment Variables](environment_variables.md) for a description of other build-time environment variables.
