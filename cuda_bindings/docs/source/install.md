@@ -4,8 +4,10 @@
 
 `cuda.bindings` supports the same platforms as CUDA. Runtime dependencies are:
 
+* Linux (x86-64, arm64) and Windows (x86-64)
 * Driver: Linux (450.80.02 or later) Windows (456.38 or later)
 * CUDA Toolkit 12.x
+* Python 3.9 - 3.13
 
 ```{note}
 Only the NVRTC and nvJitLink redistributable components are required from the CUDA Toolkit, which can be obtained via PyPI, Conda, or local installers (as described in the CUDA Toolkit [Windows](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and [Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html) Installation Guides).
