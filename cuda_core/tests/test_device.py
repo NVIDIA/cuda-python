@@ -13,8 +13,14 @@ except ImportError:
     from cuda import cudart as runtime
 import pytest
 
+import cuda.core.experimental
 from cuda.core.experimental import Device
-from cuda.core.experimental._utils import ComputeCapability, get_binding_version, handle_return
+from cuda.core.experimental._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
+
+
+def test_device_init_disabled():
+    with pytest.raises(RuntimeError, match=r"^DeviceProperties cannot be instantiated directly\."):
+        cuda.core.experimental._device.DeviceProperties()  # Ensure back door is locked.
 
 
 @pytest.fixture(scope="module")
@@ -31,18 +37,26 @@ def test_device_set_current(deinit_cuda):
     assert handle_return(driver.cuCtxGetCurrent()) is not None
 
 
-def test_device_repr():
+def test_device_repr(deinit_cuda):
     device = Device(0)
+    device.set_current()
     assert str(device).startswith("<Device 0")
 
 
-def test_device_alloc(init_cuda):
+def test_device_alloc(deinit_cuda):
     device = Device()
+    device.set_current()
     buffer = device.allocate(1024)
     device.sync()
     assert buffer.handle != 0
     assert buffer.size == 1024
-    assert buffer.device_id == 0
+    assert buffer.device_id == int(device)
+
+
+def test_device_id(deinit_cuda):
+    for device in cuda.core.experimental.system.devices:
+        device.set_current()
+        assert device.device_id == handle_return(runtime.cudaGetDevice())
 
 
 def test_device_create_stream(init_cuda):
@@ -50,6 +64,13 @@ def test_device_create_stream(init_cuda):
     stream = device.create_stream()
     assert stream is not None
     assert stream.handle
+
+
+def test_device_create_event(init_cuda):
+    device = Device()
+    event = device.create_event()
+    assert event is not None
+    assert event.handle
 
 
 def test_pci_bus_id():

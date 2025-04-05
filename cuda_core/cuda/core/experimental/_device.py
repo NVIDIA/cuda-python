@@ -3,12 +3,21 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import threading
-from typing import Union
+from typing import Optional, Union
 
 from cuda.core.experimental._context import Context, ContextOptions
+from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
-from cuda.core.experimental._utils import ComputeCapability, CUDAError, driver, handle_return, precondition, runtime
+from cuda.core.experimental._utils.clear_error_support import assert_type
+from cuda.core.experimental._utils.cuda_utils import (
+    ComputeCapability,
+    CUDAError,
+    driver,
+    handle_return,
+    precondition,
+    runtime,
+)
 
 _tls = threading.local()
 _lock = threading.Lock()
@@ -22,13 +31,14 @@ class DeviceProperties:
     Attributes are read-only and provide information about the device.
     """
 
-    def __init__(self):
-        raise RuntimeError("DeviceProperties should not be instantiated directly")
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("DeviceProperties cannot be instantiated directly. Please use Device APIs.")
 
     __slots__ = ("_handle", "_cache")
 
-    def _init(handle):
-        self = DeviceProperties.__new__(DeviceProperties)
+    @classmethod
+    def _init(cls, handle):
+        self = super().__new__(cls)
         self._handle = handle
         self._cache = {}
         return self
@@ -989,7 +999,9 @@ class Device:
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
-            raise CUDAError("the device is not yet initialized, perhaps you forgot to call .set_current() first?")
+            raise CUDAError(
+                f"Device {self._id} is not yet initialized, perhaps you forgot to call .set_current() first?"
+            )
 
     @property
     def device_id(self) -> int:
@@ -1061,7 +1073,8 @@ class Device:
 
         """
         ctx = handle_return(driver.cuCtxGetCurrent())
-        assert int(ctx) != 0
+        if int(ctx) == 0:
+            raise CUDAError("No context is bound to the calling CPU thread.")
         return Context._from_ctx(ctx, self._id)
 
     @property
@@ -1071,8 +1084,7 @@ class Device:
 
     @memory_resource.setter
     def memory_resource(self, mr):
-        if not isinstance(mr, MemoryResource):
-            raise TypeError
+        assert_type(mr, MemoryResource)
         self._mr = mr
 
     @property
@@ -1126,12 +1138,11 @@ class Device:
 
         """
         if ctx is not None:
-            if not isinstance(ctx, Context):
-                raise TypeError("a Context object is required")
+            assert_type(ctx, Context)
             if ctx._id != self._id:
                 raise RuntimeError(
-                    "the provided context was created on a different "
-                    f"device {ctx._id} other than the target {self._id}"
+                    "the provided context was created on the device with"
+                    f" id={ctx._id}, which is different from the target id={self._id}"
                 )
             prev_ctx = handle_return(driver.cuCtxPopCurrent())
             handle_return(driver.cuCtxPushCurrent(ctx._handle))
@@ -1173,7 +1184,7 @@ class Device:
             Newly created context object.
 
         """
-        raise NotImplementedError("TODO")
+        raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
     @precondition(_check_context_initialized)
     def create_stream(self, obj=None, options: StreamOptions = None) -> Stream:
@@ -1205,6 +1216,27 @@ class Device:
 
         """
         return Stream._init(obj=obj, options=options)
+
+    @precondition(_check_context_initialized)
+    def create_event(self, options: Optional[EventOptions] = None) -> Event:
+        """Create an Event object without recording it to a Stream.
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        options : :obj:`EventOptions`, optional
+            Customizable dataclass for event creation options.
+
+        Returns
+        -------
+        :obj:`~_event.Event`
+            Newly created event object.
+
+        """
+        return Event._init(options)
 
     @precondition(_check_context_initialized)
     def allocate(self, size, stream=None) -> Buffer:

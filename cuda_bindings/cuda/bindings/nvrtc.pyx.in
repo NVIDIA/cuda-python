@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -11,7 +11,7 @@ from typing import List, Tuple, Any, Optional
 from enum import IntEnum
 import cython
 import ctypes
-from libc.stdlib cimport calloc, free
+from libc.stdlib cimport calloc, malloc, free
 from libc cimport string
 from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
 from libc.stddef cimport wchar_t
@@ -85,6 +85,8 @@ class nvrtcResult(IntEnum):
     NVRTC_ERROR_PCH_CREATE = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE{{endif}}
     {{if 'NVRTC_ERROR_CANCELLED' in found_values}}
     NVRTC_ERROR_CANCELLED = cynvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED{{endif}}
+
+_dict_nvrtcResult = dict(((int(v), v) for k, v in nvrtcResult.__members__.items()))
 {{endif}}
 {{if 'nvrtcProgram' in found_types}}
 
@@ -159,7 +161,7 @@ def nvrtcVersion():
     cdef int major = 0
     cdef int minor = 0
     err = cynvrtc.nvrtcVersion(&major, &minor)
-    return (nvrtcResult(err), major, minor)
+    return (_dict_nvrtcResult[err], major, minor)
 {{endif}}
 
 {{if 'nvrtcGetNumSupportedArchs' in found_functions}}
@@ -180,7 +182,7 @@ def nvrtcGetNumSupportedArchs():
     """
     cdef int numArchs = 0
     err = cynvrtc.nvrtcGetNumSupportedArchs(&numArchs)
-    return (nvrtcResult(err), numArchs)
+    return (_dict_nvrtcResult[err], numArchs)
 {{endif}}
 
 {{if 'nvrtcGetSupportedArchs' in found_functions}}
@@ -204,7 +206,7 @@ def nvrtcGetSupportedArchs():
     supportedArchs.resize(s)
 
     err = cynvrtc.nvrtcGetSupportedArchs(supportedArchs.data())
-    return (nvrtcResult(err), supportedArchs)
+    return (_dict_nvrtcResult[err], supportedArchs)
 {{endif}}
 
 {{if 'nvrtcCreateProgram' in found_functions}}
@@ -259,7 +261,7 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional
     cdef vector[const char*] cyheaders = headers
     cdef vector[const char*] cyincludeNames = includeNames
     err = cynvrtc.nvrtcCreateProgram(<cynvrtc.nvrtcProgram*>prog._pvt_ptr, src, name, numHeaders, cyheaders.data(), cyincludeNames.data())
-    return (nvrtcResult(err), prog)
+    return (_dict_nvrtcResult[err], prog)
 {{endif}}
 
 {{if 'nvrtcDestroyProgram' in found_functions}}
@@ -294,7 +296,7 @@ def nvrtcDestroyProgram(prog):
     else:
         raise TypeError("Argument 'prog' is not instance of type (expected <class 'int, nvrtc.nvrtcProgram'>, found " + str(type(prog)))
     err = cynvrtc.nvrtcDestroyProgram(cyprog)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcCompileProgram' in found_functions}}
@@ -334,17 +336,16 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[Tuple[bytes] | 
         raise TypeError("Argument 'options' is not instance of type (expected Tuple[bytes] or List[bytes]")
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     cdef vector[const char*] cyoptions = options
     err = cynvrtc.nvrtcCompileProgram(cyprog, numOptions, cyoptions.data())
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcGetPTXSize' in found_functions}}
@@ -373,16 +374,15 @@ def nvrtcGetPTXSize(prog):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cdef size_t ptxSizeRet = 0
     err = cynvrtc.nvrtcGetPTXSize(cyprog, &ptxSizeRet)
-    return (nvrtcResult(err), ptxSizeRet)
+    return (_dict_nvrtcResult[err], ptxSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetPTX' in found_functions}}
@@ -411,15 +411,14 @@ def nvrtcGetPTX(prog, char* ptx):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     err = cynvrtc.nvrtcGetPTX(cyprog, ptx)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcGetCUBINSize' in found_functions}}
@@ -448,16 +447,15 @@ def nvrtcGetCUBINSize(prog):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cdef size_t cubinSizeRet = 0
     err = cynvrtc.nvrtcGetCUBINSize(cyprog, &cubinSizeRet)
-    return (nvrtcResult(err), cubinSizeRet)
+    return (_dict_nvrtcResult[err], cubinSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetCUBIN' in found_functions}}
@@ -486,15 +484,14 @@ def nvrtcGetCUBIN(prog, char* cubin):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     err = cynvrtc.nvrtcGetCUBIN(cyprog, cubin)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcGetNVVMSize' in found_functions}}
@@ -517,16 +514,15 @@ def nvrtcGetNVVMSize(prog):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cdef size_t nvvmSizeRet = 0
     err = cynvrtc.nvrtcGetNVVMSize(cyprog, &nvvmSizeRet)
-    return (nvrtcResult(err), nvvmSizeRet)
+    return (_dict_nvrtcResult[err], nvvmSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetNVVM' in found_functions}}
@@ -549,15 +545,14 @@ def nvrtcGetNVVM(prog, char* nvvm):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     err = cynvrtc.nvrtcGetNVVM(cyprog, nvvm)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcGetLTOIRSize' in found_functions}}
@@ -586,16 +581,15 @@ def nvrtcGetLTOIRSize(prog):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cdef size_t LTOIRSizeRet = 0
     err = cynvrtc.nvrtcGetLTOIRSize(cyprog, &LTOIRSizeRet)
-    return (nvrtcResult(err), LTOIRSizeRet)
+    return (_dict_nvrtcResult[err], LTOIRSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetLTOIR' in found_functions}}
@@ -624,15 +618,14 @@ def nvrtcGetLTOIR(prog, char* LTOIR):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     err = cynvrtc.nvrtcGetLTOIR(cyprog, LTOIR)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcGetOptiXIRSize' in found_functions}}
@@ -661,16 +654,15 @@ def nvrtcGetOptiXIRSize(prog):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cdef size_t optixirSizeRet = 0
     err = cynvrtc.nvrtcGetOptiXIRSize(cyprog, &optixirSizeRet)
-    return (nvrtcResult(err), optixirSizeRet)
+    return (_dict_nvrtcResult[err], optixirSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetOptiXIR' in found_functions}}
@@ -699,15 +691,14 @@ def nvrtcGetOptiXIR(prog, char* optixir):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     err = cynvrtc.nvrtcGetOptiXIR(cyprog, optixir)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcGetProgramLogSize' in found_functions}}
@@ -739,16 +730,15 @@ def nvrtcGetProgramLogSize(prog):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cdef size_t logSizeRet = 0
     err = cynvrtc.nvrtcGetProgramLogSize(cyprog, &logSizeRet)
-    return (nvrtcResult(err), logSizeRet)
+    return (_dict_nvrtcResult[err], logSizeRet)
 {{endif}}
 
 {{if 'nvrtcGetProgramLog' in found_functions}}
@@ -777,15 +767,14 @@ def nvrtcGetProgramLog(prog, char* log):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     err = cynvrtc.nvrtcGetProgramLog(cyprog, log)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcAddNameExpression' in found_functions}}
@@ -819,15 +808,14 @@ def nvrtcAddNameExpression(prog, char* name_expression):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     err = cynvrtc.nvrtcAddNameExpression(cyprog, name_expression)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcGetLoweredName' in found_functions}}
@@ -861,16 +849,15 @@ def nvrtcGetLoweredName(prog, char* name_expression):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cdef const char* lowered_name = NULL
     err = cynvrtc.nvrtcGetLoweredName(cyprog, name_expression, &lowered_name)
-    return (nvrtcResult(err), <bytes>lowered_name)
+    return (_dict_nvrtcResult[err], <bytes>lowered_name if lowered_name != NULL else None)
 {{endif}}
 
 {{if 'nvrtcGetPCHHeapSize' in found_functions}}
@@ -889,7 +876,7 @@ def nvrtcGetPCHHeapSize():
     """
     cdef size_t ret = 0
     err = cynvrtc.nvrtcGetPCHHeapSize(&ret)
-    return (nvrtcResult(err), ret)
+    return (_dict_nvrtcResult[err], ret)
 {{endif}}
 
 {{if 'nvrtcSetPCHHeapSize' in found_functions}}
@@ -913,7 +900,7 @@ def nvrtcSetPCHHeapSize(size_t size):
         - :py:obj:`~.NVRTC_SUCCESS`
     """
     err = cynvrtc.nvrtcSetPCHHeapSize(size)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcGetPCHCreateStatus' in found_functions}}
@@ -953,15 +940,14 @@ def nvrtcGetPCHCreateStatus(prog):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     err = cynvrtc.nvrtcGetPCHCreateStatus(cyprog)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 {{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
@@ -987,16 +973,15 @@ def nvrtcGetPCHHeapSizeRequired(prog):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cdef size_t size = 0
     err = cynvrtc.nvrtcGetPCHHeapSizeRequired(cyprog, &size)
-    return (nvrtcResult(err), size)
+    return (_dict_nvrtcResult[err], size)
 {{endif}}
 
 {{if 'nvrtcSetFlowCallback' in found_functions}}
@@ -1045,19 +1030,18 @@ def nvrtcSetFlowCallback(prog, callback, payload):
     """
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>0
+        pprog = 0
     elif isinstance(prog, (nvrtcProgram,)):
         pprog = int(prog)
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     else:
         pprog = int(nvrtcProgram(prog))
-        cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
+    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     cycallback = utils.HelperInputVoidPtr(callback)
     cdef void* cycallback_ptr = <void*><void_ptr>cycallback.cptr
     cypayload = utils.HelperInputVoidPtr(payload)
     cdef void* cypayload_ptr = <void*><void_ptr>cypayload.cptr
     err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback_ptr, cypayload_ptr)
-    return (nvrtcResult(err),)
+    return (_dict_nvrtcResult[err],)
 {{endif}}
 
 @cython.embedsignature(True)

@@ -1,11 +1,16 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 from typing import Optional, Union
 from warnings import warn
 
-from cuda.core.experimental._utils import driver, get_binding_version, handle_return, precondition
+from cuda.core.experimental._utils.clear_error_support import (
+    assert_type,
+    assert_type_str_or_bytes,
+    raise_code_path_meant_to_be_unreachable,
+)
+from cuda.core.experimental._utils.cuda_utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
     "old": {
@@ -47,13 +52,14 @@ def _lazy_init():
 
 
 class KernelAttributes:
-    def __init__(self):
-        raise RuntimeError("KernelAttributes should not be instantiated directly")
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     slots = ("_handle", "_cache", "_backend_version", "_loader")
 
-    def _init(handle):
-        self = KernelAttributes.__new__(KernelAttributes)
+    @classmethod
+    def _init(cls, handle):
+        self = super().__new__(cls)
         self._handle = handle
         self._cache = {}
 
@@ -189,27 +195,30 @@ class Kernel:
 
     __slots__ = ("_handle", "_module", "_attributes")
 
-    def __init__(self):
-        raise RuntimeError("directly constructing a Kernel instance is not supported")
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
-    @staticmethod
-    def _from_obj(obj, mod):
-        assert isinstance(obj, _kernel_ctypes)
-        assert isinstance(mod, ObjectCode)
-        ker = Kernel.__new__(Kernel)
+    @classmethod
+    def _from_obj(cls, obj, mod):
+        assert_type(obj, _kernel_ctypes)
+        assert_type(mod, ObjectCode)
+        ker = super().__new__(cls)
         ker._handle = obj
         ker._module = mod
         ker._attributes = None
         return ker
 
     @property
-    def attributes(self):
+    def attributes(self) -> KernelAttributes:
         """Get the read-only attributes of this kernel."""
         if self._attributes is None:
             self._attributes = KernelAttributes._init(self._handle)
         return self._attributes
 
     # TODO: implement from_handle()
+
+
+CodeTypeT = Union[bytes, bytearray, str]
 
 
 class ObjectCode:
@@ -221,10 +230,9 @@ class ObjectCode:
     Note
     ----
     This class has no default constructor. If you already have a cubin that you would
-    like to load, use the :meth:`from_cubin` alternative constructor. For all other
-    possible code types (ex: "ptx"), only :class:`~cuda.core.experimental.Program`
-    accepts them and returns an :class:`ObjectCode` instance with its
-    :meth:`~cuda.core.experimental.Program.compile` method.
+    like to load, use the :meth:`from_cubin` alternative constructor. Constructing directly
+    from all other possible code types should be avoided in favor of compilation through
+    :class:`~cuda.core.experimental.Program`
 
     Note
     ----
@@ -235,15 +243,15 @@ class ObjectCode:
     __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
 
-    def __init__(self):
-        raise NotImplementedError(
-            "directly creating an ObjectCode object can be ambiguous. Please either call Program.compile() "
-            "or one of the ObjectCode.from_*() constructors"
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError(
+            "ObjectCode objects cannot be instantiated directly. "
+            "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
         )
 
-    @staticmethod
-    def _init(module, code_type, *, symbol_mapping: Optional[dict] = None):
-        self = ObjectCode.__new__(ObjectCode)
+    @classmethod
+    def _init(cls, module, code_type, *, symbol_mapping: Optional[dict] = None):
+        self = super().__new__(cls)
         assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
 
@@ -275,26 +283,45 @@ class ObjectCode:
         """
         return ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
 
+    @staticmethod
+    def from_ptx(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing PTX.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory ptx code to load, or
+            a file path string pointing to the on-disk ptx file to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "ptx", symbol_mapping=symbol_mapping)
+
     # TODO: do we want to unload in a finalizer? Probably not..
 
     def _lazy_load_module(self, *args, **kwargs):
         if self._handle is not None:
             return
         module = self._module
+        assert_type_str_or_bytes(module)
         if isinstance(module, str):
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
             else:  # "old" backend
                 self._handle = handle_return(self._loader["file"](module.encode()))
-        else:
-            assert isinstance(module, bytes)
+            return
+        if isinstance(module, bytes):
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
             else:  # "old" backend
                 self._handle = handle_return(self._loader["data"](module, 0, [], []))
+            return
+        raise_code_path_meant_to_be_unreachable()
 
     @precondition(_lazy_load_module)
-    def get_kernel(self, name):
+    def get_kernel(self, name) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
@@ -308,8 +335,9 @@ class ObjectCode:
             Newly created kernel object.
 
         """
-        if self._code_type not in ("cubin", "ptx", "fatbin"):
-            raise RuntimeError(f"get_kernel() is not supported for {self._code_type}")
+        supported_code_types = ("cubin", "ptx", "fatbin")
+        if self._code_type not in supported_code_types:
+            raise RuntimeError(f'Unsupported code type "{self._code_type}" ({supported_code_types=})')
         try:
             name = self._sym_map[name]
         except KeyError:
@@ -317,3 +345,14 @@ class ObjectCode:
 
         data = handle_return(self._loader["kernel"](self._handle, name))
         return Kernel._from_obj(data, self)
+
+    @property
+    def code(self) -> CodeTypeT:
+        """Return the underlying code object."""
+        return self._module
+
+    @property
+    @precondition(_lazy_load_module)
+    def handle(self):
+        """Return the underlying handle object."""
+        return self._handle

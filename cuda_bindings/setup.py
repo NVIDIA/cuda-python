@@ -48,8 +48,11 @@ PARSER_CACHING = bool(PARSER_CACHING)
 # ----------------------------------------------------------------------
 # Parse user-provided CUDA headers
 
-header_dict = {
-    "driver": ["cuda.h", "cudaProfiler.h", "cudaEGL.h", "cudaGL.h", "cudaVDPAU.h"],
+required_headers = {
+    "driver": [
+        "cuda.h",
+        "cudaProfiler.h",
+    ],
     "runtime": [
         "driver_types.h",
         "vector_types.h",
@@ -61,32 +64,42 @@ header_dict = {
         "device_types.h",
         "driver_functions.h",
         "cuda_profiler_api.h",
-        "cuda_egl_interop.h",
-        "cuda_gl_interop.h",
-        "cuda_vdpau_interop.h",
     ],
-    "nvrtc": ["nvrtc.h"],
+    "nvrtc": [
+        "nvrtc.h",
+    ],
+    # During compilation, Cython will reference C headers that are not
+    # explicitly parsed above. These are the known dependencies:
+    #
+    # - crt/host_defines.h
+    # - builtin_types.h
+    # - cuda_device_runtime_api.h
 }
 
-replace = {
-    " __device_builtin__ ": " ",
-    "CUDARTAPI ": " ",
-    "typedef __device_builtin__ enum cudaError cudaError_t;": "typedef cudaError cudaError_t;",
-    "typedef __device_builtin__ enum cudaOutputMode cudaOutputMode_t;": "typedef cudaOutputMode cudaOutputMode_t;",
-    "typedef enum cudaError cudaError_t;": "typedef cudaError cudaError_t;",
-    "typedef enum cudaOutputMode cudaOutputMode_t;": "typedef cudaOutputMode cudaOutputMode_t;",
-    "typedef enum cudaDataType_t cudaDataType_t;": "",
-    "typedef enum libraryPropertyType_t libraryPropertyType_t;": "",
-    "  enum ": "   ",
-    ", enum ": ", ",
-    "\\(enum ": "(",
-}
 
-found_types = []
-found_functions = []
-found_values = []
-found_struct = []
-struct_list = {}
+def fetch_header_paths(required_headers, include_path_list):
+    header_dict = {}
+    missing_headers = []
+    for library, header_list in required_headers.items():
+        header_paths = []
+        for header in header_list:
+            path_candidate = [os.path.join(path, header) for path in include_path_list]
+            for path in path_candidate:
+                if os.path.exists(path):
+                    header_paths += [path]
+                    break
+            else:
+                missing_headers += [header]
+
+        # Update dictionary with validated paths to headers
+        header_dict[library] = header_paths
+
+    if missing_headers:
+        error_message = "Couldn't find required headers: "
+        error_message += ", ".join([header for header in missing_headers])
+        raise RuntimeError(f'{error_message}\nIs CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
+
+    return header_dict
 
 
 class Struct:
@@ -117,52 +130,66 @@ class Struct:
         return f"{self._name}: {self._member_names} with types {self._member_types}"
 
 
+def parse_headers(header_dict):
+    found_types = []
+    found_functions = []
+    found_values = []
+    found_struct = []
+    struct_list = {}
+
+    replace = {
+        " __device_builtin__ ": " ",
+        "CUDARTAPI ": " ",
+        "typedef __device_builtin__ enum cudaError cudaError_t;": "typedef cudaError cudaError_t;",
+        "typedef __device_builtin__ enum cudaOutputMode cudaOutputMode_t;": "typedef cudaOutputMode cudaOutputMode_t;",
+        "typedef enum cudaError cudaError_t;": "typedef cudaError cudaError_t;",
+        "typedef enum cudaOutputMode cudaOutputMode_t;": "typedef cudaOutputMode cudaOutputMode_t;",
+        "typedef enum cudaDataType_t cudaDataType_t;": "",
+        "typedef enum libraryPropertyType_t libraryPropertyType_t;": "",
+        "  enum ": "   ",
+        ", enum ": ", ",
+        "\\(enum ": "(",
+    }
+
+    print(f'Parsing headers in "{include_path_list}" (Caching = {PARSER_CACHING})')
+    for library, header_paths in header_dict.items():
+        print(f"Parsing {library} headers")
+        parser = CParser(
+            header_paths, cache="./cache_{}".format(library.split(".")[0]) if PARSER_CACHING else None, replace=replace
+        )
+
+        if library == "driver":
+            CUDA_VERSION = parser.defs["macros"].get("CUDA_VERSION", "Unknown")
+            print(f"Found CUDA_VERSION: {CUDA_VERSION}")
+
+        # Combine types with others since they sometimes get tangled
+        found_types += {key for key in parser.defs["types"]}
+        found_types += {key for key in parser.defs["structs"]}
+        found_types += {key for key in parser.defs["unions"]}
+        found_types += {key for key in parser.defs["enums"]}
+        found_functions += {key for key in parser.defs["functions"]}
+        found_values += {key for key in parser.defs["values"]}
+
+        for key, value in parser.defs["structs"].items():
+            struct_list[key] = Struct(key, value["members"])
+        for key, value in parser.defs["unions"].items():
+            struct_list[key] = Struct(key, value["members"])
+
+        for key, value in struct_list.items():
+            if key.startswith("anon_union") or key.startswith("anon_struct"):
+                continue
+
+            found_struct += [key]
+            discovered = value.discoverMembers(struct_list, key)
+            if discovered:
+                found_struct += discovered
+
+    return found_types, found_functions, found_values, found_struct, struct_list
+
+
 include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
-print(f'Parsing headers in "{include_path_list}" (Caching = {PARSER_CACHING})')
-for library, header_list in header_dict.items():
-    header_paths = []
-    for header in header_list:
-        path_candidate = [os.path.join(path, header) for path in include_path_list]
-        for path in path_candidate:
-            if os.path.exists(path):
-                header_paths += [path]
-                break
-        if not os.path.exists(path):
-            print(f"Missing header {header}")
-
-    print(f"Parsing {library} headers")
-    parser = CParser(
-        header_paths, cache="./cache_{}".format(library.split(".")[0]) if PARSER_CACHING else None, replace=replace
-    )
-
-    if library == "driver":
-        CUDA_VERSION = parser.defs["macros"].get("CUDA_VERSION", "Unknown")
-        print(f"Found CUDA_VERSION: {CUDA_VERSION}")
-
-    # Combine types with others since they sometimes get tangled
-    found_types += {key for key in parser.defs["types"]}
-    found_types += {key for key in parser.defs["structs"]}
-    found_types += {key for key in parser.defs["unions"]}
-    found_types += {key for key in parser.defs["enums"]}
-    found_functions += {key for key in parser.defs["functions"]}
-    found_values += {key for key in parser.defs["values"]}
-
-    for key, value in parser.defs["structs"].items():
-        struct_list[key] = Struct(key, value["members"])
-    for key, value in parser.defs["unions"].items():
-        struct_list[key] = Struct(key, value["members"])
-
-    for key, value in struct_list.items():
-        if key.startswith("anon_union") or key.startswith("anon_struct"):
-            continue
-
-        found_struct += [key]
-        discovered = value.discoverMembers(struct_list, key)
-        if discovered:
-            found_struct += discovered
-
-if len(found_functions) == 0:
-    raise RuntimeError(f'Parser found no functions. Is CUDA_HOME setup correctly? (CUDA_HOME="{CUDA_HOME}")')
+header_dict = fetch_header_paths(required_headers, include_path_list)
+found_types, found_functions, found_values, found_struct, struct_list = parse_headers(header_dict)
 
 # ----------------------------------------------------------------------
 # Generate
@@ -238,9 +265,10 @@ cmdclass = {}
 # Cythonize
 
 
-def prep_extensions(sources):
+def prep_extensions(sources, libraries):
     pattern = sources[0]
     files = glob.glob(pattern)
+    libraries = libraries if libraries else []
     exts = []
     for pyx in files:
         mod_name = pyx.replace(".pyx", "").replace(os.sep, ".").replace("/", ".")
@@ -251,7 +279,7 @@ def prep_extensions(sources):
                 include_dirs=include_dirs,
                 library_dirs=library_dirs,
                 runtime_library_dirs=[],
-                libraries=[],
+                libraries=libraries,
                 language="c++",
                 extra_compile_args=extra_compile_args,
             )
@@ -300,26 +328,29 @@ def do_cythonize(extensions):
     )
 
 
+static_runtime_libraries = ["cudart_static", "rt"] if sys.platform == "linux" else ["cudart_static"]
 sources_list = [
     # private
-    ["cuda/bindings/_bindings/cydriver.pyx", "cuda/bindings/_bindings/loader.cpp"],
-    ["cuda/bindings/_bindings/cynvrtc.pyx"],
+    (["cuda/bindings/_bindings/cydriver.pyx", "cuda/bindings/_bindings/loader.cpp"], None),
+    (["cuda/bindings/_bindings/cynvrtc.pyx"], None),
+    (["cuda/bindings/_bindings/cyruntime.pyx"], static_runtime_libraries),
+    (["cuda/bindings/_bindings/cyruntime_ptds.pyx"], static_runtime_libraries),
     # utils
-    ["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"],
-    ["cuda/bindings/_lib/cyruntime/cyruntime.pyx"],
-    ["cuda/bindings/_lib/cyruntime/utils.pyx"],
+    (["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"], None),
+    (["cuda/bindings/_lib/cyruntime/cyruntime.pyx"], None),
+    (["cuda/bindings/_lib/cyruntime/utils.pyx"], None),
     # public
-    ["cuda/bindings/*.pyx"],
+    (["cuda/bindings/*.pyx"], None),
     # public (deprecated, to be removed)
-    ["cuda/*.pyx"],
+    (["cuda/*.pyx"], None),
     # internal files used by generated bindings
-    ["cuda/bindings/_internal/nvjitlink.pyx"],
-    ["cuda/bindings/_internal/nvvm.pyx"],
-    ["cuda/bindings/_internal/utils.pyx"],
+    (["cuda/bindings/_internal/nvjitlink.pyx"], None),
+    (["cuda/bindings/_internal/nvvm.pyx"], None),
+    (["cuda/bindings/_internal/utils.pyx"], None),
 ]
 
-for sources in sources_list:
-    extensions += prep_extensions(sources)
+for sources, libraries in sources_list:
+    extensions += prep_extensions(sources, libraries)
 
 # ---------------------------------------------------------------------
 # Custom cmdclass extensions

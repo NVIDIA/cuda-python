@@ -11,11 +11,12 @@ import pytest
 from cuda.core.experimental import Device, Stream, StreamOptions
 from cuda.core.experimental._event import Event
 from cuda.core.experimental._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM, default_stream
+from cuda.core.experimental._utils.cuda_utils import driver
 
 
-def test_stream_init():
-    with pytest.raises(NotImplementedError):
-        Stream()
+def test_stream_init_disabled():
+    with pytest.raises(RuntimeError, match=r"^Stream objects cannot be instantiated directly\."):
+        Stream()  # Reject at front door.
 
 
 def test_stream_init_with_options(init_cuda):
@@ -26,7 +27,7 @@ def test_stream_init_with_options(init_cuda):
 
 def test_stream_handle(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
-    assert isinstance(stream.handle, int)
+    assert isinstance(stream.handle, driver.CUstream)
 
 
 def test_stream_is_nonblocking(init_cuda):
@@ -90,7 +91,8 @@ def test_stream_from_foreign_stream(init_cuda):
     device = Device()
     other_stream = device.create_stream(options=StreamOptions())
     stream = device.create_stream(obj=other_stream)
-    assert other_stream.handle == stream.handle
+    # convert to int to work around NVIDIA/cuda-python#465
+    assert int(other_stream.handle) == int(stream.handle)
     device = stream.device
     assert isinstance(device, Device)
     context = stream.context
