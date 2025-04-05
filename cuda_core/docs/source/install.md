@@ -12,7 +12,7 @@ dependencies are as follows:
 
 [^1]: Including `cuda-python`.
 
-`cuda.core` supports Python 3.9 - 3.12, on Linux (x86-64, arm64) and Windows (x86-64).
+`cuda.core` supports Python 3.9 - 3.13, on Linux (x86-64, arm64) and Windows (x86-64).
 
 ## Installing from PyPI
 
@@ -22,8 +22,8 @@ $ pip install cuda-core[cu12]
 ```
 and likewise use `[cu11]` for CUDA 11.
 
-Note that using `cuda.core` with NVRTC or nvJitLink installed from PyPI via `pip install` is currently
-not supported. This will be fixed in a future release.
+Note that using `cuda.core` with NVRTC or nvJitLink installed from PyPI via `pip install` requires
+`cuda.bindings` 12.8.0+ or 11.8.6+.
 
 ## Installing from Conda (conda-forge)
 
