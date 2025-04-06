@@ -322,13 +322,13 @@
 <p><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> supports the same platforms as CUDA. Runtime dependencies are:</p>
 <ul class="simple">
 <li><p>Linux (x86-64, arm64) and Windows (x86-64)</p></li>
-<li><p>Driver: Linux (450.80.02 or later) Windows (456.38 or later)</p></li>
-<li><p>CUDA Toolkit 12.x</p></li>
 <li><p>Python 3.9 - 3.13</p></li>
+<li><p>Driver: Linux (450.80.02 or later) Windows (456.38 or later)</p></li>
+<li><p>Optionally, NVRTC, nvJitLink, and NVVM from CUDA Toolkit 12.x</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Only the NVRTC and nvJitLink redistributable components are required from the CUDA Toolkit, which can be obtained via PyPI, Conda, or local installers (as described in the CUDA Toolkit <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html">Windows</a> and <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html">Linux</a> Installation Guides).</p>
+<p>The optional CUDA Toolkit components can be installed via PyPI, Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html">Windows</a> and <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html">Linux</a> Installation Guides).</p>
 </div>
 <p>Starting from v12.8.0, <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> becomes a meta package which currently depends only on <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>; in the future more sub-packages will be added to <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code>. In the instructions below, we still use <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> as example to serve existing users, but everything is applicable to <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> as well.</p>
 </section>
