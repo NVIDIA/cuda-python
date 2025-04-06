@@ -46,6 +46,10 @@ cdef bint __cuPythonInit = False
 {{if 'nvrtcSetFlowCallback' in found_functions}}cdef void *__nvrtcSetFlowCallback = NULL{{endif}}
 
 cdef int cuPythonInit() except -1 nogil:
+    {{if 'Windows' != platform.system()}}
+    cdef char* err_msg
+    {{endif}}
+
     global __cuPythonInit
     if __cuPythonInit:
         return 0
@@ -97,7 +101,12 @@ cdef int cuPythonInit() except -1 nogil:
     handle = dlfcn.dlopen('libnvrtc.so.12', dlfcn.RTLD_NOW)
     if handle == NULL:
         with gil:
-            raise RuntimeError('Failed to dlopen libnvrtc.so.12')
+            err_msg = dlfcn.dlerror()
+            if err_msg == NULL:
+                err_msg_str = 'Unknown error'
+            else:
+                err_msg_str = err_msg.decode('utf-8', errors='backslashreplace')
+            raise RuntimeError(f'Failed to dlopen libnvrtc.so.12: {err_msg_str}')
     {{endif}}
 
 
