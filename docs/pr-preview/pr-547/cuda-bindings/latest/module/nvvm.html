@@ -11,6 +11,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
     
     
@@ -323,7 +324,7 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.version">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#cuda.bindings.nvvm.version" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvvm.version" title="Link to this definition">¶</a></dt>
 <dd><p>Get the NVVM version.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -345,7 +346,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvvm.ir_version">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">ir_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#cuda.bindings.nvvm.ir_version" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvvm.</span></span><span class="sig-name descname"><span class="pre">ir_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvvm.ir_version" title="Link to this definition">¶</a></dt>
 <dd><p>Get the NVVM IR version.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -393,9 +394,9 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>buffer</strong> (<em>bytes</em>) – NVVM IR module in the bitcode or text representation.</p></li>
+<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – NVVM IR module in the bitcode or text representation.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – Size of the NVVM IR module.</p></li>
-<li><p><strong>name</strong> (<em>str</em>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;” is used as the name.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;” is used as the name.</p></li>
 </ul>
 </dd>
 </dl>
@@ -413,9 +414,9 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>buffer</strong> (<em>bytes</em>) – NVVM IR module in the bitcode representation.</p></li>
+<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – NVVM IR module in the bitcode representation.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – Size of the NVVM IR module.</p></li>
-<li><p><strong>name</strong> (<em>str</em>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;” is used as the name.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Name of the NVVM IR module. If NULL, “&lt;unnamed&gt;” is used as the name.</p></li>
 </ul>
 </dd>
 </dl>
@@ -433,11 +434,11 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>num_options</strong> (<em>int</em>) – Number of compiler <code class="docutils literal notranslate"><span class="pre">options</span></code> passed.</p></li>
-<li><p><strong>options</strong> (<em>object</em>) – <p>Compiler options in the form of C string array. It can be:</p>
+<li><p><strong>num_options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of compiler <code class="docutils literal notranslate"><span class="pre">options</span></code> passed.</p></li>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><em>object</em></a>) – <p>Compiler options in the form of C string array. It can be:</p>
 <ul>
-<li><p>an <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> as the pointer address to the nested sequence, or</p></li>
-<li><p>a Python sequence of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>s, each of which is a pointer address
+<li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
+<li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
 to a valid sequence of ‘char’, or</p></li>
 <li><p>a nested Python sequence of <code class="docutils literal notranslate"><span class="pre">str</span></code>.</p></li>
 </ul>
@@ -459,11 +460,11 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>num_options</strong> (<em>int</em>) – Number of compiler <code class="docutils literal notranslate"><span class="pre">options</span></code> passed.</p></li>
-<li><p><strong>options</strong> (<em>object</em>) – <p>Compiler options in the form of C string array. It can be:</p>
+<li><p><strong>num_options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of compiler <code class="docutils literal notranslate"><span class="pre">options</span></code> passed.</p></li>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><em>object</em></a>) – <p>Compiler options in the form of C string array. It can be:</p>
 <ul>
-<li><p>an <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> as the pointer address to the nested sequence, or</p></li>
-<li><p>a Python sequence of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>s, each of which is a pointer address
+<li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
+<li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
 to a valid sequence of ‘char’, or</p></li>
 <li><p>a nested Python sequence of <code class="docutils literal notranslate"><span class="pre">str</span></code>.</p></li>
 </ul>
@@ -506,7 +507,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>buffer</strong> (<em>bytes</em>) – Compiled result.</p></li>
+<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Compiled result.</p></li>
 </ul>
 </dd>
 </dl>
@@ -545,7 +546,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<em>intptr_t</em>) – NVVM program.</p></li>
-<li><p><strong>buffer</strong> (<em>bytes</em>) – Compilation/Verification log.</p></li>
+<li><p><strong>buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Compilation/Verification log.</p></li>
 </ul>
 </dd>
 </dl>
@@ -651,7 +652,7 @@ to a valid sequence of ‘char’, or</p></li>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, NVIDIA
+                Copyright &#169; 2021-2025, NVIDIA
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -724,5 +725,7 @@ to a valid sequence of ‘char’, or</p></li>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=35a8b989"></script>
     </body>
 </html>
