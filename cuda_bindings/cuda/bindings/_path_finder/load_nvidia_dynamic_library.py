@@ -58,10 +58,12 @@ def _windows_load_with_dll_basename(name: str) -> int:
 
 @functools.cache
 def load_nvidia_dynamic_library(name: str) -> int:
+    print(f"\nLOOOK load_nvidia_dynamic_library({name=}) ENTRY", flush=True)
     # First try using the platform-specific dynamic loader search mechanisms
     if sys.platform == "win32":
         handle = _windows_load_with_dll_basename(name)
         if handle:
+            print(f"\nLOOOK load_nvidia_dynamic_library({name=}): _windows_load_with_dll_basename", flush=True)
             return handle
     else:
         dl_path = f"lib{name}.so"  # Version intentionally no specified.
@@ -71,6 +73,7 @@ def load_nvidia_dynamic_library(name: str) -> int:
             pass
         else:
             # Use `cdef void* ptr = <void*><uintptr_t>` in cython to convert back to void*
+            print(f"\nLOOOK load_nvidia_dynamic_library({name=}): ctypes.CDLL({dl_path=})", flush=True)
             return handle._handle  # C unsigned int
 
     dl_path = find_nvidia_dynamic_library(name)
@@ -80,6 +83,7 @@ def load_nvidia_dynamic_library(name: str) -> int:
         except pywintypes.error as e:
             raise RuntimeError(f"Failed to load DLL at {dl_path}: {e}") from e
         # Use `cdef void* ptr = <void*><intptr_t>` in cython to convert back to void*
+        print(f"\nLOOOK load_nvidia_dynamic_library({name=}): win32api.LoadLibrary({dl_path=})", flush=True)
         return handle  # C signed int, matches win32api.GetProcAddress
     else:
         try:
@@ -87,4 +91,5 @@ def load_nvidia_dynamic_library(name: str) -> int:
         except OSError as e:
             raise RuntimeError(f"Failed to dlopen {dl_path}: {e}") from e
         # Use `cdef void* ptr = <void*><uintptr_t>` in cython to convert back to void*
+        print(f"\nLOOOK load_nvidia_dynamic_library({name=}): ctypes.CDLL({dl_path=})", flush=True)
         return handle._handle  # C unsigned int
