@@ -1,0 +1,66 @@
+name: Feature Request
+description: Suggest an idea to improve cuda-python
+title: '[FEA]: '
+labels: ['feature request']
+body:
+  - type: checkboxes
+    id: check-duplicates
+    attributes:
+      label: Is this a duplicate?
+      description: Check for duplicate issues.
+      options:
+        - label: I confirmed there appear to be no [duplicate issues](https://github.com/NVIDIA/cuda-python/issues) for this request and that I agree to the [Code of Conduct](CODE_OF_CONDUCT.md)
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: What area does this request apply to?
+      multiple: false
+      options:
+        - cuda.bindings
+        - cuda.core
+        - General cuda-python
+        - Infrastructure
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Is your feature request related to a problem? Please describe.
+      description: A clear and concise description of what the problem is, e.g., "I would like to be able to..."
+      placeholder: I would like to be able to use the equivalent of `cuda.core.experimental.Program.compile(...)` to compile my code to PTX.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+      placeholder: |
+        Support a `ptx` target_type in the `cuda.core.experimental.Program.compile(...)` function.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description:
+        If applicable, please add a clear and concise description of any alternative solutions or features you've
+        considered.
+      placeholder: The alternatives to using `cuda.core.experimental.Program.compile(...)` are unappealing. They usually involve using lower level bindings to something like nvRTC or invoking the nvcc executable.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context about the request here.
+      placeholder: This would be helpful to have a more productive development cycle in working at the intersection of CUDA and Python for my project.
+    validations:
+      required: false

@@ -1,0 +1,40 @@
+name: Documentation Request
+description: Suggest an idea to improve cuda-python
+title: '[DOC]: '
+labels: ['doc']
+
+body:
+  - type: checkboxes
+    id: check-duplicates
+    attributes:
+      label: Is this a duplicate?
+      description: Check for duplicate issues.
+      options:
+        - label: I confirmed there appear to be no [duplicate issues](https://github.com/NVIDIA/cuda-python/issues) for this bug and that I agree to the [Code of Conduct](CODE_OF_CONDUCT.md)
+          required: true
+
+  - type: dropdown
+    id: new_or_correction
+    attributes:
+      label: Is this for new documentation, or an update to existing docs?
+      options:
+        - New
+        - Update
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Describe the incorrect/future/missing documentation
+      placeholder: "Example: A code snippet mentions function foo(args) but I cannot find any documentation on it."
+    validations:
+      required: true
+
+  - type: textarea
+    id: search_locs
+    attributes:
+      label: If this is a correction, please provide a link to the incorrect documentation. If this is a new documentation request, please link to where you have looked.
+      placeholder: |
+       https://nvidia.github.io/cuda-python/latest/
+
