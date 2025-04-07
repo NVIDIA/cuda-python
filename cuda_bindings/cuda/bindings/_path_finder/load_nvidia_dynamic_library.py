@@ -45,6 +45,8 @@ def _windows_load_with_dll_basename(name: str) -> int:
 
     if name == "nvJitLink":
         dll_name = "nvJitLink_120_0.dll"
+    elif name == "nvrtc":
+        dll_name = "nvrtc64_120_0.dll"
     elif name == "nvvm":
         dll_name = "nvvm64_40_0.dll"
 
