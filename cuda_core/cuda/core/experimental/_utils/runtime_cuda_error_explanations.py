@@ -66,7 +66,7 @@ RUNTIME_CUDA_ERROR_EXPLANATIONS = {
         "This indicates that one or more of the pitch-related parameters passed to the API call is not within"
         " the acceptable range for pitch."
     ),
-    13: ("This indicates that the symbol name/identifier passed to the API call is not a valid name or " "identifier."),
+    13: ("This indicates that the symbol name/identifier passed to the API call is not a valid name or identifier."),
     16: (
         "This error return is deprecated as of CUDA 10.1. This indicates that at least one host pointer "
         "passed to the API call is not a valid host pointer."
@@ -277,8 +277,7 @@ RUNTIME_CUDA_ERROR_EXPLANATIONS = {
     ),
     224: "This indicates that the provided execution affinity is not supported by the device.",
     225: (
-        "This indicates that the code to be compiled by the PTX JIT contains unsupported call to "
-        "cudaDeviceSynchronize."
+        "This indicates that the code to be compiled by the PTX JIT contains unsupported call to cudaDeviceSynchronize."
     ),
     226: (
         "This indicates that an exception occurred on the device that is now contained by the GPU's error "
@@ -431,8 +430,8 @@ RUNTIME_CUDA_ERROR_EXPLANATIONS = {
         "documentation for the supported hardware matrix or ensure that only supported hardware is visible "
         "during initialization via the CUDA_VISIBLE_DEVICES environment variable."
     ),
-    805: ("This error indicates that the MPS client failed to connect to the MPS control daemon or the MPS " "server."),
-    806: ("This error indicates that the remote procedural call between the MPS server and the MPS client " "failed."),
+    805: ("This error indicates that the MPS client failed to connect to the MPS control daemon or the MPS server."),
+    806: ("This error indicates that the remote procedural call between the MPS server and the MPS client failed."),
     807: (
         "This error indicates that the MPS server is not ready to accept new MPS client requests. This error "
         "can be returned when the MPS server is in the process of recovering from a fatal failure."
