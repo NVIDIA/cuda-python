@@ -18,7 +18,7 @@ import os
 # -- Project information -----------------------------------------------------
 
 project = "cuda.bindings"
-copyright = "2021-2024, NVIDIA"
+copyright = "2021-2025, NVIDIA"
 author = "NVIDIA"
 
 # The full version, including alpha/beta/rc tags
@@ -30,7 +30,14 @@ release = os.environ["SPHINX_CUDA_BINDINGS_VER"]
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "myst_nb", "enum_tools.autoenum"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
+    "myst_nb",
+    "enum_tools.autoenum",
+    "sphinx_copybutton",
+]
 
 nb_execution_mode = "off"
 numfig = True
@@ -84,6 +91,16 @@ if os.environ.get("CI"):
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+# skip cmdline prompts
+copybutton_exclude = ".linenos, .gp"
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "nvvm": ("https://docs.nvidia.com/cuda/libnvvm-api/", None),
+    "nvjitlink": ("https://docs.nvidia.com/cuda/nvjitlink/", None),
+}
 
 suppress_warnings = [
     # for warnings about multiple possible targets, see NVIDIA/cuda-python#152
