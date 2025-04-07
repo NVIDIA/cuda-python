@@ -6,9 +6,9 @@ multiple components:
 
 - `cuda.core`_: Pythonic access to CUDA runtime and other core functionalities
 - `cuda.bindings`_: Low-level Python bindings to CUDA C APIs
-- `cuda.cooperative`_: A Python package providing CUB's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
-- `cuda.parallel`_: A Python package for easy access to highly efficient and customizable parallel algorithms, like ``sort``, ``scan``, ``reduce``, ``transform``, etc, that are callable on the *host*
-- `numba.cuda`_: Numba's CUDA target for writing CUDA SIMT kernels in Python
+- `cuda.cooperative`_: A Python package providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
+- `cuda.parallel`_: A Python package for easy access to CCCL's highly efficient and customizable parallel algorithms, like ``sort``, ``scan``, ``reduce``, ``transform``, etc, that are callable on the *host*
+- `numba.cuda`_: Numba's target for CUDA GPU programming by directly compiling a restricted subset of Python code into CUDA kernels and device functions following the CUDA execution model.
 
 For access to NVIDIA CPU & GPU Math Libraries, please refer to `nvmath-python`_.
 

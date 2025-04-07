@@ -361,7 +361,7 @@
 <h3>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>CUDA Toolkit headers<a class="footnote-reference brackets" href="#id3" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></li>
-<li><p>static CUDA runtime<a class="footnote-reference brackets" href="#id4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p></li>
+<li><p>CUDA Runtime static library<a class="footnote-reference brackets" href="#id4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p></li>
 </ul>
 <p>Source builds require that the provided CUDA headers are of the same major.minor version as the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> you’re trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> (or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>) environment variable to specify the location of your headers. For example, if your headers are located in <code class="docutils literal notranslate"><span class="pre">/usr/local/cuda/include</span></code>, then you should set <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda
@@ -392,7 +392,7 @@
 </aside>
 <aside class="footnote brackets" id="id4" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
-<p>The static CUDA runtime (<code class="docutils literal notranslate"><span class="pre">libcudart_static.a</span></code> on Linux, <code class="docutils literal notranslate"><span class="pre">cudart_static.lib</span></code> on Windows) is part of CUDA Toolkit. If CUDA is installed from conda, it is contained in the <code class="docutils literal notranslate"><span class="pre">cuda-cudart-static</span></code> package.</p>
+<p>The CUDA Runtime static library (<code class="docutils literal notranslate"><span class="pre">libcudart_static.a</span></code> on Linux, <code class="docutils literal notranslate"><span class="pre">cudart_static.lib</span></code> on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the <code class="docutils literal notranslate"><span class="pre">cuda-cudart-static</span></code> package.</p>
 </aside>
 </aside>
 
