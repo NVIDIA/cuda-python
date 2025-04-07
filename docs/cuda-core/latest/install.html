@@ -322,7 +322,7 @@ dependencies are as follows:</p>
 </tbody>
 </table>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> supports Python 3.9 - 3.12, on Linux (x86-64, arm64) and Windows (x86-64).</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> supports Python 3.9 - 3.13, on Linux (x86-64, arm64) and Windows (x86-64).</p>
 </section>
 <section id="installing-from-pypi">
 <h2>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Link to this heading">¶</a></h2>
@@ -331,8 +331,8 @@ dependencies are as follows:</p>
 </pre></div>
 </div>
 <p>and likewise use <code class="docutils literal notranslate"><span class="pre">[cu11]</span></code> for CUDA 11.</p>
-<p>Note that using <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with NVRTC or nvJitLink installed from PyPI via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> is currently
-not supported. This will be fixed in a future release.</p>
+<p>Note that using <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with NVRTC or nvJitLink installed from PyPI via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> requires
+<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 12.8.0+ or 11.8.6+.</p>
 </section>
 <section id="installing-from-conda-conda-forge">
 <h2>Installing from Conda (conda-forge)<a class="headerlink" href="#installing-from-conda-conda-forge" title="Link to this heading">¶</a></h2>

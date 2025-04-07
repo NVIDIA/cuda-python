@@ -11,6 +11,7 @@
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
     
     
@@ -500,6 +501,10 @@ be a contiguous array of <code class="docutils literal notranslate"><span class=
 argument on either host or device. Since we already prepared each of our arguments into a <code class="docutils literal notranslate"><span class="pre">np.array</span></code> type, the
 construction of our final contiguous array is done by retrieving the <code class="docutils literal notranslate"><span class="pre">XX.ctypes.data</span></code>
 of each kernel argument.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">dY</span><span class="p">,</span> <span class="n">dOut</span><span class="p">,</span> <span class="n">n</span><span class="p">]</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Now the kernel can be launched:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuLaunchKernel</span><span class="p">(</span>
    <span class="n">kernel</span><span class="p">,</span>
@@ -873,7 +878,7 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, NVIDIA
+                Copyright &#169; 2021-2025, NVIDIA
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -923,5 +928,7 @@ Furthermore, <a class="reference external" href="https://docs.python.org/3/libra
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=35a8b989"></script>
     </body>
 </html>
