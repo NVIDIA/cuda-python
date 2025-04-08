@@ -32,8 +32,6 @@ def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachm
         # Look for a versioned library
         # Using sort here mainly to make the result deterministic.
         for node in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
-            if ".alt.so." in node or "-builtins" in node:
-                continue
             so_name = os.path.join(lib_dir, node)
             if os.path.isfile(so_name):
                 return so_name
@@ -49,8 +47,6 @@ def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
     file_wild = libname + "*.dll"
     for bin_dir in sys_path_find_sub_dirs(nvidia_sub_dirs):
         for node in sorted(glob.glob(os.path.join(bin_dir, file_wild))):
-            if node.endswith(".alt.dll") or "-builtins" in node:
-                continue
             dll_name = os.path.join(bin_dir, node)
             if os.path.isfile(dll_name):
                 return dll_name
