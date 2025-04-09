@@ -44,10 +44,13 @@ def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
     else:
         nvidia_sub_dirs = ("nvidia", "*", "bin")
     file_wild = libname + "*.dll"
+    print(f"\nLOOOK {file_wild=}", flush=True)
     for bin_dir in sys_path_find_sub_dirs(nvidia_sub_dirs):
+        print(f"\nLOOOK   {bin_dir=}", flush=True)
         dll_name = None
         have_builtins = False
         for path in sorted(glob.glob(os.path.join(bin_dir, file_wild))):
+            print(f"\nLOOOK     {path=}", flush=True)
             # nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-win_amd64.whl:
             #     nvidia\cuda_nvrtc\bin\
             #         nvrtc-builtins64_128.dll
@@ -65,6 +68,7 @@ def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
                 dll_name = path
         if dll_name is not None:
             if have_builtins:
+                print(f"\nLOOOK os.add_dll_directory({bin_dir=})", flush=True)
                 os.add_dll_directory(bin_dir)
             return dll_name
     _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
