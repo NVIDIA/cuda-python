@@ -4,6 +4,15 @@ paths = path_finder.get_cuda_paths()
 
 for k, v in paths.items():
     print(f"{k}: {v}", flush=True)
+print()
 
-print(path_finder.find_nvidia_dynamic_library("nvvm"))
-print(path_finder.find_nvidia_dynamic_library("nvJitLink"))
+libnames = ("nvJitLink", "nvrtc", "nvvm")
+
+for libname in libnames:
+    print(path_finder.find_nvidia_dynamic_library(libname))
+    print()
+
+for libname in libnames:
+    print(libname)
+    print(path_finder.load_nvidia_dynamic_library(libname))
+    print()
