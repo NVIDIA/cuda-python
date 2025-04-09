@@ -1,3 +1,5 @@
+.. default-role:: cpp:any
+
 nvjitlink
 =========
 

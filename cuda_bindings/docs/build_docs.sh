@@ -17,7 +17,7 @@ fi
 # version selector or directory structure.
 if [[ -z "${SPHINX_CUDA_BINDINGS_VER}" ]]; then
     export SPHINX_CUDA_BINDINGS_VER=$(python -c "from importlib.metadata import version; \
-                                                 ver = '.'.join(str(version('cuda-python')).split('.')[:3]); \
+                                                 ver = '.'.join(str(version('cuda-bindings')).split('.')[:3]); \
                                                  print(ver)" \
                                       | awk -F'+' '{print $1}')
 fi
