@@ -3,7 +3,7 @@ def __getattr__(name):
         import warnings
 
         warnings.warn(
-            "accessing cuda.__version__ is deprecated, " "please switch to use cuda.bindings.__version__ instead",
+            "accessing cuda.__version__ is deprecated, please switch to use cuda.bindings.__version__ instead",
             DeprecationWarning,
             stacklevel=2,
         )
