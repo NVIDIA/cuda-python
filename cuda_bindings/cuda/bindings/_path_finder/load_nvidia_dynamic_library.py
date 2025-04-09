@@ -1,4 +1,5 @@
 import functools
+import os
 import sys
 
 if sys.platform == "win32":
@@ -12,7 +13,6 @@ if sys.platform == "win32":
 
 else:
     import ctypes
-    import os
 
     _LINUX_CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
