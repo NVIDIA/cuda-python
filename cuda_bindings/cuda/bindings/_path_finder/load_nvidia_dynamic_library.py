@@ -1,5 +1,4 @@
 import functools
-import os
 import sys
 
 if sys.platform == "win32":
@@ -14,6 +13,7 @@ if sys.platform == "win32":
 
 else:
     import ctypes
+    import os
 
     _LINUX_CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
@@ -61,12 +61,10 @@ def _windows_load_with_dll_basename(name: str) -> int:
 
 @functools.cache
 def load_nvidia_dynamic_library(name: str) -> int:
-    print(f"\nLOOOK load_nvidia_dynamic_library({name=})", flush=True)
     # First try using the platform-specific dynamic loader search mechanisms
     if sys.platform == "win32":
         handle = _windows_load_with_dll_basename(name)
         if handle:
-            print("\nLOOOK return handle", flush=True)
             return handle
     else:
         dl_path = f"lib{name}.so"  # Version intentionally no specified.
@@ -80,19 +78,12 @@ def load_nvidia_dynamic_library(name: str) -> int:
 
     dl_path = find_nvidia_dynamic_library(name)
     if sys.platform == "win32":
-        print(f"\nLOOOK win32api.LoadLibrary({dl_path=})", flush=True)
-        dirnm = os.path.dirname(dl_path)
-        if os.path.isdir(dirnm):
-            print(f"\nLOOOK   {dirnm=}", flush=True)
-            for node in os.listdir(dirnm):
-                print(f"\nLOOOK     {node=}", flush=True)
         flags = _WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | _WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
         try:
             handle = win32api.LoadLibraryEx(dl_path, 0, flags)
         except pywintypes.error as e:
             raise RuntimeError(f"Failed to load DLL at {dl_path}: {e}") from e
         # Use `cdef void* ptr = <void*><intptr_t>` in cython to convert back to void*
-        print("\nLOOOK return handle", flush=True)
         return handle  # C signed int, matches win32api.GetProcAddress
     else:
         try:
