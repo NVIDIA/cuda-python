@@ -1,0 +1,185 @@
+on:
+  workflow_call:
+    inputs:
+      host-platform:
+        required: true
+        type: string
+      cuda-version:
+        type: string
+        default: "12.8.0"
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+permissions:
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.9"
+          - "3.13"
+    name: py${{ matrix.python-version }}, ${{ inputs.cuda-version }}
+    runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
+                 (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
+                 (inputs.host-platform == 'win-64' && 'windows-2019') }}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+        # Skip the cache on Windows nodes outside of our org.
+        if: ${{ inputs.host-platform != 'win-64' }}
+
+      - name: Set up Python
+        if: ${{ startsWith(inputs.host-platform, 'linux') }}
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up MSVC
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        uses: ilammy/msvc-dev-cmd@v1
+      
+      - name: Set environment variables
+        run: |
+          PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
+          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+            CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-manylinux*"
+            REPO_DIR=$(pwd)
+          elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+            CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-win_amd64"
+            PWD=$(pwd)
+            REPO_DIR=$(cygpath -w $PWD)
+          fi
+  
+          echo "CUDA_BINDINGS_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
+          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
+          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}"
+          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+          echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
+      
+      - name: Dump environment
+        run: |
+          env
+      
+      - name: Build cuda.core wheel
+        uses: pypa/cibuildwheel@v2.22.0
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          CIBW_ARCHS_LINUX: "native"
+          CIBW_BUILD_VERBOSITY: 1
+        with:
+          package-dir: ./cuda_core/
+          output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: List the cuda.core artifacts directory
+        run: |
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
+          fi
+          $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: Check cuda.core wheel
+        run: |
+          pip install twine
+          twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+
+      - name: Upload cuda.core build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+          if-no-files-found: error
+
+      - name: Set up mini CTK
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ inputs.cuda-version }}
+
+      - name: Build cuda.bindings wheel
+        uses: pypa/cibuildwheel@v2.22.0
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          CIBW_ARCHS_LINUX: "native"
+          CIBW_BUILD_VERBOSITY: 1
+          # CIBW mounts the host filesystem under /host
+          CIBW_ENVIRONMENT_LINUX: >
+            CUDA_PATH=/host/${{ env.CUDA_PATH }}
+            LIBRARY_PATH=/host/${{ env.CUDA_PATH }}/lib
+            CUDA_BINDINGS_PARALLEL_LEVEL=${{ env.CUDA_BINDINGS_PARALLEL_LEVEL }}
+          CIBW_ENVIRONMENT_WINDOWS: >
+            CUDA_HOME="$(cygpath -w ${{ env.CUDA_PATH }})"
+            LIB="${CUDA_HOME}\\lib\\x64;${LIB}"
+            CUDA_BINDINGS_PARALLEL_LEVEL=${{ env.CUDA_BINDINGS_PARALLEL_LEVEL }}
+        with:
+          package-dir: ./cuda_bindings/
+          output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: List the cuda.bindings artifacts directory
+        run: |
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
+          fi
+          $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Check cuda.bindings wheel
+        run: |
+          twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+
+      - name: Upload cuda.bindings build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          if-no-files-found: error
+
+      # We only need/want a single pure python wheel, pick linux-64 index 0.
+      - name: Build and check cuda-python wheel
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        run: |
+          pushd cuda_python
+          pip wheel -v --no-deps .
+          twine check *.whl
+          popd
+
+      - name: List the cuda-python artifacts directory
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        run: |
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
+          fi
+          $CHOWN -R $(whoami) cuda_python/*.whl
+          ls -lahR cuda_python
+
+      - name: Upload cuda-python build artifacts
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cuda-python-wheel
+          path: cuda_python/*.whl
+          if-no-files-found: error
