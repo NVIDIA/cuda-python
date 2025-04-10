@@ -38,6 +38,11 @@ def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachm
     return None
 
 
+def _append_to_os_environ_path(dirpath):
+    curr_path = os.environ.get("PATH")
+    os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
+
+
 def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
     if libname == "nvvm":  # noqa: SIM108
         nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin")
@@ -69,7 +74,10 @@ def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
         if dll_name is not None:
             if have_builtins:
                 print(f"\nLOOOK os.add_dll_directory({bin_dir=})", flush=True)
+                # Add the DLL directory to the search path
                 os.add_dll_directory(bin_dir)
+                # Update PATH as a fallback for dependent DLL resolution
+                _append_to_os_environ_path(bin_dir)
             return dll_name
     _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
     return None

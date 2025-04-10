@@ -7,6 +7,7 @@ if sys.platform == "win32":
 
     import pywintypes
     import win32api
+    import win32con
 
     # Mirrors WinBase.h (unfortunately not defined already elsewhere)
     _WINBASE_LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
@@ -85,8 +86,9 @@ def load_nvidia_dynamic_library(name: str) -> int:
             print(f"\nLOOOK   {dirnm=}", flush=True)
             for node in os.listdir(dirnm):
                 print(f"\nLOOOK     {node=}", flush=True)
+        flags = win32con.LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | win32con.LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
         try:
-            handle = win32api.LoadLibrary(dl_path)
+            handle = win32api.LoadLibraryEx(dl_path, 0, flags)
         except pywintypes.error as e:
             raise RuntimeError(f"Failed to load DLL at {dl_path}: {e}") from e
         # Use `cdef void* ptr = <void*><intptr_t>` in cython to convert back to void*
