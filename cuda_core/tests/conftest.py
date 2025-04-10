@@ -57,10 +57,19 @@ sys.path.append(os.getcwd())
 
 @pytest.fixture(scope="session", autouse=True)
 def clean_up_cffi_files():
-    yield
+    # Clean up files from previous runs before the session starts
     files = glob.glob(os.path.join(os.getcwd(), "_cpu_obj*"))
     for f in files:
         try:  # noqa: SIM105
             os.remove(f)
         except FileNotFoundError:
             pass  # noqa: SIM105
+        except PermissionError:
+            # On Windows, removing a file in use raises PermissionError
+            # We can ignore this during setup, as the goal is just to
+            # clean up leftovers from *previous* runs. If a file is
+            # still in use now, it's likely from an ongoing process
+            # unrelated to the test session about to start.
+            pass
+    yield
+    # No cleanup needed after yield anymore
