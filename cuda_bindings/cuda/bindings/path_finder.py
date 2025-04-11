@@ -34,4 +34,43 @@ __all__ = [
     "get_nvidia_nvvm_ctk",
     "get_nvidia_static_cudalib_ctk",
     "get_system_ctk",
+    "SUPPORTED_LIBNAMES",
 ]
+
+SUPPORTED_LIBNAMES = (
+    # Core CUDA Runtime and Compiler
+    "cudart",
+    "nvfatbin",
+    "nvJitLink",
+    "nvrtc",
+    "nvvm",
+    # Math Libraries
+    "cublas",
+    "cufft",
+    "curand",
+    "cusolver",
+    "cusparse",
+    "nppc",
+    "nppial",
+    "nppicc",
+    "nppidei",
+    "nppif",
+    "nppig",
+    "nppim",
+    "nppist",
+    "nppisu",
+    "nppitc",
+    "npps",
+    "nvblas",
+    # Profiling and Developer Tools
+    "cupti",
+    "nvperf_host",
+    "nvperf_target",
+    "nvToolsExt",
+    # Debugging and Introspection
+    "accinj64",
+    "cuinj64",
+    "checkpoint",
+    # Miscellaneous
+    "OpenCL",
+)
