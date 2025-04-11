@@ -1,0 +1,32 @@
+name: "CI"
+
+concurrency:
+  group: ${{ github.workflow }}-${{
+           github.ref_name == 'main' && format('ci-main-build-test-{0}', github.run_id) ||
+           format('ci-pr-build-test-on-{0}-against-branch-{1}', github.event_name, github.ref_name)
+         }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+      - "main"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        host-platform:
+          - linux-64
+          - linux-aarch64
+          - win-64
+    name: Build ${{ matrix.host-platform }}
+    if: ${{ github.repository_owner == 'nvidia' }}
+    secrets: inherit
+    uses:
+      ./.github/workflows/build.yml
+    with:
+      host-platform: ${{ matrix.host-platform }}
+      cuda-version: "12.8.0"
