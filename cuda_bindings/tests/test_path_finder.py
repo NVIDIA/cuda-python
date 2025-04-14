@@ -3,6 +3,10 @@ import pytest
 from cuda.bindings import path_finder
 
 
+def test_supported_libnames_windows_dlls_consistency():
+    assert list(sorted(path_finder.SUPPORTED_LIBNAMES)) == list(sorted(path_finder.SUPPORTED_WINDOWS_DLLS.keys()))
+
+
 @pytest.mark.parametrize("libname", path_finder.SUPPORTED_LIBNAMES)
 def test_find_and_load(libname):
     print(f"\n{libname}")
