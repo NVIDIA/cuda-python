@@ -80,3 +80,63 @@ def test_is_done(init_cuda):
     # Without a sync, the captured work might not have yet completed
     # Therefore this check should never raise an exception
     assert event.is_done in (True, False)
+
+
+def test_error_timing_disabled():
+    device = Device()
+    device.set_current()
+    enabled = EventOptions(enable_timing=True)
+    disabled = EventOptions(enable_timing=False)
+    stream = device.create_stream()
+
+    event1 = stream.record(options=enabled)
+    event2 = stream.record(options=disabled)
+    stream.sync()
+    with pytest.raises(RuntimeError, match="^Both Events must be created with timing enabled"):
+        event2 - event1
+
+    event1 = stream.record(options=disabled)
+    event2 = stream.record(options=disabled)
+    stream.sync()
+    with pytest.raises(RuntimeError, match="^Both Events must be created with timing enabled"):
+        event2 - event1
+
+    event1 = stream.record(options=enabled)
+    event2 = stream.record(options=enabled)
+    stream.sync()
+    event2 - event1
+
+
+def test_error_timing_recorded():
+    device = Device()
+    device.set_current()
+    enabled = EventOptions(enable_timing=True)
+    stream = device.create_stream()
+
+    event1 = stream.record(options=enabled)
+    event2 = device.create_event(options=enabled)
+    event3 = device.create_event(options=enabled)
+
+    stream.sync()
+    with pytest.raises(RuntimeError, match="^Both Events must be recorded"):
+        event2 - event1
+    with pytest.raises(RuntimeError, match="^Both Events must be recorded"):
+        event1 - event2
+    with pytest.raises(RuntimeError, match="^Both Events must be recorded"):
+        event3 - event2
+
+
+def test_error_timing_incomplete():
+    device = Device()
+    device.set_current()
+    enabled = EventOptions(enable_timing=True)
+    stream = device.create_stream()
+
+    event1 = stream.record(options=enabled)
+    event2 = device.create_event(options=enabled)
+    stream.wait(event2)
+    event3 = stream.record(options=enabled)
+
+    # event3 will never complete because the stream is waiting on event2 which is never recorded
+    with pytest.raises(RuntimeError, match="^One or both events have not completed."):
+        event3 - event1

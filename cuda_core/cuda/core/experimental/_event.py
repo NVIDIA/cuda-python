@@ -120,9 +120,27 @@ class Event:
         try:
             timing = handle_return(driver.cuEventElapsedTime(other.handle, self.handle))
         except CUDAError as e:
-            raise RuntimeError(
-                "Timing capability must be enabled in order to subtract two Events; timing is disabled by default."
-            ) from e
+            error_message = str(e)
+            if "CUDA_ERROR_INVALID_HANDLE" in error_message:
+                if self.is_timing_disabled or other.is_timing_disabled:
+                    explanation = (
+                        "Both Events must be created with timing enabled in order to subtract them; "
+                        "use EventOptions(enable_timing=True) when creating both events."
+                    )
+                else:
+                    explanation = (
+                        "Both Events must be recorded before they can be subtracted; "
+                        "use Stream.record() to record both events to a stream."
+                    )
+            elif "CUDA_ERROR_NOT_READY" in error_message:
+                explanation = (
+                    "One or both events have not completed; "
+                    "use Event.sync(), Stream.sync(), or Device.sync() to wait for the events to complete "
+                    "before subtracting them."
+                )
+            else:
+                raise e
+            raise RuntimeError(explanation) from e
         return timing
 
     @property
