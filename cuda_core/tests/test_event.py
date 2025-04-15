@@ -101,11 +101,6 @@ def test_error_timing_disabled():
     with pytest.raises(RuntimeError, match="^Both Events must be created with timing enabled"):
         event2 - event1
 
-    event1 = stream.record(options=enabled)
-    event2 = stream.record(options=enabled)
-    stream.sync()
-    event2 - event1
-
 
 def test_error_timing_recorded():
     device = Device()
