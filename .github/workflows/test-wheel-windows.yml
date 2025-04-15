@@ -161,8 +161,7 @@ jobs:
         uses: Jimver/cuda-toolkit@v0.2.21
         with:
           cuda: ${{ inputs.cuda-version }}
-          method: 'network'
-          sub-packages: ${{ env.MINI_CTK_DEPS }}
+          method: 'local'
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
