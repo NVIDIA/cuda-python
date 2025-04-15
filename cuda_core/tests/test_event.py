@@ -20,37 +20,27 @@ def test_event_init_disabled():
         cuda.core.experimental._event.Event()  # Ensure back door is locked.
 
 
-@pytest.mark.parametrize("enable_timing", [True, False, None])
-def test_timing(init_cuda, enable_timing):
-    options = EventOptions(enable_timing=enable_timing)
+def test_timing_success(init_cuda):
+    options = EventOptions(enable_timing=True)
     stream = Device().create_stream()
     delay_seconds = 0.5
     e1 = stream.record(options=options)
     time.sleep(delay_seconds)
     e2 = stream.record(options=options)
     e2.sync()
-    for e in (e1, e2):
-        assert e.is_timing_disabled == (True if enable_timing is None else not enable_timing)
-    if enable_timing:
-        elapsed_time_ms = e2 - e1
-        assert isinstance(elapsed_time_ms, float)
-        # Using a generous tolerance, to avoid flaky tests:
-        # We only want to exercise the __sub__ method, this test is not meant
-        # to stress-test the CUDA driver or time.sleep().
-        delay_ms = delay_seconds * 1000
-        if os.name == "nt":  # noqa: SIM108
-            # For Python <=3.10, the Windows timer resolution is typically limited to 15.6 ms by default.
-            generous_tolerance = 100
-        else:
-            # Most modern Linux kernels have a default timer resolution of 1 ms.
-            generous_tolerance = 20
-        assert delay_ms - generous_tolerance <= elapsed_time_ms < delay_ms + generous_tolerance
+    elapsed_time_ms = e2 - e1
+    assert isinstance(elapsed_time_ms, float)
+    # Using a generous tolerance, to avoid flaky tests:
+    # We only want to exercise the __sub__ method, this test is not meant
+    # to stress-test the CUDA driver or time.sleep().
+    delay_ms = delay_seconds * 1000
+    if os.name == "nt":  # noqa: SIM108
+        # For Python <=3.10, the Windows timer resolution is typically limited to 15.6 ms by default.
+        generous_tolerance = 100
     else:
-        with pytest.raises(RuntimeError) as e:
-            elapsed_time_ms = e2 - e1
-            msg = str(e)
-            assert "disabled by default" in msg
-            assert "CUDA_ERROR_INVALID_HANDLE" in msg
+        # Most modern Linux kernels have a default timer resolution of 1 ms.
+        generous_tolerance = 20
+    assert delay_ms - generous_tolerance <= elapsed_time_ms < delay_ms + generous_tolerance
 
 
 def test_is_sync_busy_waited(init_cuda):
@@ -91,6 +81,8 @@ def test_error_timing_disabled():
 
     event1 = stream.record(options=enabled)
     event2 = stream.record(options=disabled)
+    assert not event1.is_timing_disabled
+    assert event2.is_timing_disabled
     stream.sync()
     with pytest.raises(RuntimeError, match="^Both Events must be created with timing enabled"):
         event2 - event1
