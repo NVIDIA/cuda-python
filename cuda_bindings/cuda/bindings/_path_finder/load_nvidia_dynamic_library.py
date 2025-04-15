@@ -22,6 +22,7 @@ else:
     _LINUX_CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
 from .find_nvidia_dynamic_library import find_nvidia_dynamic_library
+from .supported_libs import SUPPORTED_WINDOWS_DLLS
 
 
 @functools.cache
@@ -48,17 +49,15 @@ def _windows_load_with_dll_basename(name: str) -> int:
     driver_ver = _windows_cuDriverGetVersion()
     del driver_ver  # Keeping this here because it will probably be needed in the future.
 
-    if name == "nvJitLink":
-        dll_name = "nvJitLink_120_0.dll"
-    elif name == "nvrtc":
-        dll_name = "nvrtc64_120_0.dll"
-    elif name == "nvvm":
-        dll_name = "nvvm64_40_0.dll"
+    dll_names = SUPPORTED_WINDOWS_DLLS.get(name)
+    if dll_names is None:
+        return None
 
-    try:
-        return win32api.LoadLibrary(dll_name)
-    except pywintypes.error:
-        pass
+    for dll_name in dll_names:
+        try:
+            return win32api.LoadLibrary(dll_name)
+        except pywintypes.error:
+            pass
 
     return None
 
