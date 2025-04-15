@@ -13,6 +13,8 @@ from cuda.core.experimental._utils.cuda_utils import (
     check_or_create_options,
     driver,
     handle_return,
+)
+from cuda.core.experimental._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
 
