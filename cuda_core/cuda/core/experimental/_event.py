@@ -8,7 +8,13 @@ import weakref
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from cuda.core.experimental._utils.cuda_utils import CUDAError, check_or_create_options, driver, handle_return
+from cuda.core.experimental._utils.cuda_utils import (
+    CUDAError,
+    check_or_create_options,
+    driver,
+    handle_return,
+    _check_driver_error as raise_if_driver_error,
+)
 
 if TYPE_CHECKING:
     import cuda.bindings
@@ -117,11 +123,12 @@ class Event:
 
     def __sub__(self, other):
         # return self - other (in milliseconds)
+        err, timing = driver.cuEventElapsedTime(other.handle, self.handle)
         try:
-            timing = handle_return(driver.cuEventElapsedTime(other.handle, self.handle))
+            raise_if_driver_error(err)
+            return timing
         except CUDAError as e:
-            error_message = str(e)
-            if "CUDA_ERROR_INVALID_HANDLE" in error_message:
+            if err == driver.CUresult.CUDA_ERROR_INVALID_HANDLE:
                 if self.is_timing_disabled or other.is_timing_disabled:
                     explanation = (
                         "Both Events must be created with timing enabled in order to subtract them; "
@@ -132,7 +139,7 @@ class Event:
                         "Both Events must be recorded before they can be subtracted; "
                         "use Stream.record() to record both events to a stream."
                     )
-            elif "CUDA_ERROR_NOT_READY" in error_message:
+            elif err == driver.CUresult.CUDA_ERROR_NOT_READY:
                 explanation = (
                     "One or both events have not completed; "
                     "use Event.sync(), Stream.sync(), or Device.sync() to wait for the events to complete "
@@ -141,7 +148,6 @@ class Event:
             else:
                 raise e
             raise RuntimeError(explanation) from e
-        return timing
 
     @property
     def is_timing_disabled(self) -> bool:
