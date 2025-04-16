@@ -40,6 +40,7 @@ all = [
     "nvidia-cuda-nvcc-cu12",
     "nvidia-cuda-nvrtc-cu12",
     "nvidia-nvjitlink-cu12>=12.3",
+    "nvidia-cuda-runtime-cu12",
     "nvidia-cublas-cu12",
     "nvidia-cufft-cu12",
     "nvidia-curand-cu12",

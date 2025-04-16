@@ -23,8 +23,7 @@ def test_find_and_load(libname):
             out = func(libname)
         except Exception as e:
             out = f"EXCEPTION: {type(e)} {str(e)}"
-            if libname != "cudart":
-                failures.append(algo)
+            failures.append(algo)
         print(out)
     print()
     assert not failures
