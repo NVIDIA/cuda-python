@@ -1,3 +1,4 @@
+import subprocess
 import sys
 
 import pytest
@@ -9,24 +10,34 @@ def test_supported_libnames_windows_dlls_consistency():
     assert list(sorted(path_finder.SUPPORTED_LIBNAMES)) == list(sorted(path_finder.SUPPORTED_WINDOWS_DLLS.keys()))
 
 
+@pytest.mark.parametrize("algo", ("find", "load"))
 @pytest.mark.parametrize("libname", path_finder.SUPPORTED_LIBNAMES)
-def test_find_and_load(libname):
+def test_find_or_load_nvidia_dynamic_library(algo, libname):
     if sys.platform == "win32" and libname == "cufile":
         pytest.skip(f'test_find_and_load("{libname}") not supported on this platform')
-    print(f'\ntest_find_and_load("{libname}")')
-    failures = []
-    for algo, func in (
-        ("find", path_finder.find_nvidia_dynamic_library),
-        ("load", path_finder.load_nvidia_dynamic_library),
-    ):
-        if libname == "cusolver" and algo == "load":
-            # Missing in cusolver_windows.pyx (ba9d40222af16c5fa808f0bfa1ca73f185860e12):
-            func("nvJitLink")
-        try:
-            out = func(libname)
-        except Exception as e:
-            out = f"EXCEPTION: {type(e)} {str(e)}"
-            failures.append(algo)
-        print(out)
-    print()
-    assert not failures
+
+    code = """\
+from cuda.bindings import path_finder
+"""
+    if algo == "load" and libname == "cusolver":
+        code += """\
+path_finder.load_nvidia_dynamic_library("nvJitLink")
+path_finder.load_nvidia_dynamic_library("cusparse")
+path_finder.load_nvidia_dynamic_library("cublas")
+"""
+    code += f"""\
+path_finder.load_nvidia_dynamic_library({libname!r})
+"""
+
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Subprocess failed for libname={libname!r} with exit code {result.returncode}\\n"
+            f"--- stdout ---\\n{result.stdout}\\n"
+            f"--- stderr ---\\n{result.stderr}"
+        )
