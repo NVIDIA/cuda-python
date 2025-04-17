@@ -20,9 +20,8 @@ def test_find_and_load(libname):
         ("load", path_finder.load_nvidia_dynamic_library),
     ):
         if libname == "cusolver" and algo == "load":
+            # Missing in cusolver_windows.pyx (ba9d40222af16c5fa808f0bfa1ca73f185860e12):
             func("nvJitLink")
-            func("cusparse")
-            func("cublas")
         try:
             out = func(libname)
         except Exception as e:
