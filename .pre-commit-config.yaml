@@ -11,11 +11,15 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.4
+    rev: 971923581912ef60a6b70dbf0c3e9a39563c9d47  #v0.11.4
     hooks:
       - id: ruff
         args: [--fix, --show-fixes]
       - id: ruff-format
+  - repo: https://github.com/PyCQA/bandit
+    rev: 8ff25e07e487f143571cc305e56dd0253c60bc7b  #v1.8.3
+    hooks:
+      - id: bandit
 
 default_language_version:
       python: python3
