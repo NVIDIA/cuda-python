@@ -19,6 +19,10 @@ def test_find_and_load(libname):
         ("find", path_finder.find_nvidia_dynamic_library),
         ("load", path_finder.load_nvidia_dynamic_library),
     ):
+        if libname == "cusolver" and algo == "load":
+            func("nvJitLink")
+            func("cusparse")
+            func("cublas")
         try:
             out = func(libname)
         except Exception as e:
