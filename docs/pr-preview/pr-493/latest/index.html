@@ -221,6 +221,7 @@
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/cuda_cooperative">cuda.cooperative</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/cuda_parallel">cuda.parallel</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 </ul>
@@ -292,8 +293,9 @@ multiple components:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-core/latest">cuda.core</a>: Pythonic access to CUDA runtime and other core functionalities</p></li>
 <li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a>: Low-level Python bindings to CUDA C APIs</p></li>
-<li><p><a class="reference external" href="https://nvidia.github.io/cccl/cuda_cooperative/">cuda.cooperative</a>: A Python package for easy access to highly efficient and customizable parallel algorithms, like <cite>sort</cite>, <cite>scan</cite>, <cite>reduce</cite>, <cite>transform</cite>, etc.</p></li>
-<li><p><a class="reference external" href="https://nvidia.github.io/cccl/cuda_parallel/">cuda.parallel</a>: A Python package providing CUB’s reusable block-wide and warp-wide primitives for use within Numba CUDA kernels</p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/cccl/cuda_cooperative/">cuda.cooperative</a>: A Python package providing CCCL’s reusable block-wide and warp-wide <em>device</em> primitives for use within Numba CUDA kernels</p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/cccl/cuda_parallel/">cuda.parallel</a>: A Python package for easy access to CCCL’s highly efficient and customizable parallel algorithms, like <code class="docutils literal notranslate"><span class="pre">sort</span></code>, <code class="docutils literal notranslate"><span class="pre">scan</span></code>, <code class="docutils literal notranslate"><span class="pre">reduce</span></code>, <code class="docutils literal notranslate"><span class="pre">transform</span></code>, etc, that are callable on the <em>host</em></p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a>: Numba’s target for CUDA GPU programming by directly compiling a restricted subset of Python code into CUDA kernels and device functions following the CUDA execution model.</p></li>
 </ul>
 <p>For access to NVIDIA CPU &amp; GPU Math Libraries, please refer to <a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest">nvmath-python</a>.</p>
 <p>CUDA Python is currently undergoing an overhaul to improve existing and bring up new components.
@@ -313,6 +315,7 @@ be available, please refer to the <a class="reference external" href="https://nv
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/cuda_cooperative">cuda.cooperative</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/cuda_parallel">cuda.parallel</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="conduct.html#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="conduct.html#our-pledge">Our Pledge</a></li>
