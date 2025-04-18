@@ -23,7 +23,7 @@ jobs:
         python-version:
           - "3.9"
           - "3.13"
-    name: py${{ matrix.python-version }}, ${{ inputs.cuda-version }}
+    name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
                  (inputs.host-platform == 'win-64' && 'windows-2019') }}

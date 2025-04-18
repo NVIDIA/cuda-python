@@ -22,7 +22,7 @@ jobs:
           - linux-64
           - linux-aarch64
           #- win-64
-    name: Build ${{ matrix.host-platform }}
+    name: Build ${{ matrix.host-platform }}, CUDA 12.8.0
     if: ${{ github.repository_owner == 'nvidia' }}
     secrets: inherit
     uses:
@@ -51,5 +51,4 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      local-ctk: 1
       build-ctk-ver: 12.8.0

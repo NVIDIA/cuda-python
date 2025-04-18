@@ -16,9 +16,6 @@ on:
       build-ctk-ver:
         type: string
         required: true
-      local-ctk:
-        type: string
-        required: true
       matrix_filter:
         type: string
         default: "."
@@ -43,22 +40,31 @@ jobs:
         id: compute-matrix
         run: |
           set -eo pipefail
-          # Please keep the matrices sorted in ascending order by the following:
-          #
-          #     [PY_VER, CUDA_VER, LINUX_VER, GPU, DRIVER]
-          #
+
+          # Set a default GPU based upon architecture.
           gpu="l4"
           if [[ "${ARCH}" == "arm64" ]]; then
             gpu="a100"
           fi
+          # Add a special entry for the H100 runner on amd64.
+          special_runner=""
+          if [[ "${ARCH}" == "amd64" ]]; then
+            special_runner="- { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.8.0', LOCAL_CTK: '1', GPU: 'H100', DRIVER: 'latest' }"
+          fi
+
+          # Please keep the matrices sorted in ascending order by the following:
+          #
+          #     [PY_VER, CUDA_VER, LOCAL_CTK, GPU, DRIVER]
+          #
           export MATRICES="
             pull-request:
-              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LINUX_VER: 'rockylinux8', GPU: ${gpu}, DRIVER: 'earliest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.0.1', LINUX_VER: 'ubuntu24.04', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.8.0', LINUX_VER: 'ubuntu22.04', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              ${special_runner}
             nightly:
-              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LINUX_VER: 'rockylinux8', GPU: ${gpu}, DRIVER: 'earliest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.8.0', LINUX_VER: 'ubuntu22.04', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
           "
 
           # Use the nightly matrix for branch tests
@@ -78,6 +84,7 @@ jobs:
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
   test:
+    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, GPU ${{ matrix.GPU }}
     needs: compute-matrix
     strategy:
       fail-fast: false
@@ -240,7 +247,7 @@ jobs:
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Set up mini CTK
-        if: ${{ inputs.local-ctk == '1' }}
+        if: ${{ matrix.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
@@ -275,7 +282,7 @@ jobs:
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
           pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
+          if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             ls $CUDA_PATH
             pip install *.whl
           else
@@ -289,7 +296,7 @@ jobs:
 
           # It is a bit convoluted to run the Cython tests against CTK wheels,
           # so let's just skip them.
-          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
+          if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             if [[ "${{ inputs.host-platform }}" == linux* ]]; then
               bash tests/cython/build_tests.sh
             elif [[ "${{ inputs.host-platform }}" == win* ]]; then
@@ -306,7 +313,7 @@ jobs:
           # If mismatch: cuda.bindings is installed from the backport branch.
           if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
             pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-            if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
+            if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
               pip install *.whl
             else
               pip install $(ls *.whl)[all]
@@ -326,7 +333,7 @@ jobs:
           # so let's just skip them. Also, currently our CI always installs the
           # latest bindings (from either major version). This is not compatible
           # with the test requirements.
-          if [[ "${{ inputs.local-ctk }}" == 1 && "${SKIP_CUDA_CORE_CYTHON_TEST}" == 0 ]]; then
+          if [[ "${{ matrix.LOCAL_CTK }}" == 1 && "${SKIP_CUDA_CORE_CYTHON_TEST}" == 0 ]]; then
             pip install cython setuptools  # setuptools needed starting PY312
             if [[ "${{ inputs.host-platform }}" == linux* ]]; then
               bash tests/cython/build_tests.sh
@@ -340,7 +347,7 @@ jobs:
 
       - name: Ensure cuda-python installable
         run: |
-          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
+          if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             pip install cuda_python*.whl
           else
             pip install $(ls cuda_python*.whl)[all]
