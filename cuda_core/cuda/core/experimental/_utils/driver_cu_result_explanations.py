@@ -34,8 +34,7 @@ DRIVER_CU_RESULT_EXPLANATIONS = {
         "the requested operation."
     ),
     3: (
-        "This indicates that the CUDA driver has not been initialized with cuInit() or that initialization "
-        "has failed."
+        "This indicates that the CUDA driver has not been initialized with cuInit() or that initialization has failed."
     ),
     4: "This indicates that the CUDA driver is in the process of shutting down.",
     5: (
@@ -69,7 +68,7 @@ DRIVER_CU_RESULT_EXPLANATIONS = {
         "device or that the action requested is invalid for the specified device."
     ),
     102: "This error indicates that the Grid license is not applied.",
-    200: ("This indicates that the device kernel image is invalid. This can also indicate an invalid CUDA " "module."),
+    200: ("This indicates that the device kernel image is invalid. This can also indicate an invalid CUDA module."),
     201: (
         "This most frequently indicates that there is no context bound to the current thread. This can also "
         "be returned if the context passed to an API call is not a valid handle (such as a context that has "
@@ -109,12 +108,9 @@ DRIVER_CU_RESULT_EXPLANATIONS = {
     221: "This indicates that the PTX JIT compiler library was not found.",
     222: "This indicates that the provided PTX was compiled with an unsupported toolchain.",
     223: "This indicates that the PTX JIT compilation was disabled.",
-    224: (
-        "This indicates that the CUexecAffinityType passed to the API call is not supported by the active " "device."
-    ),
+    224: ("This indicates that the CUexecAffinityType passed to the API call is not supported by the active device."),
     225: (
-        "This indicates that the code to be compiled by the PTX JIT contains unsupported call to "
-        "cudaDeviceSynchronize."
+        "This indicates that the code to be compiled by the PTX JIT contains unsupported call to cudaDeviceSynchronize."
     ),
     226: (
         "This indicates that an exception occurred on the device that is now contained by the GPU's error "
@@ -194,7 +190,7 @@ DRIVER_CU_RESULT_EXPLANATIONS = {
         "This error indicates that the hardware resources required to enable peer access have been exhausted "
         "for one or more of the devices passed to cuCtxEnablePeerAccess()."
     ),
-    712: ("This error indicates that the memory range passed to cuMemHostRegister() has already been " "registered."),
+    712: ("This error indicates that the memory range passed to cuMemHostRegister() has already been registered."),
     713: (
         "This error indicates that the pointer passed to cuMemHostUnregister() does not correspond to any "
         "currently registered memory region."
@@ -264,15 +260,15 @@ DRIVER_CU_RESULT_EXPLANATIONS = {
         "documentation for the supported hardware matrix or ensure that only supported hardware is visible "
         "during initialization via the CUDA_VISIBLE_DEVICES environment variable."
     ),
-    805: ("This error indicates that the MPS client failed to connect to the MPS control daemon or the MPS " "server."),
-    806: ("This error indicates that the remote procedural call between the MPS server and the MPS client " "failed."),
+    805: ("This error indicates that the MPS client failed to connect to the MPS control daemon or the MPS server."),
+    806: ("This error indicates that the remote procedural call between the MPS server and the MPS client failed."),
     807: (
         "This error indicates that the MPS server is not ready to accept new MPS client requests. This error "
         "can be returned when the MPS server is in the process of recovering from a fatal failure."
     ),
     808: "This error indicates that the hardware resources required to create MPS client have been exhausted.",
     809: (
-        "This error indicates the the hardware resources required to support device connections have been " "exhausted."
+        "This error indicates the the hardware resources required to support device connections have been exhausted."
     ),
     810: (
         "This error indicates that the MPS client has been terminated by the server. To continue using CUDA, "
@@ -292,20 +288,15 @@ DRIVER_CU_RESULT_EXPLANATIONS = {
         "previous error."
     ),
     902: (
-        "This error indicates that the operation would have resulted in a merge of two independent capture "
-        "sequences."
+        "This error indicates that the operation would have resulted in a merge of two independent capture sequences."
     ),
     903: "This error indicates that the capture was not initiated in this stream.",
-    904: (
-        "This error indicates that the capture sequence contains a fork that was not joined to the primary " "stream."
-    ),
+    904: ("This error indicates that the capture sequence contains a fork that was not joined to the primary stream."),
     905: (
         "This error indicates that a dependency would have been created which crosses the capture sequence "
         "boundary. Only implicit in-stream ordering dependencies are allowed to cross the boundary."
     ),
-    906: (
-        "This error indicates a disallowed implicit dependency on a current capture sequence from " "cudaStreamLegacy."
-    ),
+    906: ("This error indicates a disallowed implicit dependency on a current capture sequence from cudaStreamLegacy."),
     907: (
         "This error indicates that the operation is not permitted on an event which was last recorded in a "
         "capturing stream."
