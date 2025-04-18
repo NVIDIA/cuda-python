@@ -16,4 +16,4 @@ cdef extern from *:
 
 
 _warnings.warn("The cuda.cuda module is deprecated and will be removed in a future release, "
-               "please switch to use the cuda.bindings.driver module instead.", UserWarning, stacklevel=2)
+               "please switch to use the cuda.bindings.driver module instead.", FutureWarning, stacklevel=2)
