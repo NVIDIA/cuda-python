@@ -11,6 +11,7 @@ SUPPORTED_LIBNAMES = (
     "nvvm",
     # Math Libraries
     "cublas",
+    "cublasLt",
     "cufft",
     "cufftw",
     "curand",
@@ -38,6 +39,7 @@ SUPPORTED_LIBNAMES = (
 # as of 2025-04-11 (redistrib_12.8.1.json was the newest .json file).
 SUPPORTED_WINDOWS_DLLS = {
     "cublas": ("cublas64_12.dll", "cublas64_11.dll"),
+    "cublasLt": ("cublasLt64_12.dll", "cublasLt64_11.dll"),
     "cudart": ("cudart64_12.dll", "cudart64_110.dll", "cudart32_110.dll"),
     "cufft": ("cufft64_11.dll", "cufft64_10.dll"),
     "cufftw": ("cufftw64_10.dll", "cufftw64_11.dll"),

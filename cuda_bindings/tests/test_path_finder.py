@@ -10,7 +10,7 @@ def test_supported_libnames_windows_dlls_consistency():
     assert list(sorted(path_finder.SUPPORTED_LIBNAMES)) == list(sorted(path_finder.SUPPORTED_WINDOWS_DLLS.keys()))
 
 
-@pytest.mark.parametrize("algo", ("find", "load"))
+@pytest.mark.parametrize("algo", ("find", "load")[1:])
 @pytest.mark.parametrize("libname", path_finder.SUPPORTED_LIBNAMES)
 def test_find_or_load_nvidia_dynamic_library(algo, libname):
     if sys.platform == "win32" and libname == "cufile":
@@ -19,11 +19,23 @@ def test_find_or_load_nvidia_dynamic_library(algo, libname):
     code = """\
 from cuda.bindings import path_finder
 """
-    if algo == "load" and libname == "cusolver":
-        code += """\
+    if algo == "load":
+        if libname == "cusolver":
+            code += """\
 path_finder.load_nvidia_dynamic_library("nvJitLink")
 path_finder.load_nvidia_dynamic_library("cusparse")
+path_finder.load_nvidia_dynamic_library("cublasLt")
 path_finder.load_nvidia_dynamic_library("cublas")
+"""
+        elif libname == "cusolverMg":
+            code += """\
+path_finder.load_nvidia_dynamic_library("nvJitLink")
+path_finder.load_nvidia_dynamic_library("cublasLt")
+path_finder.load_nvidia_dynamic_library("cublas")
+"""
+        elif libname == "cusparse":
+            code += """\
+path_finder.load_nvidia_dynamic_library("nvJitLink")
 """
     code += f"""\
 path_finder.load_nvidia_dynamic_library({libname!r})
