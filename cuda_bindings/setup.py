@@ -465,7 +465,7 @@ class editable_wheel_with_redirector(editable_wheel):
         # the repo. It could be implemented, but we only handle the default
         # case for now.
         if self.mode is not None and self.mode != "lenient":
-            raise RuntimeError("Only lenient mode is supported for editable " f"install. Current mode is {self.mode}")
+            raise RuntimeError(f"Only lenient mode is supported for editable install. Current mode is {self.mode}")
 
         return TopLevelFinderWithRedirector(self.distribution, name)
 
