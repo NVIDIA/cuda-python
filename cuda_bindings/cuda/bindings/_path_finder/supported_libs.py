@@ -32,7 +32,7 @@ SUPPORTED_LIBNAMES = (
     "nvblas",
     # Other
     "cufile",
-    "cufile_rdma",
+    # "cufile_rdma",  # Requires libmlx5.so
     "nvjpeg",
 )
 
@@ -40,7 +40,7 @@ SUPPORTED_LIBNAMES = (
 DIRECT_DEPENDENCIES = {
     "cublas": ("cublasLt",),
     "cufftw": ("cufft",),
-    "cufile_rdma": ("cufile",),
+    # "cufile_rdma": ("cufile",),
     "cusolver": ("nvJitLink", "cusparse", "cublasLt", "cublas"),
     "cusolverMg": ("nvJitLink", "cublasLt", "cublas"),
     "cusparse": ("nvJitLink",),
@@ -66,7 +66,7 @@ SUPPORTED_WINDOWS_DLLS = {
     "cufft": ("cufft64_11.dll", "cufft64_10.dll"),
     "cufftw": ("cufftw64_10.dll", "cufftw64_11.dll"),
     "cufile": (),
-    "cufile_rdma": (),
+    # "cufile_rdma": (),
     "curand": ("curand64_10.dll",),
     "cusolver": ("cusolver64_11.dll",),
     "cusolverMg": ("cusolverMg64_11.dll",),
