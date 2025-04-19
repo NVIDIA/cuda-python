@@ -15,7 +15,7 @@ else:
 
 
 def test_all_libnames_windows_dlls_consistency():
-    assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(path_finder.SUPPORTED_WINDOWS_DLLS.keys()))
+    assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.SUPPORTED_WINDOWS_DLLS.keys()))
 
 
 def _build_subprocess_failed_for_libname_message(libname, result):
@@ -26,15 +26,21 @@ def _build_subprocess_failed_for_libname_message(libname, result):
     )
 
 
-@pytest.mark.parametrize("algo", ("find", "load"))
+@pytest.mark.parametrize("api", ("find", "load"))
 @pytest.mark.parametrize("libname", TEST_LIBNAMES)
-def test_find_or_load_nvidia_dynamic_library(algo, libname):
-    if sys.platform == "win32" and not path_finder.SUPPORTED_WINDOWS_DLLS[libname]:
+def test_find_or_load_nvidia_dynamic_library(api, libname):
+    if sys.platform == "win32" and not supported_libs.SUPPORTED_WINDOWS_DLLS[libname]:
         pytest.skip(f"{libname=!r} not supported on {sys.platform=}")
 
-    code = f"""\
-from cuda.bindings import path_finder
-path_finder.{algo}_nvidia_dynamic_library({libname!r})
+    if api == "find":
+        code = f"""\
+from cuda.bindings._path_finder.find_nvidia_dynamic_library import find_nvidia_dynamic_library
+find_nvidia_dynamic_library({libname!r})
+"""
+    else:
+        code = f"""\
+from cuda.bindings.path_finder import load_nvidia_dynamic_library
+load_nvidia_dynamic_library({libname!r})
 """
     result = subprocess.run(
         [sys.executable, "-c", code],
