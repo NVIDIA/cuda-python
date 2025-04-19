@@ -4,11 +4,15 @@
 
 SUPPORTED_LIBNAMES = (
     # Core CUDA Runtime and Compiler
-    "cudart",
-    "nvfatbin",
     "nvJitLink",
     "nvrtc",
     "nvvm",
+)
+
+PARTIALLY_SUPPORTED_LIBNAMES = (
+    # Core CUDA Runtime and Compiler
+    "cudart",
+    "nvfatbin",
     # Math Libraries
     "cublas",
     "cublasLt",
@@ -59,6 +63,7 @@ DIRECT_DEPENDENCIES = {
 
 # Based on https://developer.download.nvidia.com/compute/cuda/redist/
 # as of 2025-04-11 (redistrib_12.8.1.json was the newest .json file).
+# Tuples of DLLs are sorted newest-to-oldest.
 SUPPORTED_WINDOWS_DLLS = {
     "cublas": ("cublas64_12.dll", "cublas64_11.dll"),
     "cublasLt": ("cublasLt64_12.dll", "cublasLt64_11.dll"),

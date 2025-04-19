@@ -1,6 +1,9 @@
 import sys
 
 from cuda.bindings import path_finder
+from cuda.bindings._path_finder import supported_libs
+
+ALL_LIBNAMES = path_finder.SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES
 
 
 def run(args):
@@ -13,10 +16,10 @@ def run(args):
     print()
 
     for libname in path_finder.SUPPORTED_WINDOWS_DLLS:
-        if libname not in path_finder.SUPPORTED_LIBNAMES:
+        if libname not in ALL_LIBNAMES:
             print(f"MISSING IN SUPPORTED_LIBNAMES: {libname}")
 
-    for libname in path_finder.SUPPORTED_LIBNAMES:
+    for libname in ALL_LIBNAMES:
         print(libname)
         dlls = path_finder.SUPPORTED_WINDOWS_DLLS.get(libname)
         if dlls is None:
