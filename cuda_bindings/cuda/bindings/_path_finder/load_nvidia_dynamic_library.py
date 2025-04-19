@@ -22,7 +22,7 @@ else:
     _LINUX_CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
 from .find_nvidia_dynamic_library import find_nvidia_dynamic_library
-from .supported_libs import SUPPORTED_WINDOWS_DLLS
+from .supported_libs import DIRECT_DEPENDENCIES, SUPPORTED_WINDOWS_DLLS
 
 
 @functools.cache
@@ -64,6 +64,9 @@ def _windows_load_with_dll_basename(name: str) -> int:
 
 @functools.cache
 def load_nvidia_dynamic_library(name: str) -> int:
+    for dep in DIRECT_DEPENDENCIES.get(name, ()):
+        load_nvidia_dynamic_library(dep)
+
     # First try using the platform-specific dynamic loader search mechanisms
     if sys.platform == "win32":
         handle = _windows_load_with_dll_basename(name)

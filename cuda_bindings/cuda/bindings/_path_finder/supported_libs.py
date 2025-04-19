@@ -32,8 +32,30 @@ SUPPORTED_LIBNAMES = (
     "nvblas",
     # Other
     "cufile",
+    "cufile_rdma",
     "nvjpeg",
 )
+
+# Based on ldd output for Linux x86_64 nvidia-*-cu12 wheels (12.8.1)
+DIRECT_DEPENDENCIES = {
+    "cublas": ("cublasLt",),
+    "cufftw": ("cufft",),
+    "cufile_rdma": ("cufile",),
+    "cusolver": ("nvJitLink", "cusparse", "cublasLt", "cublas"),
+    "cusolverMg": ("nvJitLink", "cublasLt", "cublas"),
+    "cusparse": ("nvJitLink",),
+    "nppial": ("nppc",),
+    "nppicc": ("nppc",),
+    "nppidei": ("nppc",),
+    "nppif": ("nppc",),
+    "nppig": ("nppc",),
+    "nppim": ("nppc",),
+    "nppist": ("nppc",),
+    "nppisu": ("nppc",),
+    "nppitc": ("nppc",),
+    "npps": ("nppc",),
+    "nvblas": ("cublas", "cublasLt"),
+}
 
 # Based on https://developer.download.nvidia.com/compute/cuda/redist/
 # as of 2025-04-11 (redistrib_12.8.1.json was the newest .json file).
@@ -44,6 +66,7 @@ SUPPORTED_WINDOWS_DLLS = {
     "cufft": ("cufft64_11.dll", "cufft64_10.dll"),
     "cufftw": ("cufftw64_10.dll", "cufftw64_11.dll"),
     "cufile": (),
+    "cufile_rdma": (),
     "curand": ("curand64_10.dll",),
     "cusolver": ("cusolver64_11.dll",),
     "cusolverMg": ("cusolverMg64_11.dll",),
