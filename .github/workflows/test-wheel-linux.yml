@@ -74,6 +74,10 @@ jobs:
             fi
           fi
 
+          if [[ "${{ inputs.local-ctk }}" != 1 ]]; then
+            echo "CUDA_BINDINGS_PATH_FINDER_TEST_ALL_LIBNAMES=1" >> $GITHUB_ENV
+          fi
+
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
           echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
