@@ -1,0 +1,19 @@
+name: "Static Analysis: Bandit Scan"
+
+on:
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+      - "main"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - name: Perform Bandit Analysis
+        uses: PyCQA/bandit-action@8a1b30610f61f3f792fe7556e888c9d7dffa52de  # v1.0.0
