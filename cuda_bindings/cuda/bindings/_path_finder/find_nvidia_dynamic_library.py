@@ -132,31 +132,42 @@ def _find_dll_using_cudalib_dir(libname, error_messages, attachments):
     return None
 
 
-@functools.cache
-def find_nvidia_dynamic_library(name: str) -> str:
-    error_messages = []
-    attachments = []
+class _find_nvidia_dynamic_library:
+    def __init__(self, libname: str):
+        self.libname = libname
+        self.error_messages = []
+        self.attachments = []
+        self.abs_path = None
 
-    if IS_WIN32:
-        dll_name = _find_dll_using_nvidia_bin_dirs(name, error_messages, attachments)
-        if dll_name is None:
-            if name == "nvvm":
-                dll_name = _get_cuda_paths_info("nvvm", error_messages)
-            else:
-                dll_name = _find_dll_using_cudalib_dir(name, error_messages, attachments)
-        if dll_name is None:
-            attachments = "\n".join(attachments)
-            raise RuntimeError(f'Failure finding "{name}*.dll": {", ".join(error_messages)}\n{attachments}')
-        return dll_name
-
-    so_basename = f"lib{name}.so"
-    so_name = _find_so_using_nvidia_lib_dirs(name, so_basename, error_messages, attachments)
-    if so_name is None:
-        if name == "nvvm":
-            so_name = _get_cuda_paths_info("nvvm", error_messages)
+        if IS_WIN32:
+            self.abs_path = _find_dll_using_nvidia_bin_dirs(libname, self.error_messages, self.attachments)
+            if self.abs_path is None:
+                if libname == "nvvm":
+                    self.abs_path = _get_cuda_paths_info("nvvm", self.error_messages)
+                else:
+                    self.abs_path = _find_dll_using_cudalib_dir(libname, self.error_messages, self.attachments)
+            self.lib_searched_for = f"{libname}*.dll"
         else:
-            so_name = _find_so_using_cudalib_dir(so_basename, error_messages, attachments)
-    if so_name is None:
-        attachments = "\n".join(attachments)
-        raise RuntimeError(f'Failure finding "{so_basename}": {", ".join(error_messages)}\n{attachments}')
-    return so_name
+            self.lib_searched_for = f"lib{libname}.so"
+            self.abs_path = _find_so_using_nvidia_lib_dirs(
+                libname, self.lib_searched_for, self.error_messages, self.attachments
+            )
+            if self.abs_path is None:
+                if libname == "nvvm":
+                    self.abs_path = _get_cuda_paths_info("nvvm", self.error_messages)
+                else:
+                    self.abs_path = _find_so_using_cudalib_dir(
+                        self.lib_searched_for, self.error_messages, self.attachments
+                    )
+
+    def raise_if_abs_path_is_None(self):
+        if self.abs_path:
+            return self.abs_path
+        err = ", ".join(self.error_messages)
+        att = "\n".join(self.attachments)
+        raise RuntimeError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
+
+
+@functools.cache
+def find_nvidia_dynamic_library(libname: str) -> str:
+    return _find_nvidia_dynamic_library(libname).raise_if_abs_path_is_None()
