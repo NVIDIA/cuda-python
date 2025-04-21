@@ -1,7 +1,10 @@
 name: "Static Analysis: CodeQL Scan"
 
-on: workflow_dispatch
-
+on:
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+      - "main"
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
