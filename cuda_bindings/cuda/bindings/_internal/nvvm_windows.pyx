@@ -41,7 +41,7 @@ cdef void* __nvvmGetProgramLog = NULL
 
 
 cdef inline list get_site_packages():
-    return [site.getusersitepackages()] + site.getsitepackages()
+    return [site.getusersitepackages()] + site.getsitepackages() + ["conda"]
 
 
 cdef load_library(const int driver_ver):
@@ -60,9 +60,13 @@ cdef load_library(const int driver_ver):
         else:
             break
 
-        # Next, check if DLLs are installed via pip
+        # Next, check if DLLs are installed via pip or conda
         for sp in get_site_packages():
-            mod_path = os.path.join(sp, "nvidia", "cuda_nvcc", "nvvm", "bin")
+            if sp == "conda" and "CONDA_PREFIX" in os.environ:
+                # nvvm is not under $CONDA_PREFIX/lib, so it's not in the default search path
+                mod_path = os.path.join(os.environ["CONDA_PREFIX"], "Library", "nvvm", "bin")
+            else:
+                mod_path = os.path.join(sp, "nvidia", "cuda_nvcc", "nvvm", "bin")
             if not os.path.isdir(mod_path):
                 continue
             os.add_dll_directory(mod_path)
