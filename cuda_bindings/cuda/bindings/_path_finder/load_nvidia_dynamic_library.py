@@ -5,6 +5,7 @@
 import ctypes
 import functools
 import sys
+from typing import Optional, Tuple
 
 if sys.platform == "win32":
     import ctypes.wintypes
@@ -60,7 +61,7 @@ def _windows_cuDriverGetVersion() -> int:
 
 
 @functools.cache
-def _windows_load_with_dll_basename(name: str) -> int:
+def _windows_load_with_dll_basename(name: str) -> Tuple[Optional[int], Optional[str]]:
     driver_ver = _windows_cuDriverGetVersion()
     del driver_ver  # Keeping this here because it will probably be needed in the future.
 
@@ -68,16 +69,21 @@ def _windows_load_with_dll_basename(name: str) -> int:
     if dll_names is None:
         return None
 
+    kernel32 = ctypes.windll.kernel32
+
     for dll_name in dll_names:
-        try:
-            return win32api.LoadLibrary(dll_name)
-        except pywintypes.error:
-            pass
+        handle = kernel32.LoadLibraryW(ctypes.c_wchar_p(dll_name))
+        if handle:
+            buf = ctypes.create_unicode_buffer(260)
+            n_chars = kernel32.GetModuleFileNameW(ctypes.wintypes.HMODULE(handle), buf, len(buf))
+            if n_chars == 0:
+                raise OSError("GetModuleFileNameW failed")
+            return handle, buf.value
 
-    return None
+    return None, None
 
 
-def _load_and_report_path_linux(libname, soname: str) -> (int, str):
+def _load_and_report_path_linux(libname, soname: str) -> Tuple[int, str]:
     handle = ctypes.CDLL(soname, _LINUX_CDLL_MODE)
     for symbol_name in EXPECTED_LIB_SYMBOLS[libname]:
         symbol = getattr(handle, symbol_name, None)
@@ -100,9 +106,10 @@ def load_nvidia_dynamic_library(libname: str) -> int:
     found = _find_nvidia_dynamic_library(libname)
     if found.abs_path is None:
         if sys.platform == "win32":
-            handle = _windows_load_with_dll_basename(libname)
+            handle, abs_path = _windows_load_with_dll_basename(libname)
             if handle:
                 # Use `cdef void* ptr = <void*><intptr_t>` in cython to convert back to void*
+                print(f"SYSTEM ABS_PATH for {libname=!r}: {abs_path}", flush=True)
                 return handle
         else:
             try:
@@ -122,6 +129,7 @@ def load_nvidia_dynamic_library(libname: str) -> int:
         except pywintypes.error as e:
             raise RuntimeError(f"Failed to load DLL at {found.abs_path}: {e}") from e
         # Use `cdef void* ptr = <void*><intptr_t>` in cython to convert back to void*
+        print(f"FOUND ABS_PATH for {libname=!r}: {found.abs_path}", flush=True)
         return handle  # C signed int, matches win32api.GetProcAddress
     else:
         try:
