@@ -12,7 +12,7 @@ import time
 import pytest
 
 import cuda.core.experimental
-from cuda.core.experimental import Device, EventOptions
+from cuda.core.experimental import Device, EventOptions, LaunchConfig, Program, ProgramOptions, launch
 
 
 def test_event_init_disabled():
@@ -116,14 +116,32 @@ def test_error_timing_recorded():
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
+
+    # This kernel is designed to not complete
+    code = """
+extern "C"
+__global__ void wait() {
+    while (1 > 0) {
+    }
+}
+"""
+
+    arch = "".join(f"{i}" for i in device.compute_capability)
+    program_options = ProgramOptions(std="c++11", arch=f"sm_{arch}")
+    prog = Program(code, code_type="c++", options=program_options)
+    mod = prog.compile(target_type="cubin")
+    ker = mod.get_kernel("wait")
+
+    config = LaunchConfig(grid=1, block=1)
+    ker_args = ()
+
     enabled = EventOptions(enable_timing=True)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
-    event2 = device.create_event(options=enabled)
-    stream.wait(event2)
+    launch(stream, config, ker, *ker_args)
     event3 = stream.record(options=enabled)
 
-    # event3 will never complete because the stream is waiting on event2 which is never recorded
+    # event3 will never complete because the stream is waiting on wait() to complete
     with pytest.raises(RuntimeError, match="^One or both events have not completed."):
         event3 - event1
