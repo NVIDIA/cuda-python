@@ -18,6 +18,10 @@ def test_all_libnames_windows_dlls_consistency():
     assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.SUPPORTED_WINDOWS_DLLS.keys()))
 
 
+def test_all_libnames_expected_lib_symbols_consistency():
+    assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.EXPECTED_LIB_SYMBOLS.keys()))
+
+
 def _build_subprocess_failed_for_libname_message(libname, result):
     return (
         f"Subprocess failed for {libname=!r} with exit code {result.returncode}\n"

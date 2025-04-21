@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import ctypes
 import functools
 import sys
 
@@ -16,13 +17,27 @@ if sys.platform == "win32":
     _WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
 
 else:
-    import ctypes
+    import ctypes.util
     import os
 
     _LINUX_CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
+    _LIBDL_PATH = ctypes.util.find_library("dl") or "libdl.so.2"
+    _LIBDL = ctypes.CDLL(_LIBDL_PATH)
+    _LIBDL.dladdr.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+    _LIBDL.dladdr.restype = ctypes.c_int
+
+    class Dl_info(ctypes.Structure):
+        _fields_ = [
+            ("dli_fname", ctypes.c_char_p),  # path to .so
+            ("dli_fbase", ctypes.c_void_p),
+            ("dli_sname", ctypes.c_char_p),
+            ("dli_saddr", ctypes.c_void_p),
+        ]
+
+
 from .find_nvidia_dynamic_library import _find_nvidia_dynamic_library
-from .supported_libs import DIRECT_DEPENDENCIES, SUPPORTED_WINDOWS_DLLS
+from .supported_libs import DIRECT_DEPENDENCIES, EXPECTED_LIB_SYMBOLS, SUPPORTED_WINDOWS_DLLS
 
 
 @functools.cache
@@ -62,6 +77,21 @@ def _windows_load_with_dll_basename(name: str) -> int:
     return None
 
 
+def _load_and_report_path_linux(libname, soname: str) -> (int, str):
+    handle = ctypes.CDLL(soname, _LINUX_CDLL_MODE)
+    for symbol_name in EXPECTED_LIB_SYMBOLS[libname]:
+        symbol = getattr(handle, symbol_name, None)
+        if symbol is not None:
+            break
+    else:
+        raise RuntimeError(f"No expected symbol for {libname=!r}")
+    addr = ctypes.cast(symbol, ctypes.c_void_p)
+    info = Dl_info()
+    if _LIBDL.dladdr(addr, ctypes.byref(info)) == 0:
+        raise OSError(f"dladdr failed for {soname}")
+    return handle, info.dli_fname.decode()
+
+
 @functools.cache
 def load_nvidia_dynamic_library(libname: str) -> int:
     for dep in DIRECT_DEPENDENCIES.get(libname, ()):
@@ -76,11 +106,12 @@ def load_nvidia_dynamic_library(libname: str) -> int:
                 return handle
         else:
             try:
-                handle = ctypes.CDLL(found.lib_searched_for, _LINUX_CDLL_MODE)
-            except OSError:
-                pass
+                handle, abs_path = _load_and_report_path_linux(libname, found.lib_searched_for)
+            except OSError as e:
+                print(f"SYSTEM OSError for {libname=!r}: {e!r}", flush=True)
             else:
                 # Use `cdef void* ptr = <void*><uintptr_t>` in cython to convert back to void*
+                print(f"SYSTEM ABS_PATH for {libname=!r}: {abs_path}", flush=True)
                 return handle._handle  # C unsigned int
         found.raise_if_abs_path_is_None()
 
@@ -98,4 +129,5 @@ def load_nvidia_dynamic_library(libname: str) -> int:
         except OSError as e:
             raise RuntimeError(f"Failed to dlopen {found.abs_path}: {e}") from e
         # Use `cdef void* ptr = <void*><uintptr_t>` in cython to convert back to void*
+        print(f"FOUND ABS_PATH for {libname=!r}: {found.abs_path}", flush=True)
         return handle._handle  # C unsigned int
