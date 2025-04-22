@@ -74,6 +74,13 @@ jobs:
             fi
           fi
 
+          COMPUTE_SANITIZER=${CUDA_HOME}/bin/compute-sanitizer
+          COMPUTE_SANITIZER_VERSION=$(${COMPUTE_SANITIZER} --version | grep -Eo "[0-9]{4}\.[0-9]\.[0-9]" | sed -e 's/\.//g')
+          SANITIZER_CMD="${COMPUTE_SANITIZER} --target-processes=all --launch-timeout=0 --tool=memcheck"
+          if [[ "$COMPUTE_SANITIZER_VERSION" -ge 202111 ]]; then
+              SANITIZER_CMD="${SANITIZER_CMD} --padding=32"
+          fi
+
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
           echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
@@ -86,6 +93,8 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
           echo "SKIP_CUDA_CORE_CYTHON_TEST=${SKIP_CUDA_CORE_CYTHON_TEST}" >> $GITHUB_ENV
+          echo "COMPUTE_SANITIZER_VERSION=${COMPUTE_SANITIZER_VERSION}" >> $GITHUB_ENV
+          echo "SANITIZER_CMD=${SANITIZER_CMD}" >> $GITHUB_ENV
 
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
@@ -202,9 +211,9 @@ jobs:
             if [[ "${{ inputs.host-platform }}" == linux* ]]; then
               bash tests/cython/build_tests.sh
             elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-              # TODO: enable this once win-64 runners are up 
+              # TODO: enable this once win-64 runners are up
               exit 1
-            fi  
+            fi
             pytest -rxXs -v tests/cython
           fi
           popd
