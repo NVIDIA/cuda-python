@@ -60,38 +60,37 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             handle = None
 
-        # Else try default search
-        if not handle:
-            LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
-            try:
-                handle = win32api.LoadLibraryEx("nvrtc64_120_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
-            except:
-                pass
-
-        # Final check if DLLs can be found within pip installations
+        # Check if DLLs can be found within pip installations
         if not handle:
             site_packages = [site.getusersitepackages()] + site.getsitepackages()
             for sp in site_packages:
                 mod_path = os.path.join(sp, "nvidia", "cuda_nvrtc", "bin")
-                if not os.path.isdir(mod_path):
-                    continue
-                else:
+                if os.path.isdir(mod_path):
                     os.add_dll_directory(mod_path)
-                    break
-            LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
-            LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
-            try:
-                handle = win32api.LoadLibraryEx(
-                    # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
-                    os.path.join(mod_path, "nvrtc64_120_0.dll"),
-                    0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+                    LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+                    LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+                    try:
+                        handle = win32api.LoadLibraryEx(
+                            # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
+                            os.path.join(mod_path, "nvrtc64_120_0.dll"),
+                            0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
 
-                # Note: nvrtc64_120_0.dll calls into nvrtc-builtins64_*.dll which is
-                # located in the same mod_path.
-                # Update PATH environ so that the two dlls can find each other
-                os.environ["PATH"] = os.pathsep.join((os.environ.get("PATH", ""), mod_path))
-            except:
-                pass
+                        # Note: nvrtc64_120_0.dll calls into nvrtc-builtins64_*.dll which is
+                        # located in the same mod_path.
+                        # Update PATH environ so that the two dlls can find each other
+                        os.environ["PATH"] = os.pathsep.join((os.environ.get("PATH", ""), mod_path))
+                    except:
+                        pass
+                    else:
+                        break
+            else:
+                # Else try default search
+                # Only reached if DLL wasn't found in any site-package path
+                LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
+                try:
+                    handle = win32api.LoadLibraryEx("nvrtc64_120_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
+                except:
+                    pass
 
         if not handle:
             raise RuntimeError('Failed to LoadLibraryEx nvrtc64_120_0.dll')

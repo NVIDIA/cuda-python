@@ -65,28 +65,26 @@ cdef load_library(const int driver_ver):
         # Next, check if DLLs are installed via pip
         for sp in get_site_packages():
             mod_path = os.path.join(sp, "nvidia", "nvJitLink", "bin")
-            if not os.path.isdir(mod_path):
-                continue
-            else:
+            if os.path.isdir(mod_path):
                 os.add_dll_directory(mod_path)
+                try:
+                    handle = win32api.LoadLibraryEx(
+                        # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
+                        os.path.join(mod_path, dll_name),
+                        0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+                except:
+                    pass
+                else:
+                    break
+        else:
+            # Finally, try default search
+            # Only reached if DLL wasn't found in any site-package path
+            try:
+                handle = win32api.LoadLibrary(dll_name)
+            except:
+                pass
+            else:
                 break
-        try:
-            handle = win32api.LoadLibraryEx(
-                # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
-                os.path.join(mod_path, dll_name),
-                0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
-        except:
-            pass
-        else:
-            break
-
-        # Finally, try default search
-        try:
-            handle = win32api.LoadLibrary(dll_name)
-        except:
-            pass
-        else:
-            break
     else:
         raise RuntimeError('Failed to load nvJitLink')
 

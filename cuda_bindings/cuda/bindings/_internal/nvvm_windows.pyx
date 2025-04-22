@@ -62,33 +62,34 @@ cdef load_library(const int driver_ver):
 
         # Next, check if DLLs are installed via pip or conda
         for sp in get_site_packages():
-            if sp == "conda" and "CONDA_PREFIX" in os.environ:
+            if sp == "conda":
                 # nvvm is not under $CONDA_PREFIX/lib, so it's not in the default search path
-                mod_path = os.path.join(os.environ["CONDA_PREFIX"], "Library", "nvvm", "bin")
+                conda_prefix = os.environ.get("CONDA_PREFIX")
+                if conda_prefix is None:
+                    continue
+                mod_path = os.path.join(conda_prefix, "Library", "nvvm", "bin")
             else:
                 mod_path = os.path.join(sp, "nvidia", "cuda_nvcc", "nvvm", "bin")
-            if not os.path.isdir(mod_path):
-                continue
-            else:
+            if os.path.isdir(mod_path):
                 os.add_dll_directory(mod_path)
+                try:
+                    handle = win32api.LoadLibraryEx(
+                        # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
+                        os.path.join(mod_path, dll_name),
+                        0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+                except:
+                    pass
+                else:
+                    break
+        else:
+            # Finally, try default search
+            # Only reached if DLL wasn't found in any site-package path
+            try:
+                handle = win32api.LoadLibrary(dll_name)
+            except:
+                pass
+            else:
                 break
-        try:
-            handle = win32api.LoadLibraryEx(
-                # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
-                os.path.join(mod_path, dll_name),
-                0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
-        except:
-            pass
-        else:
-            break
-
-        # Finally, try default search
-        try:
-            handle = win32api.LoadLibrary(dll_name)
-        except:
-            pass
-        else:
-            break
     else:
         raise RuntimeError('Failed to load nvvm')
 
