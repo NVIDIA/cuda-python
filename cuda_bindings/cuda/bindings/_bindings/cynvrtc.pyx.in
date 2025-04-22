@@ -62,13 +62,13 @@ cdef int cuPythonInit() except -1 nogil:
 
         # Check if DLLs can be found within pip installations
         if not handle:
+            LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+            LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
             site_packages = [site.getusersitepackages()] + site.getsitepackages()
             for sp in site_packages:
                 mod_path = os.path.join(sp, "nvidia", "cuda_nvrtc", "bin")
                 if os.path.isdir(mod_path):
                     os.add_dll_directory(mod_path)
-                    LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
-                    LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
                     try:
                         handle = win32api.LoadLibraryEx(
                             # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
