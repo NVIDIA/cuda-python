@@ -81,7 +81,7 @@ cdef load_library(const int driver_ver):
         # Finally, try default search
         # Only reached if DLL wasn't found in any site-package path
         try:
-            handle = win32api.LoadLibrary(dll_name)
+            return win32api.LoadLibrary(dll_name)
         except:
             pass
 
