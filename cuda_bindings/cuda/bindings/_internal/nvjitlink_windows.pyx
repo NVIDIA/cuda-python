@@ -56,11 +56,9 @@ cdef load_library(const int driver_ver):
 
         # First check if the DLL has been loaded by 3rd parties
         try:
-            handle = win32api.GetModuleHandle(dll_name)
+            return win32api.GetModuleHandle(dll_name)
         except:
             pass
-        else:
-            break
 
         # Next, check if DLLs are installed via pip
         for sp in get_site_packages():
@@ -68,28 +66,20 @@ cdef load_library(const int driver_ver):
             if os.path.isdir(mod_path):
                 os.add_dll_directory(mod_path)
                 try:
-                    handle = win32api.LoadLibraryEx(
+                    return win32api.LoadLibraryEx(
                         # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
                         os.path.join(mod_path, dll_name),
                         0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
                 except:
                     pass
-                else:
-                    break
-        else:
-            # Finally, try default search
-            # Only reached if DLL wasn't found in any site-package path
-            try:
-                handle = win32api.LoadLibrary(dll_name)
-            except:
-                pass
-            else:
-                break
-    else:
-        raise RuntimeError('Failed to load nvJitLink')
+        # Finally, try default search
+        # Only reached if DLL wasn't found in any site-package path
+        try:
+            return win32api.LoadLibrary(dll_name)
+        except:
+            pass
 
-    assert handle != 0
-    return handle
+    raise RuntimeError('Failed to load nvJitLink')
 
 
 cdef int _check_or_init_nvjitlink() except -1 nogil:
