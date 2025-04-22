@@ -74,11 +74,16 @@ jobs:
             fi
           fi
 
-          COMPUTE_SANITIZER=${CUDA_HOME}/bin/compute-sanitizer
-          COMPUTE_SANITIZER_VERSION=$(${COMPUTE_SANITIZER} --version | grep -Eo "[0-9]{4}\.[0-9]\.[0-9]" | sed -e 's/\.//g')
-          SANITIZER_CMD="${COMPUTE_SANITIZER} --target-processes=all --launch-timeout=0 --tool=memcheck"
-          if [[ "$COMPUTE_SANITIZER_VERSION" -ge 202111 ]]; then
-              SANITIZER_CMD="${SANITIZER_CMD} --padding=32"
+          if [[ "${{ inputs.python-version }}" == "3.12" ]]; then
+            COMPUTE_SANITIZER=${CUDA_HOME}/bin/compute-sanitizer
+            COMPUTE_SANITIZER_VERSION=$(${COMPUTE_SANITIZER} --version | grep -Eo "[0-9]{4}\.[0-9]\.[0-9]" | sed -e 's/\.//g')
+            SANITIZER_CMD="${COMPUTE_SANITIZER} --target-processes=all --launch-timeout=0 --tool=memcheck"
+            if [[ "$COMPUTE_SANITIZER_VERSION" -ge 202111 ]]; then
+                SANITIZER_CMD="${SANITIZER_CMD} --padding=32"
+            fi
+          else
+            COMPUTE_SANITIZER_VERSION="None"
+            SANITIZER_CMD=""
           fi
 
           # make outputs from the previous job as env vars
