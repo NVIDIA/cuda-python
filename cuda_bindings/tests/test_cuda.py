@@ -995,6 +995,6 @@ def test_cuFuncGetName_failure():
 
 
 def test_cuCheckpointProcessGetState_failure():
-    err, state = cu.cuCheckpointProcessGetState(123434)
+    err, state = cuda.cuCheckpointProcessGetState(123434)
     assert err != cuda.CUresult.CUDA_SUCCESS
     assert state is None
