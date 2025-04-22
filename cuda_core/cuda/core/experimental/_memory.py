@@ -81,8 +81,14 @@ class Buffer:
         self._mnff.close(stream)
 
     @property
-    def handle(self):
-        """Return the buffer handle object."""
+    def handle(self) -> driver.CUdeviceptr:
+        """Return the buffer handle object.
+
+        .. caution::
+
+            This handle is a python object. To get the memory address of the C struct, call
+            ``int(Buffer.handle)`` not ``Buffer.handle.getPtr()``.
+        """
         return self._mnff.ptr
 
     @property

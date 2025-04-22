@@ -503,6 +503,11 @@ class Linker:
         .. note::
 
            The type of the returned object depends on the backend.
+
+        .. caution::
+
+            This handle is a python object. To get the memory address of the C struct, call
+            ``int(Linker.handle)`` not ``Linker.handle.getPtr()``.
         """
         return self._mnff.handle
 
