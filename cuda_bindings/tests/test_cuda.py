@@ -994,6 +994,10 @@ def test_cuFuncGetName_failure():
     assert name is None
 
 
+@pytest.mark.skipif(
+    driverVersionLessThan(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
+    reason="When API was introduced",
+)
 def test_cuCheckpointProcessGetState_failure():
     err, state = cuda.cuCheckpointProcessGetState(123434)
     assert err != cuda.CUresult.CUDA_SUCCESS
