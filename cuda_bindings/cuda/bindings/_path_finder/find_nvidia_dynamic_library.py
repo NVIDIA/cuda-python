@@ -58,6 +58,8 @@ def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
             #         nvrtc-builtins64_128.dll
             #         nvrtc64_120_0.alt.dll
             #         nvrtc64_120_0.dll
+            # See also:
+            # https://github.com/NVIDIA/cuda-python/pull/563#discussion_r2054427641
             node = os.path.basename(path)
             if node.endswith(".alt.dll"):
                 continue
