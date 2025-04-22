@@ -50,7 +50,7 @@ cdef load_library(const int driver_ver):
     for suffix in get_nvvm_dso_version_suffix(driver_ver):
         if len(suffix) == 0:
             continue
-        dll_name = "nvvm64_40_0"
+        dll_name = "nvvm64_40_0.dll"
 
         # First check if the DLL has been loaded by 3rd parties
         try:
@@ -69,7 +69,9 @@ cdef load_library(const int driver_ver):
                 mod_path = os.path.join(sp, "nvidia", "cuda_nvcc", "nvvm", "bin")
             if not os.path.isdir(mod_path):
                 continue
-            os.add_dll_directory(mod_path)
+            else:
+                os.add_dll_directory(mod_path)
+                break
         try:
             handle = win32api.LoadLibraryEx(
                 # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...

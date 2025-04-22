@@ -67,7 +67,9 @@ cdef load_library(const int driver_ver):
             mod_path = os.path.join(sp, "nvidia", "nvJitLink", "bin")
             if not os.path.isdir(mod_path):
                 continue
-            os.add_dll_directory(mod_path)
+            else:
+                os.add_dll_directory(mod_path)
+                break
         try:
             handle = win32api.LoadLibraryEx(
                 # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
