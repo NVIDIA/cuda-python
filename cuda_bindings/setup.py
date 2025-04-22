@@ -307,7 +307,7 @@ class ParallelBuildExtensions(build_ext):
                 #   to <loc>/site-packages/nvidia/cuda_nvcc/nvvm/lib64/
                 rel1 = "$ORIGIN/../../../nvidia/cuda_nvcc/nvvm/lib64"
                 # from <loc>/lib/python3.*/site-packages/cuda/bindings/_internal/
-                #   to <loc>/lib/nvvm/lib64/
+                #   to <loc>/nvvm/lib64/
                 rel2 = "$ORIGIN/../../../../../../nvvm/lib64"
                 ldflag = f"-Wl,--disable-new-dtags,-rpath,{rel1},-rpath,{rel2}"
             else:
