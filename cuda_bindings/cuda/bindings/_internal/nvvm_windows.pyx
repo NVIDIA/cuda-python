@@ -41,7 +41,7 @@ cdef void* __nvvmGetProgramLog = NULL
 
 
 cdef inline list get_site_packages():
-    return [site.getusersitepackages()] + site.getsitepackages()
+    return [site.getusersitepackages()] + site.getsitepackages() + ["conda"]
 
 
 cdef load_library(const int driver_ver):
@@ -50,44 +50,42 @@ cdef load_library(const int driver_ver):
     for suffix in get_nvvm_dso_version_suffix(driver_ver):
         if len(suffix) == 0:
             continue
-        dll_name = "nvvm64_40_0"
+        dll_name = "nvvm64_40_0.dll"
 
         # First check if the DLL has been loaded by 3rd parties
         try:
-            handle = win32api.GetModuleHandle(dll_name)
+            return win32api.GetModuleHandle(dll_name)
         except:
             pass
-        else:
-            break
 
-        # Next, check if DLLs are installed via pip
+        # Next, check if DLLs are installed via pip or conda
         for sp in get_site_packages():
-            mod_path = os.path.join(sp, "nvidia", "cuda_nvcc", "nvvm", "bin")
-            if not os.path.isdir(mod_path):
-                continue
-            os.add_dll_directory(mod_path)
-        try:
-            handle = win32api.LoadLibraryEx(
-                # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
-                os.path.join(mod_path, dll_name),
-                0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
-        except:
-            pass
-        else:
-            break
+            if sp == "conda":
+                # nvvm is not under $CONDA_PREFIX/lib, so it's not in the default search path
+                conda_prefix = os.environ.get("CONDA_PREFIX")
+                if conda_prefix is None:
+                    continue
+                mod_path = os.path.join(conda_prefix, "Library", "nvvm", "bin")
+            else:
+                mod_path = os.path.join(sp, "nvidia", "cuda_nvcc", "nvvm", "bin")
+            if os.path.isdir(mod_path):
+                os.add_dll_directory(mod_path)
+                try:
+                    return win32api.LoadLibraryEx(
+                        # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
+                        os.path.join(mod_path, dll_name),
+                        0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+                except:
+                    pass
 
         # Finally, try default search
+        # Only reached if DLL wasn't found in any site-package path
         try:
-            handle = win32api.LoadLibrary(dll_name)
+            return win32api.LoadLibrary(dll_name)
         except:
             pass
-        else:
-            break
-    else:
-        raise RuntimeError('Failed to load nvvm')
 
-    assert handle != 0
-    return handle
+    raise RuntimeError('Failed to load nvvm')
 
 
 cdef int _check_or_init_nvvm() except -1 nogil:
