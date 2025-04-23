@@ -7,30 +7,80 @@ name: "CI: Test wheels"
 on:
   workflow_call:
     inputs:
-      host-platform:
+      build-type:
         type: string
         required: true
-      python-version:
+      host-platform:
         type: string
         required: true
       build-ctk-ver:
         type: string
         required: true
-      cuda-version:
+      matrix_filter:
         type: string
-        required: true
-      local-ctk:
-        type: string
-        required: true
-      runner:
-        type: string
-        required: true
+        default: "."
 
 jobs:
+  compute-matrix:
+    runs-on: ubuntu-latest
+    env:
+      BUILD_TYPE: ${{ inputs.build-type }}
+      ARCH: ${{ (inputs.host-platform == 'win-64' && 'amd64') }}
+    outputs:
+      MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
+    steps:
+      - name: Validate Test Type
+        run: |
+          if [[ "$BUILD_TYPE" != "pull-request" ]] && [[ "$BUILD_TYPE" != "nightly" ]] && [[ "$BUILD_TYPE" != "branch" ]]; then
+              echo "Invalid build type! Must be one of 'nightly', 'pull-request', or 'branch'."
+              exit 1
+          fi
+      - name: Compute Python Test Matrix
+        id: compute-matrix
+        run: |
+          set -eo pipefail
+
+          # Please keep the matrices sorted in ascending order by the following:
+          #
+          #     [PY_VER, CUDA_VER, LOCAL_CTK]
+          #
+          export MATRICES="
+            pull-request:
+              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '11.8.0', LOCAL_CTK: '0' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '11.8.0', LOCAL_CTK: '1' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.8.0', LOCAL_CTK: '0' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.8.0', LOCAL_CTK: '1' }
+            nightly:
+              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '11.8.0', LOCAL_CTK: '0' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '11.8.0', LOCAL_CTK: '1' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.8.0', LOCAL_CTK: '0' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.8.0', LOCAL_CTK: '1' }
+          "
+
+          # Use the nightly matrix for branch tests
+          MATRIX_TYPE="${BUILD_TYPE}"
+          if [[ "${MATRIX_TYPE}" == "branch" ]]; then
+            MATRIX_TYPE="nightly"
+          fi
+          export MATRIX_TYPE
+          TEST_MATRIX=$(yq -n 'env(MATRICES) | .[strenv(MATRIX_TYPE)]')
+          export TEST_MATRIX
+
+          MATRIX="$(
+            yq -n -o json 'env(TEST_MATRIX)' | \
+            jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end'
+          )"
+
+          echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
+
   test:
     # The build stage could fail but we want the CI to keep moving.
+    needs: compute-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
-    runs-on: ${{ (inputs.runner == 'default' && inputs.host-platform == 'win-64' && 'cuda-python-windows-gpu-github') }}
+    runs-on: 'cuda-python-windows-gpu-github'
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v4
@@ -46,11 +96,11 @@ jobs:
 
       - name: Set environment variables
         run: |
-          $PYTHON_VERSION_FORMATTED = '${{ inputs.python-version }}' -replace '\.'
+          $PYTHON_VERSION_FORMATTED = '${{ matrix.PY_VER }}' -replace '\.'
           $REPO_DIR = $PWD.Path
 
           $BUILD_CUDA_MAJOR = '${{ inputs.build-ctk-ver }}' -split '\.' | Select-Object -First 1
-          $TEST_CUDA_MAJOR = '${{ inputs.cuda-version }}' -split '\.' | Select-Object -First 1
+          $TEST_CUDA_MAJOR = '${{ matrix.CUDA_VER }}' -split '\.' | Select-Object -First 1
           if ($BUILD_CUDA_MAJOR -ne $TEST_CUDA_MAJOR) {
             $SKIP_CUDA_BINDINGS_TEST = 1
           } else {
@@ -174,24 +224,24 @@ jobs:
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
-      - name: Set up Python ${{ inputs.python-version }}
+      - name: Set up Python ${{ matrix.PY_VER }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: ${{ matrix.PY_VER }}
 
       - name: Set up mini CTK
-        if: ${{ inputs.local-ctk == '1' }}
+        if: ${{ matrix.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
           host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ inputs.cuda-version }}
+          cuda-version: ${{ matrix.CUDA_VER }}
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
           Push-Location $env:CUDA_BINDINGS_ARTIFACTS_DIR
-          if ('${{ inputs.local-ctk }}' -eq '1') {
+          if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
             Get-ChildItem $env:CUDA_PATH
             echo $PATH
             pip install (Get-ChildItem -Filter *.whl).FullName
@@ -212,14 +262,14 @@ jobs:
           # If mismatch: cuda.bindings is installed from the backport branch.
           if ($env:SKIP_CUDA_BINDINGS_TEST -eq '1') {
             Push-Location $env:CUDA_BINDINGS_ARTIFACTS_DIR
-            if ('${{ inputs.local-ctk }}' -eq '1') {
+            if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
               pip install (Get-ChildItem -Filter *.whl).FullName
             } else {
               pip install "$((Get-ChildItem -Filter *.whl).FullName)[all]"
             }
             Pop-Location
           }
-          $TEST_CUDA_MAJOR = '${{ inputs.cuda-version }}' -split '\.' | Select-Object -First 1
+          $TEST_CUDA_MAJOR = '${{ matrix.CUDA_VER }}' -split '\.' | Select-Object -First 1
           Push-Location $env:CUDA_CORE_ARTIFACTS_DIR
           pip install "$((Get-ChildItem -Filter *.whl).FullName)[cu${TEST_CUDA_MAJOR}]"
           Pop-Location
@@ -231,7 +281,7 @@ jobs:
 
       - name: Ensure cuda-python installable
         run: |
-          if ('${{ inputs.local-ctk }}' -eq '1') {
+          if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
             pip install (Get-ChildItem -Filter cuda_python*.whl).FullName
           } else {
             pip install "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"

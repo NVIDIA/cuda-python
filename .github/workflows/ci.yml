@@ -21,7 +21,7 @@ jobs:
         host-platform:
           - linux-64
           - linux-aarch64
-          #- win-64
+          - win-64
     name: Build ${{ matrix.host-platform }}, CUDA 12.8.0
     if: ${{ github.repository_owner == 'nvidia' }}
     secrets: inherit
@@ -34,7 +34,6 @@ jobs:
   test-linux:
     strategy:
       fail-fast: false
-      # TODO: add driver version here
       matrix:
         host-platform:
           - linux-64
@@ -48,6 +47,26 @@ jobs:
     secrets: inherit
     uses:
       ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: pull-request
+      host-platform: ${{ matrix.host-platform }}
+      build-ctk-ver: 12.8.0
+
+  test-windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        host-platform:
+          - win-64
+    name: Test ${{ matrix.host-platform }}
+    if: ${{ github.repository_owner == 'nvidia' }}
+    permissions:
+      contents: read  # This is required for actions/checkout
+    needs:
+      - build
+    secrets: inherit
+    uses:
+      ./.github/workflows/test-wheel-windows.yml
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
