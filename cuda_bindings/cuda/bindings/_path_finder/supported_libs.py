@@ -63,6 +63,127 @@ DIRECT_DEPENDENCIES = {
     "nvblas": ("cublas", "cublasLt"),
 }
 
+# Based on these released files:
+#   cuda_11.0.3_450.51.06_linux.run
+#   cuda_11.1.1_455.32.00_linux.run
+#   cuda_11.2.2_460.32.03_linux.run
+#   cuda_11.3.1_465.19.01_linux.run
+#   cuda_11.4.4_470.82.01_linux.run
+#   cuda_11.5.1_495.29.05_linux.run
+#   cuda_11.6.2_510.47.03_linux.run
+#   cuda_11.7.1_515.65.01_linux.run
+#   cuda_11.8.0_520.61.05_linux.run
+#   cuda_12.0.1_525.85.12_linux.run
+#   cuda_12.1.1_530.30.02_linux.run
+#   cuda_12.2.2_535.104.05_linux.run
+#   cuda_12.3.2_545.23.08_linux.run
+#   cuda_12.4.1_550.54.15_linux.run
+#   cuda_12.5.1_555.42.06_linux.run
+#   cuda_12.6.2_560.35.03_linux.run
+#   cuda_12.8.0_570.86.10_linux.run
+# Generated with toolshed/build_path_finder_sonames.py
+SUPPORTED_LINUX_SONAMES = {
+    "cublas": (
+        "libcublas.so.11",
+        "libcublas.so.12",
+    ),
+    "cublasLt": (
+        "libcublasLt.so.11",
+        "libcublasLt.so.12",
+    ),
+    "cudart": (
+        "libcudart.so.11.0",
+        "libcudart.so.12",
+    ),
+    "cufft": (
+        "libcufft.so.10",
+        "libcufft.so.11",
+    ),
+    "cufftw": (
+        "libcufftw.so.10",
+        "libcufftw.so.11",
+    ),
+    "cufile": ("libcufile.so.0",),
+    # "cufile_rdma": ("libcufile_rdma.so.1",),
+    "curand": ("libcurand.so.10",),
+    "cusolver": (
+        "libcusolver.so.10",
+        "libcusolver.so.11",
+    ),
+    "cusolverMg": (
+        "libcusolverMg.so.10",
+        "libcusolverMg.so.11",
+    ),
+    "cusparse": (
+        "libcusparse.so.11",
+        "libcusparse.so.12",
+    ),
+    "nppc": (
+        "libnppc.so.11",
+        "libnppc.so.12",
+    ),
+    "nppial": (
+        "libnppial.so.11",
+        "libnppial.so.12",
+    ),
+    "nppicc": (
+        "libnppicc.so.11",
+        "libnppicc.so.12",
+    ),
+    "nppidei": (
+        "libnppidei.so.11",
+        "libnppidei.so.12",
+    ),
+    "nppif": (
+        "libnppif.so.11",
+        "libnppif.so.12",
+    ),
+    "nppig": (
+        "libnppig.so.11",
+        "libnppig.so.12",
+    ),
+    "nppim": (
+        "libnppim.so.11",
+        "libnppim.so.12",
+    ),
+    "nppist": (
+        "libnppist.so.11",
+        "libnppist.so.12",
+    ),
+    "nppisu": (
+        "libnppisu.so.11",
+        "libnppisu.so.12",
+    ),
+    "nppitc": (
+        "libnppitc.so.11",
+        "libnppitc.so.12",
+    ),
+    "npps": (
+        "libnpps.so.11",
+        "libnpps.so.12",
+    ),
+    "nvJitLink": ("libnvJitLink.so.12",),
+    "nvblas": (
+        "libnvblas.so.11",
+        "libnvblas.so.12",
+    ),
+    "nvfatbin": ("libnvfatbin.so.12",),
+    "nvjpeg": (
+        "libnvjpeg.so.11",
+        "libnvjpeg.so.12",
+    ),
+    "nvrtc": (
+        "libnvrtc.so.11.0",
+        "libnvrtc.so.11.1",
+        "libnvrtc.so.11.2",
+        "libnvrtc.so.12",
+    ),
+    "nvvm": (
+        "libnvvm.so.3",
+        "libnvvm.so.4",
+    ),
+}
+
 # Based on https://developer.download.nvidia.com/compute/cuda/redist/
 # as of 2025-04-11 (redistrib_12.8.1.json was the newest .json file).
 # Tuples of DLLs are sorted newest-to-oldest.

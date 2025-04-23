@@ -38,7 +38,7 @@ else:
 
 
 from .find_nvidia_dynamic_library import _find_nvidia_dynamic_library
-from .supported_libs import DIRECT_DEPENDENCIES, EXPECTED_LIB_SYMBOLS, SUPPORTED_WINDOWS_DLLS
+from .supported_libs import DIRECT_DEPENDENCIES, EXPECTED_LIB_SYMBOLS, SUPPORTED_LINUX_SONAMES, SUPPORTED_WINDOWS_DLLS
 
 
 @functools.cache
@@ -100,6 +100,7 @@ def _load_and_report_path_linux(libname, soname: str) -> Tuple[int, str]:
 
 @functools.cache
 def load_nvidia_dynamic_library(libname: str) -> int:
+    # Detect if the library was loaded already in some other way (i.e. not via this function).
     if sys.platform == "win32":
         for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname):
             try:
@@ -107,11 +108,11 @@ def load_nvidia_dynamic_library(libname: str) -> int:
             except pywintypes.error:
                 pass
     else:
-        try:
-            # TODO: This misses lib{libname}.so.N
-            return ctypes.CDLL(f"lib{libname}.so", mode=os.RTLD_NOLOAD)
-        except OSError:
-            pass
+        for soname in SUPPORTED_LINUX_SONAMES.get(libname):
+            try:
+                return ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
+            except OSError:
+                pass
 
     for dep in DIRECT_DEPENDENCIES.get(libname, ()):
         load_nvidia_dynamic_library(dep)

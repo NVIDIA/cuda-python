@@ -14,6 +14,10 @@ else:
     TEST_LIBNAMES = path_finder.SUPPORTED_LIBNAMES
 
 
+def test_all_libnames_linux_sonames_consistency():
+    assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.SUPPORTED_LINUX_SONAMES.keys()))
+
+
 def test_all_libnames_windows_dlls_consistency():
     assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.SUPPORTED_WINDOWS_DLLS.keys()))
 
