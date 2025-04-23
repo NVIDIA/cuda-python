@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# THIS FILE NEEDS TO BE REVIEWED/UPDATED FOR EACH CTK RELEASE
+
 SUPPORTED_LIBNAMES = (
     # Core CUDA Runtime and Compiler
     "nvJitLink",
