@@ -100,6 +100,19 @@ def _load_and_report_path_linux(libname, soname: str) -> Tuple[int, str]:
 
 @functools.cache
 def load_nvidia_dynamic_library(libname: str) -> int:
+    if sys.platform == "win32":
+        for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname):
+            try:
+                return win32api.GetModuleHandle(dll_name)
+            except pywintypes.error:
+                pass
+    else:
+        try:
+            # TODO: This misses lib{libname}.so.N
+            return ctypes.CDLL(f"lib{libname}.so", mode=os.RTLD_NOLOAD)
+        except OSError:
+            pass
+
     for dep in DIRECT_DEPENDENCIES.get(libname, ()):
         load_nvidia_dynamic_library(dep)
 
