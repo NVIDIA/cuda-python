@@ -1,10 +1,7 @@
 name: "CI"
 
 concurrency:
-  group: ${{ github.workflow }}-${{
-           github.ref_name == 'main' && format('ci-main-build-test-{0}', github.run_id) ||
-           format('ci-pr-build-test-on-{0}-against-branch-{1}', github.event_name, github.ref_name)
-         }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 on:
@@ -14,7 +11,24 @@ on:
       - "main"
 
 jobs:
+  ci-vars:
+    runs-on: ubuntu-latest
+    outputs:
+      CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get CUDA build version
+        id: get-vars
+        run: |
+          cuda_build_ver=$(jq -r .cuda.build.version versions.json)
+          echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
+
   build:
+    needs:
+      - ci-vars
     strategy:
       fail-fast: false
       matrix:
@@ -22,14 +36,14 @@ jobs:
           - linux-64
           - linux-aarch64
           - win-64
-    name: Build ${{ matrix.host-platform }}, CUDA 12.8.0
+    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
     if: ${{ github.repository_owner == 'nvidia' }}
     secrets: inherit
     uses:
       ./.github/workflows/build.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      cuda-version: "12.8.0"
+      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
   test-linux:
     strategy:
@@ -43,6 +57,7 @@ jobs:
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
+      - ci-vars
       - build
     secrets: inherit
     uses:
@@ -50,7 +65,7 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      build-ctk-ver: 12.8.0
+      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
   test-windows:
     strategy:
@@ -63,6 +78,7 @@ jobs:
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
+      - ci-vars
       - build
     secrets: inherit
     uses:
@@ -70,4 +86,34 @@ jobs:
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
-      build-ctk-ver: 12.8.0
+      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+
+  doc:
+    name: Docs
+    if: ${{ github.repository_owner == 'nvidia' }}
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    needs:
+      - ci-vars
+      - build
+    secrets: inherit
+    uses:
+      ./.github/workflows/build-docs.yml
+    with:
+      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+
+  checks:
+    name: Check job status
+    permissions:
+      checks: read
+    needs:
+      - build
+      - test-linux
+      - test-windows
+      - doc
+    secrets: inherit
+    uses:
+      ./.github/workflows/status-check.yml
