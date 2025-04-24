@@ -314,6 +314,11 @@ SUPPORTED_WINDOWS_DLLS = {
     ),
 }
 
+LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
+    "cufft",
+    "nvrtc",
+)
+
 # Based on nm output for Linux x86_64 /usr/local/cuda (12.8.1)
 EXPECTED_LIB_SYMBOLS = {
     "nvJitLink": ("nvJitLinkVersion",),

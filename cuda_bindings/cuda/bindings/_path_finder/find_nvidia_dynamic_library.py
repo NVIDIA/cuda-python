@@ -38,14 +38,8 @@ def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachm
     return None
 
 
-def _append_to_os_environ_path(dirpath):
-    curr_path = os.environ.get("PATH")
-    os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
-
-
 def _find_dll_under_dir(dirpath, file_wild):
     dll_name = None
-    have_builtins = False
     for path in sorted(glob.glob(os.path.join(dirpath, file_wild))):
         # nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-win_amd64.whl:
         #     nvidia\cuda_nvrtc\bin\
@@ -56,19 +50,12 @@ def _find_dll_under_dir(dirpath, file_wild):
         if node.endswith(".alt.dll"):
             continue
         if "-builtins" in node:
-            have_builtins = True
             continue
         if dll_name is not None:
             continue
         if os.path.isfile(path):
             dll_name = path
-    if dll_name is not None:
-        if have_builtins:
-            # Add the DLL directory to the search path
-            os.add_dll_directory(dirpath)
-            # Update PATH as a fallback for dependent DLL resolution
-            _append_to_os_environ_path(dirpath)
-        return dll_name
+    return dll_name
 
 
 def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):

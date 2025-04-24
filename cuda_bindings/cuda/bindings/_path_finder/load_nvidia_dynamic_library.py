@@ -4,6 +4,7 @@
 
 import ctypes
 import functools
+import os
 import sys
 from typing import Optional, Tuple
 
@@ -19,7 +20,6 @@ if sys.platform == "win32":
 
 else:
     import ctypes.util
-    import os
 
     _LINUX_CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
@@ -38,7 +38,23 @@ else:
 
 
 from .find_nvidia_dynamic_library import _find_nvidia_dynamic_library
-from .supported_libs import DIRECT_DEPENDENCIES, EXPECTED_LIB_SYMBOLS, SUPPORTED_LINUX_SONAMES, SUPPORTED_WINDOWS_DLLS
+from .supported_libs import (
+    DIRECT_DEPENDENCIES,
+    EXPECTED_LIB_SYMBOLS,
+    LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
+    SUPPORTED_LINUX_SONAMES,
+    SUPPORTED_WINDOWS_DLLS,
+)
+
+
+def _add_dll_directory(dll_abs_path):
+    dirpath = os.path.dirname(dll_abs_path)
+    assert os.path.isdir(dirpath), dll_abs_path
+    # Add the DLL directory to the search path
+    os.add_dll_directory(dirpath)
+    # Update PATH as a fallback for dependent DLL resolution
+    curr_path = os.environ.get("PATH")
+    os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
 
 
 @functools.cache
@@ -137,6 +153,8 @@ def load_nvidia_dynamic_library(libname: str) -> int:
         found.raise_if_abs_path_is_None()
 
     if sys.platform == "win32":
+        if libname in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY:
+            _add_dll_directory(found.abs_path)
         flags = _WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | _WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
         try:
             handle = win32api.LoadLibraryEx(found.abs_path, 0, flags)

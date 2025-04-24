@@ -22,6 +22,10 @@ def test_all_libnames_windows_dlls_consistency():
     assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.SUPPORTED_WINDOWS_DLLS.keys()))
 
 
+def test_all_libnames_libnames_requiring_os_add_dll_directory_consistency():
+    assert not (set(supported_libs.LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY) - set(ALL_LIBNAMES))
+
+
 def test_all_libnames_expected_lib_symbols_consistency():
     assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.EXPECTED_LIB_SYMBOLS.keys()))
 
