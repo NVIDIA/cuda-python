@@ -180,7 +180,7 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
 
-      - name: Set up compute-saniziter
+      - name: Set up compute-sanitizer
         run: |
           if [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.local-ctk }}" == 1 ]]; then
             COMPUTE_SANITIZER="${CUDA_HOME}/bin/compute-sanitizer"
