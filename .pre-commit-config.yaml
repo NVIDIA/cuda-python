@@ -20,6 +20,9 @@ repos:
     rev: 8ff25e07e487f143571cc305e56dd0253c60bc7b  #v1.8.3
     hooks:
       - id: bandit
+        args:
+          - --ini
+          - .bandit
 
 default_language_version:
       python: python3

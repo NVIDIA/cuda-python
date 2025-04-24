@@ -647,7 +647,8 @@ def test_get_error_name_and_string():
 
 @pytest.mark.skipif(not callableBinary("nvidia-smi"), reason="Binary existance needed")
 def test_device_get_name():
-    import subprocess
+    # TODO: Refactor this test once we have nvml bindings to avoid the use of subprocess
+    import subprocess  # nosec B404
 
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -656,9 +657,9 @@ def test_device_get_name():
     err, ctx = cuda.cuCtxCreate(0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    p = subprocess.run(
-        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+    p = subprocess.check_output(
+        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], shell=False, stderr=subprocess.PIPE
+    )  # nosec B603, B607
 
     delimiter = b"\r\n" if platform.system() == "Windows" else b"\n"
     expect = p.stdout.split(delimiter)

@@ -33,7 +33,8 @@ def run_example(samples_path, filename, env=None):
         sys.argv = [fullpath]
         old_sys_path = sys.path.copy()
         sys.path.append(samples_path)
-        exec(script, env if env else {})
+        # TODO: Refactor the examples to give them a common callable `main()` to avoid needing to use exec here?
+        exec(script, env if env else {})  # nosec B102
     except ImportError as e:
         # for samples requiring any of optional dependencies
         for m in ("cupy",):
