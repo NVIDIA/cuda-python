@@ -53,7 +53,7 @@ cdef void* __nvJitLinkVersion = NULL
 
 
 cdef void* load_library(int driver_ver) except* with gil:
-    cdef uintptr_t handle = path_finder.load_nvidia_dynamic_library("nvJitLink")
+    cdef uintptr_t handle = path_finder.load_nvidia_dynamic_library("nvJitLink").handle
     return <void*>handle
 
 

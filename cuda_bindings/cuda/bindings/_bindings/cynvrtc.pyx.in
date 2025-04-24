@@ -56,7 +56,7 @@ cdef int cuPythonInit() except -1 nogil:
 
     {{if 'Windows' == platform.system()}}
     with gil:
-        handle = path_finder.load_nvidia_dynamic_library("nvrtc")
+        handle = path_finder.load_nvidia_dynamic_library("nvrtc").handle
         {{if 'nvrtcGetErrorString' in found_functions}}
         try:
             global __nvrtcGetErrorString
@@ -242,7 +242,7 @@ cdef int cuPythonInit() except -1 nogil:
 
     {{else}}
     with gil:
-        handle = <void*><uintptr_t>path_finder.load_nvidia_dynamic_library("nvrtc")
+        handle = <void*><uintptr_t>path_finder.load_nvidia_dynamic_library("nvrtc").handle
     {{if 'nvrtcGetErrorString' in found_functions}}
     global __nvrtcGetErrorString
     __nvrtcGetErrorString = dlfcn.dlsym(handle, 'nvrtcGetErrorString')

@@ -6,6 +6,7 @@ import ctypes
 import functools
 import os
 import sys
+from dataclasses import dataclass
 from typing import Optional, Tuple
 
 if sys.platform == "win32":
@@ -114,19 +115,29 @@ def _load_and_report_path_linux(libname, soname: str) -> Tuple[int, str]:
     return handle, info.dli_fname.decode()
 
 
+@dataclass
+class LoadedDL:
+    # ATTENTION: To convert `handle` back to `void*` in cython:
+    #     Linux:   `cdef void* ptr = <void*><uintptr_t>`
+    #     Windows: `cdef void* ptr = <void*><intptr_t>`
+    handle: int
+    abs_path: Optional[str]
+    was_already_loaded_from_elsewhere: bool
+
+
 @functools.cache
-def load_nvidia_dynamic_library(libname: str) -> int:
+def load_nvidia_dynamic_library(libname: str) -> LoadedDL:
     # Detect if the library was loaded already in some other way (i.e. not via this function).
     if sys.platform == "win32":
-        for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname):
+        for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
             try:
-                return win32api.GetModuleHandle(dll_name)
+                return LoadedDL(win32api.GetModuleHandle(dll_name), None, True)
             except pywintypes.error:
                 pass
     else:
-        for soname in SUPPORTED_LINUX_SONAMES.get(libname):
+        for soname in SUPPORTED_LINUX_SONAMES.get(libname, ()):
             try:
-                return ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
+                return LoadedDL(ctypes.CDLL(soname, mode=os.RTLD_NOLOAD), None, True)
             except OSError:
                 pass
 
@@ -138,18 +149,14 @@ def load_nvidia_dynamic_library(libname: str) -> int:
         if sys.platform == "win32":
             handle, abs_path = _windows_load_with_dll_basename(libname)
             if handle:
-                # Use `cdef void* ptr = <void*><intptr_t>` in cython to convert back to void*
-                print(f"SYSTEM ABS_PATH for {libname=!r}: {abs_path}", flush=True)
-                return handle
+                return LoadedDL(handle, abs_path, False)
         else:
             try:
                 handle, abs_path = _load_and_report_path_linux(libname, found.lib_searched_for)
-            except OSError as e:
-                print(f"SYSTEM OSError for {libname=!r}: {e!r}", flush=True)
+            except OSError:
+                pass
             else:
-                # Use `cdef void* ptr = <void*><uintptr_t>` in cython to convert back to void*
-                print(f"SYSTEM ABS_PATH for {libname=!r}: {abs_path}", flush=True)
-                return handle._handle  # C unsigned int
+                return LoadedDL(handle._handle, abs_path, False)
         found.raise_if_abs_path_is_None()
 
     if sys.platform == "win32":
@@ -160,14 +167,10 @@ def load_nvidia_dynamic_library(libname: str) -> int:
             handle = win32api.LoadLibraryEx(found.abs_path, 0, flags)
         except pywintypes.error as e:
             raise RuntimeError(f"Failed to load DLL at {found.abs_path}: {e}") from e
-        # Use `cdef void* ptr = <void*><intptr_t>` in cython to convert back to void*
-        print(f"FOUND ABS_PATH for {libname=!r}: {found.abs_path}", flush=True)
-        return handle  # C signed int, matches win32api.GetProcAddress
+        return LoadedDL(handle, found.abs_path, False)
     else:
         try:
             handle = ctypes.CDLL(found.abs_path, _LINUX_CDLL_MODE)
         except OSError as e:
             raise RuntimeError(f"Failed to dlopen {found.abs_path}: {e}") from e
-        # Use `cdef void* ptr = <void*><uintptr_t>` in cython to convert back to void*
-        print(f"FOUND ABS_PATH for {libname=!r}: {found.abs_path}", flush=True)
-        return handle._handle  # C unsigned int
+        return LoadedDL(handle._handle, found.abs_path, False)
