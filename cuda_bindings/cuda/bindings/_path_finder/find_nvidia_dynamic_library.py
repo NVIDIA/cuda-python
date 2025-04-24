@@ -7,6 +7,7 @@ import glob
 import os
 
 from .cuda_paths import IS_WIN32, get_cuda_paths
+from .supported_libs import is_suppressed_dll_file
 from .sys_path_find_sub_dirs import sys_path_find_sub_dirs
 
 
@@ -39,23 +40,12 @@ def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachm
 
 
 def _find_dll_under_dir(dirpath, file_wild):
-    dll_name = None
     for path in sorted(glob.glob(os.path.join(dirpath, file_wild))):
-        # nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-win_amd64.whl:
-        #     nvidia\cuda_nvrtc\bin\
-        #         nvrtc-builtins64_128.dll
-        #         nvrtc64_120_0.alt.dll
-        #         nvrtc64_120_0.dll
-        node = os.path.basename(path)
-        if node.endswith(".alt.dll"):
+        if not os.path.isfile(path):
             continue
-        if "-builtins" in node:
-            continue
-        if dll_name is not None:
-            continue
-        if os.path.isfile(path):
-            dll_name = path
-    return dll_name
+        if not is_suppressed_dll_file(os.path.basename(path)):
+            return path
+    return None
 
 
 def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):

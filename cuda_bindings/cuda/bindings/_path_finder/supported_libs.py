@@ -319,6 +319,18 @@ LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
     "nvrtc",
 )
 
+
+def is_suppressed_dll_file(path_basename: str) -> bool:
+    if path_basename.startswith("nvrtc"):
+        # nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-win_amd64.whl:
+        #     nvidia\cuda_nvrtc\bin\
+        #         nvrtc-builtins64_128.dll
+        #         nvrtc64_120_0.alt.dll
+        #         nvrtc64_120_0.dll
+        return path_basename.endswith(".alt.dll") or "-builtins" in path_basename
+    return False
+
+
 # Based on nm output for Linux x86_64 /usr/local/cuda (12.8.1)
 EXPECTED_LIB_SYMBOLS = {
     "nvJitLink": ("nvJitLinkVersion",),
