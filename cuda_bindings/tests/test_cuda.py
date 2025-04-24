@@ -662,7 +662,7 @@ def test_device_get_name():
     )  # nosec B603, B607
 
     delimiter = b"\r\n" if platform.system() == "Windows" else b"\n"
-    expect = p.stdout.split(delimiter)
+    expect = p.split(delimiter)
     size = 64
     _, got = cuda.cuDeviceGetName(size, device)
     got = got.split(b"\x00")[0]
