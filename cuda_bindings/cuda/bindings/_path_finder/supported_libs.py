@@ -184,38 +184,134 @@ SUPPORTED_LINUX_SONAMES = {
     ),
 }
 
-# Based on https://developer.download.nvidia.com/compute/cuda/redist/
-# as of 2025-04-11 (redistrib_12.8.1.json was the newest .json file).
-# Tuples of DLLs are sorted newest-to-oldest.
+# Based on these released files:
+#   cuda_11.0.3_451.82_win10.exe
+#   cuda_11.1.1_456.81_win10.exe
+#   cuda_11.2.2_461.33_win10.exe
+#   cuda_11.3.1_465.89_win10.exe
+#   cuda_11.4.4_472.50_windows.exe
+#   cuda_11.5.1_496.13_windows.exe
+#   cuda_11.6.2_511.65_windows.exe
+#   cuda_11.7.1_516.94_windows.exe
+#   cuda_11.8.0_522.06_windows.exe
+#   cuda_12.0.1_528.33_windows.exe
+#   cuda_12.1.1_531.14_windows.exe
+#   cuda_12.2.2_537.13_windows.exe
+#   cuda_12.3.2_546.12_windows.exe
+#   cuda_12.4.1_551.78_windows.exe
+#   cuda_12.5.1_555.85_windows.exe
+#   cuda_12.6.2_560.94_windows.exe
+#   cuda_12.8.1_572.61_windows.exe
+# Generated with toolshed/build_path_finder_dlls.py (WITH MANUAL EDITS)
 SUPPORTED_WINDOWS_DLLS = {
-    "cublas": ("cublas64_12.dll", "cublas64_11.dll"),
-    "cublasLt": ("cublasLt64_12.dll", "cublasLt64_11.dll"),
-    "cudart": ("cudart64_12.dll", "cudart64_110.dll", "cudart32_110.dll"),
-    "cufft": ("cufft64_11.dll", "cufft64_10.dll"),
-    "cufftw": ("cufftw64_10.dll", "cufftw64_11.dll"),
+    "cublas": (
+        "cublas64_11.dll",
+        "cublas64_12.dll",
+    ),
+    "cublasLt": (
+        "cublasLt64_11.dll",
+        "cublasLt64_12.dll",
+    ),
+    "cudart": (
+        "cudart32_110.dll",
+        "cudart32_65.dll",
+        "cudart32_90.dll",
+        "cudart64_101.dll",
+        "cudart64_110.dll",
+        "cudart64_12.dll",
+        "cudart64_65.dll",
+    ),
+    "cufft": (
+        "cufft64_10.dll",
+        "cufft64_11.dll",
+        "cufftw64_10.dll",
+        "cufftw64_11.dll",
+    ),
+    "cufftw": (
+        "cufftw64_10.dll",
+        "cufftw64_11.dll",
+    ),
     "cufile": (),
     # "cufile_rdma": (),
     "curand": ("curand64_10.dll",),
-    "cusolver": ("cusolver64_11.dll",),
-    "cusolverMg": ("cusolverMg64_11.dll",),
-    "cusparse": ("cusparse64_12.dll", "cusparse64_11.dll"),
-    "nppc": ("nppc64_12.dll", "nppc64_11.dll"),
-    "nppial": ("nppial64_12.dll", "nppial64_11.dll"),
-    "nppicc": ("nppicc64_12.dll", "nppicc64_11.dll"),
-    "nppidei": ("nppidei64_12.dll", "nppidei64_11.dll"),
-    "nppif": ("nppif64_12.dll", "nppif64_11.dll"),
-    "nppig": ("nppig64_12.dll", "nppig64_11.dll"),
-    "nppim": ("nppim64_12.dll", "nppim64_11.dll"),
-    "nppist": ("nppist64_12.dll", "nppist64_11.dll"),
-    "nppisu": ("nppisu64_12.dll", "nppisu64_11.dll"),
-    "nppitc": ("nppitc64_12.dll", "nppitc64_11.dll"),
-    "npps": ("npps64_12.dll", "npps64_11.dll"),
-    "nvblas": ("nvblas64_12.dll", "nvblas64_11.dll"),
-    "nvfatbin": ("nvfatbin_120_0.dll",),
+    "cusolver": (
+        "cusolver64_10.dll",
+        "cusolver64_11.dll",
+    ),
+    "cusolverMg": (
+        "cusolverMg64_10.dll",
+        "cusolverMg64_11.dll",
+    ),
+    "cusparse": (
+        "cusparse64_11.dll",
+        "cusparse64_12.dll",
+    ),
+    "nppc": (
+        "nppc64_11.dll",
+        "nppc64_12.dll",
+    ),
+    "nppial": (
+        "nppial64_11.dll",
+        "nppial64_12.dll",
+    ),
+    "nppicc": (
+        "nppicc64_11.dll",
+        "nppicc64_12.dll",
+    ),
+    "nppidei": (
+        "nppidei64_11.dll",
+        "nppidei64_12.dll",
+    ),
+    "nppif": (
+        "nppif64_11.dll",
+        "nppif64_12.dll",
+    ),
+    "nppig": (
+        "nppig64_11.dll",
+        "nppig64_12.dll",
+    ),
+    "nppim": (
+        "nppim64_11.dll",
+        "nppim64_12.dll",
+    ),
+    "nppist": (
+        "nppist64_11.dll",
+        "nppist64_12.dll",
+    ),
+    "nppisu": (
+        "nppisu64_11.dll",
+        "nppisu64_12.dll",
+    ),
+    "nppitc": (
+        "nppitc64_11.dll",
+        "nppitc64_12.dll",
+    ),
+    "npps": (
+        "npps64_11.dll",
+        "npps64_12.dll",
+    ),
     "nvJitLink": ("nvJitLink_120_0.dll",),
-    "nvjpeg": ("nvjpeg64_12.dll", "nvjpeg64_11.dll"),
-    "nvrtc": ("nvrtc64_120_0.dll", "nvrtc64_112_0.dll"),
-    "nvvm": ("nvvm64_40_0.dll",),
+    "nvblas": (
+        "nvblas64_11.dll",
+        "nvblas64_12.dll",
+    ),
+    "nvfatbin": ("nvfatbin_120_0.dll",),
+    "nvjpeg": (
+        "nvjpeg64_11.dll",
+        "nvjpeg64_12.dll",
+    ),
+    "nvrtc": (
+        "nvrtc64_110_0.dll",
+        "nvrtc64_111_0.dll",
+        "nvrtc64_112_0.dll",
+        "nvrtc64_120_0.dll",
+    ),
+    "nvvm": (
+        "nvvm32.dll",
+        "nvvm64.dll",
+        "nvvm64_33_0.dll",
+        "nvvm64_40_0.dll",
+    ),
 }
 
 # Based on nm output for Linux x86_64 /usr/local/cuda (12.8.1)

@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# Input for this script:
+# output of toolshed/find_sonames.sh
+
+# The output of this script
+# is expected to be usable as-is.
+
 import sys
 
 LIBNAMES_IN_SCOPE_OF_CUDA_BINDINGS_PATH_FINDER = (
