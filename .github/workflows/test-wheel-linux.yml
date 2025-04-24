@@ -189,6 +189,7 @@ jobs:
             if [[ "$COMPUTE_SANITIZER_VERSION" -ge 202111 ]]; then
                 SANITIZER_CMD="${SANITIZER_CMD} --padding=32"
             fi
+            echo "CUDA_PYTHON_SANITIZER_RUNNING=1" >> $GITHUB_ENV
           else
             COMPUTE_SANITIZER_VERSION="None"
             SANITIZER_CMD=""
