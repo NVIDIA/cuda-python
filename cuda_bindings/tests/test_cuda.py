@@ -5,6 +5,7 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
+import os
 import platform
 import shutil
 import textwrap
@@ -83,6 +84,10 @@ def test_cuda_memcpy():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
+@pytest.mark.skipif(
+    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
+    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+)
 def test_cuda_array():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -236,6 +241,10 @@ def test_cuda_uuid_list_access():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
+@pytest.mark.skipif(
+    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
+    reason="FIXME: This test causes an API error.",
+)
 def test_cuda_cuModuleLoadDataEx():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -251,6 +260,7 @@ def test_cuda_cuModuleLoadDataEx():
         cuda.CUjit_option.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,
         cuda.CUjit_option.CU_JIT_LOG_VERBOSE,
     ]
+    # FIXME: This function call raises CUDA_ERROR_INVALID_VALUE
     err, mod = cuda.cuModuleLoadDataEx(0, 0, option_keys, [])
 
     (err,) = cuda.cuCtxDestroy(ctx)
@@ -622,6 +632,10 @@ def test_cuda_coredump_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
+@pytest.mark.skipif(
+    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
+    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+)
 def test_get_error_name_and_string():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -950,6 +964,10 @@ def test_CUmemDecompressParams_st():
     assert int(desc.dstActBytes) == 0
 
 
+@pytest.mark.skipif(
+    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
+    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+)
 def test_all_CUresult_codes():
     max_code = int(max(cuda.CUresult))
     # Smoke test. CUDA_ERROR_UNKNOWN = 999, but intentionally using literal value.
@@ -982,12 +1000,20 @@ def test_all_CUresult_codes():
     assert num_good >= 76  # CTK 11.0.3_450.51.06
 
 
+@pytest.mark.skipif(
+    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
+    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+)
 def test_cuKernelGetName_failure():
     err, name = cuda.cuKernelGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
     assert name is None
 
 
+@pytest.mark.skipif(
+    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
+    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+)
 def test_cuFuncGetName_failure():
     err, name = cuda.cuFuncGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE

@@ -20,7 +20,13 @@ def test_event_init_disabled():
         cuda.core.experimental._event.Event()  # Ensure back door is locked.
 
 
-@pytest.mark.parametrize("enable_timing", [True, False, None])
+@pytest.mark.parametrize(
+    "enable_timing",
+    [
+        True,
+    ]
+    + ([False, None] if os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") != "1" else []),
+)
 def test_timing(init_cuda, enable_timing):
     options = EventOptions(enable_timing=enable_timing)
     stream = Device().create_stream()
