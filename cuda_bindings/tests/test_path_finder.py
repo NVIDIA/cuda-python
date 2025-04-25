@@ -38,11 +38,20 @@ def _build_subprocess_failed_for_libname_message(libname, result):
     )
 
 
+def _check_nvjitlink_usable():
+    from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+
+    return inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") != 0
+
+
 @pytest.mark.parametrize("api", ("find", "load"))
 @pytest.mark.parametrize("libname", TEST_LIBNAMES)
 def test_find_or_load_nvidia_dynamic_library(api, libname):
     if sys.platform == "win32" and not supported_libs.SUPPORTED_WINDOWS_DLLS[libname]:
         pytest.skip(f"{libname=!r} not supported on {sys.platform=}")
+
+    if libname == "nvJitLink" and not _check_nvjitlink_usable():
+        pytest.skip(f"{libname=!r} not usable")
 
     if api == "find":
         code = f"""\
