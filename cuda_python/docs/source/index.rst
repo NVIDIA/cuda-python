@@ -33,4 +33,3 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    cuda.parallel <https://nvidia.github.io/cccl/cuda_parallel>
    numba.cuda <https://nvidia.github.io/numba-cuda/>
    conduct.md
-   contribute.md

@@ -12,6 +12,8 @@ and other functionalities.
    install.md
    interoperability.rst
    api.rst
+   contribute.rst
+   license.rst
 
 
 Indices and tables

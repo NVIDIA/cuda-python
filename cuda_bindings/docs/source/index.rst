@@ -13,6 +13,8 @@
    api
    tips_and_tricks
    support
+   contribute.md
+   license
 
 
 Indices and tables

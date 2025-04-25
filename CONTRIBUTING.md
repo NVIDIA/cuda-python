@@ -9,4 +9,5 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     them for a release. If you believe the issue needs priority attention
     comment on the issue to notify the team.
 2. You want to implement a feature or bug-fix
-    - At this time we do not accept code contributions.
+    - Please refer to each component's guideline: [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html),
+    [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html).

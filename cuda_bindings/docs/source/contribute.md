@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in contributing to CUDA Python! Based on the type of contribution, it will fall into two categories:
+Thank you for your interest in contributing to `cuda-bindings`! Based on the type of contribution, it will fall into two categories:
 
 1. You want to report a bug, feature request, or documentation issue
     - File an [issue](https://github.com/NVIDIA/cuda-python/issues/new)
