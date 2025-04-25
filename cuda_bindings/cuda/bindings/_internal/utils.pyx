@@ -127,3 +127,17 @@ cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, 
 class FunctionNotFoundError(RuntimeError): pass
 
 class NotSupportedError(RuntimeError): pass
+
+
+cdef tuple get_nvjitlink_dso_version_suffix(int driver_ver):
+    if 12000 <= driver_ver < 13000:
+        return ('12', '')
+    raise NotSupportedError(f'CUDA driver version {driver_ver} is not supported')
+
+
+cdef tuple get_nvvm_dso_version_suffix(int driver_ver):
+    if 11000 <= driver_ver < 11020:
+        return ('3', '')
+    if 11020 <= driver_ver < 13000:
+        return ('4', '')
+    raise NotSupportedError(f'CUDA driver version {driver_ver} is not supported')
