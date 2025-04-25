@@ -1,5 +1,5 @@
 import os
-import subprocess
+import subprocess  # nosec B404
 import sys
 
 import pytest
@@ -77,7 +77,7 @@ if not loaded_dl_no_cache.was_already_loaded_from_elsewhere:
 if loaded_dl_no_cache.abs_path != loaded_dl_fresh.abs_path:
     raise RuntimeError(f"{{loaded_dl_no_cache.abs_path=!r}} != {{loaded_dl_fresh.abs_path=!r}}")
 """
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603
         [sys.executable, "-c", code],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
