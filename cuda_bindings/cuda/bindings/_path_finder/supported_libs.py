@@ -353,7 +353,10 @@ def is_suppressed_dll_file(path_basename: str) -> bool:
 
 # Based on nm output for Linux x86_64 /usr/local/cuda (12.8.1)
 EXPECTED_LIB_SYMBOLS = {
-    "nvJitLink": ("nvJitLinkVersion",),
+    "nvJitLink": (
+        "__nvJitLinkCreate_12_0",  # 12.0 through 12.8 (at least)
+        "nvJitLinkVersion",  # 12.3 and up
+    ),
     "nvrtc": ("nvrtcVersion",),
     "nvvm": ("nvvmVersion",),
     "cudart": ("cudaRuntimeGetVersion",),
