@@ -30,6 +30,12 @@ def test_all_libnames_expected_lib_symbols_consistency():
     assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.EXPECTED_LIB_SYMBOLS.keys()))
 
 
+def _check_nvjitlink_usable():
+    from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+
+    return inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") != 0
+
+
 def _build_subprocess_failed_for_libname_message(libname, result):
     return (
         f"Subprocess failed for {libname=!r} with exit code {result.returncode}\n"
@@ -38,15 +44,9 @@ def _build_subprocess_failed_for_libname_message(libname, result):
     )
 
 
-def _check_nvjitlink_usable():
-    from cuda.bindings._internal import nvjitlink as inner_nvjitlink
-
-    return inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") != 0
-
-
 @pytest.mark.parametrize("api", ("find", "load"))
 @pytest.mark.parametrize("libname", TEST_LIBNAMES)
-def test_find_or_load_nvidia_dynamic_library(api, libname):
+def test_find_or_load_nvidia_dynamic_library(info_summary_append, api, libname):
     if sys.platform == "win32" and not supported_libs.SUPPORTED_WINDOWS_DLLS[libname]:
         pytest.skip(f"{libname=!r} not supported on {sys.platform=}")
 
@@ -56,7 +56,8 @@ def test_find_or_load_nvidia_dynamic_library(api, libname):
     if api == "find":
         code = f"""\
 from cuda.bindings._path_finder.find_nvidia_dynamic_library import find_nvidia_dynamic_library
-find_nvidia_dynamic_library({libname!r})
+abs_path = find_nvidia_dynamic_library({libname!r})
+print(f"{{abs_path!r}}")
 """
     else:
         code = f"""\
@@ -76,6 +77,8 @@ if not loaded_dl_no_cache.was_already_loaded_from_elsewhere:
     raise RuntimeError("loaded_dl_no_cache.was_already_loaded_from_elsewhere")
 if loaded_dl_no_cache.abs_path != loaded_dl_fresh.abs_path:
     raise RuntimeError(f"{{loaded_dl_no_cache.abs_path=!r}} != {{loaded_dl_fresh.abs_path=!r}}")
+
+print(f"{{loaded_dl_fresh.abs_path!r}}")
 """
     result = subprocess.run(  # nosec B603
         [sys.executable, "-c", code],
@@ -83,5 +86,7 @@ if loaded_dl_no_cache.abs_path != loaded_dl_fresh.abs_path:
         stderr=subprocess.PIPE,
         encoding="utf-8",
     )
-    if result.returncode != 0:
+    if result.returncode == 0:
+        info_summary_append(f"abs_path={result.stdout.rstrip()}")
+    else:
         raise RuntimeError(_build_subprocess_failed_for_libname_message(libname, result))
