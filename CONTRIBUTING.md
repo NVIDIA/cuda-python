@@ -10,3 +10,10 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     comment on the issue to notify the team.
 2. You want to implement a feature or bug-fix
     - At this time we do not accept code contributions.
+
+
+CUDA Python uses pre-commit hooks to maintain code quality and consistency. Here's how to set up and use the linting tools:
+
+1. `pip install pre-commit`
+2. `pre-commit install`
+3. Linting will automatically run on each commit but to run manually `pre-commit run --all-files`
