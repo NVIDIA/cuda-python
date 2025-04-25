@@ -9,6 +9,11 @@ inputs:
   cuda-version:
     required: true
     type: string
+  cuda-components:
+    description: "A list of the CTK components to install as a comma-separated list. e.g. 'cuda_nvcc,cuda_nvrtc,cuda_cudart'"
+    required: false
+    type: string
+    default: "cuda_nvcc,cuda_cudart,cuda_nvrtc,cuda_profiler_api,cuda_cccl,cuda_sanitizer_api,libnvjitlink"
 
 runs:
   using: composite
@@ -16,8 +21,10 @@ runs:
     - name: Set up CTK cache variable
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}" >> $GITHUB_ENV
-        echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}.tar.gz" >> $GITHUB_ENV
+        HASH=$(echo -n "${{ inputs.cuda-components }}" | sha256sum | awk '{print $1}')
+        echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH" >> $GITHUB_ENV
+        echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH.tar.gz" >> $GITHUB_ENV
+        echo "CTK_CACHE_COMPONENTS=${{ inputs.cuda-components }}" >> $GITHUB_ENV
 
     - name: Install dependencies
       uses: ./.github/actions/install_unix_deps
@@ -78,18 +85,16 @@ runs:
           rm $CTK_COMPONENT_COMPONENT_FILENAME
         }
 
-        # Get headers and shared libraries in place
-        # Note: the existing artifact would need to be manually deleted (ex: through web UI)
-        # if this list is changed, as the artifact actions do not offer any option for us to
-        # invalidate the artifact.
-        populate_cuda_path cuda_nvcc
-        populate_cuda_path cuda_cudart
-        populate_cuda_path cuda_nvrtc
-        populate_cuda_path cuda_profiler_api
-        populate_cuda_path cuda_cccl
-        if [[ "$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})" -ge 12 ]]; then
-          populate_cuda_path libnvjitlink
+        # Conditionally strip out libnvjitlink for CUDA versions < 12
+        if [[ "$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})" -lt 12 ]]; then
+          CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libnvjitlink/}"
         fi
+        # Cleanup stray commas after removing components
+        CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//,,/,}"
+        # Get headers and shared libraries in place
+        for item in $(echo $CTK_CACHE_COMPONENTS | tr ',' ' '); do
+            populate_cuda_path "$item"
+        done
         ls -l $CUDA_PATH
 
         # Prepare the cache
