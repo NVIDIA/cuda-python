@@ -1021,6 +1021,10 @@ def test_cuFuncGetName_failure():
 
 
 @pytest.mark.skipif(
+    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
+    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+)
+@pytest.mark.skipif(
     driverVersionLessThan(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
     reason="When API was introduced",
 )
