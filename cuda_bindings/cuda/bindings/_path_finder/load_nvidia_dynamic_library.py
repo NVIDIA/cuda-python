@@ -39,7 +39,7 @@ def load_nvidia_dynamic_library(libname: str) -> LoadedDL:
     """Load a NVIDIA dynamic library by name.
 
     Args:
-        libname: The name of the library to load (e.g. "cuda", "cudart", etc.)
+        libname: The name of the library to load (e.g. "cudart", "nvvm", etc.)
 
     Returns:
         A LoadedDL object containing the library handle and path
