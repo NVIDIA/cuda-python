@@ -77,6 +77,14 @@ def _windows_cuDriverGetVersion() -> int:
     return driver_ver.value
 
 
+def _abs_path_for_dynamic_library_windows(handle: int) -> str:
+    buf = ctypes.create_unicode_buffer(260)
+    n_chars = ctypes.windll.kernel32.GetModuleFileNameW(ctypes.wintypes.HMODULE(handle), buf, len(buf))
+    if n_chars == 0:
+        raise OSError("GetModuleFileNameW failed")
+    return buf.value
+
+
 @functools.cache
 def _windows_load_with_dll_basename(name: str) -> Tuple[Optional[int], Optional[str]]:
     driver_ver = _windows_cuDriverGetVersion()
@@ -86,33 +94,34 @@ def _windows_load_with_dll_basename(name: str) -> Tuple[Optional[int], Optional[
     if dll_names is None:
         return None
 
-    kernel32 = ctypes.windll.kernel32
-
     for dll_name in dll_names:
-        handle = kernel32.LoadLibraryW(ctypes.c_wchar_p(dll_name))
+        handle = ctypes.windll.kernel32.LoadLibraryW(ctypes.c_wchar_p(dll_name))
         if handle:
-            buf = ctypes.create_unicode_buffer(260)
-            n_chars = kernel32.GetModuleFileNameW(ctypes.wintypes.HMODULE(handle), buf, len(buf))
-            if n_chars == 0:
-                raise OSError("GetModuleFileNameW failed")
-            return handle, buf.value
+            return handle, _abs_path_for_dynamic_library_windows(handle)
 
     return None, None
 
 
-def _load_and_report_path_linux(libname, soname: str) -> Tuple[int, str]:
-    handle = ctypes.CDLL(soname, _LINUX_CDLL_MODE)
+def _abs_path_for_dynamic_library_linux(libname: str, handle: int) -> str:
     for symbol_name in EXPECTED_LIB_SYMBOLS[libname]:
         symbol = getattr(handle, symbol_name, None)
         if symbol is not None:
             break
     else:
-        raise RuntimeError(f"No expected symbol for {libname=!r}")
+        return None
     addr = ctypes.cast(symbol, ctypes.c_void_p)
     info = Dl_info()
     if _LIBDL.dladdr(addr, ctypes.byref(info)) == 0:
-        raise OSError(f"dladdr failed for {soname}")
-    return handle, info.dli_fname.decode()
+        raise OSError(f"dladdr failed for {libname=!r}")
+    return info.dli_fname.decode()
+
+
+def _load_and_report_path_linux(libname: str, soname: str) -> Tuple[int, str]:
+    handle = ctypes.CDLL(soname, _LINUX_CDLL_MODE)
+    abs_path = _abs_path_for_dynamic_library_linux(libname, handle)
+    if abs_path is None:
+        raise RuntimeError(f"No expected symbol for {libname=!r}")
+    return handle, abs_path
 
 
 @dataclass
@@ -131,15 +140,19 @@ def load_nvidia_dynamic_library(libname: str) -> LoadedDL:
     if sys.platform == "win32":
         for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
             try:
-                return LoadedDL(win32api.GetModuleHandle(dll_name), None, True)
+                handle = win32api.GetModuleHandle(dll_name)
             except pywintypes.error:
                 pass
+            else:
+                return LoadedDL(handle, _abs_path_for_dynamic_library_windows(handle), True)
     else:
         for soname in SUPPORTED_LINUX_SONAMES.get(libname, ()):
             try:
-                return LoadedDL(ctypes.CDLL(soname, mode=os.RTLD_NOLOAD), None, True)
+                handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
             except OSError:
                 pass
+            else:
+                return LoadedDL(handle, _abs_path_for_dynamic_library_linux(libname, handle), True)
 
     for dep in DIRECT_DEPENDENCIES.get(libname, ()):
         load_nvidia_dynamic_library(dep)
