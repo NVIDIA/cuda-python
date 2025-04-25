@@ -4,6 +4,8 @@
 
 # THIS FILE NEEDS TO BE REVIEWED/UPDATED FOR EACH CTK RELEASE
 
+import sys
+
 SUPPORTED_LIBNAMES = (
     # Core CUDA Runtime and Compiler
     "nvJitLink",
@@ -11,7 +13,7 @@ SUPPORTED_LIBNAMES = (
     "nvvm",
 )
 
-PARTIALLY_SUPPORTED_LIBNAMES = (
+PARTIALLY_SUPPORTED_LIBNAMES_COMMON = (
     # Core CUDA Runtime and Compiler
     "cudart",
     "nvfatbin",
@@ -37,10 +39,30 @@ PARTIALLY_SUPPORTED_LIBNAMES = (
     "npps",
     "nvblas",
     # Other
-    "cufile",
-    # "cufile_rdma",  # Requires libmlx5.so
     "nvjpeg",
 )
+
+PARTIALLY_SUPPORTED_LIBNAMES_LINUX_ONLY = (
+    "cufile",
+    # "cufile_rdma",  # Requires libmlx5.so
+)
+
+PARTIALLY_SUPPORTED_LIBNAMES_LINUX = PARTIALLY_SUPPORTED_LIBNAMES_COMMON + PARTIALLY_SUPPORTED_LIBNAMES_LINUX_ONLY
+
+PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS_ONLY = ()
+
+PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS = PARTIALLY_SUPPORTED_LIBNAMES_COMMON + PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS_ONLY
+
+PARTIALLY_SUPPORTED_LIBNAMES_ALL = (
+    PARTIALLY_SUPPORTED_LIBNAMES_COMMON
+    + PARTIALLY_SUPPORTED_LIBNAMES_LINUX_ONLY
+    + PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS_ONLY
+)
+
+if sys.platform == "win32":
+    PARTIALLY_SUPPORTED_LIBNAMES = PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
+else:
+    PARTIALLY_SUPPORTED_LIBNAMES = PARTIALLY_SUPPORTED_LIBNAMES_LINUX
 
 # Based on ldd output for Linux x86_64 nvidia-*-cu12 wheels (12.8.1)
 DIRECT_DEPENDENCIES = {
@@ -231,8 +253,6 @@ SUPPORTED_WINDOWS_DLLS = {
         "cufftw64_10.dll",
         "cufftw64_11.dll",
     ),
-    "cufile": (),
-    # "cufile_rdma": (),
     "curand": ("curand64_10.dll",),
     "cusolver": (
         "cusolver64_10.dll",

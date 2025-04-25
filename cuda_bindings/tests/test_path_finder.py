@@ -7,23 +7,28 @@ import pytest
 from cuda.bindings import path_finder
 from cuda.bindings._path_finder import supported_libs
 
-ALL_LIBNAMES = path_finder.SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES
+ALL_LIBNAMES = path_finder.SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES_ALL
+ALL_LIBNAMES_LINUX = path_finder.SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES_LINUX
+ALL_LIBNAMES_WINDOWS = path_finder.SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
 if os.environ.get("CUDA_BINDINGS_PATH_FINDER_TEST_ALL_LIBNAMES", False):
-    TEST_LIBNAMES = ALL_LIBNAMES
+    if sys.platform == "win32":
+        TEST_FIND_OR_LOAD_LIBNAMES = ALL_LIBNAMES_WINDOWS
+    else:
+        TEST_FIND_OR_LOAD_LIBNAMES = ALL_LIBNAMES_LINUX
 else:
-    TEST_LIBNAMES = path_finder.SUPPORTED_LIBNAMES
+    TEST_FIND_OR_LOAD_LIBNAMES = path_finder.SUPPORTED_LIBNAMES
 
 
 def test_all_libnames_linux_sonames_consistency():
-    assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.SUPPORTED_LINUX_SONAMES.keys()))
+    assert tuple(sorted(ALL_LIBNAMES_LINUX)) == tuple(sorted(supported_libs.SUPPORTED_LINUX_SONAMES.keys()))
 
 
 def test_all_libnames_windows_dlls_consistency():
-    assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.SUPPORTED_WINDOWS_DLLS.keys()))
+    assert tuple(sorted(ALL_LIBNAMES_WINDOWS)) == tuple(sorted(supported_libs.SUPPORTED_WINDOWS_DLLS.keys()))
 
 
 def test_all_libnames_libnames_requiring_os_add_dll_directory_consistency():
-    assert not (set(supported_libs.LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY) - set(ALL_LIBNAMES))
+    assert not (set(supported_libs.LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY) - set(ALL_LIBNAMES_WINDOWS))
 
 
 def test_all_libnames_expected_lib_symbols_consistency():
@@ -45,11 +50,8 @@ def _build_subprocess_failed_for_libname_message(libname, result):
 
 
 @pytest.mark.parametrize("api", ("find", "load"))
-@pytest.mark.parametrize("libname", TEST_LIBNAMES)
+@pytest.mark.parametrize("libname", TEST_FIND_OR_LOAD_LIBNAMES)
 def test_find_or_load_nvidia_dynamic_library(info_summary_append, api, libname):
-    if sys.platform == "win32" and not supported_libs.SUPPORTED_WINDOWS_DLLS[libname]:
-        pytest.skip(f"{libname=!r} not supported on {sys.platform=}")
-
     if libname == "nvJitLink" and not _check_nvjitlink_usable():
         pytest.skip(f"{libname=!r} not usable")
 
