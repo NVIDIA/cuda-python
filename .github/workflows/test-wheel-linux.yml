@@ -74,10 +74,6 @@ jobs:
             fi
           fi
 
-          if [[ "${{ inputs.local-ctk }}" != 1 ]]; then
-            echo "CUDA_BINDINGS_PATH_FINDER_TEST_ALL_LIBNAMES=1" >> $GITHUB_ENV
-          fi
-
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
           echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
@@ -198,7 +194,7 @@ jobs:
 
           pushd ./cuda_bindings
           pip install -r requirements.txt
-          pytest -ra -s -v tests/
+          pytest -rxXs -v tests/
 
           # It is a bit convoluted to run the Cython tests against CTK wheels,
           # so let's just skip them.
@@ -209,7 +205,7 @@ jobs:
               # TODO: enable this once win-64 runners are up 
               exit 1
             fi  
-            pytest -ra -s -v tests/cython
+            pytest -rxXs -v tests/cython
           fi
           popd
 
@@ -233,7 +229,7 @@ jobs:
 
           pushd ./cuda_core
           pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
-          pytest -ra -s -v tests/
+          pytest -rxXs -v tests/
 
           # It is a bit convoluted to run the Cython tests against CTK wheels,
           # so let's just skip them. Also, currently our CI always installs the
@@ -247,7 +243,7 @@ jobs:
               # TODO: enable this once win-64 runners are up
               exit 1
             fi
-            pytest -ra -s -v tests/cython
+            pytest -rxXs -v tests/cython
           fi
           popd
 
