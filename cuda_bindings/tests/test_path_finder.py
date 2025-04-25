@@ -52,7 +52,21 @@ find_nvidia_dynamic_library({libname!r})
     else:
         code = f"""\
 from cuda.bindings.path_finder import load_nvidia_dynamic_library
-load_nvidia_dynamic_library({libname!r})
+from cuda.bindings._path_finder.load_nvidia_dynamic_library import _load_nvidia_dynamic_library_no_cache
+
+loaded_dl_fresh = load_nvidia_dynamic_library({libname!r})
+if loaded_dl_fresh.was_already_loaded_from_elsewhere:
+    raise RuntimeError("loaded_dl_fresh.was_already_loaded_from_elsewhere")
+
+loaded_dl_from_cache = load_nvidia_dynamic_library({libname!r})
+if loaded_dl_from_cache is not loaded_dl_fresh:
+    raise RuntimeError("loaded_dl_from_cache is not loaded_dl_fresh")
+
+loaded_dl_no_cache = _load_nvidia_dynamic_library_no_cache({libname!r})
+if not loaded_dl_no_cache.was_already_loaded_from_elsewhere:
+    raise RuntimeError("loaded_dl_no_cache.was_already_loaded_from_elsewhere")
+if loaded_dl_no_cache.abs_path != loaded_dl_fresh.abs_path:
+    raise RuntimeError(f"{{loaded_dl_no_cache.abs_path=!r}} != {{loaded_dl_fresh.abs_path=!r}}")
 """
     result = subprocess.run(
         [sys.executable, "-c", code],

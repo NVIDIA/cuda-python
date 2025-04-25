@@ -134,8 +134,7 @@ class LoadedDL:
     was_already_loaded_from_elsewhere: bool
 
 
-@functools.cache
-def load_nvidia_dynamic_library(libname: str) -> LoadedDL:
+def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
     # Detect if the library was loaded already in some other way (i.e. not via this function).
     if sys.platform == "win32":
         for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
@@ -187,3 +186,8 @@ def load_nvidia_dynamic_library(libname: str) -> LoadedDL:
         except OSError as e:
             raise RuntimeError(f"Failed to dlopen {found.abs_path}: {e}") from e
         return LoadedDL(handle._handle, found.abs_path, False)
+
+
+@functools.cache
+def load_nvidia_dynamic_library(libname: str) -> LoadedDL:
+    return _load_nvidia_dynamic_library_no_cache(libname)
