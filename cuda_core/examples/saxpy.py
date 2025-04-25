@@ -18,7 +18,7 @@ __global__ void saxpy(const T a,
                       size_t N) {
     const unsigned int tid = threadIdx.x + blockIdx.x * blockDim.x;
     for (size_t i=tid; i<N; i+=gridDim.x*blockDim.x) {
-        out[tid] = a * x[tid] + y[tid];
+        out[t] = a * x[t] + y[t];
     }
 }
 """
