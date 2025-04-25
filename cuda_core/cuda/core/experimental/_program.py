@@ -527,7 +527,7 @@ class Program:
 
         .. caution::
 
-            This handle is a python object. To get the memory address of the C struct, call
-            ``int(Program.handle)`` not ``Program.handle.getPtr()``.
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Program.handle)``.
         """
         return self._mnff.handle

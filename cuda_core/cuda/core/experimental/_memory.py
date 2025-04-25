@@ -86,8 +86,8 @@ class Buffer:
 
         .. caution::
 
-            This handle is a python object. To get the memory address of the C struct, call
-            ``int(Buffer.handle)`` not ``Buffer.handle.getPtr()``.
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Buffer.handle)``.
         """
         return self._mnff.ptr
 

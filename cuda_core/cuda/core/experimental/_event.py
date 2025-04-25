@@ -168,7 +168,7 @@ class Event:
 
         .. caution::
 
-            This handle is a python object. To get the memory address of the C struct, call
-            ``int(Event.handle)`` not ``Event.handle.getPtr()``.
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Event.handle)``.
         """
         return self._mnff.handle

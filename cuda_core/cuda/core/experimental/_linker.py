@@ -506,8 +506,8 @@ class Linker:
 
         .. caution::
 
-            This handle is a python object. To get the memory address of the C struct, call
-            ``int(Linker.handle)`` not ``Linker.handle.getPtr()``.
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Linker.handle)``.
         """
         return self._mnff.handle
 

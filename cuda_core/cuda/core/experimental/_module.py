@@ -358,7 +358,7 @@ class ObjectCode:
 
         .. caution::
 
-            This handle is a python object. To get the memory address of the C struct, call
-            ``int(ObjectCode.handle)`` not ``ObjectCode.handle.getPtr()``.
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(ObjectCode.handle)``.
         """
         return self._handle
