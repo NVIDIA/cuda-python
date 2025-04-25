@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import abc
 import weakref
-from typing import Optional, Tuple, TypeVar
+from typing import Optional, Tuple, TypeVar, Union
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
@@ -17,6 +17,9 @@ PyCapsule = TypeVar("PyCapsule")
 
 # TODO: define a memory property mixin class and make Buffer and
 # MemoryResource both inherit from it
+
+DevicePointerT = Union[driver.CUdeviceptr, int, None]
+"""A type union of `Cudeviceptr`, `int` and `None` for hinting Buffer.handle."""
 
 
 class Buffer:
@@ -81,7 +84,7 @@ class Buffer:
         self._mnff.close(stream)
 
     @property
-    def handle(self) -> driver.CUdeviceptr:
+    def handle(self) -> DevicePointerT:
         """Return the buffer handle object.
 
         .. caution::
