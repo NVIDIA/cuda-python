@@ -36,18 +36,7 @@ class PyTorchStreamWrapper:
         self.pt_stream = pt_stream
 
     def __cuda_stream__(self):
-        # Extract the stream ID from PyTorch's stream object
-        if hasattr(self.pt_stream, "cuda_stream"):
-            stream_id = self.pt_stream.cuda_stream
-        else:
-            # Try to extract from string representation
-            stream_str = str(self.pt_stream)
-            try:
-                stream_id = int(stream_str.split("cuda_stream=0x")[1].strip(">"), 16)
-            except (IndexError, ValueError):
-                stream_id = 0  # Default to 0 if we can't extract it
-
-        print(f"Using PyTorch stream ID: {stream_id}")
+        stream_id = self.pt_stream.cuda_stream
         return (0, stream_id)  # Return format required by CUDA Python
 
 
