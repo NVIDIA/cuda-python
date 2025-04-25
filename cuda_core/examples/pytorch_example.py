@@ -1,9 +1,14 @@
 # Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+## Usage: pip install "cuda-core[cu12]"
+## python python_example.py
 import sys
+
 import torch
-from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch, Stream
+
+from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, Stream, launch
 
 # SAXPY kernel - passing a as a pointer to avoid any type issues
 code = """
@@ -24,32 +29,34 @@ dev.set_current()
 pt_stream = torch.cuda.current_stream()
 print(f"PyTorch stream: {pt_stream}")
 
+
 # Create a wrapper class that implements __cuda_stream__
 class PyTorchStreamWrapper:
     def __init__(self, pt_stream):
         self.pt_stream = pt_stream
-        
+
     def __cuda_stream__(self):
         # Extract the stream ID from PyTorch's stream object
-        if hasattr(self.pt_stream, 'cuda_stream'):
+        if hasattr(self.pt_stream, "cuda_stream"):
             stream_id = self.pt_stream.cuda_stream
         else:
             # Try to extract from string representation
             stream_str = str(self.pt_stream)
             try:
-                stream_id = int(stream_str.split('cuda_stream=0x')[1].strip('>'), 16)
+                stream_id = int(stream_str.split("cuda_stream=0x")[1].strip(">"), 16)
             except (IndexError, ValueError):
                 stream_id = 0  # Default to 0 if we can't extract it
-        
+
         print(f"Using PyTorch stream ID: {stream_id}")
         return (0, stream_id)  # Return format required by CUDA Python
+
 
 # Create a wrapper for the PyTorch stream
 pt_stream_wrapper = PyTorchStreamWrapper(pt_stream)
 
 # Initialize a CUDA Python Stream from the PyTorch stream
 s = Stream._init(obj=pt_stream_wrapper)
-print(f"Successfully created CUDA Python stream from PyTorch stream")
+print("Successfully created CUDA Python stream from PyTorch stream")
 
 # prepare program
 arch = "".join(f"{i}" for i in dev.compute_capability)
@@ -68,9 +75,9 @@ dtype = torch.float32
 # prepare input/output
 size = 64
 # Use a single element tensor for 'a'
-a = torch.tensor([10.0], dtype=dtype, device='cuda')
-x = torch.rand(size, dtype=dtype, device='cuda')
-y = torch.rand(size, dtype=dtype, device='cuda')
+a = torch.tensor([10.0], dtype=dtype, device="cuda")
+x = torch.rand(size, dtype=dtype, device="cuda")
+y = torch.rand(size, dtype=dtype, device="cuda")
 out = torch.empty_like(x)
 
 # prepare launch
@@ -96,9 +103,9 @@ dtype = torch.float64
 # prepare input
 size = 128
 # Use a single element tensor for 'a'
-a = torch.tensor([42.0], dtype=dtype, device='cuda')
-x = torch.rand(size, dtype=dtype, device='cuda')
-y = torch.rand(size, dtype=dtype, device='cuda')
+a = torch.tensor([42.0], dtype=dtype, device="cuda")
+x = torch.rand(size, dtype=dtype, device="cuda")
+y = torch.rand(size, dtype=dtype, device="cuda")
 
 # prepare output
 out = torch.empty_like(x)
