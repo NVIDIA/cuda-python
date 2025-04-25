@@ -7,6 +7,7 @@ import glob
 import os
 
 from .cuda_paths import IS_WIN32, get_cuda_paths
+from .supported_libs import is_suppressed_dll_file
 from .sys_path_find_sub_dirs import sys_path_find_sub_dirs
 
 
@@ -38,9 +39,13 @@ def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachm
     return None
 
 
-def _append_to_os_environ_path(dirpath):
-    curr_path = os.environ.get("PATH")
-    os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
+def _find_dll_under_dir(dirpath, file_wild):
+    for path in sorted(glob.glob(os.path.join(dirpath, file_wild))):
+        if not os.path.isfile(path):
+            continue
+        if not is_suppressed_dll_file(os.path.basename(path)):
+            return path
+    return None
 
 
 def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
@@ -50,30 +55,8 @@ def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
         nvidia_sub_dirs = ("nvidia", "*", "bin")
     file_wild = libname + "*.dll"
     for bin_dir in sys_path_find_sub_dirs(nvidia_sub_dirs):
-        dll_name = None
-        have_builtins = False
-        for path in sorted(glob.glob(os.path.join(bin_dir, file_wild))):
-            # nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-win_amd64.whl:
-            #     nvidia\cuda_nvrtc\bin\
-            #         nvrtc-builtins64_128.dll
-            #         nvrtc64_120_0.alt.dll
-            #         nvrtc64_120_0.dll
-            node = os.path.basename(path)
-            if node.endswith(".alt.dll"):
-                continue
-            if "-builtins" in node:
-                have_builtins = True
-                continue
-            if dll_name is not None:
-                continue
-            if os.path.isfile(path):
-                dll_name = path
+        dll_name = _find_dll_under_dir(bin_dir, file_wild)
         if dll_name is not None:
-            if have_builtins:
-                # Add the DLL directory to the search path
-                os.add_dll_directory(bin_dir)
-                # Update PATH as a fallback for dependent DLL resolution
-                _append_to_os_environ_path(bin_dir)
             return dll_name
     _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
     return None
@@ -122,9 +105,9 @@ def _find_dll_using_cudalib_dir(libname, error_messages, attachments):
     if cudalib_dir is None:
         return None
     file_wild = libname + "*.dll"
-    for dll_name in sorted(glob.glob(os.path.join(cudalib_dir, file_wild))):
-        if os.path.isfile(dll_name):
-            return dll_name
+    dll_name = _find_dll_under_dir(cudalib_dir, file_wild)
+    if dll_name is not None:
+        return dll_name
     error_messages.append(f"No such file: {file_wild}")
     attachments.append(f'  listdir("{cudalib_dir}"):')
     for node in sorted(os.listdir(cudalib_dir)):
@@ -132,31 +115,42 @@ def _find_dll_using_cudalib_dir(libname, error_messages, attachments):
     return None
 
 
-@functools.cache
-def find_nvidia_dynamic_library(name: str) -> str:
-    error_messages = []
-    attachments = []
+class _find_nvidia_dynamic_library:
+    def __init__(self, libname: str):
+        self.libname = libname
+        self.error_messages = []
+        self.attachments = []
+        self.abs_path = None
 
-    if IS_WIN32:
-        dll_name = _find_dll_using_nvidia_bin_dirs(name, error_messages, attachments)
-        if dll_name is None:
-            if name == "nvvm":
-                dll_name = _get_cuda_paths_info("nvvm", error_messages)
-            else:
-                dll_name = _find_dll_using_cudalib_dir(name, error_messages, attachments)
-        if dll_name is None:
-            attachments = "\n".join(attachments)
-            raise RuntimeError(f'Failure finding "{name}*.dll": {", ".join(error_messages)}\n{attachments}')
-        return dll_name
-
-    so_basename = f"lib{name}.so"
-    so_name = _find_so_using_nvidia_lib_dirs(name, so_basename, error_messages, attachments)
-    if so_name is None:
-        if name == "nvvm":
-            so_name = _get_cuda_paths_info("nvvm", error_messages)
+        if IS_WIN32:
+            self.abs_path = _find_dll_using_nvidia_bin_dirs(libname, self.error_messages, self.attachments)
+            if self.abs_path is None:
+                if libname == "nvvm":
+                    self.abs_path = _get_cuda_paths_info("nvvm", self.error_messages)
+                else:
+                    self.abs_path = _find_dll_using_cudalib_dir(libname, self.error_messages, self.attachments)
+            self.lib_searched_for = f"{libname}*.dll"
         else:
-            so_name = _find_so_using_cudalib_dir(so_basename, error_messages, attachments)
-    if so_name is None:
-        attachments = "\n".join(attachments)
-        raise RuntimeError(f'Failure finding "{so_basename}": {", ".join(error_messages)}\n{attachments}')
-    return so_name
+            self.lib_searched_for = f"lib{libname}.so"
+            self.abs_path = _find_so_using_nvidia_lib_dirs(
+                libname, self.lib_searched_for, self.error_messages, self.attachments
+            )
+            if self.abs_path is None:
+                if libname == "nvvm":
+                    self.abs_path = _get_cuda_paths_info("nvvm", self.error_messages)
+                else:
+                    self.abs_path = _find_so_using_cudalib_dir(
+                        self.lib_searched_for, self.error_messages, self.attachments
+                    )
+
+    def raise_if_abs_path_is_None(self):
+        if self.abs_path:
+            return self.abs_path
+        err = ", ".join(self.error_messages)
+        att = "\n".join(self.attachments)
+        raise RuntimeError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
+
+
+@functools.cache
+def find_nvidia_dynamic_library(libname: str) -> str:
+    return _find_nvidia_dynamic_library(libname).raise_if_abs_path_is_None()
