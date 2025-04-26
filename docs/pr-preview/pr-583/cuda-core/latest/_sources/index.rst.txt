@@ -8,12 +8,12 @@ and other functionalities.
    :maxdepth: 2
    :caption: Contents:
 
-   release.rst
+   release
    install.md
-   interoperability.rst
-   api.rst
-   contribute.rst
-   license.rst
+   interoperability
+   api
+   contribute
+   license
 
 
 Indices and tables

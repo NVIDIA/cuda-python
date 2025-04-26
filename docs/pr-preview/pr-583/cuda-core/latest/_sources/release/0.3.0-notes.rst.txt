@@ -1,0 +1,27 @@
+.. currentmodule:: cuda.core.experimental
+
+``cuda.core`` 0.3.0 Release Notes
+=================================
+
+Released on MM DD, 2025
+
+Highlights
+----------
+
+- Starting this release ``cuda.core`` is licensed under Apache 2.0.
+
+
+Breaking Changes
+----------------
+
+
+New features
+------------
+
+
+New examples
+------------
+
+
+Fixes and enhancements
+----------------------
