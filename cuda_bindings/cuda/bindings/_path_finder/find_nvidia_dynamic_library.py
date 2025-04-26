@@ -3,147 +3,60 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
-import glob
-import os
+import sys
+from typing import Dict
 
-from .cuda_paths import IS_WIN32, get_cuda_paths
-from .supported_libs import is_suppressed_dll_file
-from .sys_path_find_sub_dirs import sys_path_find_sub_dirs
-
-
-def _no_such_file_in_sub_dirs(sub_dirs, file_wild, error_messages, attachments):
-    error_messages.append(f"No such file: {file_wild}")
-    for sub_dir in sys_path_find_sub_dirs(sub_dirs):
-        attachments.append(f'  listdir("{sub_dir}"):')
-        for node in sorted(os.listdir(sub_dir)):
-            attachments.append(f"    {node}")
+from .cuda_paths import get_cuda_paths
+from .find_dl_linux import find_nvidia_dynamic_library as find_nvidia_dynamic_library_linux
+from .find_dl_windows import find_nvidia_dynamic_library as find_nvidia_dynamic_library_windows
 
 
-def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachments):
-    if libname == "nvvm":  # noqa: SIM108
-        nvidia_sub_dirs = ("nvidia", "*", "nvvm", "lib64")
-    else:
-        nvidia_sub_dirs = ("nvidia", "*", "lib")
-    file_wild = so_basename + "*"
-    for lib_dir in sys_path_find_sub_dirs(nvidia_sub_dirs):
-        # First look for an exact match
-        so_name = os.path.join(lib_dir, so_basename)
-        if os.path.isfile(so_name):
-            return so_name
-        # Look for a versioned library
-        # Using sort here mainly to make the result deterministic.
-        for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
-            if os.path.isfile(so_name):
-                return so_name
-    _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
-    return None
+class FindNvidiaDynamicLibrary:
+    """Class for finding NVIDIA dynamic libraries.
 
+    This class maintains the same interface as the original _find_nvidia_dynamic_library
+    class for backward compatibility.
+    """
 
-def _find_dll_under_dir(dirpath, file_wild):
-    for path in sorted(glob.glob(os.path.join(dirpath, file_wild))):
-        if not os.path.isfile(path):
-            continue
-        if not is_suppressed_dll_file(os.path.basename(path)):
-            return path
-    return None
-
-
-def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
-    if libname == "nvvm":  # noqa: SIM108
-        nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin")
-    else:
-        nvidia_sub_dirs = ("nvidia", "*", "bin")
-    file_wild = libname + "*.dll"
-    for bin_dir in sys_path_find_sub_dirs(nvidia_sub_dirs):
-        dll_name = _find_dll_under_dir(bin_dir, file_wild)
-        if dll_name is not None:
-            return dll_name
-    _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
-    return None
-
-
-def _get_cuda_paths_info(key, error_messages):
-    env_path_tuple = get_cuda_paths()[key]
-    if not env_path_tuple:
-        error_messages.append(f'Failure obtaining get_cuda_paths()["{key}"]')
-        return None
-    if not env_path_tuple.info:
-        error_messages.append(f'Failure obtaining get_cuda_paths()["{key}"].info')
-        return None
-    return env_path_tuple.info
-
-
-def _find_so_using_cudalib_dir(so_basename, error_messages, attachments):
-    cudalib_dir = _get_cuda_paths_info("cudalib_dir", error_messages)
-    if cudalib_dir is None:
-        return None
-    primary_so_dir = cudalib_dir + "/"
-    candidate_so_dirs = [primary_so_dir]
-    libs = ["/lib/", "/lib64/"]
-    for _ in range(2):
-        alt_dir = libs[0].join(primary_so_dir.rsplit(libs[1], 1))
-        if alt_dir not in candidate_so_dirs:
-            candidate_so_dirs.append(alt_dir)
-        libs.reverse()
-    candidate_so_names = [so_dirname + so_basename for so_dirname in candidate_so_dirs]
-    for so_name in candidate_so_names:
-        if os.path.isfile(so_name):
-            return so_name
-        error_messages.append(f"No such file: {so_name}")
-    for so_dirname in candidate_so_dirs:
-        attachments.append(f'  listdir("{so_dirname}"):')
-        if not os.path.isdir(so_dirname):
-            attachments.append("    DIRECTORY DOES NOT EXIST")
-        else:
-            for node in sorted(os.listdir(so_dirname)):
-                attachments.append(f"    {node}")
-    return None
-
-
-def _find_dll_using_cudalib_dir(libname, error_messages, attachments):
-    cudalib_dir = _get_cuda_paths_info("cudalib_dir", error_messages)
-    if cudalib_dir is None:
-        return None
-    file_wild = libname + "*.dll"
-    dll_name = _find_dll_under_dir(cudalib_dir, file_wild)
-    if dll_name is not None:
-        return dll_name
-    error_messages.append(f"No such file: {file_wild}")
-    attachments.append(f'  listdir("{cudalib_dir}"):')
-    for node in sorted(os.listdir(cudalib_dir)):
-        attachments.append(f"    {node}")
-    return None
-
-
-class _find_nvidia_dynamic_library:
     def __init__(self, libname: str):
+        """Initialize the finder with a library name.
+
+        Args:
+            libname: The name of the library to find
+        """
         self.libname = libname
         self.error_messages = []
         self.attachments = []
         self.abs_path = None
+        self.lib_searched_for = f"lib{libname}.so" if sys.platform != "win32" else f"{libname}.dll"
 
-        if IS_WIN32:
-            self.abs_path = _find_dll_using_nvidia_bin_dirs(libname, self.error_messages, self.attachments)
-            if self.abs_path is None:
-                if libname == "nvvm":
-                    self.abs_path = _get_cuda_paths_info("nvvm", self.error_messages)
-                else:
-                    self.abs_path = _find_dll_using_cudalib_dir(libname, self.error_messages, self.attachments)
-            self.lib_searched_for = f"{libname}*.dll"
+        # Special case for nvvm
+        if libname == "nvvm":
+            nvvm_path = get_cuda_paths()["nvvm"]
+            if nvvm_path and nvvm_path.info:
+                self.abs_path = nvvm_path.info
+                return
+
+        if sys.platform == "linux":
+            result = find_nvidia_dynamic_library_linux(libname)
+        elif sys.platform == "win32":
+            result = find_nvidia_dynamic_library_windows(libname)
         else:
-            self.lib_searched_for = f"lib{libname}.so"
-            self.abs_path = _find_so_using_nvidia_lib_dirs(
-                libname, self.lib_searched_for, self.error_messages, self.attachments
-            )
-            if self.abs_path is None:
-                if libname == "nvvm":
-                    self.abs_path = _get_cuda_paths_info("nvvm", self.error_messages)
-                else:
-                    self.abs_path = _find_so_using_cudalib_dir(
-                        self.lib_searched_for, self.error_messages, self.attachments
-                    )
+            raise NotImplementedError(f"Platform {sys.platform} is not supported")
 
-    def raise_if_abs_path_is_None(self):
+        self.abs_path = result.abs_path
+        self.error_messages = result.error_messages
+        self.attachments = result.attachments
+
+    def raise_if_abs_path_is_None(self) -> str:
+        """Raise an error if no library was found.
+
+        Returns:
+            The absolute path to the found library
+
+        Raises:
+            RuntimeError: If no library was found
+        """
         if self.abs_path:
             return self.abs_path
         err = ", ".join(self.error_messages)
@@ -151,6 +64,34 @@ class _find_nvidia_dynamic_library:
         raise RuntimeError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
 
 
+# Cache for found libraries
+_found_libraries: Dict[str, str] = {}
+
+
 @functools.cache
 def find_nvidia_dynamic_library(libname: str) -> str:
-    return _find_nvidia_dynamic_library(libname).raise_if_abs_path_is_None()
+    """Find a NVIDIA dynamic library.
+
+    This function will cache the results of successful lookups to avoid repeated searches.
+
+    Args:
+        libname: The library name to search for (e.g. "cudart", "nvvm")
+
+    Returns:
+        The absolute path to the found library
+
+    Raises:
+        RuntimeError: If the library cannot be found
+        NotImplementedError: If the current platform is not supported
+    """
+    # Check cache first
+    if libname in _found_libraries:
+        return _found_libraries[libname]
+
+    # Use the class-based approach for backward compatibility
+    finder = FindNvidiaDynamicLibrary(libname)
+    result = finder.raise_if_abs_path_is_None()
+
+    # Cache the result
+    _found_libraries[libname] = result
+    return result

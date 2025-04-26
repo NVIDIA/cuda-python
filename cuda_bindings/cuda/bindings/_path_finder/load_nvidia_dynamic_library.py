@@ -4,7 +4,7 @@
 import functools
 import sys
 
-from .find_nvidia_dynamic_library import _find_nvidia_dynamic_library
+from .find_nvidia_dynamic_library import FindNvidiaDynamicLibrary
 from .load_dl_common import LoadedDL, load_dependencies
 
 if sys.platform == "win32":
@@ -23,7 +23,7 @@ def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
     load_dependencies(libname, load_nvidia_dynamic_library)
 
     # Find the library path
-    found = _find_nvidia_dynamic_library(libname)
+    found = FindNvidiaDynamicLibrary(libname)
     if found.abs_path is None:
         loaded = load_with_system_search(libname, found.lib_searched_for)
         if loaded is not None:
