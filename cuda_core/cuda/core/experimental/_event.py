@@ -164,5 +164,11 @@ class Event:
 
     @property
     def handle(self) -> cuda.bindings.driver.CUevent:
-        """Return the underlying CUevent object."""
+        """Return the underlying CUevent object.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Event.handle)``.
+        """
         return self._mnff.handle
