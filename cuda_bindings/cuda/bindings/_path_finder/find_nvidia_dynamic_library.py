@@ -1,12 +1,12 @@
 # Copyright 2024-2025 NVIDIA Corporation.  All rights reserved.
-#
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
 import glob
 import os
+import sys
 
-from .cuda_paths import IS_WIN32, get_cuda_paths
+from .cuda_paths import get_cuda_paths
 from .supported_libs import is_suppressed_dll_file
 from .sys_path_find_sub_dirs import sys_path_find_sub_dirs
 
@@ -122,7 +122,7 @@ class _find_nvidia_dynamic_library:
         self.attachments = []
         self.abs_path = None
 
-        if IS_WIN32:
+        if sys.platform == "win32":
             self.abs_path = _find_dll_using_nvidia_bin_dirs(libname, self.error_messages, self.attachments)
             if self.abs_path is None:
                 if libname == "nvvm":

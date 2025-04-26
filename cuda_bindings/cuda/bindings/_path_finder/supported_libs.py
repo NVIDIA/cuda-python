@@ -1,5 +1,4 @@
 # Copyright 2025 NVIDIA Corporation.  All rights reserved.
-#
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # THIS FILE NEEDS TO BE REVIEWED/UPDATED FOR EACH CTK RELEASE
