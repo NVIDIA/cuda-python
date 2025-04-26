@@ -380,8 +380,13 @@ asynchronous copy</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._memory.Buffer.handle">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.experimental._memory.Buffer.handle" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUdeviceptr" title="(in cuda.bindings)"><span class="pre">CUdeviceptr</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></em><a class="headerlink" href="#cuda.core.experimental._memory.Buffer.handle" title="Link to this definition">¶</a></dt>
 <dd><p>Return the buffer handle object.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Buffer.handle)</span></code>.</p>
+</div>
 </dd></dl>
 
 <dl class="py property">
