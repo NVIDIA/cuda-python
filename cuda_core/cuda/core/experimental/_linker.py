@@ -503,6 +503,11 @@ class Linker:
         .. note::
 
            The type of the returned object depends on the backend.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Linker.handle)``.
         """
         return self._mnff.handle
 
