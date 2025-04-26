@@ -2,7 +2,7 @@
 
 ## Overview
 
-Define the code of conduct followed and enforced for the CUDA Python project.
+Define the code of conduct followed and enforced for the `cuda.core` project.
 
 ## Our Pledge
 
