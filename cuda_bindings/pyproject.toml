@@ -7,19 +7,18 @@
 # is strictly prohibited.
 
 [build-system]
-requires = ["setuptools", "cython", "pyclibrary"]
+requires = ["setuptools>=77.0.0", "cython", "pyclibrary"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "cuda-bindings"
 description = "Python bindings for CUDA"
 authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
-license = {file = "LICENSE"}
+license = "LicenseRef-NVIDIA-SOFTWARE-LICENSE"
 classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Database",
     "Topic :: Scientific/Engineering",
-    "License :: Other/Proprietary License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
