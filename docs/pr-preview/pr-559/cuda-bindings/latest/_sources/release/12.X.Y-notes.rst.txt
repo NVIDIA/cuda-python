@@ -13,6 +13,7 @@ Highlights
 * Statically link CUDA Runtime instead of reimplementing it
 * Move stream callback wrappers to the Python layer
 * Return code construction is made faster
+* Failed API calls return None for non error code tuple elements
 
 Bug fixes
 ---------
