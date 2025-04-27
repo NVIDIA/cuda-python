@@ -7,12 +7,15 @@
 # is strictly prohibited.
 
 import os
+import pathlib
 import time
 
+import numpy as np
 import pytest
 
 import cuda.core.experimental
 from cuda.core.experimental import Device, EventOptions, LaunchConfig, Program, ProgramOptions, launch
+from cuda.core.experimental._memory import _DefaultPinnedMemorySource
 
 
 def test_event_init_disabled():
@@ -113,27 +116,44 @@ def test_error_timing_recorded():
         event3 - event2
 
 
+# TODO: improve this once path finder can find headers
+@pytest.mark.skipif(os.environ.get("CUDA_PATH") is None, reason="need libcu++ header")
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
 
-    # This kernel is designed to not complete
+    # This kernel is designed to busy loop until a signal is received
     code = """
+#include <cuda/atomic>
+
 extern "C"
-__global__ void wait() {
-    while (1 > 0) {
+__global__ void wait(int* val) {
+    cuda::atomic_ref<int, cuda::thread_scope_system> signal{*val};
+    while (true) {
+        if (signal.load(cuda::memory_order_relaxed)) {
+            break;
+        }
     }
 }
 """
 
     arch = "".join(f"{i}" for i in device.compute_capability)
-    program_options = ProgramOptions(std="c++11", arch=f"sm_{arch}")
+    program_options = ProgramOptions(
+        std="c++17",
+        arch=f"sm_{arch}",
+        include_path=str(pathlib.Path(os.environ["CUDA_PATH"]) / pathlib.Path("include")),
+    )
     prog = Program(code, code_type="c++", options=program_options)
     mod = prog.compile(target_type="cubin")
     ker = mod.get_kernel("wait")
 
+    mr = _DefaultPinnedMemorySource()
+    b = mr.allocate(4)
+    arr = np.from_dlpack(b).view(np.int32)
+    arr[0] = 0
+
     config = LaunchConfig(grid=1, block=1)
-    ker_args = ()
+    ker_args = (arr.ctypes.data,)
 
     enabled = EventOptions(enable_timing=True)
     stream = device.create_stream()
@@ -145,3 +165,7 @@ __global__ void wait() {
     # event3 will never complete because the stream is waiting on wait() to complete
     with pytest.raises(RuntimeError, match="^One or both events have not completed."):
         event3 - event1
+
+    arr[0] = 1
+    event3.sync()
+    event3 - event1  # this should work
