@@ -118,6 +118,7 @@ def test_error_timing_recorded():
 
 # TODO: improve this once path finder can find headers
 @pytest.mark.skipif(os.environ.get("CUDA_PATH") is None, reason="need libcu++ header")
+@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
