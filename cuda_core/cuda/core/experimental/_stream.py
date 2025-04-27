@@ -189,7 +189,13 @@ class Stream:
 
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
-        """Return the underlying ``CUstream`` object."""
+        """Return the underlying ``CUstream`` object.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Stream.handle)``.
+        """
         return self._mnff.handle
 
     @property
