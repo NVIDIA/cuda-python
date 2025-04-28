@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: "CI: Release"
 
 description: Manually-triggered release workflow. Must have a release note in the draft state and the release commit tagged.
