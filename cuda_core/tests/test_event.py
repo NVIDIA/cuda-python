@@ -12,7 +12,7 @@ import time
 
 import numpy as np
 import pytest
-from conftest import skipif_compute_sanitizer_is_running
+from conftest import skipif_testing_with_compute_sanitizer
 
 import cuda.core.experimental
 from cuda.core.experimental import Device, EventOptions, LaunchConfig, Program, ProgramOptions, launch
@@ -76,7 +76,7 @@ def test_is_done(init_cuda):
     assert event.is_done in (True, False)
 
 
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 def test_error_timing_disabled():
     device = Device()
     device.set_current()
@@ -99,7 +99,7 @@ def test_error_timing_disabled():
         event2 - event1
 
 
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 def test_error_timing_recorded():
     device = Device()
     device.set_current()
@@ -120,7 +120,7 @@ def test_error_timing_recorded():
 
 
 # TODO: improve this once path finder can find headers
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 @pytest.mark.skipif(os.environ.get("CUDA_PATH") is None, reason="need libcu++ header")
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_error_timing_incomplete():

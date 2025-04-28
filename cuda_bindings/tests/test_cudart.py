@@ -10,7 +10,7 @@ import math
 
 import numpy as np
 import pytest
-from conftest import skipif_compute_sanitizer_is_running
+from conftest import skipif_testing_with_compute_sanitizer
 
 import cuda.cuda as cuda
 import cuda.cudart as cudart
@@ -71,7 +71,7 @@ def test_cudart_memcpy():
     assertSuccess(err)
 
 
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 def test_cudart_hostRegister():
     # Use hostRegister API to check for correct enum return values
     page_size = 80

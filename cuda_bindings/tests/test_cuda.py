@@ -11,7 +11,7 @@ import textwrap
 
 import numpy as np
 import pytest
-from conftest import skipif_compute_sanitizer_is_running
+from conftest import skipif_testing_with_compute_sanitizer
 
 import cuda.cuda as cuda
 import cuda.cudart as cudart
@@ -84,7 +84,7 @@ def test_cuda_memcpy():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 def test_cuda_array():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -238,7 +238,7 @@ def test_cuda_uuid_list_access():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 def test_cuda_cuModuleLoadDataEx():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -626,7 +626,7 @@ def test_cuda_coredump_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 def test_get_error_name_and_string():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -956,7 +956,7 @@ def test_CUmemDecompressParams_st():
     assert int(desc.dstActBytes) == 0
 
 
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 def test_all_CUresult_codes():
     max_code = int(max(cuda.CUresult))
     # Smoke test. CUDA_ERROR_UNKNOWN = 999, but intentionally using literal value.
@@ -989,21 +989,21 @@ def test_all_CUresult_codes():
     assert num_good >= 76  # CTK 11.0.3_450.51.06
 
 
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 def test_cuKernelGetName_failure():
     err, name = cuda.cuKernelGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
     assert name is None
 
 
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 def test_cuFuncGetName_failure():
     err, name = cuda.cuFuncGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
     assert name is None
 
 
-@skipif_compute_sanitizer_is_running
+@skipif_testing_with_compute_sanitizer
 @pytest.mark.skipif(
     driverVersionLessThan(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
     reason="When API was introduced",

@@ -15,4 +15,4 @@
 
 ## Test-Time Environment Variables
 
-- `CUDA_PYTHON_SANITIZER_RUNNING` : When set to 1, tests are skipped that would cause [compute-sanitizer](https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html) to raise an error.
+- `CUDA_PYTHON_TESTING_WITH_COMPUTE_SANITIZER` : When set to 1, tests are skipped that would cause [compute-sanitizer](https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html) to raise an error.
