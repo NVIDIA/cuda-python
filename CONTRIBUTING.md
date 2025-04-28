@@ -12,3 +12,12 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - Please refer to each component's guideline:
        - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
        - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)
+
+## Code signing
+
+This repository implements a security check to prevent the CI system from running untrusted code. A part of the
+security check consists of checking if the git commits are signed. See
+[here](https://docs.gha-runners.nvidia.com/apps/copy-pr-bot/faqs/#why-did-i-receive-a-comment-that-my-pull-request-requires-additional-validation)
+and
+[here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
+for more details, including how to sign your commits.

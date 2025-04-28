@@ -4,37 +4,11 @@ Currently under active development; see [the documentation](https://nvidia.githu
 
 ## Installing
 
-To build from source, just do:
-```shell
-$ git clone https://github.com/NVIDIA/cuda-python
-$ cd cuda-python/cuda_core  # move to the directory where this README locates
-$ pip install .
-```
-For now `cuda-python` is a required dependency.
+Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html) for instructions and required/optional dependencies.
 
 ## Developing
 
-We use `pre-commit` to manage various tools to help development and ensure consistency.
-```shell
-pip install pre-commit
-```
-
-### Code linting
-
-Run this command before checking in the code changes
-```shell
-pre-commit run -a --show-diff-on-failure
-```
-to ensure the code formatting is in line of the requirements (as listed in [`pyproject.toml`](./pyproject.toml)).
-
-### Code signing
-
-This repository implements a security check to prevent the CI system from running untrusted code. A part of the
-security check consists of checking if the git commits are signed. See
-[here](https://docs.gha-runners.nvidia.com/apps/copy-pr-bot/faqs/#why-did-i-receive-a-comment-that-my-pull-request-requires-additional-validation)
-and
-[here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
-for more details, including how to sign your commits.
+This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
 
 ## Testing
 
