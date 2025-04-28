@@ -416,6 +416,11 @@ context is set current after a stream is created.</p>
 <dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.handle">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUstream" title="(in cuda.bindings)"><span class="pre">cuda.bindings.driver.CUstream</span></a></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.handle" title="Link to this definition">¶</a></dt>
 <dd><p>Return the underlying <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> object.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Stream.handle)</span></code>.</p>
+</div>
 </dd></dl>
 
 <dl class="py property">

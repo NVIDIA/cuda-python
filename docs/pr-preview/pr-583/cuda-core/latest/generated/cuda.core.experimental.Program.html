@@ -372,6 +372,11 @@ from compilation.
 <p class="admonition-title">Note</p>
 <p>The type of the returned object depends on the backend.</p>
 </div>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Program.handle)</span></code>.</p>
+</div>
 </dd></dl>
 
 </dd></dl>
