@@ -1,4 +1,6 @@
-﻿cuda.core.experimental.\_stream.Stream
+﻿.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.\_stream.Stream
 ======================================
 
 .. currentmodule:: cuda.core.experimental._stream

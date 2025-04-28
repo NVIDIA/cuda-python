@@ -1,4 +1,6 @@
-﻿cuda.core.experimental.Program
+﻿.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.Program
 ==============================
 
 .. currentmodule:: cuda.core.experimental

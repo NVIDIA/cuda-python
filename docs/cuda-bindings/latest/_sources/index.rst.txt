@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 ``cuda.bindings``: Low-level Python Bindings for CUDA
 =====================================================
 
@@ -13,6 +15,9 @@
    api
    tips_and_tricks
    support
+   contribute.md
+   conduct.md
+   license
 
 
 Indices and tables
