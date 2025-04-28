@@ -194,10 +194,8 @@ jobs:
             fi
             echo "CUDA_PYTHON_SANITIZER_RUNNING=1" >> $GITHUB_ENV
           else
-            COMPUTE_SANITIZER_VERSION="None"
             SANITIZER_CMD=""
           fi
-          echo "COMPUTE_SANITIZER_VERSION=${COMPUTE_SANITIZER_VERSION}" >> $GITHUB_ENV
           echo "SANITIZER_CMD=${SANITIZER_CMD}" >> $GITHUB_ENV
 
       - name: Run cuda.bindings tests
