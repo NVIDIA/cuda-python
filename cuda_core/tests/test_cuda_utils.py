@@ -1,9 +1,9 @@
 # Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
-import os
 
 import pytest
+from conftest import skipif_compute_sanitizer_is_running
 
 from cuda.bindings import driver, runtime
 from cuda.core.experimental._utils import cuda_utils
@@ -41,13 +41,8 @@ def test_runtime_cuda_error_explanations_health():
         assert not extra_expl
 
 
-@pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason=(
-        "The compute-sanitizer is running, and this test causes an API error "
-        "when the driver is too old to know about all of the error codes."
-    ),
-)
+# this test causes an API error when the driver is too old to know about all of the error codes
+@skipif_compute_sanitizer_is_running
 def test_check_driver_error():
     num_unexpected = 0
     for error in driver.CUresult:

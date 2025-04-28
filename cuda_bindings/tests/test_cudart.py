@@ -7,10 +7,10 @@
 # is strictly prohibited.
 import ctypes
 import math
-import os
 
 import numpy as np
 import pytest
+from conftest import skipif_compute_sanitizer_is_running
 
 import cuda.cuda as cuda
 import cuda.cudart as cudart
@@ -71,10 +71,7 @@ def test_cudart_memcpy():
     assertSuccess(err)
 
 
-@pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
-)
+@skipif_compute_sanitizer_is_running
 def test_cudart_hostRegister():
     # Use hostRegister API to check for correct enum return values
     page_size = 80

@@ -1,9 +1,9 @@
 # Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
-import os
 
 import pytest
+from conftest import skipif_compute_sanitizer_is_running
 
 from cuda.core.experimental import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core.experimental._module import ObjectCode
@@ -141,10 +141,8 @@ def test_linker_link_invalid_target_type(compile_ptx_functions):
         linker.link("invalid_target")
 
 
-@pytest.mark.skipif(
-    is_culink_backend and os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitizer is running, and this test causes an API error using the culink API.",
-)
+# this test causes an API error when using the culink API
+@skipif_compute_sanitizer_is_running
 def test_linker_get_error_log(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)
 

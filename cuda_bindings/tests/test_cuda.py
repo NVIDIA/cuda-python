@@ -5,13 +5,13 @@
 # this software. Any use, reproduction, disclosure, or distribution of
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
-import os
 import platform
 import shutil
 import textwrap
 
 import numpy as np
 import pytest
+from conftest import skipif_compute_sanitizer_is_running
 
 import cuda.cuda as cuda
 import cuda.cudart as cudart
@@ -84,10 +84,7 @@ def test_cuda_memcpy():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
-)
+@skipif_compute_sanitizer_is_running
 def test_cuda_array():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -241,10 +238,7 @@ def test_cuda_uuid_list_access():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="FIXME: This test causes an API error.",
-)
+@skipif_compute_sanitizer_is_running
 def test_cuda_cuModuleLoadDataEx():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -632,10 +626,7 @@ def test_cuda_coredump_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
-)
+@skipif_compute_sanitizer_is_running
 def test_get_error_name_and_string():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -964,10 +955,7 @@ def test_CUmemDecompressParams_st():
     assert int(desc.dstActBytes) == 0
 
 
-@pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
-)
+@skipif_compute_sanitizer_is_running
 def test_all_CUresult_codes():
     max_code = int(max(cuda.CUresult))
     # Smoke test. CUDA_ERROR_UNKNOWN = 999, but intentionally using literal value.
@@ -1000,30 +988,21 @@ def test_all_CUresult_codes():
     assert num_good >= 76  # CTK 11.0.3_450.51.06
 
 
-@pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
-)
+@skipif_compute_sanitizer_is_running
 def test_cuKernelGetName_failure():
     err, name = cuda.cuKernelGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
     assert name is None
 
 
-@pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
-)
+@skipif_compute_sanitizer_is_running
 def test_cuFuncGetName_failure():
     err, name = cuda.cuFuncGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
     assert name is None
 
 
-@pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
-)
+@skipif_compute_sanitizer_is_running
 @pytest.mark.skipif(
     driverVersionLessThan(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
     reason="When API was introduced",
