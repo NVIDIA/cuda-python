@@ -143,7 +143,7 @@ def test_linker_link_invalid_target_type(compile_ptx_functions):
 
 @pytest.mark.skipif(
     is_culink_backend and os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitzer is running, and this test causes an API error using the culink API.",
+    reason="The compute-sanitizer is running, and this test causes an API error using the culink API.",
 )
 def test_linker_get_error_log(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)

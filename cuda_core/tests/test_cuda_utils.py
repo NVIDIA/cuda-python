@@ -44,7 +44,7 @@ def test_runtime_cuda_error_explanations_health():
 @pytest.mark.skipif(
     os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
     reason=(
-        "The compute-sanitzer is running, and this test causes an API error "
+        "The compute-sanitizer is running, and this test causes an API error "
         "when the driver is too old to know about all of the error codes."
     ),
 )

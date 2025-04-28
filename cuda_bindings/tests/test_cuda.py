@@ -86,7 +86,7 @@ def test_cuda_memcpy():
 
 @pytest.mark.skipif(
     os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
 )
 def test_cuda_array():
     (err,) = cuda.cuInit(0)
@@ -634,7 +634,7 @@ def test_cuda_coredump_attr():
 
 @pytest.mark.skipif(
     os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
 )
 def test_get_error_name_and_string():
     (err,) = cuda.cuInit(0)
@@ -966,7 +966,7 @@ def test_CUmemDecompressParams_st():
 
 @pytest.mark.skipif(
     os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
 )
 def test_all_CUresult_codes():
     max_code = int(max(cuda.CUresult))
@@ -1002,7 +1002,7 @@ def test_all_CUresult_codes():
 
 @pytest.mark.skipif(
     os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
 )
 def test_cuKernelGetName_failure():
     err, name = cuda.cuKernelGetName(0)
@@ -1012,7 +1012,7 @@ def test_cuKernelGetName_failure():
 
 @pytest.mark.skipif(
     os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
 )
 def test_cuFuncGetName_failure():
     err, name = cuda.cuFuncGetName(0)
@@ -1022,7 +1022,7 @@ def test_cuFuncGetName_failure():
 
 @pytest.mark.skipif(
     os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
 )
 @pytest.mark.skipif(
     driverVersionLessThan(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),

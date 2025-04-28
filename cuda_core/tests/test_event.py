@@ -25,7 +25,7 @@ def test_event_init_disabled():
     [
         True,
     ]
-    # The compute-sanitzer is running, and this test intentionally causes an API error.
+    # The compute-sanitizer is running, and this test intentionally causes an API error.
     + ([False, None] if os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") != "1" else []),
 )
 def test_timing(init_cuda, enable_timing):

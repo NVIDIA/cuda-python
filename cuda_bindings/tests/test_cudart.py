@@ -73,7 +73,7 @@ def test_cudart_memcpy():
 
 @pytest.mark.skipif(
     os.environ.get("CUDA_PYTHON_SANITIZER_RUNNING", "0") == "1",
-    reason="The compute-sanitzer is running, and this test intentionally causes an API error.",
+    reason="The compute-sanitizer is running, and this test intentionally causes an API error.",
 )
 def test_cudart_hostRegister():
     # Use hostRegister API to check for correct enum return values
