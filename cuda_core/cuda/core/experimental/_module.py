@@ -354,5 +354,11 @@ class ObjectCode:
     @property
     @precondition(_lazy_load_module)
     def handle(self):
-        """Return the underlying handle object."""
+        """Return the underlying handle object.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(ObjectCode.handle)``.
+        """
         return self._handle
