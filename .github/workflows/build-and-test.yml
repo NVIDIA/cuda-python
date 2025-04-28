@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Note: This name is referred to in the test job, so make sure any changes are sync'd up!
 name: "CI: Build and test"
 
