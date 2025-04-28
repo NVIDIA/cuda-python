@@ -12,6 +12,7 @@ import time
 
 import numpy as np
 import pytest
+from conftest import skipif_compute_sanitizer_is_running
 
 import cuda.core.experimental
 from cuda.core.experimental import Device, EventOptions, LaunchConfig, Program, ProgramOptions, launch
@@ -75,6 +76,7 @@ def test_is_done(init_cuda):
     assert event.is_done in (True, False)
 
 
+@skipif_compute_sanitizer_is_running
 def test_error_timing_disabled():
     device = Device()
     device.set_current()
@@ -97,6 +99,7 @@ def test_error_timing_disabled():
         event2 - event1
 
 
+@skipif_compute_sanitizer_is_running
 def test_error_timing_recorded():
     device = Device()
     device.set_current()
