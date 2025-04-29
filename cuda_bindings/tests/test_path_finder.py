@@ -49,6 +49,13 @@ def _build_subprocess_failed_for_libname_message(libname, result):
 @pytest.mark.parametrize("api", ("find", "load"))
 @pytest.mark.parametrize("libname", TEST_FIND_OR_LOAD_LIBNAMES)
 def test_find_or_load_nvidia_dynamic_library(info_summary_append, api, libname):
+    # We intentionally run each dynamic library operation in a subprocess
+    # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
+    # Without subprocesses, loading/unloading libraries during testing could
+    # interfere across test cases and lead to nondeterministic or platform-specific failures.
+    #
+    # Defining the subprocess code snippets as strings ensures each subprocess
+    # runs a minimal, independent script tailored to the specific libname and API being tested.
     if api == "find":
         code = f"""\
 from cuda.bindings._path_finder.find_nvidia_dynamic_library import find_nvidia_dynamic_library
