@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 **************************************************************
 cuda-python: Metapackage collection of CUDA Python subpackages
 **************************************************************

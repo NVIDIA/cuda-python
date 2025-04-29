@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: Apache-2.0
+
 *******************************************************
 cuda-core: Pythonic access to CUDA core functionalities
 *******************************************************
