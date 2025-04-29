@@ -8,7 +8,7 @@ import sys
 
 import torch
 
-from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, Stream, launch
+from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # SAXPY kernel - passing a as a pointer to avoid any type issues
 code = """
@@ -101,6 +101,6 @@ ker_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
 launch(s, config, ker, *ker_args)
 
 # check result
-assert torch.allclose(out, a.item() * x + y)
+assert torch.allclose(out, a * x + y)
 print("Double precision test passed!")
 print("All tests passed successfully!")
