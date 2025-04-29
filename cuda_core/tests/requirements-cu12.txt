@@ -2,3 +2,4 @@ pytest
 # TODO: remove this hack once cupy has a cp313 build
 cupy-cuda12x; python_version < "3.13"
 nvidia-cuda-runtime-cu12  # headers consumed by CuPy
+torch # For PyTorch example
