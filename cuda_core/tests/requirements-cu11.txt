@@ -1,6 +1,4 @@
- --extra-index-url https://download.pytorch.org/whl/cu118
 pytest
 # TODO: remove this hack once cupy has a cp313 build
 cupy-cuda11x; python_version < "3.13"
 nvidia-cuda-runtime-cu11  # headers consumed by CuPy
-torch # For PyTorch example
