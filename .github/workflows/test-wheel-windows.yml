@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: "CI: Test wheels"
 
 on:
@@ -55,9 +59,9 @@ jobs:
 
           if ('${{ inputs.local-ctk }}' -eq '1') {
             if ($TEST_CUDA_MAJOR -eq '12') {
-              $MINI_CTK_DEPS = '["nvcc", "nvrtc", "nvjitlink"]'
+              $MINI_CTK_DEPS = '["nvcc", "nvrtc", "nvjitlink", "thrust"]'
             } else {
-              $MINI_CTK_DEPS = '["nvcc", "nvrtc"]'
+              $MINI_CTK_DEPS = '["nvcc", "nvrtc", "thrust"]'
             }
           }
 

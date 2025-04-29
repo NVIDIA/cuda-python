@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: Apache-2.0
+
 {{ fullname | escape | underline}}
 
 .. currentmodule:: {{ module }}

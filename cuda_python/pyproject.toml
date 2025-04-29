@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 [build-system]
-requires = ["setuptools",]
+requires = ["setuptools>=77.0.0",]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -11,7 +11,7 @@ name = "cuda-python"
 description = "CUDA Python: Performance meets Productivity"
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
-license = {file = "LICENSE"}
+license = "LicenseRef-NVIDIA-SOFTWARE-LICENSE"
 classifiers = [
     "Operating System :: POSIX :: Linux",
     "Operating System :: Microsoft :: Windows",
@@ -21,7 +21,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: End Users/Desktop",
-    "License :: Other/Proprietary License",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",

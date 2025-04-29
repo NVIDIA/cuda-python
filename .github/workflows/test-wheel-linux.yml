@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: "CI: Test wheels"
 
 on:
@@ -180,6 +184,24 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
 
+      - name: Set up compute-sanitizer
+        run: |
+          # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
+          # We only test compute-sanitizer on python 3.12 arbitrarily; we don't need to use sanitizer on the entire matrix
+          # Only local ctk installs have compute-sanitizer; there is not wheel for it
+          if [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.cuda-version }}" != "11.8.0" && "${{ inputs.local-ctk }}" == 1 ]]; then
+            COMPUTE_SANITIZER="${CUDA_HOME}/bin/compute-sanitizer"
+            COMPUTE_SANITIZER_VERSION=$(${COMPUTE_SANITIZER} --version | grep -Eo "[0-9]{4}\.[0-9]\.[0-9]" | sed -e 's/\.//g')
+            SANITIZER_CMD="${COMPUTE_SANITIZER} --target-processes=all --launch-timeout=0 --tool=memcheck --error-exitcode=1"
+            if [[ "$COMPUTE_SANITIZER_VERSION" -ge 202111 ]]; then
+                SANITIZER_CMD="${SANITIZER_CMD} --padding=32"
+            fi
+            echo "CUDA_PYTHON_TESTING_WITH_COMPUTE_SANITIZER=1" >> $GITHUB_ENV
+          else
+            SANITIZER_CMD=""
+          fi
+          echo "SANITIZER_CMD=${SANITIZER_CMD}" >> $GITHUB_ENV
+
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
@@ -194,7 +216,7 @@ jobs:
 
           pushd ./cuda_bindings
           pip install -r requirements.txt
-          pytest -rxXs -v tests/
+          ${SANITIZER_CMD} pytest -rxXs -v tests/
 
           # It is a bit convoluted to run the Cython tests against CTK wheels,
           # so let's just skip them.
@@ -202,10 +224,10 @@ jobs:
             if [[ "${{ inputs.host-platform }}" == linux* ]]; then
               bash tests/cython/build_tests.sh
             elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-              # TODO: enable this once win-64 runners are up 
+              # TODO: enable this once win-64 runners are up
               exit 1
-            fi  
-            pytest -rxXs -v tests/cython
+            fi
+            ${SANITIZER_CMD} pytest -rxXs -v tests/cython
           fi
           popd
 
@@ -229,7 +251,7 @@ jobs:
 
           pushd ./cuda_core
           pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
-          pytest -rxXs -v tests/
+          ${SANITIZER_CMD} pytest -rxXs -v tests/
 
           # It is a bit convoluted to run the Cython tests against CTK wheels,
           # so let's just skip them. Also, currently our CI always installs the
@@ -243,7 +265,7 @@ jobs:
               # TODO: enable this once win-64 runners are up
               exit 1
             fi
-            pytest -rxXs -v tests/cython
+            ${SANITIZER_CMD} pytest -rxXs -v tests/cython
           fi
           popd
 
