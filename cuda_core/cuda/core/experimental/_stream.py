@@ -1,6 +1,6 @@
 # Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
@@ -189,7 +189,13 @@ class Stream:
 
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
-        """Return the underlying ``CUstream`` object."""
+        """Return the underlying ``CUstream`` object.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Stream.handle)``.
+        """
         return self._mnff.handle
 
     @property

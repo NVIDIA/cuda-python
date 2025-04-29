@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: Apache-2.0
+
 .. module:: cuda.core.experimental
 
 ``cuda.core.experimental`` API Reference
