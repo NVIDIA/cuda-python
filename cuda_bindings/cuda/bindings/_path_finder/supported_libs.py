@@ -41,6 +41,13 @@ PARTIALLY_SUPPORTED_LIBNAMES_COMMON = (
     "nvjpeg",
 )
 
+# Note: The `cufile_rdma` information is intentionally retained (commented out)
+# despite not being actively used in the current build. It took a nontrivial
+# amount of effort to determine the SONAME, dependencies, and expected symbols
+# for this special-case library, especially given its RDMA/MLX5 dependencies
+# and limited availability. Keeping this as a reference avoids having to
+# reconstruct the information from scratch in the future.
+
 PARTIALLY_SUPPORTED_LIBNAMES_LINUX_ONLY = (
     "cufile",
     # "cufile_rdma",  # Requires libmlx5.so
