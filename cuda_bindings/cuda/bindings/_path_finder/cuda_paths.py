@@ -1,3 +1,9 @@
+# Copyright 2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+# Forked from then pending https://github.com/NVIDIA/numba-cuda/pull/155 on 2025-03-19:
+# https://github.com/brandon-b-miller/numba-cuda/blob/d4bf1137e6fcc65f6e2ba2be6f723e69b357b798/numba_cuda/numba/cuda/cuda_paths.py
+
 import os
 import platform
 import re
