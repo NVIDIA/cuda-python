@@ -1,43 +1,61 @@
-`cuda.bindings.path_finder`
-===========================
+# `cuda.bindings.path_finder` Module
 
-Currently, the only two (semi-)public APIs are:
+## Public API (Work in Progress)
 
-* `cuda.bindings.path_finder._SUPPORTED_LIBNAMES` (currently `('nvJitLink', 'nvrtc', 'nvvm')`)
+Currently exposes two primary interfaces:
 
-* `cuda.bindings.path_finder._load_nvidia_dynamic_library(libname: str) -> LoadedDL`
+```
+cuda.bindings.path_finder._SUPPORTED_LIBNAMES  # ('nvJitLink', 'nvrtc', 'nvvm')
+cuda.bindings.path_finder._load_nvidia_dynamic_library(libname: str) -> LoadedDL
+```
 
-These APIs are prefixed with an underscore because they are STILL A WORK IN PROGRESS,
-although already fairly well tested.
+**Note:**
+These APIs are prefixed with an underscore because they are considered
+experimental while undergoing active development, although already
+reasonably well-tested through CI pipelines.
 
-`load_nvidia_dynamic_library()` is meant to become the one, central, go-to API for
-loading NVIDIA shared libraries from Python.
+## Library Loading Search Priority
 
+The `load_nvidia_dynamic_library()` function implements a hierarchical search
+strategy for locating NVIDIA shared libraries:
 
-Search Priority
----------------
+1. **Python Package Ecosystem**
+   - Scans `sys.path` to find libraries installed via NVIDIA Python wheels
 
-The _intended_ search priority for locating NVIDIA dynamic libraries is:
+2. **Conda Environments**
+   - Leverages Conda-specific paths through our fork of `get_cuda_paths()` from Numba
 
-* *site-packages* — Traversal of Python's `sys.path` (in order), which for all practical
-  purposes amounts to a search for libraries installed from NVIDIA wheels.
+3. **System Installations**
+   - Checks traditional system locations via the same `get_cuda_paths()` implementation
 
-* *Conda* — Currently mplemented via `get_cuda_paths()` as forked from numba/cuda/cuda_paths.py
+4. **OS Default Mechanisms**
+   - Falls back to native loader:
+     - `dlopen()` on Linux
+     - `LoadLibraryW()` on Windows
 
-* *System* — Also implemented via `get_cuda_paths()`
+## Implementation Philosophy
 
-* *OS-provided search* — `dlopen()` (Linux) or `LoadLibraryW()` (Windows) mechanisms
+The current implementation balances stability and evolution:
 
+- **Baseline Foundation:** Uses a fork of Numba's `cuda_paths.py` that has been
+  battle-tested in production environments
 
-Currently, our fork of cuda_paths.py is intentionally used as-is.
-cuda_paths.py has a long and convoluted development history, but that also means
-the product is time-tested. Our strategy for evolving the implementation is:
+- **Validation Infrastructure:** Comprehensive CI testing matrix being developed to cover:
+  - Various Linux/Windows environments
+  - Python packaging formats (wheels, conda)
+  - CUDA Toolkit versions
 
-* Establish a minimal viable product as a baseline (current stage).
+- **Roadmap:** Planned refactoring to:
+  - Unify library discovery logic
+  - Improve maintainability
+  - Better enforce search priority
+  - Expand platform support
 
-* Establish a comprehensive testing infrastructure (GitHub Actions / CI) to
-  cover all sorts of environments that we want to support.
+## Maintenance Requirements
 
-* Combine, refactor, and clean up find_nvidia_dynamic_library.py & cuda_paths.py
-  to achieve a more maintainable and robust implementation of the intended
-  dynamic library search priority.
+These key components must be updated for new CUDA Toolkit releases:
+
+- `supported_libs.SUPPORTED_LIBNAMES`
+- `supported_libs.SUPPORTED_WINDOWS_DLLS`
+- `supported_libs.SUPPORTED_LINUX_SONAMES`
+- `supported_libs.EXPECTED_LIB_SYMBOLS`
