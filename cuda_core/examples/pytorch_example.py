@@ -40,12 +40,7 @@ class PyTorchStreamWrapper:
         return (0, stream_id)  # Return format required by CUDA Python
 
 
-# Create a wrapper for the PyTorch stream
-pt_stream_wrapper = PyTorchStreamWrapper(pt_stream)
-
-# Initialize a CUDA Python Stream from the PyTorch stream
-s = Stream._init(obj=pt_stream_wrapper)
-print("Successfully created CUDA Python stream from PyTorch stream")
+s = PyTorchStreamWrapper(pt_stream)
 
 # prepare program
 arch = "".join(f"{i}" for i in dev.compute_capability)
