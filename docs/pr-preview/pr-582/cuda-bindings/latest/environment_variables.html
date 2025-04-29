@@ -335,6 +335,12 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM</span></code> : When set to 1, the default stream is the per-thread default stream. When set to 0, the default stream is the legacy default stream. This defaults to 0, for the legacy default stream. See <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/stream-sync-behavior.html">Stream Synchronization Behavior</a> for an explanation of the legacy and per-thread default streams.</p></li>
 </ul>
 </section>
+<section id="test-time-environment-variables">
+<h2>Test-Time Environment Variables<a class="headerlink" href="#test-time-environment-variables" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_TESTING_WITH_COMPUTE_SANITIZER</span></code> : When set to 1, tests are skipped that would cause <a class="reference external" href="https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html">compute-sanitizer</a> to raise an error.</p></li>
+</ul>
+</section>
 </section>
 
         </article>
@@ -395,6 +401,7 @@
 <li><a class="reference internal" href="#">Environment Variables</a><ul>
 <li><a class="reference internal" href="#build-time-environment-variables">Build-Time Environment Variables</a></li>
 <li><a class="reference internal" href="#runtime-environment-variables">Runtime Environment Variables</a></li>
+<li><a class="reference internal" href="#test-time-environment-variables">Test-Time Environment Variables</a></li>
 </ul>
 </li>
 </ul>
