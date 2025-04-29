@@ -8,11 +8,31 @@ from typing import Optional
 import pywintypes
 import win32api
 
-from .load_dl_common import LoadedDL, add_dll_directory
+from .load_dl_common import LoadedDL
 
 # Mirrors WinBase.h (unfortunately not defined already elsewhere)
 WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
 WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+
+
+def add_dll_directory(dll_abs_path: str) -> None:
+    """Add a DLL directory to the search path and update PATH environment variable.
+
+    Args:
+        dll_abs_path: Absolute path to the DLL file
+
+    Raises:
+        AssertionError: If the directory containing the DLL does not exist
+    """
+    import os
+
+    dirpath = os.path.dirname(dll_abs_path)
+    assert os.path.isdir(dirpath), dll_abs_path
+    # Add the DLL directory to the search path
+    os.add_dll_directory(dirpath)
+    # Update PATH as a fallback for dependent DLL resolution
+    curr_path = os.environ.get("PATH")
+    os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
 
 
 def abs_path_for_dynamic_library(handle: int) -> str:

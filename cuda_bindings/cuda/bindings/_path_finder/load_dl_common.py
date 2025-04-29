@@ -25,26 +25,6 @@ class LoadedDL:
     was_already_loaded_from_elsewhere: bool
 
 
-def add_dll_directory(dll_abs_path: str) -> None:
-    """Add a DLL directory to the search path and update PATH environment variable.
-
-    Args:
-        dll_abs_path: Absolute path to the DLL file
-
-    Raises:
-        AssertionError: If the directory containing the DLL does not exist
-    """
-    import os
-
-    dirpath = os.path.dirname(dll_abs_path)
-    assert os.path.isdir(dirpath), dll_abs_path
-    # Add the DLL directory to the search path
-    os.add_dll_directory(dirpath)
-    # Update PATH as a fallback for dependent DLL resolution
-    curr_path = os.environ.get("PATH")
-    os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
-
-
 def load_dependencies(libname: str, load_func: Callable[[str], LoadedDL]) -> None:
     """Load all dependencies for a given library.
 
