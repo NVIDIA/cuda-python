@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 blank_issues_enabled: true
 contact_links:
   - name: Questions

@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Fetch mini CTK
 
 description: Fetch (or create) a mini CUDA Toolkit from cache

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import pytest
+from conftest import skipif_testing_with_compute_sanitizer
 
 from cuda.core.experimental import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core.experimental._module import ObjectCode
@@ -140,6 +141,8 @@ def test_linker_link_invalid_target_type(compile_ptx_functions):
         linker.link("invalid_target")
 
 
+# this test causes an API error when using the culink API
+@skipif_testing_with_compute_sanitizer
 def test_linker_get_error_log(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)
 
