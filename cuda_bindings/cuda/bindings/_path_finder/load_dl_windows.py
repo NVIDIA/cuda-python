@@ -3,7 +3,6 @@
 
 import ctypes
 import ctypes.wintypes
-import functools
 from typing import Optional
 
 import pywintypes
@@ -33,33 +32,6 @@ def abs_path_for_dynamic_library(handle: int) -> str:
     if n_chars == 0:
         raise OSError("GetModuleFileNameW failed")
     return buf.value
-
-
-@functools.cache
-def cuDriverGetVersion() -> int:
-    """Get the CUDA driver version.
-
-    Returns:
-        The CUDA driver version number
-
-    Raises:
-        AssertionError: If the driver version cannot be obtained
-    """
-    handle = win32api.LoadLibrary("nvcuda.dll")
-
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-    GetProcAddress = kernel32.GetProcAddress
-    GetProcAddress.argtypes = [ctypes.wintypes.HMODULE, ctypes.wintypes.LPCSTR]
-    GetProcAddress.restype = ctypes.c_void_p
-    cuDriverGetVersion = GetProcAddress(handle, b"cuDriverGetVersion")
-    assert cuDriverGetVersion
-
-    FUNC_TYPE = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.POINTER(ctypes.c_int))
-    cuDriverGetVersion_fn = FUNC_TYPE(cuDriverGetVersion)
-    driver_ver = ctypes.c_int()
-    err = cuDriverGetVersion_fn(ctypes.byref(driver_ver))
-    assert err == 0
-    return driver_ver.value
 
 
 def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
@@ -99,9 +71,6 @@ def load_with_system_search(name: str, _unused: str) -> Optional[LoadedDL]:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
     from .supported_libs import SUPPORTED_WINDOWS_DLLS
-
-    driver_ver = cuDriverGetVersion()
-    del driver_ver  # Keeping this here because it will probably be needed in the future.
 
     dll_names = SUPPORTED_WINDOWS_DLLS.get(name)
     if dll_names is None:
