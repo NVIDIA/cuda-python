@@ -62,7 +62,7 @@ def cuDriverGetVersion() -> int:
     return driver_ver.value
 
 
-def check_if_already_loaded(libname: str) -> Optional[LoadedDL]:
+def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
     """Check if the library is already loaded in the process.
 
     Args:
@@ -72,7 +72,7 @@ def check_if_already_loaded(libname: str) -> Optional[LoadedDL]:
         A LoadedDL object if the library is already loaded, None otherwise
 
     Example:
-        >>> loaded = check_if_already_loaded("cudart")
+        >>> loaded = check_if_already_loaded_from_elsewhere("cudart")
         >>> if loaded is not None:
         ...     print(f"Library already loaded from {loaded.abs_path}")
     """

@@ -8,14 +8,16 @@ from .find_nvidia_dynamic_library import _find_nvidia_dynamic_library
 from .load_dl_common import LoadedDL, load_dependencies
 
 if sys.platform == "win32":
-    from .load_dl_windows import check_if_already_loaded, load_with_abs_path, load_with_system_search
+    from .load_dl_windows import check_if_already_loaded_from_elsewhere, load_with_abs_path, load_with_system_search
 else:
-    from .load_dl_linux import check_if_already_loaded, load_with_abs_path, load_with_system_search
+    from .load_dl_linux import check_if_already_loaded_from_elsewhere, load_with_abs_path, load_with_system_search
 
 
 def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
-    # Check if library is already loaded
-    loaded = check_if_already_loaded(libname)
+    # Check whether the library is already loaded into the current process by
+    # some other component. This check uses OS-level mechanisms (e.g.,
+    # dlopen on Linux, GetModuleHandle on Windows).
+    loaded = check_if_already_loaded_from_elsewhere(libname)
     if loaded is not None:
         return loaded
 
