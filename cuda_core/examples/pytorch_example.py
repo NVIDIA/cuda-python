@@ -100,9 +100,6 @@ ker_args = (a.data_ptr(), x.data_ptr(), y.data_ptr(), out.data_ptr(), size)
 # launch kernel on PyTorch's stream
 launch(s, config, ker, *ker_args)
 
-# Wait for our CUDA kernel to complete
-s.sync()
-
 # check result
 assert torch.allclose(out, a.item() * x + y)
 print("Double precision test passed!")
