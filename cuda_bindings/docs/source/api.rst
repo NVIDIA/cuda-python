@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 -------------------------
 CUDA Python API Reference
 -------------------------

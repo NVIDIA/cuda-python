@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 CUDA Python
 ===========
 
@@ -32,5 +34,3 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    cuda.cooperative <https://nvidia.github.io/cccl/cuda_cooperative>
    cuda.parallel <https://nvidia.github.io/cccl/cuda_parallel>
    numba.cuda <https://nvidia.github.io/numba-cuda/>
-   conduct.md
-   contribute.md

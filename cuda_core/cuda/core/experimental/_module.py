@@ -1,6 +1,6 @@
 # Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 from typing import Optional, Union
 from warnings import warn
@@ -354,5 +354,11 @@ class ObjectCode:
     @property
     @precondition(_lazy_load_module)
     def handle(self):
-        """Return the underlying handle object."""
+        """Return the underlying handle object.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(ObjectCode.handle)``.
+        """
         return self._handle

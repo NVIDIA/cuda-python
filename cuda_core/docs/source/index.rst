@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: Apache-2.0
+
 ``cuda.core``: Pythonic access to CUDA core functionalities
 ===========================================================
 
@@ -8,10 +10,13 @@ and other functionalities.
    :maxdepth: 2
    :caption: Contents:
 
-   release.rst
+   release
    install.md
-   interoperability.rst
-   api.rst
+   interoperability
+   api
+   contribute
+   conduct.md
+   license
 
 
 Indices and tables
