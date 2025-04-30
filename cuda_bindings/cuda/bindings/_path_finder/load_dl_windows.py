@@ -103,11 +103,11 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
     return None
 
 
-def load_with_system_search(name: str, _unused: str) -> Optional[LoadedDL]:
+def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
     """Try to load a DLL using system search paths.
 
     Args:
-        name: The name of the library to load
+        libname: The name of the library to load
         _unused: Unused parameter (kept for interface consistency)
 
     Returns:
@@ -115,7 +115,7 @@ def load_with_system_search(name: str, _unused: str) -> Optional[LoadedDL]:
     """
     from .supported_libs import SUPPORTED_WINDOWS_DLLS
 
-    dll_names = SUPPORTED_WINDOWS_DLLS.get(name)
+    dll_names = SUPPORTED_WINDOWS_DLLS.get(libname)
     if dll_names is None:
         return None
 
