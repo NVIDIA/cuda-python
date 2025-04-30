@@ -42,6 +42,16 @@ all = [
     "nvidia-cuda-nvcc-cu12",
     "nvidia-cuda-nvrtc-cu12",
     "nvidia-nvjitlink-cu12>=12.3",
+    "nvidia-cuda-runtime-cu12",
+    "nvidia-cublas-cu12",
+    "nvidia-cufft-cu12",
+    "nvidia-curand-cu12",
+    "nvidia-cusolver-cu12",
+    "nvidia-cusparse-cu12",
+    "nvidia-npp-cu12",
+    "nvidia-nvjpeg-cu12",
+    "nvidia-nvfatbin-cu12",
+    "nvidia-cufile-cu12; sys_platform != 'win32'",
 ]
 
 [project.urls]
