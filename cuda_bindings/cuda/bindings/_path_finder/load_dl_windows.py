@@ -115,11 +115,7 @@ def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
     """
     from cuda.bindings._path_finder.supported_libs import SUPPORTED_WINDOWS_DLLS
 
-    dll_names = SUPPORTED_WINDOWS_DLLS.get(libname)
-    if dll_names is None:
-        return None
-
-    for dll_name in dll_names:
+    for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         handle = ctypes.windll.kernel32.LoadLibraryW(ctypes.c_wchar_p(dll_name))
         if handle:
             return LoadedDL(handle, abs_path_for_dynamic_library(handle), False)
