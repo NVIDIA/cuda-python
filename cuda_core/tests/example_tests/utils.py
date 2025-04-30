@@ -37,7 +37,7 @@ def run_example(samples_path, filename, env=None):
         exec(script, env if env else {})  # nosec B102
     except ImportError as e:
         # for samples requiring any of optional dependencies
-        for m in ("cupy",):
+        for m in ("cupy", "torch"):
             if f"No module named '{m}'" in str(e):
                 pytest.skip(f"{m} not installed, skipping related tests")
                 break
