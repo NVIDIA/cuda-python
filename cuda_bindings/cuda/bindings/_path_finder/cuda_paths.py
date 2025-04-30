@@ -1,58 +1,49 @@
-# Copyright 2025 NVIDIA Corporation.  All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
-
-# Forked from then pending https://github.com/NVIDIA/numba-cuda/pull/155 on 2025-03-19:
-# https://github.com/brandon-b-miller/numba-cuda/blob/d4bf1137e6fcc65f6e2ba2be6f723e69b357b798/numba_cuda/numba/cuda/cuda_paths.py
-
-import os
-import platform
-import re
-import site
 import sys
-import traceback
-import warnings
+import re
+import os
 from collections import namedtuple
+import platform
+import site
 from pathlib import Path
-
-from .findlib import find_file, find_lib
-
-IS_WIN32 = sys.platform.startswith("win32")
+from numba.core.config import IS_WIN32
+from numba.misc.findlib import find_lib
+from numba import config
+import ctypes
 
 _env_path_tuple = namedtuple("_env_path_tuple", ["by", "info"])
 
+SEARCH_PRIORITY = [
+    "Conda environment",
+    "Conda environment (NVIDIA package)",
+    "NVIDIA NVCC Wheel",
+    "CUDA_HOME",
+    "System",
+    "Debian package",
+]
 
-def _get_numba_CUDA_INCLUDE_PATH():
-    # From numba/numba/core/config.py
 
-    def _readenv(name, ctor, default):
-        value = os.environ.get(name)
-        if value is None:
-            return default() if callable(default) else default
-        try:
-            return ctor(value)
-        except Exception:
-            warnings.warn(  # noqa: B028
-                f"Environment variable '{name}' is defined but "
-                f"its associated value '{value}' could not be "
-                "parsed.\nThe parse failed with exception:\n"
-                f"{traceback.format_exc()}",
-                RuntimeWarning,
-            )
-            return default
-
-    if IS_WIN32:
-        cuda_path = os.environ.get("CUDA_PATH")
-        if cuda_path:  # noqa: SIM108
-            default_cuda_include_path = os.path.join(cuda_path, "include")
-        else:
-            default_cuda_include_path = "cuda_include_not_found"
+def _priority_index(label):
+    if label in SEARCH_PRIORITY:
+        return SEARCH_PRIORITY.index(label)
     else:
-        default_cuda_include_path = os.path.join(os.sep, "usr", "local", "cuda", "include")
-    CUDA_INCLUDE_PATH = _readenv("NUMBA_CUDA_INCLUDE_PATH", str, default_cuda_include_path)
-    return CUDA_INCLUDE_PATH
+        raise ValueError(f"Can't determine search priority for {label}")
 
 
-config_CUDA_INCLUDE_PATH = _get_numba_CUDA_INCLUDE_PATH()
+def _find_first_valid_lazy(options):
+    sorted_options = sorted(options, key=lambda x: _priority_index(x[0]))
+    for label, fn in sorted_options:
+        value = fn()
+        if value:
+            return label, value
+    return "<unknown>", None
+
+
+def _build_options(pairs):
+    """Sorts and returns a list of (label, value) tuples according to SEARCH_PRIORITY."""
+    priority_index = {label: i for i, label in enumerate(SEARCH_PRIORITY)}
+    return sorted(
+        pairs, key=lambda pair: priority_index.get(pair[0], float("inf"))
+    )
 
 
 def _find_valid_path(options):
@@ -68,19 +59,17 @@ def _find_valid_path(options):
 
 
 def _get_libdevice_path_decision():
-    options = [
-        ("Conda environment", get_conda_ctk()),
-        ("Conda environment (NVIDIA package)", get_nvidia_libdevice_ctk()),
-        ("CUDA_HOME", get_cuda_home("nvvm", "libdevice")),
-        ("Debian package", get_debian_pkg_libdevice()),
-        ("NVIDIA NVCC Wheel", get_libdevice_wheel()),
-    ]
-    libdevice_ctk_dir = get_system_ctk("nvvm", "libdevice")
-    if libdevice_ctk_dir and os.path.exists(libdevice_ctk_dir):
-        options.append(("System", libdevice_ctk_dir))
-
-    by, libdir = _find_valid_path(options)
-    return by, libdir
+    options = _build_options(
+        [
+            ("Conda environment", get_conda_ctk),
+            ("Conda environment (NVIDIA package)", get_nvidia_libdevice_ctk),
+            ("CUDA_HOME", lambda: get_cuda_home("nvvm", "libdevice")),
+            ("NVIDIA NVCC Wheel", get_libdevice_wheel),
+            ("System", lambda: get_system_ctk("nvvm", "libdevice")),
+            ("Debian package", get_debian_pkg_libdevice),
+        ]
+    )
+    return _find_first_valid_lazy(options)
 
 
 def _nvvm_lib_dir():
@@ -92,53 +81,129 @@ def _nvvm_lib_dir():
 
 def _get_nvvm_path_decision():
     options = [
-        ("Conda environment", get_conda_ctk()),
-        ("Conda environment (NVIDIA package)", get_nvidia_nvvm_ctk()),
-        ("CUDA_HOME", get_cuda_home(*_nvvm_lib_dir())),
-        ("NVIDIA NVCC Wheel", _get_nvvm_wheel()),
+        ("Conda environment", get_conda_ctk),
+        ("Conda environment (NVIDIA package)", get_nvidia_nvvm_ctk),
+        ("NVIDIA NVCC Wheel", _get_nvvm_wheel),
+        ("CUDA_HOME", lambda: get_cuda_home(*_nvvm_lib_dir())),
+        ("System", lambda: get_system_ctk(*_nvvm_lib_dir())),
     ]
-    # need to ensure nvvm dir actually exists
-    nvvm_ctk_dir = get_system_ctk(*_nvvm_lib_dir())
-    if nvvm_ctk_dir and os.path.exists(nvvm_ctk_dir):
-        options.append(("System", nvvm_ctk_dir))
+    return _find_first_valid_lazy(options)
 
-    by, path = _find_valid_path(options)
-    return by, path
+
+def _get_nvrtc_system_ctk():
+    sys_path = get_system_ctk("bin" if IS_WIN32 else "lib64")
+    candidates = find_lib("nvrtc", sys_path)
+    if candidates:
+        return max(candidates)
+
+
+def _get_nvrtc_path_decision():
+    options = _build_options(
+        [
+            ("CUDA_HOME", lambda: get_cuda_home("nvrtc")),
+            ("Conda environment", get_conda_ctk),
+            ("Conda environment (NVIDIA package)", get_nvidia_cudalib_ctk),
+            ("NVIDIA NVCC Wheel", _get_nvrtc_wheel),
+            ("System", _get_nvrtc_system_ctk),
+        ]
+    )
+    return _find_first_valid_lazy(options)
 
 
 def _get_nvvm_wheel():
-    site_paths = [site.getusersitepackages()] + site.getsitepackages() + ["conda", None]
-    for sp in site_paths:
-        # The SONAME is taken based on public CTK 12.x releases
-        if sys.platform.startswith("linux"):
-            dso_dir = "lib64"
-            # Hack: libnvvm from Linux wheel
-            # does not have any soname (CUDAINST-3183)
-            dso_path = "libnvvm.so"
-        elif sys.platform.startswith("win32"):
-            dso_dir = "bin"
-            dso_path = "nvvm64_40_0.dll"
-        else:
-            raise AssertionError()
+    platform_map = {
+        "linux": ("lib64", "libnvvm.so"),
+        "win32": ("bin", "nvvm64_40_0.dll"),
+    }
 
-        if sp is not None:
-            dso_dir = os.path.join(sp, "nvidia", "cuda_nvcc", "nvvm", dso_dir)
-            dso_path = os.path.join(dso_dir, dso_path)
-            if os.path.exists(dso_path):
-                return str(Path(dso_path).parent)
+    for plat, (dso_dir, dso_path) in platform_map.items():
+        if sys.platform.startswith(plat):
+            break
+    else:
+        raise NotImplementedError("Unsupported platform")
+
+    site_paths = [site.getusersitepackages()] + site.getsitepackages()
+
+    for sp in filter(None, site_paths):
+        nvvm_path = Path(sp, "nvidia", "cuda_nvcc", "nvvm", dso_dir, dso_path)
+        if nvvm_path.exists():
+            return str(nvvm_path.parent)
+
+    return None
+
+
+def get_major_cuda_version():
+    # TODO: remove once cuda-python is
+    # a hard dependency
+    from numba.cuda.cudadrv.runtime import get_version
+
+    return get_version()[0]
+
+
+def get_nvrtc_dso_path():
+    site_paths = [site.getusersitepackages()] + site.getsitepackages()
+    for sp in site_paths:
+        lib_dir = os.path.join(
+            sp,
+            "nvidia",
+            "cuda_nvrtc",
+            ("bin" if IS_WIN32 else "lib") if sp else None,
+        )
+        if lib_dir and os.path.exists(lib_dir):
+            try:
+                major = get_major_cuda_version()
+                if major == 11:
+                    cu_ver = "112" if IS_WIN32 else "11.2"
+                elif major == 12:
+                    cu_ver = "120" if IS_WIN32 else "12"
+                else:
+                    raise NotImplementedError(f"CUDA {major} is not supported")
+
+                return os.path.join(
+                    lib_dir,
+                    f"nvrtc64_{cu_ver}_0.dll"
+                    if IS_WIN32
+                    else f"libnvrtc.so.{cu_ver}",
+                )
+            except RuntimeError:
+                continue
+
+
+def _get_nvrtc_wheel():
+    dso_path = get_nvrtc_dso_path()
+    if dso_path:
+        try:
+            result = ctypes.CDLL(dso_path, mode=ctypes.RTLD_GLOBAL)
+        except OSError:
+            pass
+        else:
+            if IS_WIN32:
+                import win32api
+
+                # This absolute path will
+                # always be correct regardless of the package source
+                nvrtc_path = win32api.GetModuleFileNameW(result._handle)
+                dso_dir = os.path.dirname(nvrtc_path)
+                builtins_path = os.path.join(
+                    dso_dir,
+                    [
+                        f
+                        for f in os.listdir(dso_dir)
+                        if re.match("^nvrtc-builtins.*.dll$", f)
+                    ][0],
+                )
+                if not os.path.exists(builtins_path):
+                    raise RuntimeError(
+                        f'Path does not exist: "{builtins_path}"'
+                    )
+        return Path(dso_path)
 
 
 def _get_libdevice_paths():
     by, libdir = _get_libdevice_path_decision()
-    if by == "NVIDIA NVCC Wheel":
-        # The NVVM path is a directory, not a file
-        out = os.path.join(libdir, "libdevice.10.bc")
-    else:
-        # Search for pattern
-        pat = r"libdevice(\.\d+)*\.bc$"
-        candidates = find_file(re.compile(pat), libdir)
-        # Keep only the max (most recent version) of the bitcode files.
-        out = max(candidates, default=None)
+    if not libdir:
+        return _env_path_tuple(by, None)
+    out = os.path.join(libdir, "libdevice.10.bc")
     return _env_path_tuple(by, out)
 
 
@@ -156,26 +221,46 @@ def _cuda_home_static_cudalib_path():
         return ("lib64",)
 
 
+def _get_cudalib_wheel():
+    """Get the cudalib path from the NVCC wheel."""
+    site_paths = [site.getusersitepackages()] + site.getsitepackages()
+    libdir = "bin" if IS_WIN32 else "lib"
+    for sp in filter(None, site_paths):
+        cudalib_path = Path(sp, "nvidia", "cuda_runtime", libdir)
+        if cudalib_path.exists():
+            return str(cudalib_path)
+    return None
+
+
 def _get_cudalib_dir_path_decision():
-    options = [
-        ("Conda environment", get_conda_ctk()),
-        ("Conda environment (NVIDIA package)", get_nvidia_cudalib_ctk()),
-        ("CUDA_HOME", get_cuda_home(_cudalib_path())),
-        ("System", get_system_ctk(_cudalib_path())),
-    ]
-    by, libdir = _find_valid_path(options)
-    return by, libdir
+    options = _build_options(
+        [
+            ("Conda environment", get_conda_ctk),
+            ("Conda environment (NVIDIA package)", get_nvidia_cudalib_ctk),
+            ("NVIDIA NVCC Wheel", _get_cudalib_wheel),
+            ("CUDA_HOME", lambda: get_cuda_home(_cudalib_path())),
+            ("System", lambda: get_system_ctk(_cudalib_path())),
+        ]
+    )
+    return _find_first_valid_lazy(options)
 
 
 def _get_static_cudalib_dir_path_decision():
-    options = [
-        ("Conda environment", get_conda_ctk()),
-        ("Conda environment (NVIDIA package)", get_nvidia_static_cudalib_ctk()),
-        ("CUDA_HOME", get_cuda_home(*_cuda_home_static_cudalib_path())),
-        ("System", get_system_ctk(_cudalib_path())),
-    ]
-    by, libdir = _find_valid_path(options)
-    return by, libdir
+    options = _build_options(
+        [
+            ("Conda environment", get_conda_ctk),
+            (
+                "Conda environment (NVIDIA package)",
+                get_nvidia_static_cudalib_ctk,
+            ),
+            (
+                "CUDA_HOME",
+                lambda: get_cuda_home(*_cuda_home_static_cudalib_path()),
+            ),
+            ("System", lambda: get_system_ctk(_cudalib_path())),
+        ]
+    )
+    return _find_first_valid_lazy(options)
 
 
 def _get_cudalib_dir():
@@ -191,12 +276,12 @@ def _get_static_cudalib_dir():
 def get_system_ctk(*subdirs):
     """Return path to system-wide cudatoolkit; or, None if it doesn't exist."""
     # Linux?
-    if sys.platform.startswith("linux"):
+    if not IS_WIN32:
         # Is cuda alias to /usr/local/cuda?
         # We are intentionally not getting versioned cuda installation.
-        base = "/usr/local/cuda"
-        if os.path.exists(base):
-            return os.path.join(base, *subdirs)
+        result = os.path.join("/usr/local/cuda", *subdirs)
+        if os.path.exists(result):
+            return result
 
 
 def get_conda_ctk():
@@ -263,7 +348,7 @@ def get_nvidia_static_cudalib_ctk():
     if not nvvm_ctk:
         return
 
-    if IS_WIN32 and ("Library" not in nvvm_ctk):  # noqa: SIM108
+    if IS_WIN32 and ("Library" not in nvvm_ctk):
         # Location specific to CUDA 11.x packages on Windows
         dirs = ("Lib", "x64")
     else:
@@ -289,11 +374,34 @@ def get_cuda_home(*subdirs):
 
 def _get_nvvm_path():
     by, path = _get_nvvm_path_decision()
+
     if by == "NVIDIA NVCC Wheel":
-        # The NVVM path is a directory, not a file
-        path = os.path.join(path, "libnvvm.so")
+        platform_map = {
+            "linux": "libnvvm.so",
+            "win32": "nvvm64_40_0.dll",
+        }
+
+        for plat, dso_name in platform_map.items():
+            if sys.platform.startswith(plat):
+                break
+        else:
+            raise NotImplementedError("Unsupported platform")
+
+        path = os.path.join(path, dso_name)
     else:
         candidates = find_lib("nvvm", path)
+        path = max(candidates) if candidates else None
+    return _env_path_tuple(by, path)
+
+
+def _get_nvrtc_path():
+    by, path = _get_nvrtc_path_decision()
+    if by == "NVIDIA NVCC Wheel":
+        path = str(path)
+    elif by == "System":
+        return _env_path_tuple(by, path)
+    else:
+        candidates = find_lib("nvrtc", path)
         path = max(candidates) if candidates else None
     return _env_path_tuple(by, path)
 
@@ -316,6 +424,7 @@ def get_cuda_paths():
         # Not in cache
         d = {
             "nvvm": _get_nvvm_path(),
+            "nvrtc": _get_nvrtc_path(),
             "libdevice": _get_libdevice_paths(),
             "cudalib_dir": _get_cudalib_dir(),
             "static_cudalib_dir": _get_static_cudalib_dir(),
@@ -383,7 +492,9 @@ def get_conda_include_dir():
     if platform.system() == "Windows":
         include_dir = os.path.join(sys.prefix, "Library", "include")
     elif target_name := get_current_cuda_target_name():
-        include_dir = os.path.join(sys.prefix, "targets", target_name, "include")
+        include_dir = os.path.join(
+            sys.prefix, "targets", target_name, "include"
+        )
     else:
         # A fallback when target cannot determined
         # though usually it shouldn't.
@@ -392,7 +503,9 @@ def get_conda_include_dir():
     if (
         os.path.exists(include_dir)
         and os.path.isdir(include_dir)
-        and os.path.exists(os.path.join(include_dir, "cuda_device_runtime_api.h"))
+        and os.path.exists(
+            os.path.join(include_dir, "cuda_device_runtime_api.h")
+        )
     ):
         return include_dir
     return
@@ -402,7 +515,7 @@ def _get_include_dir():
     """Find the root include directory."""
     options = [
         ("Conda environment (NVIDIA package)", get_conda_include_dir()),
-        ("CUDA_INCLUDE_PATH Config Entry", config_CUDA_INCLUDE_PATH),
+        ("CUDA_INCLUDE_PATH Config Entry", config.CUDA_INCLUDE_PATH),
         # TODO: add others
     ]
     by, include_dir = _find_valid_path(options)
