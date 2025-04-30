@@ -19,6 +19,11 @@ reasonably well-tested through CI pipelines.
 The `load_nvidia_dynamic_library()` function implements a hierarchical search
 strategy for locating NVIDIA shared libraries:
 
+0. **Check if a library was loaded into the process already by some other means.**
+   - If yes, there is no alternative to skipping the rest of the search logic.
+     The absolute path of the already loaded library will be returned, along
+     with the handle to the library.
+
 1. **Python Package Ecosystem**
    - Scans `sys.path` to find libraries installed via NVIDIA Python wheels.
 
