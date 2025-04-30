@@ -55,7 +55,6 @@ runs:
 
         # The binary archives (redist) are guaranteed to be updated as part of the release posting.
         CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
-        CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
           if [[ "${{ inputs.host-platform }}" == "linux-64" ]]; then
             CTK_SUBDIR="linux-x86_64"
@@ -74,13 +73,15 @@ runs:
             rm -rf $_TEMP_DIR_
           }
         fi
+
         function populate_cuda_path() {
           # take the component name as a argument
           function download() {
             curl -kLSs $1 -o $2
           }
-          CTK_COMPONENT=$1
-          CTK_COMPONENT_REL_PATH="$(curl -s $CTK_JSON_URL |
+          local CTK_COMPONENT=$1
+          local CTK_VERSION=$2
+          CTK_COMPONENT_REL_PATH="$(curl -s ${CTK_BASE_URL}/redistrib_${CTK_VERSION}.json |
               python -c "import sys, json; print(json.load(sys.stdin)['${CTK_COMPONENT}']['${CTK_SUBDIR}']['relative_path'])")"
           CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
           CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
@@ -97,7 +98,13 @@ runs:
         CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//,,/,}"
         # Get headers and shared libraries in place
         for item in $(echo $CTK_CACHE_COMPONENTS | tr ',' ' '); do
-            populate_cuda_path "$item"
+            ctk_version="${{ inputs.cuda-version }}"
+            if [[ "$item" == "cuda_sanitizer_api" ]]; then
+              # Always use latest CTK for cuda_sanitizer_api
+              # FIXME: Automatically track latest CTK version
+              ctk_version="12.8.1"
+            fi
+            populate_cuda_path "$item" "$ctk_version"
         done
         ls -l $CUDA_PATH
 
