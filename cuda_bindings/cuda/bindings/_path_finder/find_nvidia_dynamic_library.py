@@ -48,17 +48,16 @@ def _find_dll_under_dir(dirpath, file_wild):
     return None
 
 
-def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
+def _find_dll_using_nvidia_bin_dirs(libname, lib_searched_for, error_messages, attachments):
     if libname == "nvvm":  # noqa: SIM108
         nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin")
     else:
         nvidia_sub_dirs = ("nvidia", "*", "bin")
-    file_wild = libname + "*.dll"
     for bin_dir in sys_path_find_sub_dirs(nvidia_sub_dirs):
-        dll_name = _find_dll_under_dir(bin_dir, file_wild)
+        dll_name = _find_dll_under_dir(bin_dir, lib_searched_for)
         if dll_name is not None:
             return dll_name
-    _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
+    _no_such_file_in_sub_dirs(nvidia_sub_dirs, lib_searched_for, error_messages, attachments)
     return None
 
 
@@ -123,13 +122,15 @@ class _find_nvidia_dynamic_library:
         self.abs_path = None
 
         if sys.platform == "win32":
-            self.abs_path = _find_dll_using_nvidia_bin_dirs(libname, self.error_messages, self.attachments)
+            self.lib_searched_for = f"{libname}*.dll"
+            self.abs_path = _find_dll_using_nvidia_bin_dirs(
+                libname, self.lib_searched_for, self.error_messages, self.attachments
+            )
             if self.abs_path is None:
                 if libname == "nvvm":
                     self.abs_path = _get_cuda_paths_info("nvvm", self.error_messages)
                 else:
                     self.abs_path = _find_dll_using_cudalib_dir(libname, self.error_messages, self.attachments)
-            self.lib_searched_for = f"{libname}*.dll"
         else:
             self.lib_searched_for = f"lib{libname}.so"
             self.abs_path = _find_so_using_nvidia_lib_dirs(
