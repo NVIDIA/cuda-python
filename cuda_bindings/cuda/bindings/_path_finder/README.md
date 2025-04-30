@@ -33,6 +33,9 @@ strategy for locating NVIDIA shared libraries:
      - `dlopen()` on Linux
      - `LoadLibraryW()` on Windows
 
+Note that the search is done on a per-library basis. There is no centralized
+mechanism that ensures all libraries are found in the same way.
+
 ## Implementation Philosophy
 
 The current implementation balances stability and evolution:
