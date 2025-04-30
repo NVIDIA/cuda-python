@@ -51,7 +51,7 @@ runs:
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         CUDA_PATH="./cuda_toolkit"
-        mkdir $CUDA_PATH
+        mkdir -p $CUDA_PATH
 
         # The binary archives (redist) are guaranteed to be updated as part of the release posting.
         CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
