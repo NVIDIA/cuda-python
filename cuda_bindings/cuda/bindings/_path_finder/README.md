@@ -20,13 +20,15 @@ The `load_nvidia_dynamic_library()` function implements a hierarchical search
 strategy for locating NVIDIA shared libraries:
 
 1. **Python Package Ecosystem**
-   - Scans `sys.path` to find libraries installed via NVIDIA Python wheels
+   - Scans `sys.path` to find libraries installed via NVIDIA Python wheels.
 
 2. **Conda Environments**
-   - Leverages Conda-specific paths through our fork of `get_cuda_paths()` from Numba
+   - Leverages Conda-specific paths through our fork of `get_cuda_paths()` from Numba.
 
 3. **System Installations**
-   - Checks traditional system locations via the same `get_cuda_paths()` implementation
+   - Checks traditional system locations via the same `get_cuda_paths()` implementation.
+     — Note that `get_cuda_paths()` references `CUDA_HOME` and `CUDA_PATH`. The existing
+     mechanism are used as-is (see Implementation Philosophy below).
 
 4. **OS Default Mechanisms**
    - Falls back to native loader:
