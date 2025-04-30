@@ -193,7 +193,7 @@ jobs:
           # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
           # We only test compute-sanitizer on python 3.12 arbitrarily; we don't need to use sanitizer on the entire matrix
           # Only local ctk installs have compute-sanitizer; there is not wheel for it
-          if [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.cuda-version }}" != "11.8.0" && "${{ inputs.local-ctk }}" == 1 ]]; then
+          if [[ "${{ inputs.python-version }}" == "9.99" && "${{ inputs.cuda-version }}" != "11.8.0" && "${{ inputs.local-ctk }}" == 1 ]]; then
             COMPUTE_SANITIZER="${CUDA_HOME}/bin/compute-sanitizer"
             COMPUTE_SANITIZER_VERSION=$(${COMPUTE_SANITIZER} --version | grep -Eo "[0-9]{4}\.[0-9]\.[0-9]" | sed -e 's/\.//g')
             SANITIZER_CMD="${COMPUTE_SANITIZER} --target-processes=all --launch-timeout=0 --tool=memcheck --error-exitcode=1"
