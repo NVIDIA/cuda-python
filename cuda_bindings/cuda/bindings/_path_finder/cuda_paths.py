@@ -45,7 +45,7 @@ import warnings
 from collections import namedtuple
 from pathlib import Path
 
-from .findlib import find_lib
+from cuda.bindings._path_finder.findlib import find_lib
 
 IS_WIN32 = sys.platform.startswith("win32")
 

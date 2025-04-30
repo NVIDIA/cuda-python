@@ -4,7 +4,7 @@
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from .supported_libs import DIRECT_DEPENDENCIES
+from cuda.bindings._path_finder.supported_libs import DIRECT_DEPENDENCIES
 
 
 @dataclass

@@ -4,8 +4,8 @@
 import functools
 import sys
 
-from .find_nvidia_dynamic_library import _find_nvidia_dynamic_library
-from .load_dl_common import LoadedDL, load_dependencies
+from cuda.bindings._path_finder.find_nvidia_dynamic_library import _find_nvidia_dynamic_library
+from cuda.bindings._path_finder.load_dl_common import LoadedDL, load_dependencies
 
 if sys.platform == "win32":
     from .load_dl_windows import check_if_already_loaded_from_elsewhere, load_with_abs_path, load_with_system_search

@@ -6,7 +6,7 @@ import ctypes.util
 import os
 from typing import Optional
 
-from .load_dl_common import LoadedDL
+from cuda.bindings._path_finder.load_dl_common import LoadedDL
 
 CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 

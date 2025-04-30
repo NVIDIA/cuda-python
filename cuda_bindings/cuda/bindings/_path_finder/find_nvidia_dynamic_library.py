@@ -6,9 +6,9 @@ import glob
 import os
 import sys
 
-from .cuda_paths import get_cuda_paths
-from .supported_libs import is_suppressed_dll_file
-from .sys_path_find_sub_dirs import sys_path_find_sub_dirs
+from cuda.bindings._path_finder.cuda_paths import get_cuda_paths
+from cuda.bindings._path_finder.supported_libs import is_suppressed_dll_file
+from cuda.bindings._path_finder.sys_path_find_sub_dirs import sys_path_find_sub_dirs
 
 
 def _no_such_file_in_sub_dirs(sub_dirs, file_wild, error_messages, attachments):

@@ -8,7 +8,7 @@ from typing import Optional
 import pywintypes
 import win32api
 
-from .load_dl_common import LoadedDL
+from cuda.bindings._path_finder.load_dl_common import LoadedDL
 
 # Mirrors WinBase.h (unfortunately not defined already elsewhere)
 WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
