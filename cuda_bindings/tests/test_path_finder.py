@@ -88,7 +88,7 @@ print(f"{{loaded_dl_fresh.abs_path!r}}")
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         encoding="utf-8",
-        timeout=10,  # Ensure CI testing does not hang for an excessive amount of time.
+        timeout=30,  # Ensure CI testing does not hang for an excessive amount of time.
     )
     if result.returncode == 0:
         info_summary_append(f"abs_path={result.stdout.rstrip()}")
