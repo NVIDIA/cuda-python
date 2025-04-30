@@ -46,12 +46,35 @@ def abs_path_for_dynamic_library(handle: int) -> str:
 
     Raises:
         OSError: If GetModuleFileNameW fails
+        RuntimeError: If the required path length is unreasonably long
     """
-    buf = ctypes.create_unicode_buffer(260)
-    n_chars = ctypes.windll.kernel32.GetModuleFileNameW(ctypes.wintypes.HMODULE(handle), buf, len(buf))
-    if n_chars == 0:
-        raise OSError("GetModuleFileNameW failed")
-    return buf.value
+    MAX_ITERATIONS = 10  # Allows for extremely long paths (up to ~266,000 chars)
+    buf_size = 260  # Start with traditional MAX_PATH
+
+    for _ in range(MAX_ITERATIONS):
+        buf = ctypes.create_unicode_buffer(buf_size)
+        n_chars = ctypes.windll.kernel32.GetModuleFileNameW(ctypes.wintypes.HMODULE(handle), buf, buf_size)
+
+        if n_chars == 0:
+            raise OSError(
+                "GetModuleFileNameW failed. Long paths may require enabling the "
+                "Windows 10+ long path registry setting. See: "
+                "https://docs.python.org/3/using/windows.html#removing-the-max-path-limitation"
+            )
+        if n_chars < buf_size - 1:
+            return buf.value
+
+        buf_size *= 2  # Double the buffer size and try again
+
+    raise RuntimeError(
+        f"Failed to retrieve the full path after {MAX_ITERATIONS} attempts "
+        f"(final buffer size: {buf_size} characters). "
+        "This may indicate:\n"
+        "  1. An extremely long path requiring Windows long path support, or\n"
+        "  2. An invalid or corrupt library handle, or\n"
+        "  3. An unexpected system error.\n"
+        "See: https://docs.python.org/3/using/windows.html#removing-the-max-path-limitation"
+    )
 
 
 def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
