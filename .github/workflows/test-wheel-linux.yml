@@ -184,6 +184,15 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
 
+      - name: Set up latest cuda_sanitizer_api
+        if: ${{ inputs.local-ctk == '1' }}
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: "12.8.1"
+          cuda-components: "cuda_sanitizer_api"
+
       - name: Set up compute-sanitizer
         run: |
           # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
