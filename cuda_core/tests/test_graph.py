@@ -7,7 +7,7 @@
 # is strictly prohibited.
 
 
-from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
+from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch, GraphBuilder
 
 # from cuda.core.experimental import Device, Stream, StreamOptions
 # from cuda.core.experimental._event import Event
@@ -15,12 +15,12 @@ from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions
 
 
 def test_graph_is_capture_alive(init_cuda):
-    graph_builder = Device().build_graph()
-    assert graph_builder.is_capture_active() is False
-    graph_builder.begin_capture()
-    assert graph_builder.is_capture_active() is True
-    graph_builder.end_capture()
-    assert graph_builder.is_capture_active() is False
+    gb = Device().create_gb()
+    assert gb.is_capture_active() is False
+    gb.begin_building()
+    assert gb.is_capture_active() is True
+    gb.end_building()
+    assert gb.is_capture_active() is False
 
 
 def test_graph_straight(init_cuda):
@@ -35,15 +35,11 @@ def test_graph_straight(init_cuda):
     empty_kernel = mod.get_kernel("empty_kernel")
 
     # Test start
-    graph_builder = Device().build_graph()
-    config = LaunchConfig(grid=1, block=1, stream=graph_builder.stream)
-
-    assert graph_builder.is_capture_active() is False
-    graph_builder.begin_capture()
-    launch(empty_kernel, {"grid": 1, "block": 1, "stream": graph_builder.stream})
-    launch(empty_kernel, {"grid": 1, "block": 1, "stream": graph_builder.stream})
-    launch(empty_kernel, {"grid": 1, "block": 1, "stream": graph_builder.stream})
-    graph_builder.end_capture()
+    gb = Device().create_gb().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    graph = gb.end_building().complete()
 
 
 def test_graph_fork_join(init_cuda):
@@ -58,19 +54,23 @@ def test_graph_fork_join(init_cuda):
     empty_kernel = mod.get_kernel("empty_kernel")
 
     # Test start
-    graph_builder = Device().build_graph()
-    assert graph_builder.is_capture_active() is False
-    graph_builder.begin_capture()
-    launch(empty_kernel, {"grid": 1, "block": 1, "stream": graph_builder.stream})
+    gb = Device().create_gb().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
 
-    left, right = graph_builder.fork(2)
-    launch(empty_kernel, {"grid": 1, "block": 1, "stream": left.stream})
-    launch(empty_kernel, {"grid": 1, "block": 1, "stream": left.stream})
-    launch(empty_kernel, {"grid": 1, "block": 1, "stream": right.stream})
-    launch(empty_kernel, {"grid": 1, "block": 1, "stream": right.stream})
-    graph_builder.join(left, right)
+    left, right = gb.split(2)
+    launch(left, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(left, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(right, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(right, LaunchConfig(grid=1, block=1), empty_kernel)
+    gb = GraphBuilder.join(left, right)
 
-    launch(empty_kernel, {"grid": 1, "block": 1, "stream": graph_builder.stream})
-    graph_builder.end_capture()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    graph = gb.end_building().complete()
+    # gb.debug_dot_print(b"vlad.dot")
 
-    graph_builder.debug_dot_print(b"vlad.dot")
+
+# TODO: Test with subgraph
+# TODO: Test with conditional
+# TODO: Test using graph builder created from device
+# TODO: Test using graph builder created from stream
+# TODO: Check that the split invalidates the original builder

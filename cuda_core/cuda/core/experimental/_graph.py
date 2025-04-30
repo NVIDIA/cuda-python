@@ -1,6 +1,6 @@
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
@@ -33,6 +33,32 @@ class DebugPrintOptions:
     BATCH_MEM_OP_NODE_PARAMS: bool = False
     EXTRA_TOPO_INFO: bool = False
     CONDITIONAL_NODE_PARAMS: bool = False
+
+
+@dataclass
+class CompleteOptions:
+    """Customizable options for :obj:`_graph.GraphBuilder.complete()`
+
+    Attributes
+    ----------
+    auto_free_on_launch : bool, optional
+        Automatically free memory allocated in a graph before relaunching. (Default to False)
+    upload : bool, optional
+        Automatically upload the graph after instantiation. (Default to False)
+    device_launch : bool, optional
+        Configure the graph to be launchable from the device. This flag can only
+        be used on platforms which support unified addressing. This flag cannot be
+        used in conjunction with auto_free_on_launch. (Default to False)
+    use_node_priority : bool, optional
+        Run the graph using the per-node priority attributes rather than the
+        priority of the stream it is launched into. (Default to False)
+
+    """
+
+    auto_free_on_launch: bool = False
+    upload: bool = False
+    device_launch: bool = False
+    use_node_priority: bool = False
 
 
 class GraphBuilder:
@@ -71,13 +97,14 @@ class GraphBuilder:
         )
 
     @staticmethod
-    def _init(stream, _is_primary=True):
+    def _init(stream, can_destroy_stream, _is_primary=True):
         self = GraphBuilder.__new__(GraphBuilder)
         # TODO: I need to know if we own this stream object.
         #       If from Device(), then we can destroy it on close
         #       If from Stream, then we can't
         self._capturing = False
         self._is_primary = _is_primary
+        self._can_destroy_stream = can_destroy_stream
         self._mnff = GraphBuilder._MembersNeededForFinalize(self, stream)
         return self
 
@@ -94,9 +121,8 @@ class GraphBuilder:
         return self._is_primary
 
     @precondition(_check_capture_stream_provided)
-    def begin_capture(self, mode="global"):
+    def begin_building(self, mode="global") -> GraphBuilder:
         # Supports "global", "local" or "relaxed"
-        # TODO; Test case for each mode and fail
         if mode == "global":
             capture_mode = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL
         elif mode == "local":
@@ -108,6 +134,7 @@ class GraphBuilder:
 
         handle_return(driver.cuStreamBeginCapture(self._mnff.stream.handle, capture_mode))
         self._capturing = True
+        return self
 
     @precondition(_check_capture_stream_provided)
     def is_capture_active(self) -> bool:
@@ -121,67 +148,114 @@ class GraphBuilder:
         elif capture_status == driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_INVALIDATED:
             raise RuntimeError(
                 "Stream is part of a capture sequence that has been invalidated, but "
-                "not terminated. The capture sequence must be terminated with self.`()."
+                "not terminated. The capture sequence must be terminated with self.end_capture()."
             )
         else:
             raise NotImplementedError(f"Unsupported capture stuse type received: {capture_status}")
 
     @precondition(_check_capture_stream_provided)
-    def end_capture(self):
+    def end_building(self) -> GraphBuilder:
         if not self._capturing:
-            raise RuntimeError("Stream is not capturing. Did you forget to call begin_capture()?")
+            raise RuntimeError("Stream is not capturing. Was self.begin_capture() called?")
         self._mnff.graph = handle_return(driver.cuStreamEndCapture(self.stream.handle))
         self._capturing = False
+        return self
+
+    def complete(self, options: Optional[CompleteOptions] = None) -> Graph:
+        flags = 0
+        if options:
+            if options.auto_free_on_launch:
+                flags |= driver.CU_GRAPH_COMPLETE_FLAG_AUTO_FREE_ON_LAUNCH
+            if options.upload:
+                flags |= driver.CU_GRAPH_COMPLETE_FLAG_UPLOAD
+            if options.device_launch:
+                flags |= driver.CU_GRAPH_COMPLETE_FLAG_DEVICE_LAUNCH
+            if options.use_node_priority:
+                flags |= driver.CU_GRAPH_COMPLETE_FLAG_USE_NODE_PRIORITY
+
+        return Graph._init(handle_return(driver.cuGraphInstantiate(self._mnff.graph, flags)))
 
     def debug_dot_print(self, path, options: Optional[DebugPrintOptions] = None):
-        # TODO: We should be able to print one while the capture is happening right? Just need to make sure driver version is new enough.
         if self._mnff.graph == None:
             raise RuntimeError("Graph needs to be built before generating a DOT debug file")
 
-        # TODO: Apply each option to the value
-        options_value = 0
+        flags = 0
+        if options:
+            if options.VERBOSE:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_VERBOSE
+            if options.RUNTIME_TYPES:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_RUNTIME_TYPES
+            if options.KERNEL_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_KERNEL_NODE_PARAMS
+            if options.MEMCPY_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_MEMCPY_NODE_PARAMS
+            if options.MEMSET_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_MEMSET_NODE_PARAMS
+            if options.HOST_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_HOST_NODE_PARAMS
+            if options.EVENT_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_EVENT_NODE_PARAMS
+            if options.EXT_SEMAS_SIGNAL_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_EXT_SEMAS_SIGNAL_NODE_PARAMS
+            if options.EXT_SEMAS_WAIT_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_EXT_SEMAS_WAIT_NODE_PARAMS
+            if options.KERNEL_NODE_ATTRIBUTES:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_KERNEL_NODE_ATTRIBUTES
+            if options.HANDLES:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_HANDLES
+            if options.MEM_ALLOC_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_MEM_ALLOC_NODE_PARAMS
+            if options.MEM_FREE_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_MEM_FREE_NODE_PARAMS
+            if options.BATCH_MEM_OP_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_BATCH_MEM_OP_NODE_PARAMS
+            if options.EXTRA_TOPO_INFO:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_EXTRA_TOPO_INFO
+            if options.CONDITIONAL_NODE_PARAMS:
+                flags |= driver.CU_GRAPH_DEBUG_DOT_PRINT_CONDITIONAL_NODE_PARAMS
 
-        handle_return(driver.cuGraphDebugDotPrint(self._mnff.graph, path, options_value))
+        handle_return(driver.cuGraphDebugDotPrint(self._mnff.graph, path, flags))
 
-    def fork(self, count) -> Tuple[GraphBuilder, ...]:
+    def split(self, count) -> Tuple[GraphBuilder, ...]:
         if count <= 1:
-            raise ValueError(f"Invalid fork count: expecting >= 2, got {count}")
+            raise ValueError(f"Invalid split count: expecting >= 2, got {count}")
 
-        # 1. Record an event on our stream
         event = self._mnff.stream.record()
-
-        # TODO: Steps 2,3,4 can be combined under a single loop
-
-        # 2. Create a streams for each of the new forks
-        # TODO: Optimization where one of the fork stream is allowed to use
-        # TODO: Should use the same stream options as initial stream??
-        fork_stream = [self._mnff.stream.device.create_stream() for i in range(count)]
-
-        # 3. Have each new stream wait on our singular event
-        for stream in fork_stream:
+        result = [self]
+        for i in range(count-1):
+            stream = self._mnff.stream.device.create_stream()
             stream.wait(event)
-
-        # 4. Discard the event
-        # TODO: Is this actually allowed when using with a graph? Surely, since it just needs to create an edge for us... right?
+            result.append(GraphBuilder._init(stream=stream, is_primary=False))
         event.close()
+        return result
 
-        # 5. Create new graph builders for each new stream fork
-        return [GraphBuilder._init(stream=stream, is_primary=False) for stream in fork_stream]
+    @staticmethod
+    def join(*graph_builders):
+        if not all(isinstance(builder, GraphBuilder) for builder in graph_builders):
+            raise TypeError("All arguments must be GraphBuilder instances")
 
-    def join(self, *graph_builders):
         if len(graph_builders) < 1:
-            raise ValueError("Must specify which graphs should join but none were given")
+            raise ValueError("Must join with at least two graph builders")
 
-        # Assert that none of the graph_builders are primary
-        for graph in graph_builders:
-            if graph.is_primary:
-                raise ValueError("The primary graph builder should not be joined. Others builders should instead be joined onto it.")
+        # Discover which builder should join
+        join_idx = 0
+        for i, builder in enumerate(graph_builders):
+            if builder.is_primary:
+                join_idx = i
+                break
 
-        for graph in graph_builders:
-            self._mnff.stream.wait(graph.stream)
-            # TODO: Do we close them now or let weakref handle it during garbage collection?
-            #       This is a perf question, is there a good default?
-            graph.close()
+        # Join builder waits on all builders
+        for i, builder in enumerate(graph_builders):
+            if i == join_idx:
+                continue
+            builder.stream.wait(builder.stream)
+            builder.close()
+
+        return graph_builders[join_idx]
+
+    def __cuda_stream__(self) -> Tuple[int, int]:
+        """Return an instance of a __cuda_stream__ protocol."""
+        return self.stream.__cuda_stream__
 
     def create_conditional_handle(self, default_value=None):
         pass
