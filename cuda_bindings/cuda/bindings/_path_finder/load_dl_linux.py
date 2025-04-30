@@ -27,7 +27,7 @@ class Dl_info(ctypes.Structure):
     ]
 
 
-def abs_path_for_dynamic_library(libname: str, handle: int) -> Optional[str]:
+def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> Optional[str]:
     """Get the absolute path of a loaded dynamic library on Linux.
 
     Args:
