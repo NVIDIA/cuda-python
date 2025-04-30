@@ -1,14 +1,15 @@
-import sys
-import re
+import ctypes
 import os
-from collections import namedtuple
 import platform
+import re
 import site
+import sys
+from collections import namedtuple
 from pathlib import Path
+
+from numba import config
 from numba.core.config import IS_WIN32
 from numba.misc.findlib import find_lib
-from numba import config
-import ctypes
 
 _env_path_tuple = namedtuple("_env_path_tuple", ["by", "info"])
 
@@ -41,9 +42,7 @@ def _find_first_valid_lazy(options):
 def _build_options(pairs):
     """Sorts and returns a list of (label, value) tuples according to SEARCH_PRIORITY."""
     priority_index = {label: i for i, label in enumerate(SEARCH_PRIORITY)}
-    return sorted(
-        pairs, key=lambda pair: priority_index.get(pair[0], float("inf"))
-    )
+    return sorted(pairs, key=lambda pair: priority_index.get(pair[0], float("inf")))
 
 
 def _find_valid_path(options):
@@ -161,9 +160,7 @@ def get_nvrtc_dso_path():
 
                 return os.path.join(
                     lib_dir,
-                    f"nvrtc64_{cu_ver}_0.dll"
-                    if IS_WIN32
-                    else f"libnvrtc.so.{cu_ver}",
+                    f"nvrtc64_{cu_ver}_0.dll" if IS_WIN32 else f"libnvrtc.so.{cu_ver}",
                 )
             except RuntimeError:
                 continue
@@ -186,16 +183,10 @@ def _get_nvrtc_wheel():
                 dso_dir = os.path.dirname(nvrtc_path)
                 builtins_path = os.path.join(
                     dso_dir,
-                    [
-                        f
-                        for f in os.listdir(dso_dir)
-                        if re.match("^nvrtc-builtins.*.dll$", f)
-                    ][0],
+                    [f for f in os.listdir(dso_dir) if re.match("^nvrtc-builtins.*.dll$", f)][0],
                 )
                 if not os.path.exists(builtins_path):
-                    raise RuntimeError(
-                        f'Path does not exist: "{builtins_path}"'
-                    )
+                    raise RuntimeError(f'Path does not exist: "{builtins_path}"')
         return Path(dso_path)
 
 
@@ -348,7 +339,7 @@ def get_nvidia_static_cudalib_ctk():
     if not nvvm_ctk:
         return
 
-    if IS_WIN32 and ("Library" not in nvvm_ctk):
+    if IS_WIN32 and ("Library" not in nvvm_ctk):  # noqa: SIM108
         # Location specific to CUDA 11.x packages on Windows
         dirs = ("Lib", "x64")
     else:
@@ -492,9 +483,7 @@ def get_conda_include_dir():
     if platform.system() == "Windows":
         include_dir = os.path.join(sys.prefix, "Library", "include")
     elif target_name := get_current_cuda_target_name():
-        include_dir = os.path.join(
-            sys.prefix, "targets", target_name, "include"
-        )
+        include_dir = os.path.join(sys.prefix, "targets", target_name, "include")
     else:
         # A fallback when target cannot determined
         # though usually it shouldn't.
@@ -503,9 +492,7 @@ def get_conda_include_dir():
     if (
         os.path.exists(include_dir)
         and os.path.isdir(include_dir)
-        and os.path.exists(
-            os.path.join(include_dir, "cuda_device_runtime_api.h")
-        )
+        and os.path.exists(os.path.join(include_dir, "cuda_device_runtime_api.h"))
     ):
         return include_dir
     return
