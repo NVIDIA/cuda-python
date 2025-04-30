@@ -91,7 +91,7 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         >>> if loaded is not None:
         ...     print(f"Library already loaded from {loaded.abs_path}")
     """
-    from .supported_libs import SUPPORTED_WINDOWS_DLLS
+    from cuda.bindings._path_finder.supported_libs import SUPPORTED_WINDOWS_DLLS
 
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         try:
@@ -113,7 +113,7 @@ def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
-    from .supported_libs import SUPPORTED_WINDOWS_DLLS
+    from cuda.bindings._path_finder.supported_libs import SUPPORTED_WINDOWS_DLLS
 
     dll_names = SUPPORTED_WINDOWS_DLLS.get(libname)
     if dll_names is None:
@@ -140,7 +140,7 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     Raises:
         RuntimeError: If the DLL cannot be loaded
     """
-    from .supported_libs import LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY
+    from cuda.bindings._path_finder.supported_libs import LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY
 
     if libname in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY:
         add_dll_directory(found_path)

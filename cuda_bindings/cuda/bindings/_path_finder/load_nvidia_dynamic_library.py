@@ -8,9 +8,17 @@ from cuda.bindings._path_finder.find_nvidia_dynamic_library import _find_nvidia_
 from cuda.bindings._path_finder.load_dl_common import LoadedDL, load_dependencies
 
 if sys.platform == "win32":
-    from .load_dl_windows import check_if_already_loaded_from_elsewhere, load_with_abs_path, load_with_system_search
+    from cuda.bindings._path_finder.load_dl_windows import (
+        check_if_already_loaded_from_elsewhere,
+        load_with_abs_path,
+        load_with_system_search,
+    )
 else:
-    from .load_dl_linux import check_if_already_loaded_from_elsewhere, load_with_abs_path, load_with_system_search
+    from cuda.bindings._path_finder.load_dl_linux import (
+        check_if_already_loaded_from_elsewhere,
+        load_with_abs_path,
+        load_with_system_search,
+    )
 
 
 def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
