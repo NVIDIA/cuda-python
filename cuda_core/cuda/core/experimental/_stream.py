@@ -343,9 +343,18 @@ class Stream:
 
         return Stream._init(obj=_stream_holder())
 
-    def build_graph(self) -> GraphBuilder:
-        return GraphBuilder._init(stream=self)
+    def create_graph_builder(self) -> GraphBuilder:
+        """Create a new :obj:`~_graph.GraphBuilder` object.
 
+        The new graph builder will be associated with this stream.
+
+        Returns
+        -------
+        :obj:`~_graph.GraphBuilder`
+            Newly created graph builder object.
+
+        """
+        return GraphBuilder._init(stream=self, can_destroy_stream=False)
 
 LEGACY_DEFAULT_STREAM = Stream._legacy_default()
 PER_THREAD_DEFAULT_STREAM = Stream._per_thread_default()

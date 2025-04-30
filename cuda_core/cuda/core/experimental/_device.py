@@ -1274,6 +1274,14 @@ class Device:
         handle_return(runtime.cudaDeviceSynchronize())
 
     @precondition(_check_context_initialized)
-    def build_graph(self) -> GraphBuilder:
+    def create_graph_bulder(self) -> GraphBuilder:
+        """Create a new :obj:`~_graph.GraphBuilder` object.
+
+        Returns
+        -------
+        :obj:`~_graph.GraphBuilder`
+            Newly created graph builder object.
+
+        """
         private_stream = self.create_stream()
-        return GraphBuilder._init(stream=private_stream)
+        return GraphBuilder._init(stream=private_stream, can_destroy_stream=True)
