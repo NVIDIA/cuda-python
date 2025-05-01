@@ -31,9 +31,16 @@ strategy for locating NVIDIA shared libraries:
    - Leverages Conda-specific paths through our fork of `get_cuda_paths()` from Numba.
 
 3. **System Installations**
-   - Checks traditional system locations via the same `get_cuda_paths()` implementation.
-     — Note that `get_cuda_paths()` references `CUDA_HOME` and `CUDA_PATH`. The existing
-     mechanism are used as-is (see Implementation Philosophy below).
+   - Checks traditional system locations through these paths:
+     - Linux: `/usr/local/cuda/lib64`
+     - Windows: `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\vX.Y\bin`
+       (where X.Y is the CTK version)
+   - **Notably does NOT search**:
+     - Versioned CUDA directories like `/usr/local/cuda-12.3`
+     - Distribution-specific packages (RPM/DEB)
+       EXCEPT Debian's `nvidia-cuda-toolkit`
+   - Relies on `CUDA_HOME`/`CUDA_PATH` environment variables if set, but falls
+     back to hardcoded paths when unset
 
 4. **OS Default Mechanisms**
    - Falls back to native loader:
