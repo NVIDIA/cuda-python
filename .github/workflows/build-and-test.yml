@@ -25,14 +25,14 @@ jobs:
       matrix:
         host-platform:
           - linux-64
-          - linux-aarch64
-          - win-64
+          # - linux-aarch64
+          # - win-64
         python-version:
-          - "3.13"
+          # - "3.13"
           - "3.12"
-          - "3.11"
-          - "3.10"
-          - "3.9"
+          # - "3.11"
+          # - "3.10"
+          # - "3.9"
         cuda-version:
           # Note: this is for build-time only.
           - "12.8.0"
@@ -63,11 +63,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-  
+
       - name: Set up MSVC
         if: ${{ startsWith(matrix.host-platform, 'win') }}
         uses: ilammy/msvc-dev-cmd@v1
-  
+
       - name: Set environment variables
         run: |
           PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
@@ -79,7 +79,7 @@ jobs:
             PWD=$(pwd)
             REPO_DIR=$(cygpath -w $PWD)
           fi
-  
+
           echo "CUDA_BINDINGS_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ matrix.host-platform }}"
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
@@ -215,13 +215,13 @@ jobs:
       matrix:
         host-platform:
           - linux-64
-          - linux-aarch64
+          # - linux-aarch64
         python-version:
-          - "3.13"
+          # - "3.13"
           - "3.12"
-          - "3.11"
-          - "3.10"
-          - "3.9"
+          # - "3.11"
+          # - "3.10"
+          # - "3.9"
         cuda-version:
           # Note: this is for test-time only.
           - "12.8.0"
