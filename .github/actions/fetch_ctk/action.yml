@@ -17,7 +17,7 @@ inputs:
     description: "A list of the CTK components to install as a comma-separated list. e.g. 'cuda_nvcc,cuda_nvrtc,cuda_cudart'"
     required: false
     type: string
-    default: "cuda_nvcc,cuda_cudart,cuda_nvrtc,cuda_profiler_api,cuda_cccl,cuda_sanitizer_api,libnvjitlink,libcublas"
+    default: "cuda_nvcc,cuda_cudart,cuda_nvrtc,cuda_profiler_api,cuda_cccl,cuda_sanitizer_api,libnvjitlink"
 
 runs:
   using: composite
@@ -102,7 +102,11 @@ runs:
             if [[ "$item" == "cuda_sanitizer_api" ]]; then
               # Always use latest CTK for cuda_sanitizer_api
               # FIXME: Automatically track latest CTK version
-              ctk_version="12.8.1"
+              CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})"
+              if [[ "$CUDA_MAJOR" == "12" ]]; then
+                # TODO: Automatically track latest CTK minor version
+                ctk_version="12.8.0"
+              fi
             fi
             populate_cuda_path "$item" "$ctk_version"
         done
