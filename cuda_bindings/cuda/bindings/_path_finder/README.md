@@ -28,9 +28,13 @@ strategy for locating NVIDIA shared libraries:
    - Scans `sys.path` to find libraries installed via NVIDIA Python wheels.
 
 2. **Conda Environments**
-   - Leverages Conda-specific paths through our fork of `get_cuda_paths()` from Numba.
+   - Leverages Conda-specific paths through our fork of `get_cuda_paths()`
+     from numba-cuda.
 
-3. **System Installations**
+3. **Environment variables**
+   - Relies on `CUDA_HOME`/`CUDA_PATH` environment variables if set.
+
+4. **System Installations**
    - Checks traditional system locations through these paths:
      - Linux: `/usr/local/cuda/lib64`
      - Windows: `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\vX.Y\bin`
@@ -39,10 +43,8 @@ strategy for locating NVIDIA shared libraries:
      - Versioned CUDA directories like `/usr/local/cuda-12.3`
      - Distribution-specific packages (RPM/DEB)
        EXCEPT Debian's `nvidia-cuda-toolkit`
-   - Relies on `CUDA_HOME`/`CUDA_PATH` environment variables if set, but falls
-     back to hardcoded paths when unset
 
-4. **OS Default Mechanisms**
+5. **OS Default Mechanisms**
    - Falls back to native loader:
      - `dlopen()` on Linux
      - `LoadLibraryW()` on Windows
@@ -54,8 +56,8 @@ mechanism that ensures all libraries are found in the same way.
 
 The current implementation balances stability and evolution:
 
-- **Baseline Foundation:** Uses a fork of Numba's `cuda_paths.py` that has been
-  battle-tested in production environments
+- **Baseline Foundation:** Uses a fork of numba-cuda's `cuda_paths.py` that has been
+  battle-tested in production environments.
 
 - **Validation Infrastructure:** Comprehensive CI testing matrix being developed to cover:
   - Various Linux/Windows environments
