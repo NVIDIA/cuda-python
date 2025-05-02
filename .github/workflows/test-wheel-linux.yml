@@ -91,7 +91,7 @@ jobs:
           # Only local ctk installs have compute-sanitizer; there is not wheel for it
           if [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.cuda-version }}" != "11.8.0" && "${{ inputs.local-ctk }}" == 1 ]]; then
             SETUP_SANITIZER=1
-            echo "LATEST_CUDA_VERSION=$(bash .github/actions/fetch_ctk/guess_latest.sh)" >> $GITHUB_ENV
+            echo "LATEST_CUDA_VERSION=$(bash .github/workflows/guess_latest.sh)" >> $GITHUB_ENV
           else
             SETUP_SANITIZER=0
           fi
