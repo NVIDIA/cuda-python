@@ -107,7 +107,7 @@ runs:
         tar -czvf ${CTK_CACHE_FILENAME} ${CACHE_TMP_DIR}
 
         CUDA_PATH="./cuda_toolkit"
-        mkdir -p $CUDA_PATH
+        mkdir $CUDA_PATH
         mv $CACHE_TMP_DIR/* $CUDA_PATH
         rmdir $CACHE_TMP_DIR
 
@@ -125,8 +125,9 @@ runs:
       run: |
         ls -l
         CACHE_TMP_DIR="./cache_tmp_dir"
-        CUDA_PATH="./cuda_toolkit"
         tar -xzvf $CTK_CACHE_FILENAME
+        CUDA_PATH="./cuda_toolkit"
+        mkdir $CUDA_PATH
         mv $CACHE_TMP_DIR/* $CUDA_PATH
         rmdir $CACHE_TMP_DIR
         ls -l $CUDA_PATH
