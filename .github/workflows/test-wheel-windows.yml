@@ -37,9 +37,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Update driver
-        run: |
-          .github/workflows/install_gpu_driver.ps1
+#      - name: Update driver
+#        run: |
+#          .github/workflows/install_gpu_driver.ps1
 
       - name: Ensure GPU is working
         run: nvidia-smi
@@ -106,6 +106,21 @@ jobs:
               $env:Path += ";$p"
           }
           gh --version
+
+      - name: Install 7z
+        # the GPU runner image does not have Git Bash pre-installed...
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          7Z_URL: https://www.7-zip.org/a/7z2409-x64.msi
+        run: |
+          Invoke-WebRequest -Uri "$env:7Z_URL" -OutFile "7z_installer.msi"
+          Start-Process msiexec.exe -Wait -Verbose -ArgumentList '/i "7z_installer.msi" /qn'
+          $GH_POSSIBLE_PATHS = "C:\\Program Files\\7-Zip", "C:\\Program Files (x86)\\7-Zip"
+          foreach ($p in $GH_POSSIBLE_PATHS) {
+              echo "$p" >> $env:GITHUB_PATH
+              $env:Path += ";$p"
+          }
+          7z --version
 
       - name: Install Git for Windows
         # the GPU runner image does not have Git Bash pre-installed...
