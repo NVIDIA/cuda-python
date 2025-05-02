@@ -119,7 +119,7 @@ jobs:
           echo "C:\Program Files\7-Zip" >> $env:GITHUB_PATH
           $env:Path += ";C:\Program Files\7-Zip"
           echo $env:Path
-          7z --version
+          7z
 
       - name: Install Git for Windows
         # the GPU runner image does not have Git Bash pre-installed...
