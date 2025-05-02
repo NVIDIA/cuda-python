@@ -18,7 +18,6 @@ description = "cuda.core: (experimental) pythonic CUDA module"
 authors = [
     { name = "NVIDIA Corporation" }
 ]
-license = "Apache-2.0"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
