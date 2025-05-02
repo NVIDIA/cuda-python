@@ -124,8 +124,11 @@ runs:
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         ls -l
+        CACHE_TMP_DIR="./cache_tmp_dir"
         CUDA_PATH="./cuda_toolkit"
         tar -xzvf $CTK_CACHE_FILENAME
+        mv $CACHE_TMP_DIR/* $CUDA_PATH
+        rmdir $CACHE_TMP_DIR
         ls -l $CUDA_PATH
         if [ ! -d "$CUDA_PATH/include" ]; then
           exit 1
