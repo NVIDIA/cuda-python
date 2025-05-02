@@ -112,7 +112,7 @@ runs:
         # We could have just done "rsync -av $CACHE_TMP_DIR/ $CUDA_PATH"; however,
         # not all runners have rsync pre-installed (or even installable, such as
         # Git Bash). We do it in the dumb way.
-        cp -r $CACHE_TMP_DIR/*/* $CUDA_PATH
+        cp -r $CACHE_TMP_DIR/* $CUDA_PATH
         rm -rf $CACHE_TMP_DIR
         ls -l $CUDA_PATH
 
@@ -134,7 +134,7 @@ runs:
         mkdir -p $CUDA_PATH
         tar -xzvf $CTK_CACHE_FILENAME
         # Can't use rsync here, see above
-        cp -r $CACHE_TMP_DIR/*/* $CUDA_PATH
+        cp -r $CACHE_TMP_DIR/* $CUDA_PATH
         rm -rf $CACHE_TMP_DIR $CTK_CACHE_FILENAME
         ls -l $CUDA_PATH
         if [ ! -d "$CUDA_PATH/include" ]; then
