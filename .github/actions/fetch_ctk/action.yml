@@ -51,7 +51,7 @@ runs:
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         CACHE_TMP_DIR="./cache_tmp_dir"
-        rm -f $CACHE_TMP_DIR
+        rm -rf $CACHE_TMP_DIR
         mkdir $CACHE_TMP_DIR
 
         # The binary archives (redist) are guaranteed to be updated as part of the release posting.
@@ -120,6 +120,7 @@ runs:
         CUDA_PATH="./cuda_toolkit"
         mkdir -p $CUDA_PATH
         mv $CACHE_TMP_DIR/* $CUDA_PATH
+        rmdir $CACHE_TMP_DIR
 
     - name: Upload CTK cache
       if: ${{ always() &&
