@@ -108,7 +108,8 @@ runs:
 
         CUDA_PATH="./cuda_toolkit"
         mkdir -p $CUDA_PATH
-        rsync -a $CACHE_TMP_DIR $CUDA_PATH
+        rsync -av $CACHE_TMP_DIR $CUDA_PATH
+        ls -l $CUDA_PATH
         rm -rf $CACHE_TMP_DIR
 
     - name: Upload CTK cache
