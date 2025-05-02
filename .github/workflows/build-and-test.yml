@@ -35,7 +35,7 @@ jobs:
           - "3.9"
         cuda-version:
           # Note: this is for build-time only.
-          - "12.8.0"
+          - "12.9.0"
     name: Build (${{ matrix.host-platform }}, Python ${{ matrix.python-version }}, CUDA ${{ matrix.cuda-version }})
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
