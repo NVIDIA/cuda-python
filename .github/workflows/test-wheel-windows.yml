@@ -107,6 +107,20 @@ jobs:
           }
           gh --version
 
+      - name: Install Git for Windows
+        # the GPU runner image does not have Git Bash pre-installed...
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          GFW_EXE_URL: https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe
+        run: |
+          Invoke-WebRequest -Uri "$env:GFW_EXE_URL" -OutFile "PortableGit.7z.exe"
+          Start-Process 7z -Wait -Verbose -ArgumentList "x PortableGit.7z.exe -oPortableGit"
+          ls -l PortableGit
+          mv PortableGit\git-bash.exe PortableGit\bash.exe
+          echo "$(pwd).path\\PortableGit" >> $env:GITHUB_PATH
+          $env:Path += ";$(pwd).path\\PortableGit"
+          bash --version
+
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}
         env:
