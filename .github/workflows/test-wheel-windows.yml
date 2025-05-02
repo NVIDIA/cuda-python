@@ -135,66 +135,74 @@ jobs:
           $env:Path += ";$((Get-Location).Path)\\PortableGit"
           bash --version
 
-      - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          $OLD_BRANCH = Get-Content .github/BACKPORT_BRANCH
-          $OLD_BASENAME = "cuda-bindings-python${env:PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          $runData = gh run list -b $OLD_BRANCH -L 1 -w "CI: Build and test" -s completed -R NVIDIA/cuda-python --json databaseId | ConvertFrom-Json
-          if (-not $runData -or $runData.Length -eq 0 -or -not $runData[0].databaseId -or [string]::IsNullOrEmpty($runData[0].databaseId)) {
-              Write-Host "LATEST_PRIOR_RUN_ID not found!"
-              exit 1
-          }
-          $LATEST_PRIOR_RUN_ID = $runData[0].databaseId
-
-          gh run download $LATEST_PRIOR_RUN_ID -p $OLD_BASENAME -R NVIDIA/cuda-python
-          Get-ChildItem -Path $OLD_BASENAME
-          New-Item -Path "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}" -ItemType Directory -Force
-          Move-Item -Path "$OLD_BASENAME/*.whl" -Destination "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
-          Remove-Item -Path $OLD_BASENAME -Force
-      
-          gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
-          Get-ChildItem -Path cuda-python-wheel
-          Move-Item -Path "cuda-python-wheel/*.whl" -Destination .
-          Remove-Item -Path cuda-python-wheel -Force
-
-      - name: Display structure of downloaded cuda-python artifacts
-        run: |
-          Get-Location
-          Get-ChildItem -Recurse -Force | Select-Object Mode, LastWriteTime, Length, FullName
-
-      - name: Display structure of downloaded cuda.bindings artifacts
-        run: |
-          Get-Location
-          Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
-
-      - name: Download cuda.core build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-      - name: Display structure of downloaded cuda.core build artifacts
-        run: |
-          Get-Location
-          Get-ChildItem -Recurse -Force $env:CUDA_CORE_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
+#      - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
+#        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}
+#        env:
+#          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          $OLD_BRANCH = Get-Content .github/BACKPORT_BRANCH
+#          $OLD_BASENAME = "cuda-bindings-python${env:PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
+#          $runData = gh run list -b $OLD_BRANCH -L 1 -w "CI: Build and test" -s completed -R NVIDIA/cuda-python --json databaseId | ConvertFrom-Json
+#          if (-not $runData -or $runData.Length -eq 0 -or -not $runData[0].databaseId -or [string]::IsNullOrEmpty($runData[0].databaseId)) {
+#              Write-Host "LATEST_PRIOR_RUN_ID not found!"
+#              exit 1
+#          }
+#          $LATEST_PRIOR_RUN_ID = $runData[0].databaseId
+#
+#          gh run download $LATEST_PRIOR_RUN_ID -p $OLD_BASENAME -R NVIDIA/cuda-python
+#          Get-ChildItem -Path $OLD_BASENAME
+#          New-Item -Path "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}" -ItemType Directory -Force
+#          Move-Item -Path "$OLD_BASENAME/*.whl" -Destination "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+#          Remove-Item -Path $OLD_BASENAME -Force
+#      
+#          gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
+#          Get-ChildItem -Path cuda-python-wheel
+#          Move-Item -Path "cuda-python-wheel/*.whl" -Destination .
+#          Remove-Item -Path cuda-python-wheel -Force
+#
+#      - name: Display structure of downloaded cuda-python artifacts
+#        run: |
+#          Get-Location
+#          Get-ChildItem -Recurse -Force | Select-Object Mode, LastWriteTime, Length, FullName
+#
+#      - name: Display structure of downloaded cuda.bindings artifacts
+#        run: |
+#          Get-Location
+#          Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
+#
+#      - name: Download cuda.core build artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+#          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+#
+#      - name: Display structure of downloaded cuda.core build artifacts
+#        run: |
+#          Get-Location
+#          Get-ChildItem -Recurse -Force $env:CUDA_CORE_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
 
+#      - name: Set up mini CTK
+#        if: ${{ inputs.local-ctk == '1' }}
+#        # Note: The GH-hosted Windows GPU runner does not have Git for Windows pre-installed,
+#        # so we cannot use our own fetch_ctk action unfortunately...
+#        uses: Jimver/cuda-toolkit@v0.2.21
+#        with:
+#          cuda: ${{ inputs.cuda-version }}
+#          method: 'network'
+#          sub-packages: ${{ env.MINI_CTK_DEPS }}
+
       - name: Set up mini CTK
         if: ${{ inputs.local-ctk == '1' }}
-        # Note: The GH-hosted Windows GPU runner does not have Git for Windows pre-installed,
-        # so we cannot use our own fetch_ctk action unfortunately...
-        uses: Jimver/cuda-toolkit@v0.2.21
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
         with:
-          cuda: ${{ inputs.cuda-version }}
-          method: 'network'
-          sub-packages: ${{ env.MINI_CTK_DEPS }}
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ inputs.cuda-version }}
 
       - name: Update PATH
         if: ${{ inputs.local-ctk == '1' }}
