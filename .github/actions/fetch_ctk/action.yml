@@ -125,9 +125,12 @@ runs:
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         ls -l
+        CACHE_TMP_DIR="./cache_tmp_dir"
         CUDA_PATH="./cuda_toolkit"
         mkdir -p $CUDA_PATH
-        tar -xzvf $CTK_CACHE_FILENAME -C $CUDA_PATH --strip-components=1
+        tar -xzvf $CTK_CACHE_FILENAME
+        rsync -av $CACHE_TMP_DIR/ $CUDA_PATH
+        rm -rf $CACHE_TMP_DIR $CTK_CACHE_FILENAME
         ls -l $CUDA_PATH
         if [ ! -d "$CUDA_PATH/include" ]; then
           exit 1
