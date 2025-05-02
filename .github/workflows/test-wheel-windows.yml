@@ -114,7 +114,7 @@ jobs:
           7Z_URL: https://www.7-zip.org/a/7z2409-x64.msi
         run: |
           Invoke-WebRequest -Uri "$env:7Z_URL" -OutFile "7z_installer.msi"
-          Start-Process msiexec.exe -Wait -Verbose -ArgumentList '/i "7z_installer.msi" /q INSTALLDIR=$((Get-Location).Path)\7-Zip'
+          Start-Process msiexec.exe -Wait -Verbose -ArgumentList '/i "7z_installer.msi" /q INSTALLDIR="$((Get-Location).Path)\7-Zip"'
           ls -l 7-Zip
           echo "$((Get-Location).Path)\7-Zip" >> $env:GITHUB_PATH
           $env:Path += ";$((Get-Location).Path)\7-Zip"
