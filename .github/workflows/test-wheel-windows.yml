@@ -115,9 +115,9 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "$env:7Z_URL" -OutFile "7z_installer.msi"
           Start-Process msiexec.exe -Wait -Verbose -ArgumentList '/i "7z_installer.msi" /q INSTALLDIR="C:\Program Files\7-Zip" /qn'
-          ls -l "C:\\Program Files\7-Zip"
-          echo "C:\\Program Files\7-Zip" >> $env:GITHUB_PATH
-          $env:Path += ";C:\\Program Files\7-Zip"
+          ls -l "C:\Program Files\7-Zip"
+          echo "C:\Program Files\7-Zip" >> $env:GITHUB_PATH
+          $env:Path += ";C:\Program Files\7-Zip"
           7z --version
 
       - name: Install Git for Windows
