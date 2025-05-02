@@ -52,6 +52,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install dependencies
+        uses: ./.github/actions/install_unix_deps
+        continue-on-error: false
+        with:
+          # gcc for Cython tests, jq/wget for artifact fetching
+          dependencies: "build-essential jq wget"
+          dependent_exes: "gcc jq wget"
+
       - name: Set environment variables
         run: |
           PYTHON_VERSION_FORMATTED=$(echo '${{ inputs.python-version }}' | tr -d '.')
@@ -101,14 +109,6 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
           echo "SKIP_CUDA_CORE_CYTHON_TEST=${SKIP_CUDA_CORE_CYTHON_TEST}" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        uses: ./.github/actions/install_unix_deps
-        continue-on-error: false
-        with:
-          # gcc for Cython tests, jq/wget for artifact fetching
-          dependencies: "build-essential jq wget"
-          dependent_exes: "gcc jq wget"
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
