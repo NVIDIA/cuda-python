@@ -34,8 +34,8 @@ runs:
       uses: ./.github/actions/install_unix_deps
       continue-on-error: false
       with:
-        dependencies: "zstd curl xz-utils rsync"
-        dependent_exes: "zstd curl xz rsync"
+        dependencies: "zstd curl xz-utils"
+        dependent_exes: "zstd curl xz"
 
     - name: Download CTK cache
       id: ctk-get-cache
@@ -106,11 +106,15 @@ runs:
         # Note: try to escape | and > ...
         tar -czvf ${CTK_CACHE_FILENAME} ${CACHE_TMP_DIR}
 
+        # "Move" files from temp dir to CUDA_PATH
         CUDA_PATH="./cuda_toolkit"
         mkdir -p $CUDA_PATH
-        rsync -av $CACHE_TMP_DIR/ $CUDA_PATH
-        ls -l $CUDA_PATH
+        # We could have just done "rsync -av $CACHE_TMP_DIR/ $CUDA_PATH"; however,
+        # not all runners have rsync pre-installed (or even installable, such as
+        # Git Bash). We do it in the dumb way.
+        cp -r $CACHE_TMP_DIR/*/* $CUDA_PATH
         rm -rf $CACHE_TMP_DIR
+        ls -l $CUDA_PATH
 
     - name: Upload CTK cache
       if: ${{ always() &&
@@ -129,7 +133,8 @@ runs:
         CUDA_PATH="./cuda_toolkit"
         mkdir -p $CUDA_PATH
         tar -xzvf $CTK_CACHE_FILENAME
-        rsync -av $CACHE_TMP_DIR/ $CUDA_PATH
+        # Can't use rsync here, see above
+        cp -r $CACHE_TMP_DIR/*/* $CUDA_PATH
         rm -rf $CACHE_TMP_DIR $CTK_CACHE_FILENAME
         ls -l $CUDA_PATH
         if [ ! -d "$CUDA_PATH/include" ]; then
