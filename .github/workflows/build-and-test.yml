@@ -95,38 +95,38 @@ jobs:
         run: |
           env
 
-      - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@v2.22.0
-        env:
-          CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_ARCHS_LINUX: "native"
-          CIBW_BUILD_VERBOSITY: 1
-        with:
-          package-dir: ./cuda_core/
-          output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-      - name: List the cuda.core artifacts directory
-        run: |
-          if [[ "${{ matrix.host-platform }}" == win* ]]; then
-            export CHOWN=chown
-          else
-            export CHOWN="sudo chown"
-          fi
-          $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-      - name: Check cuda.core wheel
-        run: |
-          pip install twine
-          twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
-
-      - name: Upload cuda.core build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
-          if-no-files-found: error
-
+#      - name: Build cuda.core wheel
+#        uses: pypa/cibuildwheel@v2.22.0
+#        env:
+#          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+#          CIBW_ARCHS_LINUX: "native"
+#          CIBW_BUILD_VERBOSITY: 1
+#        with:
+#          package-dir: ./cuda_core/
+#          output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+#
+#      - name: List the cuda.core artifacts directory
+#        run: |
+#          if [[ "${{ matrix.host-platform }}" == win* ]]; then
+#            export CHOWN=chown
+#          else
+#            export CHOWN="sudo chown"
+#          fi
+#          $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+#          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+#
+#      - name: Check cuda.core wheel
+#        run: |
+#          pip install twine
+#          twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+#
+#      - name: Upload cuda.core build artifacts
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+#          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+#          if-no-files-found: error
+#
 #      - name: Set up mini CTK
 #        uses: ./.github/actions/fetch_ctk
 #        continue-on-error: false
