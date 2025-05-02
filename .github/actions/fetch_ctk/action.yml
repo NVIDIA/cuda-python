@@ -108,8 +108,8 @@ runs:
 
         CUDA_PATH="./cuda_toolkit"
         mkdir -p $CUDA_PATH
-        mv $CACHE_TMP_DIR/* $CUDA_PATH
-        rmdir $CACHE_TMP_DIR
+        rsync -a $CACHE_TMP_DIR $CUDA_PATH
+        rm -rf $CACHE_TMP_DIR
 
     - name: Upload CTK cache
       if: ${{ always() &&
