@@ -1,9 +1,9 @@
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-``cuda-bindings`` 12.X.Y Release notes
+``cuda-bindings`` 12.9.0 Release notes
 ======================================
 
-Released on **TBD**.
+Released on May 5, 2025
 
 
 Highlights
