@@ -19,11 +19,14 @@ inputs:
     type: string
     default: "cuda_nvcc,cuda_cudart,cuda_nvrtc,cuda_profiler_api,cuda_cccl,cuda_sanitizer_api,libnvjitlink"
 
+defaults:
+  run:
+    shell: bash ${{ (inputs.host-platform != 'win-64' && '--noprofile --norc') || '' }} -xeuo pipefail {0}
+
 runs:
   using: composite
   steps:
     - name: Set up CTK cache variable
-      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         HASH=$(echo -n "${{ inputs.cuda-components }}" | sha256sum | awk '{print $1}')
         echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH" >> $GITHUB_ENV
@@ -48,7 +51,6 @@ runs:
 
     - name: Get CUDA components
       if: ${{ steps.ctk-get-cache.outputs.cache-hit != 'true' }}
-      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         CUDA_PATH="./cuda_toolkit"
         mkdir $CUDA_PATH
@@ -126,7 +128,6 @@ runs:
 
     - name: Restore CTK cache
       if: ${{ steps.ctk-get-cache.outputs.cache-hit == 'true' }}
-      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         ls -l
         CUDA_PATH="./cuda_toolkit"
@@ -137,7 +138,6 @@ runs:
         fi
 
     - name: Set output environment variables
-      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         CUDA_PATH=$(realpath "./cuda_toolkit")
         echo "CUDA_PATH=${CUDA_PATH}" >> $GITHUB_ENV
