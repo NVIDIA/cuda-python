@@ -3,7 +3,7 @@
 ``cuda-bindings`` 11.8.7 Release notes
 ======================================
 
-Released on **TBD**.
+Released on May 5, 2025.
 
 
 Highlights

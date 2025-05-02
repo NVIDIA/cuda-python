@@ -17,6 +17,7 @@ Highlights
 * Return code construction is made faster
 * Failed API calls return None for non error code tuple elements
 
+
 Bug fixes
 ---------
 
