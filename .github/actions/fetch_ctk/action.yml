@@ -125,6 +125,7 @@ runs:
       run: |
         ls -l
         CUDA_PATH="./cuda_toolkit"
+        mkdir -p $CUDA_PATH
         tar -xzvf $CTK_CACHE_FILENAME -C $CUDA_PATH --strip-components=1
         ls -l $CUDA_PATH
         if [ ! -d "$CUDA_PATH/include" ]; then
