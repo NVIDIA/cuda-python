@@ -230,12 +230,13 @@ def main():
     # This sample requires being run on a device that supports Cooperative Kernel
     # Launch
     if not deviceProp.cooperativeLaunch:
-        print(f"\nSelected GPU {devID:%d} does not support Cooperative Kernel Launch, Waiving the run")
+        print("\nSelected GPU (%d) does not support Cooperative Kernel Launch, Waiving the run" % (devID))
         return
 
     # Statistics about the GPU device
     print(
-        f"> GPU device has {deviceProp.multiProcessorCount:%d} Multi-Processors, SM {deviceProp.major:%d}.{deviceProp.minor:%d} compute capabilities\n"
+        "> GPU device has %d Multi-Processors, SM %d.%d compute capabilities\n"
+        % (deviceProp.multiProcessorCount, deviceProp.major, deviceProp.minor)
     )
 
     # Get kernel

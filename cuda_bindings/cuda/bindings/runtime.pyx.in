@@ -6,7 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 #
-# This code was automatically generated with version 12.8.0. Do not modify it directly.
+# This code was automatically generated with version 12.9.0. Do not modify it directly.
 from typing import List, Tuple, Any, Optional
 from enum import IntEnum
 import cython
@@ -1457,6 +1457,8 @@ class cudaAsyncNotificationType(IntEnum):
     Types of async notification that can occur
     """
     {{if 'cudaAsyncNotificationTypeOverBudget' in found_values}}
+
+    #: Sent when the process has exceeded its device memory budget
     cudaAsyncNotificationTypeOverBudget = cyruntime.cudaAsyncNotificationType_enum.cudaAsyncNotificationTypeOverBudget{{endif}}
 
 _dict_cudaAsyncNotificationType = dict(((int(v), v) for k, v in cudaAsyncNotificationType.__members__.items()))
@@ -3615,6 +3617,10 @@ class cudaDeviceAttr(IntEnum):
 
     #: Device supports CIG with D3D12.
     cudaDevAttrD3D12CigSupported = cyruntime.cudaDeviceAttr.cudaDevAttrD3D12CigSupported{{endif}}
+    {{if 'cudaDevAttrVulkanCigSupported' in found_values}}
+
+    #: Device supports CIG with Vulkan.
+    cudaDevAttrVulkanCigSupported = cyruntime.cudaDeviceAttr.cudaDevAttrVulkanCigSupported{{endif}}
     {{if 'cudaDevAttrGpuPciDeviceId' in found_values}}
 
     #: The combined 16-bit PCI device ID and 16-bit PCI vendor ID.
@@ -3624,6 +3630,14 @@ class cudaDeviceAttr(IntEnum):
     #: The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor
     #: ID.
     cudaDevAttrGpuPciSubsystemId = cyruntime.cudaDeviceAttr.cudaDevAttrGpuPciSubsystemId{{endif}}
+    {{if 'cudaDevAttrReserved141' in found_values}}
+    cudaDevAttrReserved141 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved141{{endif}}
+    {{if 'cudaDevAttrHostNumaMemoryPoolsSupported' in found_values}}
+
+    #: Device supports HOST_NUMA location with the
+    #: :py:obj:`~.cudaMallocAsync` and :py:obj:`~.cudaMemPool` family of
+    #: APIs
+    cudaDevAttrHostNumaMemoryPoolsSupported = cyruntime.cudaDeviceAttr.cudaDevAttrHostNumaMemoryPoolsSupported{{endif}}
     {{if 'cudaDevAttrHostNumaMultinodeIpcSupported' in found_values}}
 
     #: Device supports HostNuma location IPC between nodes in a multi-node
@@ -4375,6 +4389,33 @@ class cudaGraphNodeType(IntEnum):
     cudaGraphNodeTypeCount = cyruntime.cudaGraphNodeType.cudaGraphNodeTypeCount{{endif}}
 
 _dict_cudaGraphNodeType = dict(((int(v), v) for k, v in cudaGraphNodeType.__members__.items()))
+{{endif}}
+{{if 'cudaGraphChildGraphNodeOwnership' in found_types}}
+
+class cudaGraphChildGraphNodeOwnership(IntEnum):
+    """
+    Child graph node ownership
+    """
+    {{if 'cudaGraphChildGraphOwnershipClone' in found_values}}
+
+    #: Default behavior for a child graph node. Child graph is cloned into
+    #: the parent and memory allocation/free nodes can't be present in the
+    #: child graph.
+    cudaGraphChildGraphOwnershipClone = cyruntime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipClone{{endif}}
+    {{if 'cudaGraphChildGraphOwnershipMove' in found_values}}
+
+    #: The child graph is moved to the parent. The handle to the child
+    #: graph is owned by the parent and will be destroyed when the parent
+    #: is destroyed.
+    #:
+    #: The following restrictions apply to child graphs after they have
+    #: been moved: Cannot be independently instantiated or destroyed;
+    #: Cannot be added as a child graph of a separate parent graph; Cannot
+    #: be used as an argument to cudaGraphExecUpdate; Cannot have
+    #: additional memory allocation or free nodes added.
+    cudaGraphChildGraphOwnershipMove = cyruntime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipMove{{endif}}
+
+_dict_cudaGraphChildGraphNodeOwnership = dict(((int(v), v) for k, v in cudaGraphChildGraphNodeOwnership.__members__.items()))
 {{endif}}
 {{if 'cudaGraphExecUpdateResult' in found_types}}
 
@@ -14623,7 +14664,14 @@ cdef class cudaChildGraphNodeParams:
     {{if 'cudaChildGraphNodeParams.graph' in found_struct}}
     graph : cudaGraph_t
         The child graph to clone into the node for node creation, or a
-        handle to the graph owned by the node for node query
+        handle to the graph owned by the node for node query. The graph
+        must not contain conditional nodes. Graphs containing memory
+        allocation or memory free nodes must set the ownership to be moved
+        to the parent.
+    {{endif}}
+    {{if 'cudaChildGraphNodeParams.ownership' in found_struct}}
+    ownership : cudaGraphChildGraphNodeOwnership
+        The ownership relationship of the child graph node.
     {{endif}}
 
     Methods
@@ -14654,6 +14702,12 @@ cdef class cudaChildGraphNodeParams:
             except ValueError:
                 str_list += ['graph : <ValueError>']
             {{endif}}
+            {{if 'cudaChildGraphNodeParams.ownership' in found_struct}}
+            try:
+                str_list += ['ownership : ' + str(self.ownership)]
+            except ValueError:
+                str_list += ['ownership : <ValueError>']
+            {{endif}}
             return '\n'.join(str_list)
         else:
             return ''
@@ -14673,6 +14727,16 @@ cdef class cudaChildGraphNodeParams:
             pgraph = int(cudaGraph_t(graph))
             cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
         self._graph._pvt_ptr[0] = cygraph
+    {{endif}}
+    {{if 'cudaChildGraphNodeParams.ownership' in found_struct}}
+    @property
+    def ownership(self):
+        if self._pvt_ptr[0].ownership not in _dict_cudaGraphChildGraphNodeOwnership:
+            return None
+        return _dict_cudaGraphChildGraphNodeOwnership[self._pvt_ptr[0].ownership]
+    @ownership.setter
+    def ownership(self, ownership not None : cudaGraphChildGraphNodeOwnership):
+        self._pvt_ptr[0].ownership = ownership.value
     {{endif}}
 {{endif}}
 {{if 'cudaEventRecordNodeParams' in found_struct}}
@@ -16851,11 +16915,12 @@ cdef class cudaAsyncNotificationInfo:
     ----------
     {{if 'cudaAsyncNotificationInfo.type' in found_struct}}
     type : cudaAsyncNotificationType
-
+        The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
     info : anon_union10
-
+        Information about the notification. `typename` must be checked in
+        order to interpret this field.
     {{endif}}
 
     Methods
@@ -27404,61 +27469,60 @@ def cudaMemRangeGetAttribute(size_t dataSize, attribute not None : cudaMemRangeA
       indication as to whether the prefetch operation to that location has
       completed or even begun.
 
-      - :py:obj:`~.cudaMemRangeAttributePreferredLocationType`: If this
-        attribute is specified, `data` will be interpreted as a
-        :py:obj:`~.cudaMemLocationType`, and `dataSize` must be
-        sizeof(cudaMemLocationType). The :py:obj:`~.cudaMemLocationType`
-        returned will be :py:obj:`~.cudaMemLocationTypeDevice` if all pages
-        in the memory range have the same GPU as their preferred location,
-        or :py:obj:`~.cudaMemLocationType` will be
-        :py:obj:`~.cudaMemLocationTypeHost` if all pages in the memory
-        range have the CPU as their preferred location, or or it will be
-        :py:obj:`~.cudaMemLocationTypeHostNuma` if all the pages in the
-        memory range have the same host NUMA node ID as their preferred
-        location or it will be :py:obj:`~.cudaMemLocationTypeInvalid` if
-        either all the pages don't have the same preferred location or some
-        of the pages don't have a preferred location at all. Note that the
-        actual location type of the pages in the memory range at the time
-        of the query may be different from the preferred location type.
+    - :py:obj:`~.cudaMemRangeAttributePreferredLocationType`: If this
+      attribute is specified, `data` will be interpreted as a
+      :py:obj:`~.cudaMemLocationType`, and `dataSize` must be
+      sizeof(cudaMemLocationType). The :py:obj:`~.cudaMemLocationType`
+      returned will be :py:obj:`~.cudaMemLocationTypeDevice` if all pages
+      in the memory range have the same GPU as their preferred location, or
+      :py:obj:`~.cudaMemLocationType` will be
+      :py:obj:`~.cudaMemLocationTypeHost` if all pages in the memory range
+      have the CPU as their preferred location, or or it will be
+      :py:obj:`~.cudaMemLocationTypeHostNuma` if all the pages in the
+      memory range have the same host NUMA node ID as their preferred
+      location or it will be :py:obj:`~.cudaMemLocationTypeInvalid` if
+      either all the pages don't have the same preferred location or some
+      of the pages don't have a preferred location at all. Note that the
+      actual location type of the pages in the memory range at the time of
+      the query may be different from the preferred location type.
 
-    - :py:obj:`~.cudaMemRangeAttributePreferredLocationId`: If this
-    attribute is specified, `data` will be interpreted as a 32-bit integer,
-    and `dataSize` must be 4. If the
-    :py:obj:`~.cudaMemRangeAttributePreferredLocationType` query for the
-    same address range returns :py:obj:`~.cudaMemLocationTypeDevice`, it
-    will be a valid device ordinal or if it returns
-    :py:obj:`~.cudaMemLocationTypeHostNuma`, it will be a valid host NUMA
-    node ID or if it returns any other location type, the id should be
-    ignored.
+      - :py:obj:`~.cudaMemRangeAttributePreferredLocationId`: If this
+        attribute is specified, `data` will be interpreted as a 32-bit
+        integer, and `dataSize` must be 4. If the
+        :py:obj:`~.cudaMemRangeAttributePreferredLocationType` query for
+        the same address range returns
+        :py:obj:`~.cudaMemLocationTypeDevice`, it will be a valid device
+        ordinal or if it returns :py:obj:`~.cudaMemLocationTypeHostNuma`,
+        it will be a valid host NUMA node ID or if it returns any other
+        location type, the id should be ignored.
 
-      - :py:obj:`~.cudaMemRangeAttributeLastPrefetchLocationType`: If this
-        attribute is specified, `data` will be interpreted as a
-        :py:obj:`~.cudaMemLocationType`, and `dataSize` must be
-        sizeof(cudaMemLocationType). The result returned will be the last
-        location type to which all pages in the memory range were
-        prefetched explicitly via :py:obj:`~.cuMemPrefetchAsync`. The
-        :py:obj:`~.cudaMemLocationType` returned will be
-        :py:obj:`~.cudaMemLocationTypeDevice` if the last prefetch location
-        was the GPU or :py:obj:`~.cudaMemLocationTypeHost` if it was the
-        CPU or :py:obj:`~.cudaMemLocationTypeHostNuma` if the last prefetch
-        location was a specific host NUMA node. If any page in the memory
-        range was never explicitly prefetched or if all pages were not
-        prefetched to the same location, :py:obj:`~.CUmemLocationType` will
-        be :py:obj:`~.cudaMemLocationTypeInvalid`. Note that this simply
-        returns the last location type that the application requested to
-        prefetch the memory range to. It gives no indication as to whether
-        the prefetch operation to that location has completed or even
-        begun.
+    - :py:obj:`~.cudaMemRangeAttributeLastPrefetchLocationType`: If this
+      attribute is specified, `data` will be interpreted as a
+      :py:obj:`~.cudaMemLocationType`, and `dataSize` must be
+      sizeof(cudaMemLocationType). The result returned will be the last
+      location type to which all pages in the memory range were prefetched
+      explicitly via :py:obj:`~.cuMemPrefetchAsync`. The
+      :py:obj:`~.cudaMemLocationType` returned will be
+      :py:obj:`~.cudaMemLocationTypeDevice` if the last prefetch location
+      was the GPU or :py:obj:`~.cudaMemLocationTypeHost` if it was the CPU
+      or :py:obj:`~.cudaMemLocationTypeHostNuma` if the last prefetch
+      location was a specific host NUMA node. If any page in the memory
+      range was never explicitly prefetched or if all pages were not
+      prefetched to the same location, :py:obj:`~.CUmemLocationType` will
+      be :py:obj:`~.cudaMemLocationTypeInvalid`. Note that this simply
+      returns the last location type that the application requested to
+      prefetch the memory range to. It gives no indication as to whether
+      the prefetch operation to that location has completed or even begun.
 
-    - :py:obj:`~.cudaMemRangeAttributeLastPrefetchLocationId`: If this
-    attribute is specified, `data` will be interpreted as a 32-bit integer,
-    and `dataSize` must be 4. If the
-    :py:obj:`~.cudaMemRangeAttributeLastPrefetchLocationType` query for the
-    same address range returns :py:obj:`~.cudaMemLocationTypeDevice`, it
-    will be a valid device ordinal or if it returns
-    :py:obj:`~.cudaMemLocationTypeHostNuma`, it will be a valid host NUMA
-    node ID or if it returns any other location type, the id should be
-    ignored.
+      - :py:obj:`~.cudaMemRangeAttributeLastPrefetchLocationId`: If this
+        attribute is specified, `data` will be interpreted as a 32-bit
+        integer, and `dataSize` must be 4. If the
+        :py:obj:`~.cudaMemRangeAttributeLastPrefetchLocationType` query for
+        the same address range returns
+        :py:obj:`~.cudaMemLocationTypeDevice`, it will be a valid device
+        ordinal or if it returns :py:obj:`~.cudaMemLocationTypeHostNuma`,
+        it will be a valid host NUMA node ID or if it returns any other
+        location type, the id should be ignored.
 
     Parameters
     ----------
@@ -30875,8 +30939,8 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[Tuple[cudaGraphNo
     may not have any duplicate entries. A handle to the new node will be
     returned in `pGraphNode`.
 
-    If `hGraph` contains allocation or free nodes, this call will return an
-    error.
+    If `childGraph` contains allocation nodes, free nodes, or conditional
+    nodes, this call will return an error.
 
     The node executes an embedded child graph. The child graph is cloned in
     this call.
@@ -31728,7 +31792,8 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[Tuple[cudaGraphNode
 
     - Nodes and edges of the graph cannot be deleted.
 
-    - The graph cannot be used in a child node.
+    - The graph can only be used in a child node if the ownership is moved
+      to the parent.
 
     - Only one instantiation of the graph may exist at any point in time.
 
@@ -31855,7 +31920,8 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_
 
     - Nodes and edges of the graph cannot be deleted.
 
-    - The graph cannot be used in a child node.
+    - The graph can only be used in a child node if the ownership is moved
+      to the parent.
 
     - Only one instantiation of the graph may exist at any point in time.
 
@@ -32102,6 +32168,10 @@ def cudaGraphClone(originalGraph):
     See Also
     --------
     :py:obj:`~.cudaGraphCreate`, :py:obj:`~.cudaGraphNodeFindInClone`
+
+    Notes
+    -----
+    : Cloning is not supported for graphs which contain memory allocation nodes, memory free nodes, or conditional nodes.
     """
     cdef cyruntime.cudaGraph_t cyoriginalGraph
     if originalGraph is None:
@@ -33755,7 +33825,7 @@ def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     aspects of the memset (width, height, element size or pitch) may cause
     the update to be rejected. Specifically, for 2d memsets, all dimension
     changes are rejected. For 1d memsets, changes in height are explicitly
-    rejected and other changes are oportunistically allowed if the
+    rejected and other changes are opportunistically allowed if the
     resulting work maps onto the work resources already allocated for the
     node.
 
@@ -34338,7 +34408,7 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
       - The source/destination memory must be allocated from the same
         contexts as the original source/destination memory.
 
-      - For 2d memsets, only address and assinged value may be updated.
+      - For 2d memsets, only address and assigned value may be updated.
 
       - For 1d memsets, updating dimensions is also allowed, but may fail
         if the resulting operation doesn't map onto the work resources
@@ -34353,7 +34423,7 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
 
       - Changing node parameters is not supported.
 
-      - Changeing parameters of nodes within the conditional body graph is
+      - Changing parameters of nodes within the conditional body graph is
         subject to the rules above.
 
       - Conditional handle flags and default values are updated as part of
