@@ -118,6 +118,7 @@ jobs:
           ls -l "C:\Program Files\7-Zip"
           echo "C:\Program Files\7-Zip" >> $env:GITHUB_PATH
           $env:Path += ";C:\Program Files\7-Zip"
+          echo $env:Path
           7z --version
 
       - name: Install Git for Windows
