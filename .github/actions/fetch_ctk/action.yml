@@ -19,12 +19,11 @@ inputs:
     type: string
     default: "cuda_nvcc,cuda_cudart,cuda_nvrtc,cuda_profiler_api,cuda_cccl,cuda_sanitizer_api,libnvjitlink"
 
-defaults:
-  run:
-    shell: bash ${{ (inputs.host-platform != 'win-64' && '--noprofile --norc') || '' }} -xeuo pipefail {0}
-
 runs:
   using: composite
+  defaults:
+    run:
+      shell: bash ${{ (inputs.host-platform != 'win-64' && '--noprofile --norc') || '' }} -xeuo pipefail {0}
   steps:
     - name: Set up CTK cache variable
       run: |
