@@ -34,8 +34,8 @@ runs:
       uses: ./.github/actions/install_unix_deps
       continue-on-error: false
       with:
-        dependencies: "zstd curl xz-utils"
-        dependent_exes: "zstd curl xz"
+        dependencies: "zstd curl xz-utils rsync"
+        dependent_exes: "zstd curl xz rsync"
 
     - name: Download CTK cache
       id: ctk-get-cache
