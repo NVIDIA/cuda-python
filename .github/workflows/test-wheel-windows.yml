@@ -85,12 +85,12 @@ jobs:
           name: cuda-python-wheel
           path: .
 
-      - name: Download cuda.bindings build artifacts
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+#      - name: Download cuda.bindings build artifacts
+#        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+#          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: Install gh cli
         # the GPU runner image does not have gh pre-installed...
