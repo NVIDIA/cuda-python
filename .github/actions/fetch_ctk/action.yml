@@ -105,7 +105,7 @@ runs:
               CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})"
               if [[ "$CUDA_MAJOR" == "12" ]]; then
                 # TODO: Automatically track latest CTK minor version
-                ctk_version="12.8.0"
+                ctk_version="12.9.0"
               fi
             fi
             populate_cuda_path "$item" "$ctk_version"
