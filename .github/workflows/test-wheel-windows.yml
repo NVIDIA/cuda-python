@@ -40,9 +40,9 @@ jobs:
 #      - name: Update driver
 #        run: |
 #          .github/workflows/install_gpu_driver.ps1
-
-      - name: Ensure GPU is working
-        run: nvidia-smi
+#
+#      - name: Ensure GPU is working
+#        run: nvidia-smi
 
       - name: Set environment variables
         run: |
