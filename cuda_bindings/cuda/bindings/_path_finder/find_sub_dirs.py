@@ -3,13 +3,13 @@
 
 import functools
 import os
+import site
 import sys
 
 
-@functools.cache
-def _impl(sys_path, sub_dirs):
+def find_sub_dirs_no_cache(parent_dirs, sub_dirs):
     results = []
-    for base in sys_path:
+    for base in parent_dirs:
         stack = [(base, 0)]  # (current_path, index into sub_dirs)
         while stack:
             current_path, idx = stack.pop()
@@ -35,5 +35,18 @@ def _impl(sys_path, sub_dirs):
     return results
 
 
-def sys_path_find_sub_dirs(sub_dirs):
-    return _impl(tuple(sys.path), tuple(sub_dirs))
+@functools.cache
+def find_sub_dirs_cached(parent_dirs, sub_dirs):
+    return find_sub_dirs_no_cache(parent_dirs, sub_dirs)
+
+
+def find_sub_dirs(parent_dirs, sub_dirs):
+    return find_sub_dirs_cached(tuple(parent_dirs), tuple(sub_dirs))
+
+
+def find_sub_dirs_sys_path(sub_dirs):
+    return find_sub_dirs(sys.path, sub_dirs)
+
+
+def find_sub_dirs_all_sitepackages(sub_dirs):
+    return find_sub_dirs((site.getusersitepackages(),) + tuple(site.getsitepackages()), sub_dirs)
