@@ -326,7 +326,7 @@
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">cuda.bindings.nvvm</span></code> Python module was added, wrapping the
-<a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/">libNVVM C API</a>.</p></li>
+<a class="reference external" href="https://docs.nvidia.com/cuda/libnvvm-api/">libNVVM C API</a></p></li>
 <li><p>Source build error checking added for missing required headers</p></li>
 <li><p>Statically link CUDA Runtime instead of reimplementing it</p></li>
 <li><p>Move stream callback wrappers to the Python layer</p></li>
@@ -338,6 +338,8 @@
 <h2>Bug fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Fix segfault when converting char* NULL to bytes</p></li>
+<li><p>Compute-sanitizer may report <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_CONTEXT</span></code> when calling certain CUDA
+runtime APIs such as <code class="docutils literal notranslate"><span class="pre">cudaGetDevice()</span></code></p></li>
 </ul>
 </section>
 <section id="miscellaneous">
