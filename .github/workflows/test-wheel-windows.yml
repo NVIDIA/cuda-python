@@ -107,19 +107,19 @@ jobs:
 #          }
 #          gh --version
 
-      - name: Install 7z
-        # the GPU runner image does not have Git Bash pre-installed...
-        env:
-          # doesn't seem there's an easy way to avoid hard-coding it?
-          7Z_URL: https://www.7-zip.org/a/7z2409-x64.msi
-        run: |
-          Invoke-WebRequest -Uri "$env:7Z_URL" -OutFile "7z_installer.msi"
-          Start-Process msiexec.exe -Wait -Verbose -ArgumentList '/i "7z_installer.msi" /q INSTALLDIR="C:\Program Files\7-Zip" /qn'
-          ls -l "C:\Program Files\7-Zip"
-          echo "C:\Program Files\7-Zip" >> $env:GITHUB_PATH
-          $env:Path += ";C:\Program Files\7-Zip"
-          echo $env:Path
-          7z
+#      - name: Install 7z
+#        # the GPU runner image does not have Git Bash pre-installed...
+#        env:
+#          # doesn't seem there's an easy way to avoid hard-coding it?
+#          7Z_URL: https://www.7-zip.org/a/7z2409-x64.msi
+#        run: |
+#          Invoke-WebRequest -Uri "$env:7Z_URL" -OutFile "7z_installer.msi"
+#          Start-Process msiexec.exe -Wait -Verbose -ArgumentList '/i "7z_installer.msi" /q INSTALLDIR="C:\Program Files\7-Zip" /qn'
+#          ls -l "C:\Program Files\7-Zip"
+#          echo "C:\Program Files\7-Zip" >> $env:GITHUB_PATH
+#          $env:Path += ";C:\Program Files\7-Zip"
+#          echo $env:Path
+#          7z
 
       - name: Install Git for Windows
         # the GPU runner image does not have Git Bash pre-installed...
@@ -128,9 +128,10 @@ jobs:
           GFW_EXE_URL: https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe
         run: |
           Invoke-WebRequest -Uri "$env:GFW_EXE_URL" -OutFile "PortableGit.7z.exe"
-          Start-Process 7z -Wait -Verbose -ArgumentList "x PortableGit.7z.exe -oPortableGit"
+          .\PortableGit.7z.exe -y -gm2 -InstallPath=".\\PortableGit"
           ls -l PortableGit
-          mv PortableGit\git-bash.exe PortableGit\bash.exe
+          .\PortableGit\post-install.bat
+          New-Item -Path PortableGit\bash.exe -ItemType SymbolicLink -Value PortableGit\git-bash.exe
           echo "$((Get-Location).Path)\\PortableGit" >> $env:GITHUB_PATH
           $env:Path += ";$((Get-Location).Path)\\PortableGit"
           bash --version
