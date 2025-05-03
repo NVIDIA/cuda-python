@@ -52,6 +52,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install dependencies
+        uses: ./.github/actions/install_unix_deps
+        continue-on-error: false
+        with:
+          # gcc for Cython tests, jq/wget for artifact fetching
+          dependencies: "build-essential jq wget"
+          dependent_exes: "gcc jq wget"
+
       - name: Set environment variables
         run: |
           PYTHON_VERSION_FORMATTED=$(echo '${{ inputs.python-version }}' | tr -d '.')
@@ -78,6 +86,17 @@ jobs:
             fi
           fi
 
+          # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
+          # We only test compute-sanitizer on python 3.12 arbitrarily; we don't need to use sanitizer on the entire matrix
+          # Only local ctk installs have compute-sanitizer; there is not wheel for it
+          if [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.cuda-version }}" != "11.8.0" && "${{ inputs.local-ctk }}" == 1 ]]; then
+            SETUP_SANITIZER=1
+            echo "LATEST_CUDA_VERSION=$(bash .github/workflows/guess_latest.sh)" >> $GITHUB_ENV
+          else
+            SETUP_SANITIZER=0
+          fi
+          echo "SETUP_SANITIZER=${SETUP_SANITIZER}" >> $GITHUB_ENV
+
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
           echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
@@ -90,14 +109,6 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
           echo "SKIP_CUDA_CORE_CYTHON_TEST=${SKIP_CUDA_CORE_CYTHON_TEST}" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        uses: ./.github/actions/install_unix_deps
-        continue-on-error: false
-        with:
-          # gcc for Cython tests, jq/wget for artifact fetching
-          dependencies: "build-essential jq wget"
-          dependent_exes: "gcc jq wget"
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
@@ -184,12 +195,18 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
 
+      - name: Set up latest cuda_sanitizer_api
+        if: ${{ env.SETUP_SANITIZER == '1' }}
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ env.LATEST_CUDA_VERSION }}
+          cuda-components: "cuda_sanitizer_api"
+
       - name: Set up compute-sanitizer
         run: |
-          # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
-          # We only test compute-sanitizer on python 3.12 arbitrarily; we don't need to use sanitizer on the entire matrix
-          # Only local ctk installs have compute-sanitizer; there is not wheel for it
-          if [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.cuda-version }}" != "11.8.0" && "${{ inputs.local-ctk }}" == 1 ]]; then
+          if [[ "${SETUP_SANITIZER}" == 1 ]]; then
             COMPUTE_SANITIZER="${CUDA_HOME}/bin/compute-sanitizer"
             COMPUTE_SANITIZER_VERSION=$(${COMPUTE_SANITIZER} --version | grep -Eo "[0-9]{4}\.[0-9]\.[0-9]" | sed -e 's/\.//g')
             SANITIZER_CMD="${COMPUTE_SANITIZER} --target-processes=all --launch-timeout=0 --tool=memcheck --error-exitcode=1"
