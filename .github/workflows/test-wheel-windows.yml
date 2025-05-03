@@ -173,6 +173,14 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
 
+      - name: DEBUG
+        if: ${{ inputs.local-ctk == '1' }}
+        run: |
+          echo $env:CUDA_PATH
+          echo $env:Path
+          Get-Location $env:CUDA_PATH
+          Get-Location $env:CUDA_PATH/bin
+
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
