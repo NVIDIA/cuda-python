@@ -10,7 +10,7 @@ Highlights
 ----------
 
 * The ``cuda.bindings.nvvm`` Python module was added, wrapping the
-  `libNVVM C API <https://docs.nvidia.com/cuda/libnvvm-api/>`_.
+  `libNVVM C API <https://docs.nvidia.com/cuda/libnvvm-api/>`_
 * Source build error checking added for missing required headers
 * Statically link CUDA Runtime instead of reimplementing it
 * Move stream callback wrappers to the Python layer
@@ -22,6 +22,8 @@ Bug fixes
 ---------
 
 * Fix segfault when converting char* NULL to bytes
+* Compute-sanitizer may report ``CUDA_ERROR_INVALID_CONTEXT`` when calling certain CUDA
+  runtime APIs such as ``cudaGetDevice()``
 
 
 Miscellaneous

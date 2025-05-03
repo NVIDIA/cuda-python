@@ -17,3 +17,10 @@ Bug fixes
 ---------
 
 * Fix segfault when converting char* NULL to bytes
+
+
+Known issues
+------------
+
+* Compute-sanitizer may report ``CUDA_ERROR_INVALID_CONTEXT`` when calling certain CUDA
+  runtime APIs such as ``cudaGetDevice()``. This is fixed in ``cuda-bindings`` 12.9.0.
