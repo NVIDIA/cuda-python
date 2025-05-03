@@ -128,9 +128,8 @@ jobs:
           GFW_EXE_URL: https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe
         run: |
           Invoke-WebRequest -Uri "$env:GFW_EXE_URL" -OutFile "PortableGit.7z.exe"
-          .\PortableGit.7z.exe -y -gm2 -InstallPath=".\\PortableGit"
+          Start-Process .\PortableGit.7z.exe -Wait -Verbose -ArgumentList '-y -gm2'
           ls -l PortableGit
-          .\PortableGit\post-install.bat
           New-Item -Path PortableGit\bash.exe -ItemType SymbolicLink -Value PortableGit\git-bash.exe
           echo "$((Get-Location).Path)\\PortableGit" >> $env:GITHUB_PATH
           $env:Path += ";$((Get-Location).Path)\\PortableGit"
