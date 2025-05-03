@@ -50,6 +50,8 @@ runs:
       if: ${{ steps.ctk-get-cache.outputs.cache-hit != 'true' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
+        # Everything under this folder is packed and stored in the GitHub Cache space,
+        # and unpacked after retrieving from the cache.
         CACHE_TMP_DIR="./cache_tmp_dir"
         rm -rf $CACHE_TMP_DIR
         mkdir $CACHE_TMP_DIR
@@ -109,7 +111,7 @@ runs:
         # "Move" files from temp dir to CUDA_PATH
         CUDA_PATH="./cuda_toolkit"
         mkdir -p $CUDA_PATH
-        # We could have just done "rsync -av $CACHE_TMP_DIR/ $CUDA_PATH"; however,
+        # Unfortunately we cannot use "rsync -av $CACHE_TMP_DIR/ $CUDA_PATH" because
         # not all runners have rsync pre-installed (or even installable, such as
         # Git Bash). We do it in the dumb way.
         cp -r $CACHE_TMP_DIR/* $CUDA_PATH
