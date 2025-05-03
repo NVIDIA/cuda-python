@@ -109,9 +109,9 @@ jobs:
           # Self-extracting, see https://gitforwindows.org/zip-archives-extracting-the-released-archives.html
           Start-Process .\PortableGit.7z.exe -Wait -Verbose -ArgumentList '-y -gm2'
           ls -l PortableGit
-          New-Item -Path PortableGit\bash.exe -ItemType SymbolicLink -Value PortableGit\git-bash.exe
-          echo "$((Get-Location).Path)\\PortableGit" >> $env:GITHUB_PATH
-          $env:Path += ";$((Get-Location).Path)\\PortableGit"
+          #New-Item -Path PortableGit\bash.exe -ItemType SymbolicLink -Value PortableGit\git-bash.exe
+          echo "$((Get-Location).Path)\\PortableGit\\bin" >> $env:GITHUB_PATH
+          $env:Path += ";$((Get-Location).Path)\\PortableGit\\bin"
           bash --version
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
