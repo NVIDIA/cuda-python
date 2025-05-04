@@ -24,17 +24,21 @@ strategy for locating NVIDIA shared libraries:
      The absolute path of the already loaded library will be returned, along
      with the handle to the library.
 
-1. **Python Package Ecosystem**
-   - Scans `sys.path` to find libraries installed via NVIDIA Python wheels.
-
-2. **Conda Environments**
-   - Leverages Conda-specific paths through our fork of `get_cuda_paths()`
-     from numba-cuda.
-
-3. **Environment variables**
+1. **Environment variables**
    - Relies on `CUDA_HOME`/`CUDA_PATH` environment variables if set.
 
-4. **System Installations**
+2. **NVIDIA Python wheels**
+   - Scans all site-packages to find libraries installed via NVIDIA Python wheels.
+
+3. **OS default mechanisms / Conda environments**
+   - Falls back to native loader:
+     - `dlopen()` on Linux
+     - `LoadLibraryW()` on Windows
+   - Conda environments are expected to be covered by OS default mechanisms:
+     - Based on `$ORIGIN/../lib` `RPATH` on Linux
+     - Based on `%CONDA_PREFIX%\Library\bin` on the system `PATH` on Windows
+
+5. **System Installations**
    - Checks traditional system locations through these paths:
      - Linux: `/usr/local/cuda/lib64`
      - Windows: `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\vX.Y\bin`
@@ -43,11 +47,6 @@ strategy for locating NVIDIA shared libraries:
      - Versioned CUDA directories like `/usr/local/cuda-12.3`
      - Distribution-specific packages (RPM/DEB)
        EXCEPT Debian's `nvidia-cuda-toolkit`
-
-5. **OS Default Mechanisms**
-   - Falls back to native loader:
-     - `dlopen()` on Linux
-     - `LoadLibraryW()` on Windows
 
 Note that the search is done on a per-library basis. There is no centralized
 mechanism that ensures all libraries are found in the same way.
