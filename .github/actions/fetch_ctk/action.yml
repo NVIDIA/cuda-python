@@ -75,6 +75,8 @@ runs:
             unzip $1 -d $_TEMP_DIR_
             cp -r $_TEMP_DIR_/*/* $CACHE_TMP_DIR
             rm -rf $_TEMP_DIR_
+            # see commit NVIDIA/cuda-python@69410f1d9228e775845ef6c8b4a9c7f37ffc68a5
+            chmod 644 $CACHE_TMP_DIR/LICENSE
           }
         fi
         function populate_cuda_path() {
@@ -146,8 +148,17 @@ runs:
     - name: Set output environment variables
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        CUDA_PATH=$(realpath "./cuda_toolkit")
+        # mimics actual CTK installation
+        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+          CUDA_PATH=$(realpath "./cuda_toolkit")
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}:${CUDA_PATH}/lib:${CUDA_PATH}/nvvm/lib64" >> $GITHUB_ENV
+        elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+          function normpath() {
+            echo "$(echo $(cygpath -w $1) | sed 's/\\/\\\\/g')"
+          }
+          CUDA_PATH=$(normpath $(realpath "./cuda_toolkit"))
+          echo "$(normpath ${CUDA_PATH}/bin)" >> $GITHUB_PATH
+          echo "$(normpath $CUDA_PATH/nvvm/bin)" >> $GITHUB_PATH
+        fi
         echo "CUDA_PATH=${CUDA_PATH}" >> $GITHUB_ENV
         echo "CUDA_HOME=${CUDA_PATH}" >> $GITHUB_ENV
-        echo "${CUDA_PATH}/bin" >> $GITHUB_PATH
-        echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}:${CUDA_PATH}/lib:${CUDA_PATH}/nvvm/lib64" >> $GITHUB_ENV

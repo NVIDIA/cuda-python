@@ -57,14 +57,6 @@ jobs:
             $SKIP_CUDA_BINDINGS_TEST = 0
           }
 
-          if ('${{ inputs.local-ctk }}' -eq '1') {
-            if ($TEST_CUDA_MAJOR -eq '12') {
-              $MINI_CTK_DEPS = '["nvcc", "nvrtc", "nvjitlink", "thrust"]'
-            } else {
-              $MINI_CTK_DEPS = '["nvcc", "nvrtc", "thrust"]'
-            }
-          }
-
           # Make outputs from the previous job as env vars
           $CUDA_CORE_ARTIFACT_BASENAME = "cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
           "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $env:GITHUB_ENV
@@ -76,7 +68,6 @@ jobs:
           "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $env:GITHUB_ENV
           "CUDA_BINDINGS_ARTIFACTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_bindings\dist"))" >> $env:GITHUB_ENV
           "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $env:GITHUB_ENV
-          "MINI_CTK_DEPS=${MINI_CTK_DEPS}" >> $env:GITHUB_ENV
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
@@ -106,6 +97,36 @@ jobs:
               $env:Path += ";$p"
           }
           gh --version
+
+      - name: Install Git for Windows
+        # the GPU runner image does not have Git Bash pre-installed...
+        if: ${{ inputs.local-ctk == '1' }}
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          GFW_EXE_URL: https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe
+        run: |
+          Invoke-WebRequest -Uri "$env:GFW_EXE_URL" -OutFile "PortableGit.7z.exe"
+          # Self-extracting, see https://gitforwindows.org/zip-archives-extracting-the-released-archives.html
+          Start-Process .\PortableGit.7z.exe -Wait -Verbose -ArgumentList '-y -gm2'
+          ls -l PortableGit
+          echo "$((Get-Location).Path)\\PortableGit\\bin" >> $env:GITHUB_PATH
+          $env:Path += ";$((Get-Location).Path)\\PortableGit\\bin"
+          bash --version
+
+      - name: Install zstd
+        # the GPU runner image does not have zstd pre-installed... and it's needed by actions/cache
+        if: ${{ inputs.local-ctk == '1' }}
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          ZSTD_URL: https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-v1.5.7-win64.zip
+          ZSTD_DIR: zstd-v1.5.7-win64
+        run: |
+          Invoke-WebRequest -Uri "$env:ZSTD_URL" -OutFile "zstd-win64.zip"
+          Expand-Archive -Path "zstd-win64.zip" -DestinationPath .
+          ls -l $env:ZSTD_DIR
+          echo "$((Get-Location).Path)\\$env:ZSTD_DIR" >> $env:GITHUB_PATH
+          $env:Path += ";$((Get-Location).Path)\\$env:ZSTD_DIR"
+          zstd --version
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}
@@ -160,20 +181,11 @@ jobs:
 
       - name: Set up mini CTK
         if: ${{ inputs.local-ctk == '1' }}
-        # Note: The GH-hosted Windows GPU runner does not have Git for Windows pre-installed,
-        # so we cannot use our own fetch_ctk action unfortunately...
-        uses: Jimver/cuda-toolkit@v0.2.21
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
         with:
-          cuda: ${{ inputs.cuda-version }}
-          method: 'network'
-          sub-packages: ${{ env.MINI_CTK_DEPS }}
-
-      - name: Update PATH
-        if: ${{ inputs.local-ctk == '1' }}
-        run: |
-          # mimics actual CTK installation
-          echo $PATH
-          echo "$env:CUDA_PATH\nvvm\bin" >> $env:GITHUB_PATH
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ inputs.cuda-version }}
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
