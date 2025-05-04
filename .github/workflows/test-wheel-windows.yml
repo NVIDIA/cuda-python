@@ -109,10 +109,24 @@ jobs:
           # Self-extracting, see https://gitforwindows.org/zip-archives-extracting-the-released-archives.html
           Start-Process .\PortableGit.7z.exe -Wait -Verbose -ArgumentList '-y -gm2'
           ls -l PortableGit
-          #New-Item -Path PortableGit\bash.exe -ItemType SymbolicLink -Value PortableGit\git-bash.exe
           echo "$((Get-Location).Path)\\PortableGit\\bin" >> $env:GITHUB_PATH
           $env:Path += ";$((Get-Location).Path)\\PortableGit\\bin"
           bash --version
+
+      - name: Install zstd
+        # the GPU runner image does not have zstd pre-installed... and it's needed by actions/cache
+        if: ${{ inputs.local-ctk == '1' }}
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          ZSTD_URL: https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-v1.5.7-win64.zip
+          ZSTD_DIR: zstd-v1.5.7-win64
+        run: |
+          Invoke-WebRequest -Uri "$env:ZSTD_URL" -OutFile "zstd-win64.zip"
+          Expand-Archive -Path "zstd-win64.zip"
+          ls -l $env:ZSTD_DIR
+          echo "$((Get-Location).Path)\\$env:ZSTD_DIR" >> $env:GITHUB_PATH
+          $env:Path += ";$((Get-Location).Path)\\$env:ZSTD_DIR"
+          zstd -h
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}

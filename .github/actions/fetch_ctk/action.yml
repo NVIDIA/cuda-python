@@ -23,7 +23,7 @@ runs:
   using: composite
   steps:
     - name: Set up CTK cache variable
-      shell: bash -xeuo pipefail {0}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         HASH=$(echo -n "${{ inputs.cuda-components }}" | sha256sum | awk '{print $1}')
         echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH" >> $GITHUB_ENV
@@ -48,7 +48,7 @@ runs:
 
     - name: Get CUDA components
       if: ${{ steps.ctk-get-cache.outputs.cache-hit != 'true' }}
-      shell: bash -xeuo pipefail {0}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         # Everything under this folder is packed and stored in the GitHub Cache space,
         # and unpacked after retrieving from the cache.
@@ -128,7 +128,7 @@ runs:
 
     - name: Restore CTK cache
       if: ${{ steps.ctk-get-cache.outputs.cache-hit == 'true' }}
-      shell: bash -xeuo pipefail {0}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         ls -l
         CACHE_TMP_DIR="./cache_tmp_dir"
@@ -144,7 +144,7 @@ runs:
         fi
 
     - name: Set output environment variables
-      shell: bash -xeuo pipefail {0}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         # mimics actual CTK installation
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
