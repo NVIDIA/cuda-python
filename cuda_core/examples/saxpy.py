@@ -1,6 +1,6 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 import sys
 
@@ -18,7 +18,7 @@ __global__ void saxpy(const T a,
                       size_t N) {
     const unsigned int tid = threadIdx.x + blockIdx.x * blockDim.x;
     for (size_t i=tid; i<N; i+=gridDim.x*blockDim.x) {
-        out[tid] = a * x[tid] + y[tid];
+        out[i] = a * x[i] + y[i];
     }
 }
 """

@@ -1,4 +1,7 @@
 # Copyright (c) 2024-2025, NVIDIA CORPORATION.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 ci:
     autofix_commit_msg: |
       [pre-commit.ci] auto code formatting

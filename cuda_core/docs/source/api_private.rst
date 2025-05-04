@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: Apache-2.0
+
 :orphan:
 
 .. This page is to generate documentation for private classes exposed to users,

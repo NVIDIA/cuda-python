@@ -2,35 +2,13 @@
 
 `cuda.bindings` is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview page](https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html) for the workflow and performance results.
 
-`cuda.bindings` is a subpackage of `cuda-python`.
-
 ## Installing
 
 Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html) for instructions and required/optional dependencies.
 
 ## Developing
 
-We use `pre-commit` to manage various tools to help development and ensure consistency.
-```shell
-pip install pre-commit
-```
-
-### Code linting
-
-Run this command before checking in the code changes
-```shell
-pre-commit run -a --show-diff-on-failure
-```
-to ensure the code formatting is in line of the requirements (as listed in [`pyproject.toml`](./pyproject.toml)).
-
-### Code signing
-
-This repository implements a security check to prevent the CI system from running untrusted code. A part of the
-security check consists of checking if the git commits are signed. See
-[here](https://docs.gha-runners.nvidia.com/apps/copy-pr-bot/faqs/#why-did-i-receive-a-comment-that-my-pull-request-requires-additional-validation)
-and
-[here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
-for more details, including how to sign your commits.
+This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
 
 ## Testing
 
