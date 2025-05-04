@@ -20,7 +20,6 @@ cache_nvrtc
 # CUDA Python specific (auto-generated)
 cuda_bindings/cuda/bindings/_bindings/cydriver.pxd
 cuda_bindings/cuda/bindings/_bindings/cydriver.pyx
-cuda_bindings/cuda/bindings/_bindings/cyruntime.pxi
 cuda_bindings/cuda/bindings/_bindings/cyruntime.pxd
 cuda_bindings/cuda/bindings/_bindings/cyruntime.pyx
 cuda_bindings/cuda/bindings/_bindings/cyruntime_ptds.pxd
