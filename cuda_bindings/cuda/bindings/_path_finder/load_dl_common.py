@@ -1,6 +1,8 @@
 # Copyright 2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import subprocess  # nosec B404
+import sys
 from dataclasses import dataclass
 from typing import Callable, Optional
 
@@ -38,3 +40,21 @@ def load_dependencies(libname: str, load_func: Callable[[str], LoadedDL]) -> Non
     """
     for dep in DIRECT_DEPENDENCIES.get(libname, ()):
         load_func(dep)
+
+
+def load_in_subprocess(python_code, timeout=30):
+    # This is to avoid loading libraries into the parent process.
+    return subprocess.run(  # nosec B603
+        [sys.executable, "-c", python_code],
+        capture_output=True,
+        encoding="utf-8",
+        timeout=timeout,  # Ensure this does not hang for an excessive amount of time.
+    )
+
+
+def build_subprocess_failed_for_libname_message(libname, result):
+    return (
+        f"Subprocess failed for {libname=!r} with exit code {result.returncode}\n"
+        f"--- stdout-from-subprocess ---\n{result.stdout}<end-of-stdout-from-subprocess>\n"
+        f"--- stderr-from-subprocess ---\n{result.stderr}<end-of-stderr-from-subprocess>\n"
+    )

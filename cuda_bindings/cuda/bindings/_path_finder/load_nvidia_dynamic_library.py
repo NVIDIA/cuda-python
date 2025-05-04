@@ -2,10 +2,16 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
+import json
 import sys
 
 from cuda.bindings._path_finder.find_nvidia_dynamic_library import _find_nvidia_dynamic_library
-from cuda.bindings._path_finder.load_dl_common import LoadedDL, load_dependencies
+from cuda.bindings._path_finder.load_dl_common import (
+    LoadedDL,
+    build_subprocess_failed_for_libname_message,
+    load_dependencies,
+    load_in_subprocess,
+)
 
 if sys.platform == "win32":
     from cuda.bindings._path_finder.load_dl_windows import (
@@ -19,6 +25,21 @@ else:
         load_with_abs_path,
         load_with_system_search,
     )
+
+
+def _load_other_in_subprocess(libname, error_messages):
+    code = f"""\
+from cuda.bindings._path_finder.load_nvidia_dynamic_library import load_nvidia_dynamic_library
+import json
+import sys
+loaded = load_nvidia_dynamic_library({libname!r})
+sys.stdout.write(json.dumps(loaded.abs_path, ensure_ascii=True))
+"""
+    result = load_in_subprocess(code)
+    if result.returncode == 0:
+        return json.loads(result.stdout)
+    error_messages.extend(build_subprocess_failed_for_libname_message(libname, result).splitlines())
+    return None
 
 
 def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
@@ -38,6 +59,15 @@ def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
         loaded = load_with_system_search(libname, found.lib_searched_for)
         if loaded is not None:
             return loaded
+        if libname == "nvvm":
+            # Use cudart as anchor point (libcudart.so.12 is only ~720K, cudart64_12.dll ~560K).
+            loaded_cudart = check_if_already_loaded_from_elsewhere("cudart")
+            if loaded_cudart is not None:
+                found.retry_with_other_abs_path(loaded_cudart.abs_path)
+            else:
+                cudart_abs_path = _load_other_in_subprocess("cudart", found.error_messages)
+                if cudart_abs_path is not None:
+                    found.retry_with_other_abs_path(cudart_abs_path)
         found.raise_if_abs_path_is_None()
 
     # Load the library from the found path
