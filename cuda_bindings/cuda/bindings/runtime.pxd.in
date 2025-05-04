@@ -6,7 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 #
-# This code was automatically generated with version 12.8.0. Do not modify it directly.
+# This code was automatically generated with version 12.9.0. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
 cimport cuda.bindings._lib.utils as utils
 cimport cuda.bindings.driver as driver
@@ -3147,7 +3147,14 @@ cdef class cudaChildGraphNodeParams:
     {{if 'cudaChildGraphNodeParams.graph' in found_struct}}
     graph : cudaGraph_t
         The child graph to clone into the node for node creation, or a
-        handle to the graph owned by the node for node query
+        handle to the graph owned by the node for node query. The graph
+        must not contain conditional nodes. Graphs containing memory
+        allocation or memory free nodes must set the ownership to be moved
+        to the parent.
+    {{endif}}
+    {{if 'cudaChildGraphNodeParams.ownership' in found_struct}}
+    ownership : cudaGraphChildGraphNodeOwnership
+        The ownership relationship of the child graph node.
     {{endif}}
 
     Methods
@@ -3928,11 +3935,12 @@ cdef class cudaAsyncNotificationInfo:
     ----------
     {{if 'cudaAsyncNotificationInfo.type' in found_struct}}
     type : cudaAsyncNotificationType
-
+        The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
     info : anon_union10
-
+        Information about the notification. `typename` must be checked in
+        order to interpret this field.
     {{endif}}
 
     Methods
@@ -4405,11 +4413,12 @@ cdef class cudaAsyncNotificationInfo_t(cudaAsyncNotificationInfo):
     ----------
     {{if 'cudaAsyncNotificationInfo.type' in found_struct}}
     type : cudaAsyncNotificationType
-
+        The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
     info : anon_union10
-
+        Information about the notification. `typename` must be checked in
+        order to interpret this field.
     {{endif}}
 
     Methods

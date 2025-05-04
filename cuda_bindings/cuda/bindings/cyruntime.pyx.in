@@ -6,10 +6,10 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 #
-# This code was automatically generated with version 12.8.0. Do not modify it directly.
-cimport cython
+# This code was automatically generated with version 12.9.0. Do not modify it directly.
 cimport cuda.bindings._bindings.cyruntime as cyruntime
 cimport cuda.bindings._lib.cyruntime.cyruntime as custom_cyruntime
+cimport cython
 
 {{if 'cudaDeviceReset' in found_functions}}
 
