@@ -6,9 +6,12 @@
 
 from libc.stdint cimport intptr_t
 
+from .utils cimport get_nvvm_dso_version_suffix
+
 from .utils import FunctionNotFoundError, NotSupportedError
 
-from cuda.bindings import path_finder
+import os
+import site
 
 import win32api
 
@@ -37,9 +40,52 @@ cdef void* __nvvmGetProgramLogSize = NULL
 cdef void* __nvvmGetProgramLog = NULL
 
 
-cdef void* load_library(int driver_ver) except* with gil:
-    cdef intptr_t handle = path_finder.load_nvidia_dynamic_library("nvvm").handle
-    return <void*>handle
+cdef inline list get_site_packages():
+    return [site.getusersitepackages()] + site.getsitepackages() + ["conda"]
+
+
+cdef load_library(const int driver_ver):
+    handle = 0
+
+    for suffix in get_nvvm_dso_version_suffix(driver_ver):
+        if len(suffix) == 0:
+            continue
+        dll_name = "nvvm64_40_0.dll"
+
+        # First check if the DLL has been loaded by 3rd parties
+        try:
+            return win32api.GetModuleHandle(dll_name)
+        except:
+            pass
+
+        # Next, check if DLLs are installed via pip or conda
+        for sp in get_site_packages():
+            if sp == "conda":
+                # nvvm is not under $CONDA_PREFIX/lib, so it's not in the default search path
+                conda_prefix = os.environ.get("CONDA_PREFIX")
+                if conda_prefix is None:
+                    continue
+                mod_path = os.path.join(conda_prefix, "Library", "nvvm", "bin")
+            else:
+                mod_path = os.path.join(sp, "nvidia", "cuda_nvcc", "nvvm", "bin")
+            if os.path.isdir(mod_path):
+                os.add_dll_directory(mod_path)
+                try:
+                    return win32api.LoadLibraryEx(
+                        # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
+                        os.path.join(mod_path, dll_name),
+                        0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+                except:
+                    pass
+
+        # Finally, try default search
+        # Only reached if DLL wasn't found in any site-package path
+        try:
+            return win32api.LoadLibrary(dll_name)
+        except:
+            pass
+
+    raise RuntimeError('Failed to load nvvm')
 
 
 cdef int _check_or_init_nvvm() except -1 nogil:
@@ -48,16 +94,15 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         return 0
 
     cdef int err, driver_ver
-    cdef intptr_t handle
     with gil:
         # Load driver to check version
         try:
-            nvcuda_handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
+            handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
         except Exception as e:
             raise NotSupportedError(f'CUDA driver is not found ({e})')
         global __cuDriverGetVersion
         if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(nvcuda_handle, 'cuDriverGetVersion')
+            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'cuDriverGetVersion')
             if __cuDriverGetVersion == NULL:
                 raise RuntimeError('something went wrong')
         err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
@@ -65,7 +110,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             raise RuntimeError('something went wrong')
 
         # Load library
-        handle = <intptr_t>load_library(driver_ver)
+        handle = load_library(driver_ver)
 
         # Load function
         global __nvvmVersion

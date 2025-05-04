@@ -1,19 +1,19 @@
 # Copyright 2024-2025 NVIDIA Corporation.  All rights reserved.
-#
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
 import glob
 import os
+import sys
 
-from .cuda_paths import IS_WIN32, get_cuda_paths
-from .supported_libs import is_suppressed_dll_file
-from .sys_path_find_sub_dirs import sys_path_find_sub_dirs
+from cuda.bindings._path_finder.cuda_paths import get_cuda_paths
+from cuda.bindings._path_finder.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.bindings._path_finder.supported_libs import is_suppressed_dll_file
 
 
 def _no_such_file_in_sub_dirs(sub_dirs, file_wild, error_messages, attachments):
     error_messages.append(f"No such file: {file_wild}")
-    for sub_dir in sys_path_find_sub_dirs(sub_dirs):
+    for sub_dir in find_sub_dirs_all_sitepackages(sub_dirs):
         attachments.append(f'  listdir("{sub_dir}"):')
         for node in sorted(os.listdir(sub_dir)):
             attachments.append(f"    {node}")
@@ -25,7 +25,7 @@ def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachm
     else:
         nvidia_sub_dirs = ("nvidia", "*", "lib")
     file_wild = so_basename + "*"
-    for lib_dir in sys_path_find_sub_dirs(nvidia_sub_dirs):
+    for lib_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
         # First look for an exact match
         so_name = os.path.join(lib_dir, so_basename)
         if os.path.isfile(so_name):
@@ -48,17 +48,16 @@ def _find_dll_under_dir(dirpath, file_wild):
     return None
 
 
-def _find_dll_using_nvidia_bin_dirs(libname, error_messages, attachments):
+def _find_dll_using_nvidia_bin_dirs(libname, lib_searched_for, error_messages, attachments):
     if libname == "nvvm":  # noqa: SIM108
         nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin")
     else:
         nvidia_sub_dirs = ("nvidia", "*", "bin")
-    file_wild = libname + "*.dll"
-    for bin_dir in sys_path_find_sub_dirs(nvidia_sub_dirs):
-        dll_name = _find_dll_under_dir(bin_dir, file_wild)
+    for bin_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
+        dll_name = _find_dll_under_dir(bin_dir, lib_searched_for)
         if dll_name is not None:
             return dll_name
-    _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
+    _no_such_file_in_sub_dirs(nvidia_sub_dirs, lib_searched_for, error_messages, attachments)
     return None
 
 
@@ -122,14 +121,16 @@ class _find_nvidia_dynamic_library:
         self.attachments = []
         self.abs_path = None
 
-        if IS_WIN32:
-            self.abs_path = _find_dll_using_nvidia_bin_dirs(libname, self.error_messages, self.attachments)
+        if sys.platform == "win32":
+            self.lib_searched_for = f"{libname}*.dll"
+            self.abs_path = _find_dll_using_nvidia_bin_dirs(
+                libname, self.lib_searched_for, self.error_messages, self.attachments
+            )
             if self.abs_path is None:
                 if libname == "nvvm":
                     self.abs_path = _get_cuda_paths_info("nvvm", self.error_messages)
                 else:
                     self.abs_path = _find_dll_using_cudalib_dir(libname, self.error_messages, self.attachments)
-            self.lib_searched_for = f"{libname}*.dll"
         else:
             self.lib_searched_for = f"lib{libname}.so"
             self.abs_path = _find_so_using_nvidia_lib_dirs(

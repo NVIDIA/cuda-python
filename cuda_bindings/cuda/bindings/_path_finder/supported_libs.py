@@ -1,8 +1,9 @@
 # Copyright 2025 NVIDIA Corporation.  All rights reserved.
-#
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # THIS FILE NEEDS TO BE REVIEWED/UPDATED FOR EACH CTK RELEASE
+
+import sys
 
 SUPPORTED_LIBNAMES = (
     # Core CUDA Runtime and Compiler
@@ -11,7 +12,7 @@ SUPPORTED_LIBNAMES = (
     "nvvm",
 )
 
-PARTIALLY_SUPPORTED_LIBNAMES = (
+PARTIALLY_SUPPORTED_LIBNAMES_COMMON = (
     # Core CUDA Runtime and Compiler
     "cudart",
     "nvfatbin",
@@ -37,10 +38,37 @@ PARTIALLY_SUPPORTED_LIBNAMES = (
     "npps",
     "nvblas",
     # Other
-    "cufile",
-    # "cufile_rdma",  # Requires libmlx5.so
     "nvjpeg",
 )
+
+# Note: The `cufile_rdma` information is intentionally retained (commented out)
+# despite not being actively used in the current build. It took a nontrivial
+# amount of effort to determine the SONAME, dependencies, and expected symbols
+# for this special-case library, especially given its RDMA/MLX5 dependencies
+# and limited availability. Keeping this as a reference avoids having to
+# reconstruct the information from scratch in the future.
+
+PARTIALLY_SUPPORTED_LIBNAMES_LINUX_ONLY = (
+    "cufile",
+    # "cufile_rdma",  # Requires libmlx5.so
+)
+
+PARTIALLY_SUPPORTED_LIBNAMES_LINUX = PARTIALLY_SUPPORTED_LIBNAMES_COMMON + PARTIALLY_SUPPORTED_LIBNAMES_LINUX_ONLY
+
+PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS_ONLY = ()
+
+PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS = PARTIALLY_SUPPORTED_LIBNAMES_COMMON + PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS_ONLY
+
+PARTIALLY_SUPPORTED_LIBNAMES_ALL = (
+    PARTIALLY_SUPPORTED_LIBNAMES_COMMON
+    + PARTIALLY_SUPPORTED_LIBNAMES_LINUX_ONLY
+    + PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS_ONLY
+)
+
+if sys.platform == "win32":
+    PARTIALLY_SUPPORTED_LIBNAMES = PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
+else:
+    PARTIALLY_SUPPORTED_LIBNAMES = PARTIALLY_SUPPORTED_LIBNAMES_LINUX
 
 # Based on ldd output for Linux x86_64 nvidia-*-cu12 wheels (12.8.1)
 DIRECT_DEPENDENCIES = {
@@ -231,8 +259,6 @@ SUPPORTED_WINDOWS_DLLS = {
         "cufftw64_10.dll",
         "cufftw64_11.dll",
     ),
-    "cufile": (),
-    # "cufile_rdma": (),
     "curand": ("curand64_10.dll",),
     "cusolver": (
         "cusolver64_10.dll",
@@ -333,7 +359,10 @@ def is_suppressed_dll_file(path_basename: str) -> bool:
 
 # Based on nm output for Linux x86_64 /usr/local/cuda (12.8.1)
 EXPECTED_LIB_SYMBOLS = {
-    "nvJitLink": ("nvJitLinkVersion",),
+    "nvJitLink": (
+        "__nvJitLinkCreate_12_0",  # 12.0 through 12.8 (at least)
+        "nvJitLinkVersion",  # 12.3 and up
+    ),
     "nvrtc": ("nvrtcVersion",),
     "nvvm": ("nvvmVersion",),
     "cudart": ("cudaRuntimeGetVersion",),

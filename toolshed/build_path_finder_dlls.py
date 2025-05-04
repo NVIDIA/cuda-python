@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Input for this script: .txt files generated with:
 # for exe in *.exe; do 7z l $exe > "${exe%.exe}.txt"; done
 
