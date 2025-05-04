@@ -75,6 +75,8 @@ runs:
             unzip $1 -d $_TEMP_DIR_
             cp -r $_TEMP_DIR_/*/* $CACHE_TMP_DIR
             rm -rf $_TEMP_DIR_
+            # see commit NVIDIA/cuda-python@69410f1d9228e775845ef6c8b4a9c7f37ffc68a5
+            chmod 644 $CACHE_TMP_DIR/LICENSE
           }
         fi
         function populate_cuda_path() {
