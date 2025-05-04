@@ -1012,3 +1012,9 @@ def test_cuCheckpointProcessGetState_failure():
     err, state = cuda.cuCheckpointProcessGetState(123434)
     assert err != cuda.CUresult.CUDA_SUCCESS
     assert state is None
+
+
+def test_private_function_pointer_inspector():
+    from cuda.bindings._bindings.cydriver import _inspect_function_pointer
+
+    assert _inspect_function_pointer("__cuGetErrorString") != 0
