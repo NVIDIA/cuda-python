@@ -4,10 +4,9 @@
 import functools
 import glob
 import os
-import sys
 
 from cuda.bindings._path_finder.find_sub_dirs import find_sub_dirs_all_sitepackages
-from cuda.bindings._path_finder.supported_libs import is_suppressed_dll_file
+from cuda.bindings._path_finder.supported_libs import IS_WINDOWS, is_suppressed_dll_file
 
 
 def _no_such_file_in_sub_dirs(sub_dirs, file_wild, error_messages, attachments):
@@ -71,7 +70,7 @@ def _find_lib_dir_using_cuda_home(libname):
     cuda_home = _get_cuda_home()
     if cuda_home is None:
         return None
-    if sys.platform == "win32":
+    if IS_WINDOWS:
         if libname == "nvvm":  # noqa: SIM108
             subdirs = (os.path.join("nvvm", "bin"),)
         else:
@@ -118,10 +117,7 @@ def _find_dll_using_lib_dir(lib_dir, libname, error_messages, attachments):
 
 
 def _find_nvvm_lib_dir_from_other_abs_path(other_abs_path):
-    if sys.platform == "win32":
-        nvvm_subdir = "bin"
-    else:
-        nvvm_subdir = "lib64"
+    nvvm_subdir = "bin" if IS_WINDOWS else "lib64"
     while other_abs_path:
         if os.path.isdir(other_abs_path):
             nvvm_lib_dir = os.path.join(other_abs_path, "nvvm", nvvm_subdir)
@@ -139,7 +135,7 @@ class _find_nvidia_dynamic_library:
         self.abs_path = None
 
         cuda_home_lib_dir = _find_lib_dir_using_cuda_home(libname)
-        if sys.platform == "win32":
+        if IS_WINDOWS:
             self.lib_searched_for = f"{libname}*.dll"
             if cuda_home_lib_dir is not None:
                 self.abs_path = _find_dll_using_lib_dir(
@@ -165,7 +161,7 @@ class _find_nvidia_dynamic_library:
         nvvm_lib_dir = _find_nvvm_lib_dir_from_other_abs_path(other_abs_path)
         if nvvm_lib_dir is None:
             return
-        if sys.platform == "win32":
+        if IS_WINDOWS:
             self.abs_path = _find_dll_using_lib_dir(nvvm_lib_dir, self.libname, self.error_messages, self.attachments)
         else:
             self.abs_path = _find_so_using_lib_dir(

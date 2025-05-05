@@ -3,7 +3,6 @@
 
 import functools
 import json
-import sys
 
 from cuda.bindings._path_finder.find_nvidia_dynamic_library import _find_nvidia_dynamic_library
 from cuda.bindings._path_finder.load_dl_common import (
@@ -12,8 +11,9 @@ from cuda.bindings._path_finder.load_dl_common import (
     load_dependencies,
     load_in_subprocess,
 )
+from cuda.bindings._path_finder.supported_libs import IS_WINDOWS
 
-if sys.platform == "win32":
+if IS_WINDOWS:
     from cuda.bindings._path_finder.load_dl_windows import (
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
