@@ -48,6 +48,7 @@ def test_find_or_load_nvidia_dynamic_library(info_summary_append, libname):
     # Defining the subprocess code snippets as strings ensures each subprocess
     # runs a minimal, independent script tailored to the specific libname and API being tested.
     code = f"""\
+import os
 from cuda.bindings.path_finder import _load_nvidia_dynamic_library
 from cuda.bindings._path_finder.load_nvidia_dynamic_library import _load_nvidia_dynamic_library_no_cache
 
@@ -62,8 +63,8 @@ if loaded_dl_from_cache is not loaded_dl_fresh:
 loaded_dl_no_cache = _load_nvidia_dynamic_library_no_cache({libname!r})
 if not loaded_dl_no_cache.was_already_loaded_from_elsewhere:
     raise RuntimeError("loaded_dl_no_cache.was_already_loaded_from_elsewhere")
-if loaded_dl_no_cache.abs_path != loaded_dl_fresh.abs_path:
-    raise RuntimeError(f"{{loaded_dl_no_cache.abs_path=!r}} != {{loaded_dl_fresh.abs_path=!r}}")
+if not os.path.samefile(loaded_dl_no_cache.abs_path, loaded_dl_fresh.abs_path):
+    raise RuntimeError(f"not os.path.samefile({{loaded_dl_no_cache.abs_path=!r}}, {{loaded_dl_fresh.abs_path=!r}})")
 
 print(f"{{loaded_dl_fresh.abs_path!r}}")
 """
