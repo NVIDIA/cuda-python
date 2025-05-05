@@ -18,10 +18,7 @@ def _no_such_file_in_sub_dirs(sub_dirs, file_wild, error_messages, attachments):
 
 
 def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachments):
-    if libname == "nvvm":  # noqa: SIM108
-        nvidia_sub_dirs = ("nvidia", "*", "nvvm", "lib64")
-    else:
-        nvidia_sub_dirs = ("nvidia", "*", "lib")
+    nvidia_sub_dirs = ("nvidia", "*", "nvvm", "lib64") if libname == "nvvm" else ("nvidia", "*", "lib")
     file_wild = so_basename + "*"
     for lib_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
         # First look for an exact match
@@ -47,10 +44,7 @@ def _find_dll_under_dir(dirpath, file_wild):
 
 
 def _find_dll_using_nvidia_bin_dirs(libname, lib_searched_for, error_messages, attachments):
-    if libname == "nvvm":  # noqa: SIM108
-        nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin")
-    else:
-        nvidia_sub_dirs = ("nvidia", "*", "bin")
+    nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin") if libname == "nvvm" else ("nvidia", "*", "bin")
     for bin_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
         dll_name = _find_dll_under_dir(bin_dir, lib_searched_for)
         if dll_name is not None:
@@ -71,18 +65,16 @@ def _find_lib_dir_using_cuda_home(libname):
     if cuda_home is None:
         return None
     if IS_WINDOWS:
-        if libname == "nvvm":  # noqa: SIM108
-            subdirs = (os.path.join("nvvm", "bin"),)
-        else:
-            subdirs = ("bin",)
+        subdirs = (os.path.join("nvvm", "bin"),) if libname == "nvvm" else ("bin",)
     else:
-        if libname == "nvvm":  # noqa: SIM108
-            subdirs = (os.path.join("nvvm", "lib64"),)
-        else:
-            subdirs = (
+        subdirs = (
+            (os.path.join("nvvm", "lib64"),)
+            if libname == "nvvm"
+            else (
                 "lib64",  # CTK
                 "lib",  # Conda
             )
+        )
     for subdir in subdirs:
         dirname = os.path.join(cuda_home, subdir)
         if os.path.isdir(dirname):
