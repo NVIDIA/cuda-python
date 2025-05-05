@@ -1,4 +1,5 @@
 import multiprocessing
+import queue  # for Empty
 import subprocess  # nosec B404
 import sys
 import traceback
@@ -41,7 +42,7 @@ class Worker:
 def run_python_code_safely(python_code, *, timeout=None):
     """Run Python code in a spawned subprocess, capturing stdout/stderr/output."""
     ctx = multiprocessing.get_context("spawn")
-    result_queue = ctx.SimpleQueue()
+    result_queue = ctx.Queue()
     process = ctx.Process(target=Worker(python_code, result_queue))
     process.start()
 
@@ -57,15 +58,16 @@ def run_python_code_safely(python_code, *, timeout=None):
                 stderr=f"Process timed out after {timeout} seconds and was terminated.",
             )
 
-        if result_queue.empty():
+        try:
+            returncode, stdout, stderr = result_queue.get(timeout=1.0)
+        except (queue.Empty, EOFError):
             return subprocess.CompletedProcess(
                 args=[sys.executable, "-c", python_code],
                 returncode=-999,
                 stdout="",
-                stderr="Process exited without returning results.",
+                stderr="Process exited or crashed before returning results.",
             )
 
-        returncode, stdout, stderr = result_queue.get()
         return subprocess.CompletedProcess(
             args=[sys.executable, "-c", python_code],
             returncode=returncode,
