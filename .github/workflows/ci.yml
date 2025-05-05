@@ -41,7 +41,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' }}
     secrets: inherit
     uses:
-      ./.github/workflows/build.yml
+      ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
