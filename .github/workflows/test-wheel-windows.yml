@@ -152,7 +152,7 @@ jobs:
 
       - name: Install Git for Windows
         # the GPU runner image does not have Git Bash pre-installed...
-        if: ${{ inputs.local-ctk == '1' }}
+        if: ${{ matrix.LOCAL_CTK == '1' }}
         env:
           # doesn't seem there's an easy way to avoid hard-coding it?
           GFW_EXE_URL: https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe
@@ -167,7 +167,7 @@ jobs:
 
       - name: Install zstd
         # the GPU runner image does not have zstd pre-installed... and it's needed by actions/cache
-        if: ${{ inputs.local-ctk == '1' }}
+        if: ${{ matrix.LOCAL_CTK == '1' }}
         env:
           # doesn't seem there's an easy way to avoid hard-coding it?
           ZSTD_URL: https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-v1.5.7-win64.zip

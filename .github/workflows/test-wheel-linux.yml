@@ -69,7 +69,7 @@ jobs:
               - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '12.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '12.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
