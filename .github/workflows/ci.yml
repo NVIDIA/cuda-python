@@ -1,4 +1,5 @@
-name: "CI"
+# Note: This name is referred to in the test job, so make sure any changes are sync'd up!
+name: "CI: Build and test"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
