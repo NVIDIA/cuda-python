@@ -1,6 +1,7 @@
 # Copyright 2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import os
 import subprocess  # nosec B404
 import sys
 from dataclasses import dataclass
@@ -49,6 +50,7 @@ def load_in_subprocess(python_code, timeout=30):
         capture_output=True,
         encoding="utf-8",
         timeout=timeout,  # Ensure this does not hang for an excessive amount of time.
+        env=os.environ,  # Pass current environment
     )
 
 
