@@ -4,12 +4,12 @@ import sys
 from io import StringIO
 
 
-def run_python_code_safely(python_code, *, timeout=None):
-    """Replacement for subprocess.run that forces 'spawn' context"""
-    ctx = multiprocessing.get_context("spawn")
-    result_queue = ctx.Queue()
+class Worker:
+    def __init__(self, python_code, result_queue):
+        self.python_code = python_code
+        self.result_queue = result_queue
 
-    def worker():
+    def __call__(self):
         # Capture stdout/stderr
         old_stdout = sys.stdout
         old_stderr = sys.stderr
@@ -18,7 +18,7 @@ def run_python_code_safely(python_code, *, timeout=None):
 
         returncode = 0
         try:
-            exec(python_code, {"__name__": "__main__"})  # nosec B102
+            exec(self.python_code, {"__name__": "__main__"})  # nosec B102
         except SystemExit as e:  # Handle sys.exit()
             returncode = e.code if isinstance(e.code, int) else 0
         except Exception:  # Capture other exceptions
@@ -32,9 +32,14 @@ def run_python_code_safely(python_code, *, timeout=None):
             stderr = sys.stderr.getvalue()
             sys.stdout = old_stdout
             sys.stderr = old_stderr
-            result_queue.put((returncode, stdout, stderr))
+            self.result_queue.put((returncode, stdout, stderr))
 
-    process = ctx.Process(target=worker)
+
+def run_python_code_safely(python_code, *, timeout=None):
+    """Replacement for subprocess.run that forces 'spawn' context"""
+    ctx = multiprocessing.get_context("spawn")
+    result_queue = ctx.Queue()
+    process = ctx.Process(target=Worker(python_code, result_queue))
     process.start()
 
     try:
