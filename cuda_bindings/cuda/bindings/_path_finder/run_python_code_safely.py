@@ -4,7 +4,7 @@ import sys
 from io import StringIO
 
 
-def run_python_code_safely(python_code, timeout=None):
+def run_python_code_safely(python_code, *, timeout=None):
     """Replacement for subprocess.run that forces 'spawn' context"""
     ctx = multiprocessing.get_context("spawn")
     result_queue = ctx.Queue()
