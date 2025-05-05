@@ -43,6 +43,7 @@ def _lazy_init():
             "data": driver.cuLibraryLoadData,
             "kernel": driver.cuLibraryGetKernel,
             "attribute": driver.cuKernelGetAttribute,
+            "paraminfo": driver.cuKernelGetParamInfo,
         }
         _kernel_ctypes = (driver.CUfunction, driver.CUkernel)
     else:
@@ -214,6 +215,36 @@ class Kernel:
         if self._attributes is None:
             self._attributes = KernelAttributes._init(self._handle)
         return self._attributes
+
+    @property
+    def num_arguments(self) -> int:
+        """int : The number of arguments of this function"""
+        attr_impl = self.attributes
+        if attr_impl._backend_version != "new":
+            raise NotImplementedError("New backend is required")
+        arg_pos = 0
+        while True:
+            result = attr_impl._loader["paraminfo"](self._handle, arg_pos)
+            if result[0] != driver.CUresult.CUDA_SUCCESS:
+                break
+            arg_pos = arg_pos + 1
+        return arg_pos
+
+    @property
+    def arguments_info(self) -> list[tuple[int, int]]:
+        """tuple[tuple[int, int]]: (offset, size) for each argument of this function"""
+        attr_impl = self.attributes
+        if attr_impl._backend_version != "new":
+            raise NotImplementedError("New backend is required")
+        arg_pos = 0
+        param_info = []
+        while True:
+            result = attr_impl._loader["paraminfo"](self._handle, arg_pos)
+            if result[0] != driver.CUresult.CUDA_SUCCESS:
+                break
+            param_info.append((result[1], result[2]))
+            arg_pos = arg_pos + 1
+        return param_info
 
     # TODO: implement from_handle()
 

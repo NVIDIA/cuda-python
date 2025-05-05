@@ -14,7 +14,7 @@ import pytest
 import cuda.core.experimental
 from cuda.core.experimental import ObjectCode, Program, ProgramOptions, system
 
-SAXPY_KERNEL = """
+SAXPY_KERNEL = r"""
 template<typename T>
 __global__ void saxpy(const T a,
                     const T* x,
@@ -162,3 +162,50 @@ def test_object_code_load_cubin_from_file(get_saxpy_kernel, tmp_path):
 def test_object_code_handle(get_saxpy_object_code):
     mod = get_saxpy_object_code
     assert mod.handle is not None
+
+
+def test_saxpy_arguments(get_saxpy_kernel):
+    import ctypes
+    krn, _ = get_saxpy_kernel
+
+    assert krn.num_arguments == 5
+
+    arg_info = krn.arguments_info
+    n_args = len(arg_info)
+    assert n_args == krn.num_arguments
+    class ExpectedStruct(ctypes.Structure):
+        _fields_ = [
+            ('a', ctypes.c_float),
+            ('x', ctypes.POINTER(ctypes.c_float)),
+            ('y', ctypes.POINTER(ctypes.c_float)),
+            ('out', ctypes.POINTER(ctypes.c_float)),
+            ('N', ctypes.c_size_t)
+        ]
+    offsets, sizes = zip(*arg_info)
+    members = [getattr(ExpectedStruct, name) for name, _ in ExpectedStruct._fields_]
+    expected_offsets = tuple(m.offset for m in members)
+    assert all(actual == expected for actual, expected in zip(offsets, expected_offsets))
+    expected_sizes = tuple(m.size for m in members)
+    assert all(actual == expected for actual, expected in zip(sizes, expected_sizes))
+
+
+@pytest.mark.parametrize("nargs", [0, 1, 2, 3, 16])
+def test_num_arguments(init_cuda, nargs):
+    args_str = ", ".join([f"int p_{i}" for i in range(nargs)])
+    src = f"__global__ void foo{nargs}({args_str}) {{ }}"
+    prog = Program(src, code_type="c++")
+    mod = prog.compile(
+        "cubin",
+        name_expressions=(f"foo{nargs}", ),
+    )
+    krn = mod.get_kernel(f"foo{nargs}")
+    assert krn.num_arguments == nargs
+
+    import ctypes
+    class ExpectedStruct(ctypes.Structure):
+        _fields_ = [
+            (f'arg_{i}', ctypes.c_int) for i in range(nargs)
+        ]
+    members = tuple(getattr(ExpectedStruct, f"arg_{i}") for i in range(nargs))
+    expected = [(m.offset, m.size) for m in members]
+    assert krn.arguments_info == expected
