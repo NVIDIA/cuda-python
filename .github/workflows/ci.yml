@@ -1,5 +1,6 @@
 # Note: This name is referred to in the test job, so make sure any changes are sync'd up!
-name: "CI: Build and test"
+# Further this is referencing a run in the backport branch to fetch old bindings.
+name: "CI"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
@@ -24,7 +25,7 @@ jobs:
       - name: Get CUDA build version
         id: get-vars
         run: |
-          cuda_build_ver=$(jq -r .cuda.build.version versions.json)
+          cuda_build_ver=$(jq -r .cuda.build.version ci/versions.json)
           echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
 
   build:
