@@ -23,6 +23,9 @@ on:
 jobs:
   compute-matrix:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
     env:
       BUILD_TYPE: ${{ inputs.build-type }}
       ARCH: ${{ (inputs.host-platform == 'win-64' && 'amd64') }}
@@ -38,8 +41,6 @@ jobs:
       - name: Compute Python Test Matrix
         id: compute-matrix
         run: |
-          set -eo pipefail
-
           # Please keep the matrices sorted in ascending order by the following:
           #
           #     [PY_VER, CUDA_VER, LOCAL_CTK]
