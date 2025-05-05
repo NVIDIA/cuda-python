@@ -15,13 +15,13 @@ Highlights
 * Statically link CUDA Runtime instead of reimplementing it
 * Move stream callback wrappers to the Python layer
 * Return code construction is made faster
-* Failed API calls return None for non error code tuple elements
 
 
 Bug fixes
 ---------
 
 * Fix segfault when converting char* NULL to bytes
+* Failed API calls return None for non error code tuple elements
 * Compute-sanitizer may report ``CUDA_ERROR_INVALID_CONTEXT`` when calling certain CUDA
   runtime APIs such as ``cudaGetDevice()``
 
