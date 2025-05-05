@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/module/runtime.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>runtime - cuda.bindings 12.8.0 documentation</title>
+        <title>runtime - cuda.bindings 12.9.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -173,7 +173,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">cuda.bindings 12.8.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">cuda.bindings 12.9.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -201,7 +201,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">cuda.bindings 12.8.0 documentation</span>
+  <span class="sidebar-brand-text">cuda.bindings 12.9.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -212,7 +212,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.X.Y-notes.html">12.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.0-notes.html">12.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.8.0-notes.html">12.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.6.2-notes.html">12.6.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.6.1-notes.html">12.6.1</a></li>
@@ -254,6 +254,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
 </ul>
 
 </div>
@@ -460,10 +463,10 @@ after launching any kernel that uses the <code class="xref py py-obj docutils li
 system call - in such case <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a> will be
 returned.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaLimit.cudaLimitMallocHeapSize" title="cuda.bindings.runtime.cudaLimit.cudaLimitMallocHeapSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitMallocHeapSize</span></code></a> controls the size in bytes of the
-heap used by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">malloc()</span></code> and <a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNodeParams_st.free" title="cuda.bindings.driver.CUgraphNodeParams_st.free"><code class="xref py py-obj docutils literal notranslate"><span class="pre">free()</span></code></a> device
+heap used by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">malloc()</span></code> and <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNodeParams.free" title="cuda.bindings.runtime.cudaGraphNodeParams.free"><code class="xref py py-obj docutils literal notranslate"><span class="pre">free()</span></code></a> device
 system calls. Setting <a class="reference internal" href="#cuda.bindings.runtime.cudaLimit.cudaLimitMallocHeapSize" title="cuda.bindings.runtime.cudaLimit.cudaLimitMallocHeapSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitMallocHeapSize</span></code></a> must not be
 performed after launching any kernel that uses the
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">malloc()</span></code> or <a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNodeParams_st.free" title="cuda.bindings.driver.CUgraphNodeParams_st.free"><code class="xref py py-obj docutils literal notranslate"><span class="pre">free()</span></code></a> device system calls - in
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">malloc()</span></code> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNodeParams.free" title="cuda.bindings.runtime.cudaGraphNodeParams.free"><code class="xref py py-obj docutils literal notranslate"><span class="pre">free()</span></code></a> device system calls - in
 such case <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a> will be returned.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaLimit.cudaLimitDevRuntimeSyncDepth" title="cuda.bindings.runtime.cudaLimit.cudaLimitDevRuntimeSyncDepth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitDevRuntimeSyncDepth</span></code></a> controls the maximum nesting
 depth of a grid at which a thread can safely call
@@ -542,7 +545,7 @@ thread.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaLimit.cudaLimitPrintfFifoSize" title="cuda.bindings.runtime.cudaLimit.cudaLimitPrintfFifoSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitPrintfFifoSize</span></code></a> is the size in bytes of the
 shared FIFO used by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">printf()</span></code> device system call.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaLimit.cudaLimitMallocHeapSize" title="cuda.bindings.runtime.cudaLimit.cudaLimitMallocHeapSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitMallocHeapSize</span></code></a> is the size in bytes of the heap
-used by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">malloc()</span></code> and <a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNodeParams_st.free" title="cuda.bindings.driver.CUgraphNodeParams_st.free"><code class="xref py py-obj docutils literal notranslate"><span class="pre">free()</span></code></a> device system
+used by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">malloc()</span></code> and <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNodeParams.free" title="cuda.bindings.runtime.cudaGraphNodeParams.free"><code class="xref py py-obj docutils literal notranslate"><span class="pre">free()</span></code></a> device system
 calls.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaLimit.cudaLimitDevRuntimeSyncDepth" title="cuda.bindings.runtime.cudaLimit.cudaLimitDevRuntimeSyncDepth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLimitDevRuntimeSyncDepth</span></code></a> is the maximum grid depth at
 which a thread can isssue the device runtime call
@@ -1128,21 +1131,21 @@ equal to 2.0</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.uuid" title="cuda.bindings.runtime.cudaDeviceProp.uuid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uuid</span></code></a> is a 16-byte unique identifier.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.totalGlobalMem" title="cuda.bindings.runtime.cudaDeviceProp.totalGlobalMem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">totalGlobalMem</span></code></a> is the total amount of global memory
 available on the device in bytes.</p></li>
-<li><p><a class="reference internal" href="driver.html#cuda.bindings.driver.CUdevprop_st.sharedMemPerBlock" title="cuda.bindings.driver.CUdevprop_st.sharedMemPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sharedMemPerBlock</span></code></a> is the maximum amount of shared memory
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.sharedMemPerBlock" title="cuda.bindings.runtime.cudaDeviceProp.sharedMemPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sharedMemPerBlock</span></code></a> is the maximum amount of shared memory
 available to a thread block in bytes.</p></li>
-<li><p><a class="reference internal" href="driver.html#cuda.bindings.driver.CUdevprop_st.regsPerBlock" title="cuda.bindings.driver.CUdevprop_st.regsPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regsPerBlock</span></code></a> is the maximum number of 32-bit registers
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.regsPerBlock" title="cuda.bindings.runtime.cudaDeviceProp.regsPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regsPerBlock</span></code></a> is the maximum number of 32-bit registers
 available to a thread block.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.warpSize" title="cuda.bindings.runtime.cudaDeviceProp.warpSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">warpSize</span></code></a> is the warp size in threads.</p></li>
-<li><p><a class="reference internal" href="driver.html#cuda.bindings.driver.CUdevprop_st.memPitch" title="cuda.bindings.driver.CUdevprop_st.memPitch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memPitch</span></code></a> is the maximum pitch in bytes allowed by the
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.memPitch" title="cuda.bindings.runtime.cudaDeviceProp.memPitch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memPitch</span></code></a> is the maximum pitch in bytes allowed by the
 memory copy functions that involve memory regions allocated through
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMallocPitch" title="cuda.bindings.runtime.cudaMallocPitch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocPitch()</span></code></a>.</p></li>
-<li><p><a class="reference internal" href="driver.html#cuda.bindings.driver.CUdevprop_st.maxThreadsPerBlock" title="cuda.bindings.driver.CUdevprop_st.maxThreadsPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxThreadsPerBlock</span></code></a> is the maximum number of threads per
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaFuncAttributes.maxThreadsPerBlock" title="cuda.bindings.runtime.cudaFuncAttributes.maxThreadsPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxThreadsPerBlock</span></code></a> is the maximum number of threads per
 block.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxThreadsDim[3]</span></code> contains the maximum size of each
 dimension of a block.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxGridSize[3]</span></code> contains the maximum size of each
 dimension of a grid.</p></li>
-<li><p><a class="reference internal" href="driver.html#cuda.bindings.driver.CUdevprop_st.clockRate" title="cuda.bindings.driver.CUdevprop_st.clockRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clockRate</span></code></a> is the clock frequency in kilohertz.</p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.clockRate" title="cuda.bindings.runtime.cudaDeviceProp.clockRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clockRate</span></code></a> is the clock frequency in kilohertz.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.totalConstMem" title="cuda.bindings.runtime.cudaDeviceProp.totalConstMem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">totalConstMem</span></code></a> is the total amount of constant memory
 available on the device in bytes.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.major" title="cuda.bindings.runtime.cudaDeviceProp.major"><code class="xref py py-obj docutils literal notranslate"><span class="pre">major</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceProp.minor" title="cuda.bindings.runtime.cudaDeviceProp.minor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">minor</span></code></a> are the major and minor revision
@@ -4134,7 +4137,7 @@ specified function does not exist, then it is assumed to be a
 the function symbol as follows:
 func_name&lt;template_arg_0,…,template_arg_N&gt;</p>
 <p>Note that some function attributes such as
-<a class="reference internal" href="driver.html#cuda.bindings.driver.CUdevprop_st.maxThreadsPerBlock" title="cuda.bindings.driver.CUdevprop_st.maxThreadsPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxThreadsPerBlock</span></code></a> may vary based on the device that is
+<a class="reference internal" href="#cuda.bindings.runtime.cudaFuncAttributes.maxThreadsPerBlock" title="cuda.bindings.runtime.cudaFuncAttributes.maxThreadsPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxThreadsPerBlock</span></code></a> may vary based on the device that is
 currently being used.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -7258,69 +7261,65 @@ prefetched to the same location, cudaInvalidDeviceId will be
 returned. Note that this simply returns the last location that the
 applicaton requested to prefetch the memory range to. It gives no
 indication as to whether the prefetch operation to that location has
-completed or even begun.</p>
-<ul>
+completed or even begun.</p></li>
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationType" title="cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttributePreferredLocationType</span></code></a>: If this
 attribute is specified, <cite>data</cite> will be interpreted as a
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType" title="cuda.bindings.runtime.cudaMemLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationType</span></code></a>, and <cite>dataSize</cite> must be
 sizeof(cudaMemLocationType). The <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType" title="cuda.bindings.runtime.cudaMemLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationType</span></code></a>
 returned will be <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code></a> if all pages
-in the memory range have the same GPU as their preferred location,
-or <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType" title="cuda.bindings.runtime.cudaMemLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationType</span></code></a> will be
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a> if all pages in the memory
-range have the CPU as their preferred location, or or it will be
+in the memory range have the same GPU as their preferred location, or
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType" title="cuda.bindings.runtime.cudaMemLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationType</span></code></a> will be
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a> if all pages in the memory range
+have the CPU as their preferred location, or or it will be
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a> if all the pages in the
 memory range have the same host NUMA node ID as their preferred
 location or it will be <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvalid" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvalid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeInvalid</span></code></a> if
 either all the pages don’t have the same preferred location or some
 of the pages don’t have a preferred location at all. Note that the
-actual location type of the pages in the memory range at the time
-of the query may be different from the preferred location type.</p></li>
+actual location type of the pages in the memory range at the time of
+the query may be different from the preferred location type.</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationId" title="cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttributePreferredLocationId</span></code></a>: If this
+attribute is specified, <cite>data</cite> will be interpreted as a 32-bit
+integer, and <cite>dataSize</cite> must be 4. If the
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationType" title="cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttributePreferredLocationType</span></code></a> query for
+the same address range returns
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code></a>, it will be a valid device
+ordinal or if it returns <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>,
+it will be a valid host NUMA node ID or if it returns any other
+location type, the id should be ignored.</p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationId" title="cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttributePreferredLocationId</span></code></a>: If this</p></li>
-</ul>
-<p>attribute is specified, <cite>data</cite> will be interpreted as a 32-bit integer,
-and <cite>dataSize</cite> must be 4. If the
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationType" title="cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributePreferredLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttributePreferredLocationType</span></code></a> query for the
-same address range returns <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code></a>, it
-will be a valid device ordinal or if it returns
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>, it will be a valid host NUMA
-node ID or if it returns any other location type, the id should be
-ignored.</p>
-<blockquote>
-<div><ul class="simple">
 <li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationType" title="cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttributeLastPrefetchLocationType</span></code></a>: If this
 attribute is specified, <cite>data</cite> will be interpreted as a
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType" title="cuda.bindings.runtime.cudaMemLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationType</span></code></a>, and <cite>dataSize</cite> must be
 sizeof(cudaMemLocationType). The result returned will be the last
-location type to which all pages in the memory range were
-prefetched explicitly via <a class="reference internal" href="driver.html#cuda.bindings.driver.cuMemPrefetchAsync" title="cuda.bindings.driver.cuMemPrefetchAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemPrefetchAsync</span></code></a>. The
+location type to which all pages in the memory range were prefetched
+explicitly via <a class="reference internal" href="driver.html#cuda.bindings.driver.cuMemPrefetchAsync" title="cuda.bindings.driver.cuMemPrefetchAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemPrefetchAsync</span></code></a>. The
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType" title="cuda.bindings.runtime.cudaMemLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationType</span></code></a> returned will be
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code></a> if the last prefetch location
-was the GPU or <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a> if it was the
-CPU or <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a> if the last prefetch
+was the GPU or <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code></a> if it was the CPU
+or <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a> if the last prefetch
 location was a specific host NUMA node. If any page in the memory
 range was never explicitly prefetched or if all pages were not
 prefetched to the same location, <a class="reference internal" href="driver.html#cuda.bindings.driver.CUmemLocationType" title="cuda.bindings.driver.CUmemLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmemLocationType</span></code></a> will
 be <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvalid" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvalid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeInvalid</span></code></a>. Note that this simply
 returns the last location type that the application requested to
 prefetch the memory range to. It gives no indication as to whether
-the prefetch operation to that location has completed or even
-begun.</p></li>
+the prefetch operation to that location has completed or even begun.</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationId" title="cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttributeLastPrefetchLocationId</span></code></a>: If this
+attribute is specified, <cite>data</cite> will be interpreted as a 32-bit
+integer, and <cite>dataSize</cite> must be 4. If the
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationType" title="cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttributeLastPrefetchLocationType</span></code></a> query for
+the same address range returns
+<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code></a>, it will be a valid device
+ordinal or if it returns <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>,
+it will be a valid host NUMA node ID or if it returns any other
+location type, the id should be ignored.</p></li>
 </ul>
-</div></blockquote>
-<ul class="simple">
-<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationId" title="cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttributeLastPrefetchLocationId</span></code></a>: If this</p></li>
+</li>
 </ul>
-<p>attribute is specified, <cite>data</cite> will be interpreted as a 32-bit integer,
-and <cite>dataSize</cite> must be 4. If the
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationType" title="cuda.bindings.runtime.cudaMemRangeAttribute.cudaMemRangeAttributeLastPrefetchLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttributeLastPrefetchLocationType</span></code></a> query for the
-same address range returns <a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code></a>, it
-will be a valid device ordinal or if it returns
-<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma" title="cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeHostNuma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code></a>, it will be a valid host NUMA
-node ID or if it returns any other location type, the id should be
-ignored.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -10231,8 +10230,8 @@ function. Host nodes are not supported under MPS with pre-Volta GPUs.</p>
 case the node will be placed at the root of the graph. <cite>pDependencies</cite>
 may not have any duplicate entries. A handle to the new node will be
 returned in <cite>pGraphNode</cite>.</p>
-<p>If <cite>hGraph</cite> contains allocation or free nodes, this call will return an
-error.</p>
+<p>If <cite>childGraph</cite> contains allocation nodes, free nodes, or conditional
+nodes, this call will return an error.</p>
 <p>The node executes an embedded child graph. The child graph is cloned in
 this call.</p>
 <dl class="field-list simple">
@@ -10714,7 +10713,8 @@ another graph, a free node can no longer be added to the owning graph.</p>
 and/or memory free nodes:</p>
 <ul class="simple">
 <li><p>Nodes and edges of the graph cannot be deleted.</p></li>
-<li><p>The graph cannot be used in a child node.</p></li>
+<li><p>The graph can only be used in a child node if the ownership is moved
+to the parent.</p></li>
 <li><p>Only one instantiation of the graph may exist at any point in time.</p></li>
 <li><p>The graph cannot be cloned.</p></li>
 </ul>
@@ -10788,7 +10788,8 @@ node will be returned in <cite>pGraphNode</cite>.</p>
 and/or memory free nodes:</p>
 <ul class="simple">
 <li><p>Nodes and edges of the graph cannot be deleted.</p></li>
-<li><p>The graph cannot be used in a child node.</p></li>
+<li><p>The graph can only be used in a child node if the ownership is moved
+to the parent.</p></li>
 <li><p>Only one instantiation of the graph may exist at any point in time.</p></li>
 <li><p>The graph cannot be cloned.</p></li>
 </ul>
@@ -10961,6 +10962,8 @@ clone.</p>
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="#cuda.bindings.runtime.cudaGraphCreate" title="cuda.bindings.runtime.cudaGraphCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphCreate</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNodeFindInClone" title="cuda.bindings.runtime.cudaGraphNodeFindInClone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNodeFindInClone</span></code></a></p>
 </div>
+<p class="rubric">Notes</p>
+<p>: Cloning is not supported for graphs which contain memory allocation nodes, memory free nodes, or conditional nodes.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -11916,7 +11919,7 @@ pointer.</p>
 aspects of the memset (width, height, element size or pitch) may cause
 the update to be rejected. Specifically, for 2d memsets, all dimension
 changes are rejected. For 1d memsets, changes in height are explicitly
-rejected and other changes are oportunistically allowed if the
+rejected and other changes are opportunistically allowed if the
 resulting work maps onto the work resources already allocated for the
 node.</p>
 <p>The modifications only affect future launches of <cite>hGraphExec</cite>. Already
@@ -12259,7 +12262,7 @@ kernel nodes.</p></li>
 cannot change.</p></li>
 <li><p>The source/destination memory must be allocated from the same
 contexts as the original source/destination memory.</p></li>
-<li><p>For 2d memsets, only address and assinged value may be updated.</p></li>
+<li><p>For 2d memsets, only address and assigned value may be updated.</p></li>
 <li><p>For 1d memsets, updating dimensions is also allowed, but may fail
 if the resulting operation doesn’t map onto the work resources
 already allocated for the node.</p></li>
@@ -12274,7 +12277,7 @@ CU_MEMORYTYPE_DEVICE, CU_MEMORYTYPE_ARRAY, etc.) is not supported.</p></li>
 <li><p>Conditional nodes:</p>
 <ul>
 <li><p>Changing node parameters is not supported.</p></li>
-<li><p>Changeing parameters of nodes within the conditional body graph is
+<li><p>Changing parameters of nodes within the conditional body graph is
 subject to the rules above.</p></li>
 <li><p>Conditional handle flags and default values are updated as part of
 the graph update.</p></li>
@@ -17477,7 +17480,10 @@ executed when the condition is equal to n. If the condition &gt;=
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChildGraphNodeParams.graph">
 <span class="sig-name descname"><span class="pre">graph</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaChildGraphNodeParams.graph" title="Link to this definition">¶</a></dt>
 <dd><p>The child graph to clone into the node for node creation, or a
-handle to the graph owned by the node for node query</p>
+handle to the graph owned by the node for node query. The graph
+must not contain conditional nodes. Graphs containing memory
+allocation or memory free nodes must set the ownership to be moved
+to the parent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t">cudaGraph_t</a></p>
@@ -18251,7 +18257,8 @@ cudaLaunchAttributePreferredSharedMemoryCarveout.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaAsyncNotificationInfo.type">
 <span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaAsyncNotificationInfo.type" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>The type of notification being sent</p>
+<dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaAsyncNotificationType" title="cuda.bindings.runtime.cudaAsyncNotificationType">cudaAsyncNotificationType</a></p>
 </dd>
@@ -18261,7 +18268,9 @@ cudaLaunchAttributePreferredSharedMemoryCarveout.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaAsyncNotificationInfo.info">
 <span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaAsyncNotificationInfo.info" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Information about the notification. <cite>typename</cite> must be checked in
+order to interpret this field.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>anon_union10</p>
 </dd>
@@ -23203,7 +23212,8 @@ are on the same GPU.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaAsyncNotificationType.cudaAsyncNotificationTypeOverBudget">
 <span class="sig-name descname"><span class="pre">cudaAsyncNotificationTypeOverBudget</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaAsyncNotificationType.cudaAsyncNotificationTypeOverBudget" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Sent when the process has exceeded its device memory budget</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -24327,7 +24337,8 @@ cudaLaunchAttributePreferredSharedMemoryCarveout.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaAsyncNotificationInfo_t.type">
 <span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaAsyncNotificationInfo_t.type" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>The type of notification being sent</p>
+<dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaAsyncNotificationType" title="cuda.bindings.runtime.cudaAsyncNotificationType">cudaAsyncNotificationType</a></p>
 </dd>
@@ -24337,7 +24348,9 @@ cudaLaunchAttributePreferredSharedMemoryCarveout.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaAsyncNotificationInfo_t.info">
 <span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaAsyncNotificationInfo_t.info" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Information about the notification. <cite>typename</cite> must be checked in
+order to interpret this field.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>anon_union10</p>
 </dd>
@@ -27242,7 +27255,7 @@ cudaLaunchAttributePreferredSharedMemoryCarveout.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=2a80ae63"></script>
+</div><script src="../_static/documentation_options.js?v=5b55e43a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

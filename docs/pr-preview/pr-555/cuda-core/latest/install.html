@@ -212,6 +212,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
@@ -234,6 +235,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
 </ul>
 
 </div>
@@ -313,7 +317,7 @@ dependencies are as follows:</p>
 <tbody>
 <tr class="row-even"><td><p>CUDA Toolkit <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
 <td><p>11.2 - 11.8</p></td>
-<td><p>12.0 - 12.6</p></td>
+<td><p>12.x</p></td>
 </tr>
 <tr class="row-odd"><td><p>Driver</p></td>
 <td><p>450.80.02+ (Linux), 452.39+ (Windows)</p></td>
@@ -331,8 +335,8 @@ dependencies are as follows:</p>
 </pre></div>
 </div>
 <p>and likewise use <code class="docutils literal notranslate"><span class="pre">[cu11]</span></code> for CUDA 11.</p>
-<p>Note that using <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with NVRTC or nvJitLink installed from PyPI via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> requires
-<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 12.8.0+ or 11.8.6+.</p>
+<p>Note that using <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with NVRTC installed from PyPI via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> requires
+<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 12.8.0+ or 11.8.6+. Likewise, with nvJitLink it requires 12.8.0+.</p>
 </section>
 <section id="installing-from-conda-conda-forge">
 <h2>Installing from Conda (conda-forge)<a class="headerlink" href="#installing-from-conda-conda-forge" title="Link to this heading">¶</a></h2>
@@ -341,12 +345,7 @@ dependencies are as follows:</p>
 </pre></div>
 </div>
 <p>and likewise use <code class="docutils literal notranslate"><span class="pre">cuda-version=11</span></code> for CUDA 11.</p>
-<p>Note that to use <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with nvJitLink installed from conda-forge currently requires it to
-be separately installed:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>libnvjitlink
-</pre></div>
-</div>
-<p>(can be combined with the command above). This extra step will be removed in a future release.</p>
+<p>Note that to use <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with nvJitLink installed from conda-forge requires <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 12.8.0+.</p>
 </section>
 <section id="installing-from-source">
 <h2>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">¶</a></h2>
@@ -355,7 +354,7 @@ be separately installed:</p>
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
-<p>For now <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> (<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> later) 11.x or 12.x is a required dependency.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 11.x or 12.x is a required dependency.</p>
 </section>
 </section>
 <hr class="footnotes docutils" />

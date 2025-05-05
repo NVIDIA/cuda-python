@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 ------
 driver
 ------
@@ -68,6 +70,11 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUgraphExecUpdateResultInfo_st
 .. autoclass:: cuda.bindings.driver.CUmemPoolProps_st
 .. autoclass:: cuda.bindings.driver.CUmemPoolPtrExportData_st
+.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes_st
+.. autoclass:: cuda.bindings.driver.CUoffset3D_st
+.. autoclass:: cuda.bindings.driver.CUextent3D_st
+.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperand_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_st
 .. autoclass:: cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS_v1_st
 .. autoclass:: cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS_v2_st
 .. autoclass:: cuda.bindings.driver.CUDA_MEM_FREE_NODE_PARAMS_st
@@ -79,11 +86,6 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointRestoreArgs_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointUnlockArgs_st
-.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes_st
-.. autoclass:: cuda.bindings.driver.CUoffset3D_st
-.. autoclass:: cuda.bindings.driver.CUextent3D_st
-.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperand_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_st
 .. autoclass:: cuda.bindings.driver.CUeglFrame_st
 .. autoclass:: cuda.bindings.driver.CUipcMem_flags
 
@@ -440,6 +442,9 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUasyncNotificationType
 
     .. autoattribute:: cuda.bindings.driver.CUasyncNotificationType.CU_ASYNC_NOTIFICATION_TYPE_OVER_BUDGET
+
+
+        Sent when the process has exceeded its device memory budget
 
 .. autoclass:: cuda.bindings.driver.CUarray_format
 
@@ -1334,7 +1339,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NATIVE_ATOMIC_SUPPORTED
 
 
-        Link between the device and the host supports native atomic operations (this is a placeholder attribute, and is not supported on any current hardware)
+        Link between the device and the host supports native atomic operations
 
 
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SINGLE_TO_DOUBLE_PRECISION_PERF_RATIO
@@ -1649,6 +1654,12 @@ Data types used by CUDA driver
         The returned valued is the maximum length in bytes of a single decompress operation that is allowed.
 
 
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VULKAN_CIG_SUPPORTED
+
+
+        Device supports CIG with Vulkan.
+
+
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_DEVICE_ID
 
 
@@ -1659,6 +1670,18 @@ Data types used by CUDA driver
 
 
         The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
+
+
+        Device supports HOST_NUMA location with the virtual memory management APIs like :py:obj:`~.cuMemCreate`, :py:obj:`~.cuMemMap` and related APIs
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_MEMORY_POOLS_SUPPORTED
+
+
+        Device supports HOST_NUMA location with the :py:obj:`~.cuMemAllocAsync` and :py:obj:`~.cuMemPool` family of APIs
 
 
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_MULTINODE_IPC_SUPPORTED
@@ -2589,10 +2612,22 @@ Data types used by CUDA driver
         Compute device class 10.1.
 
 
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_103
+
+
+        Compute device class 10.3.
+
+
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_120
 
 
-        Compute device class 12.0. Compute device class 9.0. with accelerated features.
+        Compute device class 12.0.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_121
+
+
+        Compute device class 12.1. Compute device class 9.0. with accelerated features.
 
 
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_90A
@@ -2610,10 +2645,52 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_101A
 
 
+        Compute device class 10.3. with accelerated features.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_103A
+
+
         Compute device class 12.0. with accelerated features.
 
 
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_120A
+
+
+        Compute device class 12.1. with accelerated features.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_121A
+
+
+        Compute device class 10.x with family features.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_100F
+
+
+        Compute device class 10.1 with family features.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_101F
+
+
+        Compute device class 10.3. with family features.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_103F
+
+
+        Compute device class 12.0. with family features.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_120F
+
+
+        Compute device class 12.1. with family features.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_121F
 
 .. autoclass:: cuda.bindings.driver.CUjit_fallback
 
@@ -3288,6 +3365,12 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUcigDataType
 
     .. autoattribute:: cuda.bindings.driver.CUcigDataType.CIG_DATA_TYPE_D3D12_COMMAND_QUEUE
+
+
+    .. autoattribute:: cuda.bindings.driver.CUcigDataType.CIG_DATA_TYPE_NV_BLOB
+
+
+        D3D12 Command Queue Handle
 
 .. autoclass:: cuda.bindings.driver.CUlibraryOption
 
@@ -4657,6 +4740,60 @@ Data types used by CUDA driver
 
         (value type = cuuint64_t) High watermark of the amount of memory from the pool that was in use by the application since the last time it was reset. High watermark can only be reset to zero.
 
+.. autoclass:: cuda.bindings.driver.CUmemcpyFlags
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpyFlags.CU_MEMCPY_FLAG_DEFAULT
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpyFlags.CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE
+
+
+        Hint to the driver to try and overlap the copy with compute work on the SMs.
+
+.. autoclass:: cuda.bindings.driver.CUmemcpySrcAccessOrder
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_INVALID
+
+
+        Default invalid.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_STREAM
+
+
+        Indicates that access to the source pointer must be in stream order.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL
+
+
+        Indicates that access to the source pointer can be out of stream order and all accesses must be complete before the API call returns. This flag is suited for ephemeral sources (ex., stack variables) when it's known that no prior operations in the stream can be accessing the memory and also that the lifetime of the memory is limited to the scope that the source variable was declared in. Specifying this flag allows the driver to optimize the copy and removes the need for the user to synchronize the stream after the API call.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_ANY
+
+
+        Indicates that access to the source pointer can be out of stream order and the accesses can happen even after the API call returns. This flag is suited for host pointers allocated outside CUDA (ex., via malloc) when it's known that no prior operations in the stream can be accessing the memory. Specifying this flag allows the driver to optimize the copy on certain platforms.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_MAX
+
+.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperandType
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_POINTER
+
+
+        Memcpy operand is a valid pointer.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_ARRAY
+
+
+        Memcpy operand is a CUarray.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_MAX
+
 .. autoclass:: cuda.bindings.driver.CUgraphMem_attribute
 
     .. autoattribute:: cuda.bindings.driver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT
@@ -4681,6 +4818,23 @@ Data types used by CUDA driver
 
 
         (value type = cuuint64_t) High watermark of memory, in bytes, currently allocated for use by the CUDA graphs asynchronous allocator.
+
+.. autoclass:: cuda.bindings.driver.CUgraphChildGraphNodeOwnership
+
+    .. autoattribute:: cuda.bindings.driver.CUgraphChildGraphNodeOwnership.CU_GRAPH_CHILD_GRAPH_OWNERSHIP_CLONE
+
+
+        Default behavior for a child graph node. Child graph is cloned into the parent and memory allocation/free nodes can't be present in the child graph.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUgraphChildGraphNodeOwnership.CU_GRAPH_CHILD_GRAPH_OWNERSHIP_MOVE
+
+
+        The child graph is moved to the parent. The handle to the child graph is owned by the parent and will be destroyed when the parent is destroyed.
+
+
+
+        The following restrictions apply to child graphs after they have been moved: Cannot be independently instantiated or destroyed; Cannot be added as a child graph of a separate parent graph; Cannot be used as an argument to cuGraphExecUpdate; Cannot have additional memory allocation or free nodes added.
 
 .. autoclass:: cuda.bindings.driver.CUflushGPUDirectRDMAWritesOptions
 
@@ -4907,60 +5061,6 @@ Data types used by CUDA driver
 
 
         Application entered an uncorrectable error during the checkpoint/restore process
-
-.. autoclass:: cuda.bindings.driver.CUmemcpyFlags
-
-    .. autoattribute:: cuda.bindings.driver.CUmemcpyFlags.CU_MEMCPY_FLAG_DEFAULT
-
-
-    .. autoattribute:: cuda.bindings.driver.CUmemcpyFlags.CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE
-
-
-        Hint to the driver to try and overlap the copy with compute work on the SMs.
-
-.. autoclass:: cuda.bindings.driver.CUmemcpySrcAccessOrder
-
-    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_INVALID
-
-
-        Default invalid.
-
-
-    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_STREAM
-
-
-        Indicates that access to the source pointer must be in stream order.
-
-
-    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL
-
-
-        Indicates that access to the source pointer can be out of stream order and all accesses must be complete before the API call returns. This flag is suited for ephemeral sources (ex., stack variables) when it's known that no prior operations in the stream can be accessing the memory and also that the lifetime of the memory is limited to the scope that the source variable was declared in. Specifying this flag allows the driver to optimize the copy and removes the need for the user to synchronize the stream after the API call.
-
-
-    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_ANY
-
-
-        Indicates that access to the source pointer can be out of stream order and the accesses can happen even after the API call returns. This flag is suited for host pointers allocated outside CUDA (ex., via malloc) when it's known that no prior operations in the stream can be accessing the memory. Specifying this flag allows the driver to optimize the copy on certain platforms.
-
-
-    .. autoattribute:: cuda.bindings.driver.CUmemcpySrcAccessOrder.CU_MEMCPY_SRC_ACCESS_ORDER_MAX
-
-.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperandType
-
-    .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_POINTER
-
-
-        Memcpy operand is a valid pointer.
-
-
-    .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_ARRAY
-
-
-        Memcpy operand is a CUarray.
-
-
-    .. autoattribute:: cuda.bindings.driver.CUmemcpy3DOperandType.CU_MEMCPY_OPERAND_TYPE_MAX
 
 .. autoclass:: cuda.bindings.driver.CUeglFrameType
 
@@ -5839,6 +5939,16 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUmemPoolProps
 .. autoclass:: cuda.bindings.driver.CUmemPoolPtrExportData_v1
 .. autoclass:: cuda.bindings.driver.CUmemPoolPtrExportData
+.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes_v1
+.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes
+.. autoclass:: cuda.bindings.driver.CUoffset3D_v1
+.. autoclass:: cuda.bindings.driver.CUoffset3D
+.. autoclass:: cuda.bindings.driver.CUextent3D_v1
+.. autoclass:: cuda.bindings.driver.CUextent3D
+.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperand_v1
+.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperand
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_v1
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP
 .. autoclass:: cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS_v1
 .. autoclass:: cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS
 .. autoclass:: cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS_v2
@@ -5851,16 +5961,6 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs
 .. autoclass:: cuda.bindings.driver.CUcheckpointRestoreArgs
 .. autoclass:: cuda.bindings.driver.CUcheckpointUnlockArgs
-.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes_v1
-.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes
-.. autoclass:: cuda.bindings.driver.CUoffset3D_v1
-.. autoclass:: cuda.bindings.driver.CUoffset3D
-.. autoclass:: cuda.bindings.driver.CUextent3D_v1
-.. autoclass:: cuda.bindings.driver.CUextent3D
-.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperand_v1
-.. autoclass:: cuda.bindings.driver.CUmemcpy3DOperand
-.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_v1
-.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP
 .. autoclass:: cuda.bindings.driver.CUeglFrame_v1
 .. autoclass:: cuda.bindings.driver.CUeglFrame
 .. autoclass:: cuda.bindings.driver.CUeglStreamConnection
@@ -5901,6 +6001,7 @@ Data types used by CUDA driver
     See details of the \link_sync_behavior
 
 .. autoattribute:: cuda.bindings.driver.CU_COMPUTE_ACCELERATED_TARGET_BASE
+.. autoattribute:: cuda.bindings.driver.CU_COMPUTE_FAMILY_TARGET_BASE
 .. autoattribute:: cuda.bindings.driver.CUDA_CB
 .. autoattribute:: cuda.bindings.driver.CU_GRAPH_COND_ASSIGN_DEFAULT
 
@@ -6072,6 +6173,10 @@ Data types used by CUDA driver
 .. autoattribute:: cuda.bindings.driver.CU_TRSF_SEAMLESS_CUBEMAP
 
     Enable seamless cube map filtering. Flag for :py:obj:`~.cuTexObjectCreate()`
+
+.. autoattribute:: cuda.bindings.driver.CU_LAUNCH_KERNEL_REQUIRED_BLOCK_DIM
+
+    Launch with the required block dimension.
 
 .. autoattribute:: cuda.bindings.driver.CU_LAUNCH_PARAM_END_AS_INT
 
@@ -6290,6 +6395,12 @@ This section describes the memory management functions of the low-level CUDA dri
 
 
         Snappy is supported.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemDecompressAlgorithm.CU_MEM_DECOMPRESS_ALGORITHM_LZ4
+
+
+        LZ4 is supported.
 
 .. autoclass:: cuda.bindings.driver.CUmemDecompressParams
 .. autofunction:: cuda.bindings.driver.cuMemGetInfo
@@ -7044,6 +7155,27 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_EXTERNAL_BYTES
 .. autoattribute:: cuda.bindings.driver._CONCAT_INNER
 .. autoattribute:: cuda.bindings.driver._CONCAT_OUTER
+
+Error Log Management Functions
+------------------------------
+
+This section describes the error log management functions of the low-level CUDA driver application programming interface.
+
+.. autoclass:: cuda.bindings.driver.CUlogLevel
+
+    .. autoattribute:: cuda.bindings.driver.CUlogLevel.CU_LOG_LEVEL_ERROR
+
+
+    .. autoattribute:: cuda.bindings.driver.CUlogLevel.CU_LOG_LEVEL_WARNING
+
+.. autoclass:: cuda.bindings.driver.CUlogsCallbackHandle
+.. autoclass:: cuda.bindings.driver.CUlogsCallback
+.. autoclass:: cuda.bindings.driver.CUlogIterator
+.. autofunction:: cuda.bindings.driver.cuLogsRegisterCallback
+.. autofunction:: cuda.bindings.driver.cuLogsUnregisterCallback
+.. autofunction:: cuda.bindings.driver.cuLogsCurrent
+.. autofunction:: cuda.bindings.driver.cuLogsDumpToFile
+.. autofunction:: cuda.bindings.driver.cuLogsDumpToMemory
 
 CUDA Checkpointing
 ------------------
