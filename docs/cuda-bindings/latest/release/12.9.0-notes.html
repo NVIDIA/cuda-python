@@ -331,13 +331,13 @@
 <li><p>Statically link CUDA Runtime instead of reimplementing it</p></li>
 <li><p>Move stream callback wrappers to the Python layer</p></li>
 <li><p>Return code construction is made faster</p></li>
-<li><p>Failed API calls return None for non error code tuple elements</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
 <h2>Bug fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Fix segfault when converting char* NULL to bytes</p></li>
+<li><p>Failed API calls return None for non error code tuple elements</p></li>
 <li><p>Compute-sanitizer may report <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_CONTEXT</span></code> when calling certain CUDA
 runtime APIs such as <code class="docutils literal notranslate"><span class="pre">cudaGetDevice()</span></code></p></li>
 </ul>
