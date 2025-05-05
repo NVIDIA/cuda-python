@@ -20,6 +20,10 @@ on:
         type: string
         default: "."
 
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
 jobs:
   compute-matrix:
     runs-on: ubuntu-latest
@@ -39,8 +43,6 @@ jobs:
       - name: Compute Python Test Matrix
         id: compute-matrix
         run: |
-          set -eo pipefail
-
           # Set a default GPU based upon architecture.
           gpu="l4"
           if [[ "${ARCH}" == "arm64" ]]; then
@@ -134,9 +136,6 @@ jobs:
       image: ubuntu:22.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
-    defaults:
-      run:
-        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Ensure GPU is working
         run: nvidia-smi
