@@ -1,6 +1,7 @@
 import multiprocessing
 import subprocess  # nosec B404
 import sys
+import traceback
 from io import StringIO
 
 
@@ -16,14 +17,12 @@ class Worker:
         sys.stdout = StringIO()
         sys.stderr = StringIO()
 
-        returncode = 0
         try:
             exec(self.python_code, {"__name__": "__main__"})  # nosec B102
+            returncode = 0
         except SystemExit as e:  # Handle sys.exit()
             returncode = e.code if isinstance(e.code, int) else 0
-        except Exception:  # Capture other exceptions
-            import traceback
-
+        except BaseException:
             traceback.print_exc()
             returncode = 1
         finally:
@@ -32,38 +31,54 @@ class Worker:
             stderr = sys.stderr.getvalue()
             sys.stdout = old_stdout
             sys.stderr = old_stderr
-            self.result_queue.put((returncode, stdout, stderr))
+            try:  # noqa: SIM105
+                self.result_queue.put((returncode, stdout, stderr))
+            except Exception:  # nosec B110
+                # If the queue is broken (e.g., parent gone), best effort logging
+                pass
 
 
 def run_python_code_safely(python_code, *, timeout=None):
-    """Replacement for subprocess.run that forces 'spawn' context"""
+    """Run Python code in a spawned subprocess, capturing stdout/stderr/output."""
     ctx = multiprocessing.get_context("spawn")
-    result_queue = ctx.Queue()
+    result_queue = ctx.SimpleQueue()
     process = ctx.Process(target=Worker(python_code, result_queue))
     process.start()
 
     try:
-        # Wait with timeout support
         process.join(timeout)
         if process.is_alive():
             process.terminate()
             process.join()
-            raise subprocess.TimeoutExpired([sys.executable, "-c", python_code], timeout)
+            return subprocess.CompletedProcess(
+                args=[sys.executable, "-c", python_code],
+                returncode=-9,
+                stdout="",
+                stderr=f"Process timed out after {timeout} seconds and was terminated.",
+            )
 
-        # Get results from queue
         if result_queue.empty():
             return subprocess.CompletedProcess(
-                [sys.executable, "-c", python_code],
+                args=[sys.executable, "-c", python_code],
                 returncode=-999,
                 stdout="",
-                stderr="Process failed to return results",
+                stderr="Process exited without returning results.",
             )
 
         returncode, stdout, stderr = result_queue.get()
         return subprocess.CompletedProcess(
-            [sys.executable, "-c", python_code], returncode=returncode, stdout=stdout, stderr=stderr
+            args=[sys.executable, "-c", python_code],
+            returncode=returncode,
+            stdout=stdout,
+            stderr=stderr,
         )
+
     finally:
-        # Cleanup if needed
+        try:
+            result_queue.close()
+            result_queue.join_thread()
+        except Exception:  # nosec B110
+            pass
         if process.is_alive():
             process.kill()
+            process.join()
