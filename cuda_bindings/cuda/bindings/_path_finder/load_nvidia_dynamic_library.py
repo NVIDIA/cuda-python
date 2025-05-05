@@ -26,8 +26,11 @@ else:
         load_with_system_search,
     )
 
+# "nvvm" is found from this anchor
+ANCHOR_LIBNAME = "nppc"  # libnppc.so.12 1.6M, nppc64_12.dll 288K
 
-def _load_other_in_subprocess(libname, error_messages):
+
+def _load_anchor_in_subprocess(libname, error_messages):
     code = f"""\
 from cuda.bindings._path_finder.load_nvidia_dynamic_library import load_nvidia_dynamic_library
 import json
@@ -60,14 +63,13 @@ def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
         if loaded is not None:
             return loaded
         if libname == "nvvm":
-            # Use cudart as anchor point (libcudart.so.12 is only ~720K, cudart64_12.dll ~560K).
-            loaded_cudart = check_if_already_loaded_from_elsewhere("cudart")
-            if loaded_cudart is not None:
-                found.retry_with_other_abs_path(loaded_cudart.abs_path)
+            loaded_anchor = check_if_already_loaded_from_elsewhere(ANCHOR_LIBNAME)
+            if loaded_anchor is not None:
+                found.retry_with_anchor_abs_path(loaded_anchor.abs_path)
             else:
-                cudart_abs_path = _load_other_in_subprocess("cudart", found.error_messages)
-                if cudart_abs_path is not None:
-                    found.retry_with_other_abs_path(cudart_abs_path)
+                anchor_abs_path = _load_anchor_in_subprocess(ANCHOR_LIBNAME, found.error_messages)
+                if anchor_abs_path is not None:
+                    found.retry_with_anchor_abs_path(anchor_abs_path)
         found.raise_if_abs_path_is_None()
 
     # Load the library from the found path
