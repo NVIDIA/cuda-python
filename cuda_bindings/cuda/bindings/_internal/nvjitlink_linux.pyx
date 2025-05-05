@@ -4,11 +4,11 @@
 #
 # This code was automatically generated across versions from 12.0.1 to 12.9.0. Do not modify it directly.
 
-from libc.stdint cimport intptr_t
-
-from .utils cimport get_nvjitlink_dso_version_suffix
+from libc.stdint cimport intptr_t, uintptr_t
 
 from .utils import FunctionNotFoundError, NotSupportedError
+
+from cuda.bindings import path_finder
 
 ###############################################################################
 # Extern
@@ -52,17 +52,9 @@ cdef void* __nvJitLinkGetInfoLog = NULL
 cdef void* __nvJitLinkVersion = NULL
 
 
-cdef void* load_library(const int driver_ver) except* with gil:
-    cdef void* handle
-    for suffix in get_nvjitlink_dso_version_suffix(driver_ver):
-        so_name = "libnvJitLink.so" + (f".{suffix}" if suffix else suffix)
-        handle = dlopen(so_name.encode(), RTLD_NOW | RTLD_GLOBAL)
-        if handle != NULL:
-            break
-    else:
-        err_msg = dlerror()
-        raise RuntimeError(f'Failed to dlopen libnvJitLink ({err_msg.decode()})')
-    return handle
+cdef void* load_library(int driver_ver) except* with gil:
+    cdef uintptr_t handle = path_finder._load_nvidia_dynamic_library("nvJitLink").handle
+    return <void*>handle
 
 
 cdef int _check_or_init_nvjitlink() except -1 nogil:
