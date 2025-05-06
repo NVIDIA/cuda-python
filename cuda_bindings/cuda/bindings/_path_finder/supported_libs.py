@@ -111,6 +111,7 @@ DIRECT_DEPENDENCIES = {
 #   cuda_12.5.1_555.42.06_linux.run
 #   cuda_12.6.2_560.35.03_linux.run
 #   cuda_12.8.0_570.86.10_linux.run
+#   cuda_12.9.0_575.51.03_linux.run
 # Generated with toolshed/build_path_finder_sonames.py
 SUPPORTED_LINUX_SONAMES = {
     "cublas": (
