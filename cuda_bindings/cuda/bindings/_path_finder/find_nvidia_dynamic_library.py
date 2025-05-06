@@ -53,23 +53,15 @@ def _find_dll_using_nvidia_bin_dirs(libname, lib_searched_for, error_messages, a
     return None
 
 
-def _get_cuda_home(priority):
-    supported_priorities = ("first", "last")
-    assert priority in supported_priorities
-    env_priority = os.environ.get("CUDA_PYTHON_CUDA_HOME_PRIORITY")
-    if env_priority:
-        if env_priority not in supported_priorities:
-            raise RuntimeError(f"Invalid CUDA_PYTHON_CUDA_HOME_PRIORITY {env_priority!r} ({supported_priorities=})")
-        if priority != env_priority:
-            return None
+def _get_cuda_home():
     cuda_home = os.environ.get("CUDA_HOME")
     if cuda_home is None:
         cuda_home = os.environ.get("CUDA_PATH")
     return cuda_home
 
 
-def _find_lib_dir_using_cuda_home(libname, priority):
-    cuda_home = _get_cuda_home(priority)
+def _find_lib_dir_using_cuda_home(libname):
+    cuda_home = _get_cuda_home()
     if cuda_home is None:
         return None
     if IS_WINDOWS:
@@ -134,30 +126,21 @@ class _find_nvidia_dynamic_library:
         self.attachments = []
         self.abs_path = None
 
-        cuda_home_lib_dir = _find_lib_dir_using_cuda_home(libname, "first")
         if IS_WINDOWS:
             self.lib_searched_for = f"{libname}*.dll"
-            if cuda_home_lib_dir is not None:
-                self.abs_path = _find_dll_using_lib_dir(
-                    cuda_home_lib_dir, libname, self.error_messages, self.attachments
-                )
             if self.abs_path is None:
                 self.abs_path = _find_dll_using_nvidia_bin_dirs(
                     libname, self.lib_searched_for, self.error_messages, self.attachments
                 )
         else:
             self.lib_searched_for = f"lib{libname}.so"
-            if cuda_home_lib_dir is not None:
-                self.abs_path = _find_so_using_lib_dir(
-                    cuda_home_lib_dir, self.lib_searched_for, self.error_messages, self.attachments
-                )
             if self.abs_path is None:
                 self.abs_path = _find_so_using_nvidia_lib_dirs(
                     libname, self.lib_searched_for, self.error_messages, self.attachments
                 )
 
     def retry_with_cuda_home_priority_last(self):
-        cuda_home_lib_dir = _find_lib_dir_using_cuda_home(self.libname, "last")
+        cuda_home_lib_dir = _find_lib_dir_using_cuda_home(self.libname)
         if cuda_home_lib_dir is not None:
             if IS_WINDOWS:
                 self.abs_path = _find_dll_using_lib_dir(
