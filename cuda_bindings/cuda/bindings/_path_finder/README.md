@@ -24,14 +24,10 @@ strategy for locating NVIDIA shared libraries:
      The absolute path of the already loaded library will be returned, along
      with the handle to the library.
 
-1. **Environment variables**
-   - Relies on `CUDA_HOME` or `CUDA_PATH` environment variables if set
-     (in that order).
-
-2. **NVIDIA Python wheels**
+1. **NVIDIA Python wheels**
    - Scans all site-packages to find libraries installed via NVIDIA Python wheels.
 
-3. **OS default mechanisms / Conda environments**
+2. **OS default mechanisms / Conda environments**
    - Falls back to native loader:
      - `dlopen()` on Linux
      - `LoadLibraryW()` on Windows
@@ -41,6 +37,10 @@ strategy for locating NVIDIA shared libraries:
    - Conda installations are expected to be discovered:
      - Linux: Via `$ORIGIN/../lib` on `RPATH` (of the `python` binary)
      - Windows: Via `%CONDA_PREFIX%\Library\bin` on system `PATH`
+
+3. **Environment variables**
+   - Relies on `CUDA_HOME` or `CUDA_PATH` environment variables if set
+     (in that order).
 
 Note that the search is done on a per-library basis. There is no centralized
 mechanism that ensures all libraries are found in the same way.
