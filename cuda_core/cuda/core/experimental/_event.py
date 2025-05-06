@@ -8,6 +8,8 @@ import weakref
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
+from cuda.core.experimental._context import Context
+from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     check_or_create_options,
@@ -111,6 +113,8 @@ class Event:
         if options.support_ipc:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
         self._mnff.handle = handle_return(driver.cuEventCreate(flags))
+        self._device_id = int(handle_return(driver.cuCtxGetDevice()))
+        self._ctx_handle = handle_return(driver.cuStreamGetCtx(self._mnff.handle))
         return self
 
     def close(self):
@@ -198,3 +202,22 @@ class Event:
             handle, call ``int(Event.handle)``.
         """
         return self._mnff.handle
+
+    @property
+    def device(self) -> Device:
+        """Return the :obj:`~_device.Device` singleton associated with this tream.
+
+        Note
+        ----
+        The current context on the device may differ from this
+        event's context. This case occurs when a different CUDA
+        context is set current after a stream is created.
+
+        """
+
+        return Device(self._device_id)
+
+    @property
+    def context(self) -> Context:
+        """Return the :obj:`~_context.Context` associated with this event."""
+        return Context._from_ctx(self._ctx_handle, self._device_id)
