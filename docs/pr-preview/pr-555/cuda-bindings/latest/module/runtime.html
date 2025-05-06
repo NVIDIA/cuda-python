@@ -17491,6 +17491,17 @@ to the parent.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChildGraphNodeParams.ownership">
+<span class="sig-name descname"><span class="pre">ownership</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaChildGraphNodeParams.ownership" title="Link to this definition">¶</a></dt>
+<dd><p>The ownership relationship of the child graph node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership" title="cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership">cudaGraphChildGraphNodeOwnership</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaChildGraphNodeParams.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaChildGraphNodeParams.getPtr" title="Link to this definition">¶</a></dt>
@@ -21908,6 +21919,12 @@ cudaFuncSetAttribute</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrVulkanCigSupported">
+<span class="sig-name descname"><span class="pre">cudaDevAttrVulkanCigSupported</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">138</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrVulkanCigSupported" title="Link to this definition">¶</a></dt>
+<dd><p>Device supports CIG with Vulkan.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrGpuPciDeviceId">
 <span class="sig-name descname"><span class="pre">cudaDevAttrGpuPciDeviceId</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">139</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrGpuPciDeviceId" title="Link to this definition">¶</a></dt>
 <dd><p>The combined 16-bit PCI device ID and 16-bit PCI vendor ID.</p>
@@ -21917,6 +21934,17 @@ cudaFuncSetAttribute</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrGpuPciSubsystemId">
 <span class="sig-name descname"><span class="pre">cudaDevAttrGpuPciSubsystemId</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">140</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrGpuPciSubsystemId" title="Link to this definition">¶</a></dt>
 <dd><p>The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved141">
+<span class="sig-name descname"><span class="pre">cudaDevAttrReserved141</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">141</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved141" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaMemoryPoolsSupported">
+<span class="sig-name descname"><span class="pre">cudaDevAttrHostNumaMemoryPoolsSupported</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">142</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaMemoryPoolsSupported" title="Link to this definition">¶</a></dt>
+<dd><p>Device supports HOST_NUMA location with the <a class="reference internal" href="#cuda.bindings.runtime.cudaMallocAsync" title="cuda.bindings.runtime.cudaMallocAsync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code></a> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPool</span></code> family of APIs</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -22722,6 +22750,25 @@ individual copies specified in <a class="reference internal" href="#cuda.binding
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount">
 <span class="sig-name descname"><span class="pre">cudaGraphNodeTypeCount</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphChildGraphNodeOwnership</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership" title="Link to this definition">¶</a></dt>
+<dd><p>Child graph node ownership</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipClone">
+<span class="sig-name descname"><span class="pre">cudaGraphChildGraphOwnershipClone</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipClone" title="Link to this definition">¶</a></dt>
+<dd><p>Default behavior for a child graph node. Child graph is cloned into the parent and memory allocation/free nodes can’t be present in the child graph.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipMove">
+<span class="sig-name descname"><span class="pre">cudaGraphChildGraphOwnershipMove</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipMove" title="Link to this definition">¶</a></dt>
+<dd><p>The child graph is moved to the parent. The handle to the child graph is owned by the parent and will be destroyed when the parent is destroyed.</p>
+<p>The following restrictions apply to child graphs after they have been moved: Cannot be independently instantiated or destroyed; Cannot be added as a child graph of a separate parent graph; Cannot be used as an argument to cudaGraphExecUpdate; Cannot have additional memory allocation or free nodes added.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -25885,6 +25932,7 @@ order to interpret this field.</p>
 </li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaChildGraphNodeParams"><code class="docutils literal notranslate"><span class="pre">cudaChildGraphNodeParams</span></code></a><ul>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaChildGraphNodeParams.graph"><code class="docutils literal notranslate"><span class="pre">cudaChildGraphNodeParams.graph</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.runtime.cudaChildGraphNodeParams.ownership"><code class="docutils literal notranslate"><span class="pre">cudaChildGraphNodeParams.ownership</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaChildGraphNodeParams.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaChildGraphNodeParams.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -26645,8 +26693,11 @@ order to interpret this field.</p>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMpsEnabled"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrMpsEnabled</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaId"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrHostNumaId</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrD3D12CigSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrD3D12CigSupported</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrVulkanCigSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrVulkanCigSupported</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrGpuPciDeviceId"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrGpuPciDeviceId</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrGpuPciSubsystemId"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrGpuPciSubsystemId</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved141"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrReserved141</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaMemoryPoolsSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrHostNumaMemoryPoolsSupported</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaMultinodeIpcSupported"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrHostNumaMultinodeIpcSupported</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax"><code class="docutils literal notranslate"><span class="pre">cudaDeviceAttr.cudaDevAttrMax</span></code></a></li>
 </ul>
@@ -26814,6 +26865,11 @@ order to interpret this field.</p>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeMemFree"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeType.cudaGraphNodeTypeMemFree</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeConditional"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeType.cudaGraphNodeTypeConditional</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeType.cudaGraphNodeTypeCount</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership"><code class="docutils literal notranslate"><span class="pre">cudaGraphChildGraphNodeOwnership</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipClone"><code class="docutils literal notranslate"><span class="pre">cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipClone</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipMove"><code class="docutils literal notranslate"><span class="pre">cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipMove</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#cuda.bindings.runtime.cudaGraphDependencyType"><code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyType</span></code></a><ul>
