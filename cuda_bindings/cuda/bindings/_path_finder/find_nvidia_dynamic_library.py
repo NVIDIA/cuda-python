@@ -108,17 +108,6 @@ def _find_dll_using_lib_dir(lib_dir, libname, error_messages, attachments):
     return None
 
 
-def _find_nvvm_lib_dir_from_anchor_abs_path(anchor_abs_path):
-    nvvm_subdir = "bin" if IS_WINDOWS else "lib64"
-    while anchor_abs_path:
-        if os.path.isdir(anchor_abs_path):
-            nvvm_lib_dir = os.path.join(anchor_abs_path, "nvvm", nvvm_subdir)
-            if os.path.isdir(nvvm_lib_dir):
-                return nvvm_lib_dir
-        anchor_abs_path = os.path.dirname(anchor_abs_path)
-    return None
-
-
 class _find_nvidia_dynamic_library:
     def __init__(self, libname: str):
         self.libname = libname
@@ -150,18 +139,6 @@ class _find_nvidia_dynamic_library:
                 self.abs_path = _find_so_using_lib_dir(
                     cuda_home_lib_dir, self.lib_searched_for, self.error_messages, self.attachments
                 )
-
-    def retry_with_anchor_abs_path(self, anchor_abs_path):
-        assert self.libname == "nvvm"
-        nvvm_lib_dir = _find_nvvm_lib_dir_from_anchor_abs_path(anchor_abs_path)
-        if nvvm_lib_dir is None:
-            return
-        if IS_WINDOWS:
-            self.abs_path = _find_dll_using_lib_dir(nvvm_lib_dir, self.libname, self.error_messages, self.attachments)
-        else:
-            self.abs_path = _find_so_using_lib_dir(
-                nvvm_lib_dir, self.lib_searched_for, self.error_messages, self.attachments
-            )
 
     def raise_if_abs_path_is_None(self):
         if self.abs_path:

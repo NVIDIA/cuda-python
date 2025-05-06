@@ -5,10 +5,10 @@ import os
 import sys
 
 import pytest
+from run_python_code_safely import run_python_code_safely
 
 from cuda.bindings import path_finder
 from cuda.bindings._path_finder import supported_libs
-from cuda.bindings._path_finder.load_dl_common import build_subprocess_failed_for_libname_message, load_in_subprocess
 
 ALL_LIBNAMES = path_finder._SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES_ALL
 ALL_LIBNAMES_LINUX = path_finder._SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES_LINUX
@@ -36,6 +36,14 @@ def test_all_libnames_libnames_requiring_os_add_dll_directory_consistency():
 
 def test_all_libnames_expected_lib_symbols_consistency():
     assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.EXPECTED_LIB_SYMBOLS.keys()))
+
+
+def build_subprocess_failed_for_libname_message(libname, result):
+    return (
+        f"Subprocess failed for {libname=!r} with exit code {result.returncode}\n"
+        f"--- stdout-from-subprocess ---\n{result.stdout}<end-of-stdout-from-subprocess>\n"
+        f"--- stderr-from-subprocess ---\n{result.stderr}<end-of-stderr-from-subprocess>\n"
+    )
 
 
 @pytest.mark.parametrize("libname", TEST_FIND_OR_LOAD_LIBNAMES)
@@ -68,7 +76,7 @@ if not os.path.samefile(loaded_dl_no_cache.abs_path, loaded_dl_fresh.abs_path):
 
 print(f"{{loaded_dl_fresh.abs_path!r}}")
 """
-    result = load_in_subprocess(code)
+    result = run_python_code_safely(code, timeout=30)
     if result.returncode == 0:
         info_summary_append(f"abs_path={result.stdout.rstrip()}")
     else:

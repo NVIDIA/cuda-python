@@ -2,15 +2,9 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
-import json
 
 from cuda.bindings._path_finder.find_nvidia_dynamic_library import _find_nvidia_dynamic_library
-from cuda.bindings._path_finder.load_dl_common import (
-    LoadedDL,
-    build_subprocess_failed_for_libname_message,
-    load_dependencies,
-    load_in_subprocess,
-)
+from cuda.bindings._path_finder.load_dl_common import LoadedDL, load_dependencies
 from cuda.bindings._path_finder.supported_libs import IS_WINDOWS
 
 if IS_WINDOWS:
@@ -25,21 +19,6 @@ else:
         load_with_abs_path,
         load_with_system_search,
     )
-
-
-def _load_anchor_in_subprocess(libname, error_messages):
-    code = f"""\
-from cuda.bindings._path_finder.load_nvidia_dynamic_library import load_nvidia_dynamic_library
-import json
-import sys
-loaded = load_nvidia_dynamic_library({libname!r})
-sys.stdout.write(json.dumps(loaded.abs_path, ensure_ascii=True))
-"""
-    result = load_in_subprocess(code)
-    if result.returncode == 0:
-        return json.loads(result.stdout)
-    error_messages.extend(build_subprocess_failed_for_libname_message(libname, result).splitlines())
-    return None
 
 
 def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
