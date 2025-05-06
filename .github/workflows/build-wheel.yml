@@ -1,3 +1,7 @@
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 on:
   workflow_call:
     inputs:
@@ -5,8 +9,8 @@ on:
         required: true
         type: string
       cuda-version:
+        required: true
         type: string
-        default: "12.8.0"
 
 defaults:
   run:
@@ -83,7 +87,7 @@ jobs:
           env
       
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@faf86a6ed7efa889faf6996aa23820831055001a  # v2.23.3
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
@@ -122,7 +126,7 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@faf86a6ed7efa889faf6996aa23820831055001a  # v2.23.3
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
