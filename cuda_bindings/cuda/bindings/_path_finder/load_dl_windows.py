@@ -35,7 +35,7 @@ def add_dll_directory(dll_abs_path: str) -> None:
     os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
 
 
-def abs_path_for_dynamic_library(handle: int) -> str:
+def abs_path_for_dynamic_library(libname: str, handle: int) -> str:
     """Get the absolute path of a loaded dynamic library on Windows.
 
     Args:
@@ -57,7 +57,8 @@ def abs_path_for_dynamic_library(handle: int) -> str:
 
         if n_chars == 0:
             raise OSError(
-                "GetModuleFileNameW failed. Long paths may require enabling the "
+                f"GetModuleFileNameW failed ({libname=!r}, {buf_size=}). "
+                "Long paths may require enabling the "
                 "Windows 10+ long path registry setting. See: "
                 "https://docs.python.org/3/using/windows.html#removing-the-max-path-limitation"
             )
@@ -99,7 +100,7 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         except pywintypes.error:
             continue
         else:
-            return LoadedDL(handle, abs_path_for_dynamic_library(handle), True)
+            return LoadedDL(handle, abs_path_for_dynamic_library(libname, handle), True)
     return None
 
 
@@ -118,7 +119,7 @@ def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         handle = ctypes.windll.kernel32.LoadLibraryW(ctypes.c_wchar_p(dll_name))
         if handle:
-            return LoadedDL(handle, abs_path_for_dynamic_library(handle), False)
+            return LoadedDL(handle, abs_path_for_dynamic_library(libname, handle), False)
 
     return None
 
