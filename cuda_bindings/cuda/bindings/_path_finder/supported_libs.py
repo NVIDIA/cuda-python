@@ -233,6 +233,7 @@ SUPPORTED_LINUX_SONAMES = {
 #   cuda_12.5.1_555.85_windows.exe
 #   cuda_12.6.2_560.94_windows.exe
 #   cuda_12.8.1_572.61_windows.exe
+#   cuda_12.9.0_576.02_windows.txt
 # Generated with toolshed/build_path_finder_dlls.py (WITH MANUAL EDITS)
 SUPPORTED_WINDOWS_DLLS = {
     "cublas": (
@@ -340,6 +341,7 @@ SUPPORTED_WINDOWS_DLLS = {
         "nvvm64.dll",
         "nvvm64_33_0.dll",
         "nvvm64_40_0.dll",
+        "nvvm70.dll",
     ),
 }
 
