@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# CUDA Python 12.9.0 Release notes
-==================================
+CUDA Python 12.9.0 Release notes
+================================
 
 Released on May 5, 2025.
 
