@@ -35,7 +35,7 @@ def add_dll_directory(dll_abs_path: str) -> None:
     os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
 
 
-def abs_path_for_dynamic_library(libname: str, handle: int) -> str:
+def abs_path_for_dynamic_library(libname: str, handle: pywintypes.HANDLE) -> str:
     """Get the absolute path of a loaded dynamic library on Windows.
 
     Args:
@@ -117,8 +117,11 @@ def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
     from cuda.bindings._path_finder.supported_libs import SUPPORTED_WINDOWS_DLLS
 
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
-        handle = ctypes.windll.kernel32.LoadLibraryW(ctypes.c_wchar_p(dll_name))
-        if handle:
+        try:
+            handle = win32api.LoadLibraryEx(dll_name, 0, 0)
+        except pywintypes.error:
+            continue
+        else:
             return LoadedDL(handle, abs_path_for_dynamic_library(libname, handle), False)
 
     return None

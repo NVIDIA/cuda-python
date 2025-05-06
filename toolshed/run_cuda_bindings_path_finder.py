@@ -14,9 +14,12 @@ ALL_LIBNAMES = (
 
 
 def run(args):
-    assert len(args) == 0
+    if args:
+        libnames = args
+    else:
+        libnames = ALL_LIBNAMES
 
-    for libname in ALL_LIBNAMES:
+    for libname in libnames:
         print(f"{libname=}")
         try:
             loaded_dl = path_finder._load_nvidia_dynamic_library(libname)

@@ -5,23 +5,19 @@ from dataclasses import dataclass
 from typing import Callable, Optional
 
 from cuda.bindings._path_finder.run_python_code_safely import run_python_code_safely
-from cuda.bindings._path_finder.supported_libs import DIRECT_DEPENDENCIES
+from cuda.bindings._path_finder.supported_libs import DIRECT_DEPENDENCIES, IS_WINDOWS
+
+if IS_WINDOWS:
+    import pywintypes
+
+    HandleType = pywintypes.HANDLE
+else:
+    HandleType = int
 
 
 @dataclass
 class LoadedDL:
-    """Represents a loaded dynamic library.
-
-    Attributes:
-        handle: The library handle (can be converted to void* in Cython)
-        abs_path: The absolute path to the library file
-        was_already_loaded_from_elsewhere: Whether the library was already loaded
-    """
-
-    # ATTENTION: To convert `handle` back to `void*` in cython:
-    #     Linux:   `cdef void* ptr = <void*><uintptr_t>`
-    #     Windows: `cdef void* ptr = <void*><intptr_t>`
-    handle: int
+    handle: HandleType
     abs_path: Optional[str]
     was_already_loaded_from_elsewhere: bool
 
