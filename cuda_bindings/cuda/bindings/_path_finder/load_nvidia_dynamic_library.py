@@ -62,7 +62,7 @@ def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
         loaded = load_with_system_search(libname, found.lib_searched_for)
         if loaded is not None:
             return loaded
-        if libname == "nvvm":
+        if libname == "nvvm" and ANCHOR_LIBNAME is not None:
             loaded_anchor = check_if_already_loaded_from_elsewhere(ANCHOR_LIBNAME)
             if loaded_anchor is not None:
                 found.retry_with_anchor_abs_path(loaded_anchor.abs_path)
@@ -70,6 +70,8 @@ def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
                 anchor_abs_path = _load_anchor_in_subprocess(ANCHOR_LIBNAME, found.error_messages)
                 if anchor_abs_path is not None:
                     found.retry_with_anchor_abs_path(anchor_abs_path)
+        if found.abs_path is None:
+            found.retry_with_cuda_home_priority_last()
         found.raise_if_abs_path_is_None()
 
     # Load the library from the found path
