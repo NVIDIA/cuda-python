@@ -18,10 +18,7 @@ def _no_such_file_in_sub_dirs(sub_dirs, file_wild, error_messages, attachments):
 
 
 def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachments):
-    if libname == "nvvm":  # noqa: SIM108
-        nvidia_sub_dirs = ("nvidia", "*", "nvvm", "lib64")
-    else:
-        nvidia_sub_dirs = ("nvidia", "*", "lib")
+    nvidia_sub_dirs = ("nvidia", "*", "nvvm", "lib64") if libname == "nvvm" else ("nvidia", "*", "lib")
     file_wild = so_basename + "*"
     for lib_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
         # First look for an exact match
@@ -47,10 +44,7 @@ def _find_dll_under_dir(dirpath, file_wild):
 
 
 def _find_dll_using_nvidia_bin_dirs(libname, lib_searched_for, error_messages, attachments):
-    if libname == "nvvm":  # noqa: SIM108
-        nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin")
-    else:
-        nvidia_sub_dirs = ("nvidia", "*", "bin")
+    nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin") if libname == "nvvm" else ("nvidia", "*", "bin")
     for bin_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
         dll_name = _find_dll_under_dir(bin_dir, lib_searched_for)
         if dll_name is not None:
@@ -71,18 +65,16 @@ def _find_lib_dir_using_cuda_home(libname):
     if cuda_home is None:
         return None
     if IS_WINDOWS:
-        if libname == "nvvm":  # noqa: SIM108
-            subdirs = (os.path.join("nvvm", "bin"),)
-        else:
-            subdirs = ("bin",)
+        subdirs = (os.path.join("nvvm", "bin"),) if libname == "nvvm" else ("bin",)
     else:
-        if libname == "nvvm":  # noqa: SIM108
-            subdirs = (os.path.join("nvvm", "lib64"),)
-        else:
-            subdirs = (
+        subdirs = (
+            (os.path.join("nvvm", "lib64"),)
+            if libname == "nvvm"
+            else (
                 "lib64",  # CTK
                 "lib",  # Conda
             )
+        )
     for subdir in subdirs:
         dirname = os.path.join(cuda_home, subdir)
         if os.path.isdir(dirname):
@@ -116,14 +108,14 @@ def _find_dll_using_lib_dir(lib_dir, libname, error_messages, attachments):
     return None
 
 
-def _find_nvvm_lib_dir_from_other_abs_path(other_abs_path):
+def _find_nvvm_lib_dir_from_anchor_abs_path(anchor_abs_path):
     nvvm_subdir = "bin" if IS_WINDOWS else "lib64"
-    while other_abs_path:
-        if os.path.isdir(other_abs_path):
-            nvvm_lib_dir = os.path.join(other_abs_path, "nvvm", nvvm_subdir)
+    while anchor_abs_path:
+        if os.path.isdir(anchor_abs_path):
+            nvvm_lib_dir = os.path.join(anchor_abs_path, "nvvm", nvvm_subdir)
             if os.path.isdir(nvvm_lib_dir):
                 return nvvm_lib_dir
-        other_abs_path = os.path.dirname(other_abs_path)
+        anchor_abs_path = os.path.dirname(anchor_abs_path)
     return None
 
 
@@ -134,31 +126,34 @@ class _find_nvidia_dynamic_library:
         self.attachments = []
         self.abs_path = None
 
-        cuda_home_lib_dir = _find_lib_dir_using_cuda_home(libname)
         if IS_WINDOWS:
             self.lib_searched_for = f"{libname}*.dll"
-            if cuda_home_lib_dir is not None:
-                self.abs_path = _find_dll_using_lib_dir(
-                    cuda_home_lib_dir, libname, self.error_messages, self.attachments
-                )
             if self.abs_path is None:
                 self.abs_path = _find_dll_using_nvidia_bin_dirs(
                     libname, self.lib_searched_for, self.error_messages, self.attachments
                 )
         else:
             self.lib_searched_for = f"lib{libname}.so"
-            if cuda_home_lib_dir is not None:
-                self.abs_path = _find_so_using_lib_dir(
-                    cuda_home_lib_dir, self.lib_searched_for, self.error_messages, self.attachments
-                )
             if self.abs_path is None:
                 self.abs_path = _find_so_using_nvidia_lib_dirs(
                     libname, self.lib_searched_for, self.error_messages, self.attachments
                 )
 
-    def retry_with_other_abs_path(self, other_abs_path):
+    def retry_with_cuda_home_priority_last(self):
+        cuda_home_lib_dir = _find_lib_dir_using_cuda_home(self.libname)
+        if cuda_home_lib_dir is not None:
+            if IS_WINDOWS:
+                self.abs_path = _find_dll_using_lib_dir(
+                    cuda_home_lib_dir, self.libname, self.error_messages, self.attachments
+                )
+            else:
+                self.abs_path = _find_so_using_lib_dir(
+                    cuda_home_lib_dir, self.lib_searched_for, self.error_messages, self.attachments
+                )
+
+    def retry_with_anchor_abs_path(self, anchor_abs_path):
         assert self.libname == "nvvm"
-        nvvm_lib_dir = _find_nvvm_lib_dir_from_other_abs_path(other_abs_path)
+        nvvm_lib_dir = _find_nvvm_lib_dir_from_anchor_abs_path(anchor_abs_path)
         if nvvm_lib_dir is None:
             return
         if IS_WINDOWS:
