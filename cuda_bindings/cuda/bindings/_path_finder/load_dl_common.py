@@ -4,7 +4,6 @@
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from cuda.bindings._path_finder.run_python_code_safely import run_python_code_safely
 from cuda.bindings._path_finder.supported_libs import DIRECT_DEPENDENCIES, IS_WINDOWS
 
 if IS_WINDOWS:
@@ -35,16 +34,3 @@ def load_dependencies(libname: str, load_func: Callable[[str], LoadedDL]) -> Non
     """
     for dep in DIRECT_DEPENDENCIES.get(libname, ()):
         load_func(dep)
-
-
-def load_in_subprocess(python_code, timeout=30):
-    # This is to avoid loading libraries into the parent process.
-    return run_python_code_safely(python_code, timeout=timeout)
-
-
-def build_subprocess_failed_for_libname_message(libname, result):
-    return (
-        f"Subprocess failed for {libname=!r} with exit code {result.returncode}\n"
-        f"--- stdout-from-subprocess ---\n{result.stdout}<end-of-stdout-from-subprocess>\n"
-        f"--- stderr-from-subprocess ---\n{result.stderr}<end-of-stderr-from-subprocess>\n"
-    )
