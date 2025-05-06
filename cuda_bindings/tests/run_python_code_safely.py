@@ -1,3 +1,6 @@
+# Copyright 2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 import multiprocessing
 import queue  # for Empty
 import subprocess  # nosec B404
