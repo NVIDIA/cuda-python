@@ -205,13 +205,13 @@ class Event:
 
     @property
     def device(self) -> Device:
-        """Return the :obj:`~_device.Device` singleton associated with this tream.
+        """Return the :obj:`~_device.Device` singleton associated with this event.
 
         Note
         ----
         The current context on the device may differ from this
         event's context. This case occurs when a different CUDA
-        context is set current after a stream is created.
+        context is set current after a event is created.
 
         """
 
