@@ -5,7 +5,7 @@ import os
 import sys
 
 import pytest
-from run_python_code_safely import run_python_code_safely
+import run_python_code_safely
 
 from cuda.bindings import path_finder
 from cuda.bindings._path_finder import supported_libs
@@ -76,7 +76,7 @@ if not os.path.samefile(loaded_dl_no_cache.abs_path, loaded_dl_fresh.abs_path):
 
 print(f"{{loaded_dl_fresh.abs_path!r}}")
 """
-    result = run_python_code_safely(code, timeout=30)
+    result = run_python_code_safely.run_in_spawned_child_process(code, timeout=30)
     if result.returncode == 0:
         info_summary_append(f"abs_path={result.stdout.rstrip()}")
     else:

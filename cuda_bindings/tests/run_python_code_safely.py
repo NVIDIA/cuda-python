@@ -42,8 +42,8 @@ class Worker:
                 pass
 
 
-def run_python_code_safely(python_code, *, timeout=None):
-    """Run Python code in a spawned subprocess, capturing stdout/stderr/output."""
+def run_in_spawned_child_process(python_code, *, timeout=None):
+    """Run Python code in a spawned child process, capturing stdout/stderr/output."""
     ctx = multiprocessing.get_context("spawn")
     result_queue = ctx.Queue()
     process = ctx.Process(target=Worker(python_code, result_queue))
