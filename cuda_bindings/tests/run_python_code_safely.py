@@ -56,14 +56,16 @@ class Worker:
                 pass
 
 
-def run_in_spawned_child_process(func, *, args=None, kwargs=None, timeout=None):
+def run_in_spawned_child_process(func, *, args=None, kwargs=None, timeout=None, rethrow=False):
     """Run `func` in a spawned child process, capturing stdout/stderr.
 
     The provided `func` must be defined at the top level of a module, and must
     be importable in the spawned child process. Lambdas, closures, or interactively
     defined functions (e.g., in Jupyter notebooks) will not work.
-    """
 
+    If `rethrow=True` and the child process exits with a nonzero code,
+    raises ChildProcessError with the captured stderr.
+    """
     ctx = multiprocessing.get_context("spawn")
     result_queue = ctx.Queue()
     process = ctx.Process(target=Worker(result_queue, func, args, kwargs))
@@ -74,26 +76,35 @@ def run_in_spawned_child_process(func, *, args=None, kwargs=None, timeout=None):
         if process.is_alive():
             process.terminate()
             process.join()
-            return CompletedProcess(
+            result = CompletedProcess(
                 returncode=PROCESS_KILLED,
                 stdout="",
                 stderr=f"Process timed out after {timeout} seconds and was terminated.",
             )
+        else:
+            try:
+                returncode, stdout, stderr = result_queue.get(timeout=1.0)
+            except (queue.Empty, EOFError):
+                result = CompletedProcess(
+                    returncode=PROCESS_NO_RESULT,
+                    stdout="",
+                    stderr="Process exited or crashed before returning results.",
+                )
+            else:
+                result = CompletedProcess(
+                    returncode=returncode,
+                    stdout=stdout,
+                    stderr=stderr,
+                )
 
-        try:
-            returncode, stdout, stderr = result_queue.get(timeout=1.0)
-        except (queue.Empty, EOFError):
-            return CompletedProcess(
-                returncode=PROCESS_NO_RESULT,
-                stdout="",
-                stderr="Process exited or crashed before returning results.",
+        if rethrow and result.returncode != 0:
+            raise ChildProcessError(
+                f"Child process exited with code {result.returncode}.\n"
+                f"--- stderr-from-child-process ---\n{result.stderr}"
+                "<end-of-stderr-from-child-process>\n"
             )
 
-        return CompletedProcess(
-            returncode=returncode,
-            stdout=stdout,
-            stderr=stderr,
-        )
+        return result
 
     finally:
         try:
