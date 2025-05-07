@@ -21,9 +21,9 @@ class CompletedProcess:
     stderr: str
 
 
-class Worker:
-    def __init__(self, result_queue, func, args, kwargs):
-        self.func = func
+class ChildProcessWrapper:
+    def __init__(self, result_queue, target, args, kwargs):
+        self.target = target
         self.args = () if args is None else args
         self.kwargs = {} if kwargs is None else kwargs
         self.result_queue = result_queue
@@ -36,7 +36,7 @@ class Worker:
         sys.stderr = StringIO()
 
         try:
-            self.func(*self.args, **self.kwargs)
+            self.target(*self.args, **self.kwargs)
             returncode = 0
         except SystemExit as e:  # Handle sys.exit()
             returncode = e.code if isinstance(e.code, int) else 0
@@ -56,10 +56,10 @@ class Worker:
                 pass
 
 
-def run_in_spawned_child_process(func, *, args=None, kwargs=None, timeout=None, rethrow=False):
-    """Run `func` in a spawned child process, capturing stdout/stderr.
+def run_in_spawned_child_process(target, *, args=None, kwargs=None, timeout=None, rethrow=False):
+    """Run `target` in a spawned child process, capturing stdout/stderr.
 
-    The provided `func` must be defined at the top level of a module, and must
+    The provided `target` must be defined at the top level of a module, and must
     be importable in the spawned child process. Lambdas, closures, or interactively
     defined functions (e.g., in Jupyter notebooks) will not work.
 
@@ -68,7 +68,7 @@ def run_in_spawned_child_process(func, *, args=None, kwargs=None, timeout=None, 
     """
     ctx = multiprocessing.get_context("spawn")
     result_queue = ctx.Queue()
-    process = ctx.Process(target=Worker(result_queue, func, args, kwargs))
+    process = ctx.Process(target=ChildProcessWrapper(result_queue, target, args, kwargs))
     process.start()
 
     try:
