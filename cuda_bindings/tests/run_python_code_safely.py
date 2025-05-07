@@ -8,12 +8,24 @@ import traceback
 from dataclasses import dataclass
 from io import StringIO
 
+PROCESS_KILLED = -9
+PROCESS_NO_RESULT = -999
+
+
+# Similar to https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess
+# (args, check_returncode() are intentionally not supported here.)
+@dataclass
+class CompletedProcess:
+    returncode: int
+    stdout: str
+    stderr: str
+
 
 class Worker:
     def __init__(self, result_queue, func, args, kwargs):
         self.func = func
-        self.args = args or ()
-        self.kwargs = kwargs or {}
+        self.args = () if args is None else args
+        self.kwargs = {} if kwargs is None else kwargs
         self.result_queue = result_queue
 
     def __call__(self):
@@ -44,17 +56,14 @@ class Worker:
                 pass
 
 
-# Similar to https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess
-# (args, check_returncode() are intentionally not supported here.)
-@dataclass
-class CompletedProcess:
-    returncode: int
-    stdout: str
-    stderr: str
-
-
 def run_in_spawned_child_process(func, *, args=None, kwargs=None, timeout=None):
-    """Run Python code in a spawned child process, capturing stdout/stderr/output."""
+    """Run `func` in a spawned child process, capturing stdout/stderr.
+
+    The provided `func` must be defined at the top level of a module, and must
+    be importable in the spawned child process. Lambdas, closures, or interactively
+    defined functions (e.g., in Jupyter notebooks) will not work.
+    """
+
     ctx = multiprocessing.get_context("spawn")
     result_queue = ctx.Queue()
     process = ctx.Process(target=Worker(result_queue, func, args, kwargs))
@@ -66,7 +75,7 @@ def run_in_spawned_child_process(func, *, args=None, kwargs=None, timeout=None):
             process.terminate()
             process.join()
             return CompletedProcess(
-                returncode=-9,
+                returncode=PROCESS_KILLED,
                 stdout="",
                 stderr=f"Process timed out after {timeout} seconds and was terminated.",
             )
@@ -75,7 +84,7 @@ def run_in_spawned_child_process(func, *, args=None, kwargs=None, timeout=None):
             returncode, stdout, stderr = result_queue.get(timeout=1.0)
         except (queue.Empty, EOFError):
             return CompletedProcess(
-                returncode=-999,
+                returncode=PROCESS_NO_RESULT,
                 stdout="",
                 stderr="Process exited or crashed before returning results.",
             )
