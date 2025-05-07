@@ -7,6 +7,7 @@ import sys
 import traceback
 from dataclasses import dataclass
 from io import StringIO
+from typing import Any, Callable, Optional, Sequence
 
 PROCESS_KILLED = -9
 PROCESS_NO_RESULT = -999
@@ -56,7 +57,14 @@ class ChildProcessWrapper:
                 pass
 
 
-def run_in_spawned_child_process(target, *, args=None, kwargs=None, timeout=None, rethrow=False):
+def run_in_spawned_child_process(
+    target: Callable[..., None],
+    *,
+    args: Optional[Sequence[Any]] = None,
+    kwargs: Optional[dict[str, Any]] = None,
+    timeout: Optional[float] = None,
+    rethrow: bool = False,
+) -> CompletedProcess:
     """Run `target` in a spawned child process, capturing stdout/stderr.
 
     The provided `target` must be defined at the top level of a module, and must
@@ -100,7 +108,8 @@ def run_in_spawned_child_process(target, *, args=None, kwargs=None, timeout=None
         if rethrow and result.returncode != 0:
             raise ChildProcessError(
                 f"Child process exited with code {result.returncode}.\n"
-                f"--- stderr-from-child-process ---\n{result.stderr}"
+                "--- stderr-from-child-process ---\n"
+                f"{result.stderr}"
                 "<end-of-stderr-from-child-process>\n"
             )
 

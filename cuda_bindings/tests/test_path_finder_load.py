@@ -5,7 +5,7 @@ import os
 import sys
 
 import pytest
-import run_python_code_safely
+import spawned_process_runner
 
 from cuda.bindings import path_finder
 from cuda.bindings._path_finder import supported_libs
@@ -75,7 +75,7 @@ def test_find_or_load_nvidia_dynamic_library(info_summary_append, libname):
     # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
     # Without child processes, loading/unloading libraries during testing could
     # interfere across test cases and lead to nondeterministic or platform-specific failures.
-    result = run_python_code_safely.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=30)
+    result = spawned_process_runner.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=30)
     if result.returncode == 0:
         info_summary_append(f"abs_path={result.stdout.rstrip()}")
     else:
