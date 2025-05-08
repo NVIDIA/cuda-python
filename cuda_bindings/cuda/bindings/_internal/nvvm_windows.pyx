@@ -37,27 +37,21 @@ cdef void* __nvvmGetProgramLogSize = NULL
 cdef void* __nvvmGetProgramLog = NULL
 
 
-cdef void* load_library(int driver_ver) except* with gil:
-    cdef intptr_t handle = path_finder._load_nvidia_dynamic_library("nvvm").handle
-    return <void*>handle
-
-
 cdef int _check_or_init_nvvm() except -1 nogil:
     global __py_nvvm_init
     if __py_nvvm_init:
         return 0
 
     cdef int err, driver_ver
-    cdef intptr_t handle
     with gil:
         # Load driver to check version
         try:
-            nvcuda_handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
+            handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
         except Exception as e:
             raise NotSupportedError(f'CUDA driver is not found ({e})')
         global __cuDriverGetVersion
         if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(nvcuda_handle, 'cuDriverGetVersion')
+            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'cuDriverGetVersion')
             if __cuDriverGetVersion == NULL:
                 raise RuntimeError('something went wrong')
         err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
@@ -65,7 +59,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             raise RuntimeError('something went wrong')
 
         # Load library
-        handle = <intptr_t>load_library(driver_ver)
+        handle = path_finder._load_nvidia_dynamic_library("nvvm").handle
 
         # Load function
         global __nvvmVersion
