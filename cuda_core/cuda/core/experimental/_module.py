@@ -216,34 +216,31 @@ class Kernel:
             self._attributes = KernelAttributes._init(self._handle)
         return self._attributes
 
+    def _get_arguments_info(self, param_info=False) -> tuple[int, list[tuple[int, int]]]:
+        attr_impl = self.attributes
+        if attr_impl._backend_version != "new":
+            raise NotImplementedError("New backend is required")
+        arg_pos = 0
+        param_info_data = []
+        while True:
+            result = attr_impl._loader["paraminfo"](self._handle, arg_pos)
+            if result[0] != driver.CUresult.CUDA_SUCCESS:
+                break
+            if param_info:
+                param_info_data.append(result[1:3])
+            arg_pos = arg_pos + 1
+        return arg_pos, param_info_data
+
     @property
     def num_arguments(self) -> int:
         """int : The number of arguments of this function"""
-        attr_impl = self.attributes
-        if attr_impl._backend_version != "new":
-            raise NotImplementedError("New backend is required")
-        arg_pos = 0
-        while True:
-            result = attr_impl._loader["paraminfo"](self._handle, arg_pos)
-            if result[0] != driver.CUresult.CUDA_SUCCESS:
-                break
-            arg_pos = arg_pos + 1
-        return arg_pos
+        num_args, _ = self._get_arguments_info()
+        return num_args
 
     @property
     def arguments_info(self) -> list[tuple[int, int]]:
-        """tuple[tuple[int, int]]: (offset, size) for each argument of this function"""
-        attr_impl = self.attributes
-        if attr_impl._backend_version != "new":
-            raise NotImplementedError("New backend is required")
-        arg_pos = 0
-        param_info = []
-        while True:
-            result = attr_impl._loader["paraminfo"](self._handle, arg_pos)
-            if result[0] != driver.CUresult.CUDA_SUCCESS:
-                break
-            param_info.append((result[1], result[2]))
-            arg_pos = arg_pos + 1
+        """list[tuple[int, int]]: (offset, size) for each argument of this function"""
+        _, param_info = self._get_arguments_info(param_info=True)
         return param_info
 
     # TODO: implement from_handle()

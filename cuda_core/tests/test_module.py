@@ -8,6 +8,7 @@
 
 
 import warnings
+import ctypes
 
 import pytest
 
@@ -165,7 +166,6 @@ def test_object_code_handle(get_saxpy_object_code):
 
 
 def test_saxpy_arguments(get_saxpy_kernel):
-    import ctypes
     krn, _ = get_saxpy_kernel
 
     assert krn.num_arguments == 5
@@ -190,8 +190,9 @@ def test_saxpy_arguments(get_saxpy_kernel):
 
 
 @pytest.mark.parametrize("nargs", [0, 1, 2, 3, 16])
-def test_num_arguments(init_cuda, nargs):
-    args_str = ", ".join([f"int p_{i}" for i in range(nargs)])
+@pytest.mark.parametrize("c_type_name,c_type", [("int", ctypes.c_int), ("short", ctypes.c_short)], ids=["int", "short"])
+def test_num_arguments(init_cuda, nargs, c_type_name, c_type):
+    args_str = ", ".join([f"{c_type_name} p_{i}" for i in range(nargs)])
     src = f"__global__ void foo{nargs}({args_str}) {{ }}"
     prog = Program(src, code_type="c++")
     mod = prog.compile(
@@ -201,10 +202,9 @@ def test_num_arguments(init_cuda, nargs):
     krn = mod.get_kernel(f"foo{nargs}")
     assert krn.num_arguments == nargs
 
-    import ctypes
     class ExpectedStruct(ctypes.Structure):
         _fields_ = [
-            (f'arg_{i}', ctypes.c_int) for i in range(nargs)
+            (f'arg_{i}', c_type) for i in range(nargs)
         ]
     members = tuple(getattr(ExpectedStruct, f"arg_{i}") for i in range(nargs))
     expected = [(m.offset, m.size) for m in members]
