@@ -19,15 +19,6 @@ from cuda.core.experimental import (
 from cuda.core.experimental._memory import _DefaultPinnedMemorySource
 
 
-def test_graph_is_building(init_cuda):
-    gb = Device().create_graph_builder()
-    assert gb.is_building is False
-    gb.begin_building()
-    assert gb.is_building is True
-    gb.end_building()
-    assert gb.is_building is False
-
-
 def _common_kernels():
     code = """
     extern "C" __device__ __cudart_builtin__ void CUDARTAPI cudaGraphSetConditional(cudaGraphConditionalHandle handle,
@@ -46,6 +37,15 @@ def _common_kernels():
     prog = Program(code, code_type="c++", options=program_options)
     mod = prog.compile("cubin", name_expressions=("empty_kernel", "add_one", "set_handle", "loop_kernel"))
     return mod
+
+
+def test_graph_is_building(init_cuda):
+    gb = Device().create_graph_builder()
+    assert gb.is_building is False
+    gb.begin_building()
+    assert gb.is_building is True
+    gb.end_building()
+    assert gb.is_building is False
 
 
 def test_graph_straight(init_cuda):
@@ -75,11 +75,18 @@ def test_graph_fork_join(init_cuda):
     gb = Device().create_graph_builder().begin_building()
     launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
 
+    with pytest.raises(ValueError, match="^Invalid split count: expecting >= 2, got 1"):
+        gb.split(1)
+
     left, right = gb.split(2)
     launch(left, LaunchConfig(grid=1, block=1), empty_kernel)
     launch(left, LaunchConfig(grid=1, block=1), empty_kernel)
     launch(right, LaunchConfig(grid=1, block=1), empty_kernel)
     launch(right, LaunchConfig(grid=1, block=1), empty_kernel)
+
+    with pytest.raises(ValueError, match="^Must join with at least two graph builders"):
+        GraphBuilder.join(left)
+
     gb = GraphBuilder.join(left, right)
 
     launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
@@ -135,7 +142,7 @@ def test_graph_is_join_required(init_cuda):
 
     # Create final node
     launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
-    gb.end_building()
+    gb.end_building().complete()
 
 
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
@@ -161,17 +168,17 @@ def test_graph_repeat_capture(init_cuda):
     assert arr[0] == 1
 
     # Continue capturing to extend the graph
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match="^Cannot resume building after building has ended."):
         gb.begin_building()
 
 
 def test_graph_capture_errors(init_cuda):
     gb = Device().create_graph_builder()
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match="^Graph has not finished building."):
         gb.complete()
 
     gb.begin_building()
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match="^Graph has not finished building."):
         gb.complete()
     gb.end_building().complete()
 
@@ -286,7 +293,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
         assert arr[1] == 3
 
 
-@pytest.mark.parametrize("condition_value", [0, 1, 2])
+@pytest.mark.parametrize("condition_value", [0, 1, 2, 3])
 def test_graph_conditional_switch(init_cuda, condition_value):
     mod = _common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -358,6 +365,11 @@ def test_graph_conditional_switch(init_cuda, condition_value):
         assert arr[0] == 1
         assert arr[1] == 0
         assert arr[2] == 3
+    elif condition_value == 3:
+        # No branch is taken if case index is out of range
+        assert arr[0] == 1
+        assert arr[1] == 0
+        assert arr[2] == 0
 
 
 @pytest.mark.parametrize("condition_value", [True, False])

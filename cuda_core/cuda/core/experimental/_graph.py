@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -84,7 +84,7 @@ class CompleteOptions:
     auto_free_on_launch : bool, optional
         Automatically free memory allocated in a graph before relaunching. (Default to False)
     upload_stream : Stream, optional
-        Automatically upload the graph after instantiation. (Default to None)
+        Stream to use to automatically upload the graph after completion. (Default to None)
     device_launch : bool, optional
         Configure the graph to be launchable from the device. This flag can only
         be used on platforms which support unified addressing. This flag cannot be
@@ -96,7 +96,7 @@ class CompleteOptions:
     """
 
     auto_free_on_launch: bool = False
-    upload_stream: bool = None
+    upload_stream: Optional[Stream] = None
     device_launch: bool = False
     use_node_priority: bool = False
 
@@ -138,7 +138,7 @@ class GraphBuilder:
     def __init__(self):
         raise NotImplementedError(
             "directly creating a Graph object can be ambiguous. Please either "
-            "call Device.create_graph() or stream.creating_graph()"
+            "call Device.create_graph_builder() or stream.creating_graph_builder()"
         )
 
     @classmethod
@@ -190,7 +190,7 @@ class GraphBuilder:
         elif capture_status == driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_INVALIDATED:
             self.end_building()
             raise RuntimeError(
-                "Build process encountered an error and has been invalidated. Build process has now been ended."
+                "Build process encountered an error and has been invalidated. Build process has been ended."
             )
         else:
             raise NotImplementedError(f"Unsupported capture status type received: {capture_status}")
@@ -198,7 +198,7 @@ class GraphBuilder:
     def end_building(self) -> GraphBuilder:
         """Ends the building process."""
         if not self.is_building:
-            raise RuntimeError("Graph builder was not building.")
+            raise RuntimeError("Graph builder is not building.")
         self._mnff.graph = handle_return(driver.cuStreamEndCapture(self.stream.handle))
 
         # TODO: Resolving https://github.com/NVIDIA/cuda-python/issues/617 would allow us to
@@ -256,7 +256,7 @@ class GraphBuilder:
         elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED:
             raise RuntimeError("One or more conditional handles are not associated with conditional builders.")
         elif params.result_out != driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS:
-            raise RuntimeError("Graph instantiation failed for an unexpected reason.")
+            raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
         return graph
 
     def debug_dot_print(self, path, options: Optional[DebugPrintOptions] = None):
@@ -265,7 +265,7 @@ class GraphBuilder:
         Parameters
         ----------
         path : str
-            The path to the file to write the DOT debug output to.
+            File path to use for writting debug DOT output
         options : :obj:`~_graph.DebugPrintOptions`, optional
             Customizable dataclass for the debug print options.
 
@@ -313,7 +313,7 @@ class GraphBuilder:
         """Splits the original graph builder into multiple graph builders.
 
         The new builders inherit work dependencies from the original builder.
-        The original builder is reused for the split, returned first in the tuple.
+        The original builder is reused for the split and is returned first in the tuple.
 
         Parameters
         ----------
@@ -407,7 +407,7 @@ class GraphBuilder:
             The newly created conditional handle.
 
         """
-        if default_value:
+        if default_value != None:
             flags = driver.CU_GRAPH_COND_ASSIGN_DEFAULT
         else:
             default_value = 0
@@ -441,7 +441,7 @@ class GraphBuilder:
             )
         )
 
-        # Create new graph builders for each conditional
+        # Create new graph builders for each condition
         return tuple(
             [
                 GraphBuilder._init(
