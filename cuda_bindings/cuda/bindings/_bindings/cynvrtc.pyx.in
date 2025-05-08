@@ -47,18 +47,24 @@ cdef bint __cuPythonInit = False
 {{if 'nvrtcSetFlowCallback' in found_functions}}cdef void *__nvrtcSetFlowCallback = NULL{{endif}}
 
 cdef int cuPythonInit() except -1 nogil:
-    {{if 'Windows' != platform.system()}}
-    cdef void* handle = NULL
-    {{endif}}
-
     global __cuPythonInit
     if __cuPythonInit:
         return 0
     __cuPythonInit = True
 
+    # Load library
     {{if 'Windows' == platform.system()}}
     with gil:
         handle = path_finder._load_nvidia_dynamic_library("nvrtc").handle
+    {{else}}
+    with gil:
+        handle = <void*><uintptr_t>path_finder._load_nvidia_dynamic_library("nvrtc").handle
+    {{endif}}
+
+
+    # Load function
+    {{if 'Windows' == platform.system()}}
+    with gil:
         {{if 'nvrtcGetErrorString' in found_functions}}
         try:
             global __nvrtcGetErrorString
@@ -243,8 +249,6 @@ cdef int cuPythonInit() except -1 nogil:
         {{endif}}
 
     {{else}}
-    with gil:
-        handle = <void*><uintptr_t>path_finder._load_nvidia_dynamic_library("nvrtc").handle
     {{if 'nvrtcGetErrorString' in found_functions}}
     global __nvrtcGetErrorString
     __nvrtcGetErrorString = dlfcn.dlsym(handle, 'nvrtcGetErrorString')
