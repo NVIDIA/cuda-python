@@ -196,6 +196,7 @@ class Kernel:
     """
 
     __slots__ = ("_handle", "_module", "_attributes")
+    ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
 
     def __new__(self, *args, **kwargs):
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
@@ -222,15 +223,14 @@ class Kernel:
         if attr_impl._backend_version != "new":
             raise NotImplementedError("New backend is required")
         arg_pos = 0
-        if param_info:
-            ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
         param_info_data = []
         while True:
             result = attr_impl._loader["paraminfo"](self._handle, arg_pos)
             if result[0] != driver.CUresult.CUDA_SUCCESS:
                 break
             if param_info:
-                param_info_data.append(ParamInfo._make(result[1:3]))
+                p_info = Kernel.ParamInfo(offset=result[1], size=result[2])
+                param_info_data.append(p_info)
             arg_pos = arg_pos + 1
         return arg_pos, param_info_data
 
