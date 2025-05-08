@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 ``cuda-bindings`` 11.8.7 Release notes
 ======================================
 
@@ -9,3 +11,9 @@ Highlights
 
 * The ``cuda.bindings.nvvm`` Python module was added, wrapping the
   `libNVVM C API <https://docs.nvidia.com/cuda/libnvvm-api/>`_.
+
+
+Bug fixes
+---------
+
+* Fix segfault when converting char* NULL to bytes

@@ -1,4 +1,6 @@
-﻿cuda.core.experimental.\_module.Kernel
+﻿.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.\_module.Kernel
 ======================================
 
 .. currentmodule:: cuda.core.experimental._module
@@ -20,6 +22,6 @@
    .. rubric:: Attributes
 
    
-   .. autoattribute:: attributes
+   .. autoproperty:: attributes
    
    

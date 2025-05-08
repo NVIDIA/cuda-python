@@ -1,4 +1,6 @@
-﻿cuda.core.experimental.\_event.Event
+﻿.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.\_event.Event
 ====================================
 
 .. currentmodule:: cuda.core.experimental._event
@@ -22,10 +24,10 @@
    .. rubric:: Attributes
 
    
-   .. autoattribute:: handle
-   .. autoattribute:: is_done
-   .. autoattribute:: is_ipc_supported
-   .. autoattribute:: is_sync_busy_waited
-   .. autoattribute:: is_timing_disabled
+   .. autoproperty:: handle
+   .. autoproperty:: is_done
+   .. autoproperty:: is_ipc_supported
+   .. autoproperty:: is_sync_busy_waited
+   .. autoproperty:: is_timing_disabled
    
    

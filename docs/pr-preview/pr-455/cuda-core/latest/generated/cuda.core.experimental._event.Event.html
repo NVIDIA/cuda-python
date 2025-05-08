@@ -6,8 +6,8 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
         <link rel="canonical" href="docs/generated/cuda.core.experimental._event.Event.html" />
 
-    <!-- Generated with Sphinx 8.2.0 and Furo 2024.08.06 -->
-        <title>cuda.core.experimental._event.Event - cuda.core 0.1.1 documentation</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>cuda.core.experimental._event.Event - cuda.core 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -173,7 +173,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">cuda.core 0.1.1 documentation</div></a>
+      <a href="../index.html"><div class="brand">cuda.core 0.2.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -201,7 +201,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">cuda.core 0.1.1 documentation</span>
+  <span class="sidebar-brand-text">cuda.core 0.2.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -212,6 +212,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
@@ -227,12 +228,16 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
 </ul>
 
 </div>
@@ -299,14 +304,26 @@
 <h1>cuda.core.experimental._event.Event<a class="headerlink" href="#cuda-core-experimental-event-event" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._event.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._event.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._event.Event" title="Link to this definition">¶</a></dt>
 <dd><p>Represent a record at a specific point of execution within a CUDA stream.</p>
 <p>Applications can asynchronously record events at any point in
 the program. An event keeps a record of all previous work within
 the last recorded stream.</p>
 <p>Events can be used to monitor device’s progress, query completion
-of work up to event’s record, and help establish dependencies
-between GPU work submissions.</p>
+of work up to event’s record, help establish dependencies
+between GPU work submissions, and record the elapsed time (in milliseconds)
+on GPU:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># To create events and record the timing:</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_stream</span><span class="p">()</span>
+<span class="n">e1</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;enable_timing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="n">e2</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;enable_timing&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="n">s</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">e1</span><span class="p">)</span>
+<span class="c1"># ... run some GPU works ...</span>
+<span class="n">s</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
+<span class="n">e2</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;time = </span><span class="si">{</span><span class="n">e2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">e1</span><span class="si">}</span><span class="s2"> milliseconds&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Directly creating an <code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code> is not supported due to ambiguity,
 and they should instead be created through a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> object.</p>
 <p class="rubric">Methods</p>
@@ -333,33 +350,38 @@ has been completed.</p>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.handle" title="Link to this definition">¶</a></dt>
-<dd><p>Return the underlying cudaEvent_t pointer address as Python int.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUevent" title="(in cuda.bindings)"><span class="pre">cuda.bindings.driver.CUevent</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.handle" title="Link to this definition">¶</a></dt>
+<dd><p>Return the underlying CUevent object.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Event.handle)</span></code>.</p>
+</div>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_done">
-<span class="sig-name descname"><span class="pre">is_done</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_done" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_done</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.is_done" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if all captured works have been completed, otherwise False.</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_ipc_supported">
-<span class="sig-name descname"><span class="pre">is_ipc_supported</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_ipc_supported" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_ipc_supported</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.is_ipc_supported" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if this event can be used as an interprocess event, otherwise False.</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_sync_busy_waited">
-<span class="sig-name descname"><span class="pre">is_sync_busy_waited</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_sync_busy_waited" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_sync_busy_waited</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.is_sync_busy_waited" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if the event synchronization would keep the CPU busy-waiting, otherwise False.</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.is_timing_disabled">
-<span class="sig-name descname"><span class="pre">is_timing_disabled</span></span><a class="headerlink" href="#cuda.core.experimental._event.Event.is_timing_disabled" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_timing_disabled</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.is_timing_disabled" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if the event does not record timing data, otherwise False.</p>
 </dd></dl>
 
@@ -427,7 +449,7 @@ has been completed.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=a58bc63e"></script>
+</div><script src="../_static/documentation_options.js?v=938c9ccc"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
