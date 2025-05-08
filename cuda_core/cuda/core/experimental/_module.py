@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional, Union
+from collections import namedtuple
+from typing import NamedTuple, Optional, Union
 from warnings import warn
 
 from cuda.core.experimental._utils.clear_error_support import (
@@ -216,18 +217,20 @@ class Kernel:
             self._attributes = KernelAttributes._init(self._handle)
         return self._attributes
 
-    def _get_arguments_info(self, param_info=False) -> tuple[int, list[tuple[int, int]]]:
+    def _get_arguments_info(self, param_info=False) -> tuple[int, list[NamedTuple]]:
         attr_impl = self.attributes
         if attr_impl._backend_version != "new":
             raise NotImplementedError("New backend is required")
         arg_pos = 0
+        if param_info:
+            ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
         param_info_data = []
         while True:
             result = attr_impl._loader["paraminfo"](self._handle, arg_pos)
             if result[0] != driver.CUresult.CUDA_SUCCESS:
                 break
             if param_info:
-                param_info_data.append(result[1:3])
+                param_info_data.append(ParamInfo._make(result[1:3]))
             arg_pos = arg_pos + 1
         return arg_pos, param_info_data
 
@@ -238,8 +241,8 @@ class Kernel:
         return num_args
 
     @property
-    def arguments_info(self) -> list[tuple[int, int]]:
-        """list[tuple[int, int]]: (offset, size) for each argument of this function"""
+    def arguments_info(self) -> list[NamedTuple]:
+        """list[NamedTuple[int, int]]: (offset, size) for each argument of this function"""
         _, param_info = self._get_arguments_info(param_info=True)
         return param_info
 

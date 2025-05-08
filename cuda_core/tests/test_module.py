@@ -7,8 +7,8 @@
 # is strictly prohibited.
 
 
-import warnings
 import ctypes
+import warnings
 
 import pytest
 
@@ -173,15 +173,18 @@ def test_saxpy_arguments(get_saxpy_kernel):
     arg_info = krn.arguments_info
     n_args = len(arg_info)
     assert n_args == krn.num_arguments
+
     class ExpectedStruct(ctypes.Structure):
         _fields_ = [
-            ('a', ctypes.c_float),
-            ('x', ctypes.POINTER(ctypes.c_float)),
-            ('y', ctypes.POINTER(ctypes.c_float)),
-            ('out', ctypes.POINTER(ctypes.c_float)),
-            ('N', ctypes.c_size_t)
+            ("a", ctypes.c_float),
+            ("x", ctypes.POINTER(ctypes.c_float)),
+            ("y", ctypes.POINTER(ctypes.c_float)),
+            ("out", ctypes.POINTER(ctypes.c_float)),
+            ("N", ctypes.c_size_t),
         ]
-    offsets, sizes = zip(*arg_info)
+
+    offsets = [p.offset for p in arg_info]
+    sizes = [p.size for p in arg_info]
     members = [getattr(ExpectedStruct, name) for name, _ in ExpectedStruct._fields_]
     expected_offsets = tuple(m.offset for m in members)
     assert all(actual == expected for actual, expected in zip(offsets, expected_offsets))
@@ -197,15 +200,16 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type):
     prog = Program(src, code_type="c++")
     mod = prog.compile(
         "cubin",
-        name_expressions=(f"foo{nargs}", ),
+        name_expressions=(f"foo{nargs}",),
     )
     krn = mod.get_kernel(f"foo{nargs}")
     assert krn.num_arguments == nargs
 
     class ExpectedStruct(ctypes.Structure):
-        _fields_ = [
-            (f'arg_{i}', c_type) for i in range(nargs)
-        ]
+        _fields_ = [(f"arg_{i}", c_type) for i in range(nargs)]
+
     members = tuple(getattr(ExpectedStruct, f"arg_{i}") for i in range(nargs))
-    expected = [(m.offset, m.size) for m in members]
-    assert krn.arguments_info == expected
+
+    arg_info = krn.arguments_info
+    assert all([actual.offset == expected.offset for actual, expected in zip(arg_info, members)])
+    assert all([actual.size == expected.size for actual, expected in zip(arg_info, members)])
