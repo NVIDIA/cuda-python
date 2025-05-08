@@ -407,7 +407,7 @@ class GraphBuilder:
             The newly created conditional handle.
 
         """
-        if default_value != None:
+        if default_value is not None:
             flags = driver.CU_GRAPH_COND_ASSIGN_DEFAULT
         else:
             default_value = 0
