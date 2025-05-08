@@ -6,8 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 #
-# This code was automatically generated with version 12.8.0. Do not modify it directly.
-cimport cython
+# This code was automatically generated with version 12.9.0. Do not modify it directly.
 cimport cuda.bindings._bindings.cydriver as cydriver
 
 {{if 'cuGetErrorString' in found_functions}}
@@ -2654,6 +2653,36 @@ cdef CUresult cuStreamGetGreenCtx(CUstream hStream, CUgreenCtx* phCtx) except ?C
 
 cdef CUresult cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, unsigned int flags, int priority) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuGreenCtxStreamCreate(phStream, greenCtx, flags, priority)
+{{endif}}
+
+{{if 'cuLogsRegisterCallback' in found_functions}}
+
+cdef CUresult cuLogsRegisterCallback(CUlogsCallback callbackFunc, void* userData, CUlogsCallbackHandle* callback_out) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogsRegisterCallback(callbackFunc, userData, callback_out)
+{{endif}}
+
+{{if 'cuLogsUnregisterCallback' in found_functions}}
+
+cdef CUresult cuLogsUnregisterCallback(CUlogsCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogsUnregisterCallback(callback)
+{{endif}}
+
+{{if 'cuLogsCurrent' in found_functions}}
+
+cdef CUresult cuLogsCurrent(CUlogIterator* iterator_out, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogsCurrent(iterator_out, flags)
+{{endif}}
+
+{{if 'cuLogsDumpToFile' in found_functions}}
+
+cdef CUresult cuLogsDumpToFile(CUlogIterator* iterator, const char* pathToFile, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogsDumpToFile(iterator, pathToFile, flags)
+{{endif}}
+
+{{if 'cuLogsDumpToMemory' in found_functions}}
+
+cdef CUresult cuLogsDumpToMemory(CUlogIterator* iterator, char* buffer, size_t* size, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuLogsDumpToMemory(iterator, buffer, size, flags)
 {{endif}}
 
 {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}

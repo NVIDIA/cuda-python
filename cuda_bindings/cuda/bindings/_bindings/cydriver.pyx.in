@@ -6,7 +6,7 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 #
-# This code was automatically generated with version 12.8.0. Do not modify it directly.
+# This code was automatically generated with version 12.9.0. Do not modify it directly.
 {{if 'Windows' == platform.system()}}
 import os
 import site
@@ -16,6 +16,8 @@ from pywintypes import error
 {{else}}
 cimport cuda.bindings._lib.dlfcn as dlfcn
 {{endif}}
+
+from libc.stdint cimport intptr_t
 import os
 import sys
 cimport cuda.bindings._bindings.loader as loader
@@ -461,6 +463,11 @@ cdef bint __cuPythonInit = False
 {{if 'cuGreenCtxWaitEvent' in found_functions}}cdef void *__cuGreenCtxWaitEvent = NULL{{endif}}
 {{if 'cuStreamGetGreenCtx' in found_functions}}cdef void *__cuStreamGetGreenCtx = NULL{{endif}}
 {{if 'cuGreenCtxStreamCreate' in found_functions}}cdef void *__cuGreenCtxStreamCreate = NULL{{endif}}
+{{if 'cuLogsRegisterCallback' in found_functions}}cdef void *__cuLogsRegisterCallback = NULL{{endif}}
+{{if 'cuLogsUnregisterCallback' in found_functions}}cdef void *__cuLogsUnregisterCallback = NULL{{endif}}
+{{if 'cuLogsCurrent' in found_functions}}cdef void *__cuLogsCurrent = NULL{{endif}}
+{{if 'cuLogsDumpToFile' in found_functions}}cdef void *__cuLogsDumpToFile = NULL{{endif}}
+{{if 'cuLogsDumpToMemory' in found_functions}}cdef void *__cuLogsDumpToMemory = NULL{{endif}}
 {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}cdef void *__cuCheckpointProcessGetRestoreThreadId = NULL{{endif}}
 {{if 'cuCheckpointProcessGetState' in found_functions}}cdef void *__cuCheckpointProcessGetState = NULL{{endif}}
 {{if 'cuCheckpointProcessLock' in found_functions}}cdef void *__cuCheckpointProcessLock = NULL{{endif}}
@@ -2649,6 +2656,26 @@ cdef int cuPythonInit() except -1 nogil:
         {{if 'cuGreenCtxStreamCreate' in found_functions}}
         global __cuGreenCtxStreamCreate
         cuGetProcAddress('cuGreenCtxStreamCreate', &__cuGreenCtxStreamCreate, 12050, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuLogsRegisterCallback' in found_functions}}
+        global __cuLogsRegisterCallback
+        cuGetProcAddress('cuLogsRegisterCallback', &__cuLogsRegisterCallback, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuLogsUnregisterCallback' in found_functions}}
+        global __cuLogsUnregisterCallback
+        cuGetProcAddress('cuLogsUnregisterCallback', &__cuLogsUnregisterCallback, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuLogsCurrent' in found_functions}}
+        global __cuLogsCurrent
+        cuGetProcAddress('cuLogsCurrent', &__cuLogsCurrent, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuLogsDumpToFile' in found_functions}}
+        global __cuLogsDumpToFile
+        cuGetProcAddress('cuLogsDumpToFile', &__cuLogsDumpToFile, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+        {{endif}}
+        {{if 'cuLogsDumpToMemory' in found_functions}}
+        global __cuLogsDumpToMemory
+        cuGetProcAddress('cuLogsDumpToMemory', &__cuLogsDumpToMemory, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
         {{endif}}
         {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
         global __cuCheckpointProcessGetRestoreThreadId
@@ -6452,6 +6479,41 @@ cdef int cuPythonInit() except -1 nogil:
         except:
             pass
         {{endif}}
+        {{if 'cuLogsRegisterCallback' in found_functions}}
+        try:
+            global __cuLogsRegisterCallback
+            __cuLogsRegisterCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLogsRegisterCallback')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuLogsUnregisterCallback' in found_functions}}
+        try:
+            global __cuLogsUnregisterCallback
+            __cuLogsUnregisterCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLogsUnregisterCallback')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuLogsCurrent' in found_functions}}
+        try:
+            global __cuLogsCurrent
+            __cuLogsCurrent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLogsCurrent')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuLogsDumpToFile' in found_functions}}
+        try:
+            global __cuLogsDumpToFile
+            __cuLogsDumpToFile = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLogsDumpToFile')
+        except:
+            pass
+        {{endif}}
+        {{if 'cuLogsDumpToMemory' in found_functions}}
+        try:
+            global __cuLogsDumpToMemory
+            __cuLogsDumpToMemory = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLogsDumpToMemory')
+        except:
+            pass
+        {{endif}}
         {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
         try:
             global __cuCheckpointProcessGetRestoreThreadId
@@ -8753,6 +8815,26 @@ cdef int cuPythonInit() except -1 nogil:
     {{if 'cuGreenCtxStreamCreate' in found_functions}}
     global __cuGreenCtxStreamCreate
     __cuGreenCtxStreamCreate = dlfcn.dlsym(handle, 'cuGreenCtxStreamCreate')
+    {{endif}}
+    {{if 'cuLogsRegisterCallback' in found_functions}}
+    global __cuLogsRegisterCallback
+    __cuLogsRegisterCallback = dlfcn.dlsym(handle, 'cuLogsRegisterCallback')
+    {{endif}}
+    {{if 'cuLogsUnregisterCallback' in found_functions}}
+    global __cuLogsUnregisterCallback
+    __cuLogsUnregisterCallback = dlfcn.dlsym(handle, 'cuLogsUnregisterCallback')
+    {{endif}}
+    {{if 'cuLogsCurrent' in found_functions}}
+    global __cuLogsCurrent
+    __cuLogsCurrent = dlfcn.dlsym(handle, 'cuLogsCurrent')
+    {{endif}}
+    {{if 'cuLogsDumpToFile' in found_functions}}
+    global __cuLogsDumpToFile
+    __cuLogsDumpToFile = dlfcn.dlsym(handle, 'cuLogsDumpToFile')
+    {{endif}}
+    {{if 'cuLogsDumpToMemory' in found_functions}}
+    global __cuLogsDumpToMemory
+    __cuLogsDumpToMemory = dlfcn.dlsym(handle, 'cuLogsDumpToMemory')
     {{endif}}
     {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
     global __cuCheckpointProcessGetRestoreThreadId
@@ -14156,6 +14238,66 @@ cdef CUresult _cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, u
     return err
 {{endif}}
 
+{{if 'cuLogsRegisterCallback' in found_functions}}
+
+cdef CUresult _cuLogsRegisterCallback(CUlogsCallback callbackFunc, void* userData, CUlogsCallbackHandle* callback_out) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogsRegisterCallback
+    cuPythonInit()
+    if __cuLogsRegisterCallback == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogsRegisterCallback" not found')
+    err = (<CUresult (*)(CUlogsCallback, void*, CUlogsCallbackHandle*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogsRegisterCallback)(callbackFunc, userData, callback_out)
+    return err
+{{endif}}
+
+{{if 'cuLogsUnregisterCallback' in found_functions}}
+
+cdef CUresult _cuLogsUnregisterCallback(CUlogsCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogsUnregisterCallback
+    cuPythonInit()
+    if __cuLogsUnregisterCallback == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogsUnregisterCallback" not found')
+    err = (<CUresult (*)(CUlogsCallbackHandle) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogsUnregisterCallback)(callback)
+    return err
+{{endif}}
+
+{{if 'cuLogsCurrent' in found_functions}}
+
+cdef CUresult _cuLogsCurrent(CUlogIterator* iterator_out, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogsCurrent
+    cuPythonInit()
+    if __cuLogsCurrent == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogsCurrent" not found')
+    err = (<CUresult (*)(CUlogIterator*, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogsCurrent)(iterator_out, flags)
+    return err
+{{endif}}
+
+{{if 'cuLogsDumpToFile' in found_functions}}
+
+cdef CUresult _cuLogsDumpToFile(CUlogIterator* iterator, const char* pathToFile, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogsDumpToFile
+    cuPythonInit()
+    if __cuLogsDumpToFile == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogsDumpToFile" not found')
+    err = (<CUresult (*)(CUlogIterator*, const char*, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogsDumpToFile)(iterator, pathToFile, flags)
+    return err
+{{endif}}
+
+{{if 'cuLogsDumpToMemory' in found_functions}}
+
+cdef CUresult _cuLogsDumpToMemory(CUlogIterator* iterator, char* buffer, size_t* size, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuLogsDumpToMemory
+    cuPythonInit()
+    if __cuLogsDumpToMemory == NULL:
+        with gil:
+            raise RuntimeError('Function "cuLogsDumpToMemory" not found')
+    err = (<CUresult (*)(CUlogIterator*, char*, size_t*, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuLogsDumpToMemory)(iterator, buffer, size, flags)
+    return err
+{{endif}}
+
 {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
 
 cdef CUresult _cuCheckpointProcessGetRestoreThreadId(int pid, int* tid) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -14479,3 +14621,3333 @@ cdef CUresult _cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaRes
     err = (<CUresult (*)(CUgraphicsResource*, VdpOutputSurface, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuGraphicsVDPAURegisterOutputSurface)(pCudaResource, vdpSurface, flags)
     return err
 {{endif}}
+
+cdef dict func_ptrs = None
+
+cpdef dict _inspect_function_pointers():
+    global func_ptrs
+    if func_ptrs is not None:
+        return func_ptrs
+
+    cuPythonInit()
+    cdef dict data = {}
+
+    {{if 'cuGetErrorString' in found_functions}}
+    global __cuGetErrorString
+    data["__cuGetErrorString"] = <intptr_t>__cuGetErrorString
+    {{else}}
+    data["__cuGetErrorString"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGetErrorName' in found_functions}}
+    global __cuGetErrorName
+    data["__cuGetErrorName"] = <intptr_t>__cuGetErrorName
+    {{else}}
+    data["__cuGetErrorName"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuInit' in found_functions}}
+    global __cuInit
+    data["__cuInit"] = <intptr_t>__cuInit
+    {{else}}
+    data["__cuInit"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDriverGetVersion' in found_functions}}
+    global __cuDriverGetVersion
+    data["__cuDriverGetVersion"] = <intptr_t>__cuDriverGetVersion
+    {{else}}
+    data["__cuDriverGetVersion"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGet' in found_functions}}
+    global __cuDeviceGet
+    data["__cuDeviceGet"] = <intptr_t>__cuDeviceGet
+    {{else}}
+    data["__cuDeviceGet"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetCount' in found_functions}}
+    global __cuDeviceGetCount
+    data["__cuDeviceGetCount"] = <intptr_t>__cuDeviceGetCount
+    {{else}}
+    data["__cuDeviceGetCount"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetName' in found_functions}}
+    global __cuDeviceGetName
+    data["__cuDeviceGetName"] = <intptr_t>__cuDeviceGetName
+    {{else}}
+    data["__cuDeviceGetName"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetUuid' in found_functions}}
+    global __cuDeviceGetUuid
+    data["__cuDeviceGetUuid"] = <intptr_t>__cuDeviceGetUuid
+    {{else}}
+    data["__cuDeviceGetUuid"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetUuid_v2' in found_functions}}
+    global __cuDeviceGetUuid_v2
+    data["__cuDeviceGetUuid_v2"] = <intptr_t>__cuDeviceGetUuid_v2
+    {{else}}
+    data["__cuDeviceGetUuid_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetLuid' in found_functions}}
+    global __cuDeviceGetLuid
+    data["__cuDeviceGetLuid"] = <intptr_t>__cuDeviceGetLuid
+    {{else}}
+    data["__cuDeviceGetLuid"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceTotalMem_v2' in found_functions}}
+    global __cuDeviceTotalMem_v2
+    data["__cuDeviceTotalMem_v2"] = <intptr_t>__cuDeviceTotalMem_v2
+    {{else}}
+    data["__cuDeviceTotalMem_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetTexture1DLinearMaxWidth' in found_functions}}
+    global __cuDeviceGetTexture1DLinearMaxWidth
+    data["__cuDeviceGetTexture1DLinearMaxWidth"] = <intptr_t>__cuDeviceGetTexture1DLinearMaxWidth
+    {{else}}
+    data["__cuDeviceGetTexture1DLinearMaxWidth"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetAttribute' in found_functions}}
+    global __cuDeviceGetAttribute
+    data["__cuDeviceGetAttribute"] = <intptr_t>__cuDeviceGetAttribute
+    {{else}}
+    data["__cuDeviceGetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetNvSciSyncAttributes' in found_functions}}
+    global __cuDeviceGetNvSciSyncAttributes
+    data["__cuDeviceGetNvSciSyncAttributes"] = <intptr_t>__cuDeviceGetNvSciSyncAttributes
+    {{else}}
+    data["__cuDeviceGetNvSciSyncAttributes"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceSetMemPool' in found_functions}}
+    global __cuDeviceSetMemPool
+    data["__cuDeviceSetMemPool"] = <intptr_t>__cuDeviceSetMemPool
+    {{else}}
+    data["__cuDeviceSetMemPool"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetMemPool' in found_functions}}
+    global __cuDeviceGetMemPool
+    data["__cuDeviceGetMemPool"] = <intptr_t>__cuDeviceGetMemPool
+    {{else}}
+    data["__cuDeviceGetMemPool"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetDefaultMemPool' in found_functions}}
+    global __cuDeviceGetDefaultMemPool
+    data["__cuDeviceGetDefaultMemPool"] = <intptr_t>__cuDeviceGetDefaultMemPool
+    {{else}}
+    data["__cuDeviceGetDefaultMemPool"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetExecAffinitySupport' in found_functions}}
+    global __cuDeviceGetExecAffinitySupport
+    data["__cuDeviceGetExecAffinitySupport"] = <intptr_t>__cuDeviceGetExecAffinitySupport
+    {{else}}
+    data["__cuDeviceGetExecAffinitySupport"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFlushGPUDirectRDMAWrites' in found_functions}}
+    global __cuFlushGPUDirectRDMAWrites
+    data["__cuFlushGPUDirectRDMAWrites"] = <intptr_t>__cuFlushGPUDirectRDMAWrites
+    {{else}}
+    data["__cuFlushGPUDirectRDMAWrites"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetProperties' in found_functions}}
+    global __cuDeviceGetProperties
+    data["__cuDeviceGetProperties"] = <intptr_t>__cuDeviceGetProperties
+    {{else}}
+    data["__cuDeviceGetProperties"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceComputeCapability' in found_functions}}
+    global __cuDeviceComputeCapability
+    data["__cuDeviceComputeCapability"] = <intptr_t>__cuDeviceComputeCapability
+    {{else}}
+    data["__cuDeviceComputeCapability"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDevicePrimaryCtxRetain' in found_functions}}
+    global __cuDevicePrimaryCtxRetain
+    data["__cuDevicePrimaryCtxRetain"] = <intptr_t>__cuDevicePrimaryCtxRetain
+    {{else}}
+    data["__cuDevicePrimaryCtxRetain"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDevicePrimaryCtxRelease_v2' in found_functions}}
+    global __cuDevicePrimaryCtxRelease_v2
+    data["__cuDevicePrimaryCtxRelease_v2"] = <intptr_t>__cuDevicePrimaryCtxRelease_v2
+    {{else}}
+    data["__cuDevicePrimaryCtxRelease_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDevicePrimaryCtxSetFlags_v2' in found_functions}}
+    global __cuDevicePrimaryCtxSetFlags_v2
+    data["__cuDevicePrimaryCtxSetFlags_v2"] = <intptr_t>__cuDevicePrimaryCtxSetFlags_v2
+    {{else}}
+    data["__cuDevicePrimaryCtxSetFlags_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDevicePrimaryCtxGetState' in found_functions}}
+    global __cuDevicePrimaryCtxGetState
+    data["__cuDevicePrimaryCtxGetState"] = <intptr_t>__cuDevicePrimaryCtxGetState
+    {{else}}
+    data["__cuDevicePrimaryCtxGetState"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDevicePrimaryCtxReset_v2' in found_functions}}
+    global __cuDevicePrimaryCtxReset_v2
+    data["__cuDevicePrimaryCtxReset_v2"] = <intptr_t>__cuDevicePrimaryCtxReset_v2
+    {{else}}
+    data["__cuDevicePrimaryCtxReset_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxCreate_v2' in found_functions}}
+    global __cuCtxCreate_v2
+    data["__cuCtxCreate_v2"] = <intptr_t>__cuCtxCreate_v2
+    {{else}}
+    data["__cuCtxCreate_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxCreate_v3' in found_functions}}
+    global __cuCtxCreate_v3
+    data["__cuCtxCreate_v3"] = <intptr_t>__cuCtxCreate_v3
+    {{else}}
+    data["__cuCtxCreate_v3"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxCreate_v4' in found_functions}}
+    global __cuCtxCreate_v4
+    data["__cuCtxCreate_v4"] = <intptr_t>__cuCtxCreate_v4
+    {{else}}
+    data["__cuCtxCreate_v4"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxDestroy_v2' in found_functions}}
+    global __cuCtxDestroy_v2
+    data["__cuCtxDestroy_v2"] = <intptr_t>__cuCtxDestroy_v2
+    {{else}}
+    data["__cuCtxDestroy_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxPushCurrent_v2' in found_functions}}
+    global __cuCtxPushCurrent_v2
+    data["__cuCtxPushCurrent_v2"] = <intptr_t>__cuCtxPushCurrent_v2
+    {{else}}
+    data["__cuCtxPushCurrent_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxPopCurrent_v2' in found_functions}}
+    global __cuCtxPopCurrent_v2
+    data["__cuCtxPopCurrent_v2"] = <intptr_t>__cuCtxPopCurrent_v2
+    {{else}}
+    data["__cuCtxPopCurrent_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxSetCurrent' in found_functions}}
+    global __cuCtxSetCurrent
+    data["__cuCtxSetCurrent"] = <intptr_t>__cuCtxSetCurrent
+    {{else}}
+    data["__cuCtxSetCurrent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetCurrent' in found_functions}}
+    global __cuCtxGetCurrent
+    data["__cuCtxGetCurrent"] = <intptr_t>__cuCtxGetCurrent
+    {{else}}
+    data["__cuCtxGetCurrent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetDevice' in found_functions}}
+    global __cuCtxGetDevice
+    data["__cuCtxGetDevice"] = <intptr_t>__cuCtxGetDevice
+    {{else}}
+    data["__cuCtxGetDevice"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetFlags' in found_functions}}
+    global __cuCtxGetFlags
+    data["__cuCtxGetFlags"] = <intptr_t>__cuCtxGetFlags
+    {{else}}
+    data["__cuCtxGetFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxSetFlags' in found_functions}}
+    global __cuCtxSetFlags
+    data["__cuCtxSetFlags"] = <intptr_t>__cuCtxSetFlags
+    {{else}}
+    data["__cuCtxSetFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetId' in found_functions}}
+    global __cuCtxGetId
+    data["__cuCtxGetId"] = <intptr_t>__cuCtxGetId
+    {{else}}
+    data["__cuCtxGetId"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxSynchronize' in found_functions}}
+    global __cuCtxSynchronize
+    data["__cuCtxSynchronize"] = <intptr_t>__cuCtxSynchronize
+    {{else}}
+    data["__cuCtxSynchronize"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxSetLimit' in found_functions}}
+    global __cuCtxSetLimit
+    data["__cuCtxSetLimit"] = <intptr_t>__cuCtxSetLimit
+    {{else}}
+    data["__cuCtxSetLimit"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetLimit' in found_functions}}
+    global __cuCtxGetLimit
+    data["__cuCtxGetLimit"] = <intptr_t>__cuCtxGetLimit
+    {{else}}
+    data["__cuCtxGetLimit"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetCacheConfig' in found_functions}}
+    global __cuCtxGetCacheConfig
+    data["__cuCtxGetCacheConfig"] = <intptr_t>__cuCtxGetCacheConfig
+    {{else}}
+    data["__cuCtxGetCacheConfig"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxSetCacheConfig' in found_functions}}
+    global __cuCtxSetCacheConfig
+    data["__cuCtxSetCacheConfig"] = <intptr_t>__cuCtxSetCacheConfig
+    {{else}}
+    data["__cuCtxSetCacheConfig"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetApiVersion' in found_functions}}
+    global __cuCtxGetApiVersion
+    data["__cuCtxGetApiVersion"] = <intptr_t>__cuCtxGetApiVersion
+    {{else}}
+    data["__cuCtxGetApiVersion"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetStreamPriorityRange' in found_functions}}
+    global __cuCtxGetStreamPriorityRange
+    data["__cuCtxGetStreamPriorityRange"] = <intptr_t>__cuCtxGetStreamPriorityRange
+    {{else}}
+    data["__cuCtxGetStreamPriorityRange"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxResetPersistingL2Cache' in found_functions}}
+    global __cuCtxResetPersistingL2Cache
+    data["__cuCtxResetPersistingL2Cache"] = <intptr_t>__cuCtxResetPersistingL2Cache
+    {{else}}
+    data["__cuCtxResetPersistingL2Cache"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetExecAffinity' in found_functions}}
+    global __cuCtxGetExecAffinity
+    data["__cuCtxGetExecAffinity"] = <intptr_t>__cuCtxGetExecAffinity
+    {{else}}
+    data["__cuCtxGetExecAffinity"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxRecordEvent' in found_functions}}
+    global __cuCtxRecordEvent
+    data["__cuCtxRecordEvent"] = <intptr_t>__cuCtxRecordEvent
+    {{else}}
+    data["__cuCtxRecordEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxWaitEvent' in found_functions}}
+    global __cuCtxWaitEvent
+    data["__cuCtxWaitEvent"] = <intptr_t>__cuCtxWaitEvent
+    {{else}}
+    data["__cuCtxWaitEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxAttach' in found_functions}}
+    global __cuCtxAttach
+    data["__cuCtxAttach"] = <intptr_t>__cuCtxAttach
+    {{else}}
+    data["__cuCtxAttach"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxDetach' in found_functions}}
+    global __cuCtxDetach
+    data["__cuCtxDetach"] = <intptr_t>__cuCtxDetach
+    {{else}}
+    data["__cuCtxDetach"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetSharedMemConfig' in found_functions}}
+    global __cuCtxGetSharedMemConfig
+    data["__cuCtxGetSharedMemConfig"] = <intptr_t>__cuCtxGetSharedMemConfig
+    {{else}}
+    data["__cuCtxGetSharedMemConfig"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxSetSharedMemConfig' in found_functions}}
+    global __cuCtxSetSharedMemConfig
+    data["__cuCtxSetSharedMemConfig"] = <intptr_t>__cuCtxSetSharedMemConfig
+    {{else}}
+    data["__cuCtxSetSharedMemConfig"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleLoad' in found_functions}}
+    global __cuModuleLoad
+    data["__cuModuleLoad"] = <intptr_t>__cuModuleLoad
+    {{else}}
+    data["__cuModuleLoad"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleLoadData' in found_functions}}
+    global __cuModuleLoadData
+    data["__cuModuleLoadData"] = <intptr_t>__cuModuleLoadData
+    {{else}}
+    data["__cuModuleLoadData"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleLoadDataEx' in found_functions}}
+    global __cuModuleLoadDataEx
+    data["__cuModuleLoadDataEx"] = <intptr_t>__cuModuleLoadDataEx
+    {{else}}
+    data["__cuModuleLoadDataEx"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleLoadFatBinary' in found_functions}}
+    global __cuModuleLoadFatBinary
+    data["__cuModuleLoadFatBinary"] = <intptr_t>__cuModuleLoadFatBinary
+    {{else}}
+    data["__cuModuleLoadFatBinary"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleUnload' in found_functions}}
+    global __cuModuleUnload
+    data["__cuModuleUnload"] = <intptr_t>__cuModuleUnload
+    {{else}}
+    data["__cuModuleUnload"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleGetLoadingMode' in found_functions}}
+    global __cuModuleGetLoadingMode
+    data["__cuModuleGetLoadingMode"] = <intptr_t>__cuModuleGetLoadingMode
+    {{else}}
+    data["__cuModuleGetLoadingMode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleGetFunction' in found_functions}}
+    global __cuModuleGetFunction
+    data["__cuModuleGetFunction"] = <intptr_t>__cuModuleGetFunction
+    {{else}}
+    data["__cuModuleGetFunction"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleGetFunctionCount' in found_functions}}
+    global __cuModuleGetFunctionCount
+    data["__cuModuleGetFunctionCount"] = <intptr_t>__cuModuleGetFunctionCount
+    {{else}}
+    data["__cuModuleGetFunctionCount"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleEnumerateFunctions' in found_functions}}
+    global __cuModuleEnumerateFunctions
+    data["__cuModuleEnumerateFunctions"] = <intptr_t>__cuModuleEnumerateFunctions
+    {{else}}
+    data["__cuModuleEnumerateFunctions"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleGetGlobal_v2' in found_functions}}
+    global __cuModuleGetGlobal_v2
+    data["__cuModuleGetGlobal_v2"] = <intptr_t>__cuModuleGetGlobal_v2
+    {{else}}
+    data["__cuModuleGetGlobal_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLinkCreate_v2' in found_functions}}
+    global __cuLinkCreate_v2
+    data["__cuLinkCreate_v2"] = <intptr_t>__cuLinkCreate_v2
+    {{else}}
+    data["__cuLinkCreate_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLinkAddData_v2' in found_functions}}
+    global __cuLinkAddData_v2
+    data["__cuLinkAddData_v2"] = <intptr_t>__cuLinkAddData_v2
+    {{else}}
+    data["__cuLinkAddData_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLinkAddFile_v2' in found_functions}}
+    global __cuLinkAddFile_v2
+    data["__cuLinkAddFile_v2"] = <intptr_t>__cuLinkAddFile_v2
+    {{else}}
+    data["__cuLinkAddFile_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLinkComplete' in found_functions}}
+    global __cuLinkComplete
+    data["__cuLinkComplete"] = <intptr_t>__cuLinkComplete
+    {{else}}
+    data["__cuLinkComplete"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLinkDestroy' in found_functions}}
+    global __cuLinkDestroy
+    data["__cuLinkDestroy"] = <intptr_t>__cuLinkDestroy
+    {{else}}
+    data["__cuLinkDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleGetTexRef' in found_functions}}
+    global __cuModuleGetTexRef
+    data["__cuModuleGetTexRef"] = <intptr_t>__cuModuleGetTexRef
+    {{else}}
+    data["__cuModuleGetTexRef"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuModuleGetSurfRef' in found_functions}}
+    global __cuModuleGetSurfRef
+    data["__cuModuleGetSurfRef"] = <intptr_t>__cuModuleGetSurfRef
+    {{else}}
+    data["__cuModuleGetSurfRef"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLibraryLoadData' in found_functions}}
+    global __cuLibraryLoadData
+    data["__cuLibraryLoadData"] = <intptr_t>__cuLibraryLoadData
+    {{else}}
+    data["__cuLibraryLoadData"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLibraryLoadFromFile' in found_functions}}
+    global __cuLibraryLoadFromFile
+    data["__cuLibraryLoadFromFile"] = <intptr_t>__cuLibraryLoadFromFile
+    {{else}}
+    data["__cuLibraryLoadFromFile"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLibraryUnload' in found_functions}}
+    global __cuLibraryUnload
+    data["__cuLibraryUnload"] = <intptr_t>__cuLibraryUnload
+    {{else}}
+    data["__cuLibraryUnload"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLibraryGetKernel' in found_functions}}
+    global __cuLibraryGetKernel
+    data["__cuLibraryGetKernel"] = <intptr_t>__cuLibraryGetKernel
+    {{else}}
+    data["__cuLibraryGetKernel"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLibraryGetKernelCount' in found_functions}}
+    global __cuLibraryGetKernelCount
+    data["__cuLibraryGetKernelCount"] = <intptr_t>__cuLibraryGetKernelCount
+    {{else}}
+    data["__cuLibraryGetKernelCount"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLibraryEnumerateKernels' in found_functions}}
+    global __cuLibraryEnumerateKernels
+    data["__cuLibraryEnumerateKernels"] = <intptr_t>__cuLibraryEnumerateKernels
+    {{else}}
+    data["__cuLibraryEnumerateKernels"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLibraryGetModule' in found_functions}}
+    global __cuLibraryGetModule
+    data["__cuLibraryGetModule"] = <intptr_t>__cuLibraryGetModule
+    {{else}}
+    data["__cuLibraryGetModule"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuKernelGetFunction' in found_functions}}
+    global __cuKernelGetFunction
+    data["__cuKernelGetFunction"] = <intptr_t>__cuKernelGetFunction
+    {{else}}
+    data["__cuKernelGetFunction"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuKernelGetLibrary' in found_functions}}
+    global __cuKernelGetLibrary
+    data["__cuKernelGetLibrary"] = <intptr_t>__cuKernelGetLibrary
+    {{else}}
+    data["__cuKernelGetLibrary"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLibraryGetGlobal' in found_functions}}
+    global __cuLibraryGetGlobal
+    data["__cuLibraryGetGlobal"] = <intptr_t>__cuLibraryGetGlobal
+    {{else}}
+    data["__cuLibraryGetGlobal"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLibraryGetManaged' in found_functions}}
+    global __cuLibraryGetManaged
+    data["__cuLibraryGetManaged"] = <intptr_t>__cuLibraryGetManaged
+    {{else}}
+    data["__cuLibraryGetManaged"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLibraryGetUnifiedFunction' in found_functions}}
+    global __cuLibraryGetUnifiedFunction
+    data["__cuLibraryGetUnifiedFunction"] = <intptr_t>__cuLibraryGetUnifiedFunction
+    {{else}}
+    data["__cuLibraryGetUnifiedFunction"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuKernelGetAttribute' in found_functions}}
+    global __cuKernelGetAttribute
+    data["__cuKernelGetAttribute"] = <intptr_t>__cuKernelGetAttribute
+    {{else}}
+    data["__cuKernelGetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuKernelSetAttribute' in found_functions}}
+    global __cuKernelSetAttribute
+    data["__cuKernelSetAttribute"] = <intptr_t>__cuKernelSetAttribute
+    {{else}}
+    data["__cuKernelSetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuKernelSetCacheConfig' in found_functions}}
+    global __cuKernelSetCacheConfig
+    data["__cuKernelSetCacheConfig"] = <intptr_t>__cuKernelSetCacheConfig
+    {{else}}
+    data["__cuKernelSetCacheConfig"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuKernelGetName' in found_functions}}
+    global __cuKernelGetName
+    data["__cuKernelGetName"] = <intptr_t>__cuKernelGetName
+    {{else}}
+    data["__cuKernelGetName"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuKernelGetParamInfo' in found_functions}}
+    global __cuKernelGetParamInfo
+    data["__cuKernelGetParamInfo"] = <intptr_t>__cuKernelGetParamInfo
+    {{else}}
+    data["__cuKernelGetParamInfo"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemGetInfo_v2' in found_functions}}
+    global __cuMemGetInfo_v2
+    data["__cuMemGetInfo_v2"] = <intptr_t>__cuMemGetInfo_v2
+    {{else}}
+    data["__cuMemGetInfo_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemAlloc_v2' in found_functions}}
+    global __cuMemAlloc_v2
+    data["__cuMemAlloc_v2"] = <intptr_t>__cuMemAlloc_v2
+    {{else}}
+    data["__cuMemAlloc_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemAllocPitch_v2' in found_functions}}
+    global __cuMemAllocPitch_v2
+    data["__cuMemAllocPitch_v2"] = <intptr_t>__cuMemAllocPitch_v2
+    {{else}}
+    data["__cuMemAllocPitch_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemFree_v2' in found_functions}}
+    global __cuMemFree_v2
+    data["__cuMemFree_v2"] = <intptr_t>__cuMemFree_v2
+    {{else}}
+    data["__cuMemFree_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemGetAddressRange_v2' in found_functions}}
+    global __cuMemGetAddressRange_v2
+    data["__cuMemGetAddressRange_v2"] = <intptr_t>__cuMemGetAddressRange_v2
+    {{else}}
+    data["__cuMemGetAddressRange_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemAllocHost_v2' in found_functions}}
+    global __cuMemAllocHost_v2
+    data["__cuMemAllocHost_v2"] = <intptr_t>__cuMemAllocHost_v2
+    {{else}}
+    data["__cuMemAllocHost_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemFreeHost' in found_functions}}
+    global __cuMemFreeHost
+    data["__cuMemFreeHost"] = <intptr_t>__cuMemFreeHost
+    {{else}}
+    data["__cuMemFreeHost"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemHostAlloc' in found_functions}}
+    global __cuMemHostAlloc
+    data["__cuMemHostAlloc"] = <intptr_t>__cuMemHostAlloc
+    {{else}}
+    data["__cuMemHostAlloc"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemHostGetDevicePointer_v2' in found_functions}}
+    global __cuMemHostGetDevicePointer_v2
+    data["__cuMemHostGetDevicePointer_v2"] = <intptr_t>__cuMemHostGetDevicePointer_v2
+    {{else}}
+    data["__cuMemHostGetDevicePointer_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemHostGetFlags' in found_functions}}
+    global __cuMemHostGetFlags
+    data["__cuMemHostGetFlags"] = <intptr_t>__cuMemHostGetFlags
+    {{else}}
+    data["__cuMemHostGetFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemAllocManaged' in found_functions}}
+    global __cuMemAllocManaged
+    data["__cuMemAllocManaged"] = <intptr_t>__cuMemAllocManaged
+    {{else}}
+    data["__cuMemAllocManaged"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceRegisterAsyncNotification' in found_functions}}
+    global __cuDeviceRegisterAsyncNotification
+    data["__cuDeviceRegisterAsyncNotification"] = <intptr_t>__cuDeviceRegisterAsyncNotification
+    {{else}}
+    data["__cuDeviceRegisterAsyncNotification"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceUnregisterAsyncNotification' in found_functions}}
+    global __cuDeviceUnregisterAsyncNotification
+    data["__cuDeviceUnregisterAsyncNotification"] = <intptr_t>__cuDeviceUnregisterAsyncNotification
+    {{else}}
+    data["__cuDeviceUnregisterAsyncNotification"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetByPCIBusId' in found_functions}}
+    global __cuDeviceGetByPCIBusId
+    data["__cuDeviceGetByPCIBusId"] = <intptr_t>__cuDeviceGetByPCIBusId
+    {{else}}
+    data["__cuDeviceGetByPCIBusId"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetPCIBusId' in found_functions}}
+    global __cuDeviceGetPCIBusId
+    data["__cuDeviceGetPCIBusId"] = <intptr_t>__cuDeviceGetPCIBusId
+    {{else}}
+    data["__cuDeviceGetPCIBusId"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuIpcGetEventHandle' in found_functions}}
+    global __cuIpcGetEventHandle
+    data["__cuIpcGetEventHandle"] = <intptr_t>__cuIpcGetEventHandle
+    {{else}}
+    data["__cuIpcGetEventHandle"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuIpcOpenEventHandle' in found_functions}}
+    global __cuIpcOpenEventHandle
+    data["__cuIpcOpenEventHandle"] = <intptr_t>__cuIpcOpenEventHandle
+    {{else}}
+    data["__cuIpcOpenEventHandle"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuIpcGetMemHandle' in found_functions}}
+    global __cuIpcGetMemHandle
+    data["__cuIpcGetMemHandle"] = <intptr_t>__cuIpcGetMemHandle
+    {{else}}
+    data["__cuIpcGetMemHandle"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuIpcOpenMemHandle_v2' in found_functions}}
+    global __cuIpcOpenMemHandle_v2
+    data["__cuIpcOpenMemHandle_v2"] = <intptr_t>__cuIpcOpenMemHandle_v2
+    {{else}}
+    data["__cuIpcOpenMemHandle_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuIpcCloseMemHandle' in found_functions}}
+    global __cuIpcCloseMemHandle
+    data["__cuIpcCloseMemHandle"] = <intptr_t>__cuIpcCloseMemHandle
+    {{else}}
+    data["__cuIpcCloseMemHandle"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemHostRegister_v2' in found_functions}}
+    global __cuMemHostRegister_v2
+    data["__cuMemHostRegister_v2"] = <intptr_t>__cuMemHostRegister_v2
+    {{else}}
+    data["__cuMemHostRegister_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemHostUnregister' in found_functions}}
+    global __cuMemHostUnregister
+    data["__cuMemHostUnregister"] = <intptr_t>__cuMemHostUnregister
+    {{else}}
+    data["__cuMemHostUnregister"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpy' in found_functions}}
+    global __cuMemcpy
+    data["__cuMemcpy"] = <intptr_t>__cuMemcpy
+    {{else}}
+    data["__cuMemcpy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyPeer' in found_functions}}
+    global __cuMemcpyPeer
+    data["__cuMemcpyPeer"] = <intptr_t>__cuMemcpyPeer
+    {{else}}
+    data["__cuMemcpyPeer"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyHtoD_v2' in found_functions}}
+    global __cuMemcpyHtoD_v2
+    data["__cuMemcpyHtoD_v2"] = <intptr_t>__cuMemcpyHtoD_v2
+    {{else}}
+    data["__cuMemcpyHtoD_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyDtoH_v2' in found_functions}}
+    global __cuMemcpyDtoH_v2
+    data["__cuMemcpyDtoH_v2"] = <intptr_t>__cuMemcpyDtoH_v2
+    {{else}}
+    data["__cuMemcpyDtoH_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyDtoD_v2' in found_functions}}
+    global __cuMemcpyDtoD_v2
+    data["__cuMemcpyDtoD_v2"] = <intptr_t>__cuMemcpyDtoD_v2
+    {{else}}
+    data["__cuMemcpyDtoD_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyDtoA_v2' in found_functions}}
+    global __cuMemcpyDtoA_v2
+    data["__cuMemcpyDtoA_v2"] = <intptr_t>__cuMemcpyDtoA_v2
+    {{else}}
+    data["__cuMemcpyDtoA_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyAtoD_v2' in found_functions}}
+    global __cuMemcpyAtoD_v2
+    data["__cuMemcpyAtoD_v2"] = <intptr_t>__cuMemcpyAtoD_v2
+    {{else}}
+    data["__cuMemcpyAtoD_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyHtoA_v2' in found_functions}}
+    global __cuMemcpyHtoA_v2
+    data["__cuMemcpyHtoA_v2"] = <intptr_t>__cuMemcpyHtoA_v2
+    {{else}}
+    data["__cuMemcpyHtoA_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyAtoH_v2' in found_functions}}
+    global __cuMemcpyAtoH_v2
+    data["__cuMemcpyAtoH_v2"] = <intptr_t>__cuMemcpyAtoH_v2
+    {{else}}
+    data["__cuMemcpyAtoH_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyAtoA_v2' in found_functions}}
+    global __cuMemcpyAtoA_v2
+    data["__cuMemcpyAtoA_v2"] = <intptr_t>__cuMemcpyAtoA_v2
+    {{else}}
+    data["__cuMemcpyAtoA_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpy2D_v2' in found_functions}}
+    global __cuMemcpy2D_v2
+    data["__cuMemcpy2D_v2"] = <intptr_t>__cuMemcpy2D_v2
+    {{else}}
+    data["__cuMemcpy2D_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpy2DUnaligned_v2' in found_functions}}
+    global __cuMemcpy2DUnaligned_v2
+    data["__cuMemcpy2DUnaligned_v2"] = <intptr_t>__cuMemcpy2DUnaligned_v2
+    {{else}}
+    data["__cuMemcpy2DUnaligned_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpy3D_v2' in found_functions}}
+    global __cuMemcpy3D_v2
+    data["__cuMemcpy3D_v2"] = <intptr_t>__cuMemcpy3D_v2
+    {{else}}
+    data["__cuMemcpy3D_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpy3DPeer' in found_functions}}
+    global __cuMemcpy3DPeer
+    data["__cuMemcpy3DPeer"] = <intptr_t>__cuMemcpy3DPeer
+    {{else}}
+    data["__cuMemcpy3DPeer"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyAsync' in found_functions}}
+    global __cuMemcpyAsync
+    data["__cuMemcpyAsync"] = <intptr_t>__cuMemcpyAsync
+    {{else}}
+    data["__cuMemcpyAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyPeerAsync' in found_functions}}
+    global __cuMemcpyPeerAsync
+    data["__cuMemcpyPeerAsync"] = <intptr_t>__cuMemcpyPeerAsync
+    {{else}}
+    data["__cuMemcpyPeerAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyHtoDAsync_v2' in found_functions}}
+    global __cuMemcpyHtoDAsync_v2
+    data["__cuMemcpyHtoDAsync_v2"] = <intptr_t>__cuMemcpyHtoDAsync_v2
+    {{else}}
+    data["__cuMemcpyHtoDAsync_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyDtoHAsync_v2' in found_functions}}
+    global __cuMemcpyDtoHAsync_v2
+    data["__cuMemcpyDtoHAsync_v2"] = <intptr_t>__cuMemcpyDtoHAsync_v2
+    {{else}}
+    data["__cuMemcpyDtoHAsync_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyDtoDAsync_v2' in found_functions}}
+    global __cuMemcpyDtoDAsync_v2
+    data["__cuMemcpyDtoDAsync_v2"] = <intptr_t>__cuMemcpyDtoDAsync_v2
+    {{else}}
+    data["__cuMemcpyDtoDAsync_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyHtoAAsync_v2' in found_functions}}
+    global __cuMemcpyHtoAAsync_v2
+    data["__cuMemcpyHtoAAsync_v2"] = <intptr_t>__cuMemcpyHtoAAsync_v2
+    {{else}}
+    data["__cuMemcpyHtoAAsync_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyAtoHAsync_v2' in found_functions}}
+    global __cuMemcpyAtoHAsync_v2
+    data["__cuMemcpyAtoHAsync_v2"] = <intptr_t>__cuMemcpyAtoHAsync_v2
+    {{else}}
+    data["__cuMemcpyAtoHAsync_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpy2DAsync_v2' in found_functions}}
+    global __cuMemcpy2DAsync_v2
+    data["__cuMemcpy2DAsync_v2"] = <intptr_t>__cuMemcpy2DAsync_v2
+    {{else}}
+    data["__cuMemcpy2DAsync_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpy3DAsync_v2' in found_functions}}
+    global __cuMemcpy3DAsync_v2
+    data["__cuMemcpy3DAsync_v2"] = <intptr_t>__cuMemcpy3DAsync_v2
+    {{else}}
+    data["__cuMemcpy3DAsync_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpy3DPeerAsync' in found_functions}}
+    global __cuMemcpy3DPeerAsync
+    data["__cuMemcpy3DPeerAsync"] = <intptr_t>__cuMemcpy3DPeerAsync
+    {{else}}
+    data["__cuMemcpy3DPeerAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpyBatchAsync' in found_functions}}
+    global __cuMemcpyBatchAsync
+    data["__cuMemcpyBatchAsync"] = <intptr_t>__cuMemcpyBatchAsync
+    {{else}}
+    data["__cuMemcpyBatchAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemcpy3DBatchAsync' in found_functions}}
+    global __cuMemcpy3DBatchAsync
+    data["__cuMemcpy3DBatchAsync"] = <intptr_t>__cuMemcpy3DBatchAsync
+    {{else}}
+    data["__cuMemcpy3DBatchAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD8_v2' in found_functions}}
+    global __cuMemsetD8_v2
+    data["__cuMemsetD8_v2"] = <intptr_t>__cuMemsetD8_v2
+    {{else}}
+    data["__cuMemsetD8_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD16_v2' in found_functions}}
+    global __cuMemsetD16_v2
+    data["__cuMemsetD16_v2"] = <intptr_t>__cuMemsetD16_v2
+    {{else}}
+    data["__cuMemsetD16_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD32_v2' in found_functions}}
+    global __cuMemsetD32_v2
+    data["__cuMemsetD32_v2"] = <intptr_t>__cuMemsetD32_v2
+    {{else}}
+    data["__cuMemsetD32_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD2D8_v2' in found_functions}}
+    global __cuMemsetD2D8_v2
+    data["__cuMemsetD2D8_v2"] = <intptr_t>__cuMemsetD2D8_v2
+    {{else}}
+    data["__cuMemsetD2D8_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD2D16_v2' in found_functions}}
+    global __cuMemsetD2D16_v2
+    data["__cuMemsetD2D16_v2"] = <intptr_t>__cuMemsetD2D16_v2
+    {{else}}
+    data["__cuMemsetD2D16_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD2D32_v2' in found_functions}}
+    global __cuMemsetD2D32_v2
+    data["__cuMemsetD2D32_v2"] = <intptr_t>__cuMemsetD2D32_v2
+    {{else}}
+    data["__cuMemsetD2D32_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD8Async' in found_functions}}
+    global __cuMemsetD8Async
+    data["__cuMemsetD8Async"] = <intptr_t>__cuMemsetD8Async
+    {{else}}
+    data["__cuMemsetD8Async"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD16Async' in found_functions}}
+    global __cuMemsetD16Async
+    data["__cuMemsetD16Async"] = <intptr_t>__cuMemsetD16Async
+    {{else}}
+    data["__cuMemsetD16Async"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD32Async' in found_functions}}
+    global __cuMemsetD32Async
+    data["__cuMemsetD32Async"] = <intptr_t>__cuMemsetD32Async
+    {{else}}
+    data["__cuMemsetD32Async"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD2D8Async' in found_functions}}
+    global __cuMemsetD2D8Async
+    data["__cuMemsetD2D8Async"] = <intptr_t>__cuMemsetD2D8Async
+    {{else}}
+    data["__cuMemsetD2D8Async"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD2D16Async' in found_functions}}
+    global __cuMemsetD2D16Async
+    data["__cuMemsetD2D16Async"] = <intptr_t>__cuMemsetD2D16Async
+    {{else}}
+    data["__cuMemsetD2D16Async"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemsetD2D32Async' in found_functions}}
+    global __cuMemsetD2D32Async
+    data["__cuMemsetD2D32Async"] = <intptr_t>__cuMemsetD2D32Async
+    {{else}}
+    data["__cuMemsetD2D32Async"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuArrayCreate_v2' in found_functions}}
+    global __cuArrayCreate_v2
+    data["__cuArrayCreate_v2"] = <intptr_t>__cuArrayCreate_v2
+    {{else}}
+    data["__cuArrayCreate_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuArrayGetDescriptor_v2' in found_functions}}
+    global __cuArrayGetDescriptor_v2
+    data["__cuArrayGetDescriptor_v2"] = <intptr_t>__cuArrayGetDescriptor_v2
+    {{else}}
+    data["__cuArrayGetDescriptor_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuArrayGetSparseProperties' in found_functions}}
+    global __cuArrayGetSparseProperties
+    data["__cuArrayGetSparseProperties"] = <intptr_t>__cuArrayGetSparseProperties
+    {{else}}
+    data["__cuArrayGetSparseProperties"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMipmappedArrayGetSparseProperties' in found_functions}}
+    global __cuMipmappedArrayGetSparseProperties
+    data["__cuMipmappedArrayGetSparseProperties"] = <intptr_t>__cuMipmappedArrayGetSparseProperties
+    {{else}}
+    data["__cuMipmappedArrayGetSparseProperties"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuArrayGetMemoryRequirements' in found_functions}}
+    global __cuArrayGetMemoryRequirements
+    data["__cuArrayGetMemoryRequirements"] = <intptr_t>__cuArrayGetMemoryRequirements
+    {{else}}
+    data["__cuArrayGetMemoryRequirements"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMipmappedArrayGetMemoryRequirements' in found_functions}}
+    global __cuMipmappedArrayGetMemoryRequirements
+    data["__cuMipmappedArrayGetMemoryRequirements"] = <intptr_t>__cuMipmappedArrayGetMemoryRequirements
+    {{else}}
+    data["__cuMipmappedArrayGetMemoryRequirements"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuArrayGetPlane' in found_functions}}
+    global __cuArrayGetPlane
+    data["__cuArrayGetPlane"] = <intptr_t>__cuArrayGetPlane
+    {{else}}
+    data["__cuArrayGetPlane"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuArrayDestroy' in found_functions}}
+    global __cuArrayDestroy
+    data["__cuArrayDestroy"] = <intptr_t>__cuArrayDestroy
+    {{else}}
+    data["__cuArrayDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuArray3DCreate_v2' in found_functions}}
+    global __cuArray3DCreate_v2
+    data["__cuArray3DCreate_v2"] = <intptr_t>__cuArray3DCreate_v2
+    {{else}}
+    data["__cuArray3DCreate_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuArray3DGetDescriptor_v2' in found_functions}}
+    global __cuArray3DGetDescriptor_v2
+    data["__cuArray3DGetDescriptor_v2"] = <intptr_t>__cuArray3DGetDescriptor_v2
+    {{else}}
+    data["__cuArray3DGetDescriptor_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMipmappedArrayCreate' in found_functions}}
+    global __cuMipmappedArrayCreate
+    data["__cuMipmappedArrayCreate"] = <intptr_t>__cuMipmappedArrayCreate
+    {{else}}
+    data["__cuMipmappedArrayCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMipmappedArrayGetLevel' in found_functions}}
+    global __cuMipmappedArrayGetLevel
+    data["__cuMipmappedArrayGetLevel"] = <intptr_t>__cuMipmappedArrayGetLevel
+    {{else}}
+    data["__cuMipmappedArrayGetLevel"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMipmappedArrayDestroy' in found_functions}}
+    global __cuMipmappedArrayDestroy
+    data["__cuMipmappedArrayDestroy"] = <intptr_t>__cuMipmappedArrayDestroy
+    {{else}}
+    data["__cuMipmappedArrayDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemGetHandleForAddressRange' in found_functions}}
+    global __cuMemGetHandleForAddressRange
+    data["__cuMemGetHandleForAddressRange"] = <intptr_t>__cuMemGetHandleForAddressRange
+    {{else}}
+    data["__cuMemGetHandleForAddressRange"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemBatchDecompressAsync' in found_functions}}
+    global __cuMemBatchDecompressAsync
+    data["__cuMemBatchDecompressAsync"] = <intptr_t>__cuMemBatchDecompressAsync
+    {{else}}
+    data["__cuMemBatchDecompressAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemAddressReserve' in found_functions}}
+    global __cuMemAddressReserve
+    data["__cuMemAddressReserve"] = <intptr_t>__cuMemAddressReserve
+    {{else}}
+    data["__cuMemAddressReserve"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemAddressFree' in found_functions}}
+    global __cuMemAddressFree
+    data["__cuMemAddressFree"] = <intptr_t>__cuMemAddressFree
+    {{else}}
+    data["__cuMemAddressFree"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemCreate' in found_functions}}
+    global __cuMemCreate
+    data["__cuMemCreate"] = <intptr_t>__cuMemCreate
+    {{else}}
+    data["__cuMemCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemRelease' in found_functions}}
+    global __cuMemRelease
+    data["__cuMemRelease"] = <intptr_t>__cuMemRelease
+    {{else}}
+    data["__cuMemRelease"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemMap' in found_functions}}
+    global __cuMemMap
+    data["__cuMemMap"] = <intptr_t>__cuMemMap
+    {{else}}
+    data["__cuMemMap"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemMapArrayAsync' in found_functions}}
+    global __cuMemMapArrayAsync
+    data["__cuMemMapArrayAsync"] = <intptr_t>__cuMemMapArrayAsync
+    {{else}}
+    data["__cuMemMapArrayAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemUnmap' in found_functions}}
+    global __cuMemUnmap
+    data["__cuMemUnmap"] = <intptr_t>__cuMemUnmap
+    {{else}}
+    data["__cuMemUnmap"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemSetAccess' in found_functions}}
+    global __cuMemSetAccess
+    data["__cuMemSetAccess"] = <intptr_t>__cuMemSetAccess
+    {{else}}
+    data["__cuMemSetAccess"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemGetAccess' in found_functions}}
+    global __cuMemGetAccess
+    data["__cuMemGetAccess"] = <intptr_t>__cuMemGetAccess
+    {{else}}
+    data["__cuMemGetAccess"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemExportToShareableHandle' in found_functions}}
+    global __cuMemExportToShareableHandle
+    data["__cuMemExportToShareableHandle"] = <intptr_t>__cuMemExportToShareableHandle
+    {{else}}
+    data["__cuMemExportToShareableHandle"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemImportFromShareableHandle' in found_functions}}
+    global __cuMemImportFromShareableHandle
+    data["__cuMemImportFromShareableHandle"] = <intptr_t>__cuMemImportFromShareableHandle
+    {{else}}
+    data["__cuMemImportFromShareableHandle"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemGetAllocationGranularity' in found_functions}}
+    global __cuMemGetAllocationGranularity
+    data["__cuMemGetAllocationGranularity"] = <intptr_t>__cuMemGetAllocationGranularity
+    {{else}}
+    data["__cuMemGetAllocationGranularity"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemGetAllocationPropertiesFromHandle' in found_functions}}
+    global __cuMemGetAllocationPropertiesFromHandle
+    data["__cuMemGetAllocationPropertiesFromHandle"] = <intptr_t>__cuMemGetAllocationPropertiesFromHandle
+    {{else}}
+    data["__cuMemGetAllocationPropertiesFromHandle"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemRetainAllocationHandle' in found_functions}}
+    global __cuMemRetainAllocationHandle
+    data["__cuMemRetainAllocationHandle"] = <intptr_t>__cuMemRetainAllocationHandle
+    {{else}}
+    data["__cuMemRetainAllocationHandle"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemFreeAsync' in found_functions}}
+    global __cuMemFreeAsync
+    data["__cuMemFreeAsync"] = <intptr_t>__cuMemFreeAsync
+    {{else}}
+    data["__cuMemFreeAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemAllocAsync' in found_functions}}
+    global __cuMemAllocAsync
+    data["__cuMemAllocAsync"] = <intptr_t>__cuMemAllocAsync
+    {{else}}
+    data["__cuMemAllocAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolTrimTo' in found_functions}}
+    global __cuMemPoolTrimTo
+    data["__cuMemPoolTrimTo"] = <intptr_t>__cuMemPoolTrimTo
+    {{else}}
+    data["__cuMemPoolTrimTo"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolSetAttribute' in found_functions}}
+    global __cuMemPoolSetAttribute
+    data["__cuMemPoolSetAttribute"] = <intptr_t>__cuMemPoolSetAttribute
+    {{else}}
+    data["__cuMemPoolSetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolGetAttribute' in found_functions}}
+    global __cuMemPoolGetAttribute
+    data["__cuMemPoolGetAttribute"] = <intptr_t>__cuMemPoolGetAttribute
+    {{else}}
+    data["__cuMemPoolGetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolSetAccess' in found_functions}}
+    global __cuMemPoolSetAccess
+    data["__cuMemPoolSetAccess"] = <intptr_t>__cuMemPoolSetAccess
+    {{else}}
+    data["__cuMemPoolSetAccess"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolGetAccess' in found_functions}}
+    global __cuMemPoolGetAccess
+    data["__cuMemPoolGetAccess"] = <intptr_t>__cuMemPoolGetAccess
+    {{else}}
+    data["__cuMemPoolGetAccess"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolCreate' in found_functions}}
+    global __cuMemPoolCreate
+    data["__cuMemPoolCreate"] = <intptr_t>__cuMemPoolCreate
+    {{else}}
+    data["__cuMemPoolCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolDestroy' in found_functions}}
+    global __cuMemPoolDestroy
+    data["__cuMemPoolDestroy"] = <intptr_t>__cuMemPoolDestroy
+    {{else}}
+    data["__cuMemPoolDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemAllocFromPoolAsync' in found_functions}}
+    global __cuMemAllocFromPoolAsync
+    data["__cuMemAllocFromPoolAsync"] = <intptr_t>__cuMemAllocFromPoolAsync
+    {{else}}
+    data["__cuMemAllocFromPoolAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolExportToShareableHandle' in found_functions}}
+    global __cuMemPoolExportToShareableHandle
+    data["__cuMemPoolExportToShareableHandle"] = <intptr_t>__cuMemPoolExportToShareableHandle
+    {{else}}
+    data["__cuMemPoolExportToShareableHandle"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolImportFromShareableHandle' in found_functions}}
+    global __cuMemPoolImportFromShareableHandle
+    data["__cuMemPoolImportFromShareableHandle"] = <intptr_t>__cuMemPoolImportFromShareableHandle
+    {{else}}
+    data["__cuMemPoolImportFromShareableHandle"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolExportPointer' in found_functions}}
+    global __cuMemPoolExportPointer
+    data["__cuMemPoolExportPointer"] = <intptr_t>__cuMemPoolExportPointer
+    {{else}}
+    data["__cuMemPoolExportPointer"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPoolImportPointer' in found_functions}}
+    global __cuMemPoolImportPointer
+    data["__cuMemPoolImportPointer"] = <intptr_t>__cuMemPoolImportPointer
+    {{else}}
+    data["__cuMemPoolImportPointer"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMulticastCreate' in found_functions}}
+    global __cuMulticastCreate
+    data["__cuMulticastCreate"] = <intptr_t>__cuMulticastCreate
+    {{else}}
+    data["__cuMulticastCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMulticastAddDevice' in found_functions}}
+    global __cuMulticastAddDevice
+    data["__cuMulticastAddDevice"] = <intptr_t>__cuMulticastAddDevice
+    {{else}}
+    data["__cuMulticastAddDevice"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMulticastBindMem' in found_functions}}
+    global __cuMulticastBindMem
+    data["__cuMulticastBindMem"] = <intptr_t>__cuMulticastBindMem
+    {{else}}
+    data["__cuMulticastBindMem"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMulticastBindAddr' in found_functions}}
+    global __cuMulticastBindAddr
+    data["__cuMulticastBindAddr"] = <intptr_t>__cuMulticastBindAddr
+    {{else}}
+    data["__cuMulticastBindAddr"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMulticastUnbind' in found_functions}}
+    global __cuMulticastUnbind
+    data["__cuMulticastUnbind"] = <intptr_t>__cuMulticastUnbind
+    {{else}}
+    data["__cuMulticastUnbind"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMulticastGetGranularity' in found_functions}}
+    global __cuMulticastGetGranularity
+    data["__cuMulticastGetGranularity"] = <intptr_t>__cuMulticastGetGranularity
+    {{else}}
+    data["__cuMulticastGetGranularity"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuPointerGetAttribute' in found_functions}}
+    global __cuPointerGetAttribute
+    data["__cuPointerGetAttribute"] = <intptr_t>__cuPointerGetAttribute
+    {{else}}
+    data["__cuPointerGetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPrefetchAsync' in found_functions}}
+    global __cuMemPrefetchAsync
+    data["__cuMemPrefetchAsync"] = <intptr_t>__cuMemPrefetchAsync
+    {{else}}
+    data["__cuMemPrefetchAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemPrefetchAsync_v2' in found_functions}}
+    global __cuMemPrefetchAsync_v2
+    data["__cuMemPrefetchAsync_v2"] = <intptr_t>__cuMemPrefetchAsync_v2
+    {{else}}
+    data["__cuMemPrefetchAsync_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemAdvise' in found_functions}}
+    global __cuMemAdvise
+    data["__cuMemAdvise"] = <intptr_t>__cuMemAdvise
+    {{else}}
+    data["__cuMemAdvise"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemAdvise_v2' in found_functions}}
+    global __cuMemAdvise_v2
+    data["__cuMemAdvise_v2"] = <intptr_t>__cuMemAdvise_v2
+    {{else}}
+    data["__cuMemAdvise_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemRangeGetAttribute' in found_functions}}
+    global __cuMemRangeGetAttribute
+    data["__cuMemRangeGetAttribute"] = <intptr_t>__cuMemRangeGetAttribute
+    {{else}}
+    data["__cuMemRangeGetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMemRangeGetAttributes' in found_functions}}
+    global __cuMemRangeGetAttributes
+    data["__cuMemRangeGetAttributes"] = <intptr_t>__cuMemRangeGetAttributes
+    {{else}}
+    data["__cuMemRangeGetAttributes"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuPointerSetAttribute' in found_functions}}
+    global __cuPointerSetAttribute
+    data["__cuPointerSetAttribute"] = <intptr_t>__cuPointerSetAttribute
+    {{else}}
+    data["__cuPointerSetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuPointerGetAttributes' in found_functions}}
+    global __cuPointerGetAttributes
+    data["__cuPointerGetAttributes"] = <intptr_t>__cuPointerGetAttributes
+    {{else}}
+    data["__cuPointerGetAttributes"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamCreate' in found_functions}}
+    global __cuStreamCreate
+    data["__cuStreamCreate"] = <intptr_t>__cuStreamCreate
+    {{else}}
+    data["__cuStreamCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamCreateWithPriority' in found_functions}}
+    global __cuStreamCreateWithPriority
+    data["__cuStreamCreateWithPriority"] = <intptr_t>__cuStreamCreateWithPriority
+    {{else}}
+    data["__cuStreamCreateWithPriority"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetPriority' in found_functions}}
+    global __cuStreamGetPriority
+    data["__cuStreamGetPriority"] = <intptr_t>__cuStreamGetPriority
+    {{else}}
+    data["__cuStreamGetPriority"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetDevice' in found_functions}}
+    global __cuStreamGetDevice
+    data["__cuStreamGetDevice"] = <intptr_t>__cuStreamGetDevice
+    {{else}}
+    data["__cuStreamGetDevice"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetFlags' in found_functions}}
+    global __cuStreamGetFlags
+    data["__cuStreamGetFlags"] = <intptr_t>__cuStreamGetFlags
+    {{else}}
+    data["__cuStreamGetFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetId' in found_functions}}
+    global __cuStreamGetId
+    data["__cuStreamGetId"] = <intptr_t>__cuStreamGetId
+    {{else}}
+    data["__cuStreamGetId"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetCtx' in found_functions}}
+    global __cuStreamGetCtx
+    data["__cuStreamGetCtx"] = <intptr_t>__cuStreamGetCtx
+    {{else}}
+    data["__cuStreamGetCtx"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetCtx_v2' in found_functions}}
+    global __cuStreamGetCtx_v2
+    data["__cuStreamGetCtx_v2"] = <intptr_t>__cuStreamGetCtx_v2
+    {{else}}
+    data["__cuStreamGetCtx_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamWaitEvent' in found_functions}}
+    global __cuStreamWaitEvent
+    data["__cuStreamWaitEvent"] = <intptr_t>__cuStreamWaitEvent
+    {{else}}
+    data["__cuStreamWaitEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamAddCallback' in found_functions}}
+    global __cuStreamAddCallback
+    data["__cuStreamAddCallback"] = <intptr_t>__cuStreamAddCallback
+    {{else}}
+    data["__cuStreamAddCallback"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamBeginCapture_v2' in found_functions}}
+    global __cuStreamBeginCapture_v2
+    data["__cuStreamBeginCapture_v2"] = <intptr_t>__cuStreamBeginCapture_v2
+    {{else}}
+    data["__cuStreamBeginCapture_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
+    global __cuStreamBeginCaptureToGraph
+    data["__cuStreamBeginCaptureToGraph"] = <intptr_t>__cuStreamBeginCaptureToGraph
+    {{else}}
+    data["__cuStreamBeginCaptureToGraph"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuThreadExchangeStreamCaptureMode' in found_functions}}
+    global __cuThreadExchangeStreamCaptureMode
+    data["__cuThreadExchangeStreamCaptureMode"] = <intptr_t>__cuThreadExchangeStreamCaptureMode
+    {{else}}
+    data["__cuThreadExchangeStreamCaptureMode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamEndCapture' in found_functions}}
+    global __cuStreamEndCapture
+    data["__cuStreamEndCapture"] = <intptr_t>__cuStreamEndCapture
+    {{else}}
+    data["__cuStreamEndCapture"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamIsCapturing' in found_functions}}
+    global __cuStreamIsCapturing
+    data["__cuStreamIsCapturing"] = <intptr_t>__cuStreamIsCapturing
+    {{else}}
+    data["__cuStreamIsCapturing"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetCaptureInfo_v2' in found_functions}}
+    global __cuStreamGetCaptureInfo_v2
+    data["__cuStreamGetCaptureInfo_v2"] = <intptr_t>__cuStreamGetCaptureInfo_v2
+    {{else}}
+    data["__cuStreamGetCaptureInfo_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
+    global __cuStreamGetCaptureInfo_v3
+    data["__cuStreamGetCaptureInfo_v3"] = <intptr_t>__cuStreamGetCaptureInfo_v3
+    {{else}}
+    data["__cuStreamGetCaptureInfo_v3"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
+    global __cuStreamUpdateCaptureDependencies
+    data["__cuStreamUpdateCaptureDependencies"] = <intptr_t>__cuStreamUpdateCaptureDependencies
+    {{else}}
+    data["__cuStreamUpdateCaptureDependencies"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
+    global __cuStreamUpdateCaptureDependencies_v2
+    data["__cuStreamUpdateCaptureDependencies_v2"] = <intptr_t>__cuStreamUpdateCaptureDependencies_v2
+    {{else}}
+    data["__cuStreamUpdateCaptureDependencies_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamAttachMemAsync' in found_functions}}
+    global __cuStreamAttachMemAsync
+    data["__cuStreamAttachMemAsync"] = <intptr_t>__cuStreamAttachMemAsync
+    {{else}}
+    data["__cuStreamAttachMemAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamQuery' in found_functions}}
+    global __cuStreamQuery
+    data["__cuStreamQuery"] = <intptr_t>__cuStreamQuery
+    {{else}}
+    data["__cuStreamQuery"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamSynchronize' in found_functions}}
+    global __cuStreamSynchronize
+    data["__cuStreamSynchronize"] = <intptr_t>__cuStreamSynchronize
+    {{else}}
+    data["__cuStreamSynchronize"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamDestroy_v2' in found_functions}}
+    global __cuStreamDestroy_v2
+    data["__cuStreamDestroy_v2"] = <intptr_t>__cuStreamDestroy_v2
+    {{else}}
+    data["__cuStreamDestroy_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamCopyAttributes' in found_functions}}
+    global __cuStreamCopyAttributes
+    data["__cuStreamCopyAttributes"] = <intptr_t>__cuStreamCopyAttributes
+    {{else}}
+    data["__cuStreamCopyAttributes"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetAttribute' in found_functions}}
+    global __cuStreamGetAttribute
+    data["__cuStreamGetAttribute"] = <intptr_t>__cuStreamGetAttribute
+    {{else}}
+    data["__cuStreamGetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamSetAttribute' in found_functions}}
+    global __cuStreamSetAttribute
+    data["__cuStreamSetAttribute"] = <intptr_t>__cuStreamSetAttribute
+    {{else}}
+    data["__cuStreamSetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuEventCreate' in found_functions}}
+    global __cuEventCreate
+    data["__cuEventCreate"] = <intptr_t>__cuEventCreate
+    {{else}}
+    data["__cuEventCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuEventRecord' in found_functions}}
+    global __cuEventRecord
+    data["__cuEventRecord"] = <intptr_t>__cuEventRecord
+    {{else}}
+    data["__cuEventRecord"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuEventRecordWithFlags' in found_functions}}
+    global __cuEventRecordWithFlags
+    data["__cuEventRecordWithFlags"] = <intptr_t>__cuEventRecordWithFlags
+    {{else}}
+    data["__cuEventRecordWithFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuEventQuery' in found_functions}}
+    global __cuEventQuery
+    data["__cuEventQuery"] = <intptr_t>__cuEventQuery
+    {{else}}
+    data["__cuEventQuery"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuEventSynchronize' in found_functions}}
+    global __cuEventSynchronize
+    data["__cuEventSynchronize"] = <intptr_t>__cuEventSynchronize
+    {{else}}
+    data["__cuEventSynchronize"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuEventDestroy_v2' in found_functions}}
+    global __cuEventDestroy_v2
+    data["__cuEventDestroy_v2"] = <intptr_t>__cuEventDestroy_v2
+    {{else}}
+    data["__cuEventDestroy_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuEventElapsedTime' in found_functions}}
+    global __cuEventElapsedTime
+    data["__cuEventElapsedTime"] = <intptr_t>__cuEventElapsedTime
+    {{else}}
+    data["__cuEventElapsedTime"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuEventElapsedTime_v2' in found_functions}}
+    global __cuEventElapsedTime_v2
+    data["__cuEventElapsedTime_v2"] = <intptr_t>__cuEventElapsedTime_v2
+    {{else}}
+    data["__cuEventElapsedTime_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuImportExternalMemory' in found_functions}}
+    global __cuImportExternalMemory
+    data["__cuImportExternalMemory"] = <intptr_t>__cuImportExternalMemory
+    {{else}}
+    data["__cuImportExternalMemory"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuExternalMemoryGetMappedBuffer' in found_functions}}
+    global __cuExternalMemoryGetMappedBuffer
+    data["__cuExternalMemoryGetMappedBuffer"] = <intptr_t>__cuExternalMemoryGetMappedBuffer
+    {{else}}
+    data["__cuExternalMemoryGetMappedBuffer"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuExternalMemoryGetMappedMipmappedArray' in found_functions}}
+    global __cuExternalMemoryGetMappedMipmappedArray
+    data["__cuExternalMemoryGetMappedMipmappedArray"] = <intptr_t>__cuExternalMemoryGetMappedMipmappedArray
+    {{else}}
+    data["__cuExternalMemoryGetMappedMipmappedArray"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDestroyExternalMemory' in found_functions}}
+    global __cuDestroyExternalMemory
+    data["__cuDestroyExternalMemory"] = <intptr_t>__cuDestroyExternalMemory
+    {{else}}
+    data["__cuDestroyExternalMemory"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuImportExternalSemaphore' in found_functions}}
+    global __cuImportExternalSemaphore
+    data["__cuImportExternalSemaphore"] = <intptr_t>__cuImportExternalSemaphore
+    {{else}}
+    data["__cuImportExternalSemaphore"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuSignalExternalSemaphoresAsync' in found_functions}}
+    global __cuSignalExternalSemaphoresAsync
+    data["__cuSignalExternalSemaphoresAsync"] = <intptr_t>__cuSignalExternalSemaphoresAsync
+    {{else}}
+    data["__cuSignalExternalSemaphoresAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuWaitExternalSemaphoresAsync' in found_functions}}
+    global __cuWaitExternalSemaphoresAsync
+    data["__cuWaitExternalSemaphoresAsync"] = <intptr_t>__cuWaitExternalSemaphoresAsync
+    {{else}}
+    data["__cuWaitExternalSemaphoresAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDestroyExternalSemaphore' in found_functions}}
+    global __cuDestroyExternalSemaphore
+    data["__cuDestroyExternalSemaphore"] = <intptr_t>__cuDestroyExternalSemaphore
+    {{else}}
+    data["__cuDestroyExternalSemaphore"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamWaitValue32_v2' in found_functions}}
+    global __cuStreamWaitValue32_v2
+    data["__cuStreamWaitValue32_v2"] = <intptr_t>__cuStreamWaitValue32_v2
+    {{else}}
+    data["__cuStreamWaitValue32_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamWaitValue64_v2' in found_functions}}
+    global __cuStreamWaitValue64_v2
+    data["__cuStreamWaitValue64_v2"] = <intptr_t>__cuStreamWaitValue64_v2
+    {{else}}
+    data["__cuStreamWaitValue64_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamWriteValue32_v2' in found_functions}}
+    global __cuStreamWriteValue32_v2
+    data["__cuStreamWriteValue32_v2"] = <intptr_t>__cuStreamWriteValue32_v2
+    {{else}}
+    data["__cuStreamWriteValue32_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamWriteValue64_v2' in found_functions}}
+    global __cuStreamWriteValue64_v2
+    data["__cuStreamWriteValue64_v2"] = <intptr_t>__cuStreamWriteValue64_v2
+    {{else}}
+    data["__cuStreamWriteValue64_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamBatchMemOp_v2' in found_functions}}
+    global __cuStreamBatchMemOp_v2
+    data["__cuStreamBatchMemOp_v2"] = <intptr_t>__cuStreamBatchMemOp_v2
+    {{else}}
+    data["__cuStreamBatchMemOp_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncGetAttribute' in found_functions}}
+    global __cuFuncGetAttribute
+    data["__cuFuncGetAttribute"] = <intptr_t>__cuFuncGetAttribute
+    {{else}}
+    data["__cuFuncGetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncSetAttribute' in found_functions}}
+    global __cuFuncSetAttribute
+    data["__cuFuncSetAttribute"] = <intptr_t>__cuFuncSetAttribute
+    {{else}}
+    data["__cuFuncSetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncSetCacheConfig' in found_functions}}
+    global __cuFuncSetCacheConfig
+    data["__cuFuncSetCacheConfig"] = <intptr_t>__cuFuncSetCacheConfig
+    {{else}}
+    data["__cuFuncSetCacheConfig"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncGetModule' in found_functions}}
+    global __cuFuncGetModule
+    data["__cuFuncGetModule"] = <intptr_t>__cuFuncGetModule
+    {{else}}
+    data["__cuFuncGetModule"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncGetName' in found_functions}}
+    global __cuFuncGetName
+    data["__cuFuncGetName"] = <intptr_t>__cuFuncGetName
+    {{else}}
+    data["__cuFuncGetName"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncGetParamInfo' in found_functions}}
+    global __cuFuncGetParamInfo
+    data["__cuFuncGetParamInfo"] = <intptr_t>__cuFuncGetParamInfo
+    {{else}}
+    data["__cuFuncGetParamInfo"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncIsLoaded' in found_functions}}
+    global __cuFuncIsLoaded
+    data["__cuFuncIsLoaded"] = <intptr_t>__cuFuncIsLoaded
+    {{else}}
+    data["__cuFuncIsLoaded"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncLoad' in found_functions}}
+    global __cuFuncLoad
+    data["__cuFuncLoad"] = <intptr_t>__cuFuncLoad
+    {{else}}
+    data["__cuFuncLoad"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLaunchKernel' in found_functions}}
+    global __cuLaunchKernel
+    data["__cuLaunchKernel"] = <intptr_t>__cuLaunchKernel
+    {{else}}
+    data["__cuLaunchKernel"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLaunchKernelEx' in found_functions}}
+    global __cuLaunchKernelEx
+    data["__cuLaunchKernelEx"] = <intptr_t>__cuLaunchKernelEx
+    {{else}}
+    data["__cuLaunchKernelEx"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLaunchCooperativeKernel' in found_functions}}
+    global __cuLaunchCooperativeKernel
+    data["__cuLaunchCooperativeKernel"] = <intptr_t>__cuLaunchCooperativeKernel
+    {{else}}
+    data["__cuLaunchCooperativeKernel"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
+    global __cuLaunchCooperativeKernelMultiDevice
+    data["__cuLaunchCooperativeKernelMultiDevice"] = <intptr_t>__cuLaunchCooperativeKernelMultiDevice
+    {{else}}
+    data["__cuLaunchCooperativeKernelMultiDevice"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLaunchHostFunc' in found_functions}}
+    global __cuLaunchHostFunc
+    data["__cuLaunchHostFunc"] = <intptr_t>__cuLaunchHostFunc
+    {{else}}
+    data["__cuLaunchHostFunc"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncSetBlockShape' in found_functions}}
+    global __cuFuncSetBlockShape
+    data["__cuFuncSetBlockShape"] = <intptr_t>__cuFuncSetBlockShape
+    {{else}}
+    data["__cuFuncSetBlockShape"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncSetSharedSize' in found_functions}}
+    global __cuFuncSetSharedSize
+    data["__cuFuncSetSharedSize"] = <intptr_t>__cuFuncSetSharedSize
+    {{else}}
+    data["__cuFuncSetSharedSize"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuParamSetSize' in found_functions}}
+    global __cuParamSetSize
+    data["__cuParamSetSize"] = <intptr_t>__cuParamSetSize
+    {{else}}
+    data["__cuParamSetSize"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuParamSeti' in found_functions}}
+    global __cuParamSeti
+    data["__cuParamSeti"] = <intptr_t>__cuParamSeti
+    {{else}}
+    data["__cuParamSeti"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuParamSetf' in found_functions}}
+    global __cuParamSetf
+    data["__cuParamSetf"] = <intptr_t>__cuParamSetf
+    {{else}}
+    data["__cuParamSetf"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuParamSetv' in found_functions}}
+    global __cuParamSetv
+    data["__cuParamSetv"] = <intptr_t>__cuParamSetv
+    {{else}}
+    data["__cuParamSetv"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLaunch' in found_functions}}
+    global __cuLaunch
+    data["__cuLaunch"] = <intptr_t>__cuLaunch
+    {{else}}
+    data["__cuLaunch"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLaunchGrid' in found_functions}}
+    global __cuLaunchGrid
+    data["__cuLaunchGrid"] = <intptr_t>__cuLaunchGrid
+    {{else}}
+    data["__cuLaunchGrid"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLaunchGridAsync' in found_functions}}
+    global __cuLaunchGridAsync
+    data["__cuLaunchGridAsync"] = <intptr_t>__cuLaunchGridAsync
+    {{else}}
+    data["__cuLaunchGridAsync"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuParamSetTexRef' in found_functions}}
+    global __cuParamSetTexRef
+    data["__cuParamSetTexRef"] = <intptr_t>__cuParamSetTexRef
+    {{else}}
+    data["__cuParamSetTexRef"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuFuncSetSharedMemConfig' in found_functions}}
+    global __cuFuncSetSharedMemConfig
+    data["__cuFuncSetSharedMemConfig"] = <intptr_t>__cuFuncSetSharedMemConfig
+    {{else}}
+    data["__cuFuncSetSharedMemConfig"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphCreate' in found_functions}}
+    global __cuGraphCreate
+    data["__cuGraphCreate"] = <intptr_t>__cuGraphCreate
+    {{else}}
+    data["__cuGraphCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddKernelNode_v2' in found_functions}}
+    global __cuGraphAddKernelNode_v2
+    data["__cuGraphAddKernelNode_v2"] = <intptr_t>__cuGraphAddKernelNode_v2
+    {{else}}
+    data["__cuGraphAddKernelNode_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphKernelNodeGetParams_v2' in found_functions}}
+    global __cuGraphKernelNodeGetParams_v2
+    data["__cuGraphKernelNodeGetParams_v2"] = <intptr_t>__cuGraphKernelNodeGetParams_v2
+    {{else}}
+    data["__cuGraphKernelNodeGetParams_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphKernelNodeSetParams_v2' in found_functions}}
+    global __cuGraphKernelNodeSetParams_v2
+    data["__cuGraphKernelNodeSetParams_v2"] = <intptr_t>__cuGraphKernelNodeSetParams_v2
+    {{else}}
+    data["__cuGraphKernelNodeSetParams_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddMemcpyNode' in found_functions}}
+    global __cuGraphAddMemcpyNode
+    data["__cuGraphAddMemcpyNode"] = <intptr_t>__cuGraphAddMemcpyNode
+    {{else}}
+    data["__cuGraphAddMemcpyNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphMemcpyNodeGetParams' in found_functions}}
+    global __cuGraphMemcpyNodeGetParams
+    data["__cuGraphMemcpyNodeGetParams"] = <intptr_t>__cuGraphMemcpyNodeGetParams
+    {{else}}
+    data["__cuGraphMemcpyNodeGetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphMemcpyNodeSetParams' in found_functions}}
+    global __cuGraphMemcpyNodeSetParams
+    data["__cuGraphMemcpyNodeSetParams"] = <intptr_t>__cuGraphMemcpyNodeSetParams
+    {{else}}
+    data["__cuGraphMemcpyNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddMemsetNode' in found_functions}}
+    global __cuGraphAddMemsetNode
+    data["__cuGraphAddMemsetNode"] = <intptr_t>__cuGraphAddMemsetNode
+    {{else}}
+    data["__cuGraphAddMemsetNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphMemsetNodeGetParams' in found_functions}}
+    global __cuGraphMemsetNodeGetParams
+    data["__cuGraphMemsetNodeGetParams"] = <intptr_t>__cuGraphMemsetNodeGetParams
+    {{else}}
+    data["__cuGraphMemsetNodeGetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphMemsetNodeSetParams' in found_functions}}
+    global __cuGraphMemsetNodeSetParams
+    data["__cuGraphMemsetNodeSetParams"] = <intptr_t>__cuGraphMemsetNodeSetParams
+    {{else}}
+    data["__cuGraphMemsetNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddHostNode' in found_functions}}
+    global __cuGraphAddHostNode
+    data["__cuGraphAddHostNode"] = <intptr_t>__cuGraphAddHostNode
+    {{else}}
+    data["__cuGraphAddHostNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphHostNodeGetParams' in found_functions}}
+    global __cuGraphHostNodeGetParams
+    data["__cuGraphHostNodeGetParams"] = <intptr_t>__cuGraphHostNodeGetParams
+    {{else}}
+    data["__cuGraphHostNodeGetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphHostNodeSetParams' in found_functions}}
+    global __cuGraphHostNodeSetParams
+    data["__cuGraphHostNodeSetParams"] = <intptr_t>__cuGraphHostNodeSetParams
+    {{else}}
+    data["__cuGraphHostNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddChildGraphNode' in found_functions}}
+    global __cuGraphAddChildGraphNode
+    data["__cuGraphAddChildGraphNode"] = <intptr_t>__cuGraphAddChildGraphNode
+    {{else}}
+    data["__cuGraphAddChildGraphNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphChildGraphNodeGetGraph' in found_functions}}
+    global __cuGraphChildGraphNodeGetGraph
+    data["__cuGraphChildGraphNodeGetGraph"] = <intptr_t>__cuGraphChildGraphNodeGetGraph
+    {{else}}
+    data["__cuGraphChildGraphNodeGetGraph"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddEmptyNode' in found_functions}}
+    global __cuGraphAddEmptyNode
+    data["__cuGraphAddEmptyNode"] = <intptr_t>__cuGraphAddEmptyNode
+    {{else}}
+    data["__cuGraphAddEmptyNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddEventRecordNode' in found_functions}}
+    global __cuGraphAddEventRecordNode
+    data["__cuGraphAddEventRecordNode"] = <intptr_t>__cuGraphAddEventRecordNode
+    {{else}}
+    data["__cuGraphAddEventRecordNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphEventRecordNodeGetEvent' in found_functions}}
+    global __cuGraphEventRecordNodeGetEvent
+    data["__cuGraphEventRecordNodeGetEvent"] = <intptr_t>__cuGraphEventRecordNodeGetEvent
+    {{else}}
+    data["__cuGraphEventRecordNodeGetEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphEventRecordNodeSetEvent' in found_functions}}
+    global __cuGraphEventRecordNodeSetEvent
+    data["__cuGraphEventRecordNodeSetEvent"] = <intptr_t>__cuGraphEventRecordNodeSetEvent
+    {{else}}
+    data["__cuGraphEventRecordNodeSetEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddEventWaitNode' in found_functions}}
+    global __cuGraphAddEventWaitNode
+    data["__cuGraphAddEventWaitNode"] = <intptr_t>__cuGraphAddEventWaitNode
+    {{else}}
+    data["__cuGraphAddEventWaitNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphEventWaitNodeGetEvent' in found_functions}}
+    global __cuGraphEventWaitNodeGetEvent
+    data["__cuGraphEventWaitNodeGetEvent"] = <intptr_t>__cuGraphEventWaitNodeGetEvent
+    {{else}}
+    data["__cuGraphEventWaitNodeGetEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphEventWaitNodeSetEvent' in found_functions}}
+    global __cuGraphEventWaitNodeSetEvent
+    data["__cuGraphEventWaitNodeSetEvent"] = <intptr_t>__cuGraphEventWaitNodeSetEvent
+    {{else}}
+    data["__cuGraphEventWaitNodeSetEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddExternalSemaphoresSignalNode' in found_functions}}
+    global __cuGraphAddExternalSemaphoresSignalNode
+    data["__cuGraphAddExternalSemaphoresSignalNode"] = <intptr_t>__cuGraphAddExternalSemaphoresSignalNode
+    {{else}}
+    data["__cuGraphAddExternalSemaphoresSignalNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExternalSemaphoresSignalNodeGetParams' in found_functions}}
+    global __cuGraphExternalSemaphoresSignalNodeGetParams
+    data["__cuGraphExternalSemaphoresSignalNodeGetParams"] = <intptr_t>__cuGraphExternalSemaphoresSignalNodeGetParams
+    {{else}}
+    data["__cuGraphExternalSemaphoresSignalNodeGetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExternalSemaphoresSignalNodeSetParams' in found_functions}}
+    global __cuGraphExternalSemaphoresSignalNodeSetParams
+    data["__cuGraphExternalSemaphoresSignalNodeSetParams"] = <intptr_t>__cuGraphExternalSemaphoresSignalNodeSetParams
+    {{else}}
+    data["__cuGraphExternalSemaphoresSignalNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddExternalSemaphoresWaitNode' in found_functions}}
+    global __cuGraphAddExternalSemaphoresWaitNode
+    data["__cuGraphAddExternalSemaphoresWaitNode"] = <intptr_t>__cuGraphAddExternalSemaphoresWaitNode
+    {{else}}
+    data["__cuGraphAddExternalSemaphoresWaitNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExternalSemaphoresWaitNodeGetParams' in found_functions}}
+    global __cuGraphExternalSemaphoresWaitNodeGetParams
+    data["__cuGraphExternalSemaphoresWaitNodeGetParams"] = <intptr_t>__cuGraphExternalSemaphoresWaitNodeGetParams
+    {{else}}
+    data["__cuGraphExternalSemaphoresWaitNodeGetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExternalSemaphoresWaitNodeSetParams' in found_functions}}
+    global __cuGraphExternalSemaphoresWaitNodeSetParams
+    data["__cuGraphExternalSemaphoresWaitNodeSetParams"] = <intptr_t>__cuGraphExternalSemaphoresWaitNodeSetParams
+    {{else}}
+    data["__cuGraphExternalSemaphoresWaitNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddBatchMemOpNode' in found_functions}}
+    global __cuGraphAddBatchMemOpNode
+    data["__cuGraphAddBatchMemOpNode"] = <intptr_t>__cuGraphAddBatchMemOpNode
+    {{else}}
+    data["__cuGraphAddBatchMemOpNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphBatchMemOpNodeGetParams' in found_functions}}
+    global __cuGraphBatchMemOpNodeGetParams
+    data["__cuGraphBatchMemOpNodeGetParams"] = <intptr_t>__cuGraphBatchMemOpNodeGetParams
+    {{else}}
+    data["__cuGraphBatchMemOpNodeGetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphBatchMemOpNodeSetParams' in found_functions}}
+    global __cuGraphBatchMemOpNodeSetParams
+    data["__cuGraphBatchMemOpNodeSetParams"] = <intptr_t>__cuGraphBatchMemOpNodeSetParams
+    {{else}}
+    data["__cuGraphBatchMemOpNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecBatchMemOpNodeSetParams' in found_functions}}
+    global __cuGraphExecBatchMemOpNodeSetParams
+    data["__cuGraphExecBatchMemOpNodeSetParams"] = <intptr_t>__cuGraphExecBatchMemOpNodeSetParams
+    {{else}}
+    data["__cuGraphExecBatchMemOpNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddMemAllocNode' in found_functions}}
+    global __cuGraphAddMemAllocNode
+    data["__cuGraphAddMemAllocNode"] = <intptr_t>__cuGraphAddMemAllocNode
+    {{else}}
+    data["__cuGraphAddMemAllocNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphMemAllocNodeGetParams' in found_functions}}
+    global __cuGraphMemAllocNodeGetParams
+    data["__cuGraphMemAllocNodeGetParams"] = <intptr_t>__cuGraphMemAllocNodeGetParams
+    {{else}}
+    data["__cuGraphMemAllocNodeGetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddMemFreeNode' in found_functions}}
+    global __cuGraphAddMemFreeNode
+    data["__cuGraphAddMemFreeNode"] = <intptr_t>__cuGraphAddMemFreeNode
+    {{else}}
+    data["__cuGraphAddMemFreeNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphMemFreeNodeGetParams' in found_functions}}
+    global __cuGraphMemFreeNodeGetParams
+    data["__cuGraphMemFreeNodeGetParams"] = <intptr_t>__cuGraphMemFreeNodeGetParams
+    {{else}}
+    data["__cuGraphMemFreeNodeGetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGraphMemTrim' in found_functions}}
+    global __cuDeviceGraphMemTrim
+    data["__cuDeviceGraphMemTrim"] = <intptr_t>__cuDeviceGraphMemTrim
+    {{else}}
+    data["__cuDeviceGraphMemTrim"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetGraphMemAttribute' in found_functions}}
+    global __cuDeviceGetGraphMemAttribute
+    data["__cuDeviceGetGraphMemAttribute"] = <intptr_t>__cuDeviceGetGraphMemAttribute
+    {{else}}
+    data["__cuDeviceGetGraphMemAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceSetGraphMemAttribute' in found_functions}}
+    global __cuDeviceSetGraphMemAttribute
+    data["__cuDeviceSetGraphMemAttribute"] = <intptr_t>__cuDeviceSetGraphMemAttribute
+    {{else}}
+    data["__cuDeviceSetGraphMemAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphClone' in found_functions}}
+    global __cuGraphClone
+    data["__cuGraphClone"] = <intptr_t>__cuGraphClone
+    {{else}}
+    data["__cuGraphClone"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeFindInClone' in found_functions}}
+    global __cuGraphNodeFindInClone
+    data["__cuGraphNodeFindInClone"] = <intptr_t>__cuGraphNodeFindInClone
+    {{else}}
+    data["__cuGraphNodeFindInClone"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeGetType' in found_functions}}
+    global __cuGraphNodeGetType
+    data["__cuGraphNodeGetType"] = <intptr_t>__cuGraphNodeGetType
+    {{else}}
+    data["__cuGraphNodeGetType"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphGetNodes' in found_functions}}
+    global __cuGraphGetNodes
+    data["__cuGraphGetNodes"] = <intptr_t>__cuGraphGetNodes
+    {{else}}
+    data["__cuGraphGetNodes"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphGetRootNodes' in found_functions}}
+    global __cuGraphGetRootNodes
+    data["__cuGraphGetRootNodes"] = <intptr_t>__cuGraphGetRootNodes
+    {{else}}
+    data["__cuGraphGetRootNodes"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphGetEdges' in found_functions}}
+    global __cuGraphGetEdges
+    data["__cuGraphGetEdges"] = <intptr_t>__cuGraphGetEdges
+    {{else}}
+    data["__cuGraphGetEdges"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphGetEdges_v2' in found_functions}}
+    global __cuGraphGetEdges_v2
+    data["__cuGraphGetEdges_v2"] = <intptr_t>__cuGraphGetEdges_v2
+    {{else}}
+    data["__cuGraphGetEdges_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeGetDependencies' in found_functions}}
+    global __cuGraphNodeGetDependencies
+    data["__cuGraphNodeGetDependencies"] = <intptr_t>__cuGraphNodeGetDependencies
+    {{else}}
+    data["__cuGraphNodeGetDependencies"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeGetDependencies_v2' in found_functions}}
+    global __cuGraphNodeGetDependencies_v2
+    data["__cuGraphNodeGetDependencies_v2"] = <intptr_t>__cuGraphNodeGetDependencies_v2
+    {{else}}
+    data["__cuGraphNodeGetDependencies_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeGetDependentNodes' in found_functions}}
+    global __cuGraphNodeGetDependentNodes
+    data["__cuGraphNodeGetDependentNodes"] = <intptr_t>__cuGraphNodeGetDependentNodes
+    {{else}}
+    data["__cuGraphNodeGetDependentNodes"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeGetDependentNodes_v2' in found_functions}}
+    global __cuGraphNodeGetDependentNodes_v2
+    data["__cuGraphNodeGetDependentNodes_v2"] = <intptr_t>__cuGraphNodeGetDependentNodes_v2
+    {{else}}
+    data["__cuGraphNodeGetDependentNodes_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddDependencies' in found_functions}}
+    global __cuGraphAddDependencies
+    data["__cuGraphAddDependencies"] = <intptr_t>__cuGraphAddDependencies
+    {{else}}
+    data["__cuGraphAddDependencies"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddDependencies_v2' in found_functions}}
+    global __cuGraphAddDependencies_v2
+    data["__cuGraphAddDependencies_v2"] = <intptr_t>__cuGraphAddDependencies_v2
+    {{else}}
+    data["__cuGraphAddDependencies_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphRemoveDependencies' in found_functions}}
+    global __cuGraphRemoveDependencies
+    data["__cuGraphRemoveDependencies"] = <intptr_t>__cuGraphRemoveDependencies
+    {{else}}
+    data["__cuGraphRemoveDependencies"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphRemoveDependencies_v2' in found_functions}}
+    global __cuGraphRemoveDependencies_v2
+    data["__cuGraphRemoveDependencies_v2"] = <intptr_t>__cuGraphRemoveDependencies_v2
+    {{else}}
+    data["__cuGraphRemoveDependencies_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphDestroyNode' in found_functions}}
+    global __cuGraphDestroyNode
+    data["__cuGraphDestroyNode"] = <intptr_t>__cuGraphDestroyNode
+    {{else}}
+    data["__cuGraphDestroyNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphInstantiateWithFlags' in found_functions}}
+    global __cuGraphInstantiateWithFlags
+    data["__cuGraphInstantiateWithFlags"] = <intptr_t>__cuGraphInstantiateWithFlags
+    {{else}}
+    data["__cuGraphInstantiateWithFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphInstantiateWithParams' in found_functions}}
+    global __cuGraphInstantiateWithParams
+    data["__cuGraphInstantiateWithParams"] = <intptr_t>__cuGraphInstantiateWithParams
+    {{else}}
+    data["__cuGraphInstantiateWithParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecGetFlags' in found_functions}}
+    global __cuGraphExecGetFlags
+    data["__cuGraphExecGetFlags"] = <intptr_t>__cuGraphExecGetFlags
+    {{else}}
+    data["__cuGraphExecGetFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecKernelNodeSetParams_v2' in found_functions}}
+    global __cuGraphExecKernelNodeSetParams_v2
+    data["__cuGraphExecKernelNodeSetParams_v2"] = <intptr_t>__cuGraphExecKernelNodeSetParams_v2
+    {{else}}
+    data["__cuGraphExecKernelNodeSetParams_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecMemcpyNodeSetParams' in found_functions}}
+    global __cuGraphExecMemcpyNodeSetParams
+    data["__cuGraphExecMemcpyNodeSetParams"] = <intptr_t>__cuGraphExecMemcpyNodeSetParams
+    {{else}}
+    data["__cuGraphExecMemcpyNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecMemsetNodeSetParams' in found_functions}}
+    global __cuGraphExecMemsetNodeSetParams
+    data["__cuGraphExecMemsetNodeSetParams"] = <intptr_t>__cuGraphExecMemsetNodeSetParams
+    {{else}}
+    data["__cuGraphExecMemsetNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecHostNodeSetParams' in found_functions}}
+    global __cuGraphExecHostNodeSetParams
+    data["__cuGraphExecHostNodeSetParams"] = <intptr_t>__cuGraphExecHostNodeSetParams
+    {{else}}
+    data["__cuGraphExecHostNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecChildGraphNodeSetParams' in found_functions}}
+    global __cuGraphExecChildGraphNodeSetParams
+    data["__cuGraphExecChildGraphNodeSetParams"] = <intptr_t>__cuGraphExecChildGraphNodeSetParams
+    {{else}}
+    data["__cuGraphExecChildGraphNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecEventRecordNodeSetEvent' in found_functions}}
+    global __cuGraphExecEventRecordNodeSetEvent
+    data["__cuGraphExecEventRecordNodeSetEvent"] = <intptr_t>__cuGraphExecEventRecordNodeSetEvent
+    {{else}}
+    data["__cuGraphExecEventRecordNodeSetEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecEventWaitNodeSetEvent' in found_functions}}
+    global __cuGraphExecEventWaitNodeSetEvent
+    data["__cuGraphExecEventWaitNodeSetEvent"] = <intptr_t>__cuGraphExecEventWaitNodeSetEvent
+    {{else}}
+    data["__cuGraphExecEventWaitNodeSetEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecExternalSemaphoresSignalNodeSetParams' in found_functions}}
+    global __cuGraphExecExternalSemaphoresSignalNodeSetParams
+    data["__cuGraphExecExternalSemaphoresSignalNodeSetParams"] = <intptr_t>__cuGraphExecExternalSemaphoresSignalNodeSetParams
+    {{else}}
+    data["__cuGraphExecExternalSemaphoresSignalNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecExternalSemaphoresWaitNodeSetParams' in found_functions}}
+    global __cuGraphExecExternalSemaphoresWaitNodeSetParams
+    data["__cuGraphExecExternalSemaphoresWaitNodeSetParams"] = <intptr_t>__cuGraphExecExternalSemaphoresWaitNodeSetParams
+    {{else}}
+    data["__cuGraphExecExternalSemaphoresWaitNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeSetEnabled' in found_functions}}
+    global __cuGraphNodeSetEnabled
+    data["__cuGraphNodeSetEnabled"] = <intptr_t>__cuGraphNodeSetEnabled
+    {{else}}
+    data["__cuGraphNodeSetEnabled"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeGetEnabled' in found_functions}}
+    global __cuGraphNodeGetEnabled
+    data["__cuGraphNodeGetEnabled"] = <intptr_t>__cuGraphNodeGetEnabled
+    {{else}}
+    data["__cuGraphNodeGetEnabled"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphUpload' in found_functions}}
+    global __cuGraphUpload
+    data["__cuGraphUpload"] = <intptr_t>__cuGraphUpload
+    {{else}}
+    data["__cuGraphUpload"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphLaunch' in found_functions}}
+    global __cuGraphLaunch
+    data["__cuGraphLaunch"] = <intptr_t>__cuGraphLaunch
+    {{else}}
+    data["__cuGraphLaunch"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecDestroy' in found_functions}}
+    global __cuGraphExecDestroy
+    data["__cuGraphExecDestroy"] = <intptr_t>__cuGraphExecDestroy
+    {{else}}
+    data["__cuGraphExecDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphDestroy' in found_functions}}
+    global __cuGraphDestroy
+    data["__cuGraphDestroy"] = <intptr_t>__cuGraphDestroy
+    {{else}}
+    data["__cuGraphDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecUpdate_v2' in found_functions}}
+    global __cuGraphExecUpdate_v2
+    data["__cuGraphExecUpdate_v2"] = <intptr_t>__cuGraphExecUpdate_v2
+    {{else}}
+    data["__cuGraphExecUpdate_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphKernelNodeCopyAttributes' in found_functions}}
+    global __cuGraphKernelNodeCopyAttributes
+    data["__cuGraphKernelNodeCopyAttributes"] = <intptr_t>__cuGraphKernelNodeCopyAttributes
+    {{else}}
+    data["__cuGraphKernelNodeCopyAttributes"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphKernelNodeGetAttribute' in found_functions}}
+    global __cuGraphKernelNodeGetAttribute
+    data["__cuGraphKernelNodeGetAttribute"] = <intptr_t>__cuGraphKernelNodeGetAttribute
+    {{else}}
+    data["__cuGraphKernelNodeGetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphKernelNodeSetAttribute' in found_functions}}
+    global __cuGraphKernelNodeSetAttribute
+    data["__cuGraphKernelNodeSetAttribute"] = <intptr_t>__cuGraphKernelNodeSetAttribute
+    {{else}}
+    data["__cuGraphKernelNodeSetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphDebugDotPrint' in found_functions}}
+    global __cuGraphDebugDotPrint
+    data["__cuGraphDebugDotPrint"] = <intptr_t>__cuGraphDebugDotPrint
+    {{else}}
+    data["__cuGraphDebugDotPrint"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuUserObjectCreate' in found_functions}}
+    global __cuUserObjectCreate
+    data["__cuUserObjectCreate"] = <intptr_t>__cuUserObjectCreate
+    {{else}}
+    data["__cuUserObjectCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuUserObjectRetain' in found_functions}}
+    global __cuUserObjectRetain
+    data["__cuUserObjectRetain"] = <intptr_t>__cuUserObjectRetain
+    {{else}}
+    data["__cuUserObjectRetain"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuUserObjectRelease' in found_functions}}
+    global __cuUserObjectRelease
+    data["__cuUserObjectRelease"] = <intptr_t>__cuUserObjectRelease
+    {{else}}
+    data["__cuUserObjectRelease"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphRetainUserObject' in found_functions}}
+    global __cuGraphRetainUserObject
+    data["__cuGraphRetainUserObject"] = <intptr_t>__cuGraphRetainUserObject
+    {{else}}
+    data["__cuGraphRetainUserObject"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphReleaseUserObject' in found_functions}}
+    global __cuGraphReleaseUserObject
+    data["__cuGraphReleaseUserObject"] = <intptr_t>__cuGraphReleaseUserObject
+    {{else}}
+    data["__cuGraphReleaseUserObject"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddNode' in found_functions}}
+    global __cuGraphAddNode
+    data["__cuGraphAddNode"] = <intptr_t>__cuGraphAddNode
+    {{else}}
+    data["__cuGraphAddNode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphAddNode_v2' in found_functions}}
+    global __cuGraphAddNode_v2
+    data["__cuGraphAddNode_v2"] = <intptr_t>__cuGraphAddNode_v2
+    {{else}}
+    data["__cuGraphAddNode_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeSetParams' in found_functions}}
+    global __cuGraphNodeSetParams
+    data["__cuGraphNodeSetParams"] = <intptr_t>__cuGraphNodeSetParams
+    {{else}}
+    data["__cuGraphNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecNodeSetParams' in found_functions}}
+    global __cuGraphExecNodeSetParams
+    data["__cuGraphExecNodeSetParams"] = <intptr_t>__cuGraphExecNodeSetParams
+    {{else}}
+    data["__cuGraphExecNodeSetParams"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphConditionalHandleCreate' in found_functions}}
+    global __cuGraphConditionalHandleCreate
+    data["__cuGraphConditionalHandleCreate"] = <intptr_t>__cuGraphConditionalHandleCreate
+    {{else}}
+    data["__cuGraphConditionalHandleCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
+    global __cuOccupancyMaxActiveBlocksPerMultiprocessor
+    data["__cuOccupancyMaxActiveBlocksPerMultiprocessor"] = <intptr_t>__cuOccupancyMaxActiveBlocksPerMultiprocessor
+    {{else}}
+    data["__cuOccupancyMaxActiveBlocksPerMultiprocessor"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags' in found_functions}}
+    global __cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
+    data["__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags"] = <intptr_t>__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
+    {{else}}
+    data["__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuOccupancyMaxPotentialBlockSize' in found_functions}}
+    global __cuOccupancyMaxPotentialBlockSize
+    data["__cuOccupancyMaxPotentialBlockSize"] = <intptr_t>__cuOccupancyMaxPotentialBlockSize
+    {{else}}
+    data["__cuOccupancyMaxPotentialBlockSize"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuOccupancyMaxPotentialBlockSizeWithFlags' in found_functions}}
+    global __cuOccupancyMaxPotentialBlockSizeWithFlags
+    data["__cuOccupancyMaxPotentialBlockSizeWithFlags"] = <intptr_t>__cuOccupancyMaxPotentialBlockSizeWithFlags
+    {{else}}
+    data["__cuOccupancyMaxPotentialBlockSizeWithFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuOccupancyAvailableDynamicSMemPerBlock' in found_functions}}
+    global __cuOccupancyAvailableDynamicSMemPerBlock
+    data["__cuOccupancyAvailableDynamicSMemPerBlock"] = <intptr_t>__cuOccupancyAvailableDynamicSMemPerBlock
+    {{else}}
+    data["__cuOccupancyAvailableDynamicSMemPerBlock"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuOccupancyMaxPotentialClusterSize' in found_functions}}
+    global __cuOccupancyMaxPotentialClusterSize
+    data["__cuOccupancyMaxPotentialClusterSize"] = <intptr_t>__cuOccupancyMaxPotentialClusterSize
+    {{else}}
+    data["__cuOccupancyMaxPotentialClusterSize"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuOccupancyMaxActiveClusters' in found_functions}}
+    global __cuOccupancyMaxActiveClusters
+    data["__cuOccupancyMaxActiveClusters"] = <intptr_t>__cuOccupancyMaxActiveClusters
+    {{else}}
+    data["__cuOccupancyMaxActiveClusters"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetArray' in found_functions}}
+    global __cuTexRefSetArray
+    data["__cuTexRefSetArray"] = <intptr_t>__cuTexRefSetArray
+    {{else}}
+    data["__cuTexRefSetArray"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetMipmappedArray' in found_functions}}
+    global __cuTexRefSetMipmappedArray
+    data["__cuTexRefSetMipmappedArray"] = <intptr_t>__cuTexRefSetMipmappedArray
+    {{else}}
+    data["__cuTexRefSetMipmappedArray"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetAddress_v2' in found_functions}}
+    global __cuTexRefSetAddress_v2
+    data["__cuTexRefSetAddress_v2"] = <intptr_t>__cuTexRefSetAddress_v2
+    {{else}}
+    data["__cuTexRefSetAddress_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetAddress2D_v3' in found_functions}}
+    global __cuTexRefSetAddress2D_v3
+    data["__cuTexRefSetAddress2D_v3"] = <intptr_t>__cuTexRefSetAddress2D_v3
+    {{else}}
+    data["__cuTexRefSetAddress2D_v3"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetFormat' in found_functions}}
+    global __cuTexRefSetFormat
+    data["__cuTexRefSetFormat"] = <intptr_t>__cuTexRefSetFormat
+    {{else}}
+    data["__cuTexRefSetFormat"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetAddressMode' in found_functions}}
+    global __cuTexRefSetAddressMode
+    data["__cuTexRefSetAddressMode"] = <intptr_t>__cuTexRefSetAddressMode
+    {{else}}
+    data["__cuTexRefSetAddressMode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetFilterMode' in found_functions}}
+    global __cuTexRefSetFilterMode
+    data["__cuTexRefSetFilterMode"] = <intptr_t>__cuTexRefSetFilterMode
+    {{else}}
+    data["__cuTexRefSetFilterMode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetMipmapFilterMode' in found_functions}}
+    global __cuTexRefSetMipmapFilterMode
+    data["__cuTexRefSetMipmapFilterMode"] = <intptr_t>__cuTexRefSetMipmapFilterMode
+    {{else}}
+    data["__cuTexRefSetMipmapFilterMode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetMipmapLevelBias' in found_functions}}
+    global __cuTexRefSetMipmapLevelBias
+    data["__cuTexRefSetMipmapLevelBias"] = <intptr_t>__cuTexRefSetMipmapLevelBias
+    {{else}}
+    data["__cuTexRefSetMipmapLevelBias"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetMipmapLevelClamp' in found_functions}}
+    global __cuTexRefSetMipmapLevelClamp
+    data["__cuTexRefSetMipmapLevelClamp"] = <intptr_t>__cuTexRefSetMipmapLevelClamp
+    {{else}}
+    data["__cuTexRefSetMipmapLevelClamp"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetMaxAnisotropy' in found_functions}}
+    global __cuTexRefSetMaxAnisotropy
+    data["__cuTexRefSetMaxAnisotropy"] = <intptr_t>__cuTexRefSetMaxAnisotropy
+    {{else}}
+    data["__cuTexRefSetMaxAnisotropy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetBorderColor' in found_functions}}
+    global __cuTexRefSetBorderColor
+    data["__cuTexRefSetBorderColor"] = <intptr_t>__cuTexRefSetBorderColor
+    {{else}}
+    data["__cuTexRefSetBorderColor"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefSetFlags' in found_functions}}
+    global __cuTexRefSetFlags
+    data["__cuTexRefSetFlags"] = <intptr_t>__cuTexRefSetFlags
+    {{else}}
+    data["__cuTexRefSetFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetAddress_v2' in found_functions}}
+    global __cuTexRefGetAddress_v2
+    data["__cuTexRefGetAddress_v2"] = <intptr_t>__cuTexRefGetAddress_v2
+    {{else}}
+    data["__cuTexRefGetAddress_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetArray' in found_functions}}
+    global __cuTexRefGetArray
+    data["__cuTexRefGetArray"] = <intptr_t>__cuTexRefGetArray
+    {{else}}
+    data["__cuTexRefGetArray"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetMipmappedArray' in found_functions}}
+    global __cuTexRefGetMipmappedArray
+    data["__cuTexRefGetMipmappedArray"] = <intptr_t>__cuTexRefGetMipmappedArray
+    {{else}}
+    data["__cuTexRefGetMipmappedArray"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetAddressMode' in found_functions}}
+    global __cuTexRefGetAddressMode
+    data["__cuTexRefGetAddressMode"] = <intptr_t>__cuTexRefGetAddressMode
+    {{else}}
+    data["__cuTexRefGetAddressMode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetFilterMode' in found_functions}}
+    global __cuTexRefGetFilterMode
+    data["__cuTexRefGetFilterMode"] = <intptr_t>__cuTexRefGetFilterMode
+    {{else}}
+    data["__cuTexRefGetFilterMode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetFormat' in found_functions}}
+    global __cuTexRefGetFormat
+    data["__cuTexRefGetFormat"] = <intptr_t>__cuTexRefGetFormat
+    {{else}}
+    data["__cuTexRefGetFormat"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetMipmapFilterMode' in found_functions}}
+    global __cuTexRefGetMipmapFilterMode
+    data["__cuTexRefGetMipmapFilterMode"] = <intptr_t>__cuTexRefGetMipmapFilterMode
+    {{else}}
+    data["__cuTexRefGetMipmapFilterMode"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetMipmapLevelBias' in found_functions}}
+    global __cuTexRefGetMipmapLevelBias
+    data["__cuTexRefGetMipmapLevelBias"] = <intptr_t>__cuTexRefGetMipmapLevelBias
+    {{else}}
+    data["__cuTexRefGetMipmapLevelBias"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetMipmapLevelClamp' in found_functions}}
+    global __cuTexRefGetMipmapLevelClamp
+    data["__cuTexRefGetMipmapLevelClamp"] = <intptr_t>__cuTexRefGetMipmapLevelClamp
+    {{else}}
+    data["__cuTexRefGetMipmapLevelClamp"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetMaxAnisotropy' in found_functions}}
+    global __cuTexRefGetMaxAnisotropy
+    data["__cuTexRefGetMaxAnisotropy"] = <intptr_t>__cuTexRefGetMaxAnisotropy
+    {{else}}
+    data["__cuTexRefGetMaxAnisotropy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetBorderColor' in found_functions}}
+    global __cuTexRefGetBorderColor
+    data["__cuTexRefGetBorderColor"] = <intptr_t>__cuTexRefGetBorderColor
+    {{else}}
+    data["__cuTexRefGetBorderColor"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefGetFlags' in found_functions}}
+    global __cuTexRefGetFlags
+    data["__cuTexRefGetFlags"] = <intptr_t>__cuTexRefGetFlags
+    {{else}}
+    data["__cuTexRefGetFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefCreate' in found_functions}}
+    global __cuTexRefCreate
+    data["__cuTexRefCreate"] = <intptr_t>__cuTexRefCreate
+    {{else}}
+    data["__cuTexRefCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexRefDestroy' in found_functions}}
+    global __cuTexRefDestroy
+    data["__cuTexRefDestroy"] = <intptr_t>__cuTexRefDestroy
+    {{else}}
+    data["__cuTexRefDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuSurfRefSetArray' in found_functions}}
+    global __cuSurfRefSetArray
+    data["__cuSurfRefSetArray"] = <intptr_t>__cuSurfRefSetArray
+    {{else}}
+    data["__cuSurfRefSetArray"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuSurfRefGetArray' in found_functions}}
+    global __cuSurfRefGetArray
+    data["__cuSurfRefGetArray"] = <intptr_t>__cuSurfRefGetArray
+    {{else}}
+    data["__cuSurfRefGetArray"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexObjectCreate' in found_functions}}
+    global __cuTexObjectCreate
+    data["__cuTexObjectCreate"] = <intptr_t>__cuTexObjectCreate
+    {{else}}
+    data["__cuTexObjectCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexObjectDestroy' in found_functions}}
+    global __cuTexObjectDestroy
+    data["__cuTexObjectDestroy"] = <intptr_t>__cuTexObjectDestroy
+    {{else}}
+    data["__cuTexObjectDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexObjectGetResourceDesc' in found_functions}}
+    global __cuTexObjectGetResourceDesc
+    data["__cuTexObjectGetResourceDesc"] = <intptr_t>__cuTexObjectGetResourceDesc
+    {{else}}
+    data["__cuTexObjectGetResourceDesc"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexObjectGetTextureDesc' in found_functions}}
+    global __cuTexObjectGetTextureDesc
+    data["__cuTexObjectGetTextureDesc"] = <intptr_t>__cuTexObjectGetTextureDesc
+    {{else}}
+    data["__cuTexObjectGetTextureDesc"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTexObjectGetResourceViewDesc' in found_functions}}
+    global __cuTexObjectGetResourceViewDesc
+    data["__cuTexObjectGetResourceViewDesc"] = <intptr_t>__cuTexObjectGetResourceViewDesc
+    {{else}}
+    data["__cuTexObjectGetResourceViewDesc"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuSurfObjectCreate' in found_functions}}
+    global __cuSurfObjectCreate
+    data["__cuSurfObjectCreate"] = <intptr_t>__cuSurfObjectCreate
+    {{else}}
+    data["__cuSurfObjectCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuSurfObjectDestroy' in found_functions}}
+    global __cuSurfObjectDestroy
+    data["__cuSurfObjectDestroy"] = <intptr_t>__cuSurfObjectDestroy
+    {{else}}
+    data["__cuSurfObjectDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuSurfObjectGetResourceDesc' in found_functions}}
+    global __cuSurfObjectGetResourceDesc
+    data["__cuSurfObjectGetResourceDesc"] = <intptr_t>__cuSurfObjectGetResourceDesc
+    {{else}}
+    data["__cuSurfObjectGetResourceDesc"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTensorMapEncodeTiled' in found_functions}}
+    global __cuTensorMapEncodeTiled
+    data["__cuTensorMapEncodeTiled"] = <intptr_t>__cuTensorMapEncodeTiled
+    {{else}}
+    data["__cuTensorMapEncodeTiled"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTensorMapEncodeIm2col' in found_functions}}
+    global __cuTensorMapEncodeIm2col
+    data["__cuTensorMapEncodeIm2col"] = <intptr_t>__cuTensorMapEncodeIm2col
+    {{else}}
+    data["__cuTensorMapEncodeIm2col"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTensorMapEncodeIm2colWide' in found_functions}}
+    global __cuTensorMapEncodeIm2colWide
+    data["__cuTensorMapEncodeIm2colWide"] = <intptr_t>__cuTensorMapEncodeIm2colWide
+    {{else}}
+    data["__cuTensorMapEncodeIm2colWide"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuTensorMapReplaceAddress' in found_functions}}
+    global __cuTensorMapReplaceAddress
+    data["__cuTensorMapReplaceAddress"] = <intptr_t>__cuTensorMapReplaceAddress
+    {{else}}
+    data["__cuTensorMapReplaceAddress"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceCanAccessPeer' in found_functions}}
+    global __cuDeviceCanAccessPeer
+    data["__cuDeviceCanAccessPeer"] = <intptr_t>__cuDeviceCanAccessPeer
+    {{else}}
+    data["__cuDeviceCanAccessPeer"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxEnablePeerAccess' in found_functions}}
+    global __cuCtxEnablePeerAccess
+    data["__cuCtxEnablePeerAccess"] = <intptr_t>__cuCtxEnablePeerAccess
+    {{else}}
+    data["__cuCtxEnablePeerAccess"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxDisablePeerAccess' in found_functions}}
+    global __cuCtxDisablePeerAccess
+    data["__cuCtxDisablePeerAccess"] = <intptr_t>__cuCtxDisablePeerAccess
+    {{else}}
+    data["__cuCtxDisablePeerAccess"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetP2PAttribute' in found_functions}}
+    global __cuDeviceGetP2PAttribute
+    data["__cuDeviceGetP2PAttribute"] = <intptr_t>__cuDeviceGetP2PAttribute
+    {{else}}
+    data["__cuDeviceGetP2PAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphicsUnregisterResource' in found_functions}}
+    global __cuGraphicsUnregisterResource
+    data["__cuGraphicsUnregisterResource"] = <intptr_t>__cuGraphicsUnregisterResource
+    {{else}}
+    data["__cuGraphicsUnregisterResource"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphicsSubResourceGetMappedArray' in found_functions}}
+    global __cuGraphicsSubResourceGetMappedArray
+    data["__cuGraphicsSubResourceGetMappedArray"] = <intptr_t>__cuGraphicsSubResourceGetMappedArray
+    {{else}}
+    data["__cuGraphicsSubResourceGetMappedArray"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphicsResourceGetMappedMipmappedArray' in found_functions}}
+    global __cuGraphicsResourceGetMappedMipmappedArray
+    data["__cuGraphicsResourceGetMappedMipmappedArray"] = <intptr_t>__cuGraphicsResourceGetMappedMipmappedArray
+    {{else}}
+    data["__cuGraphicsResourceGetMappedMipmappedArray"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphicsResourceGetMappedPointer_v2' in found_functions}}
+    global __cuGraphicsResourceGetMappedPointer_v2
+    data["__cuGraphicsResourceGetMappedPointer_v2"] = <intptr_t>__cuGraphicsResourceGetMappedPointer_v2
+    {{else}}
+    data["__cuGraphicsResourceGetMappedPointer_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphicsResourceSetMapFlags_v2' in found_functions}}
+    global __cuGraphicsResourceSetMapFlags_v2
+    data["__cuGraphicsResourceSetMapFlags_v2"] = <intptr_t>__cuGraphicsResourceSetMapFlags_v2
+    {{else}}
+    data["__cuGraphicsResourceSetMapFlags_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphicsMapResources' in found_functions}}
+    global __cuGraphicsMapResources
+    data["__cuGraphicsMapResources"] = <intptr_t>__cuGraphicsMapResources
+    {{else}}
+    data["__cuGraphicsMapResources"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphicsUnmapResources' in found_functions}}
+    global __cuGraphicsUnmapResources
+    data["__cuGraphicsUnmapResources"] = <intptr_t>__cuGraphicsUnmapResources
+    {{else}}
+    data["__cuGraphicsUnmapResources"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGetProcAddress_v2' in found_functions}}
+    global __cuGetProcAddress_v2
+    data["__cuGetProcAddress_v2"] = <intptr_t>__cuGetProcAddress_v2
+    {{else}}
+    data["__cuGetProcAddress_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCoredumpGetAttribute' in found_functions}}
+    global __cuCoredumpGetAttribute
+    data["__cuCoredumpGetAttribute"] = <intptr_t>__cuCoredumpGetAttribute
+    {{else}}
+    data["__cuCoredumpGetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCoredumpGetAttributeGlobal' in found_functions}}
+    global __cuCoredumpGetAttributeGlobal
+    data["__cuCoredumpGetAttributeGlobal"] = <intptr_t>__cuCoredumpGetAttributeGlobal
+    {{else}}
+    data["__cuCoredumpGetAttributeGlobal"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCoredumpSetAttribute' in found_functions}}
+    global __cuCoredumpSetAttribute
+    data["__cuCoredumpSetAttribute"] = <intptr_t>__cuCoredumpSetAttribute
+    {{else}}
+    data["__cuCoredumpSetAttribute"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCoredumpSetAttributeGlobal' in found_functions}}
+    global __cuCoredumpSetAttributeGlobal
+    data["__cuCoredumpSetAttributeGlobal"] = <intptr_t>__cuCoredumpSetAttributeGlobal
+    {{else}}
+    data["__cuCoredumpSetAttributeGlobal"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGetExportTable' in found_functions}}
+    global __cuGetExportTable
+    data["__cuGetExportTable"] = <intptr_t>__cuGetExportTable
+    {{else}}
+    data["__cuGetExportTable"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGreenCtxCreate' in found_functions}}
+    global __cuGreenCtxCreate
+    data["__cuGreenCtxCreate"] = <intptr_t>__cuGreenCtxCreate
+    {{else}}
+    data["__cuGreenCtxCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGreenCtxDestroy' in found_functions}}
+    global __cuGreenCtxDestroy
+    data["__cuGreenCtxDestroy"] = <intptr_t>__cuGreenCtxDestroy
+    {{else}}
+    data["__cuGreenCtxDestroy"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxFromGreenCtx' in found_functions}}
+    global __cuCtxFromGreenCtx
+    data["__cuCtxFromGreenCtx"] = <intptr_t>__cuCtxFromGreenCtx
+    {{else}}
+    data["__cuCtxFromGreenCtx"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDeviceGetDevResource' in found_functions}}
+    global __cuDeviceGetDevResource
+    data["__cuDeviceGetDevResource"] = <intptr_t>__cuDeviceGetDevResource
+    {{else}}
+    data["__cuDeviceGetDevResource"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCtxGetDevResource' in found_functions}}
+    global __cuCtxGetDevResource
+    data["__cuCtxGetDevResource"] = <intptr_t>__cuCtxGetDevResource
+    {{else}}
+    data["__cuCtxGetDevResource"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGreenCtxGetDevResource' in found_functions}}
+    global __cuGreenCtxGetDevResource
+    data["__cuGreenCtxGetDevResource"] = <intptr_t>__cuGreenCtxGetDevResource
+    {{else}}
+    data["__cuGreenCtxGetDevResource"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDevSmResourceSplitByCount' in found_functions}}
+    global __cuDevSmResourceSplitByCount
+    data["__cuDevSmResourceSplitByCount"] = <intptr_t>__cuDevSmResourceSplitByCount
+    {{else}}
+    data["__cuDevSmResourceSplitByCount"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuDevResourceGenerateDesc' in found_functions}}
+    global __cuDevResourceGenerateDesc
+    data["__cuDevResourceGenerateDesc"] = <intptr_t>__cuDevResourceGenerateDesc
+    {{else}}
+    data["__cuDevResourceGenerateDesc"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGreenCtxRecordEvent' in found_functions}}
+    global __cuGreenCtxRecordEvent
+    data["__cuGreenCtxRecordEvent"] = <intptr_t>__cuGreenCtxRecordEvent
+    {{else}}
+    data["__cuGreenCtxRecordEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGreenCtxWaitEvent' in found_functions}}
+    global __cuGreenCtxWaitEvent
+    data["__cuGreenCtxWaitEvent"] = <intptr_t>__cuGreenCtxWaitEvent
+    {{else}}
+    data["__cuGreenCtxWaitEvent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetGreenCtx' in found_functions}}
+    global __cuStreamGetGreenCtx
+    data["__cuStreamGetGreenCtx"] = <intptr_t>__cuStreamGetGreenCtx
+    {{else}}
+    data["__cuStreamGetGreenCtx"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGreenCtxStreamCreate' in found_functions}}
+    global __cuGreenCtxStreamCreate
+    data["__cuGreenCtxStreamCreate"] = <intptr_t>__cuGreenCtxStreamCreate
+    {{else}}
+    data["__cuGreenCtxStreamCreate"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogsRegisterCallback' in found_functions}}
+    global __cuLogsRegisterCallback
+    data["__cuLogsRegisterCallback"] = <intptr_t>__cuLogsRegisterCallback
+    {{else}}
+    data["__cuLogsRegisterCallback"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogsUnregisterCallback' in found_functions}}
+    global __cuLogsUnregisterCallback
+    data["__cuLogsUnregisterCallback"] = <intptr_t>__cuLogsUnregisterCallback
+    {{else}}
+    data["__cuLogsUnregisterCallback"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogsCurrent' in found_functions}}
+    global __cuLogsCurrent
+    data["__cuLogsCurrent"] = <intptr_t>__cuLogsCurrent
+    {{else}}
+    data["__cuLogsCurrent"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogsDumpToFile' in found_functions}}
+    global __cuLogsDumpToFile
+    data["__cuLogsDumpToFile"] = <intptr_t>__cuLogsDumpToFile
+    {{else}}
+    data["__cuLogsDumpToFile"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuLogsDumpToMemory' in found_functions}}
+    global __cuLogsDumpToMemory
+    data["__cuLogsDumpToMemory"] = <intptr_t>__cuLogsDumpToMemory
+    {{else}}
+    data["__cuLogsDumpToMemory"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
+    global __cuCheckpointProcessGetRestoreThreadId
+    data["__cuCheckpointProcessGetRestoreThreadId"] = <intptr_t>__cuCheckpointProcessGetRestoreThreadId
+    {{else}}
+    data["__cuCheckpointProcessGetRestoreThreadId"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCheckpointProcessGetState' in found_functions}}
+    global __cuCheckpointProcessGetState
+    data["__cuCheckpointProcessGetState"] = <intptr_t>__cuCheckpointProcessGetState
+    {{else}}
+    data["__cuCheckpointProcessGetState"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCheckpointProcessLock' in found_functions}}
+    global __cuCheckpointProcessLock
+    data["__cuCheckpointProcessLock"] = <intptr_t>__cuCheckpointProcessLock
+    {{else}}
+    data["__cuCheckpointProcessLock"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCheckpointProcessCheckpoint' in found_functions}}
+    global __cuCheckpointProcessCheckpoint
+    data["__cuCheckpointProcessCheckpoint"] = <intptr_t>__cuCheckpointProcessCheckpoint
+    {{else}}
+    data["__cuCheckpointProcessCheckpoint"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCheckpointProcessRestore' in found_functions}}
+    global __cuCheckpointProcessRestore
+    data["__cuCheckpointProcessRestore"] = <intptr_t>__cuCheckpointProcessRestore
+    {{else}}
+    data["__cuCheckpointProcessRestore"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCheckpointProcessUnlock' in found_functions}}
+    global __cuCheckpointProcessUnlock
+    data["__cuCheckpointProcessUnlock"] = <intptr_t>__cuCheckpointProcessUnlock
+    {{else}}
+    data["__cuCheckpointProcessUnlock"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuProfilerStart' in found_functions}}
+    global __cuProfilerStart
+    data["__cuProfilerStart"] = <intptr_t>__cuProfilerStart
+    {{else}}
+    data["__cuProfilerStart"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuProfilerStop' in found_functions}}
+    global __cuProfilerStop
+    data["__cuProfilerStop"] = <intptr_t>__cuProfilerStop
+    {{else}}
+    data["__cuProfilerStop"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuGraphicsEGLRegisterImage
+    data["__cuGraphicsEGLRegisterImage"] = <intptr_t>__cuGraphicsEGLRegisterImage
+    {{else}}
+    data["__cuGraphicsEGLRegisterImage"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuEGLStreamConsumerConnect
+    data["__cuEGLStreamConsumerConnect"] = <intptr_t>__cuEGLStreamConsumerConnect
+    {{else}}
+    data["__cuEGLStreamConsumerConnect"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuEGLStreamConsumerConnectWithFlags
+    data["__cuEGLStreamConsumerConnectWithFlags"] = <intptr_t>__cuEGLStreamConsumerConnectWithFlags
+    {{else}}
+    data["__cuEGLStreamConsumerConnectWithFlags"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuEGLStreamConsumerDisconnect
+    data["__cuEGLStreamConsumerDisconnect"] = <intptr_t>__cuEGLStreamConsumerDisconnect
+    {{else}}
+    data["__cuEGLStreamConsumerDisconnect"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuEGLStreamConsumerAcquireFrame
+    data["__cuEGLStreamConsumerAcquireFrame"] = <intptr_t>__cuEGLStreamConsumerAcquireFrame
+    {{else}}
+    data["__cuEGLStreamConsumerAcquireFrame"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuEGLStreamConsumerReleaseFrame
+    data["__cuEGLStreamConsumerReleaseFrame"] = <intptr_t>__cuEGLStreamConsumerReleaseFrame
+    {{else}}
+    data["__cuEGLStreamConsumerReleaseFrame"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuEGLStreamProducerConnect
+    data["__cuEGLStreamProducerConnect"] = <intptr_t>__cuEGLStreamProducerConnect
+    {{else}}
+    data["__cuEGLStreamProducerConnect"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuEGLStreamProducerDisconnect
+    data["__cuEGLStreamProducerDisconnect"] = <intptr_t>__cuEGLStreamProducerDisconnect
+    {{else}}
+    data["__cuEGLStreamProducerDisconnect"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuEGLStreamProducerPresentFrame
+    data["__cuEGLStreamProducerPresentFrame"] = <intptr_t>__cuEGLStreamProducerPresentFrame
+    {{else}}
+    data["__cuEGLStreamProducerPresentFrame"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuEGLStreamProducerReturnFrame
+    data["__cuEGLStreamProducerReturnFrame"] = <intptr_t>__cuEGLStreamProducerReturnFrame
+    {{else}}
+    data["__cuEGLStreamProducerReturnFrame"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuGraphicsResourceGetMappedEglFrame
+    data["__cuGraphicsResourceGetMappedEglFrame"] = <intptr_t>__cuGraphicsResourceGetMappedEglFrame
+    {{else}}
+    data["__cuGraphicsResourceGetMappedEglFrame"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuEventCreateFromEGLSync
+    data["__cuEventCreateFromEGLSync"] = <intptr_t>__cuEventCreateFromEGLSync
+    {{else}}
+    data["__cuEventCreateFromEGLSync"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuGraphicsGLRegisterBuffer
+    data["__cuGraphicsGLRegisterBuffer"] = <intptr_t>__cuGraphicsGLRegisterBuffer
+    {{else}}
+    data["__cuGraphicsGLRegisterBuffer"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuGraphicsGLRegisterImage
+    data["__cuGraphicsGLRegisterImage"] = <intptr_t>__cuGraphicsGLRegisterImage
+    {{else}}
+    data["__cuGraphicsGLRegisterImage"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuGLGetDevices_v2
+    data["__cuGLGetDevices_v2"] = <intptr_t>__cuGLGetDevices_v2
+    {{else}}
+    data["__cuGLGetDevices_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuVDPAUGetDevice
+    data["__cuVDPAUGetDevice"] = <intptr_t>__cuVDPAUGetDevice
+    {{else}}
+    data["__cuVDPAUGetDevice"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuVDPAUCtxCreate_v2
+    data["__cuVDPAUCtxCreate_v2"] = <intptr_t>__cuVDPAUCtxCreate_v2
+    {{else}}
+    data["__cuVDPAUCtxCreate_v2"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuGraphicsVDPAURegisterVideoSurface
+    data["__cuGraphicsVDPAURegisterVideoSurface"] = <intptr_t>__cuGraphicsVDPAURegisterVideoSurface
+    {{else}}
+    data["__cuGraphicsVDPAURegisterVideoSurface"] = <intptr_t>0
+    {{endif}}
+
+    {{if True}}
+    global __cuGraphicsVDPAURegisterOutputSurface
+    data["__cuGraphicsVDPAURegisterOutputSurface"] = <intptr_t>__cuGraphicsVDPAURegisterOutputSurface
+    {{else}}
+    data["__cuGraphicsVDPAURegisterOutputSurface"] = <intptr_t>0
+    {{endif}}
+
+    func_ptrs = data
+    return data
+
+cpdef _inspect_function_pointer(str name):
+    global func_ptrs
+    if func_ptrs is None:
+        func_ptrs = _inspect_function_pointers()
+    return func_ptrs[name]

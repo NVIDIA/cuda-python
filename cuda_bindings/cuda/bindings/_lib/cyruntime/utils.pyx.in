@@ -991,4 +991,3 @@ cdef cudaError_t getRuntimeEglFrame(cudaEglFrame *eglFrame, cydriver.CUeglFrame 
         eglFrame[0].frameType = cudaEglFrameTypePitch
     else:
         return cudaErrorInvalidValue
-
