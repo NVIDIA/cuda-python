@@ -232,6 +232,8 @@ class Kernel:
                 p_info = Kernel.ParamInfo(offset=result[1], size=result[2])
                 param_info_data.append(p_info)
             arg_pos = arg_pos + 1
+        if result[0] != driver.CUresult.CUDA_ERROR_INVALID_VALUE:
+            handle_return(result)
         return arg_pos, param_info_data
 
     @property
