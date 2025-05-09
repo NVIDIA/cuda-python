@@ -31,12 +31,13 @@ strategy for locating NVIDIA shared libraries:
    - Falls back to native loader:
      - `dlopen()` on Linux
      - `LoadLibraryW()` on Windows
+   - Conda installations are expected to be discovered:
+     - Linux: Via `$ORIGIN/../lib` on `RPATH` (of the `python` binary;
+       note that this preempts `LD_LIBRARY_PATH` and `/etc/ld.so.conf.d/`)
+     - Windows: Via `%CONDA_PREFIX%\Library\bin` on system `PATH`
    - CTK installations with system config updates are expected to be discovered:
      - Linux: Via `/etc/ld.so.conf.d/*cuda*.conf`
      - Windows: Via `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\vX.Y\bin` on system `PATH`
-   - Conda installations are expected to be discovered:
-     - Linux: Via `$ORIGIN/../lib` on `RPATH` (of the `python` binary)
-     - Windows: Via `%CONDA_PREFIX%\Library\bin` on system `PATH`
 
 3. **Environment variables**
    - Relies on `CUDA_HOME` or `CUDA_PATH` environment variables if set

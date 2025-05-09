@@ -1,8 +1,6 @@
 # Copyright 2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import ctypes
-import ctypes.wintypes
 from typing import Optional
 
 import pywintypes
@@ -36,46 +34,11 @@ def add_dll_directory(dll_abs_path: str) -> None:
 
 
 def abs_path_for_dynamic_library(libname: str, handle: pywintypes.HANDLE) -> str:
-    """Get the absolute path of a loaded dynamic library on Windows.
-
-    Args:
-        handle: The library handle
-
-    Returns:
-        The absolute path to the DLL file
-
-    Raises:
-        OSError: If GetModuleFileNameW fails
-        RuntimeError: If the required path length is unreasonably long
-    """
-    MAX_ITERATIONS = 10  # Allows for extremely long paths (up to ~266,000 chars)
-    buf_size = 260  # Start with traditional MAX_PATH
-
-    for _ in range(MAX_ITERATIONS):
-        buf = ctypes.create_unicode_buffer(buf_size)
-        n_chars = ctypes.windll.kernel32.GetModuleFileNameW(ctypes.wintypes.HMODULE(handle), buf, buf_size)
-
-        if n_chars == 0:
-            raise OSError(
-                f"GetModuleFileNameW failed ({libname=!r}, {buf_size=}). "
-                "Long paths may require enabling the "
-                "Windows 10+ long path registry setting. See: "
-                "https://docs.python.org/3/using/windows.html#removing-the-max-path-limitation"
-            )
-        if n_chars < buf_size - 1:
-            return buf.value
-
-        buf_size *= 2  # Double the buffer size and try again
-
-    raise RuntimeError(
-        f"Failed to retrieve the full path after {MAX_ITERATIONS} attempts "
-        f"(final buffer size: {buf_size} characters). "
-        "This may indicate:\n"
-        "  1. An extremely long path requiring Windows long path support, or\n"
-        "  2. An invalid or corrupt library handle, or\n"
-        "  3. An unexpected system error.\n"
-        "See: https://docs.python.org/3/using/windows.html#removing-the-max-path-limitation"
-    )
+    """Get the absolute path of a loaded dynamic library on Windows."""
+    try:
+        return win32api.GetModuleFileName(handle)
+    except Exception as e:
+        raise RuntimeError(f"GetModuleFileName failed for {libname!r} (exception type: {type(e)})") from e
 
 
 def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
