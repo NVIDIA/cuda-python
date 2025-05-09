@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional, Union
+from collections import namedtuple
+from typing import NamedTuple, Optional, Union
 from warnings import warn
 
 from cuda.core.experimental._utils.clear_error_support import (
@@ -43,6 +44,7 @@ def _lazy_init():
             "data": driver.cuLibraryLoadData,
             "kernel": driver.cuLibraryGetKernel,
             "attribute": driver.cuKernelGetAttribute,
+            "paraminfo": driver.cuKernelGetParamInfo,
         }
         _kernel_ctypes = (driver.CUfunction, driver.CUkernel)
     else:
@@ -194,6 +196,7 @@ class Kernel:
     """
 
     __slots__ = ("_handle", "_module", "_attributes")
+    ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
 
     def __new__(self, *args, **kwargs):
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
@@ -214,6 +217,36 @@ class Kernel:
         if self._attributes is None:
             self._attributes = KernelAttributes._init(self._handle)
         return self._attributes
+
+    def _get_arguments_info(self, param_info=False) -> tuple[int, list[NamedTuple]]:
+        attr_impl = self.attributes
+        if attr_impl._backend_version != "new":
+            raise NotImplementedError("New backend is required")
+        arg_pos = 0
+        param_info_data = []
+        while True:
+            result = attr_impl._loader["paraminfo"](self._handle, arg_pos)
+            if result[0] != driver.CUresult.CUDA_SUCCESS:
+                break
+            if param_info:
+                p_info = Kernel.ParamInfo(offset=result[1], size=result[2])
+                param_info_data.append(p_info)
+            arg_pos = arg_pos + 1
+        if result[0] != driver.CUresult.CUDA_ERROR_INVALID_VALUE:
+            handle_return(result)
+        return arg_pos, param_info_data
+
+    @property
+    def num_arguments(self) -> int:
+        """int : The number of arguments of this function"""
+        num_args, _ = self._get_arguments_info()
+        return num_args
+
+    @property
+    def arguments_info(self) -> list[NamedTuple]:
+        """list[NamedTuple[int, int]]: (offset, size) for each argument of this function"""
+        _, param_info = self._get_arguments_info(param_info=True)
+        return param_info
 
     # TODO: implement from_handle()
 
