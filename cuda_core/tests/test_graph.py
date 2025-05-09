@@ -255,7 +255,13 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
     launch(gb, LaunchConfig(grid=1, block=1), set_handle, handle, condition_value)
 
     # Add Node B (if condition)
-    gb_if, gb_else = gb.if_else(handle)
+    try:
+        gb_if, gb_else = gb.if_else(handle)
+    except RuntimeError as e:
+        with pytest.raises(RuntimeError, match="does not support conditional"):
+            raise e
+        gb.end_building()
+        pytest.skip("Driver does not support conditional if-else")
 
     ## IF nodes
     gb_if = gb_if.begin_building()
@@ -316,7 +322,13 @@ def test_graph_conditional_switch(init_cuda, condition_value):
     launch(gb, LaunchConfig(grid=1, block=1), set_handle, handle, condition_value)
 
     # Add Node B (while condition)
-    gb_case = list(gb.switch(handle, 3))
+    try:
+        gb_case = list(gb.switch(handle, 3))
+    except RuntimeError as e:
+        with pytest.raises(RuntimeError, match="does not support conditional"):
+            raise e
+        gb.end_building()
+        pytest.skip("Driver does not support conditional switch")
 
     ## Case 0
     gb_case[0].begin_building()
@@ -475,7 +487,13 @@ def test_graph_update(init_cuda):
         handle = gb.create_conditional_handle(default_value=condition_value)
 
         # Add Node B (while condition)
-        gb_case = list(gb.switch(handle, 3))
+        try:
+            gb_case = list(gb.switch(handle, 3))
+        except RuntimeError as e:
+            with pytest.raises(RuntimeError, match="does not support conditional"):
+                raise e
+            gb.end_building()
+            pytest.skip("Driver does not support conditional switch")
 
         ## Case 0
         gb_case[0].begin_building()

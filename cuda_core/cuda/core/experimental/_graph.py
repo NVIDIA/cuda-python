@@ -12,8 +12,24 @@ if TYPE_CHECKING:
     from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import (
     driver,
+    get_binding_version,
     handle_return,
 )
+
+_inited = False
+_driver_ver = None
+
+
+def _lazy_init():
+    global _inited
+    if _inited:
+        return
+
+    global _py_major_ver, _driver_ver
+    # binding availability depends on cuda-python version
+    _py_major_ver, _ = get_binding_version()
+    _driver_ver = handle_return(driver.cuDriverGetVersion())
+    _inited = True
 
 
 @dataclass
@@ -115,23 +131,34 @@ class GraphBuilder:
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = ("stream", "is_stream_owner", "graph", "is_conditional", "is_join_required")
+        __slots__ = ("stream", "is_stream_owner", "graph", "conditional_graph", "is_join_required")
 
-        def __init__(self, graph_builder_obj, stream_obj, is_stream_owner, graph, is_conditional, is_join_required):
+        def __init__(self, graph_builder_obj, stream_obj, is_stream_owner, conditional_graph, is_join_required):
             self.stream = stream_obj
             self.is_stream_owner = is_stream_owner
-            self.graph = graph
-            self.is_conditional = is_conditional
+            self.graph = None
+            self.conditional_graph = conditional_graph
             self.is_join_required = is_join_required
             weakref.finalize(graph_builder_obj, self.close)
 
         def close(self):
-            if self.graph and not self.is_conditional:
+            if self.stream:
+                if not self.is_join_required:
+                    capture_status, _, _, _, _ = handle_return(driver.cuStreamGetCaptureInfo(self.stream.handle))
+                    if capture_status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:
+                        # Note how this condition only occures for the primary graph builder
+                        # This is because calling cuStreamEndCapture streams that were split off of the primary
+                        # would error out with CUDA_ERROR_STREAM_CAPTURE_UNJOINED.
+                        # Therefore, it is currently a requirement that users join all split graph builders
+                        # before a graph builder can be clearly destroyed.
+                        handle_return(driver.cuStreamEndCapture(self.stream.handle))
+                if self.is_stream_owner:
+                    self.stream.close()
+            self.stream = None
+            if self.graph:
                 handle_return(driver.cuGraphDestroy(self.graph))
             self.graph = None
-            if self.is_stream_owner and self.stream:
-                self.stream.close()
-            self.stream = None
+            self.conditional_graph = None
 
     __slots__ = ("__weakref__", "_mnff", "_building_ended")
 
@@ -142,14 +169,13 @@ class GraphBuilder:
         )
 
     @classmethod
-    def _init(cls, stream, is_stream_owner, graph=None, is_conditional=False, is_join_required=False):
+    def _init(cls, stream, is_stream_owner, conditional_graph=None, is_join_required=False):
         self = cls.__new__(cls)
+        _lazy_init()
         self._mnff = GraphBuilder._MembersNeededForFinalize(
-            self, stream, is_stream_owner, graph, is_conditional, is_join_required
+            self, stream, is_stream_owner, conditional_graph, is_join_required
         )
 
-        if not self._mnff.graph:
-            self._mnff.graph = handle_return(driver.cuGraphCreate(0))
         self._building_ended = False
         return self
 
@@ -167,16 +193,23 @@ class GraphBuilder:
         """Begins the building process."""
         if self._building_ended:
             raise RuntimeError("Cannot resume building after building has ended.")
-        handle_return(
-            driver.cuStreamBeginCaptureToGraph(
-                self._mnff.stream.handle,
-                self._mnff.graph,
-                None,  # dependencies
-                None,  # dependencyData
-                0,  # numDependencies
-                driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL,
+        if self._mnff.conditional_graph:
+            handle_return(
+                driver.cuStreamBeginCaptureToGraph(
+                    self._mnff.stream.handle,
+                    self._mnff.conditional_graph,
+                    None,  # dependencies
+                    None,  # dependencyData
+                    0,  # numDependencies
+                    driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL,
+                )
             )
-        )
+        else:
+            handle_return(
+                driver.cuStreamBeginCapture(
+                    self._mnff.stream.handle, driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL
+                )
+            )
         return self
 
     @property
@@ -199,7 +232,10 @@ class GraphBuilder:
         """Ends the building process."""
         if not self.is_building:
             raise RuntimeError("Graph builder is not building.")
-        self._mnff.graph = handle_return(driver.cuStreamEndCapture(self.stream.handle))
+        if self._mnff.conditional_graph:
+            self._mnff.conditional_graph = handle_return(driver.cuStreamEndCapture(self.stream.handle))
+        else:
+            self._mnff.graph = handle_return(driver.cuStreamEndCapture(self.stream.handle))
 
         # TODO: Resolving https://github.com/NVIDIA/cuda-python/issues/617 would allow us to
         #       resume the build process after the first call to end_building()
@@ -336,9 +372,7 @@ class GraphBuilder:
             stream = self._mnff.stream.device.create_stream()
             stream.wait(event)
             result.append(
-                GraphBuilder._init(
-                    stream=stream, is_stream_owner=True, graph=None, is_conditional=False, is_join_required=True
-                )
+                GraphBuilder._init(stream=stream, is_stream_owner=True, conditional_graph=None, is_join_required=True)
             )
         event.close()
         return result
@@ -407,16 +441,21 @@ class GraphBuilder:
             The newly created conditional handle.
 
         """
+        if _driver_ver < 12030:
+            raise RuntimeError(f"Driver version {_driver_ver} does not support conditional handles")
         if default_value is not None:
             flags = driver.CU_GRAPH_COND_ASSIGN_DEFAULT
         else:
             default_value = 0
             flags = 0
+
+        status, _, graph, _, _ = handle_return(driver.cuStreamGetCaptureInfo(self._mnff.stream.handle))
+        if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
+            raise RuntimeError("Cannot create a conditional handle when graph is not being built")
+
         return int(
             handle_return(
-                driver.cuGraphConditionalHandleCreate(
-                    self._mnff.graph, self._get_conditional_context(), default_value, flags
-                )
+                driver.cuGraphConditionalHandleCreate(graph, self._get_conditional_context(), default_value, flags)
             )
         )
 
@@ -447,8 +486,7 @@ class GraphBuilder:
                 GraphBuilder._init(
                     stream=self._mnff.stream.device.create_stream(),
                     is_stream_owner=True,
-                    graph=node_params.conditional.phGraph_out[i],
-                    is_conditional=True,
+                    conditional_graph=node_params.conditional.phGraph_out[i],
                     is_join_required=False,
                 )
                 for i in range(node_params.conditional.size)
@@ -474,6 +512,8 @@ class GraphBuilder:
             The newly created conditional graph builder.
 
         """
+        if _driver_ver < 12030:
+            raise RuntimeError(f"Driver version {_driver_ver} does not support conditional if")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -501,6 +541,8 @@ class GraphBuilder:
             A tuple of two new graph builders, one for the if branch and one for the else branch.
 
         """
+        if _driver_ver < 12080:
+            raise RuntimeError(f"Driver version {_driver_ver} does not support conditional if-else")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -531,6 +573,8 @@ class GraphBuilder:
             A tuple of new graph builders, one for each branch.
 
         """
+        if _driver_ver < 12080:
+            raise RuntimeError(f"Driver version {_driver_ver} does not support conditional switch")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -558,6 +602,8 @@ class GraphBuilder:
             The newly created while loop graph builder.
 
         """
+        if _driver_ver < 12030:
+            raise RuntimeError(f"Driver version {_driver_ver} does not support conditional while loop")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
