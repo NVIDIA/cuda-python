@@ -9,13 +9,12 @@
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 {{if 'Windows' == platform.system()}}
 import os
-import site
-import struct
 import win32api
-from pywintypes import error
 {{else}}
 cimport cuda.bindings._lib.dlfcn as dlfcn
+from libc.stdint cimport uintptr_t
 {{endif}}
+from cuda.bindings import path_finder
 
 from libc.stdint cimport intptr_t
 
@@ -56,51 +55,10 @@ cdef int cuPythonInit() except -1 nogil:
     # Load library
     {{if 'Windows' == platform.system()}}
     with gil:
-        # First check if the DLL has been loaded by 3rd parties
-        try:
-            handle = win32api.GetModuleHandle("nvrtc64_120_0.dll")
-        except:
-            handle = None
-
-        # Check if DLLs can be found within pip installations
-        if not handle:
-            LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
-            LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
-            site_packages = [site.getusersitepackages()] + site.getsitepackages()
-            for sp in site_packages:
-                mod_path = os.path.join(sp, "nvidia", "cuda_nvrtc", "bin")
-                if os.path.isdir(mod_path):
-                    os.add_dll_directory(mod_path)
-                    try:
-                        handle = win32api.LoadLibraryEx(
-                            # Note: LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR needs an abs path...
-                            os.path.join(mod_path, "nvrtc64_120_0.dll"),
-                            0, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
-
-                        # Note: nvrtc64_120_0.dll calls into nvrtc-builtins64_*.dll which is
-                        # located in the same mod_path.
-                        # Update PATH environ so that the two dlls can find each other
-                        os.environ["PATH"] = os.pathsep.join((os.environ.get("PATH", ""), mod_path))
-                    except:
-                        pass
-                    else:
-                        break
-            else:
-                # Else try default search
-                # Only reached if DLL wasn't found in any site-package path
-                LOAD_LIBRARY_SAFE_CURRENT_DIRS = 0x00002000
-                try:
-                    handle = win32api.LoadLibraryEx("nvrtc64_120_0.dll", 0, LOAD_LIBRARY_SAFE_CURRENT_DIRS)
-                except:
-                    pass
-
-        if not handle:
-            raise RuntimeError('Failed to LoadLibraryEx nvrtc64_120_0.dll')
+        handle = path_finder._load_nvidia_dynamic_library("nvrtc").handle
     {{else}}
-    handle = dlfcn.dlopen('libnvrtc.so.12', dlfcn.RTLD_NOW)
-    if handle == NULL:
-        with gil:
-            raise RuntimeError('Failed to dlopen libnvrtc.so.12')
+    with gil:
+        handle = <void*><uintptr_t>path_finder._load_nvidia_dynamic_library("nvrtc").handle
     {{endif}}
 
 

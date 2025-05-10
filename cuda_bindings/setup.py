@@ -379,31 +379,7 @@ class ParallelBuildExtensions(build_ext):
     def build_extension(self, ext):
         if building_wheel and sys.platform == "linux":
             # Strip binaries to remove debug symbols
-            extra_linker_flags = ["-Wl,--strip-all"]
-
-            # Allow extensions to discover libraries at runtime
-            # relative their wheels installation.
-            if ext.name == "cuda.bindings._bindings.cynvrtc":
-                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
-            elif ext.name == "cuda.bindings._internal.nvjitlink":
-                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvjitlink/lib"
-            elif ext.name == "cuda.bindings._internal.nvvm":
-                # from <loc>/site-packages/cuda/bindings/_internal/
-                #   to <loc>/site-packages/nvidia/cuda_nvcc/nvvm/lib64/
-                rel1 = "$ORIGIN/../../../nvidia/cuda_nvcc/nvvm/lib64"
-                # from <loc>/lib/python3.*/site-packages/cuda/bindings/_internal/
-                #   to <loc>/nvvm/lib64/
-                rel2 = "$ORIGIN/../../../../../../nvvm/lib64"
-                ldflag = f"-Wl,--disable-new-dtags,-rpath,{rel1},-rpath,{rel2}"
-            else:
-                ldflag = None
-
-            if ldflag:
-                extra_linker_flags.append(ldflag)
-        else:
-            extra_linker_flags = []
-
-        ext.extra_link_args += extra_linker_flags
+            ext.extra_link_args.append("-Wl,--strip-all")
         super().build_extension(ext)
 
 
