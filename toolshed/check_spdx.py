@@ -38,7 +38,7 @@ def main(args):
     returncode = 0
     for filepath in args:
         if not ignore_spec.match_file(filepath) and not has_spdx_or_is_empty(filepath):
-            print(f"MISSING {EXPECTED_SPDX_STR} {filepath!r}")
+            print(f"MISSING {EXPECTED_SPDX_STR}{filepath!r}")
             returncode = 1
     return returncode
 
