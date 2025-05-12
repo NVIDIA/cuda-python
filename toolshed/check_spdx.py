@@ -24,10 +24,10 @@ def load_spdx_ignore():
     return pathspec.PathSpec.from_lines("gitwildmatch", lines)
 
 
-def has_spdx(filepath):
+def has_spdx_or_is_empty(filepath):
     with open(filepath, "rb") as f:
         blob = f.read()
-    return EXPECTED_SPDX_BYTES in blob
+    return len(blob.strip()) == 0 or EXPECTED_SPDX_BYTES in blob
 
 
 def main(args):
@@ -37,7 +37,7 @@ def main(args):
 
     returncode = 0
     for filepath in args:
-        if not ignore_spec.match_file(filepath) and not has_spdx(filepath):
+        if not ignore_spec.match_file(filepath) and not has_spdx_or_is_empty(filepath):
             print(f"MISSING {EXPECTED_SPDX_STR} {filepath!r}")
             returncode = 1
     return returncode
