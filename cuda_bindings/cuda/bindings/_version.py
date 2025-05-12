@@ -1,4 +1,5 @@
 # Copyright 2024-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
