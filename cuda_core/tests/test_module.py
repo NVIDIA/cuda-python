@@ -6,14 +6,20 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
+try:
+    from cuda.bindings import driver
+except ImportError:
+    from cuda import cuda as driver
 
 import ctypes
 import warnings
 
 import pytest
+from conftest import skipif_testing_with_compute_sanitizer
 
 import cuda.core.experimental
 from cuda.core.experimental import ObjectCode, Program, ProgramOptions, system
+from cuda.core.experimental._utils import cuda_utils
 
 SAXPY_KERNEL = r"""
 template<typename T>
@@ -28,6 +34,14 @@ __global__ void saxpy(const T a,
     }
 }
 """
+
+
+@pytest.fixture(scope="module")
+def cuda_version():
+    # binding availability depends on cuda-python version
+    _py_major_ver, _ = cuda_utils.get_binding_version()
+    _driver_ver = cuda_utils.handle_return(driver.cuDriverGetVersion())
+    return _py_major_ver, _driver_ver
 
 
 def test_kernel_attributes_init_disabled():
@@ -165,7 +179,11 @@ def test_object_code_handle(get_saxpy_object_code):
     assert mod.handle is not None
 
 
-def test_saxpy_arguments(get_saxpy_kernel):
+@skipif_testing_with_compute_sanitizer
+def test_saxpy_arguments(get_saxpy_kernel, cuda_version):
+    _, dr_ver = cuda_version
+    if dr_ver < 12:
+        pytest.skip("Test requires CUDA 12")
     krn, _ = get_saxpy_kernel
 
     assert krn.num_arguments == 5
@@ -192,9 +210,13 @@ def test_saxpy_arguments(get_saxpy_kernel):
     assert all(actual == expected for actual, expected in zip(sizes, expected_sizes))
 
 
+@skipif_testing_with_compute_sanitizer
 @pytest.mark.parametrize("nargs", [0, 1, 2, 3, 16])
 @pytest.mark.parametrize("c_type_name,c_type", [("int", ctypes.c_int), ("short", ctypes.c_short)], ids=["int", "short"])
-def test_num_arguments(init_cuda, nargs, c_type_name, c_type):
+def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda_version):
+    _, dr_ver = cuda_version
+    if dr_ver < 12:
+        pytest.skip("Test requires CUDA 12")
     args_str = ", ".join([f"{c_type_name} p_{i}" for i in range(nargs)])
     src = f"__global__ void foo{nargs}({args_str}) {{ }}"
     prog = Program(src, code_type="c++")
@@ -213,3 +235,19 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type):
     arg_info = krn.arguments_info
     assert all([actual.offset == expected.offset for actual, expected in zip(arg_info, members)])
     assert all([actual.size == expected.size for actual, expected in zip(arg_info, members)])
+
+
+@skipif_testing_with_compute_sanitizer
+def check_num_args_error_handling(deinit_cuda, cuda_version):
+    _, dr_ver = cuda_version
+    if dr_ver < 12:
+        pytest.skip("Test requires CUDA 12")
+    src = "__global__ void foo(int a) { }"
+    prog = Program(src, code_type="c++")
+    mod = prog.compile(
+        "cubin",
+        name_expressions=("foo",),
+    )
+    krn = mod.get_kernel("foo")
+    with pytest.raises(cuda_utils.CUDAError):
+        _ = krn.num_arguments
