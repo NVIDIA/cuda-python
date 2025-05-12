@@ -1,3 +1,6 @@
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-License-Identifier: Apache-2.0
+
 # Configuration file for `copy-pr-bot` GitHub App
 # https://docs.gha-runners.nvidia.com/apps/copy-pr-bot/
 
