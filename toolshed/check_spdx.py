@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
-
 # Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
 import sys
+
+import pathspec
 
 # Intentionally puzzling together EXPECTED_SPDX_STR so that we don't overlook
 # if the identifier is missing in this file.
@@ -15,16 +15,13 @@ SPDX_IGNORE_FILENAME = ".spdx-ignore"
 
 
 def load_spdx_ignore():
-    if not os.path.exists(SPDX_IGNORE_FILENAME):
-        return set()
-    lines = []
-    with open(SPDX_IGNORE_FILENAME, "r", encoding="utf-8") as f:
-        for line in f.read().splitlines():
-            if not line.startswith("#"):
-                lines.append(line)
-    ignore_set = set(lines)
-    ignore_set.add(SPDX_IGNORE_FILENAME)
-    return ignore_set
+    if os.path.exists(SPDX_IGNORE_FILENAME):
+        with open(SPDX_IGNORE_FILENAME, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+    else:
+        lines = []
+    lines.append(SPDX_IGNORE_FILENAME + "\n")
+    return pathspec.PathSpec.from_lines("gitwildmatch", lines)
 
 
 def has_spdx(filepath):
@@ -36,11 +33,11 @@ def has_spdx(filepath):
 def main(args):
     assert args, "filepaths expected to be passed from pre-commit"
 
-    ignore_set = load_spdx_ignore()
+    ignore_spec = load_spdx_ignore()
 
     returncode = 0
     for filepath in args:
-        if not has_spdx(filepath) and filepath not in ignore_set:
+        if not ignore_spec.match_file(filepath) and not has_spdx(filepath):
             print(f"MISSING {EXPECTED_SPDX_STR} {filepath!r}")
             returncode = 1
     return returncode
