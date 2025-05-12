@@ -1,21 +1,21 @@
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-CUDA Python 12.9.0 Release notes
-================================
+``cuda-bindings`` 12.X.Y Release notes
+======================================
 
-Released on May 5, 2025.
-
-
-Included components
--------------------
-
-* `cuda.bindings 12.9.0 <https://nvidia.github.io/cuda-python/cuda-bindings/12.9.0/release/12.9.0-notes.html>`_
+Released on MM DD, 2025
 
 
 Highlights
 ----------
 
-* Add bindings for libNVVM
+
+Bug fixes
+---------
+
+
+Miscellaneous
+-------------
 
 
 Known issues
