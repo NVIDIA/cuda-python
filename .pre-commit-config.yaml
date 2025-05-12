@@ -19,6 +19,14 @@ repos:
       - id: ruff
         args: [--fix, --show-fixes]
       - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: check-spdx
+        name: Check SPDX-License-Identifier
+        entry: ./toolshed/check_spdx.py
+        language: system
+
   - repo: https://github.com/PyCQA/bandit
     rev: 8ff25e07e487f143571cc305e56dd0253c60bc7b  #v1.8.3
     hooks:
