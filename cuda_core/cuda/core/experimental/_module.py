@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections import namedtuple
-from typing import NamedTuple, Optional, Union
+from typing import Optional, Union
 from warnings import warn
 
 from cuda.core.experimental._utils.clear_error_support import (
@@ -184,6 +184,9 @@ class KernelAttributes:
         )
 
 
+ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
+
+
 class Kernel:
     """Represent a compiled kernel that had been loaded onto the device.
 
@@ -196,7 +199,6 @@ class Kernel:
     """
 
     __slots__ = ("_handle", "_module", "_attributes")
-    ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
 
     def __new__(self, *args, **kwargs):
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
@@ -218,7 +220,7 @@ class Kernel:
             self._attributes = KernelAttributes._init(self._handle)
         return self._attributes
 
-    def _get_arguments_info(self, param_info=False) -> tuple[int, list[NamedTuple]]:
+    def _get_arguments_info(self, param_info=False) -> tuple[int, list[ParamInfo]]:
         attr_impl = self.attributes
         if attr_impl._backend_version != "new":
             raise NotImplementedError("New backend is required")
@@ -229,7 +231,7 @@ class Kernel:
             if result[0] != driver.CUresult.CUDA_SUCCESS:
                 break
             if param_info:
-                p_info = Kernel.ParamInfo(offset=result[1], size=result[2])
+                p_info = ParamInfo(offset=result[1], size=result[2])
                 param_info_data.append(p_info)
             arg_pos = arg_pos + 1
         if result[0] != driver.CUresult.CUDA_ERROR_INVALID_VALUE:
@@ -243,8 +245,8 @@ class Kernel:
         return num_args
 
     @property
-    def arguments_info(self) -> list[NamedTuple]:
-        """list[NamedTuple[int, int]]: (offset, size) for each argument of this function"""
+    def arguments_info(self) -> list[ParamInfo]:
+        """list[ParamInfo]: (offset, size) for each argument of this function"""
         _, param_info = self._get_arguments_info(param_info=True)
         return param_info
 
