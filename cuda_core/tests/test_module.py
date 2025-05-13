@@ -6,10 +6,6 @@
 # this software and related documentation outside the terms of the EULA
 # is strictly prohibited.
 
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
 
 import ctypes
 import warnings
@@ -19,7 +15,7 @@ from conftest import skipif_testing_with_compute_sanitizer
 
 import cuda.core.experimental
 from cuda.core.experimental import ObjectCode, Program, ProgramOptions, system
-from cuda.core.experimental._utils import cuda_utils
+from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
 SAXPY_KERNEL = r"""
 template<typename T>
@@ -37,11 +33,12 @@ __global__ void saxpy(const T a,
 
 
 @pytest.fixture(scope="module")
-def cuda_version():
+def cuda12_prerequisite_check():
     # binding availability depends on cuda-python version
-    _py_major_ver, _ = cuda_utils.get_binding_version()
-    _driver_ver = cuda_utils.handle_return(driver.cuDriverGetVersion())
-    return _py_major_ver, _driver_ver
+    # and version of underlying CUDA toolkit
+    _py_major_ver, _ = get_binding_version()
+    _driver_ver = handle_return(driver.cuDriverGetVersion())
+    return _py_major_ver >= 12 and _driver_ver >= 12000
 
 
 def test_kernel_attributes_init_disabled():
@@ -180,9 +177,8 @@ def test_object_code_handle(get_saxpy_object_code):
 
 
 @skipif_testing_with_compute_sanitizer
-def test_saxpy_arguments(get_saxpy_kernel, cuda_version):
-    _, dr_ver = cuda_version
-    if dr_ver < 12:
+def test_saxpy_arguments(get_saxpy_kernel, cuda12_prerequisite_check):
+    if not cuda12_prerequisite_check:
         pytest.skip("Test requires CUDA 12")
     krn, _ = get_saxpy_kernel
 
@@ -213,9 +209,8 @@ def test_saxpy_arguments(get_saxpy_kernel, cuda_version):
 @skipif_testing_with_compute_sanitizer
 @pytest.mark.parametrize("nargs", [0, 1, 2, 3, 16])
 @pytest.mark.parametrize("c_type_name,c_type", [("int", ctypes.c_int), ("short", ctypes.c_short)], ids=["int", "short"])
-def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda_version):
-    _, dr_ver = cuda_version
-    if dr_ver < 12:
+def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_prerequisite_check):
+    if not cuda12_prerequisite_check:
         pytest.skip("Test requires CUDA 12")
     args_str = ", ".join([f"{c_type_name} p_{i}" for i in range(nargs)])
     src = f"__global__ void foo{nargs}({args_str}) {{ }}"
@@ -238,9 +233,8 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda_version):
 
 
 @skipif_testing_with_compute_sanitizer
-def check_num_args_error_handling(deinit_cuda, cuda_version):
-    _, dr_ver = cuda_version
-    if dr_ver < 12:
+def test_num_args_error_handling(deinit_cuda, cuda12_prerequisite_check):
+    if not cuda12_prerequisite_check:
         pytest.skip("Test requires CUDA 12")
     src = "__global__ void foo(int a) { }"
     prog = Program(src, code_type="c++")
@@ -249,5 +243,6 @@ def check_num_args_error_handling(deinit_cuda, cuda_version):
         name_expressions=("foo",),
     )
     krn = mod.get_kernel("foo")
-    with pytest.raises(cuda_utils.CUDAError):
+    with pytest.raises(CUDAError):
+        # assignment resolves linter error "B018: useless expression"
         _ = krn.num_arguments
