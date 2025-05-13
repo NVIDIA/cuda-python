@@ -4,13 +4,12 @@
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 {{if 'Windows' == platform.system()}}
 import os
-import site
-import struct
 import win32api
-from pywintypes import error
 {{else}}
 cimport cuda.bindings._lib.dlfcn as dlfcn
+
 {{endif}}
+
 
 from libc.stdint cimport intptr_t
 import os
