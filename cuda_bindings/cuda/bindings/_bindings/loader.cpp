@@ -1,6 +1,7 @@
 // Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
 // SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
 #include "loader.h"
