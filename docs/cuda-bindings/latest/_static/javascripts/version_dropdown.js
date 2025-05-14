@@ -1,3 +1,6 @@
+// Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+// SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 function change_current_version(event) {
   event.preventDefault();
 
