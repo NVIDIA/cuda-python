@@ -234,7 +234,7 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_prerequisit
 
 
 @skipif_testing_with_compute_sanitizer
-def test_num_args_error_handling(deinit_context_function, cuda12_prerequisite_check):
+def test_num_args_error_handling(deinit_all_contexts_function, cuda12_prerequisite_check):
     if not cuda12_prerequisite_check:
         pytest.skip("Test requires CUDA 12")
     src = "__global__ void foo(int a) { }"
@@ -244,14 +244,9 @@ def test_num_args_error_handling(deinit_context_function, cuda12_prerequisite_ch
         name_expressions=("foo",),
     )
     krn = mod.get_kernel("foo")
-    # Unset current context using function from conftest
-    while True:
-        deinit_context_function()
-        ctx = handle_return(driver.cuCtxGetCurrent())
-        if int(ctx) == 0:
-            # no active context, we are ready
-            break
-    # with no context, cuKernelGetParamInfo would report
+    # empty driver's context stack using function from conftest
+    deinit_all_contexts_function()
+    # with no current context, cuKernelGetParamInfo would report
     # exception which we expect to handle by raising
     with pytest.raises(CUDAError):
         # assignment resolves linter error "B018: useless expression"
