@@ -10,7 +10,6 @@ cimport cuda.bindings._lib.dlfcn as dlfcn
 from libc.stdint cimport uintptr_t
 {{endif}}
 from cuda.bindings import path_finder
-
 from libc.stdint cimport intptr_t
 
 cdef bint __cuPythonInit = False
