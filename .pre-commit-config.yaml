@@ -27,7 +27,7 @@ repos:
         entry: python ./toolshed/check_spdx.py
         language: python
         additional_dependencies:
-          - pathspec
+          - pathspec==0.12.1
 
   - repo: https://github.com/PyCQA/bandit
     rev: 8ff25e07e487f143571cc305e56dd0253c60bc7b  #v1.8.3
