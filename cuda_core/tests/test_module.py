@@ -245,7 +245,12 @@ def test_num_args_error_handling(deinit_context_function, cuda12_prerequisite_ch
     )
     krn = mod.get_kernel("foo")
     # Unset current context using function from conftest
-    deinit_context_function()
+    while True:
+        deinit_context_function()
+        ctx = handle_return(driver.cuCtxGetCurrent())
+        if int(ctx) == 0:
+            # no active context, we are ready
+            break
     # with no context, cuKernelGetParamInfo would report
     # exception which we expect to handle by raising
     with pytest.raises(CUDAError):
