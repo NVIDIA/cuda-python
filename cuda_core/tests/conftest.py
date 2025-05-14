@@ -51,6 +51,11 @@ def deinit_cuda():
     _device_unset_current()
 
 
+@pytest.fixture(scope="function")
+def deinit_context_function():
+    return _device_unset_current
+
+
 # samples relying on cffi could fail as the modules cannot be imported
 sys.path.append(os.getcwd())
 

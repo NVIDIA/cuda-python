@@ -184,6 +184,7 @@ def test_saxpy_arguments(get_saxpy_kernel, cuda12_prerequisite_check):
 
     assert krn.num_arguments == 5
 
+    assert "ParamInfo" in str(type(krn).arguments_info.fget.__annotations__)
     arg_info = krn.arguments_info
     n_args = len(arg_info)
     assert n_args == krn.num_arguments
@@ -233,7 +234,7 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_prerequisit
 
 
 @skipif_testing_with_compute_sanitizer
-def test_num_args_error_handling(deinit_cuda, cuda12_prerequisite_check):
+def test_num_args_error_handling(deinit_context_function, cuda12_prerequisite_check):
     if not cuda12_prerequisite_check:
         pytest.skip("Test requires CUDA 12")
     src = "__global__ void foo(int a) { }"
@@ -243,6 +244,10 @@ def test_num_args_error_handling(deinit_cuda, cuda12_prerequisite_check):
         name_expressions=("foo",),
     )
     krn = mod.get_kernel("foo")
+    # Unset current context using function from conftest
+    deinit_context_function()
+    # with no context, cuKernelGetParamInfo would report
+    # exception which we expect to handle by raising
     with pytest.raises(CUDAError):
         # assignment resolves linter error "B018: useless expression"
         _ = krn.num_arguments
