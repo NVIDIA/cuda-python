@@ -318,7 +318,7 @@ jobs:
           pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             ls $CUDA_PATH
-            pip install *.whl[test]
+            pip install $(ls *.whl)[test]
           else
             pip install $(ls *.whl)[all,test]
           fi
