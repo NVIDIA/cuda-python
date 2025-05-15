@@ -12,7 +12,7 @@ This subpackage adheres to the developing practices described in the parent meta
 
 ## Testing
 
-Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/requirements.txt).
+Testing dependencies can be installed using the `[test]` optional dependency identifier. For example, `pip install -v -e .[test]`.
 
 Multiple testing options are available:
 

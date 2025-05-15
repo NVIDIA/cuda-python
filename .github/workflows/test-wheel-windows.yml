@@ -252,8 +252,8 @@ jobs:
           }
           Pop-Location
 
+          pip install "$((Get-ChildItem -Filter *.whl).FullName)[test]"
           Push-Location ./cuda_bindings
-          pip install -r requirements.txt
           pytest -rxXs -v tests/
           # skip Cython tests for now (NVIDIA/cuda-python#466)
           Pop-Location
