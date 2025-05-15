@@ -318,13 +318,12 @@ jobs:
           pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             ls $CUDA_PATH
-            pip install *.whl
+            pip install *.whl[test]
           else
-            pip install $(ls *.whl)[all]
+            pip install $(ls *.whl)[all,test]
           fi
           popd
 
-          pip install $(ls *.whl)[test]
           pushd ./cuda_bindings
           ${SANITIZER_CMD} pytest -rxXs -v tests/
 
@@ -356,11 +355,10 @@ jobs:
           fi
           TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.CUDA_VER }})"
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
-          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
+          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}","test-cu${TEST_CUDA_MAJOR}"]
           popd
 
           pushd ./cuda_core
-          pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
           ${SANITIZER_CMD} pytest -rxXs -v tests/
 
           # It is a bit convoluted to run the Cython tests against CTK wheels,
