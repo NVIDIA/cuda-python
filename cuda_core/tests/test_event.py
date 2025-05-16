@@ -177,9 +177,9 @@ __global__ void wait(int* val) {
 
 
 def test_event_device(init_cuda):
-    event = Device().create_event(options=EventOptions())
-    device = event.device
-    assert isinstance(device, Device)
+    device = Device()
+    event = device.create_event(options=EventOptions())
+    assert event.device is device
 
 
 def test_event_context(init_cuda):

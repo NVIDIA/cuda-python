@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
 from cuda.core.experimental._context import Context
-from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     check_or_create_options,
@@ -22,6 +21,7 @@ from cuda.core.experimental._utils.cuda_utils import (
 
 if TYPE_CHECKING:
     import cuda.bindings
+    from cuda.core.experimental._device import Device
 
 
 @dataclass
@@ -96,7 +96,7 @@ class Event:
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
 
     @classmethod
-    def _init(cls, options: Optional[EventOptions] = None):
+    def _init(cls, device_id: int, ctx_handle=None, options: Optional[EventOptions] = None):
         self = super().__new__(cls)
         self._mnff = Event._MembersNeededForFinalize(self, None)
 
@@ -113,8 +113,11 @@ class Event:
         if options.support_ipc:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
         self._mnff.handle = handle_return(driver.cuEventCreate(flags))
-        self._device_id = int(handle_return(driver.cuCtxGetDevice()))
-        self._ctx_handle = handle_return(driver.cuStreamGetCtx(self._mnff.handle))
+        self._device_id = device_id
+        if ctx_handle is not None:
+            self._ctx_handle = ctx_handle
+        else:
+            self._ctx_handle = handle_return(driver.cuCtxGetCurrent())
         return self
 
     def close(self):
