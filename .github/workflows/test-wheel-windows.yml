@@ -246,14 +246,13 @@ jobs:
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
             Get-ChildItem $env:CUDA_PATH
             echo $PATH
-            pip install (Get-ChildItem -Filter *.whl).FullName
+            pip install "$((Get-ChildItem -Filter *.whl).FullName)[test]"
           } else {
-            pip install "$((Get-ChildItem -Filter *.whl).FullName)[all]"
+            pip install "$((Get-ChildItem -Filter *.whl).FullName)[all,test]"
           }
           Pop-Location
 
           Push-Location ./cuda_bindings
-          pip install -r requirements.txt
           pytest -rxXs -v tests/
           # skip Cython tests for now (NVIDIA/cuda-python#466)
           Pop-Location
@@ -273,11 +272,10 @@ jobs:
           }
           $TEST_CUDA_MAJOR = '${{ matrix.CUDA_VER }}' -split '\.' | Select-Object -First 1
           Push-Location $env:CUDA_CORE_ARTIFACTS_DIR
-          pip install "$((Get-ChildItem -Filter *.whl).FullName)[cu${TEST_CUDA_MAJOR}]"
+          pip install "$((Get-ChildItem -Filter *.whl).FullName)[cu${TEST_CUDA_MAJOR},test-cu${TEST_CUDA_MAJOR}]"
           Pop-Location
 
           Push-Location ./cuda_core
-          pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
           pytest -rxXs -v tests/
           Pop-Location
 
