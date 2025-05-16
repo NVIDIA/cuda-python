@@ -93,7 +93,7 @@ class Event:
     def __new__(self, *args, **kwargs):
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
 
-    __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
+    __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited", "_device_id", "_ctx_handle")
 
     @classmethod
     def _init(cls, device_id: int, ctx_handle=None, options: Optional[EventOptions] = None):
