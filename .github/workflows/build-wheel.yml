@@ -47,13 +47,10 @@ jobs:
         if: ${{ inputs.host-platform != 'win-64' }}
 
       - name: Set up Python
-        if: ${{ startsWith(inputs.host-platform, 'linux') }}
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          # WAR: setup-python is not relocatable...
-          # see https://github.com/actions/setup-python/issues/871
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
