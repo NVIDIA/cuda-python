@@ -53,7 +53,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
         env:
           # we use self-hosted runners on which setup-python behaves weirdly...
-          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
+          AGENT_TOOLSDIRECTORY: "../RUNNER_TEMP"
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
@@ -83,8 +83,9 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/tests/cython")" >> $GITHUB_ENV
           echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
+
           echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
-      
+
       - name: Dump environment
         run: |
           env
