@@ -46,15 +46,18 @@ jobs:
         # Skip the cache on Windows nodes outside of our org.
         if: ${{ inputs.host-platform != 'win-64' }}
 
+      - name: Set up one env var
+        run: |
+          # we use self-hosted runners on which setup-python behaves weirdly...
+          # see actions/setup-python#1087
+          # this can influence both setup-python and cibuildtools
+          echo "AGENT_TOOLSDIRECTORY=${{ runner.temp }}/SETUP_PYTHON" >> $GITHUB_ENV
+
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
-        env:
-          # we use self-hosted runners on which setup-python behaves weirdly...
-          # see actions/setup-python#1087
-          AGENT_TOOLSDIRECTORY: "${{ runner.temp }}/SETUP_PYTHON"
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
