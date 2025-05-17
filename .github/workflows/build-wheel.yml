@@ -203,7 +203,12 @@ jobs:
       - name: Build cuda.bindings Cython tests
         run: |
           pip install $(ls ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl)[test]
-          bash ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/build_tests.sh
+          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+            export CPLUS_INCLUDE_PATH=${CUDA_HOME}/include:${CPLUS_INCLUDE_PATH}
+          elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CL="${CL} /I\"${CUDA_HOME}\include\""
+          fi
+          cythonize -3 -i ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*.pyx
 
           # For caching
           echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
