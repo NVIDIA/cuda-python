@@ -204,9 +204,9 @@ jobs:
         run: |
           pip install $(ls ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl)[test]
           if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            export CPLUS_INCLUDE_PATH=${CUDA_HOME}/include:${CPLUS_INCLUDE_PATH}
+            export CPLUS_INCLUDE_PATH=${CUDA_HOME}/include
           elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-            export CL="${CL} /I\"${CUDA_HOME}\include\""
+            export CL="/I\"${CUDA_HOME}\include\""
           fi
           cythonize -3 -i ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*.pyx
 
