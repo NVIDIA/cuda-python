@@ -170,7 +170,7 @@ jobs:
 
       - name: Build cuda.bindings Cython tests
         run: |
-          pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          pip install $(ls -l ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl)[test]
           bash ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/build_tests.sh
 
       - name: Upload cuda.bindings Cython tests
