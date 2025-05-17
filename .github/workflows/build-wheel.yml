@@ -83,8 +83,6 @@ jobs:
           echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/tests/cython")" >> $GITHUB_ENV
           echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
 
-          echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
-
       - name: Dump environment
         run: |
           env
@@ -204,8 +202,11 @@ jobs:
 
       - name: Build cuda.bindings Cython tests
         run: |
-          pip install $(ls -l ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl)[test]
+          pip install $(ls ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl)[test]
           bash ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/build_tests.sh
+
+          # For caching
+          echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
 
       - name: Upload cuda.bindings Cython tests
         uses: actions/upload-artifact@v4
