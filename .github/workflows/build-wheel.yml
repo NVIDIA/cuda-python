@@ -219,5 +219,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
-          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*.${{ env.PY_EXT_SUFFIX }}
+          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
