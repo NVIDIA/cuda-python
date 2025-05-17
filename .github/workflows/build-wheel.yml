@@ -53,7 +53,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
         env:
           # we use self-hosted runners on which setup-python behaves weirdly...
-          AGENT_TOOLSDIRECTORY: "$(mktemp -d)"
+          # see actions/setup-python#1087
+          AGENT_TOOLSDIRECTORY: "${{ runner.temp }}/SETUP_PYTHON"
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
