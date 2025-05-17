@@ -51,6 +51,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+        env:
+          # we use self-hosted runners on which setup-python behaves weirdly...
+          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
