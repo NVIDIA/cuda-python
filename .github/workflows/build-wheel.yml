@@ -202,12 +202,12 @@ jobs:
 
       - name: Build cuda.bindings Cython tests
         run: |
-          pip install cython setuptools $(ls ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl)
+          pip install $(ls ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl)[test]
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
           if [[ "${{ inputs.host-platform }}" == linux* ]]; then
             export CPLUS_INCLUDE_PATH=${CUDA_HOME}/include:${Python3_ROOT_DIR}/include/python${{ matrix.python-version }}
           elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-            export CL="/I\"${CUDA_HOME}\include\" /I\"${Python3_ROOT_DIR}\include\python${{ matrix.python-version }}""
+            export CL="/I\"${CUDA_HOME}\include\" /I\"${Python3_ROOT_DIR}\include\python${{ matrix.python-version }}\""
           fi
           cythonize -3 -i test_*.pyx
           popd
