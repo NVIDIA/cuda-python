@@ -264,12 +264,14 @@ jobs:
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
       - name: Download cuda.bindings Cython tests
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
 
       - name: Display structure of downloaded cuda.bindings Cython tests
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_CYTHON_TESTS_DIR
