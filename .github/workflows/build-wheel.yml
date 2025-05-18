@@ -203,9 +203,9 @@ jobs:
       - name: Set up include paths
         run: |
           if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            echo "CPLUS_INCLUDE_PATH=${CUDA_HOME}/include:${Python3_ROOT_DIR}/include/python${{ matrix.python-version }}" >> $GITHUB_ENV
+            echo "CPLUS_INCLUDE_PATH=${CUDA_HOME}/include:${Python3_ROOT_DIR}/include/python${{ matrix.python-version }}:$(realpath "cuda_core/cuda/core/experimental/include")" >> $GITHUB_ENV
           elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-            echo "CL=/I\"${CUDA_HOME}\include\" /I\"${Python3_ROOT_DIR}\include\python${{ matrix.python-version }}\"" >> $GITHUB_ENV
+            echo "CL=/I\"${CUDA_HOME}\include\" /I\"${Python3_ROOT_DIR}\include\python${{ matrix.python-version }}\" /I\"$(realpath \"cuda_core/cuda/core/experimental/include\")\"" >> $GITHUB_ENV
           fi
           # For caching
           echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
