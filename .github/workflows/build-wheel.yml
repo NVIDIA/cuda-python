@@ -1,4 +1,4 @@
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -36,7 +36,7 @@ jobs:
                  (inputs.host-platform == 'win-64' && 'windows-2019') }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
 
@@ -56,7 +56,7 @@ jobs:
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756  # v1.13.0
       
       - name: Set environment variables
         run: |
@@ -113,7 +113,7 @@ jobs:
           twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
@@ -160,7 +160,7 @@ jobs:
           twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
@@ -188,7 +188,7 @@ jobs:
 
       - name: Upload cuda-python build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: cuda-python-wheel
           path: cuda_python/*.whl
@@ -200,24 +200,40 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Set up include paths
+        run: |
+          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+            echo "CPLUS_INCLUDE_PATH=${CUDA_HOME}/include:${Python3_ROOT_DIR}/include/python${{ matrix.python-version }}" >> $GITHUB_ENV
+          elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+            echo "CL=/I\"${CUDA_HOME}\include\" /I\"${Python3_ROOT_DIR}\include\python${{ matrix.python-version }}\"" >> $GITHUB_ENV
+          fi
+          # For caching
+          echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
+
       - name: Build cuda.bindings Cython tests
         run: |
           pip install $(ls ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl)[test]
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
-          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            export CPLUS_INCLUDE_PATH=${CUDA_HOME}/include:${Python3_ROOT_DIR}/include/python${{ matrix.python-version }}
-          elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-            export CL="/I\"${CUDA_HOME}\include\" /I\"${Python3_ROOT_DIR}\include\python${{ matrix.python-version }}\""
-          fi
           cythonize -3 -i test_*.pyx
           popd
 
-          # For caching
-          echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
-
       - name: Upload cuda.bindings Cython tests
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
+          if-no-files-found: error
+
+      - name: Build cuda.core Cython tests
+        run: |
+          pip install $(ls ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl)[test]
+          pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
+          cythonize -3 -i test_*.pyx
+          popd
+
+      - name: Upload cuda.core Cython tests
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
