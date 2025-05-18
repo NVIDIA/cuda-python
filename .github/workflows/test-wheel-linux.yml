@@ -200,6 +200,8 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/tests/cython")" >> $GITHUB_ENV
+
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
           echo "SKIP_CUDA_CORE_CYTHON_TEST=${SKIP_CUDA_CORE_CYTHON_TEST}" >> $GITHUB_ENV
 
@@ -260,6 +262,17 @@ jobs:
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
+
+      - name: Download cuda.bindings Cython tests
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
+
+      - name: Display structure of downloaded cuda.bindings Cython tests
+        run: |
+          pwd
+          ls -lahR $CUDA_BINDINGS_CYTHON_TESTS_DIR
 
       - name: Download cuda.core build artifacts
         uses: actions/download-artifact@v4
@@ -326,18 +339,7 @@ jobs:
 
           pushd ./cuda_bindings
           ${SANITIZER_CMD} pytest -rxXs -v tests/
-
-          # It is a bit convoluted to run the Cython tests against CTK wheels,
-          # so let's just skip them.
-          if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-              bash tests/cython/build_tests.sh
-            elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-              # TODO: enable this once win-64 runners are up
-              exit 1
-            fi
-            ${SANITIZER_CMD} pytest -rxXs -v tests/cython
-          fi
+          ${SANITIZER_CMD} pytest -rxXs -v tests/cython
           popd
 
       - name: Run cuda.core tests

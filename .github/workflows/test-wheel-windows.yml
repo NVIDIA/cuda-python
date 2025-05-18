@@ -115,10 +115,12 @@ jobs:
           "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $env:GITHUB_ENV
           "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $env:GITHUB_ENV
           "CUDA_CORE_ARTIFACTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_core\dist"))" >> $env:GITHUB_ENV
+          "CUDA_CORE_CYTHON_TESTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_core\test\cython"))" >> $env:GITHUB_ENV
           $CUDA_BINDINGS_ARTIFACT_BASENAME = "cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-${{ inputs.host-platform }}"
           "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $env:GITHUB_ENV
           "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $env:GITHUB_ENV
           "CUDA_BINDINGS_ARTIFACTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_bindings\dist"))" >> $env:GITHUB_ENV
+          "CUDA_BINDINGS_CYTHON_TESTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_bindings\test\cython"))" >> $env:GITHUB_ENV
           "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $env:GITHUB_ENV
 
       - name: Download cuda-python build artifacts
@@ -134,6 +136,12 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      - name: Download cuda.bindings Cython tests
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
 
       - name: Install gh cli
         # the GPU runner image does not have gh pre-installed...
@@ -215,6 +223,11 @@ jobs:
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
+      - name: Display structure of downloaded cuda.bindings Cython tests
+        run: |
+          Get-Location
+          Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
+
       - name: Download cuda.core build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -254,7 +267,7 @@ jobs:
 
           Push-Location ./cuda_bindings
           pytest -rxXs -v tests/
-          # skip Cython tests for now (NVIDIA/cuda-python#466)
+          pytest -rxXs -v tests/cython
           Pop-Location
 
       - name: Run cuda.core tests
