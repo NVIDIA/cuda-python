@@ -105,15 +105,15 @@ jobs:
           $TEST_CUDA_MAJOR = '${{ matrix.CUDA_VER }}' -split '\.' | Select-Object -First 1
           if ($BUILD_CUDA_MAJOR -ne $TEST_CUDA_MAJOR) {
             $SKIP_CUDA_BINDINGS_TEST = 1
-            $SKIP_CUDA_CORE_CYTHON_TEST = 0
+            $SKIP_CYTHON_TEST = 1
           } else {
             $SKIP_CUDA_BINDINGS_TEST = 0
             $BUILD_CUDA_MINOR = '${{ inputs.build-ctk-ver }}' -split '\.' | Select-Object -Skip 1 -First 1
             $TEST_CUDA_MINOR = '${{ matrix.CUDA_VER }}' -split '\.' | Select-Object -Skip 1 -First 1
             if ($BUILD_CUDA_MINOR -ne $TEST_CUDA_MINOR) {
-              $SKIP_CUDA_CORE_CYTHON_TEST = 1
+              $SKIP_CYTHON_TEST = 1
             } else {
-              $SKIP_CUDA_CORE_CYTHON_TEST = 0
+              $SKIP_CYTHON_TEST = 0
             }
           }
 
@@ -130,7 +130,7 @@ jobs:
           "CUDA_BINDINGS_ARTIFACTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_bindings\dist"))" >> $env:GITHUB_ENV
           "CUDA_BINDINGS_CYTHON_TESTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_bindings\tests\cython"))" >> $env:GITHUB_ENV
           "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $env:GITHUB_ENV
-          "SKIP_CUDA_CORE_CYTHON_TEST=${SKIP_CUDA_CORE_CYTHON_TEST}" >> $env:GITHUB_ENV
+          "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}" >> $env:GITHUB_ENV
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
@@ -145,13 +145,6 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
-
-      - name: Download cuda.bindings Cython tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
-        with:
-          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
-          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
 
       - name: Install gh cli
         # the GPU runner image does not have gh pre-installed...
@@ -233,8 +226,15 @@ jobs:
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
+      - name: Download cuda.bindings Cython tests
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
+
       - name: Display structure of downloaded cuda.bindings Cython tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
@@ -251,14 +251,14 @@ jobs:
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.core Cython tests
-        if: ${{ env.SKIP_CUDA_CORE_CYTHON_TEST == '0' }}
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
 
       - name: Display structure of downloaded cuda.core Cython tests
-        if: ${{ env.SKIP_CUDA_CORE_CYTHON_TEST == '0' }}
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
@@ -291,7 +291,9 @@ jobs:
 
           Push-Location ./cuda_bindings
           pytest -rxXs -v tests/
-          pytest -rxXs -v tests/cython
+          if ($env:SKIP_CYTHON_TEST -eq '0') {
+            pytest -rxXs -v tests/cython
+          }
           Pop-Location
 
       - name: Run cuda.core tests
@@ -314,7 +316,7 @@ jobs:
 
           Push-Location ./cuda_core
           pytest -rxXs -v tests/
-          if ($env:SKIP_CUDA_CORE_CYTHON_TEST -eq '0') {
+          if ($env:SKIP_CYTHON_TEST -eq '0') {
             pytest -rxXs -v tests/cython
           }
           Pop-Location

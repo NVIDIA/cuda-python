@@ -149,9 +149,9 @@ jobs:
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
         with:
-          # gcc for Cython tests, jq/wget for artifact fetching
-          dependencies: "build-essential jq wget"
-          dependent_exes: "gcc jq wget"
+          # for artifact fetching
+          dependencies: "jq wget"
+          dependent_exes: "jq wget"
 
       - name: Set environment variables
         run: |
@@ -167,15 +167,15 @@ jobs:
           TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.CUDA_VER }})"
           if [[ $BUILD_CUDA_MAJOR != $TEST_CUDA_MAJOR ]]; then
             SKIP_CUDA_BINDINGS_TEST=1
-            SKIP_CUDA_CORE_CYTHON_TEST=0
+            SKIP_CYTHON_TEST=1
           else
             SKIP_CUDA_BINDINGS_TEST=0
             BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${{ inputs.build-ctk-ver }})"
             TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${{ matrix.CUDA_VER }})"
             if [[ $BUILD_CUDA_MINOR != $TEST_CUDA_MINOR ]]; then
-              SKIP_CUDA_CORE_CYTHON_TEST=1
+              SKIP_CYTHON_TEST=1
             else
-              SKIP_CUDA_CORE_CYTHON_TEST=0
+              SKIP_CYTHON_TEST=0
             fi
           fi
 
@@ -204,7 +204,7 @@ jobs:
           echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/tests/cython")" >> $GITHUB_ENV
 
           echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
-          echo "SKIP_CUDA_CORE_CYTHON_TEST=${SKIP_CUDA_CORE_CYTHON_TEST}" >> $GITHUB_ENV
+          echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
@@ -265,14 +265,14 @@ jobs:
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
       - name: Download cuda.bindings Cython tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
 
       - name: Display structure of downloaded cuda.bindings Cython tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_CYTHON_TESTS_DIR
@@ -289,14 +289,14 @@ jobs:
           ls -lahR $CUDA_CORE_ARTIFACTS_DIR
 
       - name: Download cuda.core Cython tests
-        if: ${{ env.SKIP_CUDA_CORE_CYTHON_TEST == '0' }}
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
 
       - name: Display structure of downloaded cuda.core Cython tests
-        if: ${{ env.SKIP_CUDA_CORE_CYTHON_TEST == '0' }}
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
         run: |
           pwd
           ls -lahR $CUDA_CORE_CYTHON_TESTS_DIR
@@ -355,7 +355,9 @@ jobs:
 
           pushd ./cuda_bindings
           ${SANITIZER_CMD} pytest -rxXs -v tests/
-          ${SANITIZER_CMD} pytest -rxXs -v tests/cython
+          if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
+            ${SANITIZER_CMD} pytest -rxXs -v tests/cython
+          fi
           popd
 
       - name: Run cuda.core tests
@@ -381,7 +383,7 @@ jobs:
 
           # Currently our CI always installs the latest bindings (from either major version).
           # This is not compatible with the test requirements.
-          if [[ "${SKIP_CUDA_CORE_CYTHON_TEST}" == 0 ]]; then
+          if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
             ${SANITIZER_CMD} pytest -rxXs -v tests/cython
           fi
           popd
