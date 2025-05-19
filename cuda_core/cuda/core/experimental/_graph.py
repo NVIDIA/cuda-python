@@ -25,9 +25,9 @@ def _lazy_init():
     if _inited:
         return
 
-    global _py_major_ver, _driver_ver
+    global _py_major_minor, _driver_ver
     # binding availability depends on cuda-python version
-    _py_major_ver, _ = get_binding_version()
+    _py_major_minor = get_binding_version()
     _driver_ver = handle_return(driver.cuDriverGetVersion())
     _inited = True
 
@@ -276,7 +276,7 @@ class GraphBuilder:
         if not self._building_ended:
             raise RuntimeError("Graph has not finished building.")
 
-        if _driver_ver < 12000:
+        if (_driver_ver < 12000) or (_py_major_minor < (12, 0)):
             flags = 0
             if options.auto_free_on_launch:
                 flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
@@ -468,6 +468,8 @@ class GraphBuilder:
         """
         if _driver_ver < 12030:
             raise RuntimeError(f"Driver version {_driver_ver} does not support conditional handles")
+        if _py_major_minor < (12, 3):
+            raise RuntimeError(f"Binding version {_py_major_minor} does not support conditional handles")
         if default_value is not None:
             flags = driver.CU_GRAPH_COND_ASSIGN_DEFAULT
         else:
@@ -539,6 +541,8 @@ class GraphBuilder:
         """
         if _driver_ver < 12030:
             raise RuntimeError(f"Driver version {_driver_ver} does not support conditional if")
+        if _py_major_minor < (12, 3):
+            raise RuntimeError(f"Binding version {_py_major_minor} does not support conditional if")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -568,6 +572,8 @@ class GraphBuilder:
         """
         if _driver_ver < 12080:
             raise RuntimeError(f"Driver version {_driver_ver} does not support conditional if-else")
+        if _py_major_minor < (12, 8):
+            raise RuntimeError(f"Binding version {_py_major_minor} does not support conditional if-else")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -600,6 +606,8 @@ class GraphBuilder:
         """
         if _driver_ver < 12080:
             raise RuntimeError(f"Driver version {_driver_ver} does not support conditional switch")
+        if _py_major_minor < (12, 8):
+            raise RuntimeError(f"Binding version {_py_major_minor} does not support conditional switch")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -629,6 +637,8 @@ class GraphBuilder:
         """
         if _driver_ver < 12030:
             raise RuntimeError(f"Driver version {_driver_ver} does not support conditional while loop")
+        if _py_major_minor < (12, 3):
+            raise RuntimeError(f"Binding version {_py_major_minor} does not support conditional while loop")
         node_params = driver.CUgraphNodeParams()
         node_params.type = driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
         node_params.conditional.handle = handle
@@ -741,10 +751,10 @@ def launch_graph(parent_graph: GraphBuilder, child_graph: GraphBuilder):
 
     """
 
-    if _driver_ver < 12000 or _py_major_ver < 12:
+    if (_driver_ver < 12000) or (_py_major_minor < (12, 0)):
         raise NotImplementedError(
             f"Launching child graphs is not implemented for versions older than CUDA 12."
-            f"Found driver version is {_driver_ver} and binding major version is {_py_major_ver}"
+            f"Found driver version is {_driver_ver} and binding version is {_py_major_minor}"
         )
 
     if not child_graph._building_ended:
