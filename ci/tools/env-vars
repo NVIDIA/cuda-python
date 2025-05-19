@@ -39,7 +39,36 @@ echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GI
 echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}" >> $GITHUB_ENV
 echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/dist")" >> $GITHUB_ENV
 echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/tests/cython")" >> $GITHUB_ENV
+echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
 
 if [[ "${1}" == "build" ]]; then
   echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
+elif [[ "${1}" == "test" ]]; then
+  BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${BUILD_CUDA_VER})"
+  TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
+  if [[ ${BUILD_CUDA_MAJOR} != ${TEST_CUDA_MAJOR} ]]; then
+    SKIP_CUDA_BINDINGS_TEST=1
+    SKIP_CYTHON_TEST=1
+  else
+    SKIP_CUDA_BINDINGS_TEST=0
+    BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_CUDA_VER})"
+    TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${CUDA_VER})"
+    if [[ ${BUILD_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
+      SKIP_CYTHON_TEST=1
+    else
+      SKIP_CYTHON_TEST=0
+    fi
+  fi
+  # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
+  # We only test compute-sanitizer on python 3.12 arbitrarily; we don't need to use sanitizer on the entire matrix
+  # Only local ctk installs have compute-sanitizer; there is no wheel for it
+  if [[ "${PY_VER}" == "3.12" && "${CUDA_VER}" != "11.8.0" && "${LOCAL_CTK}" == 1 && "${HOST_PLATFORM}" == linux* ]]; then
+    SETUP_SANITIZER=1
+    echo "LATEST_CUDA_VERSION=$(bash .github/workflows/guess_latest.sh)" >> $GITHUB_ENV
+  else
+    SETUP_SANITIZER=0
+  fi
+  echo "SETUP_SANITIZER=${SETUP_SANITIZER}" >> $GITHUB_ENV
+  echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
+  echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}" >> $GITHUB_ENV
 fi
