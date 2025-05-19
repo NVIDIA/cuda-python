@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# A utility script to set up the GitHub environment variables for the CI.
+
+set -euo pipefail
+
+# Check if the script was called with exactly 1 argument
+if [[ ${#} -ne 1 ]]; then
+  echo "Error: This script requires exactly 1 argument (the build mode). You provided ${#}"
+  echo "Usage: ${0} build_mode[build or test]"
+  exit 1
+fi
+
+PYTHON_VERSION_FORMATTED=$(echo '${PY_VER}' | tr -d '.')
+if [[ "${HOST_PLATFORM}" == linux* ]]; then
+  CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-manylinux*"
+  REPO_DIR=$(pwd)
+elif [[ "${HOST_PLATFORM}" == win* ]]; then
+  CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-win_amd64"
+  PWD=$(pwd)
+  REPO_DIR=$(cygpath -w ${PWD})
+fi
+
+echo "PATH=${REPO_DIR}/ci/tools:${PATH}" >> $GITHUB_ENV
+echo "CUDA_BINDINGS_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
+CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${HOST_PLATFORM}"
+echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${SHA}" >> $GITHUB_ENV
+echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_core/dist")" >> $GITHUB_ENV
+echo "CUDA_CORE_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_core/tests/cython")" >> $GITHUB_ENV
+CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CUDA_VER}-${HOST_PLATFORM}"
+echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}" >> $GITHUB_ENV
+echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/dist")" >> $GITHUB_ENV
+echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/tests/cython")" >> $GITHUB_ENV
+echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
