@@ -5,6 +5,10 @@
 import numpy as np
 import pytest
 
+try:
+    from cuda.bindings import driver
+except ImportError:
+    from cuda import cuda as driver
 from cuda.core.experimental import (
     CompleteOptions,
     DebugPrintOptions,
@@ -17,9 +21,22 @@ from cuda.core.experimental import (
     launch_graph,
 )
 from cuda.core.experimental._memory import _DefaultPinnedMemorySource
+from cuda.core.experimental._utils.cuda_utils import NVRTCError, handle_return
 
 
 def _common_kernels():
+    code = """
+    __global__ void empty_kernel() {}
+    __global__ void add_one(int *a) { *a += 1; }
+    """
+    arch = "".join(f"{i}" for i in Device().compute_capability)
+    program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
+    prog = Program(code, code_type="c++", options=program_options)
+    mod = prog.compile("cubin", name_expressions=("empty_kernel", "add_one"))
+    return mod
+
+
+def _common_kernels_conditional():
     code = """
     extern "C" __device__ __cudart_builtin__ void CUDARTAPI cudaGraphSetConditional(cudaGraphConditionalHandle handle,
                                                                                     unsigned int value);
@@ -35,7 +52,13 @@ def _common_kernels():
     arch = "".join(f"{i}" for i in Device().compute_capability)
     program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
     prog = Program(code, code_type="c++", options=program_options)
-    mod = prog.compile("cubin", name_expressions=("empty_kernel", "add_one", "set_handle", "loop_kernel"))
+    try:
+        mod = prog.compile("cubin", name_expressions=("empty_kernel", "add_one", "set_handle", "loop_kernel"))
+    except NVRTCError as e:
+        with pytest.raises(RuntimeError, match='error: identifier "cudaGraphConditionalHandle" is undefined'):
+            raise e
+        nvrtcVersion = handle_return(driver.nvrtcVersion())
+        pytest.skip(f"NVRTC version {nvrtcVersion} does not support conditionals")
     return mod
 
 
@@ -186,7 +209,7 @@ def test_graph_capture_errors(init_cuda):
 @pytest.mark.parametrize("condition_value", [True, False])
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_if(init_cuda, condition_value):
-    mod = _common_kernels()
+    mod = _common_kernels_conditional()
     add_one = mod.get_kernel("add_one")
     set_handle = mod.get_kernel("set_handle")
 
@@ -237,7 +260,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
 @pytest.mark.parametrize("condition_value", [True, False])
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_if_else(init_cuda, condition_value):
-    mod = _common_kernels()
+    mod = _common_kernels_conditional()
     add_one = mod.get_kernel("add_one")
     set_handle = mod.get_kernel("set_handle")
 
@@ -304,7 +327,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
 @pytest.mark.parametrize("condition_value", [0, 1, 2, 3])
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_switch(init_cuda, condition_value):
-    mod = _common_kernels()
+    mod = _common_kernels_conditional()
     add_one = mod.get_kernel("add_one")
     set_handle = mod.get_kernel("set_handle")
 
@@ -390,7 +413,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
 @pytest.mark.parametrize("condition_value", [True, False])
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_while(init_cuda, condition_value):
-    mod = _common_kernels()
+    mod = _common_kernels_conditional()
     add_one = mod.get_kernel("add_one")
     loop_kernel = mod.get_kernel("loop_kernel")
     empty_kernel = mod.get_kernel("empty_kernel")
@@ -457,7 +480,16 @@ def test_graph_child_graph(init_cuda):
     launch(gb_parent, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
 
     ## Add child
-    launch_graph(gb_parent, gb_child)
+    try:
+        launch_graph(gb_parent, gb_child)
+    except NotImplementedError as e:
+        with pytest.raises(
+            NotImplementedError,
+            match="^Launching child graphs is not implemented for versions older than CUDA 12. Found driver version is",
+        ):
+            raise e
+        gb_parent.end_building()
+        pytest.skip("Launching child graphs is not implemented for versions older than CUDA 12")
 
     launch(gb_parent, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
     graph = gb_parent.end_building().complete()
@@ -473,7 +505,7 @@ def test_graph_child_graph(init_cuda):
 
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_update(init_cuda):
-    mod = _common_kernels()
+    mod = _common_kernels_conditional()
     add_one = mod.get_kernel("add_one")
 
     # Allocate memory
@@ -586,7 +618,7 @@ def test_graph_stream_lifetime(init_cuda):
 
 
 def test_graph_dot_print_options(init_cuda, tmp_path):
-    mod = _common_kernels()
+    mod = _common_kernels_conditional()
     set_handle = mod.get_kernel("set_handle")
     empty_kernel = mod.get_kernel("empty_kernel")
 

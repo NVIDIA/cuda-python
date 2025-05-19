@@ -144,7 +144,7 @@ class GraphBuilder:
         def close(self):
             if self.stream:
                 if not self.is_join_required:
-                    capture_status, _, _, _, _ = handle_return(driver.cuStreamGetCaptureInfo(self.stream.handle))
+                    capture_status = handle_return(driver.cuStreamGetCaptureInfo(self.stream.handle))[0]
                     if capture_status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:
                         # Note how this condition only occures for the primary graph builder
                         # This is because calling cuStreamEndCapture streams that were split off of the primary
@@ -233,7 +233,7 @@ class GraphBuilder:
     @property
     def is_building(self) -> bool:
         """Returns True if the graph builder is currently building."""
-        capture_status, _, _, _, _ = handle_return(driver.cuStreamGetCaptureInfo(self._mnff.stream.handle))
+        capture_status = handle_return(driver.cuStreamGetCaptureInfo(self._mnff.stream.handle))[0]
         if capture_status == driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:
             return False
         elif capture_status == driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
@@ -733,6 +733,12 @@ def launch_graph(parent_graph: GraphBuilder, child_graph: GraphBuilder):
         The child graph builder. Must have finished building.
 
     """
+
+    if _driver_ver < 12000 or _py_major_ver < 12:
+        raise NotImplementedError(
+            f"Launching child graphs is not implemented for versions older than CUDA 12."
+            f"Found driver version is {_driver_ver} and binding major version is {_py_major_ver}"
+        )
 
     if not child_graph._building_ended:
         raise ValueError("Child graph has not finished building.")
