@@ -282,7 +282,7 @@ class GraphBuilder:
                 flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
             if options.use_node_priority:
                 flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
-            graph = Graph._init(handle_return(driver.cuGraphInstantiateWithFlags(self._mnff.graph, flags)))
+            return Graph._init(handle_return(driver.cuGraphInstantiateWithFlags(self._mnff.graph, flags)))
 
         params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
         if options:

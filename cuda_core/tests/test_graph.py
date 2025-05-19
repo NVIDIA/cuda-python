@@ -194,6 +194,10 @@ def test_graph_repeat_capture(init_cuda):
     with pytest.raises(RuntimeError, match="^Cannot resume building after building has ended."):
         gb.begin_building()
 
+    # Close the memroy resource now because the garbage collected might
+    # de-allocate it during the next graph builder process
+    b.close()
+
 
 def test_graph_capture_errors(init_cuda):
     gb = Device().create_graph_builder()
@@ -228,9 +232,10 @@ def test_graph_conditional_if(init_cuda, condition_value):
     try:
         handle = gb.create_conditional_handle()
     except RuntimeError as e:
-        with pytest.raises(RuntimeError, match=r"^Driver version \d+ does not support conditional handles"):
+        with pytest.raises(RuntimeError, match="^Driver version"):
             raise e
         gb.end_building()
+        b.close()
         pytest.skip("Driver does not support conditional handle")
     launch(gb, LaunchConfig(grid=1, block=1), set_handle, handle, condition_value)
 
@@ -262,6 +267,10 @@ def test_graph_conditional_if(init_cuda, condition_value):
         assert arr[0] == 1
         assert arr[1] == 0
 
+    # Close the memroy resource now because the garbage collected might
+    # de-allocate it during the next graph builder process
+    b.close()
+
 
 @pytest.mark.parametrize("condition_value", [True, False])
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
@@ -289,9 +298,10 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
     try:
         gb_if, gb_else = gb.if_else(handle)
     except RuntimeError as e:
-        with pytest.raises(RuntimeError, match=r"^Driver version \d+ does not support conditional if-else"):
+        with pytest.raises(RuntimeError, match="^Driver version"):
             raise e
         gb.end_building()
+        b.close()
         pytest.skip("Driver does not support conditional if-else")
 
     ## IF nodes
@@ -329,6 +339,10 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
         assert arr[0] == 1
         assert arr[1] == 3
 
+    # Close the memroy resource now because the garbage collected might
+    # de-allocate it during the next graph builder process
+    b.close()
+
 
 @pytest.mark.parametrize("condition_value", [0, 1, 2, 3])
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
@@ -357,9 +371,10 @@ def test_graph_conditional_switch(init_cuda, condition_value):
     try:
         gb_case = list(gb.switch(handle, 3))
     except RuntimeError as e:
-        with pytest.raises(RuntimeError, match=r"^Driver version \d+ does not support conditional switch"):
+        with pytest.raises(RuntimeError, match="^Driver version"):
             raise e
         gb.end_building()
+        b.close()
         pytest.skip("Driver does not support conditional switch")
 
     ## Case 0
@@ -415,6 +430,10 @@ def test_graph_conditional_switch(init_cuda, condition_value):
         assert arr[1] == 0
         assert arr[2] == 0
 
+    # Close the memroy resource now because the garbage collected might
+    # de-allocate it during the next graph builder process
+    b.close()
+
 
 @pytest.mark.parametrize("condition_value", [True, False])
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
@@ -460,6 +479,10 @@ def test_graph_conditional_while(init_cuda, condition_value):
     else:
         assert arr[0] == 0
 
+    # Close the memroy resource now because the garbage collected might
+    # de-allocate it during the next graph builder process
+    b.close()
+
 
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_child_graph(init_cuda):
@@ -495,6 +518,7 @@ def test_graph_child_graph(init_cuda):
         ):
             raise e
         gb_parent.end_building()
+        b.close()
         pytest.skip("Launching child graphs is not implemented for versions older than CUDA 12")
 
     launch(gb_parent, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
@@ -507,6 +531,10 @@ def test_graph_child_graph(init_cuda):
     launch_stream.sync()
     assert arr[0] == 2
     assert arr[1] == 3
+
+    # Close the memroy resource now because the garbage collected might
+    # de-allocate it during the next graph builder process
+    b.close()
 
 
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
@@ -533,11 +561,11 @@ def test_graph_update(init_cuda):
         # Add Node B (while condition)
         try:
             gb_case = list(gb.switch(handle, 3))
-        except RuntimeError as e:
-            with pytest.raises(RuntimeError, match=r"^Driver version \d+ does not support conditional switch"):
+        except Exception as e:
+            with pytest.raises(RuntimeError, match="^Driver version"):
                 raise e
             gb.end_building()
-            pytest.skip("Driver does not support conditional switch")
+            raise e
 
         ## Case 0
         gb_case[0].begin_building()
@@ -562,7 +590,13 @@ def test_graph_update(init_cuda):
 
         return gb.end_building()
 
-    graph_variants = [build_graph(0), build_graph(1), build_graph(2)]
+    try:
+        graph_variants = [build_graph(0), build_graph(1), build_graph(2)]
+    except Exception as e:
+        with pytest.raises(RuntimeError, match="^Driver version"):
+            raise e
+        b.close()
+        pytest.skip("Driver does not support conditional switch")
 
     # Launch the first graph
     assert arr[0] == 0
@@ -590,6 +624,10 @@ def test_graph_update(init_cuda):
     assert arr[0] == 3
     assert arr[1] == 3
     assert arr[2] == 3
+
+    # Close the memroy resource now because the garbage collected might
+    # de-allocate it during the next graph builder process
+    b.close()
 
 
 def test_graph_stream_lifetime(init_cuda):

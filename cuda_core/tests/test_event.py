@@ -169,3 +169,5 @@ __global__ void wait(int* val) {
     arr[0] = 1
     event3.sync()
     event3 - event1  # this should work
+
+    b.close()
