@@ -23,7 +23,7 @@ jobs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
       - name: Get CUDA build version
@@ -45,8 +45,7 @@ jobs:
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
     if: ${{ github.repository_owner == 'nvidia' }}
     secrets: inherit
-    uses:
-      ./.github/workflows/build-wheel.yml
+    uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
@@ -66,8 +65,7 @@ jobs:
       - ci-vars
       - build
     secrets: inherit
-    uses:
-      ./.github/workflows/test-wheel-linux.yml
+    uses: ./.github/workflows/test-wheel-linux.yml
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
@@ -87,8 +85,7 @@ jobs:
       - ci-vars
       - build
     secrets: inherit
-    uses:
-      ./.github/workflows/test-wheel-windows.yml
+    uses: ./.github/workflows/test-wheel-windows.yml
     with:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
@@ -106,8 +103,7 @@ jobs:
       - ci-vars
       - build
     secrets: inherit
-    uses:
-      ./.github/workflows/build-docs.yml
+    uses: ./.github/workflows/build-docs.yml
     with:
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
@@ -121,5 +117,4 @@ jobs:
       - test-windows
       - doc
     secrets: inherit
-    uses:
-      ./.github/workflows/status-check.yml
+    uses: ./.github/workflows/status-check.yml

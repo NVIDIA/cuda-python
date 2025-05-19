@@ -86,8 +86,7 @@ jobs:
     needs:
       - check-tag
     secrets: inherit
-    uses:
-      ./.github/workflows/build-docs.yml
+    uses: ./.github/workflows/build-docs.yml
     with:
       build-ctk-ver: ${{ inputs.build-ctk-ver }}
       component: ${{ inputs.component }}
@@ -102,8 +101,7 @@ jobs:
     needs:
       - check-tag
     secrets: inherit
-    uses:
-      ./.github/workflows/release-upload.yml
+    uses: ./.github/workflows/release-upload.yml
     with:
       git-tag: ${{ inputs.git-tag }}
 
@@ -132,11 +130,11 @@ jobs:
 
       - name: Publish package distributions to PyPI
         if: ${{ inputs.wheel-dst == 'pypi' }}
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4
 
       - name: Publish package distributions to TestPyPI
         if: ${{ inputs.wheel-dst == 'testpypi' }}
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4
         with:
           repository-url: https://test.pypi.org/legacy/
 

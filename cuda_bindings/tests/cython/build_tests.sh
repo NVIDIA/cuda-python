@@ -3,4 +3,15 @@
 # Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-CPLUS_INCLUDE_PATH=$CUDA_HOME/include:$CPLUS_INCLUDE_PATH cythonize -3 -i $(dirname "$0")/test_*.pyx
+UNAME=$(uname)
+if [ "$UNAME" == "Linux" ] ; then
+  SCRIPTPATH=$(dirname $(realpath "$0"))
+  export CPLUS_INCLUDE_PATH=$CUDA_HOME/include:$CPLUS_INCLUDE_PATH
+elif [[ "$UNAME" == CYGWIN* || "$UNAME" == MINGW* || "$UNAME" == MSYS* ]] ; then
+  SCRIPTPATH="$(dirname $(cygpath -w $(realpath "$0")))"
+  export CL="/I\"${CUDA_HOME}\\include\" ${CL}"
+else
+  exit 1
+fi
+
+cythonize -3 -i ${SCRIPTPATH}/test_*.pyx
