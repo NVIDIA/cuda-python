@@ -9,7 +9,8 @@ if [ "$UNAME" == "Linux" ] ; then
   export CPLUS_INCLUDE_PATH=${SCRIPTPATH}/../../cuda/core/experimental/include:$CUDA_HOME/include:$CPLUS_INCLUDE_PATH
 elif [[ "$UNAME" == CYGWIN* || "$UNAME" == MINGW* || "$UNAME" == MSYS* ]] ; then
   SCRIPTPATH="$(dirname $(cygpath -w $(realpath "$0")))"
-  export CL="/I\"${SCRIPTPATH}\\..\\..\\cuda_core\\cuda\\core\\experimental\\include\" /I\"${CUDA_HOME}\\include\" ${CL}"
+  CUDA_CORE_INCLUDE_PATH=$(echo "${SCRIPTPATH}\..\..\cuda\core\experimental\include" | sed 's/\\/\\\\/g')
+  export CL="/I\"${CUDA_CORE_INCLUDE_PATH}\" /I\"${CUDA_HOME}\\include\" ${CL}"
 else
   exit 1
 fi
