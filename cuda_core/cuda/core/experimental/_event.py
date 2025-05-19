@@ -218,6 +218,8 @@ class Event:
 
         """
 
+        from cuda.core.experimental._device import Device  # avoid circular import
+
         return Device(self._device_id)
 
     @property
