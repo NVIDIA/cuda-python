@@ -228,7 +228,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
     try:
         handle = gb.create_conditional_handle()
     except RuntimeError as e:
-        with pytest.raises(RuntimeError, match="^Driver version \d+ does not support conditional handles"):
+        with pytest.raises(RuntimeError, match=r"^Driver version \d+ does not support conditional handles"):
             raise e
         gb.end_building()
         pytest.skip("Driver does not support conditional handle")
@@ -289,7 +289,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
     try:
         gb_if, gb_else = gb.if_else(handle)
     except RuntimeError as e:
-        with pytest.raises(RuntimeError, match="^Driver version \d+ does not support conditional if-else"):
+        with pytest.raises(RuntimeError, match=r"^Driver version \d+ does not support conditional if-else"):
             raise e
         gb.end_building()
         pytest.skip("Driver does not support conditional if-else")
@@ -357,7 +357,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
     try:
         gb_case = list(gb.switch(handle, 3))
     except RuntimeError as e:
-        with pytest.raises(RuntimeError, match="^Driver version \d+ does not support conditional switch"):
+        with pytest.raises(RuntimeError, match=r"^Driver version \d+ does not support conditional switch"):
             raise e
         gb.end_building()
         pytest.skip("Driver does not support conditional switch")
@@ -534,7 +534,7 @@ def test_graph_update(init_cuda):
         try:
             gb_case = list(gb.switch(handle, 3))
         except RuntimeError as e:
-            with pytest.raises(RuntimeError, match="^Driver version \d+ does not support conditional switch"):
+            with pytest.raises(RuntimeError, match=r"^Driver version \d+ does not support conditional switch"):
                 raise e
             gb.end_building()
             pytest.skip("Driver does not support conditional switch")
