@@ -239,9 +239,8 @@ class GraphBuilder:
         elif capture_status == driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
             return True
         elif capture_status == driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_INVALIDATED:
-            self.end_building()
             raise RuntimeError(
-                "Build process encountered an error and has been invalidated. Build process has been ended."
+                "Build process encountered an error and has been invalidated. Build process must now be ended."
             )
         else:
             raise NotImplementedError(f"Unsupported capture status type received: {capture_status}")
@@ -276,6 +275,14 @@ class GraphBuilder:
         """
         if not self._building_ended:
             raise RuntimeError("Graph has not finished building.")
+
+        if _driver_ver < 12000:
+            flags = 0
+            if options.auto_free_on_launch:
+                flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
+            if options.use_node_priority:
+                flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
+            graph = Graph._init(handle_return(driver.cuGraphInstantiateWithFlags(self._mnff.graph, flags)))
 
         params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
         if options:

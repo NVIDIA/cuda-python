@@ -225,7 +225,13 @@ def test_graph_conditional_if(init_cuda, condition_value):
     gb = Device().create_graph_builder().begin_building()
 
     # Add Node A (sets condition)
-    handle = gb.create_conditional_handle()
+    try:
+        handle = gb.create_conditional_handle()
+    except RuntimeError as e:
+        with pytest.raises(RuntimeError, match="^Driver version \d+ does not support conditional handles"):
+            raise e
+        gb.end_building()
+        pytest.skip("Driver does not support conditional handle")
     launch(gb, LaunchConfig(grid=1, block=1), set_handle, handle, condition_value)
 
     # # Add Node B (if condition)
@@ -283,7 +289,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
     try:
         gb_if, gb_else = gb.if_else(handle)
     except RuntimeError as e:
-        with pytest.raises(RuntimeError, match="does not support conditional"):
+        with pytest.raises(RuntimeError, match="^Driver version \d+ does not support conditional if-else"):
             raise e
         gb.end_building()
         pytest.skip("Driver does not support conditional if-else")
@@ -351,7 +357,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
     try:
         gb_case = list(gb.switch(handle, 3))
     except RuntimeError as e:
-        with pytest.raises(RuntimeError, match="does not support conditional"):
+        with pytest.raises(RuntimeError, match="^Driver version \d+ does not support conditional switch"):
             raise e
         gb.end_building()
         pytest.skip("Driver does not support conditional switch")
@@ -485,7 +491,7 @@ def test_graph_child_graph(init_cuda):
     except NotImplementedError as e:
         with pytest.raises(
             NotImplementedError,
-            match="^Launching child graphs is not implemented for versions older than CUDA 12. Found driver version is",
+            match="^Launching child graphs is not implemented for versions older than CUDA 12",
         ):
             raise e
         gb_parent.end_building()
@@ -528,7 +534,7 @@ def test_graph_update(init_cuda):
         try:
             gb_case = list(gb.switch(handle, 3))
         except RuntimeError as e:
-            with pytest.raises(RuntimeError, match="does not support conditional"):
+            with pytest.raises(RuntimeError, match="^Driver version \d+ does not support conditional switch"):
                 raise e
             gb.end_building()
             pytest.skip("Driver does not support conditional switch")
