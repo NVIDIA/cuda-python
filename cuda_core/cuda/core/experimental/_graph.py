@@ -189,10 +189,32 @@ class GraphBuilder:
         """Returns True if this graph builder must be joined before building is ended."""
         return self._mnff.is_join_required
 
-    def begin_building(self) -> GraphBuilder:
-        """Begins the building process."""
+    def begin_building(self, mode="global") -> GraphBuilder:
+        """Begins the building process.
+
+        Build `mode` for controlling interaction with other API calls must be one of the following:
+
+        - `global` : Prohibit potentially unsafe operations across all streams in the process.
+        - `thread_local` : Prohibit potentially unsafe operations in streams created by the current thread.
+        - `relaxed` : The local thread is not prohibited from potentially unsafe operations.
+
+        Parameters
+        ----------
+        mode : str, optional
+            Build mode to control the interaction with other API calls that are porentially unsafe.
+
+        """
         if self._building_ended:
             raise RuntimeError("Cannot resume building after building has ended.")
+        if mode not in ("global", "thread_local", "relaxed"):
+            raise ValueError(f"Unsupported build mode: {mode}")
+        if mode == "global":
+            capture_mode = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL
+        elif mode == "thread_local":
+            capture_mode = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_THREAD_LOCAL
+        elif mode == "relaxed":
+            capture_mode = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_RELAXED
+
         if self._mnff.conditional_graph:
             handle_return(
                 driver.cuStreamBeginCaptureToGraph(
@@ -201,15 +223,11 @@ class GraphBuilder:
                     None,  # dependencies
                     None,  # dependencyData
                     0,  # numDependencies
-                    driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL,
+                    capture_mode,
                 )
             )
         else:
-            handle_return(
-                driver.cuStreamBeginCapture(
-                    self._mnff.stream.handle, driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL
-                )
-            )
+            handle_return(driver.cuStreamBeginCapture(self._mnff.stream.handle, capture_mode))
         return self
 
     @property

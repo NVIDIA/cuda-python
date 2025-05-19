@@ -638,3 +638,30 @@ def test_graph_complete_options(init_cuda):
     gb.complete(options).close()
     options = CompleteOptions(use_node_priority=True)
     gb.complete(options).close()
+
+
+def test_graph_build_mode(init_cuda):
+    mod = _common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    # Simple linear topology
+    gb = Device().create_graph_builder().begin_building(mode="global")
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    gb.end_building()
+
+    gb = Device().create_graph_builder().begin_building(mode="thread_local")
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    gb.end_building()
+
+    gb = Device().create_graph_builder().begin_building(mode="relaxed")
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    gb.end_building()
+
+    with pytest.raises(ValueError, match="^Unsupported build mode:"):
+        gb = Device().create_graph_builder().begin_building(mode=None)
