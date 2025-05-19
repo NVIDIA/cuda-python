@@ -184,6 +184,7 @@ def test_graph_capture_errors(init_cuda):
 
 
 @pytest.mark.parametrize("condition_value", [True, False])
+@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_if(init_cuda, condition_value):
     mod = _common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -234,6 +235,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
 
 
 @pytest.mark.parametrize("condition_value", [True, False])
+@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_if_else(init_cuda, condition_value):
     mod = _common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -300,6 +302,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
 
 
 @pytest.mark.parametrize("condition_value", [0, 1, 2, 3])
+@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_switch(init_cuda, condition_value):
     mod = _common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -385,6 +388,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
 
 
 @pytest.mark.parametrize("condition_value", [True, False])
+@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_while(init_cuda, condition_value):
     mod = _common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -428,6 +432,7 @@ def test_graph_conditional_while(init_cuda, condition_value):
         assert arr[0] == 0
 
 
+@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_child_graph(init_cuda):
     mod = _common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -466,6 +471,7 @@ def test_graph_child_graph(init_cuda):
     assert arr[1] == 3
 
 
+@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_update(init_cuda):
     mod = _common_kernels()
     add_one = mod.get_kernel("add_one")
