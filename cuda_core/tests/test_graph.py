@@ -6,9 +6,9 @@ import numpy as np
 import pytest
 
 try:
-    from cuda.bindings import driver
+    from cuda.bindings import nvrtc
 except ImportError:
-    from cuda import cuda as driver
+    from cuda import nvrtc
 from cuda.core.experimental import (
     CompleteOptions,
     DebugPrintOptions,
@@ -55,9 +55,9 @@ def _common_kernels_conditional():
     try:
         mod = prog.compile("cubin", name_expressions=("empty_kernel", "add_one", "set_handle", "loop_kernel"))
     except NVRTCError as e:
-        with pytest.raises(RuntimeError, match='error: identifier "cudaGraphConditionalHandle" is undefined'):
+        with pytest.raises(NVRTCError, match='error: identifier "cudaGraphConditionalHandle" is undefined'):
             raise e
-        nvrtcVersion = handle_return(driver.nvrtcVersion())
+        nvrtcVersion = handle_return(nvrtc.nvrtcVersion())
         pytest.skip(f"NVRTC version {nvrtcVersion} does not support conditionals")
     return mod
 
