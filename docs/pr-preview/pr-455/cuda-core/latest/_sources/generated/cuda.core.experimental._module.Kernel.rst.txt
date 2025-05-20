@@ -22,6 +22,8 @@ cuda.core.experimental.\_module.Kernel
    .. rubric:: Attributes
 
    
+   .. autoproperty:: arguments_info
    .. autoproperty:: attributes
+   .. autoproperty:: num_arguments
    
    
