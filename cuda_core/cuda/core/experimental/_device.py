@@ -1228,7 +1228,7 @@ class Device:
             Newly created event object.
 
         """
-        return Event._init(self._id, self.context, options)
+        return Event._init(self._id, self.context._handle, options)
 
     @precondition(_check_context_initialized)
     def allocate(self, size, stream=None) -> Buffer:
