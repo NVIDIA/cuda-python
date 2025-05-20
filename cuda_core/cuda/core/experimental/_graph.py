@@ -278,10 +278,11 @@ class GraphBuilder:
 
         if (_driver_ver < 12000) or (_py_major_minor < (12, 0)):
             flags = 0
-            if options.auto_free_on_launch:
-                flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
-            if options.use_node_priority:
-                flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
+            if options:
+                if options.auto_free_on_launch:
+                    flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
+                if options.use_node_priority:
+                    flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
             return Graph._init(handle_return(driver.cuGraphInstantiateWithFlags(self._mnff.graph, flags)))
 
         params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
