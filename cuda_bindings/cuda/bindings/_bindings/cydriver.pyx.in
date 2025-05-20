@@ -5,7 +5,6 @@
 {{if 'Windows' == platform.system()}}
 import os
 import win32api
-from pywintypes import error
 {{else}}
 cimport cuda.bindings._lib.dlfcn as dlfcn
 {{endif}}
