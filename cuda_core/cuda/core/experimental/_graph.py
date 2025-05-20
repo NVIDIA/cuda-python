@@ -189,7 +189,7 @@ class GraphBuilder:
         """Returns True if this graph builder must be joined before building is ended."""
         return self._mnff.is_join_required
 
-    def begin_building(self, mode="global") -> GraphBuilder:
+    def begin_building(self, mode="relaxed") -> GraphBuilder:
         """Begins the building process.
 
         Build `mode` for controlling interaction with other API calls must be one of the following:
@@ -202,6 +202,7 @@ class GraphBuilder:
         ----------
         mode : str, optional
             Build mode to control the interaction with other API calls that are porentially unsafe.
+            Default set to use relaxed.
 
         """
         if self._building_ended:
@@ -214,6 +215,8 @@ class GraphBuilder:
             capture_mode = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_THREAD_LOCAL
         elif mode == "relaxed":
             capture_mode = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_RELAXED
+        else:
+            raise ValueError(f"Unsupported build mode: {mode}")
 
         if self._mnff.conditional_graph:
             handle_return(
