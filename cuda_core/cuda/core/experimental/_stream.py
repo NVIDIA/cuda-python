@@ -244,7 +244,7 @@ class Stream:
         # on the stream. Event flags such as disabling timing, nonblocking,
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
         if event is None:
-            event = Event._init(self._device_id, options, self._ctx_handle)
+            event = Event._init(self._device_id, self._ctx_handle, options)
         assert_type(event, Event)
         handle_return(driver.cuEventRecord(event.handle, self._mnff.handle))
         return event
