@@ -1,18 +1,14 @@
 # Copyright 2024 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
-
 import ctypes
+import gc
 
 import pytest
 
 from cuda.core.experimental import Device
 from cuda.core.experimental._memory import Buffer, DLDeviceType, MemoryResource
-from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
 
 class DummyDeviceMemoryResource(MemoryResource):
@@ -257,3 +253,42 @@ def test_buffer_dunder_dlpack_device_failure():
     buffer = dummy_mr.allocate(size=1024)
     with pytest.raises(BufferError, match=r"^buffer is neither device-accessible nor host-accessible$"):
         buffer.__dlpack_device__()
+
+
+class DummyTrackingMemoryResource(MemoryResource):
+    def __init__(self):
+        self.live_counts = 0
+
+    def allocate(self, size, stream=None) -> Buffer:
+        self.live_counts += 1
+        return Buffer(ptr=1, size=size, mr=self)
+
+    def deallocate(self, ptr, size, stream=None):
+        self.live_counts -= 1
+
+    @property
+    def is_device_accessible(self) -> bool:
+        return False
+
+    @property
+    def is_host_accessible(self) -> bool:
+        return False
+
+    @property
+    def device_id(self) -> int:
+        return 0
+
+
+@pytest.mark.parametrize("close_buffer", (True, False))
+def test_buffer_release_closed(close_buffer):
+    mr = DummyTrackingMemoryResource()
+    buf = mr.allocate(123)
+    buf.release()
+    if close_buffer:
+        buf.close()
+    del buf
+    gc.collect()
+    # If Buffer.close() is explicitly called, it would end up calling MR.deallocate()
+    # which then decrease the count. If the buffer does not have the finalizer attached,
+    # this is the only way to trigger deallocation.
+    assert mr.live_counts == 0 if close_buffer else 1
