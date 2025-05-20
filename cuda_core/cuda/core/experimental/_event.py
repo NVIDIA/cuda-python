@@ -96,7 +96,7 @@ class Event:
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited", "_device_id", "_ctx_handle")
 
     @classmethod
-    def _init(cls, device_id: int, options: Optional[EventOptions] = None, ctx_handle=None):
+    def _init(cls, device_id: int, ctx_handle: Context, options: Optional[EventOptions] = None):
         self = super().__new__(cls)
         self._mnff = Event._MembersNeededForFinalize(self, None)
 
@@ -114,10 +114,7 @@ class Event:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
         self._mnff.handle = handle_return(driver.cuEventCreate(flags))
         self._device_id = device_id
-        if ctx_handle is not None:
-            self._ctx_handle = ctx_handle
-        else:
-            self._ctx_handle = handle_return(driver.cuCtxGetCurrent())
+        self._ctx_handle = ctx_handle
         return self
 
     def close(self):
