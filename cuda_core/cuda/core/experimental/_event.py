@@ -96,7 +96,7 @@ class Event:
     __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited", "_device_id", "_ctx_handle")
 
     @classmethod
-    def _init(cls, device_id: int, ctx_handle=None, options: Optional[EventOptions] = None):
+    def _init(cls, device_id: int, options: Optional[EventOptions] = None, ctx_handle=None):
         self = super().__new__(cls)
         self._mnff = Event._MembersNeededForFinalize(self, None)
 
