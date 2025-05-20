@@ -146,6 +146,6 @@ def launch(stream, config, kernel, *kernel_args):
         # TODO: check if config has any unsupported attrs
         handle_return(
             driver.cuLaunchKernel(
-                int(kernel._handle), *config.grid, *config.block, config.shmem_size, stream._handle, args_ptr, 0
+                int(kernel._handle), *config.grid, *config.block, config.shmem_size, stream.handle, args_ptr, 0
             )
         )
