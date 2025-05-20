@@ -6,6 +6,8 @@ from collections import namedtuple
 from typing import Optional, Union
 from warnings import warn
 
+from cuda.core.experimental._launch_config import LaunchConfig, _to_native_launch_config
+from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.clear_error_support import (
     assert_type,
     assert_type_str_or_bytes,
@@ -184,6 +186,59 @@ class KernelAttributes:
         )
 
 
+class KernelOccupancy:
+    """ """
+
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("KernelOccupancy cannot be instantiated directly. Please use Kernel APIs.")
+
+    slots = ("_handle",)
+
+    @classmethod
+    def _init(cls, handle):
+        self = super().__new__(cls)
+        self._handle = handle
+
+        return self
+
+    def max_active_blocks_per_multiprocessor(self, block_size: int, dynamic_shared_memory_size: int) -> int:
+        """int : Occupancy of the kernel"""
+        return handle_return(
+            driver.cuOccupancyMaxActiveBlocksPerMultiprocessor(self._handle, block_size, dynamic_shared_memory_size)
+        )
+
+    # FIXME: better docstring needed
+    def max_potential_block_size(self, dynamic_shared_memory_size: int, block_size_limit: int) -> tuple[int]:
+        """(int, int): Suggested launch configuration for reasonable occupancy.
+
+        Returns the minimum grid size needed to achieve the maximum occupancy and
+        the maximum block size that can achieve the maximum occupancy.
+        """
+        return handle_return(
+            driver.cuOccupancyMaxPotentialBlockSize(self._handle, None, dynamic_shared_memory_size, block_size_limit)
+        )
+
+    def available_dynamic_shared_memory_per_block(self, num_blocks_per_multiprocessor: int, block_size: int) -> int:
+        """int: Dynamic shared memory available per block for given launch configuration."""
+        return handle_return(
+            driver.cuOccupancyAvailableDynamicSMemPerBlock(self._handle, num_blocks_per_multiprocessor, block_size)
+        )
+
+    def max_potential_cluster_size(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
+        """ "int: The maximum cluster size that can be launched for this kernel and launch configuration"""
+        drv_cfg = _to_native_launch_config(config)
+        if stream is not None:
+            drv_cfg.hStream = stream._handle
+        return handle_return(driver.cuOccupancyMaxPotentialClusterSize(self._handle, drv_cfg))
+
+    def max_active_clusters(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
+        """ "int: The maximum number of clusters that could co-exist on the target device"""
+        drv_cfg = _to_native_launch_config(config)
+        if stream is not None:
+            drv_cfg.hStream = stream._handle
+        return handle_return(driver.cuOccupancyMaxActiveClusters(self._handle, drv_cfg))
+
+
 ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
 
 
@@ -198,7 +253,7 @@ class Kernel:
 
     """
 
-    __slots__ = ("_handle", "_module", "_attributes")
+    __slots__ = ("_handle", "_module", "_attributes", "_occupancy")
 
     def __new__(self, *args, **kwargs):
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
@@ -211,6 +266,7 @@ class Kernel:
         ker._handle = obj
         ker._module = mod
         ker._attributes = None
+        ker._occupancy = None
         return ker
 
     @property
@@ -249,6 +305,13 @@ class Kernel:
         """list[ParamInfo]: (offset, size) for each argument of this function"""
         _, param_info = self._get_arguments_info(param_info=True)
         return param_info
+
+    @property
+    def occupancy(self) -> KernelOccupancy:
+        """Get the read-only attributes of this kernel."""
+        if self._occupancy is None:
+            self._occupancy = KernelOccupancy._init(self._handle)
+        return self._occupancy
 
     # TODO: implement from_handle()
 
