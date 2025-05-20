@@ -8,7 +8,7 @@ import pytest
 from conftest import skipif_testing_with_compute_sanitizer
 
 import cuda.core.experimental
-from cuda.core.experimental import ObjectCode, Program, ProgramOptions, system
+from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions, system
 from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
 SAXPY_KERNEL = r"""
@@ -38,6 +38,11 @@ def cuda12_prerequisite_check():
 def test_kernel_attributes_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelAttributes cannot be instantiated directly\."):
         cuda.core.experimental._module.KernelAttributes()  # Ensure back door is locked.
+
+
+def test_kernel_occupancy_init_disabled():
+    with pytest.raises(RuntimeError, match=r"^KernelOccupancy cannot be instantiated directly\."):
+        cuda.core.experimental._module.KernelOccupancy()  # Ensure back door is locked.
 
 
 def test_kernel_init_disabled():
@@ -245,3 +250,49 @@ def test_num_args_error_handling(deinit_all_contexts_function, cuda12_prerequisi
     with pytest.raises(CUDAError):
         # assignment resolves linter error "B018: useless expression"
         _ = krn.num_arguments
+
+
+@pytest.mark.parametrize("block_size", [32, 64, 96, 120, 128, 256])
+@pytest.mark.parametrize("smem_size_per_block", [0, 32, 4096])
+def test_saxpy_occupancy_max_active_block_per_multiprocessor(get_saxpy_kernel, block_size, smem_size_per_block):
+    kernel, _ = get_saxpy_kernel
+    dev_props = Device().properties
+    assert block_size <= dev_props.max_threads_per_block
+    assert smem_size_per_block <= dev_props.max_shared_memory_per_block
+    num_blocks_per_sm = kernel.occupancy.max_active_blocks_per_multiprocessor(block_size, smem_size_per_block)
+    assert isinstance(num_blocks_per_sm, int)
+    assert num_blocks_per_sm > 0
+    kernel_threads_per_sm = num_blocks_per_sm * block_size
+    kernel_smem_size_per_sm = num_blocks_per_sm * smem_size_per_block
+    assert kernel_threads_per_sm <= dev_props.max_threads_per_multiprocessor
+    assert kernel_smem_size_per_sm <= dev_props.max_shared_memory_per_multiprocessor
+    assert kernel.attributes.num_regs() * num_blocks_per_sm <= dev_props.max_registers_per_multiprocessor
+
+
+@pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 256])
+@pytest.mark.parametrize("smem_size_per_block", [0, 32, 4096])
+def test_saxpy_occupancy_max_potential_block_size(get_saxpy_kernel, block_size_limit, smem_size_per_block):
+    kernel, _ = get_saxpy_kernel
+    dev_props = Device().properties
+    assert block_size_limit <= dev_props.max_threads_per_block
+    assert smem_size_per_block <= dev_props.max_shared_memory_per_block
+    config_data = kernel.occupancy.max_potential_block_size(smem_size_per_block, block_size_limit)
+    assert isinstance(config_data, tuple)
+    assert len(config_data) == 2
+    min_grid_size, max_block_size = config_data
+    assert isinstance(min_grid_size, int)
+    assert isinstance(max_block_size, int)
+    assert min_grid_size > 0
+    assert max_block_size > 0
+    assert max_block_size <= block_size_limit
+
+
+@pytest.mark.parametrize("num_blocks_per_sm, block_size", [(4, 32), (2, 64), (2, 96), (3, 120), (2, 128), (1, 256)])
+def test_saxpy_occupancy_available_dynamic_shared_memory_per_block(get_saxpy_kernel, num_blocks_per_sm, block_size):
+    kernel, _ = get_saxpy_kernel
+    dev_props = Device().properties
+    assert block_size <= dev_props.max_threads_per_block
+    assert num_blocks_per_sm * block_size <= dev_props.max_threads_per_multiprocessor
+    smem_size = kernel.occupancy.available_dynamic_shared_memory_per_block(num_blocks_per_sm, block_size)
+    assert smem_size <= dev_props.max_shared_memory_per_block
+    assert num_blocks_per_sm * smem_size <= dev_props.max_shared_memory_per_multiprocessor
