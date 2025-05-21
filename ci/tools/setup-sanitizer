@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# A utility script to set up the GitHub environment variables for the CI.
+
+set -euo pipefail
+
+# Setup comppute sanitizer if requested.
+if [[ "${SETUP_SANITIZER}" == 1 ]]; then
+  COMPUTE_SANITIZER="${CUDA_HOME}/bin/compute-sanitizer"
+  COMPUTE_SANITIZER_VERSION=$(${COMPUTE_SANITIZER} --version | grep -Eo "[0-9]{4}\.[0-9]\.[0-9]" | sed -e 's/\.//g')
+  SANITIZER_CMD="${COMPUTE_SANITIZER} --target-processes=all --launch-timeout=0 --tool=memcheck --error-exitcode=1"
+  if [[ "$COMPUTE_SANITIZER_VERSION" -ge 202111 ]]; then
+    SANITIZER_CMD="${SANITIZER_CMD} --padding=32"
+  fi
+  echo "CUDA_PYTHON_TESTING_WITH_COMPUTE_SANITIZER=1" >> $GITHUB_ENV
+else
+  SANITIZER_CMD=""
+fi
+echo "SANITIZER_CMD=${SANITIZER_CMD}" >> $GITHUB_ENV
