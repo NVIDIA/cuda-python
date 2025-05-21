@@ -77,6 +77,7 @@ def _lazy_init():
             "fatbin": _nvjitlink.InputType.FATBIN,
             "ltoir": _nvjitlink.InputType.LTOIR,
             "object": _nvjitlink.InputType.OBJECT,
+            "lib": _nvjitlink.InputType.LIBRARY,
         }
     else:
         _driver_input_types = {

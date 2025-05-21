@@ -334,6 +334,69 @@ class ObjectCode:
         """
         return ObjectCode._init(module, "ptx", symbol_mapping=symbol_mapping)
 
+    @staticmethod
+    def from_ltoir(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing LTOIR.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory ltoir code to load, or
+            a file path string pointing to the on-disk ltoir file to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "ltoir", symbol_mapping=symbol_mapping)
+
+    @staticmethod
+    def from_fatbin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing fatbin.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory fatbin to load, or
+            a file path string pointing to the on-disk fatbin to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "fatbin", symbol_mapping=symbol_mapping)
+
+    @staticmethod
+    def from_object(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing object code.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory object code to load, or
+            a file path string pointing to the on-disk object code to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "object", symbol_mapping=symbol_mapping)
+
+    def from_library(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing library.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory library to load, or
+            a file path string pointing to the on-disk library to load.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "lib", symbol_mapping=symbol_mapping)
+
     # TODO: do we want to unload in a finalizer? Probably not..
 
     def _lazy_load_module(self, *args, **kwargs):
@@ -370,7 +433,7 @@ class ObjectCode:
             Newly created kernel object.
 
         """
-        supported_code_types = ("cubin", "ptx", "fatbin")
+        supported_code_types = ("cubin", "ptx", "fatbin", "object", "lib")
         if self._code_type not in supported_code_types:
             raise RuntimeError(f'Unsupported code type "{self._code_type}" ({supported_code_types=})')
         try:
