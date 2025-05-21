@@ -27,3 +27,5 @@ New examples
 
 Fixes and enhancements
 ----------------------
+
+- An :class:`Event` can now be used to look up its corresponding device and context using the ``.device`` and ``.context`` attributes respectively.
