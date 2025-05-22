@@ -211,16 +211,25 @@ class KernelOccupancy:
         )
 
     def max_potential_block_size(
-        self, dynamic_shared_memory_size: int, block_size_limit: int
+        self, dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize], block_size_limit: int
     ) -> MaxPotentialBlockSizeOccupancyResult:
         """MaxPotentialBlockSizeOccupancyResult: Suggested launch configuration for reasonable occupancy.
 
         Returns the minimum grid size needed to achieve the maximum occupancy and
         the maximum block size that can achieve the maximum occupancy.
         """
-        min_grid_size, max_block_size = handle_return(
-            driver.cuOccupancyMaxPotentialBlockSize(self._handle, None, dynamic_shared_memory_size, block_size_limit)
-        )
+        if isinstance(dynamic_shared_memory_needed, int):
+            min_grid_size, max_block_size = handle_return(
+                driver.cuOccupancyMaxPotentialBlockSize(
+                    self._handle, None, dynamic_shared_memory_needed, block_size_limit
+                )
+            )
+        else:
+            min_grid_size, max_block_size = handle_return(
+                driver.cuOccupancyMaxPotentialBlockSize(
+                    self._handle, dynamic_shared_memory_needed.getPtr(), 0, block_size_limit
+                )
+            )
         return MaxPotentialBlockSizeOccupancyResult(min_grid_size=min_grid_size, max_block_size=max_block_size)
 
     def available_dynamic_shared_memory_per_block(self, num_blocks_per_multiprocessor: int, block_size: int) -> int:
