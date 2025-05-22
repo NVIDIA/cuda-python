@@ -276,7 +276,7 @@ class ObjectCode:
     """
 
     __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
-    _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
+    _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "lib")
 
     def __new__(self, *args, **kwargs):
         raise RuntimeError(
@@ -433,7 +433,7 @@ class ObjectCode:
             Newly created kernel object.
 
         """
-        supported_code_types = ("cubin", "ptx", "fatbin", "object", "lib")
+        supported_code_types = ("cubin", "ptx", "fatbin")
         if self._code_type not in supported_code_types:
             raise RuntimeError(f'Unsupported code type "{self._code_type}" ({supported_code_types=})')
         try:
