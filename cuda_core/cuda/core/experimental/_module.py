@@ -186,6 +186,9 @@ class KernelAttributes:
         )
 
 
+MaxPotentialBlockSizeOccupancyResult = namedtuple("MaxPotential", ("min_grid_size", "max_block_size"))
+
+
 class KernelOccupancy:
     """ """
 
@@ -207,16 +210,18 @@ class KernelOccupancy:
             driver.cuOccupancyMaxActiveBlocksPerMultiprocessor(self._handle, block_size, dynamic_shared_memory_size)
         )
 
-    # FIXME: better docstring needed
-    def max_potential_block_size(self, dynamic_shared_memory_size: int, block_size_limit: int) -> tuple[int]:
-        """(int, int): Suggested launch configuration for reasonable occupancy.
+    def max_potential_block_size(
+        self, dynamic_shared_memory_size: int, block_size_limit: int
+    ) -> MaxPotentialBlockSizeOccupancyResult:
+        """MaxPotentialBlockSizeOccupancyResult: Suggested launch configuration for reasonable occupancy.
 
         Returns the minimum grid size needed to achieve the maximum occupancy and
         the maximum block size that can achieve the maximum occupancy.
         """
-        return handle_return(
+        min_grid_size, max_block_size = handle_return(
             driver.cuOccupancyMaxPotentialBlockSize(self._handle, None, dynamic_shared_memory_size, block_size_limit)
         )
+        return MaxPotentialBlockSizeOccupancyResult(min_grid_size=min_grid_size, max_block_size=max_block_size)
 
     def available_dynamic_shared_memory_per_block(self, num_blocks_per_multiprocessor: int, block_size: int) -> int:
         """int: Dynamic shared memory available per block for given launch configuration."""
