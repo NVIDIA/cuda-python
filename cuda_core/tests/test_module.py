@@ -11,6 +11,11 @@ import cuda.core.experimental
 from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions, system
 from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
+try:
+    import numba
+except ImportError:
+    numba = None
+
 SAXPY_KERNEL = r"""
 template<typename T>
 __global__ void saxpy(const T a,
@@ -269,9 +274,10 @@ def test_saxpy_occupancy_max_active_block_per_multiprocessor(get_saxpy_kernel, b
     assert kernel.attributes.num_regs() * num_blocks_per_sm <= dev_props.max_registers_per_multiprocessor
 
 
-@pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 256])
+@pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 256, 0])
 @pytest.mark.parametrize("smem_size_per_block", [0, 32, 4096])
-def test_saxpy_occupancy_max_potential_block_size(get_saxpy_kernel, block_size_limit, smem_size_per_block):
+def test_saxpy_occupancy_max_potential_block_size_constant(get_saxpy_kernel, block_size_limit, smem_size_per_block):
+    """Tests use case when shared memory needed is independent on the block size"""
     kernel, _ = get_saxpy_kernel
     dev_props = Device().properties
     assert block_size_limit <= dev_props.max_threads_per_block
@@ -284,7 +290,40 @@ def test_saxpy_occupancy_max_potential_block_size(get_saxpy_kernel, block_size_l
     assert isinstance(max_block_size, int)
     assert min_grid_size > 0
     assert max_block_size > 0
-    assert max_block_size <= block_size_limit
+    if block_size_limit > 0:
+        assert max_block_size <= block_size_limit
+    else:
+        assert max_block_size <= dev_props.max_threads_per_block
+    assert min_grid_size == config_data.min_grid_size
+    assert max_block_size == config_data.max_block_size
+
+
+@pytest.mark.skipif(numba is None, reason="Test requires numba to be installed")
+@pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 277, 0])
+def test_saxpy_occupancy_max_potential_block_size_b2dsize(get_saxpy_kernel, block_size_limit):
+    """Tests use case when shared memory needed depends on the block size"""
+    kernel, _ = get_saxpy_kernel
+
+    def shared_memory_needed(block_size: numba.intc) -> numba.size_t:
+        "Size of dynamic shared memory needed by kernel of this block size"
+        return 1024 * (block_size // 32)
+
+    b2dsize_sig = numba.size_t(numba.intc)
+    dsmem_needed_cfunc = numba.cfunc(b2dsize_sig)(shared_memory_needed)
+    fn_ptr = ctypes.cast(dsmem_needed_cfunc.ctypes, ctypes.c_void_p).value
+    b2dsize_fn = driver.CUoccupancyB2DSize(_ptr=fn_ptr)
+    config_data = kernel.occupancy.max_potential_block_size(b2dsize_fn, block_size_limit)
+    dev_props = Device().properties
+    assert block_size_limit <= dev_props.max_threads_per_block
+    min_grid_size, max_block_size = config_data
+    assert isinstance(min_grid_size, int)
+    assert isinstance(max_block_size, int)
+    assert min_grid_size > 0
+    assert max_block_size > 0
+    if block_size_limit > 0:
+        assert max_block_size <= block_size_limit
+    else:
+        assert max_block_size <= dev_props.max_threads_per_block
 
 
 @pytest.mark.parametrize("num_blocks_per_sm, block_size", [(4, 32), (2, 64), (2, 96), (3, 120), (2, 128), (1, 256)])
