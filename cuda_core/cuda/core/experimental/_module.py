@@ -228,14 +228,14 @@ class KernelOccupancy:
         """ "int: The maximum cluster size that can be launched for this kernel and launch configuration"""
         drv_cfg = _to_native_launch_config(config)
         if stream is not None:
-            drv_cfg.hStream = stream._handle
+            drv_cfg.hStream = stream.handle
         return handle_return(driver.cuOccupancyMaxPotentialClusterSize(self._handle, drv_cfg))
 
     def max_active_clusters(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
         """ "int: The maximum number of clusters that could co-exist on the target device"""
         drv_cfg = _to_native_launch_config(config)
         if stream is not None:
-            drv_cfg.hStream = stream._handle
+            drv_cfg.hStream = stream.handle
         return handle_return(driver.cuOccupancyMaxActiveClusters(self._handle, drv_cfg))
 
 
