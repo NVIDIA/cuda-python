@@ -296,3 +296,32 @@ def test_saxpy_occupancy_available_dynamic_shared_memory_per_block(get_saxpy_ker
     smem_size = kernel.occupancy.available_dynamic_shared_memory_per_block(num_blocks_per_sm, block_size)
     assert smem_size <= dev_props.max_shared_memory_per_block
     assert num_blocks_per_sm * smem_size <= dev_props.max_shared_memory_per_multiprocessor
+
+
+@pytest.mark.parametrize("cluster", [None, 2])
+def test_saxpy_occupancy_max_active_clusters(get_saxpy_kernel, cluster):
+    kernel, _ = get_saxpy_kernel
+    dev = Device()
+    if (cluster) and (dev.compute_capability < (9, 0)):
+        pytest.skip("Device with compute capability 90 or higher is required for cluster support")
+    launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64, cluster=cluster)
+    query_fn = kernel.occupancy.max_active_clusters
+    max_active_clusters = query_fn(launch_config)
+    assert isinstance(max_active_clusters, int)
+    assert max_active_clusters >= 0
+    max_active_clusters = query_fn(launch_config, stream=dev.default_stream)
+    assert isinstance(max_active_clusters, int)
+    assert max_active_clusters >= 0
+
+
+def test_saxpy_occupancy_max_potential_cluster_size(get_saxpy_kernel):
+    kernel, _ = get_saxpy_kernel
+    dev = Device()
+    launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64)
+    query_fn = kernel.occupancy.max_potential_cluster_size
+    max_potential_cluster_size = query_fn(launch_config)
+    assert isinstance(max_potential_cluster_size, int)
+    assert max_potential_cluster_size >= 0
+    max_potential_cluster_size = query_fn(launch_config, stream=dev.default_stream)
+    assert isinstance(max_potential_cluster_size, int)
+    assert max_potential_cluster_size >= 0
