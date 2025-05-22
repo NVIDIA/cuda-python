@@ -169,3 +169,15 @@ __global__ void wait(int* val) {
     arr[0] = 1
     event3.sync()
     event3 - event1  # this should work
+
+
+def test_event_device(init_cuda):
+    device = Device()
+    event = device.create_event(options=EventOptions())
+    assert event.device is device
+
+
+def test_event_context(init_cuda):
+    event = Device().create_event(options=EventOptions())
+    context = event.context
+    assert context is not None
