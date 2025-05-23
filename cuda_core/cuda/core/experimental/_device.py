@@ -6,8 +6,9 @@ import threading
 from typing import Optional, Union
 
 from cuda.core.experimental._context import Context, ContextOptions
+from cuda.core.experimental._memory import AsyncMempool, Buffer, MemoryResource, _SynchronousMemoryResource
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
+
 from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
@@ -979,7 +980,7 @@ class Device:
                         runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
                     )
                 ) == 1:
-                    dev._mr = _DefaultAsyncMempool(dev_id)
+                    dev._mr = AsyncMempool._from_device(dev_id)
                 else:
                     dev._mr = _SynchronousMemoryResource(dev_id)
 
