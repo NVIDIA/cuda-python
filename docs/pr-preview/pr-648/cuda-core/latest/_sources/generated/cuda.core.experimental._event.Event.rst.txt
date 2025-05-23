@@ -24,6 +24,8 @@ cuda.core.experimental.\_event.Event
    .. rubric:: Attributes
 
    
+   .. autoproperty:: context
+   .. autoproperty:: device
    .. autoproperty:: handle
    .. autoproperty:: is_done
    .. autoproperty:: is_ipc_supported
