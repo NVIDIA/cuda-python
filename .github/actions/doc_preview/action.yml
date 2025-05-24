@@ -1,3 +1,7 @@
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Preview or clean up docs built from PRs
 
 # A re-implementation based on the logic of https://github.com/rossjrw/pr-preview-action/blob/41a957c44a456a34718e9bcf825363194db5e6d5/README.md, due to limitations illustrated in NVIDIA/cuda-python#380.
@@ -17,7 +21,7 @@ runs:
     # Note: the PR previews will be removed once merged to main (see below) 
     - name: Deploy doc preview
       if: ${{ github.ref_name != 'main' }}
-      uses: JamesIves/github-pages-deploy-action@v4
+      uses: JamesIves/github-pages-deploy-action@6c2d9db40f9296374acc17b90404b6e8864128c8  # v4.7.3
       with:
         git-config-name: cuda-python-bot
         git-config-email: cuda-python-bot@users.noreply.github.com
@@ -27,7 +31,7 @@ runs:
     
     - name: Leave a comment after deployment
       if: ${{ github.ref_name != 'main' }}
-      uses: marocchino/sticky-pull-request-comment@v2
+      uses: marocchino/sticky-pull-request-comment@67d0dec7b07ed060a405f9b2a64b8ab319fdd7db  # v2.9.2
       with:
         header: pr-preview
         number: ${{ inputs.pr-number }}
@@ -43,7 +47,7 @@ runs:
     # The steps below are executed only when building on main.    
     - name: Remove doc preview
       if: ${{ github.ref_name == 'main' }}
-      uses: JamesIves/github-pages-deploy-action@v4
+      uses: JamesIves/github-pages-deploy-action@6c2d9db40f9296374acc17b90404b6e8864128c8  # v4.7.3
       with:
         git-config-name: cuda-python-bot
         git-config-email: cuda-python-bot@users.noreply.github.com
@@ -53,7 +57,7 @@ runs:
     
     - name: Leave a comment after removal
       if: ${{ github.ref_name == 'main' }}
-      uses: marocchino/sticky-pull-request-comment@v2
+      uses: marocchino/sticky-pull-request-comment@67d0dec7b07ed060a405f9b2a64b8ab319fdd7db  # v2.9.2
       with:
         header: pr-preview
         number: ${{ inputs.pr-number }}

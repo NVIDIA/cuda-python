@@ -1,4 +1,6 @@
-#Requires -RunAsAdministrator
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
 
 # Install the driver
 function Install-Driver {
@@ -23,7 +25,7 @@ function Install-Driver {
     $ProgressPreference = $ProgressPreference_tmp
     Write-Output 'Download complete!'
 
-    # Install the file with the specified path from earlier as well as the RunAs admin option
+    # Install the file with the specified path from earlier
     Write-Output 'Running the driver installer...'
     Start-Process -FilePath $file_dir -ArgumentList $install_args -Wait
     Write-Output 'Done!'

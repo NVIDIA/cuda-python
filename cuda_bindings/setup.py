@@ -1,15 +1,11 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import atexit
 import contextlib
 import glob
 import os
+import pathlib
 import platform
 import shutil
 import sys
@@ -23,6 +19,8 @@ from pyclibrary import CParser
 from setuptools import find_packages, setup
 from setuptools.command.bdist_wheel import bdist_wheel
 from setuptools.command.build_ext import build_ext
+from setuptools.command.build_py import build_py
+from setuptools.command.editable_wheel import _TopLevelFinder, editable_wheel
 from setuptools.extension import Extension
 
 # ----------------------------------------------------------------------
@@ -374,37 +372,83 @@ class ParallelBuildExtensions(build_ext):
     def build_extension(self, ext):
         if building_wheel and sys.platform == "linux":
             # Strip binaries to remove debug symbols
-            extra_linker_flags = ["-Wl,--strip-all"]
-
-            # Allow extensions to discover libraries at runtime
-            # relative their wheels installation.
-            if ext.name == "cuda.bindings._bindings.cynvrtc":
-                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/cuda_nvrtc/lib"
-            elif ext.name == "cuda.bindings._internal.nvjitlink":
-                ldflag = "-Wl,--disable-new-dtags,-rpath,$ORIGIN/../../../nvidia/nvjitlink/lib"
-            elif ext.name == "cuda.bindings._internal.nvvm":
-                # from <loc>/site-packages/cuda/bindings/_internal/
-                #   to <loc>/site-packages/nvidia/cuda_nvcc/nvvm/lib64/
-                rel1 = "$ORIGIN/../../../nvidia/cuda_nvcc/nvvm/lib64"
-                # from <loc>/lib/python3.*/site-packages/cuda/bindings/_internal/
-                #   to <loc>/lib/nvvm/lib64/
-                rel2 = "$ORIGIN/../../../../../../nvvm/lib64"
-                ldflag = f"-Wl,--disable-new-dtags,-rpath,{rel1},-rpath,{rel2}"
-            else:
-                ldflag = None
-
-            if ldflag:
-                extra_linker_flags.append(ldflag)
-        else:
-            extra_linker_flags = []
-
-        ext.extra_link_args += extra_linker_flags
+            ext.extra_link_args.append("-Wl,--strip-all")
         super().build_extension(ext)
+
+
+################################################################################
+# Adapted from NVIDIA/numba-cuda
+# TODO: Remove this block once we get rid of cuda.__version__ and the .pth files
+
+REDIRECTOR_PTH = "_cuda_bindings_redirector.pth"
+REDIRECTOR_PY = "_cuda_bindings_redirector.py"
+SITE_PACKAGES = pathlib.Path("site-packages")
+
+
+class build_py_with_redirector(build_py):  # noqa: N801
+    """Include the redirector files in the generated wheel."""
+
+    def copy_redirector_file(self, source, destination="."):
+        destination = pathlib.Path(self.build_lib) / destination
+        self.copy_file(str(source), str(destination), preserve_mode=0)
+
+    def run(self):
+        super().run()
+        self.copy_redirector_file(SITE_PACKAGES / REDIRECTOR_PTH)
+        self.copy_redirector_file(SITE_PACKAGES / REDIRECTOR_PY)
+
+    def get_source_files(self):
+        src = super().get_source_files()
+        src.extend(
+            [
+                str(SITE_PACKAGES / REDIRECTOR_PTH),
+                str(SITE_PACKAGES / REDIRECTOR_PY),
+            ]
+        )
+        return src
+
+    def get_output_mapping(self):
+        mapping = super().get_output_mapping()
+        build_lib = pathlib.Path(self.build_lib)
+        mapping[str(build_lib / REDIRECTOR_PTH)] = REDIRECTOR_PTH
+        mapping[str(build_lib / REDIRECTOR_PY)] = REDIRECTOR_PY
+        return mapping
+
+
+class TopLevelFinderWithRedirector(_TopLevelFinder):
+    """Include the redirector files in the editable wheel."""
+
+    def get_implementation(self):
+        for item in super().get_implementation():  # noqa: UP028
+            yield item
+
+        with open(SITE_PACKAGES / REDIRECTOR_PTH) as f:
+            yield (REDIRECTOR_PTH, f.read())
+
+        with open(SITE_PACKAGES / REDIRECTOR_PY) as f:
+            yield (REDIRECTOR_PY, f.read())
+
+
+class editable_wheel_with_redirector(editable_wheel):
+    def _select_strategy(self, name, tag, build_lib):
+        # The default mode is "lenient" - others are "strict" and "compat".
+        # "compat" is deprecated. "strict" creates a tree of links to files in
+        # the repo. It could be implemented, but we only handle the default
+        # case for now.
+        if self.mode is not None and self.mode != "lenient":
+            raise RuntimeError(f"Only lenient mode is supported for editable install. Current mode is {self.mode}")
+
+        return TopLevelFinderWithRedirector(self.distribution, name)
+
+
+################################################################################
 
 
 cmdclass = {
     "bdist_wheel": WheelsBuildExtensions,
     "build_ext": ParallelBuildExtensions,
+    "build_py": build_py_with_redirector,
+    "editable_wheel": editable_wheel_with_redirector,
 }
 
 # ----------------------------------------------------------------------

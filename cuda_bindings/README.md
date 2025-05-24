@@ -1,55 +1,18 @@
 # `cuda.bindings`: Low-level CUDA interfaces
 
-`cuda.bindings` is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview](https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html) for the workflow and performance results.
-
-`cuda.bindings` is a subpackage of `cuda-python`.
+`cuda.bindings` is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview page](https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html) for the workflow and performance results.
 
 ## Installing
 
-`cuda.bindings` can be installed from:
-
-* PyPI
-* Conda (conda-forge/nvidia channels)
-* Source builds
-
-Differences between these options are described in [Installation](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html) documentation. Each package guarantees minor version compatibility.
-
-## Runtime Dependencies
-
-`cuda.bindings` is supported on all the same platforms as CUDA. Specific dependencies are as follows:
-
-* Driver: Linux (450.80.02 or later) Windows (456.38 or later)
-* CUDA Toolkit 12.x
-
-Only the NVRTC and nvJitLink redistributable components are required from the CUDA Toolkit, which can be obtained via PyPI, Conda, or local installers (as described in the CUDA Toolkit [Windows](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and [Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html) Installation Guides).
+Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html) for instructions and required/optional dependencies.
 
 ## Developing
 
-We use `pre-commit` to manage various tools to help development and ensure consistency.
-```shell
-pip install pre-commit
-```
-
-### Code linting
-
-Run this command before checking in the code changes
-```shell
-pre-commit run -a --show-diff-on-failure
-```
-to ensure the code formatting is in line of the requirements (as listed in [`pyproject.toml`](./pyproject.toml)).
-
-### Code signing
-
-This repository implements a security check to prevent the CI system from running untrusted code. A part of the
-security check consists of checking if the git commits are signed. See
-[here](https://docs.gha-runners.nvidia.com/apps/copy-pr-bot/faqs/#why-did-i-receive-a-comment-that-my-pull-request-requires-additional-validation)
-and
-[here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
-for more details, including how to sign your commits.
+This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
 
 ## Testing
 
-Latest dependencies can be found in [requirements.txt](https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/requirements.txt).
+Testing dependencies can be installed using the `[test]` optional dependency identifier. For example, `pip install -v -e .[test]`.
 
 Multiple testing options are available:
 

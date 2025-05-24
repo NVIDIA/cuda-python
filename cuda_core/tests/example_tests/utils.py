@@ -1,10 +1,5 @@
 # Copyright 2024 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
+# SPDX-License-Identifier: Apache-2.0
 
 import gc
 import os
@@ -33,10 +28,11 @@ def run_example(samples_path, filename, env=None):
         sys.argv = [fullpath]
         old_sys_path = sys.path.copy()
         sys.path.append(samples_path)
-        exec(script, env if env else {})
+        # TODO: Refactor the examples to give them a common callable `main()` to avoid needing to use exec here?
+        exec(script, env if env else {})  # nosec B102
     except ImportError as e:
         # for samples requiring any of optional dependencies
-        for m in ("cupy",):
+        for m in ("cupy", "torch"):
             if f"No module named '{m}'" in str(e):
                 pytest.skip(f"{m} not installed, skipping related tests")
                 break

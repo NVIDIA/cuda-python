@@ -1,16 +1,13 @@
 # Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 import platform
 import shutil
 import textwrap
 
 import numpy as np
 import pytest
+from conftest import skipif_testing_with_compute_sanitizer
 
 import cuda.cuda as cuda
 import cuda.cudart as cudart
@@ -83,6 +80,7 @@ def test_cuda_memcpy():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
+@skipif_testing_with_compute_sanitizer
 def test_cuda_array():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -236,6 +234,7 @@ def test_cuda_uuid_list_access():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
+@skipif_testing_with_compute_sanitizer
 def test_cuda_cuModuleLoadDataEx():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -251,6 +250,7 @@ def test_cuda_cuModuleLoadDataEx():
         cuda.CUjit_option.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,
         cuda.CUjit_option.CU_JIT_LOG_VERBOSE,
     ]
+    # FIXME: This function call raises CUDA_ERROR_INVALID_VALUE
     err, mod = cuda.cuModuleLoadDataEx(0, 0, option_keys, [])
 
     (err,) = cuda.cuCtxDestroy(ctx)
@@ -622,6 +622,7 @@ def test_cuda_coredump_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
+@skipif_testing_with_compute_sanitizer
 def test_get_error_name_and_string():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -647,7 +648,8 @@ def test_get_error_name_and_string():
 
 @pytest.mark.skipif(not callableBinary("nvidia-smi"), reason="Binary existance needed")
 def test_device_get_name():
-    import subprocess
+    # TODO: Refactor this test once we have nvml bindings to avoid the use of subprocess
+    import subprocess  # nosec B404
 
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -656,12 +658,12 @@ def test_device_get_name():
     err, ctx = cuda.cuCtxCreate(0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    p = subprocess.run(
-        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+    p = subprocess.check_output(
+        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], shell=False, stderr=subprocess.PIPE
+    )  # nosec B603, B607
 
     delimiter = b"\r\n" if platform.system() == "Windows" else b"\n"
-    expect = p.stdout.split(delimiter)
+    expect = p.split(delimiter)
     size = 64
     _, got = cuda.cuDeviceGetName(size, device)
     got = got.split(b"\x00")[0]
@@ -950,6 +952,7 @@ def test_CUmemDecompressParams_st():
     assert int(desc.dstActBytes) == 0
 
 
+@skipif_testing_with_compute_sanitizer
 def test_all_CUresult_codes():
     max_code = int(max(cuda.CUresult))
     # Smoke test. CUDA_ERROR_UNKNOWN = 999, but intentionally using literal value.
@@ -982,13 +985,32 @@ def test_all_CUresult_codes():
     assert num_good >= 76  # CTK 11.0.3_450.51.06
 
 
+@skipif_testing_with_compute_sanitizer
 def test_cuKernelGetName_failure():
     err, name = cuda.cuKernelGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
     assert name is None
 
 
+@skipif_testing_with_compute_sanitizer
 def test_cuFuncGetName_failure():
     err, name = cuda.cuFuncGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
     assert name is None
+
+
+@skipif_testing_with_compute_sanitizer
+@pytest.mark.skipif(
+    driverVersionLessThan(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
+    reason="When API was introduced",
+)
+def test_cuCheckpointProcessGetState_failure():
+    err, state = cuda.cuCheckpointProcessGetState(123434)
+    assert err != cuda.CUresult.CUDA_SUCCESS
+    assert state is None
+
+
+def test_private_function_pointer_inspector():
+    from cuda.bindings._bindings.cydriver import _inspect_function_pointer
+
+    assert _inspect_function_pointer("__cuGetErrorString") != 0

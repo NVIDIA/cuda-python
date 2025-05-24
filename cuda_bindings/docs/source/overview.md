@@ -205,7 +205,7 @@ argument on either host or device. Since we already prepared each of our argumen
 construction of our final contiguous array is done by retrieving the `XX.ctypes.data`
 of each kernel argument.
 
-```{code-cell} python
+```python
 args = [a, dX, dY, dOut, n]
 args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 ```

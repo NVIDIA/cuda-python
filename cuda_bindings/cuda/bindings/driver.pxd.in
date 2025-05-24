@@ -1,12 +1,7 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
-#
-# This code was automatically generated with version 12.8.0. Do not modify it directly.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+# This code was automatically generated with version 12.9.0. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 cimport cuda.bindings._lib.utils as utils
 
@@ -417,6 +412,21 @@ cdef class CUdevResourceDesc:
     cdef cydriver.CUdevResourceDesc* _pvt_ptr
 {{endif}}
 
+{{if 'CUlogsCallbackHandle' in found_types}}
+
+cdef class CUlogsCallbackHandle:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cydriver.CUlogsCallbackHandle  _pvt_val
+    cdef cydriver.CUlogsCallbackHandle* _pvt_ptr
+{{endif}}
+
 {{if True}}
 
 cdef class CUeglStreamConnection:
@@ -537,6 +547,21 @@ cdef class CUoccupancyB2DSize:
     """
     cdef cydriver.CUoccupancyB2DSize  _pvt_val
     cdef cydriver.CUoccupancyB2DSize* _pvt_ptr
+{{endif}}
+
+{{if 'CUlogsCallback' in found_types}}
+
+cdef class CUlogsCallback:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cydriver.CUlogsCallback  _pvt_val
+    cdef cydriver.CUlogsCallback* _pvt_ptr
 {{endif}}
 
 {{if 'CUuuid_st' in found_struct}}
@@ -758,7 +783,7 @@ cdef class CUstreamMemOpMemoryBarrierParams_st:
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.memoryBarrier.flags' in found_struct}}
     flags : unsigned int
-
+        See CUstreamMemoryBarrier_flags
     {{endif}}
 
     Methods
@@ -948,11 +973,12 @@ cdef class CUasyncNotificationInfo_st:
     ----------
     {{if 'CUasyncNotificationInfo_st.type' in found_struct}}
     type : CUasyncNotificationType
-
+        The type of notification being sent
     {{endif}}
     {{if 'CUasyncNotificationInfo_st.info' in found_struct}}
     info : anon_union2
-
+        Information about the notification. `typename` must be checked in
+        order to interpret this field.
     {{endif}}
 
     Methods
@@ -4343,6 +4369,272 @@ cdef class CUmemPoolPtrExportData_st:
     cdef cydriver.CUmemPoolPtrExportData_st _pvt_val
     cdef cydriver.CUmemPoolPtrExportData_st* _pvt_ptr
 {{endif}}
+{{if 'CUmemcpyAttributes_st' in found_struct}}
+
+cdef class CUmemcpyAttributes_st:
+    """
+    Attributes specific to copies within a batch. For more details on
+    usage see cuMemcpyBatchAsync.
+
+    Attributes
+    ----------
+    {{if 'CUmemcpyAttributes_st.srcAccessOrder' in found_struct}}
+    srcAccessOrder : CUmemcpySrcAccessOrder
+        Source access ordering to be observed for copies with this
+        attribute.
+    {{endif}}
+    {{if 'CUmemcpyAttributes_st.srcLocHint' in found_struct}}
+    srcLocHint : CUmemLocation
+        Hint location for the source operand. Ignored when the pointers are
+        not managed memory or memory allocated outside CUDA.
+    {{endif}}
+    {{if 'CUmemcpyAttributes_st.dstLocHint' in found_struct}}
+    dstLocHint : CUmemLocation
+        Hint location for the destination operand. Ignored when the
+        pointers are not managed memory or memory allocated outside CUDA.
+    {{endif}}
+    {{if 'CUmemcpyAttributes_st.flags' in found_struct}}
+    flags : unsigned int
+        Additional flags for copies with this attribute. See CUmemcpyFlags
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUmemcpyAttributes_st _pvt_val
+    cdef cydriver.CUmemcpyAttributes_st* _pvt_ptr
+    {{if 'CUmemcpyAttributes_st.srcLocHint' in found_struct}}
+    cdef CUmemLocation _srcLocHint
+    {{endif}}
+    {{if 'CUmemcpyAttributes_st.dstLocHint' in found_struct}}
+    cdef CUmemLocation _dstLocHint
+    {{endif}}
+{{endif}}
+{{if 'CUoffset3D_st' in found_struct}}
+
+cdef class CUoffset3D_st:
+    """
+    Struct representing offset into a CUarray in elements
+
+    Attributes
+    ----------
+    {{if 'CUoffset3D_st.x' in found_struct}}
+    x : size_t
+
+    {{endif}}
+    {{if 'CUoffset3D_st.y' in found_struct}}
+    y : size_t
+
+    {{endif}}
+    {{if 'CUoffset3D_st.z' in found_struct}}
+    z : size_t
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUoffset3D_st _pvt_val
+    cdef cydriver.CUoffset3D_st* _pvt_ptr
+{{endif}}
+{{if 'CUextent3D_st' in found_struct}}
+
+cdef class CUextent3D_st:
+    """
+    Struct representing width/height/depth of a CUarray in elements
+
+    Attributes
+    ----------
+    {{if 'CUextent3D_st.width' in found_struct}}
+    width : size_t
+
+    {{endif}}
+    {{if 'CUextent3D_st.height' in found_struct}}
+    height : size_t
+
+    {{endif}}
+    {{if 'CUextent3D_st.depth' in found_struct}}
+    depth : size_t
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUextent3D_st _pvt_val
+    cdef cydriver.CUextent3D_st* _pvt_ptr
+{{endif}}
+{{if 'CUmemcpy3DOperand_st.op.ptr' in found_struct}}
+
+cdef class anon_struct23:
+    """
+    Attributes
+    ----------
+    {{if 'CUmemcpy3DOperand_st.op.ptr.ptr' in found_struct}}
+    ptr : CUdeviceptr
+
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op.ptr.rowLength' in found_struct}}
+    rowLength : size_t
+
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op.ptr.layerHeight' in found_struct}}
+    layerHeight : size_t
+
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op.ptr.locHint' in found_struct}}
+    locHint : CUmemLocation
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
+    {{if 'CUmemcpy3DOperand_st.op.ptr.ptr' in found_struct}}
+    cdef CUdeviceptr _ptr
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op.ptr.locHint' in found_struct}}
+    cdef CUmemLocation _locHint
+    {{endif}}
+{{endif}}
+{{if 'CUmemcpy3DOperand_st.op.array' in found_struct}}
+
+cdef class anon_struct24:
+    """
+    Attributes
+    ----------
+    {{if 'CUmemcpy3DOperand_st.op.array.array' in found_struct}}
+    array : CUarray
+
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op.array.offset' in found_struct}}
+    offset : CUoffset3D
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
+    {{if 'CUmemcpy3DOperand_st.op.array.array' in found_struct}}
+    cdef CUarray _array
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op.array.offset' in found_struct}}
+    cdef CUoffset3D _offset
+    {{endif}}
+{{endif}}
+{{if 'CUmemcpy3DOperand_st.op' in found_struct}}
+
+cdef class anon_union12:
+    """
+    Attributes
+    ----------
+    {{if 'CUmemcpy3DOperand_st.op.ptr' in found_struct}}
+    ptr : anon_struct23
+
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op.array' in found_struct}}
+    array : anon_struct24
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
+    {{if 'CUmemcpy3DOperand_st.op.ptr' in found_struct}}
+    cdef anon_struct23 _ptr
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op.array' in found_struct}}
+    cdef anon_struct24 _array
+    {{endif}}
+{{endif}}
+{{if 'CUmemcpy3DOperand_st' in found_struct}}
+
+cdef class CUmemcpy3DOperand_st:
+    """
+    Struct representing an operand for copy with cuMemcpy3DBatchAsync
+
+    Attributes
+    ----------
+    {{if 'CUmemcpy3DOperand_st.type' in found_struct}}
+    type : CUmemcpy3DOperandType
+
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
+    op : anon_union12
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUmemcpy3DOperand_st* _val_ptr
+    cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
+    {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
+    cdef anon_union12 _op
+    {{endif}}
+{{endif}}
+{{if 'CUDA_MEMCPY3D_BATCH_OP_st' in found_struct}}
+
+cdef class CUDA_MEMCPY3D_BATCH_OP_st:
+    """
+    Attributes
+    ----------
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.src' in found_struct}}
+    src : CUmemcpy3DOperand
+        Source memcpy operand.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.dst' in found_struct}}
+    dst : CUmemcpy3DOperand
+        Destination memcpy operand.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.extent' in found_struct}}
+    extent : CUextent3D
+        Extents of the memcpy between src and dst. The width, height and
+        depth components must not be 0.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.srcAccessOrder' in found_struct}}
+    srcAccessOrder : CUmemcpySrcAccessOrder
+        Source access ordering to be observed for copy from src to dst.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.flags' in found_struct}}
+    flags : unsigned int
+        Additional flags for copies with this attribute. See CUmemcpyFlags
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUDA_MEMCPY3D_BATCH_OP_st _pvt_val
+    cdef cydriver.CUDA_MEMCPY3D_BATCH_OP_st* _pvt_ptr
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.src' in found_struct}}
+    cdef CUmemcpy3DOperand _src
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.dst' in found_struct}}
+    cdef CUmemcpy3DOperand _dst
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.extent' in found_struct}}
+    cdef CUextent3D _extent
+    {{endif}}
+{{endif}}
 {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v1_st' in found_struct}}
 
 cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
@@ -4480,7 +4772,14 @@ cdef class CUDA_CHILD_GRAPH_NODE_PARAMS_st:
     {{if 'CUDA_CHILD_GRAPH_NODE_PARAMS_st.graph' in found_struct}}
     graph : CUgraph
         The child graph to clone into the node for node creation, or a
-        handle to the graph owned by the node for node query
+        handle to the graph owned by the node for node query. The graph
+        must not contain conditional nodes. Graphs containing memory
+        allocation or memory free nodes must set the ownership to be moved
+        to the parent.
+    {{endif}}
+    {{if 'CUDA_CHILD_GRAPH_NODE_PARAMS_st.ownership' in found_struct}}
+    ownership : CUgraphChildGraphNodeOwnership
+        The ownership relationship of the child graph node.
     {{endif}}
 
     Methods
@@ -4759,272 +5058,6 @@ cdef class CUcheckpointUnlockArgs_st:
     cdef cydriver.CUcheckpointUnlockArgs_st _pvt_val
     cdef cydriver.CUcheckpointUnlockArgs_st* _pvt_ptr
 {{endif}}
-{{if 'CUmemcpyAttributes_st' in found_struct}}
-
-cdef class CUmemcpyAttributes_st:
-    """
-    Attributes specific to copies within a batch. For more details on
-    usage see cuMemcpyBatchAsync.
-
-    Attributes
-    ----------
-    {{if 'CUmemcpyAttributes_st.srcAccessOrder' in found_struct}}
-    srcAccessOrder : CUmemcpySrcAccessOrder
-        Source access ordering to be observed for copies with this
-        attribute.
-    {{endif}}
-    {{if 'CUmemcpyAttributes_st.srcLocHint' in found_struct}}
-    srcLocHint : CUmemLocation
-        Hint location for the source operand. Ignored when the pointers are
-        not managed memory or memory allocated outside CUDA.
-    {{endif}}
-    {{if 'CUmemcpyAttributes_st.dstLocHint' in found_struct}}
-    dstLocHint : CUmemLocation
-        Hint location for the destination operand. Ignored when the
-        pointers are not managed memory or memory allocated outside CUDA.
-    {{endif}}
-    {{if 'CUmemcpyAttributes_st.flags' in found_struct}}
-    flags : unsigned int
-        Additional flags for copies with this attribute. See CUmemcpyFlags
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    cdef cydriver.CUmemcpyAttributes_st _pvt_val
-    cdef cydriver.CUmemcpyAttributes_st* _pvt_ptr
-    {{if 'CUmemcpyAttributes_st.srcLocHint' in found_struct}}
-    cdef CUmemLocation _srcLocHint
-    {{endif}}
-    {{if 'CUmemcpyAttributes_st.dstLocHint' in found_struct}}
-    cdef CUmemLocation _dstLocHint
-    {{endif}}
-{{endif}}
-{{if 'CUoffset3D_st' in found_struct}}
-
-cdef class CUoffset3D_st:
-    """
-    Struct representing offset into a CUarray in elements
-
-    Attributes
-    ----------
-    {{if 'CUoffset3D_st.x' in found_struct}}
-    x : size_t
-
-    {{endif}}
-    {{if 'CUoffset3D_st.y' in found_struct}}
-    y : size_t
-
-    {{endif}}
-    {{if 'CUoffset3D_st.z' in found_struct}}
-    z : size_t
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    cdef cydriver.CUoffset3D_st _pvt_val
-    cdef cydriver.CUoffset3D_st* _pvt_ptr
-{{endif}}
-{{if 'CUextent3D_st' in found_struct}}
-
-cdef class CUextent3D_st:
-    """
-    Struct representing width/height/depth of a CUarray in elements
-
-    Attributes
-    ----------
-    {{if 'CUextent3D_st.width' in found_struct}}
-    width : size_t
-
-    {{endif}}
-    {{if 'CUextent3D_st.height' in found_struct}}
-    height : size_t
-
-    {{endif}}
-    {{if 'CUextent3D_st.depth' in found_struct}}
-    depth : size_t
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    cdef cydriver.CUextent3D_st _pvt_val
-    cdef cydriver.CUextent3D_st* _pvt_ptr
-{{endif}}
-{{if 'CUmemcpy3DOperand_st.op.ptr' in found_struct}}
-
-cdef class anon_struct23:
-    """
-    Attributes
-    ----------
-    {{if 'CUmemcpy3DOperand_st.op.ptr.ptr' in found_struct}}
-    ptr : CUdeviceptr
-
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op.ptr.rowLength' in found_struct}}
-    rowLength : size_t
-
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op.ptr.layerHeight' in found_struct}}
-    layerHeight : size_t
-
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op.ptr.locHint' in found_struct}}
-    locHint : CUmemLocation
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
-    {{if 'CUmemcpy3DOperand_st.op.ptr.ptr' in found_struct}}
-    cdef CUdeviceptr _ptr
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op.ptr.locHint' in found_struct}}
-    cdef CUmemLocation _locHint
-    {{endif}}
-{{endif}}
-{{if 'CUmemcpy3DOperand_st.op.array' in found_struct}}
-
-cdef class anon_struct24:
-    """
-    Attributes
-    ----------
-    {{if 'CUmemcpy3DOperand_st.op.array.array' in found_struct}}
-    array : CUarray
-
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op.array.offset' in found_struct}}
-    offset : CUoffset3D
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
-    {{if 'CUmemcpy3DOperand_st.op.array.array' in found_struct}}
-    cdef CUarray _array
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op.array.offset' in found_struct}}
-    cdef CUoffset3D _offset
-    {{endif}}
-{{endif}}
-{{if 'CUmemcpy3DOperand_st.op' in found_struct}}
-
-cdef class anon_union13:
-    """
-    Attributes
-    ----------
-    {{if 'CUmemcpy3DOperand_st.op.ptr' in found_struct}}
-    ptr : anon_struct23
-
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op.array' in found_struct}}
-    array : anon_struct24
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
-    {{if 'CUmemcpy3DOperand_st.op.ptr' in found_struct}}
-    cdef anon_struct23 _ptr
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op.array' in found_struct}}
-    cdef anon_struct24 _array
-    {{endif}}
-{{endif}}
-{{if 'CUmemcpy3DOperand_st' in found_struct}}
-
-cdef class CUmemcpy3DOperand_st:
-    """
-    Struct representing an operand for copy with cuMemcpy3DBatchAsync
-
-    Attributes
-    ----------
-    {{if 'CUmemcpy3DOperand_st.type' in found_struct}}
-    type : CUmemcpy3DOperandType
-
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
-    op : anon_union13
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    cdef cydriver.CUmemcpy3DOperand_st* _val_ptr
-    cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
-    {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
-    cdef anon_union13 _op
-    {{endif}}
-{{endif}}
-{{if 'CUDA_MEMCPY3D_BATCH_OP_st' in found_struct}}
-
-cdef class CUDA_MEMCPY3D_BATCH_OP_st:
-    """
-    Attributes
-    ----------
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.src' in found_struct}}
-    src : CUmemcpy3DOperand
-        Source memcpy operand.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.dst' in found_struct}}
-    dst : CUmemcpy3DOperand
-        Destination memcpy operand.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.extent' in found_struct}}
-    extent : CUextent3D
-        Extents of the memcpy between src and dst. The width, height and
-        depth components must not be 0.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.srcAccessOrder' in found_struct}}
-    srcAccessOrder : CUmemcpySrcAccessOrder
-        Source access ordering to be observed for copy from src to dst.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.flags' in found_struct}}
-    flags : unsigned int
-        Additional flags for copies with this attribute. See CUmemcpyFlags
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    cdef cydriver.CUDA_MEMCPY3D_BATCH_OP_st _pvt_val
-    cdef cydriver.CUDA_MEMCPY3D_BATCH_OP_st* _pvt_ptr
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.src' in found_struct}}
-    cdef CUmemcpy3DOperand _src
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.dst' in found_struct}}
-    cdef CUmemcpy3DOperand _dst
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.extent' in found_struct}}
-    cdef CUextent3D _extent
-    {{endif}}
-{{endif}}
 {{if 'CUmemDecompressParams_st' in found_struct}}
 
 cdef class CUmemDecompressParams_st:
@@ -5116,7 +5149,7 @@ cdef class CUdevResource_st:
     {{endif}}
     {{if 'CUdevResource_st.sm' in found_struct}}
     sm : CUdevSmResource
-        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM ``. type.
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM `typename`.
     {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     _oversize : bytes
@@ -5622,11 +5655,12 @@ cdef class CUasyncNotificationInfo(CUasyncNotificationInfo_st):
     ----------
     {{if 'CUasyncNotificationInfo_st.type' in found_struct}}
     type : CUasyncNotificationType
-
+        The type of notification being sent
     {{endif}}
     {{if 'CUasyncNotificationInfo_st.info' in found_struct}}
     info : anon_union2
-
+        Information about the notification. `typename` must be checked in
+        order to interpret this field.
     {{endif}}
 
     Methods
@@ -9796,6 +9830,308 @@ cdef class CUmemPoolPtrExportData(CUmemPoolPtrExportData_v1):
     """
     pass
 {{endif}}
+{{if 'CUmemcpyAttributes_v1' in found_types}}
+
+cdef class CUmemcpyAttributes_v1(CUmemcpyAttributes_st):
+    """
+    Attributes specific to copies within a batch. For more details on
+    usage see cuMemcpyBatchAsync.
+
+    Attributes
+    ----------
+    {{if 'CUmemcpyAttributes_st.srcAccessOrder' in found_struct}}
+    srcAccessOrder : CUmemcpySrcAccessOrder
+        Source access ordering to be observed for copies with this
+        attribute.
+    {{endif}}
+    {{if 'CUmemcpyAttributes_st.srcLocHint' in found_struct}}
+    srcLocHint : CUmemLocation
+        Hint location for the source operand. Ignored when the pointers are
+        not managed memory or memory allocated outside CUDA.
+    {{endif}}
+    {{if 'CUmemcpyAttributes_st.dstLocHint' in found_struct}}
+    dstLocHint : CUmemLocation
+        Hint location for the destination operand. Ignored when the
+        pointers are not managed memory or memory allocated outside CUDA.
+    {{endif}}
+    {{if 'CUmemcpyAttributes_st.flags' in found_struct}}
+    flags : unsigned int
+        Additional flags for copies with this attribute. See CUmemcpyFlags
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUmemcpyAttributes' in found_types}}
+
+cdef class CUmemcpyAttributes(CUmemcpyAttributes_v1):
+    """
+    Attributes specific to copies within a batch. For more details on
+    usage see cuMemcpyBatchAsync.
+
+    Attributes
+    ----------
+    {{if 'CUmemcpyAttributes_st.srcAccessOrder' in found_struct}}
+    srcAccessOrder : CUmemcpySrcAccessOrder
+        Source access ordering to be observed for copies with this
+        attribute.
+    {{endif}}
+    {{if 'CUmemcpyAttributes_st.srcLocHint' in found_struct}}
+    srcLocHint : CUmemLocation
+        Hint location for the source operand. Ignored when the pointers are
+        not managed memory or memory allocated outside CUDA.
+    {{endif}}
+    {{if 'CUmemcpyAttributes_st.dstLocHint' in found_struct}}
+    dstLocHint : CUmemLocation
+        Hint location for the destination operand. Ignored when the
+        pointers are not managed memory or memory allocated outside CUDA.
+    {{endif}}
+    {{if 'CUmemcpyAttributes_st.flags' in found_struct}}
+    flags : unsigned int
+        Additional flags for copies with this attribute. See CUmemcpyFlags
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUoffset3D_v1' in found_types}}
+
+cdef class CUoffset3D_v1(CUoffset3D_st):
+    """
+    Struct representing offset into a CUarray in elements
+
+    Attributes
+    ----------
+    {{if 'CUoffset3D_st.x' in found_struct}}
+    x : size_t
+
+    {{endif}}
+    {{if 'CUoffset3D_st.y' in found_struct}}
+    y : size_t
+
+    {{endif}}
+    {{if 'CUoffset3D_st.z' in found_struct}}
+    z : size_t
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUoffset3D' in found_types}}
+
+cdef class CUoffset3D(CUoffset3D_v1):
+    """
+    Struct representing offset into a CUarray in elements
+
+    Attributes
+    ----------
+    {{if 'CUoffset3D_st.x' in found_struct}}
+    x : size_t
+
+    {{endif}}
+    {{if 'CUoffset3D_st.y' in found_struct}}
+    y : size_t
+
+    {{endif}}
+    {{if 'CUoffset3D_st.z' in found_struct}}
+    z : size_t
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUextent3D_v1' in found_types}}
+
+cdef class CUextent3D_v1(CUextent3D_st):
+    """
+    Struct representing width/height/depth of a CUarray in elements
+
+    Attributes
+    ----------
+    {{if 'CUextent3D_st.width' in found_struct}}
+    width : size_t
+
+    {{endif}}
+    {{if 'CUextent3D_st.height' in found_struct}}
+    height : size_t
+
+    {{endif}}
+    {{if 'CUextent3D_st.depth' in found_struct}}
+    depth : size_t
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUextent3D' in found_types}}
+
+cdef class CUextent3D(CUextent3D_v1):
+    """
+    Struct representing width/height/depth of a CUarray in elements
+
+    Attributes
+    ----------
+    {{if 'CUextent3D_st.width' in found_struct}}
+    width : size_t
+
+    {{endif}}
+    {{if 'CUextent3D_st.height' in found_struct}}
+    height : size_t
+
+    {{endif}}
+    {{if 'CUextent3D_st.depth' in found_struct}}
+    depth : size_t
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUmemcpy3DOperand_v1' in found_types}}
+
+cdef class CUmemcpy3DOperand_v1(CUmemcpy3DOperand_st):
+    """
+    Struct representing an operand for copy with cuMemcpy3DBatchAsync
+
+    Attributes
+    ----------
+    {{if 'CUmemcpy3DOperand_st.type' in found_struct}}
+    type : CUmemcpy3DOperandType
+
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
+    op : anon_union12
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUmemcpy3DOperand' in found_types}}
+
+cdef class CUmemcpy3DOperand(CUmemcpy3DOperand_v1):
+    """
+    Struct representing an operand for copy with cuMemcpy3DBatchAsync
+
+    Attributes
+    ----------
+    {{if 'CUmemcpy3DOperand_st.type' in found_struct}}
+    type : CUmemcpy3DOperandType
+
+    {{endif}}
+    {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
+    op : anon_union12
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUDA_MEMCPY3D_BATCH_OP_v1' in found_types}}
+
+cdef class CUDA_MEMCPY3D_BATCH_OP_v1(CUDA_MEMCPY3D_BATCH_OP_st):
+    """
+    Attributes
+    ----------
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.src' in found_struct}}
+    src : CUmemcpy3DOperand
+        Source memcpy operand.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.dst' in found_struct}}
+    dst : CUmemcpy3DOperand
+        Destination memcpy operand.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.extent' in found_struct}}
+    extent : CUextent3D
+        Extents of the memcpy between src and dst. The width, height and
+        depth components must not be 0.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.srcAccessOrder' in found_struct}}
+    srcAccessOrder : CUmemcpySrcAccessOrder
+        Source access ordering to be observed for copy from src to dst.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.flags' in found_struct}}
+    flags : unsigned int
+        Additional flags for copies with this attribute. See CUmemcpyFlags
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUDA_MEMCPY3D_BATCH_OP' in found_types}}
+
+cdef class CUDA_MEMCPY3D_BATCH_OP(CUDA_MEMCPY3D_BATCH_OP_v1):
+    """
+    Attributes
+    ----------
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.src' in found_struct}}
+    src : CUmemcpy3DOperand
+        Source memcpy operand.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.dst' in found_struct}}
+    dst : CUmemcpy3DOperand
+        Destination memcpy operand.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.extent' in found_struct}}
+    extent : CUextent3D
+        Extents of the memcpy between src and dst. The width, height and
+        depth components must not be 0.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.srcAccessOrder' in found_struct}}
+    srcAccessOrder : CUmemcpySrcAccessOrder
+        Source access ordering to be observed for copy from src to dst.
+    {{endif}}
+    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.flags' in found_struct}}
+    flags : unsigned int
+        Additional flags for copies with this attribute. See CUmemcpyFlags
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
 {{if 'CUDA_MEM_ALLOC_NODE_PARAMS_v1' in found_types}}
 
 cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1(CUDA_MEM_ALLOC_NODE_PARAMS_v1_st):
@@ -9947,7 +10283,14 @@ cdef class CUDA_CHILD_GRAPH_NODE_PARAMS(CUDA_CHILD_GRAPH_NODE_PARAMS_st):
     {{if 'CUDA_CHILD_GRAPH_NODE_PARAMS_st.graph' in found_struct}}
     graph : CUgraph
         The child graph to clone into the node for node creation, or a
-        handle to the graph owned by the node for node query
+        handle to the graph owned by the node for node query. The graph
+        must not contain conditional nodes. Graphs containing memory
+        allocation or memory free nodes must set the ownership to be moved
+        to the parent.
+    {{endif}}
+    {{if 'CUDA_CHILD_GRAPH_NODE_PARAMS_st.ownership' in found_struct}}
+    ownership : CUgraphChildGraphNodeOwnership
+        The ownership relationship of the child graph node.
     {{endif}}
 
     Methods
@@ -10170,308 +10513,6 @@ cdef class CUcheckpointUnlockArgs(CUcheckpointUnlockArgs_st):
     """
     pass
 {{endif}}
-{{if 'CUmemcpyAttributes_v1' in found_types}}
-
-cdef class CUmemcpyAttributes_v1(CUmemcpyAttributes_st):
-    """
-    Attributes specific to copies within a batch. For more details on
-    usage see cuMemcpyBatchAsync.
-
-    Attributes
-    ----------
-    {{if 'CUmemcpyAttributes_st.srcAccessOrder' in found_struct}}
-    srcAccessOrder : CUmemcpySrcAccessOrder
-        Source access ordering to be observed for copies with this
-        attribute.
-    {{endif}}
-    {{if 'CUmemcpyAttributes_st.srcLocHint' in found_struct}}
-    srcLocHint : CUmemLocation
-        Hint location for the source operand. Ignored when the pointers are
-        not managed memory or memory allocated outside CUDA.
-    {{endif}}
-    {{if 'CUmemcpyAttributes_st.dstLocHint' in found_struct}}
-    dstLocHint : CUmemLocation
-        Hint location for the destination operand. Ignored when the
-        pointers are not managed memory or memory allocated outside CUDA.
-    {{endif}}
-    {{if 'CUmemcpyAttributes_st.flags' in found_struct}}
-    flags : unsigned int
-        Additional flags for copies with this attribute. See CUmemcpyFlags
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    pass
-{{endif}}
-{{if 'CUmemcpyAttributes' in found_types}}
-
-cdef class CUmemcpyAttributes(CUmemcpyAttributes_v1):
-    """
-    Attributes specific to copies within a batch. For more details on
-    usage see cuMemcpyBatchAsync.
-
-    Attributes
-    ----------
-    {{if 'CUmemcpyAttributes_st.srcAccessOrder' in found_struct}}
-    srcAccessOrder : CUmemcpySrcAccessOrder
-        Source access ordering to be observed for copies with this
-        attribute.
-    {{endif}}
-    {{if 'CUmemcpyAttributes_st.srcLocHint' in found_struct}}
-    srcLocHint : CUmemLocation
-        Hint location for the source operand. Ignored when the pointers are
-        not managed memory or memory allocated outside CUDA.
-    {{endif}}
-    {{if 'CUmemcpyAttributes_st.dstLocHint' in found_struct}}
-    dstLocHint : CUmemLocation
-        Hint location for the destination operand. Ignored when the
-        pointers are not managed memory or memory allocated outside CUDA.
-    {{endif}}
-    {{if 'CUmemcpyAttributes_st.flags' in found_struct}}
-    flags : unsigned int
-        Additional flags for copies with this attribute. See CUmemcpyFlags
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    pass
-{{endif}}
-{{if 'CUoffset3D_v1' in found_types}}
-
-cdef class CUoffset3D_v1(CUoffset3D_st):
-    """
-    Struct representing offset into a CUarray in elements
-
-    Attributes
-    ----------
-    {{if 'CUoffset3D_st.x' in found_struct}}
-    x : size_t
-
-    {{endif}}
-    {{if 'CUoffset3D_st.y' in found_struct}}
-    y : size_t
-
-    {{endif}}
-    {{if 'CUoffset3D_st.z' in found_struct}}
-    z : size_t
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    pass
-{{endif}}
-{{if 'CUoffset3D' in found_types}}
-
-cdef class CUoffset3D(CUoffset3D_v1):
-    """
-    Struct representing offset into a CUarray in elements
-
-    Attributes
-    ----------
-    {{if 'CUoffset3D_st.x' in found_struct}}
-    x : size_t
-
-    {{endif}}
-    {{if 'CUoffset3D_st.y' in found_struct}}
-    y : size_t
-
-    {{endif}}
-    {{if 'CUoffset3D_st.z' in found_struct}}
-    z : size_t
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    pass
-{{endif}}
-{{if 'CUextent3D_v1' in found_types}}
-
-cdef class CUextent3D_v1(CUextent3D_st):
-    """
-    Struct representing width/height/depth of a CUarray in elements
-
-    Attributes
-    ----------
-    {{if 'CUextent3D_st.width' in found_struct}}
-    width : size_t
-
-    {{endif}}
-    {{if 'CUextent3D_st.height' in found_struct}}
-    height : size_t
-
-    {{endif}}
-    {{if 'CUextent3D_st.depth' in found_struct}}
-    depth : size_t
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    pass
-{{endif}}
-{{if 'CUextent3D' in found_types}}
-
-cdef class CUextent3D(CUextent3D_v1):
-    """
-    Struct representing width/height/depth of a CUarray in elements
-
-    Attributes
-    ----------
-    {{if 'CUextent3D_st.width' in found_struct}}
-    width : size_t
-
-    {{endif}}
-    {{if 'CUextent3D_st.height' in found_struct}}
-    height : size_t
-
-    {{endif}}
-    {{if 'CUextent3D_st.depth' in found_struct}}
-    depth : size_t
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    pass
-{{endif}}
-{{if 'CUmemcpy3DOperand_v1' in found_types}}
-
-cdef class CUmemcpy3DOperand_v1(CUmemcpy3DOperand_st):
-    """
-    Struct representing an operand for copy with cuMemcpy3DBatchAsync
-
-    Attributes
-    ----------
-    {{if 'CUmemcpy3DOperand_st.type' in found_struct}}
-    type : CUmemcpy3DOperandType
-
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
-    op : anon_union13
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    pass
-{{endif}}
-{{if 'CUmemcpy3DOperand' in found_types}}
-
-cdef class CUmemcpy3DOperand(CUmemcpy3DOperand_v1):
-    """
-    Struct representing an operand for copy with cuMemcpy3DBatchAsync
-
-    Attributes
-    ----------
-    {{if 'CUmemcpy3DOperand_st.type' in found_struct}}
-    type : CUmemcpy3DOperandType
-
-    {{endif}}
-    {{if 'CUmemcpy3DOperand_st.op' in found_struct}}
-    op : anon_union13
-
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    pass
-{{endif}}
-{{if 'CUDA_MEMCPY3D_BATCH_OP_v1' in found_types}}
-
-cdef class CUDA_MEMCPY3D_BATCH_OP_v1(CUDA_MEMCPY3D_BATCH_OP_st):
-    """
-    Attributes
-    ----------
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.src' in found_struct}}
-    src : CUmemcpy3DOperand
-        Source memcpy operand.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.dst' in found_struct}}
-    dst : CUmemcpy3DOperand
-        Destination memcpy operand.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.extent' in found_struct}}
-    extent : CUextent3D
-        Extents of the memcpy between src and dst. The width, height and
-        depth components must not be 0.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.srcAccessOrder' in found_struct}}
-    srcAccessOrder : CUmemcpySrcAccessOrder
-        Source access ordering to be observed for copy from src to dst.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.flags' in found_struct}}
-    flags : unsigned int
-        Additional flags for copies with this attribute. See CUmemcpyFlags
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    pass
-{{endif}}
-{{if 'CUDA_MEMCPY3D_BATCH_OP' in found_types}}
-
-cdef class CUDA_MEMCPY3D_BATCH_OP(CUDA_MEMCPY3D_BATCH_OP_v1):
-    """
-    Attributes
-    ----------
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.src' in found_struct}}
-    src : CUmemcpy3DOperand
-        Source memcpy operand.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.dst' in found_struct}}
-    dst : CUmemcpy3DOperand
-        Destination memcpy operand.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.extent' in found_struct}}
-    extent : CUextent3D
-        Extents of the memcpy between src and dst. The width, height and
-        depth components must not be 0.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.srcAccessOrder' in found_struct}}
-    srcAccessOrder : CUmemcpySrcAccessOrder
-        Source access ordering to be observed for copy from src to dst.
-    {{endif}}
-    {{if 'CUDA_MEMCPY3D_BATCH_OP_st.flags' in found_struct}}
-    flags : unsigned int
-        Additional flags for copies with this attribute. See CUmemcpyFlags
-    {{endif}}
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    pass
-{{endif}}
 {{if 'CUmemDecompressParams' in found_types}}
 
 cdef class CUmemDecompressParams(CUmemDecompressParams_st):
@@ -10561,7 +10602,7 @@ cdef class CUdevResource_v1(CUdevResource_st):
     {{endif}}
     {{if 'CUdevResource_st.sm' in found_struct}}
     sm : CUdevSmResource
-        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM ``. type.
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM `typename`.
     {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     _oversize : bytes
@@ -10591,7 +10632,7 @@ cdef class CUdevResource(CUdevResource_v1):
     {{endif}}
     {{if 'CUdevResource_st.sm' in found_struct}}
     sm : CUdevSmResource
-        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM ``. type.
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_SM `typename`.
     {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     _oversize : bytes
@@ -10832,6 +10873,21 @@ cdef class CUmemGenericAllocationHandle_v1:
     """
     cdef cydriver.CUmemGenericAllocationHandle_v1  _pvt_val
     cdef cydriver.CUmemGenericAllocationHandle_v1* _pvt_ptr
+{{endif}}
+
+{{if 'CUlogIterator' in found_types}}
+
+cdef class CUlogIterator:
+    """
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cydriver.CUlogIterator  _pvt_val
+    cdef cydriver.CUlogIterator* _pvt_ptr
 {{endif}}
 
 {{if True}}

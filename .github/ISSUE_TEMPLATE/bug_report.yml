@@ -1,0 +1,115 @@
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Bug Report
+description: Create a report to help us improve
+title: '[BUG]: '
+labels: ['bug']
+body:
+  - type: checkboxes
+    id: check-duplicates
+    attributes:
+      label: Is this a duplicate?
+      description: Check for duplicate issues.
+      options:
+        - label: I confirmed there appear to be no [duplicate issues](https://github.com/NVIDIA/cuda-python/issues) for this bug and that I agree to the [Code of Conduct](CODE_OF_CONDUCT.md)
+          required: true
+
+  - type: dropdown
+    id: bug-type
+    attributes:
+      label: Type of Bug
+      description: What kind of bug are you running into?
+      multiple: false
+      options:
+        - Silent Failure
+        - Runtime Error
+        - Compile-time Error
+        - Performance
+        - Something else
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which cuda-python component does this apply to?
+      multiple: false
+      options:
+        - cuda.bindings
+        - cuda.core
+        - General cuda-python
+        - Infrastructure
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what problem you are running into.
+      placeholder: "Attempting to compile a program via `cuda.core.experimental.Program.compile` throws a `ValueError`."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How to Reproduce
+      description: Steps used to reproduce the bug.
+      placeholder: |
+        0. Construct a `cuda.core.experimental.Program` instance
+        1. Call the `.compile(...)` method of the instance
+        2. The call throws a `ValueError` with the following:
+        ```
+        ValueError: Unsupported target_type="..." (supported_target_types=('ptx', 'cubin', 'ltoir'))
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: "Using `cuda.core.experimental.Program.compile(...)` should run successfully and not throw a `ValueError`"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: '# System information'
+
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating System
+      description:
+        If applicable, the OS version where this bug occurs.
+      placeholder: Ubuntu Linux 20.04
+    validations:
+      required: false
+
+  - type: textarea
+    id: nvidia-smi-output
+    attributes:
+      label: nvidia-smi output
+      description: If applicable, the output from running the `nvidia-smi` command.
+      placeholder: |
+        +-----------------------------------------------------------------------------+
+        | NVIDIA-SMI 495.29.05    Driver Version: 495.29.05    CUDA Version: 11.5     |
+        |-------------------------------+----------------------+----------------------+
+        | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+        | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+        |                               |                      |               MIG M. |
+        |===============================+======================+======================|
+        |   0  NVIDIA GeForce ...  Off  | 00000000:41:00.0  On |                  N/A |
+        |  0%   25C    P8     8W / 320W |    491MiB / 10015MiB |      0%      Default |
+        |                               |                      |                  N/A |
+        +-------------------------------+----------------------+----------------------+
+    validations:
+      required: false
+

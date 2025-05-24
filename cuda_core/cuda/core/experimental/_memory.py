@@ -1,12 +1,12 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 import abc
 import weakref
-from typing import Optional, Tuple, TypeVar
+from typing import Optional, Tuple, TypeVar, Union
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import default_stream
@@ -17,6 +17,9 @@ PyCapsule = TypeVar("PyCapsule")
 
 # TODO: define a memory property mixin class and make Buffer and
 # MemoryResource both inherit from it
+
+DevicePointerT = Union[driver.CUdeviceptr, int, None]
+"""A type union of `Cudeviceptr`, `int` and `None` for hinting Buffer.handle."""
 
 
 class Buffer:
@@ -81,8 +84,14 @@ class Buffer:
         self._mnff.close(stream)
 
     @property
-    def handle(self):
-        """Return the buffer handle object."""
+    def handle(self) -> DevicePointerT:
+        """Return the buffer handle object.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Buffer.handle)``.
+        """
         return self._mnff.ptr
 
     @property

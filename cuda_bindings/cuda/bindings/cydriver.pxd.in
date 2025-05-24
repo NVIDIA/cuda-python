@@ -1,12 +1,7 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
-#
-# This code was automatically generated with version 12.8.0. Do not modify it directly.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+# This code was automatically generated with version 12.9.0. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -556,8 +551,11 @@ cdef extern from "cuda.h":
         CU_DEVICE_ATTRIBUTE_D3D12_CIG_SUPPORTED = 135
         CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_ALGORITHM_MASK = 136
         CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_MAXIMUM_LENGTH = 137
+        CU_DEVICE_ATTRIBUTE_VULKAN_CIG_SUPPORTED = 138
         CU_DEVICE_ATTRIBUTE_GPU_PCI_DEVICE_ID = 139
         CU_DEVICE_ATTRIBUTE_GPU_PCI_SUBSYSTEM_ID = 140
+        CU_DEVICE_ATTRIBUTE_HOST_NUMA_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED = 141
+        CU_DEVICE_ATTRIBUTE_HOST_NUMA_MEMORY_POOLS_SUPPORTED = 142
         CU_DEVICE_ATTRIBUTE_HOST_NUMA_MULTINODE_IPC_SUPPORTED = 143
         CU_DEVICE_ATTRIBUTE_MAX = 144
 
@@ -744,11 +742,20 @@ cdef extern from "cuda.h":
         CU_TARGET_COMPUTE_90 = 90
         CU_TARGET_COMPUTE_100 = 100
         CU_TARGET_COMPUTE_101 = 101
+        CU_TARGET_COMPUTE_103 = 103
         CU_TARGET_COMPUTE_120 = 120
+        CU_TARGET_COMPUTE_121 = 121
         CU_TARGET_COMPUTE_90A = 65626
         CU_TARGET_COMPUTE_100A = 65636
         CU_TARGET_COMPUTE_101A = 65637
+        CU_TARGET_COMPUTE_103A = 65639
         CU_TARGET_COMPUTE_120A = 65656
+        CU_TARGET_COMPUTE_121A = 65657
+        CU_TARGET_COMPUTE_100F = 131172
+        CU_TARGET_COMPUTE_101F = 131173
+        CU_TARGET_COMPUTE_103F = 131175
+        CU_TARGET_COMPUTE_120F = 131192
+        CU_TARGET_COMPUTE_121F = 131193
 
     ctypedef CUjit_target_enum CUjit_target
 
@@ -1172,6 +1179,7 @@ cdef extern from "cuda.h":
 
     cdef enum CUcigDataType_enum:
         CIG_DATA_TYPE_D3D12_COMMAND_QUEUE = 1
+        CIG_DATA_TYPE_NV_BLOB = 2
 
     ctypedef CUcigDataType_enum CUcigDataType
 
@@ -2055,6 +2063,89 @@ cdef extern from "cuda.h":
 
     ctypedef CUmemPoolPtrExportData_v1 CUmemPoolPtrExportData
 
+    cdef enum CUmemcpyFlags_enum:
+        CU_MEMCPY_FLAG_DEFAULT = 0
+        CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE = 1
+
+    ctypedef CUmemcpyFlags_enum CUmemcpyFlags
+
+    cdef enum CUmemcpySrcAccessOrder_enum:
+        CU_MEMCPY_SRC_ACCESS_ORDER_INVALID = 0
+        CU_MEMCPY_SRC_ACCESS_ORDER_STREAM = 1
+        CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL = 2
+        CU_MEMCPY_SRC_ACCESS_ORDER_ANY = 3
+        CU_MEMCPY_SRC_ACCESS_ORDER_MAX = 2147483647
+
+    ctypedef CUmemcpySrcAccessOrder_enum CUmemcpySrcAccessOrder
+
+    cdef struct CUmemcpyAttributes_st:
+        CUmemcpySrcAccessOrder srcAccessOrder
+        CUmemLocation srcLocHint
+        CUmemLocation dstLocHint
+        unsigned int flags
+
+    ctypedef CUmemcpyAttributes_st CUmemcpyAttributes_v1
+
+    ctypedef CUmemcpyAttributes_v1 CUmemcpyAttributes
+
+    cdef enum CUmemcpy3DOperandType_enum:
+        CU_MEMCPY_OPERAND_TYPE_POINTER = 1
+        CU_MEMCPY_OPERAND_TYPE_ARRAY = 2
+        CU_MEMCPY_OPERAND_TYPE_MAX = 2147483647
+
+    ctypedef CUmemcpy3DOperandType_enum CUmemcpy3DOperandType
+
+    cdef struct CUoffset3D_st:
+        size_t x
+        size_t y
+        size_t z
+
+    ctypedef CUoffset3D_st CUoffset3D_v1
+
+    ctypedef CUoffset3D_v1 CUoffset3D
+
+    cdef struct CUextent3D_st:
+        size_t width
+        size_t height
+        size_t depth
+
+    ctypedef CUextent3D_st CUextent3D_v1
+
+    ctypedef CUextent3D_v1 CUextent3D
+
+    cdef struct anon_struct23:
+        CUdeviceptr ptr
+        size_t rowLength
+        size_t layerHeight
+        CUmemLocation locHint
+
+    cdef struct anon_struct24:
+        CUarray array
+        CUoffset3D offset
+
+    cdef union anon_union12:
+        anon_struct23 ptr
+        anon_struct24 array
+
+    cdef struct CUmemcpy3DOperand_st:
+        CUmemcpy3DOperandType type
+        anon_union12 op
+
+    ctypedef CUmemcpy3DOperand_st CUmemcpy3DOperand_v1
+
+    ctypedef CUmemcpy3DOperand_v1 CUmemcpy3DOperand
+
+    cdef struct CUDA_MEMCPY3D_BATCH_OP_st:
+        CUmemcpy3DOperand src
+        CUmemcpy3DOperand dst
+        CUextent3D extent
+        CUmemcpySrcAccessOrder srcAccessOrder
+        unsigned int flags
+
+    ctypedef CUDA_MEMCPY3D_BATCH_OP_st CUDA_MEMCPY3D_BATCH_OP_v1
+
+    ctypedef CUDA_MEMCPY3D_BATCH_OP_v1 CUDA_MEMCPY3D_BATCH_OP
+
     cdef struct CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
         CUmemPoolProps poolProps
         const CUmemAccessDesc* accessDescs
@@ -2088,8 +2179,15 @@ cdef extern from "cuda.h":
 
     ctypedef CUgraphMem_attribute_enum CUgraphMem_attribute
 
+    cdef enum CUgraphChildGraphNodeOwnership_enum:
+        CU_GRAPH_CHILD_GRAPH_OWNERSHIP_CLONE = 0
+        CU_GRAPH_CHILD_GRAPH_OWNERSHIP_MOVE = 1
+
+    ctypedef CUgraphChildGraphNodeOwnership_enum CUgraphChildGraphNodeOwnership
+
     cdef struct CUDA_CHILD_GRAPH_NODE_PARAMS_st:
         CUgraph graph
+        CUgraphChildGraphNodeOwnership ownership
 
     ctypedef CUDA_CHILD_GRAPH_NODE_PARAMS_st CUDA_CHILD_GRAPH_NODE_PARAMS
 
@@ -2222,89 +2320,6 @@ cdef extern from "cuda.h":
 
     ctypedef CUcheckpointUnlockArgs_st CUcheckpointUnlockArgs
 
-    cdef enum CUmemcpyFlags_enum:
-        CU_MEMCPY_FLAG_DEFAULT = 0
-        CU_MEMCPY_FLAG_PREFER_OVERLAP_WITH_COMPUTE = 1
-
-    ctypedef CUmemcpyFlags_enum CUmemcpyFlags
-
-    cdef enum CUmemcpySrcAccessOrder_enum:
-        CU_MEMCPY_SRC_ACCESS_ORDER_INVALID = 0
-        CU_MEMCPY_SRC_ACCESS_ORDER_STREAM = 1
-        CU_MEMCPY_SRC_ACCESS_ORDER_DURING_API_CALL = 2
-        CU_MEMCPY_SRC_ACCESS_ORDER_ANY = 3
-        CU_MEMCPY_SRC_ACCESS_ORDER_MAX = 2147483647
-
-    ctypedef CUmemcpySrcAccessOrder_enum CUmemcpySrcAccessOrder
-
-    cdef struct CUmemcpyAttributes_st:
-        CUmemcpySrcAccessOrder srcAccessOrder
-        CUmemLocation srcLocHint
-        CUmemLocation dstLocHint
-        unsigned int flags
-
-    ctypedef CUmemcpyAttributes_st CUmemcpyAttributes_v1
-
-    ctypedef CUmemcpyAttributes_v1 CUmemcpyAttributes
-
-    cdef enum CUmemcpy3DOperandType_enum:
-        CU_MEMCPY_OPERAND_TYPE_POINTER = 1
-        CU_MEMCPY_OPERAND_TYPE_ARRAY = 2
-        CU_MEMCPY_OPERAND_TYPE_MAX = 2147483647
-
-    ctypedef CUmemcpy3DOperandType_enum CUmemcpy3DOperandType
-
-    cdef struct CUoffset3D_st:
-        size_t x
-        size_t y
-        size_t z
-
-    ctypedef CUoffset3D_st CUoffset3D_v1
-
-    ctypedef CUoffset3D_v1 CUoffset3D
-
-    cdef struct CUextent3D_st:
-        size_t width
-        size_t height
-        size_t depth
-
-    ctypedef CUextent3D_st CUextent3D_v1
-
-    ctypedef CUextent3D_v1 CUextent3D
-
-    cdef struct anon_struct23:
-        CUdeviceptr ptr
-        size_t rowLength
-        size_t layerHeight
-        CUmemLocation locHint
-
-    cdef struct anon_struct24:
-        CUarray array
-        CUoffset3D offset
-
-    cdef union anon_union13:
-        anon_struct23 ptr
-        anon_struct24 array
-
-    cdef struct CUmemcpy3DOperand_st:
-        CUmemcpy3DOperandType type
-        anon_union13 op
-
-    ctypedef CUmemcpy3DOperand_st CUmemcpy3DOperand_v1
-
-    ctypedef CUmemcpy3DOperand_v1 CUmemcpy3DOperand
-
-    cdef struct CUDA_MEMCPY3D_BATCH_OP_st:
-        CUmemcpy3DOperand src
-        CUmemcpy3DOperand dst
-        CUextent3D extent
-        CUmemcpySrcAccessOrder srcAccessOrder
-        unsigned int flags
-
-    ctypedef CUDA_MEMCPY3D_BATCH_OP_st CUDA_MEMCPY3D_BATCH_OP_v1
-
-    ctypedef CUDA_MEMCPY3D_BATCH_OP_v1 CUDA_MEMCPY3D_BATCH_OP
-
     cdef enum CUmoduleLoadingMode_enum:
         CU_MODULE_EAGER_LOADING = 1
         CU_MODULE_LAZY_LOADING = 2
@@ -2315,6 +2330,7 @@ cdef extern from "cuda.h":
         CU_MEM_DECOMPRESS_UNSUPPORTED = 0
         CU_MEM_DECOMPRESS_ALGORITHM_DEFLATE = 1
         CU_MEM_DECOMPRESS_ALGORITHM_SNAPPY = 2
+        CU_MEM_DECOMPRESS_ALGORITHM_LZ4 = 4
 
     ctypedef CUmemDecompressAlgorithm_enum CUmemDecompressAlgorithm
 
@@ -2387,6 +2403,20 @@ cdef extern from "cuda.h":
     ctypedef CUdevResource_st CUdevResource_v1
 
     ctypedef CUdevResource_v1 CUdevResource
+
+    cdef enum CUlogLevel_enum:
+        CU_LOG_LEVEL_ERROR = 0
+        CU_LOG_LEVEL_WARNING = 1
+
+    ctypedef CUlogLevel_enum CUlogLevel
+
+    cdef struct CUlogsCallbackEntry_st:
+        pass
+    ctypedef CUlogsCallbackEntry_st* CUlogsCallbackHandle
+
+    ctypedef void (*CUlogsCallback)(void* data, CUlogLevel logLevel, char* message, size_t length)
+
+    ctypedef unsigned int CUlogIterator
 
 cdef extern from "cudaProfiler.h":
 
@@ -4803,6 +4833,31 @@ cdef CUresult cuStreamGetGreenCtx(CUstream hStream, CUgreenCtx* phCtx) except ?C
 cdef CUresult cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, unsigned int flags, int priority) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuLogsRegisterCallback' in found_functions}}
+
+cdef CUresult cuLogsRegisterCallback(CUlogsCallback callbackFunc, void* userData, CUlogsCallbackHandle* callback_out) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogsUnregisterCallback' in found_functions}}
+
+cdef CUresult cuLogsUnregisterCallback(CUlogsCallbackHandle callback) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogsCurrent' in found_functions}}
+
+cdef CUresult cuLogsCurrent(CUlogIterator* iterator_out, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogsDumpToFile' in found_functions}}
+
+cdef CUresult cuLogsDumpToFile(CUlogIterator* iterator, const char* pathToFile, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuLogsDumpToMemory' in found_functions}}
+
+cdef CUresult cuLogsDumpToMemory(CUlogIterator* iterator, char* buffer, size_t* size, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
 
 cdef CUresult cuCheckpointProcessGetRestoreThreadId(int pid, int* tid) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -4938,7 +4993,7 @@ cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResou
 cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
-cdef enum: CUDA_VERSION = 12080
+cdef enum: CUDA_VERSION = 12090
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 
@@ -4947,6 +5002,8 @@ cdef enum: CU_STREAM_LEGACY = 1
 cdef enum: CU_STREAM_PER_THREAD = 2
 
 cdef enum: CU_COMPUTE_ACCELERATED_TARGET_BASE = 65536
+
+cdef enum: CU_COMPUTE_FAMILY_TARGET_BASE = 131072
 
 cdef enum: CU_GRAPH_COND_ASSIGN_DEFAULT = 1
 
@@ -5055,6 +5112,8 @@ cdef enum: CU_TRSF_SRGB = 16
 cdef enum: CU_TRSF_DISABLE_TRILINEAR_OPTIMIZATION = 32
 
 cdef enum: CU_TRSF_SEAMLESS_CUBEMAP = 64
+
+cdef enum: CU_LAUNCH_KERNEL_REQUIRED_BLOCK_DIM = 1
 
 cdef enum: CU_LAUNCH_PARAM_END_AS_INT = 0
 

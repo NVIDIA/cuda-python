@@ -1,3 +1,6 @@
+# Copyright (c) 2021-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -95,4 +98,5 @@ rst_epilog = f"""
 .. _cuda.bindings: {CUDA_PYTHON_DOMAIN}/cuda-bindings/latest
 .. _cuda.cooperative: https://nvidia.github.io/cccl/cuda_cooperative/
 .. _cuda.parallel: https://nvidia.github.io/cccl/cuda_parallel/
+.. _numba.cuda: https://nvidia.github.io/numba-cuda/
 """

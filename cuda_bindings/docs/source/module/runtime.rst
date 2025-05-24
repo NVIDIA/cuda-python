@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 -------
 runtime
 -------
@@ -4081,6 +4083,12 @@ Data types used by CUDA Runtime
         Device supports CIG with D3D12.
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrVulkanCigSupported
+
+
+        Device supports CIG with Vulkan.
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrGpuPciDeviceId
 
 
@@ -4091,6 +4099,15 @@ Data types used by CUDA Runtime
 
 
         The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved141
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaMemoryPoolsSupported
+
+
+        Device supports HOST_NUMA location with the :py:obj:`~.cudaMallocAsync` and :py:obj:`~.cudaMemPool` family of APIs
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaMultinodeIpcSupported
@@ -4823,6 +4840,23 @@ Data types used by CUDA Runtime
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount
 
+.. autoclass:: cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipClone
+
+
+        Default behavior for a child graph node. Child graph is cloned into the parent and memory allocation/free nodes can't be present in the child graph.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphChildGraphNodeOwnership.cudaGraphChildGraphOwnershipMove
+
+
+        The child graph is moved to the parent. The handle to the child graph is owned by the parent and will be destroyed when the parent is destroyed.
+
+
+
+        The following restrictions apply to child graphs after they have been moved: Cannot be independently instantiated or destroyed; Cannot be added as a child graph of a separate parent graph; Cannot be used as an argument to cudaGraphExecUpdate; Cannot have additional memory allocation or free nodes added.
+
 .. autoclass:: cuda.bindings.runtime.cudaGraphDependencyType
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphDependencyType.cudaGraphDependencyTypeDefault
@@ -5229,6 +5263,9 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaAsyncNotificationType
 
     .. autoattribute:: cuda.bindings.runtime.cudaAsyncNotificationType.cudaAsyncNotificationTypeOverBudget
+
+
+        Sent when the process has exceeded its device memory budget
 
 .. autoclass:: cuda.bindings.runtime.cudaSurfaceBoundaryMode
 

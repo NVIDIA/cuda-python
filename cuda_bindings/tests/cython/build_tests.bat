@@ -1,4 +1,8 @@
 @echo off
+
+REM Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+REM SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 setlocal
 	set CL=%CL% /I"%CUDA_HOME%\include"
 	cythonize -3 -i %~dp0test_*.pyx

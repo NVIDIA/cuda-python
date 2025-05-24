@@ -1,6 +1,6 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 import threading
 from typing import Optional, Union
@@ -1236,7 +1236,7 @@ class Device:
             Newly created event object.
 
         """
-        return Event._init(options)
+        return Event._init(self._id, self.context._handle, options)
 
     @precondition(_check_context_initialized)
     def allocate(self, size, stream=None) -> Buffer:

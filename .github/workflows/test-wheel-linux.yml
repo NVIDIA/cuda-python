@@ -1,34 +1,134 @@
+# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: "CI: Test wheels"
 
 on:
   workflow_call:
     inputs:
-      host-platform:
+      build-type:
         type: string
         required: true
-      python-version:
+      host-platform:
         type: string
         required: true
       build-ctk-ver:
         type: string
         required: true
-      cuda-version:
+      matrix_filter:
         type: string
-        required: true
-      local-ctk:
-        type: string
-        required: true
-      runner:
-        type: string
-        required: true
+        default: "."
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
 
 jobs:
+  compute-matrix:
+    runs-on: ubuntu-latest
+    env:
+      BUILD_TYPE: ${{ inputs.build-type }}
+      ARCH: ${{ (inputs.host-platform == 'linux-64' && 'amd64') ||
+                (inputs.host-platform == 'linux-aarch64' && 'arm64') }}
+    outputs:
+      MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
+    steps:
+      - name: Validate Test Type
+        run: |
+          if [[ "$BUILD_TYPE" != "pull-request" ]] && [[ "$BUILD_TYPE" != "nightly" ]] && [[ "$BUILD_TYPE" != "branch" ]]; then
+              echo "Invalid build type! Must be one of 'nightly', 'pull-request', or 'branch'."
+              exit 1
+          fi
+      - name: Compute Python Test Matrix
+        id: compute-matrix
+        run: |
+          # Set a default GPU based upon architecture.
+          gpu="l4"
+          if [[ "${ARCH}" == "arm64" ]]; then
+            gpu="a100"
+          fi
+          # Add a special entry for the H100 runner on amd64.
+          special_runner=""
+          if [[ "${ARCH}" == "amd64" ]]; then
+            special_runner="- { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: 'H100', DRIVER: 'latest' }"
+          fi
+
+          # Please keep the matrices sorted in ascending order by the following:
+          #
+          #     [PY_VER, CUDA_VER, LOCAL_CTK, GPU, DRIVER]
+          #
+          # Note that DRIVER: `earliest` does not work with CUDA 12.9.0 and LOCAL_CTK: 0 does not work with CUDA 12.0.1.
+          #
+          export MATRICES="
+            pull-request:
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              ${special_runner}
+            nightly:
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              ${special_runner}
+          "
+
+          # Use the nightly matrix for branch tests
+          MATRIX_TYPE="${BUILD_TYPE}"
+          if [[ "${MATRIX_TYPE}" == "branch" ]]; then
+            MATRIX_TYPE="nightly"
+          fi
+          export MATRIX_TYPE
+          TEST_MATRIX=$(yq -n 'env(MATRICES) | .[strenv(MATRIX_TYPE)]')
+          export TEST_MATRIX
+
+          MATRIX="$(
+            yq -n -o json 'env(TEST_MATRIX)' | \
+            jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end'
+          )"
+
+          echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
+
   test:
+    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, GPU ${{ matrix.GPU }}
+    needs: compute-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
+    runs-on: "linux-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-1"
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
-    runs-on: ${{ (inputs.runner == 'default' && inputs.host-platform == 'linux-64' && 'linux-amd64-gpu-v100-latest-1') ||
-                 (inputs.runner == 'default' && inputs.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-a100-latest-1') ||
-                 (inputs.runner == 'H100' && 'linux-amd64-gpu-h100-latest-1') }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
@@ -36,21 +136,26 @@ jobs:
       image: ubuntu:22.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
-    defaults:
-      run:
-        shell: bash --noprofile --norc -xeuo pipefail {0}
     steps:
       - name: Ensure GPU is working
         run: nvidia-smi
 
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
 
+      - name: Install dependencies
+        uses: ./.github/actions/install_unix_deps
+        continue-on-error: false
+        with:
+          # for artifact fetching
+          dependencies: "jq wget"
+          dependent_exes: "jq wget"
+
       - name: Set environment variables
         run: |
-          PYTHON_VERSION_FORMATTED=$(echo '${{ inputs.python-version }}' | tr -d '.')
+          PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.PY_VER }}' | tr -d '.')
           if [[ "${{ inputs.host-platform }}" == linux* ]]; then
             REPO_DIR=$(pwd)
           elif [[ "${{ inputs.host-platform }}" == win* ]]; then
@@ -59,20 +164,31 @@ jobs:
           fi
 
           BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ inputs.build-ctk-ver }})"
-          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})"
+          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.CUDA_VER }})"
           if [[ $BUILD_CUDA_MAJOR != $TEST_CUDA_MAJOR ]]; then
             SKIP_CUDA_BINDINGS_TEST=1
-            SKIP_CUDA_CORE_CYTHON_TEST=0
+            SKIP_CYTHON_TEST=1
           else
             SKIP_CUDA_BINDINGS_TEST=0
             BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${{ inputs.build-ctk-ver }})"
-            TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${{ inputs.cuda-version }})"
+            TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${{ matrix.CUDA_VER }})"
             if [[ $BUILD_CUDA_MINOR != $TEST_CUDA_MINOR ]]; then
-              SKIP_CUDA_CORE_CYTHON_TEST=1
+              SKIP_CYTHON_TEST=1
             else
-              SKIP_CUDA_CORE_CYTHON_TEST=0
+              SKIP_CYTHON_TEST=0
             fi
           fi
+
+          # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
+          # We only test compute-sanitizer on python 3.12 arbitrarily; we don't need to use sanitizer on the entire matrix
+          # Only local ctk installs have compute-sanitizer; there is not wheel for it
+          if [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.cuda-version }}" != "11.8.0" && "${{ inputs.local-ctk }}" == 1 ]]; then
+            SETUP_SANITIZER=1
+            echo "LATEST_CUDA_VERSION=$(bash .github/workflows/guess_latest.sh)" >> $GITHUB_ENV
+          else
+            SETUP_SANITIZER=0
+          fi
+          echo "SETUP_SANITIZER=${SETUP_SANITIZER}" >> $GITHUB_ENV
 
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
@@ -80,31 +196,26 @@ jobs:
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+          echo "CUDA_CORE_CYTHON_TESTS_DIR=$(realpath "$REPO_DIR/cuda_core/tests/cython")" >> $GITHUB_ENV
           CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-${{ inputs.host-platform }}"
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
-          echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
-          echo "SKIP_CUDA_CORE_CYTHON_TEST=${SKIP_CUDA_CORE_CYTHON_TEST}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/tests/cython")" >> $GITHUB_ENV
 
-      - name: Install dependencies
-        uses: ./.github/actions/install_unix_deps
-        continue-on-error: false
-        with:
-          # gcc for Cython tests, jq/wget for artifact fetching
-          dependencies: "build-essential jq wget"
-          dependent_exes: "gcc jq wget"
+          echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
+          echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
           name: cuda-python-wheel
           path: .
 
       - name: Download cuda.bindings build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -126,7 +237,7 @@ jobs:
 
           OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "CI: Build and test" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "build-and-test.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
           if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
             echo "LATEST_PRIOR_RUN_ID not found!"
             exit 1
@@ -153,8 +264,21 @@ jobs:
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
+      - name: Download cuda.bindings Cython tests
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
+
+      - name: Display structure of downloaded cuda.bindings Cython tests
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        run: |
+          pwd
+          ls -lahR $CUDA_BINDINGS_CYTHON_TESTS_DIR
+
       - name: Download cuda.core build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -164,48 +288,75 @@ jobs:
           pwd
           ls -lahR $CUDA_CORE_ARTIFACTS_DIR
 
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5
+      - name: Download cuda.core Cython tests
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
-          python-version: ${{ inputs.python-version }}
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
+
+      - name: Display structure of downloaded cuda.core Cython tests
+        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        run: |
+          pwd
+          ls -lahR $CUDA_CORE_CYTHON_TESTS_DIR
+
+      - name: Set up Python ${{ matrix.PY_VER }}
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: ${{ matrix.PY_VER }}
         env:
           # we use self-hosted runners on which setup-python behaves weirdly...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Set up mini CTK
-        if: ${{ inputs.local-ctk == '1' }}
+        if: ${{ matrix.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
           host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ inputs.cuda-version }}
+          cuda-version: ${{ matrix.CUDA_VER }}
+
+      - name: Set up latest cuda_sanitizer_api
+        if: ${{ env.SETUP_SANITIZER == '1' }}
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ env.LATEST_CUDA_VERSION }}
+          cuda-components: "cuda_sanitizer_api"
+
+      - name: Set up compute-sanitizer
+        run: |
+          if [[ "${SETUP_SANITIZER}" == 1 ]]; then
+            COMPUTE_SANITIZER="${CUDA_HOME}/bin/compute-sanitizer"
+            COMPUTE_SANITIZER_VERSION=$(${COMPUTE_SANITIZER} --version | grep -Eo "[0-9]{4}\.[0-9]\.[0-9]" | sed -e 's/\.//g')
+            SANITIZER_CMD="${COMPUTE_SANITIZER} --target-processes=all --launch-timeout=0 --tool=memcheck --error-exitcode=1"
+            if [[ "$COMPUTE_SANITIZER_VERSION" -ge 202111 ]]; then
+                SANITIZER_CMD="${SANITIZER_CMD} --padding=32"
+            fi
+            echo "CUDA_PYTHON_TESTING_WITH_COMPUTE_SANITIZER=1" >> $GITHUB_ENV
+          else
+            SANITIZER_CMD=""
+          fi
+          echo "SANITIZER_CMD=${SANITIZER_CMD}" >> $GITHUB_ENV
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
           pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
+          if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             ls $CUDA_PATH
-            pip install *.whl
+            pip install $(ls *.whl)[test]
           else
-            pip install $(ls *.whl)[all]
+            pip install $(ls *.whl)[all,test]
           fi
           popd
 
           pushd ./cuda_bindings
-          pip install -r requirements.txt
-          pytest -rxXs -v tests/
-
-          # It is a bit convoluted to run the Cython tests against CTK wheels,
-          # so let's just skip them.
-          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
-            if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-              bash tests/cython/build_tests.sh
-            elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-              # TODO: enable this once win-64 runners are up 
-              exit 1
-            fi  
-            pytest -rxXs -v tests/cython
+          ${SANITIZER_CMD} pytest -rxXs -v tests/
+          if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
+            ${SANITIZER_CMD} pytest -rxXs -v tests/cython
           fi
           popd
 
@@ -215,41 +366,31 @@ jobs:
           # If mismatch: cuda.bindings is installed from the backport branch.
           if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
             pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-            if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
+            if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
               pip install *.whl
             else
               pip install $(ls *.whl)[all]
             fi
             popd
           fi
-          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})"
+          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.CUDA_VER }})"
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
-          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}"]
+          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}","test-cu${TEST_CUDA_MAJOR}"]
           popd
 
           pushd ./cuda_core
-          pip install -r "tests/requirements-cu${TEST_CUDA_MAJOR}.txt"
-          pytest -rxXs -v tests/
+          ${SANITIZER_CMD} pytest -rxXs -v tests/
 
-          # It is a bit convoluted to run the Cython tests against CTK wheels,
-          # so let's just skip them. Also, currently our CI always installs the
-          # latest bindings (from either major version). This is not compatible
-          # with the test requirements.
-          if [[ "${{ inputs.local-ctk }}" == 1 && "${SKIP_CUDA_CORE_CYTHON_TEST}" == 0 ]]; then
-            pip install cython setuptools  # setuptools needed starting PY312
-            if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-              bash tests/cython/build_tests.sh
-            elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-              # TODO: enable this once win-64 runners are up
-              exit 1
-            fi
-            pytest -rxXs -v tests/cython
+          # Currently our CI always installs the latest bindings (from either major version).
+          # This is not compatible with the test requirements.
+          if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
+            ${SANITIZER_CMD} pytest -rxXs -v tests/cython
           fi
           popd
 
       - name: Ensure cuda-python installable
         run: |
-          if [[ "${{ inputs.local-ctk }}" == 1 ]]; then
+          if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
             pip install cuda_python*.whl
           else
             pip install $(ls cuda_python*.whl)[all]

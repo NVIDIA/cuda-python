@@ -1,5 +1,8 @@
 @ECHO OFF
 
+REM Copyright (c) 2021-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+REM SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 pushd %~dp0
 
 REM Command file for Sphinx documentation
