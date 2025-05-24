@@ -964,19 +964,19 @@ class Device:
                 ctx = handle_return(driver.cuCtxGetCurrent())
                 assert int(ctx) == 0
                 device_id = 0  # cudart behavior
-            assert isinstance(device_id, int), f"{device_id=}"
         else:
             total = handle_return(driver.cuDeviceGetCount())
             if not isinstance(device_id, int) or not (0 <= device_id < total):
                 raise ValueError(f"device_id must be within [0, {total}), got {device_id}")
 
         # ensure Device is singleton
-        if not hasattr(_tls, "devices"):
+        try:
+            devices = _tls.devices
+        except AttributeError:
             total = handle_return(driver.cuDeviceGetCount())
-            _tls.devices = []
+            devices = _tls.devices = []
             for dev_id in range(total):
                 dev = super().__new__(cls)
-
                 dev._id = dev_id
                 # If the device is in TCC mode, or does not support memory pools for some other reason,
                 # use the SynchronousMemoryResource which does not use memory pools.
@@ -990,12 +990,12 @@ class Device:
                     dev._mr = _DefaultAsyncMempool(dev_id)
                 else:
                     dev._mr = _SynchronousMemoryResource(dev_id)
+
                 dev._has_inited = False
                 dev._properties = None
+                devices.append(dev)
 
-                _tls.devices.append(dev)
-
-        return _tls.devices[device_id]
+        return devices[device_id]
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
