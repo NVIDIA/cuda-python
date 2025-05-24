@@ -7,12 +7,13 @@ dependencies are as follows:
 
 |                   | CUDA 11      | CUDA 12     |
 |------------------ | ------------ | ----------- |
-| CUDA Toolkit [^1] | 11.2 - 11.8  | 12.0 - 12.6 |
+| CUDA Toolkit [^1] | 11.2 - 11.8  | 12.x        |
 | Driver            | 450.80.02+ (Linux), 452.39+ (Windows) | 525.60.13+ (Linux), 527.41+ (Windows) |
 
 [^1]: Including `cuda-python`.
 
-`cuda.core` supports Python 3.9 - 3.12, on Linux (x86-64, arm64) and Windows (x86-64).
+`cuda.core` supports Python 3.9 - 3.13, on Linux (x86-64, arm64) and Windows (x86-64).
+
 
 ## Installing from PyPI
 
@@ -22,8 +23,9 @@ $ pip install cuda-core[cu12]
 ```
 and likewise use `[cu11]` for CUDA 11.
 
-Note that using `cuda.core` with NVRTC or nvJitLink installed from PyPI via `pip install` is currently
-not supported. This will be fixed in a future release.
+Note that using `cuda.core` with NVRTC installed from PyPI via `pip install` requires
+`cuda.bindings` 12.8.0+ or 11.8.6+. Likewise, with nvJitLink it requires 12.8.0+.
+
 
 ## Installing from Conda (conda-forge)
 
@@ -33,12 +35,8 @@ $ conda install -c conda-forge cuda-core cuda-version=12
 ```
 and likewise use `cuda-version=11` for CUDA 11.
 
-Note that to use `cuda.core` with nvJitLink installed from conda-forge currently requires it to
-be separately installed:
-```console
-$ conda install -c conda-forge libnvjitlink
-```
-(can be combined with the command above). This extra step will be removed in a future release.
+Note that to use `cuda.core` with nvJitLink installed from conda-forge requires `cuda.bindings` 12.8.0+.
+
 
 ## Installing from Source
 
@@ -47,4 +45,4 @@ $ git clone https://github.com/NVIDIA/cuda-python
 $ cd cuda-python/cuda_core
 $ pip install .
 ```
-For now `cuda-python` (`cuda-bindings` later) 11.x or 12.x is a required dependency.
+`cuda-bindings` 11.x or 12.x is a required dependency.

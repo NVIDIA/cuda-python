@@ -7,10 +7,11 @@
         <link rel="canonical" href="docs/module/nvrtc.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>nvrtc - cuda.bindings 12.8.0 documentation</title>
+        <title>nvrtc - cuda.bindings 12.9.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
     
     
@@ -172,7 +173,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">cuda.bindings 12.8.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">cuda.bindings 12.9.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -200,7 +201,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">cuda.bindings 12.8.0 documentation</span>
+  <span class="sidebar-brand-text">cuda.bindings 12.9.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -212,6 +213,7 @@
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.X.Y-notes.html">12.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.0-notes.html">12.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.8.0-notes.html">12.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.6.2-notes.html">12.6.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.6.1-notes.html">12.6.1</a></li>
@@ -253,6 +255,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
 </ul>
 
 </div>
@@ -521,14 +526,14 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<em>bytes</em>) – CUDA program source.</p></li>
-<li><p><strong>name</strong> (<em>bytes</em>) – CUDA program name.  <cite>name</cite> can be <cite>NULL</cite>; <cite>“default_program”</cite> is
+<li><p><strong>src</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – CUDA program source.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – CUDA program name.  <cite>name</cite> can be <cite>NULL</cite>; <cite>“default_program”</cite> is
 used when <cite>name</cite> is <cite>NULL</cite> or “”.</p></li>
-<li><p><strong>numHeaders</strong> (<em>int</em>) – Number of headers used.  <cite>numHeaders</cite> must be greater than or equal
+<li><p><strong>numHeaders</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of headers used.  <cite>numHeaders</cite> must be greater than or equal
 to 0.</p></li>
-<li><p><strong>headers</strong> (<em>List</em><em>[</em><em>bytes</em><em>]</em>) – Sources of the headers.  <cite>headers</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite>
+<li><p><strong>headers</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>]</em>) – Sources of the headers.  <cite>headers</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite>
 is 0.</p></li>
-<li><p><strong>includeNames</strong> (<em>List</em><em>[</em><em>bytes</em><em>]</em>) – Name of each header by which they can be included in the CUDA
+<li><p><strong>includeNames</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>]</em>) – Name of each header by which they can be included in the CUDA
 program source.  <cite>includeNames</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite> is
 0. These headers must be included with the exact names specified
 here.</p></li>
@@ -591,8 +596,8 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>numOptions</strong> (<em>int</em>) – Number of compiler options passed.</p></li>
-<li><p><strong>options</strong> (<em>List</em><em>[</em><em>bytes</em><em>]</em>) – Compiler options in the form of C string array.  <cite>options</cite> can be
+<li><p><strong>numOptions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of compiler options passed.</p></li>
+<li><p><strong>options</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>]</em>) – Compiler options in the form of C string array.  <cite>options</cite> can be
 <cite>NULL</cite> when <cite>numOptions</cite> is 0.</p></li>
 </ul>
 </dd>
@@ -652,7 +657,7 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>ptx</strong> (<em>bytes</em>) – Compiled result.</p></li>
+<li><p><strong>ptx</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Compiled result.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -709,7 +714,7 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>cubin</strong> (<em>bytes</em>) – Compiled and assembled result.</p></li>
+<li><p><strong>cubin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Compiled and assembled result.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -756,7 +761,7 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – None</p></li>
-<li><p><strong>nvvm</strong> (<em>bytes</em>) – None</p></li>
+<li><p><strong>nvvm</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – None</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -801,7 +806,7 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>LTOIR</strong> (<em>bytes</em>) – Compiled result.</p></li>
+<li><p><strong>LTOIR</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Compiled result.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -858,7 +863,7 @@ here.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>optixir</strong> (<em>bytes</em>) – Optix IR Compiled result.</p></li>
+<li><p><strong>optixir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Optix IR Compiled result.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -917,7 +922,7 @@ informative messages, even when the compilation of <cite>prog</cite> succeeds.</
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>log</strong> (<em>bytes</em>) – Compilation log.</p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Compilation log.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -948,7 +953,7 @@ call to nvrtcGetLoweredName to extract the lowered name.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>name_expression</strong> (<em>bytes</em>) – constant expression denoting the address of a global function or
+<li><p><strong>name_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – constant expression denoting the address of a global function or
 device/__constant__ variable.</p></li>
 </ul>
 </dd>
@@ -979,7 +984,7 @@ device/__constant__ variable.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><em>nvrtcProgram</em></a>) – CUDA Runtime Compilation program.</p></li>
-<li><p><strong>name_expression</strong> (<em>bytes</em>) – constant expression denoting the address of a global function or
+<li><p><strong>name_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – constant expression denoting the address of a global function or
 device/__constant__ variable.</p></li>
 </ul>
 </dd>
@@ -1219,6 +1224,12 @@ stored</p></li>
 <p>Enable device code optimization. When specified along with <code class="docutils literal notranslate"><span class="pre">-G</span></code>, enables limited debug information generation for optimized device code (currently, only line number information). When <code class="docutils literal notranslate"><span class="pre">-G</span></code> is not specified, <code class="docutils literal notranslate"><span class="pre">-dopt=on</span></code> is implicit.</p>
 <blockquote>
 <div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--Ofast-compile={0|min|mid|max}</span></code> (<code class="docutils literal notranslate"><span class="pre">-Ofc</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Specify level to prefer device code compilation speed, where ‘max’ focuses only on the fastest compilation speed, ‘mid’ balances compile time and runtime, ‘min’ has a more minimal impact on both, and 0 (default) is normal compilation</p>
+<blockquote>
+<div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options</span></code> &lt;options&gt; (<code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options=&lt;options&gt;</span></code></p></li>
 </ul>
@@ -1303,6 +1314,18 @@ stored</p></li>
 </ul>
 </div></blockquote>
 <p>Enable (disable) the generation of stack canaries in device code.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-cache</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-cache</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Disable the use of cache for both ptx and cubin code generation.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--frandom-seed</span></code> (<code class="docutils literal notranslate"><span class="pre">-frandom-seed</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>The user specified random seed will be used to replace random numbers used in generating symbol names and variable names. The option can be used to generate deterministicly identical ptx and object files. If the input value is a valid number (decimal, octal, or hex), it will be used directly as the random seed. Otherwise, the CRC value of the passed string will be used instead.</p>
 <ul class="simple">
 <li><p>Preprocessing</p>
 <ul>
@@ -1540,7 +1563,7 @@ stored</p></li>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, NVIDIA
+                Copyright &#169; 2021-2025, NVIDIA
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -1641,9 +1664,11 @@ stored</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=2a80ae63"></script>
+</div><script src="../_static/documentation_options.js?v=5b55e43a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=35a8b989"></script>
     </body>
 </html>

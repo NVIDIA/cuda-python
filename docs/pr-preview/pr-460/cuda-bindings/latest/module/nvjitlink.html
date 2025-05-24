@@ -7,10 +7,11 @@
         <link rel="canonical" href="docs/module/nvjitlink.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>nvjitlink - cuda.bindings 12.8.0 documentation</title>
+        <title>nvjitlink - cuda.bindings 12.9.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
     
     
@@ -172,7 +173,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">cuda.bindings 12.8.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">cuda.bindings 12.9.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -200,7 +201,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">cuda.bindings 12.8.0 documentation</span>
+  <span class="sidebar-brand-text">cuda.bindings 12.9.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -212,6 +213,7 @@
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.X.Y-notes.html">12.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.0-notes.html">12.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.8.0-notes.html">12.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.6.2-notes.html">12.6.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.6.1-notes.html">12.6.1</a></li>
@@ -253,6 +255,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
 </ul>
 
 </div>
@@ -332,10 +337,10 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_options</strong> (<em>uint32_t</em>) – Number of options passed.</p></li>
-<li><p><strong>options</strong> (<em>object</em>) – <p>Array of size <code class="docutils literal notranslate"><span class="pre">num_options</span></code> of option strings. It can be:</p>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><em>object</em></a>) – <p>Array of size <code class="docutils literal notranslate"><span class="pre">num_options</span></code> of option strings. It can be:</p>
 <ul>
-<li><p>an <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> as the pointer address to the nested sequence, or</p></li>
-<li><p>a Python sequence of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>s, each of which is a pointer address
+<li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
+<li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
 to a valid sequence of ‘char’, or</p></li>
 <li><p>a nested Python sequence of <code class="docutils literal notranslate"><span class="pre">str</span></code>.</p></li>
 </ul>
@@ -351,7 +356,7 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkCreate</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv415nvJitLinkCreateP15nvJitLinkHandle8uint32_tPPKc" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkCreate</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -366,7 +371,7 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkDestroy</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv416nvJitLinkDestroyP15nvJitLinkHandle" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkDestroy</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -379,15 +384,15 @@ to a valid sequence of ‘char’, or</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
 <li><p><strong>input_type</strong> (<a class="reference internal" href="#cuda.bindings.nvjitlink.InputType" title="cuda.bindings.nvjitlink.InputType"><em>InputType</em></a>) – kind of input.</p></li>
-<li><p><strong>data</strong> (<em>bytes</em>) – pointer to data image in memory.</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – pointer to data image in memory.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – size of the data.</p></li>
-<li><p><strong>name</strong> (<em>str</em>) – name of input object.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – name of input object.</p></li>
 </ul>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkAddData</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv416nvJitLinkAddData15nvJitLinkHandle18nvJitLinkInputTypePKv6size_tPKc" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkAddData</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -400,13 +405,13 @@ to a valid sequence of ‘char’, or</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
 <li><p><strong>input_type</strong> (<a class="reference internal" href="#cuda.bindings.nvjitlink.InputType" title="cuda.bindings.nvjitlink.InputType"><em>InputType</em></a>) – kind of input.</p></li>
-<li><p><strong>file_name</strong> (<em>str</em>) – name of file.</p></li>
+<li><p><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – name of file.</p></li>
 </ul>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkAddFile</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv416nvJitLinkAddFile15nvJitLinkHandle18nvJitLinkInputTypePKc" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkAddFile</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -421,7 +426,7 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkComplete</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv417nvJitLinkComplete15nvJitLinkHandle" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkComplete</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -442,7 +447,7 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkGetLinkedCubinSize</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv427nvJitLinkGetLinkedCubinSize15nvJitLinkHandleP6size_t" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkGetLinkedCubinSize</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -454,13 +459,13 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
-<li><p><strong>cubin</strong> (<em>bytes</em>) – The linked cubin.</p></li>
+<li><p><strong>cubin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The linked cubin.</p></li>
 </ul>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkGetLinkedCubin</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv423nvJitLinkGetLinkedCubin15nvJitLinkHandlePv" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkGetLinkedCubin</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -481,7 +486,7 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkGetLinkedPtxSize</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv425nvJitLinkGetLinkedPtxSize15nvJitLinkHandleP6size_t" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkGetLinkedPtxSize</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -493,13 +498,13 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
-<li><p><strong>ptx</strong> (<em>bytes</em>) – The linked PTX.</p></li>
+<li><p><strong>ptx</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The linked PTX.</p></li>
 </ul>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkGetLinkedPtx</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv421nvJitLinkGetLinkedPtx15nvJitLinkHandlePc" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkGetLinkedPtx</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -520,7 +525,7 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkGetErrorLogSize</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv424nvJitLinkGetErrorLogSize15nvJitLinkHandleP6size_t" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkGetErrorLogSize</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -532,13 +537,13 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
-<li><p><strong>log</strong> (<em>bytes</em>) – The error log.</p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The error log.</p></li>
 </ul>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkGetErrorLog</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv420nvJitLinkGetErrorLog15nvJitLinkHandlePc" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkGetErrorLog</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -559,7 +564,7 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkGetInfoLogSize</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv423nvJitLinkGetInfoLogSize15nvJitLinkHandleP6size_t" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkGetInfoLogSize</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -571,19 +576,19 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
-<li><p><strong>log</strong> (<em>bytes</em>) – The info log.</p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The info log.</p></li>
 </ul>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkGetInfoLog</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv419nvJitLinkGetInfoLog15nvJitLinkHandlePc" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkGetInfoLog</span></code></a></p>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.version">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#cuda.bindings.nvjitlink.version" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvjitlink.version" title="Link to this definition">¶</a></dt>
 <dd><p>nvJitLinkVersion returns the current version of nvJitLink.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -599,7 +604,7 @@ to a valid sequence of ‘char’, or</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><cite>nvJitLinkVersion</cite></p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv416nvJitLinkVersionPjPj" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkVersion</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -609,7 +614,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvjitlink.Result" title="Link to this definition">¶</a></dt>
-<dd><p>See <cite>nvJitLinkResult</cite>.</p>
+<dd><p>See <a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv415nvJitLinkResult" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkResult</span></code></a>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result.SUCCESS">
 <span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.SUCCESS" title="Link to this definition">¶</a></dt>
@@ -665,7 +670,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.InputType">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">InputType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvjitlink.InputType" title="Link to this definition">¶</a></dt>
-<dd><p>See <cite>nvJitLinkInputType</cite>.</p>
+<dd><p>See <a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv418nvJitLinkInputType" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkInputType</span></code></a>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.InputType.NONE">
 <span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.InputType.NONE" title="Link to this definition">¶</a></dt>
@@ -745,7 +750,7 @@ to a valid sequence of ‘char’, or</p></li>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2021-2024, NVIDIA
+                Copyright &#169; 2021-2025, NVIDIA
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -829,9 +834,11 @@ to a valid sequence of ‘char’, or</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=2a80ae63"></script>
+</div><script src="../_static/documentation_options.js?v=5b55e43a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=35a8b989"></script>
     </body>
 </html>

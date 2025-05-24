@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 Release Notes
 =============
 
@@ -5,6 +7,7 @@ Release Notes
    :maxdepth: 3
 
    12.X.Y <release/12.X.Y-notes.rst>
+   12.9.0 <release/12.9.0-notes.rst>
    12.8.0 <release/12.8.0-notes.md>
    12.6.2 <release/12.6.2-notes.md>
    12.6.1 <release/12.6.1-notes.md>

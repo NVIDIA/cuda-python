@@ -212,6 +212,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
@@ -234,6 +235,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
 </ul>
 
 </div>
@@ -347,9 +351,32 @@ has been completed.</p>
 
 <p class="rubric">Attributes</p>
 <dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental._event.Event.context">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Context</span></em><a class="headerlink" href="#cuda.core.experimental._event.Event.context" title="Link to this definition">¶</a></dt>
+<dd><p>Return the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> associated with this event.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental._event.Event.device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><span class="pre">Device</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.device" title="Link to this definition">¶</a></dt>
+<dd><p>Return the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code> singleton associated with this event.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The current context on the device may differ from this
+event’s context. This case occurs when a different CUDA
+context is set current after a event is created.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._event.Event.handle">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUevent" title="(in cuda.bindings)"><span class="pre">cuda.bindings.driver.CUevent</span></a></em><a class="headerlink" href="#cuda.core.experimental._event.Event.handle" title="Link to this definition">¶</a></dt>
 <dd><p>Return the underlying CUevent object.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Event.handle)</span></code>.</p>
+</div>
 </dd></dl>
 
 <dl class="py property">
@@ -422,6 +449,8 @@ has been completed.</p>
 <li><a class="reference internal" href="#cuda.core.experimental._event.Event.__init__"><code class="docutils literal notranslate"><span class="pre">Event.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._event.Event.close"><code class="docutils literal notranslate"><span class="pre">Event.close()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._event.Event.sync"><code class="docutils literal notranslate"><span class="pre">Event.sync()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event.context"><code class="docutils literal notranslate"><span class="pre">Event.context</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental._event.Event.device"><code class="docutils literal notranslate"><span class="pre">Event.device</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._event.Event.handle"><code class="docutils literal notranslate"><span class="pre">Event.handle</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._event.Event.is_done"><code class="docutils literal notranslate"><span class="pre">Event.is_done</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental._event.Event.is_ipc_supported"><code class="docutils literal notranslate"><span class="pre">Event.is_ipc_supported</span></code></a></li>

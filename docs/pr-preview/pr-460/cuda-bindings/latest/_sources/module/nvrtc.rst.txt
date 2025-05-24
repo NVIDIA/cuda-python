@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 -----
 nvrtc
 -----
@@ -238,6 +240,16 @@ Enable device code optimization. When specified along with ``-G``\ , enables lim
 
 
 
+  - ``--Ofast-compile={0|min|mid|max}``\  (``-Ofc``\ )
+
+Specify level to prefer device code compilation speed, where 'max' focuses only on the fastest compilation speed, 'mid' balances compile time and runtime, 'min' has a more minimal impact on both, and 0 (default) is normal compilation
+
+
+
+
+
+
+
   - ``--ptxas-options``\  <options> (``-Xptxas``\ )
 
 
@@ -389,6 +401,26 @@ Specify the case density percentage in switch statements, and use it as a minima
   - ``--device-stack-protector={true|false}``\  (``-device-stack-protector``\ )
 
 Enable (disable) the generation of stack canaries in device code.
+
+
+
+
+
+
+
+  - ``--no-cache``\  (``-no-cache``\ )
+
+Disable the use of cache for both ptx and cubin code generation.
+
+
+
+
+
+
+
+  - ``--frandom-seed``\  (``-frandom-seed``\ )
+
+The user specified random seed will be used to replace random numbers used in generating symbol names and variable names. The option can be used to generate deterministicly identical ptx and object files. If the input value is a valid number (decimal, octal, or hex), it will be used directly as the random seed. Otherwise, the CRC value of the passed string will be used instead.
 
 
 

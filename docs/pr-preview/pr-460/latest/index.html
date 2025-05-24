@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>CUDA Python 12.8.0 documentation</title>
+        <title>CUDA Python 12.9.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -172,7 +172,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">CUDA Python 12.8.0 documentation</div></a>
+      <a href="#"><div class="brand">CUDA Python 12.9.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -200,7 +200,7 @@
     <img class="sidebar-logo only-dark" src="_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">CUDA Python 12.8.0 documentation</span>
+  <span class="sidebar-brand-text">CUDA Python 12.9.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -211,9 +211,12 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/12.X.Y-notes.html">    12.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.0-notes.html">    12.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.8.0-notes.html">    12.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.2-notes.html">    12.6.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.1-notes.html">    12.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.7-notes.html">    11.8.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.6-notes.html">    11.8.6</a></li>
 </ul>
 </li>
@@ -221,8 +224,7 @@
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/cuda_cooperative">cuda.cooperative</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/cuda_parallel">cuda.parallel</a></li>
-<li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a></li>
 </ul>
 
 </div>
@@ -292,8 +294,9 @@ multiple components:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-core/latest">cuda.core</a>: Pythonic access to CUDA runtime and other core functionalities</p></li>
 <li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a>: Low-level Python bindings to CUDA C APIs</p></li>
-<li><p><a class="reference external" href="https://nvidia.github.io/cccl/cuda_cooperative/">cuda.cooperative</a>: A Python package for easy access to highly efficient and customizable parallel algorithms, like <cite>sort</cite>, <cite>scan</cite>, <cite>reduce</cite>, <cite>transform</cite>, etc.</p></li>
-<li><p><a class="reference external" href="https://nvidia.github.io/cccl/cuda_parallel/">cuda.parallel</a>: A Python package providing CUB’s reusable block-wide and warp-wide primitives for use within Numba CUDA kernels</p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/cccl/cuda_cooperative/">cuda.cooperative</a>: A Python package providing CCCL’s reusable block-wide and warp-wide <em>device</em> primitives for use within Numba CUDA kernels</p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/cccl/cuda_parallel/">cuda.parallel</a>: A Python package for easy access to CCCL’s highly efficient and customizable parallel algorithms, like <code class="docutils literal notranslate"><span class="pre">sort</span></code>, <code class="docutils literal notranslate"><span class="pre">scan</span></code>, <code class="docutils literal notranslate"><span class="pre">reduce</span></code>, <code class="docutils literal notranslate"><span class="pre">transform</span></code>, etc, that are callable on the <em>host</em></p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a>: Numba’s target for CUDA GPU programming by directly compiling a restricted subset of Python code into CUDA kernels and device functions following the CUDA execution model.</p></li>
 </ul>
 <p>For access to NVIDIA CPU &amp; GPU Math Libraries, please refer to <a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest">nvmath-python</a>.</p>
 <p>CUDA Python is currently undergoing an overhaul to improve existing and bring up new components.
@@ -303,9 +306,12 @@ be available, please refer to the <a class="reference external" href="https://nv
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="release.html">Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/12.X.Y-notes.html">    12.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.0-notes.html">    12.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.8.0-notes.html">    12.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.2-notes.html">    12.6.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.1-notes.html">    12.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.7-notes.html">    11.8.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/11.8.6-notes.html">    11.8.6</a></li>
 </ul>
 </li>
@@ -313,17 +319,7 @@ be available, please refer to the <a class="reference external" href="https://nv
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/cuda_cooperative">cuda.cooperative</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/cuda_parallel">cuda.parallel</a></li>
-<li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="conduct.html#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="conduct.html#our-pledge">Our Pledge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="conduct.html#our-standards">Our Standards</a></li>
-<li class="toctree-l2"><a class="reference internal" href="conduct.html#our-responsibilities">Our Responsibilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="conduct.html#scope">Scope</a></li>
-<li class="toctree-l2"><a class="reference internal" href="conduct.html#enforcement">Enforcement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="conduct.html#attribution">Attribution</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a></li>
 </ul>
 </div>
 </section>
@@ -367,7 +363,7 @@ be available, please refer to the <a class="reference external" href="https://nv
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=2a80ae63"></script>
+</div><script src="_static/documentation_options.js?v=5b55e43a"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
