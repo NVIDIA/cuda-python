@@ -302,6 +302,9 @@ class ObjectCode:
 
         return self
 
+    def __reduce__(self):
+        return _rebuild_objectcode_instance(self._module, self._code_type, self._sym_map)
+
     @staticmethod
     def from_cubin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing cubin.
@@ -397,3 +400,14 @@ class ObjectCode:
             handle, call ``int(ObjectCode.handle)``.
         """
         return self._handle
+
+
+def _rebuild_objectcode_instance(
+    module: Union[bytes, str],
+    code_type: str,
+    symbol_mapping: Optional[dict] = None,
+) -> ObjectCode:
+    """Rebuild an ObjectCode instance from its serialized form."""
+    obj = ObjectCode._init(module, code_type, symbol_mapping=symbol_mapping)
+    obj._handle = None  # handle will be lazily loaded
+    return obj
