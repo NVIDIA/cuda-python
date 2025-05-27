@@ -408,6 +408,4 @@ def _rebuild_objectcode_instance(
     symbol_mapping: Optional[dict] = None,
 ) -> ObjectCode:
     """Rebuild an ObjectCode instance from its serialized form."""
-    obj = ObjectCode._init(module, code_type, symbol_mapping=symbol_mapping)
-    obj._handle = None  # handle will be lazily loaded
-    return obj
+    return ObjectCode._init(module, code_type, symbol_mapping=symbol_mapping)
