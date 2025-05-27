@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -54,7 +54,7 @@ be restored after freeing it.
 
 from ctypes import c_size_t
 
-from numba import cuda
+from cuda.bindings import driver as cuda
 from numba.cuda import (
     GetIpcHandleMixin,
     HostOnlyCUDAMemoryManager,
@@ -62,7 +62,7 @@ from numba.cuda import (
     MemoryPointer,
 )
 
-from cuda import cuda as cuda_driver
+from cuda.bindings import driver as cuda_driver
 
 # Python functions for allocation, deallocation, and memory info via the NVIDIA
 # CUDA Python Driver API

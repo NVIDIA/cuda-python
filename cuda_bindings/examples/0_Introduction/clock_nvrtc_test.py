@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -11,7 +11,7 @@ import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
 
-from cuda import cuda
+from cuda.bindings import driver as cuda
 
 clock_nvrtc = """\
 extern "C" __global__  void timedReduction(const float *hinput, float *output, clock_t *timer)

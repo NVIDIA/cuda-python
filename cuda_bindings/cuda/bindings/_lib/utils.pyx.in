@@ -381,7 +381,8 @@ cdef class HelperCUjit_option:
                           {{if 'CU_JIT_TARGET_FROM_CUCONTEXT' in found_values}}cydriver.CUjit_option_enum.CU_JIT_TARGET_FROM_CUCONTEXT,{{endif}}
                           {{if 'CU_JIT_REFERENCED_KERNEL_COUNT' in found_values}}cydriver.CUjit_option_enum.CU_JIT_REFERENCED_KERNEL_COUNT,{{endif}}
                           {{if 'CU_JIT_REFERENCED_VARIABLE_COUNT' in found_values}}cydriver.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_COUNT,{{endif}}
-                          {{if 'CU_JIT_MIN_CTA_PER_SM' in found_values}}cydriver.CUjit_option_enum.CU_JIT_MIN_CTA_PER_SM,{{endif}}):
+                          {{if 'CU_JIT_MIN_CTA_PER_SM' in found_values}}cydriver.CUjit_option_enum.CU_JIT_MIN_CTA_PER_SM,{{endif}}
+                          {{if 'CU_JIT_SPLIT_COMPILE' in found_values}}cydriver.CUjit_option_enum.CU_JIT_SPLIT_COMPILE,{{endif}}):
             self._uint = init_value
             self._cptr = <void*><void_ptr>self._uint
         elif self._attr in ({{if 'CU_JIT_WALL_TIME' in found_values}}cydriver.CUjit_option_enum.CU_JIT_WALL_TIME,{{endif}}):

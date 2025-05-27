@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -11,7 +11,8 @@ import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors
 
-from cuda import cuda, cudart
+from cuda.bindings import driver as cuda
+from cuda.bindings import runtime as cudart
 
 isoPropagator = """\
 extern "C"
@@ -243,7 +244,7 @@ class propagator:
 
         checkCudaErrors(cuda.cuInit(0))
         self.cuDevice = checkCudaErrors(cuda.cuDeviceGet(_dev))
-        self.context = checkCudaErrors(cuda.cuCtxCreate(0, self.cuDevice))
+        self.context = checkCudaErrors(cuda.cuCtxCreate(None, 0, self.cuDevice))
         self.waveOut = 0
         self.waveIn = 0
         self.streamCenter = checkCudaErrors(cuda.cuStreamCreate(0))

@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 #
 # Please refer to the NVIDIA end user license agreement (EULA) associated
 # with this source code for terms and conditions that govern your use of
@@ -13,7 +13,7 @@ import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDeviceDRV
 
-from cuda import cuda
+from cuda.bindings import driver as cuda
 
 vectorAddDrv = """\
 /* Vector addition: C = A + B.
@@ -44,7 +44,7 @@ def main():
     checkCudaErrors(cuda.cuInit(0))
     cuDevice = findCudaDeviceDRV()
     # Create context
-    cuContext = checkCudaErrors(cuda.cuCtxCreate(0, cuDevice))
+    cuContext = checkCudaErrors(cuda.cuCtxCreate(None, 0, cuDevice))
 
     uvaSupported = checkCudaErrors(
         cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice)
