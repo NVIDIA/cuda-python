@@ -4,7 +4,9 @@
 import numpy as np
 import pytest
 
-from cuda import cuda, cudart, nvrtc
+from cuda.bindings import driver as cuda
+from cuda.bindings import nvrtc
+from cuda.bindings import runtime as cudart
 
 
 def ASSERT_DRV(err):
@@ -28,7 +30,7 @@ def init_cuda():
     ASSERT_DRV(err)
     err, device = cuda.cuDeviceGet(0)
     ASSERT_DRV(err)
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     ASSERT_DRV(err)
 
     # create stream

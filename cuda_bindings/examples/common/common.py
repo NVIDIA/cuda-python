@@ -7,8 +7,8 @@ import numpy as np
 from common.helper_cuda import checkCudaErrors
 
 from cuda.bindings import driver as cuda
-from cuda.bindings import runtime as cudart
 from cuda.bindings import nvrtc
+from cuda.bindings import runtime as cudart
 
 
 class KernelHelper:

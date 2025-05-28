@@ -49,7 +49,6 @@ be restored after freeing it.
 
 from ctypes import c_size_t
 
-from cuda.bindings import driver as cuda
 from numba.cuda import (
     GetIpcHandleMixin,
     HostOnlyCUDAMemoryManager,
@@ -57,6 +56,7 @@ from numba.cuda import (
     MemoryPointer,
 )
 
+from cuda.bindings import driver as cuda
 from cuda.bindings import driver as cuda_driver
 
 # Python functions for allocation, deallocation, and memory info via the NVIDIA
