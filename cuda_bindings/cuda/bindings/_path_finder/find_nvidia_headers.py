@@ -11,7 +11,9 @@ from cuda.bindings._path_finder.supported_libs import IS_WINDOWS
 
 @functools.cache
 def find_nvidia_header_directory(libname: str) -> str:
-    assert libname == "nvshmem"
+    if libname != "nvshmem":
+        raise RuntimeError(f"UNKNOWN {libname=}")
+
     assert not IS_WINDOWS
 
     # Installed from a wheel

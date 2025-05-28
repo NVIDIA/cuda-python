@@ -7,7 +7,7 @@ from cuda.bindings._path_finder import find_nvidia_headers
 
 
 def test_find_nvidia_header_directory(info_summary_append):
-    with pytest.raises(AssertionError):
+    with pytest.raises(RuntimeError, match="^UNKNOWN libname='unknown-libname'$"):
         find_nvidia_headers.find_nvidia_header_directory("unknown-libname")
 
     hdr_dir = find_nvidia_headers.find_nvidia_header_directory("nvshmem")
