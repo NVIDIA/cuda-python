@@ -14,7 +14,9 @@ def find_nvidia_header_directory(libname: str) -> str:
     if libname != "nvshmem":
         raise RuntimeError(f"UNKNOWN {libname=}")
 
-    assert not IS_WINDOWS
+    if libname == "nvshmem" and IS_WINDOWS:
+        # nvshmem has no Windows support.
+        return None
 
     # Installed from a wheel
     nvidia_sub_dirs = ("nvidia", "nvshmem", "include")
