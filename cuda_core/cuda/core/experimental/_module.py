@@ -303,7 +303,11 @@ class ObjectCode:
         return self
 
     def __reduce__(self):
-        return ObjectCode._init(self._module, self._code_type, symbol_mapping=self._sym_map)
+        def _reconstruct(moduel, code_type, symbol_mapping):
+            # just for forwarding kwargs
+            return ObjectCode._init(moduel, code_type, symbol_mapping=symbol_mapping)
+
+        return _reconstruct, (self._module, self._code_type, self._sym_map)
 
     @staticmethod
     def from_cubin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
