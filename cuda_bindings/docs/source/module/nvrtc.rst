@@ -61,6 +61,9 @@ NVRTC defines the following enumeration type and function for API call error han
 
     .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED
 
+
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED
+
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetErrorString
 
 General Information Query
@@ -85,8 +88,6 @@ NVRTC defines the following type and functions for actual compilation.
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetPTX
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetCUBINSize
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetCUBIN
-.. autofunction:: cuda.bindings.nvrtc.nvrtcGetNVVMSize
-.. autofunction:: cuda.bindings.nvrtc.nvrtcGetNVVM
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetLTOIRSize
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetLTOIR
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetOptiXIRSize
@@ -242,7 +243,7 @@ Enable device code optimization. When specified along with ``-G``\ , enables lim
 
   - ``--Ofast-compile={0|min|mid|max}``\  (``-Ofc``\ )
 
-Specify level to prefer device code compilation speed, where 'max' focuses only on the fastest compilation speed, 'mid' balances compile time and runtime, 'min' has a more minimal impact on both, and 0 (default) is normal compilation
+Specify the fast-compile level for device code, which controls the tradeoff between compilation speed and runtime performance by disabling certain optimizations at varying levels.
 
 
 
@@ -420,7 +421,7 @@ Disable the use of cache for both ptx and cubin code generation.
 
   - ``--frandom-seed``\  (``-frandom-seed``\ )
 
-The user specified random seed will be used to replace random numbers used in generating symbol names and variable names. The option can be used to generate deterministicly identical ptx and object files. If the input value is a valid number (decimal, octal, or hex), it will be used directly as the random seed. Otherwise, the CRC value of the passed string will be used instead.
+The user specified random seed will be used to replace random numbers used in generating symbol names and variable names. The option can be used to generate deterministically identical ptx and object files. If the input value is a valid number (decimal, octal, or hex), it will be used directly as the random seed. Otherwise, the CRC value of the passed string will be used instead.
 
 
 

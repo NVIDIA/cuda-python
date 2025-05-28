@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import platform
@@ -9,8 +9,8 @@ import numpy as np
 import pytest
 from conftest import skipif_testing_with_compute_sanitizer
 
-import cuda.cuda as cuda
-import cuda.cudart as cudart
+import cuda.bindings.driver as cuda
+import cuda.bindings.runtime as cudart
 
 
 def driverVersionLessThan(target):
@@ -49,7 +49,7 @@ def test_cuda_memcpy():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Construct context
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Allocate dev memory
@@ -92,7 +92,7 @@ def test_cuda_array():
     err, arr = cuda.cuArrayCreate(desc)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_CONTEXT or err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Desciption not filled
@@ -121,7 +121,7 @@ def test_cuda_repr_primitive():
     assert str(device) == "<CUdevice 0>"
     assert int(device) == 0
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     assert str(ctx).startswith("<CUcontext 0x")
     assert int(ctx) > 0
@@ -187,7 +187,7 @@ def test_cuda_repr_pointer():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Test 1: Classes representing pointers
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     assert str(ctx).startswith("<CUcontext 0x")
     assert int(ctx) > 0
@@ -214,7 +214,7 @@ def test_cuda_uuid_list_access():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     err, uuid = cuda.cuDeviceGetUuid(device)
@@ -238,9 +238,9 @@ def test_cuda_uuid_list_access():
 def test_cuda_cuModuleLoadDataEx():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, dev = cuda.cuDeviceGet(0)
+    err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, dev)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     option_keys = [
@@ -330,7 +330,7 @@ def test_cuda_memPool_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     poolProps = cuda.CUmemPoolProps()
@@ -401,7 +401,7 @@ def test_cuda_pointer_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, ptr = cuda.cuMemAllocManaged(0x1000, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -458,23 +458,31 @@ def test_cuda_mem_range_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
+
     size = 0x1000
+    location_device = cuda.CUmemLocation()
+    location_device.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    location_device.id = int(device)
+    location_cpu = cuda.CUmemLocation()
+    location_cpu.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+    location_cpu.id = int(cuda.CU_DEVICE_CPU)
+
     err, ptr = cuda.cuMemAllocManaged(size, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_READ_MOSTLY, device)
+    (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_READ_MOSTLY, location_device)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_PREFERRED_LOCATION, cuda.CU_DEVICE_CPU)
+    (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_PREFERRED_LOCATION, location_cpu)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_ACCESSED_BY, cuda.CU_DEVICE_CPU)
+    (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_ACCESSED_BY, location_cpu)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, concurrentSupported = cuda.cuDeviceGetAttribute(
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS, device
     )
     assert err == cuda.CUresult.CUDA_SUCCESS
     if concurrentSupported:
-        (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_ACCESSED_BY, device)
+        (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_ACCESSED_BY, location_device)
         assert err == cuda.CUresult.CUDA_SUCCESS
         expected_values_list = ([1, -1, [0, -1, -2], -2],)
     else:
@@ -522,7 +530,7 @@ def test_cuda_graphMem_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     err, stream = cuda.cuStreamCreate(0)
@@ -587,7 +595,7 @@ def test_cuda_coredump_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     attr_list = [None] * 6
@@ -628,7 +636,7 @@ def test_get_error_name_and_string():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     err, device = cuda.cuDeviceGet(0)
@@ -655,7 +663,7 @@ def test_device_get_name():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     p = subprocess.check_output(
@@ -688,7 +696,7 @@ def test_profiler():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     (err,) = cuda.cuProfilerStart()
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -777,7 +785,7 @@ def test_graph_poly():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -811,7 +819,7 @@ def test_graph_poly():
     memsetParams.memset.height = 1
     memsetParams.memset.dst = device
     memsetParams.memset.value = 1
-    err, node = cuda.cuGraphAddNode(graph, None, 0, memsetParams)
+    err, node = cuda.cuGraphAddNode(graph, None, None, 0, memsetParams)
     assert err == cuda.CUresult.CUDA_SUCCESS
     nodes += [node]
 
@@ -826,7 +834,7 @@ def test_graph_poly():
     memcpyParams.memcpy.copyParams.WidthInBytes = size
     memcpyParams.memcpy.copyParams.Height = 1
     memcpyParams.memcpy.copyParams.Depth = 1
-    err, node = cuda.cuGraphAddNode(graph, None, 0, memcpyParams)
+    err, node = cuda.cuGraphAddNode(graph, None, None, 0, memcpyParams)
     assert err == cuda.CUresult.CUDA_SUCCESS
     nodes += [node]
 
@@ -895,7 +903,7 @@ def test_cuDeviceGetDevResource():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     err, res, count, rem = cuda.cuDevSmResourceSplitByCount(0, resource_in, 0, 2)
@@ -923,7 +931,7 @@ def test_conditional():
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     err, graph = cuda.cuGraphCreate(0)
@@ -940,7 +948,7 @@ def test_conditional():
 
     assert len(params.conditional.phGraph_out) == 1
     assert int(params.conditional.phGraph_out[0]) == 0
-    err, node = cuda.cuGraphAddNode(graph, None, 0, params)
+    err, node = cuda.cuGraphAddNode(graph, None, None, 0, params)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     assert len(params.conditional.phGraph_out) == 1

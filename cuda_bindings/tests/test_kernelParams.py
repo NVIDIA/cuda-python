@@ -1,11 +1,13 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import ctypes
 
 import numpy as np
 
-from cuda import cuda, cudart, nvrtc
+import cuda.bindings.driver as cuda
+import cuda.bindings.nvrtc as nvrtc
+import cuda.bindings.runtime as cudart
 
 
 def ASSERT_DRV(err):
@@ -72,7 +74,7 @@ def test_kernelParams_empty():
     ASSERT_DRV(err)
     err, cuDevice = cuda.cuDeviceGet(0)
     ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(0, cuDevice)
+    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
     ASSERT_DRV(err)
 
     kernelString = """\
@@ -147,7 +149,7 @@ def kernelParams_basic(use_ctypes_as_values):
     ASSERT_DRV(err)
     err, cuDevice = cuda.cuDeviceGet(0)
     ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(0, cuDevice)
+    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
     ASSERT_DRV(err)
 
     if use_ctypes_as_values:
@@ -437,7 +439,7 @@ def test_kernelParams_types_cuda():
     ASSERT_DRV(err)
     err, cuDevice = cuda.cuDeviceGet(0)
     ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(0, cuDevice)
+    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
     ASSERT_DRV(err)
     err, uvaSupported = cuda.cuDeviceGetAttribute(
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice
@@ -567,7 +569,7 @@ def test_kernelParams_struct_custom():
     ASSERT_DRV(err)
     err, cuDevice = cuda.cuDeviceGet(0)
     ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(0, cuDevice)
+    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
     ASSERT_DRV(err)
     err, uvaSupported = cuda.cuDeviceGetAttribute(
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice
@@ -646,7 +648,7 @@ def kernelParams_buffer_protocol_ctypes_common(pass_by_address):
     ASSERT_DRV(err)
     err, cuDevice = cuda.cuDeviceGet(0)
     ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(0, cuDevice)
+    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
     ASSERT_DRV(err)
     err, uvaSupported = cuda.cuDeviceGetAttribute(
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice
@@ -758,7 +760,7 @@ def test_kernelParams_buffer_protocol_numpy():
     ASSERT_DRV(err)
     err, cuDevice = cuda.cuDeviceGet(0)
     ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(0, cuDevice)
+    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
     ASSERT_DRV(err)
     err, uvaSupported = cuda.cuDeviceGetAttribute(
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice

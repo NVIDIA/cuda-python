@@ -59,16 +59,6 @@ cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) exc
 cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil
 {{endif}}
 
-{{if 'nvrtcGetNVVMSize' in found_functions}}
-
-cdef nvrtcResult _nvrtcGetNVVMSize(nvrtcProgram prog, size_t* nvvmSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
-{{if 'nvrtcGetNVVM' in found_functions}}
-
-cdef nvrtcResult _nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) except ?NVRTC_ERROR_INVALID_INPUT nogil
-{{endif}}
-
 {{if 'nvrtcGetLTOIRSize' in found_functions}}
 
 cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil

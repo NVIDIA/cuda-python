@@ -46,15 +46,9 @@ cdef CUresult cuDeviceGetName(char* name, int length, CUdevice dev) except ?CUDA
     return cydriver._cuDeviceGetName(name, length, dev)
 {{endif}}
 
-{{if 'cuDeviceGetUuid' in found_functions}}
-
-cdef CUresult cuDeviceGetUuid(CUuuid* uuid, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuDeviceGetUuid(uuid, dev)
-{{endif}}
-
 {{if 'cuDeviceGetUuid_v2' in found_functions}}
 
-cdef CUresult cuDeviceGetUuid_v2(CUuuid* uuid, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuDeviceGetUuid(CUuuid* uuid, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuDeviceGetUuid_v2(uuid, dev)
 {{endif}}
 
@@ -80,6 +74,12 @@ cdef CUresult cuDeviceGetTexture1DLinearMaxWidth(size_t* maxWidthInElements, CUa
 
 cdef CUresult cuDeviceGetAttribute(int* pi, CUdevice_attribute attrib, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuDeviceGetAttribute(pi, attrib, dev)
+{{endif}}
+
+{{if 'cuDeviceGetHostAtomicCapabilities' in found_functions}}
+
+cdef CUresult cuDeviceGetHostAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuDeviceGetHostAtomicCapabilities(capabilities, operations, count, dev)
 {{endif}}
 
 {{if 'cuDeviceGetNvSciSyncAttributes' in found_functions}}
@@ -160,21 +160,9 @@ cdef CUresult cuDevicePrimaryCtxReset(CUdevice dev) except ?CUDA_ERROR_NOT_FOUND
     return cydriver._cuDevicePrimaryCtxReset_v2(dev)
 {{endif}}
 
-{{if 'cuCtxCreate_v2' in found_functions}}
-
-cdef CUresult cuCtxCreate(CUcontext* pctx, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuCtxCreate_v2(pctx, flags, dev)
-{{endif}}
-
-{{if 'cuCtxCreate_v3' in found_functions}}
-
-cdef CUresult cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray, int numParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuCtxCreate_v3(pctx, paramsArray, numParams, flags, dev)
-{{endif}}
-
 {{if 'cuCtxCreate_v4' in found_functions}}
 
-cdef CUresult cuCtxCreate_v4(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuCtxCreate(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuCtxCreate_v4(pctx, ctxCreateParams, flags, dev)
 {{endif}}
 
@@ -214,6 +202,12 @@ cdef CUresult cuCtxGetDevice(CUdevice* device) except ?CUDA_ERROR_NOT_FOUND nogi
     return cydriver._cuCtxGetDevice(device)
 {{endif}}
 
+{{if 'cuCtxGetDevice_v2' in found_functions}}
+
+cdef CUresult cuCtxGetDevice_v2(CUdevice* device, CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuCtxGetDevice_v2(device, ctx)
+{{endif}}
+
 {{if 'cuCtxGetFlags' in found_functions}}
 
 cdef CUresult cuCtxGetFlags(unsigned int* flags) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -236,6 +230,12 @@ cdef CUresult cuCtxGetId(CUcontext ctx, unsigned long long* ctxId) except ?CUDA_
 
 cdef CUresult cuCtxSynchronize() except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuCtxSynchronize()
+{{endif}}
+
+{{if 'cuCtxSynchronize_v2' in found_functions}}
+
+cdef CUresult cuCtxSynchronize_v2(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuCtxSynchronize_v2(ctx)
 {{endif}}
 
 {{if 'cuCtxSetLimit' in found_functions}}
@@ -802,16 +802,16 @@ cdef CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER* pCopy, CUstream hStr
     return cydriver._cuMemcpy3DPeerAsync(pCopy, hStream)
 {{endif}}
 
-{{if 'cuMemcpyBatchAsync' in found_functions}}
+{{if 'cuMemcpyBatchAsync_v2' in found_functions}}
 
-cdef CUresult cuMemcpyBatchAsync(CUdeviceptr* dsts, CUdeviceptr* srcs, size_t* sizes, size_t count, CUmemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, size_t* failIdx, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuMemcpyBatchAsync(dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, failIdx, hStream)
+cdef CUresult cuMemcpyBatchAsync(CUdeviceptr* dsts, CUdeviceptr* srcs, size_t* sizes, size_t count, CUmemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMemcpyBatchAsync_v2(dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, hStream)
 {{endif}}
 
-{{if 'cuMemcpy3DBatchAsync' in found_functions}}
+{{if 'cuMemcpy3DBatchAsync_v2' in found_functions}}
 
-cdef CUresult cuMemcpy3DBatchAsync(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* opList, size_t* failIdx, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuMemcpy3DBatchAsync(numOps, opList, failIdx, flags, hStream)
+cdef CUresult cuMemcpy3DBatchAsync(size_t numOps, CUDA_MEMCPY3D_BATCH_OP* opList, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMemcpy3DBatchAsync_v2(numOps, opList, flags, hStream)
 {{endif}}
 
 {{if 'cuMemsetD8_v2' in found_functions}}
@@ -1114,6 +1114,24 @@ cdef CUresult cuMemPoolDestroy(CUmemoryPool pool) except ?CUDA_ERROR_NOT_FOUND n
     return cydriver._cuMemPoolDestroy(pool)
 {{endif}}
 
+{{if 'cuMemGetDefaultMemPool' in found_functions}}
+
+cdef CUresult cuMemGetDefaultMemPool(CUmemoryPool* pool_out, CUmemLocation* location, CUmemAllocationType typename) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMemGetDefaultMemPool(pool_out, location, typename)
+{{endif}}
+
+{{if 'cuMemGetMemPool' in found_functions}}
+
+cdef CUresult cuMemGetMemPool(CUmemoryPool* pool, CUmemLocation* location, CUmemAllocationType typename) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMemGetMemPool(pool, location, typename)
+{{endif}}
+
+{{if 'cuMemSetMemPool' in found_functions}}
+
+cdef CUresult cuMemSetMemPool(CUmemLocation* location, CUmemAllocationType typename, CUmemoryPool pool) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMemSetMemPool(location, typename, pool)
+{{endif}}
+
 {{if 'cuMemAllocFromPoolAsync' in found_functions}}
 
 cdef CUresult cuMemAllocFromPoolAsync(CUdeviceptr* dptr, size_t bytesize, CUmemoryPool pool, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -1186,28 +1204,34 @@ cdef CUresult cuPointerGetAttribute(void* data, CUpointer_attribute attribute, C
     return cydriver._cuPointerGetAttribute(data, attribute, ptr)
 {{endif}}
 
-{{if 'cuMemPrefetchAsync' in found_functions}}
-
-cdef CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevice dstDevice, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuMemPrefetchAsync(devPtr, count, dstDevice, hStream)
-{{endif}}
-
 {{if 'cuMemPrefetchAsync_v2' in found_functions}}
 
-cdef CUresult cuMemPrefetchAsync_v2(CUdeviceptr devPtr, size_t count, CUmemLocation location, unsigned int flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUmemLocation location, unsigned int flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuMemPrefetchAsync_v2(devPtr, count, location, flags, hStream)
-{{endif}}
-
-{{if 'cuMemAdvise' in found_functions}}
-
-cdef CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUdevice device) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuMemAdvise(devPtr, count, advice, device)
 {{endif}}
 
 {{if 'cuMemAdvise_v2' in found_functions}}
 
-cdef CUresult cuMemAdvise_v2(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUmemLocation location) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUmemLocation location) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuMemAdvise_v2(devPtr, count, advice, location)
+{{endif}}
+
+{{if 'cuMemPrefetchBatchAsync' in found_functions}}
+
+cdef CUresult cuMemPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMemPrefetchBatchAsync(dptrs, sizes, count, prefetchLocs, prefetchLocIdxs, numPrefetchLocs, flags, hStream)
+{{endif}}
+
+{{if 'cuMemDiscardBatchAsync' in found_functions}}
+
+cdef CUresult cuMemDiscardBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMemDiscardBatchAsync(dptrs, sizes, count, flags, hStream)
+{{endif}}
+
+{{if 'cuMemDiscardAndPrefetchBatchAsync' in found_functions}}
+
+cdef CUresult cuMemDiscardAndPrefetchBatchAsync(CUdeviceptr* dptrs, size_t* sizes, size_t count, CUmemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMemDiscardAndPrefetchBatchAsync(dptrs, sizes, count, prefetchLocs, prefetchLocIdxs, numPrefetchLocs, flags, hStream)
 {{endif}}
 
 {{if 'cuMemRangeGetAttribute' in found_functions}}
@@ -1324,27 +1348,15 @@ cdef CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* captu
     return cydriver._cuStreamIsCapturing(hStream, captureStatus)
 {{endif}}
 
-{{if 'cuStreamGetCaptureInfo_v2' in found_functions}}
-
-cdef CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuStreamGetCaptureInfo_v2(hStream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out)
-{{endif}}
-
 {{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
 
-cdef CUresult cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuStreamGetCaptureInfo_v3(hStream, captureStatus_out, id_out, graph_out, dependencies_out, edgeData_out, numDependencies_out)
-{{endif}}
-
-{{if 'cuStreamUpdateCaptureDependencies' in found_functions}}
-
-cdef CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode* dependencies, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuStreamUpdateCaptureDependencies(hStream, dependencies, numDependencies, flags)
 {{endif}}
 
 {{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
 
-cdef CUresult cuStreamUpdateCaptureDependencies_v2(CUstream hStream, CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuStreamUpdateCaptureDependencies_v2(hStream, dependencies, dependencyData, numDependencies, flags)
 {{endif}}
 
@@ -1426,15 +1438,9 @@ cdef CUresult cuEventDestroy(CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuEventDestroy_v2(hEvent)
 {{endif}}
 
-{{if 'cuEventElapsedTime' in found_functions}}
-
-cdef CUresult cuEventElapsedTime(float* pMilliseconds, CUevent hStart, CUevent hEnd) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuEventElapsedTime(pMilliseconds, hStart, hEnd)
-{{endif}}
-
 {{if 'cuEventElapsedTime_v2' in found_functions}}
 
-cdef CUresult cuEventElapsedTime_v2(float* pMilliseconds, CUevent hStart, CUevent hEnd) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuEventElapsedTime(float* pMilliseconds, CUevent hStart, CUevent hEnd) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuEventElapsedTime_v2(pMilliseconds, hStart, hEnd)
 {{endif}}
 
@@ -1924,63 +1930,33 @@ cdef CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode* rootNodes, size_t
     return cydriver._cuGraphGetRootNodes(hGraph, rootNodes, numRootNodes)
 {{endif}}
 
-{{if 'cuGraphGetEdges' in found_functions}}
-
-cdef CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, size_t* numEdges) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuGraphGetEdges(hGraph, from_, to, numEdges)
-{{endif}}
-
 {{if 'cuGraphGetEdges_v2' in found_functions}}
 
-cdef CUresult cuGraphGetEdges_v2(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, CUgraphEdgeData* edgeData, size_t* numEdges) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode* from_, CUgraphNode* to, CUgraphEdgeData* edgeData, size_t* numEdges) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuGraphGetEdges_v2(hGraph, from_, to, edgeData, numEdges)
-{{endif}}
-
-{{if 'cuGraphNodeGetDependencies' in found_functions}}
-
-cdef CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode* dependencies, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuGraphNodeGetDependencies(hNode, dependencies, numDependencies)
 {{endif}}
 
 {{if 'cuGraphNodeGetDependencies_v2' in found_functions}}
 
-cdef CUresult cuGraphNodeGetDependencies_v2(CUgraphNode hNode, CUgraphNode* dependencies, CUgraphEdgeData* edgeData, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode* dependencies, CUgraphEdgeData* edgeData, size_t* numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuGraphNodeGetDependencies_v2(hNode, dependencies, edgeData, numDependencies)
-{{endif}}
-
-{{if 'cuGraphNodeGetDependentNodes' in found_functions}}
-
-cdef CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode* dependentNodes, size_t* numDependentNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuGraphNodeGetDependentNodes(hNode, dependentNodes, numDependentNodes)
 {{endif}}
 
 {{if 'cuGraphNodeGetDependentNodes_v2' in found_functions}}
 
-cdef CUresult cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, CUgraphNode* dependentNodes, CUgraphEdgeData* edgeData, size_t* numDependentNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode* dependentNodes, CUgraphEdgeData* edgeData, size_t* numDependentNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuGraphNodeGetDependentNodes_v2(hNode, dependentNodes, edgeData, numDependentNodes)
-{{endif}}
-
-{{if 'cuGraphAddDependencies' in found_functions}}
-
-cdef CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuGraphAddDependencies(hGraph, from_, to, numDependencies)
 {{endif}}
 
 {{if 'cuGraphAddDependencies_v2' in found_functions}}
 
-cdef CUresult cuGraphAddDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuGraphAddDependencies_v2(hGraph, from_, to, edgeData, numDependencies)
-{{endif}}
-
-{{if 'cuGraphRemoveDependencies' in found_functions}}
-
-cdef CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuGraphRemoveDependencies(hGraph, from_, to, numDependencies)
 {{endif}}
 
 {{if 'cuGraphRemoveDependencies_v2' in found_functions}}
 
-cdef CUresult cuGraphRemoveDependencies_v2(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode* from_, const CUgraphNode* to, const CUgraphEdgeData* edgeData, size_t numDependencies) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuGraphRemoveDependencies_v2(hGraph, from_, to, edgeData, numDependencies)
 {{endif}}
 
@@ -2158,15 +2134,9 @@ cdef CUresult cuGraphReleaseUserObject(CUgraph graph, CUuserObject object, unsig
     return cydriver._cuGraphReleaseUserObject(graph, object, count)
 {{endif}}
 
-{{if 'cuGraphAddNode' in found_functions}}
-
-cdef CUresult cuGraphAddNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuGraphAddNode(phGraphNode, hGraph, dependencies, numDependencies, nodeParams)
-{{endif}}
-
 {{if 'cuGraphAddNode_v2' in found_functions}}
 
-cdef CUresult cuGraphAddNode_v2(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult cuGraphAddNode(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuGraphAddNode_v2(phGraphNode, hGraph, dependencies, dependencyData, numDependencies, nodeParams)
 {{endif}}
 
@@ -2500,6 +2470,12 @@ cdef CUresult cuDeviceGetP2PAttribute(int* value, CUdevice_P2PAttribute attrib, 
     return cydriver._cuDeviceGetP2PAttribute(value, attrib, srcDevice, dstDevice)
 {{endif}}
 
+{{if 'cuDeviceGetP2PAtomicCapabilities' in found_functions}}
+
+cdef CUresult cuDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const CUatomicOperation* operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuDeviceGetP2PAtomicCapabilities(capabilities, operations, count, srcDevice, dstDevice)
+{{endif}}
+
 {{if 'cuGraphicsUnregisterResource' in found_functions}}
 
 cdef CUresult cuGraphicsUnregisterResource(CUgraphicsResource resource) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -2650,6 +2626,12 @@ cdef CUresult cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, un
     return cydriver._cuGreenCtxStreamCreate(phStream, greenCtx, flags, priority)
 {{endif}}
 
+{{if 'cuGreenCtxGetId' in found_functions}}
+
+cdef CUresult cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuGreenCtxGetId(greenCtx, greenCtxId)
+{{endif}}
+
 {{if 'cuLogsRegisterCallback' in found_functions}}
 
 cdef CUresult cuLogsRegisterCallback(CUlogsCallback callbackFunc, void* userData, CUlogsCallbackHandle* callback_out) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -2702,12 +2684,6 @@ cdef CUresult cuCheckpointProcessLock(int pid, CUcheckpointLockArgs* args) excep
 
 cdef CUresult cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuCheckpointProcessCheckpoint(pid, args)
-{{endif}}
-
-{{if 'cuCheckpointProcessRestore' in found_functions}}
-
-cdef CUresult cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuCheckpointProcessRestore(pid, args)
 {{endif}}
 
 {{if 'cuCheckpointProcessUnlock' in found_functions}}
