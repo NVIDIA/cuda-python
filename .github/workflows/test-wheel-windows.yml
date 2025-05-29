@@ -96,41 +96,30 @@ jobs:
       - name: Ensure GPU is working
         run: nvidia-smi
 
-      - name: Set environment variables
+      - name: Install Git for Windows
+        # the GPU runner image does not have Git Bash pre-installed...
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          GFW_EXE_URL: https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe
         run: |
-          $PYTHON_VERSION_FORMATTED = '${{ matrix.PY_VER }}' -replace '\.'
-          $REPO_DIR = $PWD.Path
+          Invoke-WebRequest -Uri "$env:GFW_EXE_URL" -OutFile "PortableGit.7z.exe"
+          # Self-extracting, see https://gitforwindows.org/zip-archives-extracting-the-released-archives.html
+          Start-Process .\PortableGit.7z.exe -Wait -Verbose -ArgumentList '-y -gm2'
+          ls -l PortableGit
+          echo "$((Get-Location).Path)\\PortableGit\\bin" >> $env:GITHUB_PATH
+          $env:Path += ";$((Get-Location).Path)\\PortableGit\\bin"
+          bash --version
 
-          $BUILD_CUDA_MAJOR = '${{ inputs.build-ctk-ver }}' -split '\.' | Select-Object -First 1
-          $TEST_CUDA_MAJOR = '${{ matrix.CUDA_VER }}' -split '\.' | Select-Object -First 1
-          if ($BUILD_CUDA_MAJOR -ne $TEST_CUDA_MAJOR) {
-            $SKIP_CUDA_BINDINGS_TEST = 1
-            $SKIP_CYTHON_TEST = 1
-          } else {
-            $SKIP_CUDA_BINDINGS_TEST = 0
-            $BUILD_CUDA_MINOR = '${{ inputs.build-ctk-ver }}' -split '\.' | Select-Object -Skip 1 -First 1
-            $TEST_CUDA_MINOR = '${{ matrix.CUDA_VER }}' -split '\.' | Select-Object -Skip 1 -First 1
-            if ($BUILD_CUDA_MINOR -ne $TEST_CUDA_MINOR) {
-              $SKIP_CYTHON_TEST = 1
-            } else {
-              $SKIP_CYTHON_TEST = 0
-            }
-          }
-
-          # Make outputs from the previous job as env vars
-          $CUDA_CORE_ARTIFACT_BASENAME = "cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
-          "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $env:GITHUB_ENV
-          "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $env:GITHUB_ENV
-          "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $env:GITHUB_ENV
-          "CUDA_CORE_ARTIFACTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_core\dist"))" >> $env:GITHUB_ENV
-          "CUDA_CORE_CYTHON_TESTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_core\tests\cython"))" >> $env:GITHUB_ENV
-          $CUDA_BINDINGS_ARTIFACT_BASENAME = "cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-${{ inputs.host-platform }}"
-          "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $env:GITHUB_ENV
-          "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $env:GITHUB_ENV
-          "CUDA_BINDINGS_ARTIFACTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_bindings\dist"))" >> $env:GITHUB_ENV
-          "CUDA_BINDINGS_CYTHON_TESTS_DIR=$($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$REPO_DIR\cuda_bindings\tests\cython"))" >> $env:GITHUB_ENV
-          "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $env:GITHUB_ENV
-          "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}" >> $env:GITHUB_ENV
+      - name: Set environment variables
+        env:
+          BUILD_CUDA_VER: ${{ inputs.build-ctk-ver }}
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          HOST_PLATFORM: ${{ inputs.host-platform }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          PY_VER: ${{ matrix.PY_VER }}
+          SHA: ${{ github.sha }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: ./ci/tools/env-vars test
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
@@ -160,21 +149,6 @@ jobs:
               $env:Path += ";$p"
           }
           gh --version
-
-      - name: Install Git for Windows
-        # the GPU runner image does not have Git Bash pre-installed...
-        if: ${{ matrix.LOCAL_CTK == '1' }}
-        env:
-          # doesn't seem there's an easy way to avoid hard-coding it?
-          GFW_EXE_URL: https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe
-        run: |
-          Invoke-WebRequest -Uri "$env:GFW_EXE_URL" -OutFile "PortableGit.7z.exe"
-          # Self-extracting, see https://gitforwindows.org/zip-archives-extracting-the-released-archives.html
-          Start-Process .\PortableGit.7z.exe -Wait -Verbose -ArgumentList '-y -gm2'
-          ls -l PortableGit
-          echo "$((Get-Location).Path)\\PortableGit\\bin" >> $env:GITHUB_PATH
-          $env:Path += ";$((Get-Location).Path)\\PortableGit\\bin"
-          bash --version
 
       - name: Install zstd
         # the GPU runner image does not have zstd pre-installed... and it's needed by actions/cache
@@ -278,48 +252,18 @@ jobs:
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
-        run: |
-          Push-Location $env:CUDA_BINDINGS_ARTIFACTS_DIR
-          if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-            Get-ChildItem $env:CUDA_PATH
-            echo $PATH
-            pip install "$((Get-ChildItem -Filter *.whl).FullName)[test]"
-          } else {
-            pip install "$((Get-ChildItem -Filter *.whl).FullName)[all,test]"
-          }
-          Pop-Location
-
-          Push-Location ./cuda_bindings
-          pytest -rxXs -v tests/
-          if ($env:SKIP_CYTHON_TEST -eq '0') {
-            pytest -rxXs -v tests/cython
-          }
-          Pop-Location
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests bindings
 
       - name: Run cuda.core tests
-        run: |
-          # If build/test majors match: cuda.bindings is installed in the previous step.
-          # If mismatch: cuda.bindings is installed from the backport branch.
-          if ($env:SKIP_CUDA_BINDINGS_TEST -eq '1') {
-            Push-Location $env:CUDA_BINDINGS_ARTIFACTS_DIR
-            if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-              pip install (Get-ChildItem -Filter *.whl).FullName
-            } else {
-              pip install "$((Get-ChildItem -Filter *.whl).FullName)[all]"
-            }
-            Pop-Location
-          }
-          $TEST_CUDA_MAJOR = '${{ matrix.CUDA_VER }}' -split '\.' | Select-Object -First 1
-          Push-Location $env:CUDA_CORE_ARTIFACTS_DIR
-          pip install "$((Get-ChildItem -Filter *.whl).FullName)[cu${TEST_CUDA_MAJOR},test-cu${TEST_CUDA_MAJOR}]"
-          Pop-Location
-
-          Push-Location ./cuda_core
-          pytest -rxXs -v tests/
-          if ($env:SKIP_CYTHON_TEST -eq '0') {
-            pytest -rxXs -v tests/cython
-          }
-          Pop-Location
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests core
 
       - name: Ensure cuda-python installable
         run: |
