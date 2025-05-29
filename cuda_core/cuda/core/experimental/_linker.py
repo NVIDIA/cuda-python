@@ -85,7 +85,7 @@ def _lazy_init():
             "cubin": _driver.CUjitInputType.CU_JIT_INPUT_CUBIN,
             "fatbin": _driver.CUjitInputType.CU_JIT_INPUT_FATBINARY,
             "object": _driver.CUjitInputType.CU_JIT_INPUT_OBJECT,
-            "library": _driver.CU_JIT_INPUT_LIBRARY,
+            "library": _driver.CUjitInputType.CU_JIT_INPUT_LIBRARY,
         }
     _inited = True
 
