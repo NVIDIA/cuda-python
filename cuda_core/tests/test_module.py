@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import pickle  # nosec B403, B301
 import warnings
 
 import pytest
@@ -245,3 +246,13 @@ def test_num_args_error_handling(deinit_all_contexts_function, cuda12_prerequisi
     with pytest.raises(CUDAError):
         # assignment resolves linter error "B018: useless expression"
         _ = krn.num_arguments
+
+
+def test_module_serialization_roundtrip(get_saxpy_kernel):
+    _, objcode = get_saxpy_kernel
+    result = pickle.loads(pickle.dumps(objcode))  # nosec B403, B301
+
+    assert isinstance(result, ObjectCode)
+    assert objcode.code == result.code
+    assert objcode._sym_map == result._sym_map
+    assert objcode._code_type == result._code_type
