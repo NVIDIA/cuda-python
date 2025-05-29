@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import pickle  # nosec B403, B301
 import warnings
 
 import pytest
@@ -364,3 +365,13 @@ def test_saxpy_occupancy_max_potential_cluster_size(get_saxpy_kernel):
     max_potential_cluster_size = query_fn(launch_config, stream=dev.default_stream)
     assert isinstance(max_potential_cluster_size, int)
     assert max_potential_cluster_size >= 0
+
+
+def test_module_serialization_roundtrip(get_saxpy_kernel):
+    _, objcode = get_saxpy_kernel
+    result = pickle.loads(pickle.dumps(objcode))  # nosec B403, B301
+
+    assert isinstance(result, ObjectCode)
+    assert objcode.code == result.code
+    assert objcode._sym_map == result._sym_map
+    assert objcode._code_type == result._code_type

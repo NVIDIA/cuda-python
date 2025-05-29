@@ -77,6 +77,7 @@ def _lazy_init():
             "fatbin": _nvjitlink.InputType.FATBIN,
             "ltoir": _nvjitlink.InputType.LTOIR,
             "object": _nvjitlink.InputType.OBJECT,
+            "library": _nvjitlink.InputType.LIBRARY,
         }
     else:
         _driver_input_types = {
@@ -84,6 +85,7 @@ def _lazy_init():
             "cubin": _driver.CUjitInputType.CU_JIT_INPUT_CUBIN,
             "fatbin": _driver.CUjitInputType.CU_JIT_INPUT_FATBINARY,
             "object": _driver.CUjitInputType.CU_JIT_INPUT_OBJECT,
+            "library": _driver.CUjitInputType.CU_JIT_INPUT_LIBRARY,
         }
     _inited = True
 
