@@ -1,7 +1,7 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated with version 13.0.0. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
 cimport cuda.bindings._lib.utils as utils
 cimport cuda.bindings.driver as driver
