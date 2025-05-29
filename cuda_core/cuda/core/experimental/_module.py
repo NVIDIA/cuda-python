@@ -381,7 +381,7 @@ class ObjectCode:
             them (default to no mappings).
         """
         return ObjectCode._init(module, "object", symbol_mapping=symbol_mapping)
-@staticmethod
+    @staticmethod
     def from_library(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing library.
 
