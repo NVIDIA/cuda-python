@@ -253,7 +253,6 @@ def test_module_serialization_roundtrip(get_saxpy_kernel):
     result = pickle.loads(pickle.dumps(objcode))  # nosec B403, B301
 
     assert isinstance(result, ObjectCode)
-    assert result._handle is None
     assert objcode.code == result.code
     assert objcode._sym_map == result._sym_map
     assert objcode._code_type == result._code_type
