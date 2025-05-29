@@ -276,7 +276,7 @@ class ObjectCode:
     """
 
     __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
-    _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "lib")
+    _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
 
     def __new__(self, *args, **kwargs):
         raise RuntimeError(
@@ -395,7 +395,7 @@ class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "lib", symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "library", symbol_mapping=symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
