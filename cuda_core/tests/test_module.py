@@ -297,6 +297,9 @@ def test_saxpy_occupancy_max_potential_block_size_constant(get_saxpy_kernel, blo
         assert max_block_size <= dev_props.max_threads_per_block
     assert min_grid_size == config_data.min_grid_size
     assert max_block_size == config_data.max_block_size
+    invalid_dsmem = Ellipsis
+    with pytest.raises(TypeError):
+        kernel.occupancy.max_potential_block_size(invalid_dsmem, block_size_limit)
 
 
 @pytest.mark.skipif(numba is None, reason="Test requires numba to be installed")
