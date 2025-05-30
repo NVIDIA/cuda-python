@@ -36,19 +36,8 @@ ptx_kernel = """
 }
 """
 
-minimal_ptx_kernel = """
-.func _MinimalKernel()
-{
-    ret;
-}
-"""
-
 ptx_kernel_bytes = [
     (ptx_header(version, arch) + ptx_kernel).encode("utf-8") for version, arch in zip(PTX_VERSIONS, ARCHITECTURES)
-]
-minimal_ptx_kernel_bytes = [
-    (ptx_header(version, arch) + minimal_ptx_kernel).encode("utf-8")
-    for version, arch in zip(PTX_VERSIONS, ARCHITECTURES)
 ]
 
 
