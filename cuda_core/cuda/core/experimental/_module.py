@@ -217,6 +217,30 @@ class KernelOccupancy:
 
         Returns the minimum grid size needed to achieve the maximum occupancy and
         the maximum block size that can achieve the maximum occupancy.
+
+        Parameters
+        ----------
+            dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize]
+                The amount of dynamic shared memory in bytes needed by block.
+                Use `0` if block does not need shared memory. Use C-callable
+                represented by :obj:`~driver.CUoccupancyB2DSize` to encode
+                amount of needed dynamic shared memory which varies depending
+                on tne block size.
+            block_size_limit: int
+                Known upper limit on the kernel block size. Use `0` to indicate
+                the maximum block size permitted by the device / kernel instead
+
+        Returns
+        -------
+        :obj:`~MaxPotentialBlockSizeOccupancyResult`
+            An object with `min_grid_size` amd `max_block_size` attributes encoding
+            the suggested launch configuration.
+
+        Note
+        ----
+            Please be advised that use of C-callable that requires Python Global
+            Interpreter Lock may lead to deadlocks.
+
         """
         if isinstance(dynamic_shared_memory_needed, int):
             min_grid_size, max_block_size = handle_return(
@@ -224,11 +248,16 @@ class KernelOccupancy:
                     self._handle, None, dynamic_shared_memory_needed, block_size_limit
                 )
             )
-        else:
+        elif isinstance(dynamic_shared_memory_needed, driver.CUoccupancyB2DSize):
             min_grid_size, max_block_size = handle_return(
                 driver.cuOccupancyMaxPotentialBlockSize(
                     self._handle, dynamic_shared_memory_needed.getPtr(), 0, block_size_limit
                 )
+            )
+        else:
+            raise TypeError(
+                "dynamic_shared_memory_needed expected to have type int, or CUoccupancyB2DSize, "
+                f"got {type(dynamic_shared_memory_needed)}"
             )
         return MaxPotentialBlockSizeOccupancyResult(min_grid_size=min_grid_size, max_block_size=max_block_size)
 
