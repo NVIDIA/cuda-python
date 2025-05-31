@@ -1,6 +1,0 @@
-﻿cuda.core.experimental.LaunchConfig
-===================================
-
-.. currentmodule:: cuda.core.experimental
-
-.. autoclass:: LaunchConfig
