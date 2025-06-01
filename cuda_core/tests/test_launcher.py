@@ -104,6 +104,7 @@ if os.environ.get("CUDA_PATH"):
 
 
 @pytest.mark.parametrize("python_type, cpp_type, init_value", PARAMS)
+@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_launch_scalar_argument(python_type, cpp_type, init_value):
     dev = Device()
     dev.set_current()
