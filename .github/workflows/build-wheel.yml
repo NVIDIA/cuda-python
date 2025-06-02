@@ -33,7 +33,7 @@ jobs:
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
-                 (inputs.host-platform == 'win-64' && 'windows-2019') }}
+                 (inputs.host-platform == 'win-64' && 'windows-2022') }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
