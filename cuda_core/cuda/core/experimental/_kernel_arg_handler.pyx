@@ -22,6 +22,33 @@ ctypedef cpp_complex.complex[float] cpp_single_complex
 ctypedef cpp_complex.complex[double] cpp_double_complex
 
 
+# We need an identifier for fp16 for copying scalars on the host. This is a minimal
+# implementation borrowed from cuda_fp16.h.
+cdef extern from *:
+    """
+    #if __cplusplus >= 201103L
+    #define __CUDA_ALIGN__(n) alignas(n)    /* C++11 kindly gives us a keyword for this */
+    #else
+    #if defined(__GNUC__)
+    #define __CUDA_ALIGN__(n) __attribute__ ((aligned(n)))
+    #elif defined(_MSC_VER)
+    #define __CUDA_ALIGN__(n) __declspec(align(n))
+    #else
+    #define __CUDA_ALIGN__(n)
+    #endif /* defined(__GNUC__) */
+    #endif /* __cplusplus >= 201103L */
+
+    typedef struct __CUDA_ALIGN__(2) {
+        /**
+         * Storage field contains bits representation of the \p half floating-point number.
+         */
+        unsigned short x;
+    } __half_raw;
+    """
+    ctypedef struct __half_raw:
+        unsigned short x
+
+
 ctypedef fused supported_type:
     cpp_bool
     int8_t
@@ -32,6 +59,7 @@ ctypedef fused supported_type:
     uint16_t
     uint32_t
     uint64_t
+    __half_raw
     float
     double
     intptr_t
@@ -85,6 +113,8 @@ cdef inline int prepare_arg(
         (<supported_type*>ptr)[0] = cpp_complex.complex[float](arg.real, arg.imag)
     elif supported_type is cpp_double_complex:
         (<supported_type*>ptr)[0] = cpp_complex.complex[double](arg.real, arg.imag)
+    elif supported_type is __half_raw:
+        (<supported_type*>ptr).x = <int16_t>(arg.view(numpy_int16))
     else:
         (<supported_type*>ptr)[0] = <supported_type>(arg)
     data_addresses[idx] = ptr  # take the address to the scalar
@@ -147,8 +177,7 @@ cdef inline int prepare_numpy_arg(
     elif isinstance(arg, numpy_uint64):
         return prepare_arg[uint64_t](data, data_addresses, arg, idx)
     elif isinstance(arg, numpy_float16):
-        # use int16 as a proxy
-        return prepare_arg[int16_t](data, data_addresses, arg, idx)
+        return prepare_arg[__half_raw](data, data_addresses, arg, idx)
     elif isinstance(arg, numpy_float32):
         return prepare_arg[float](data, data_addresses, arg, idx)
     elif isinstance(arg, numpy_float64):
@@ -207,7 +236,7 @@ cdef class ParamHolder:
                 not_prepared = prepare_ctypes_arg(self.data, self.data_addresses, arg, i)
             if not_prepared:
                 # TODO: support ctypes/numpy struct
-                raise TypeError
+                raise TypeError("the argument is of unsupported type: " + str(type(arg)))
 
         self.kernel_args = kernel_args
         self.ptr = <intptr_t>self.data_addresses.data()
