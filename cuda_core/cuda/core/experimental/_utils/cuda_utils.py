@@ -48,6 +48,10 @@ def cast_to_3_tuple(label, cfg):
     return cfg + (1,) * (3 - len(cfg))
 
 
+def _reduce_tuple(t: tuple):
+    return functools.reduce(lambda x, y: x * y, t, 1)
+
+
 def _check_driver_error(error):
     if error == driver.CUresult.CUDA_SUCCESS:
         return
