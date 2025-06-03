@@ -205,7 +205,30 @@ class KernelOccupancy:
         return self
 
     def max_active_blocks_per_multiprocessor(self, block_size: int, dynamic_shared_memory_size: int) -> int:
-        """int : Occupancy of the kernel"""
+        """Occupancy of the kernel.
+
+        Returns the maximum number of active blocks per multiprocessor for this kernel.
+
+        Parameters
+        ----------
+            block_size: int
+                Block size parameter used to launch this kernel.
+            dynamic_shared_memory_size: int
+                The amount of dynamic shared memory in bytes needed by block.
+                Use `0` if block does not need shared memory.
+
+        Returns
+        -------
+        int
+            The maximum number of active blocks per multiprocessor.
+
+        Note
+        ----
+            The fraction of the product of maximum number of active blocks per multiprocessor
+            and the block size to the maximum number of threads per multiprocessor is known as
+            theoretical multiprocessor utilization (occupancy).
+
+        """
         return handle_return(
             driver.cuOccupancyMaxActiveBlocksPerMultiprocessor(self._handle, block_size, dynamic_shared_memory_size)
         )
@@ -262,20 +285,65 @@ class KernelOccupancy:
         return MaxPotentialBlockSizeOccupancyResult(min_grid_size=min_grid_size, max_block_size=max_block_size)
 
     def available_dynamic_shared_memory_per_block(self, num_blocks_per_multiprocessor: int, block_size: int) -> int:
-        """int: Dynamic shared memory available per block for given launch configuration."""
+        """Dynamic shared memory available per block for given launch configuration.
+
+        The amount of dynamic shared memory per block, in bytes, for given kernel launch configuration.
+
+        Parameter
+        ---------
+            num_blocks_per_multiprocessor: int
+                Number of blocks to be concurrently executing on a multiprocessor.
+            block_size: int
+                Block size parameter used to launch this kernel.
+
+        Returns
+        -------
+        int
+            Dynamic shared memory available per block for given launch configuration.
+        """
         return handle_return(
             driver.cuOccupancyAvailableDynamicSMemPerBlock(self._handle, num_blocks_per_multiprocessor, block_size)
         )
 
     def max_potential_cluster_size(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
-        """ "int: The maximum cluster size that can be launched for this kernel and launch configuration"""
+        """Maximum potential cluster size.
+
+        The maximum potential cluster size for this kernel and given launch configuration.
+
+        Parameters
+        ----------
+            config: :obj:`~_launch_config.LaunchConfig`
+                Kernel launch configuration. Cluster dimensions in the configuration are ignored.
+            stream: :obj:`~Stream`, optional
+                The stream on which this kernel is to be launched.
+
+        Returns
+        -------
+        int
+            The maximum cluster size that can be launched for this kernel and launch configuration.
+        """
         drv_cfg = _to_native_launch_config(config)
         if stream is not None:
             drv_cfg.hStream = stream.handle
         return handle_return(driver.cuOccupancyMaxPotentialClusterSize(self._handle, drv_cfg))
 
     def max_active_clusters(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
-        """ "int: The maximum number of clusters that could co-exist on the target device"""
+        """Maximum number of active clusters on the target device.
+
+        The maximum number of clusters that could concurrently execute on the target device.
+
+        Parameters
+        ----------
+            config: :obj:`~_launch_config.LaunchConfig`
+                Kernel launch configuration.
+            stream: :obj:`~Stream`, optional
+                The stream on which this kernel is to be launched.
+
+        Returns
+        -------
+        int
+            The maximum number of clusters that could co-exist on the target device.
+        """
         drv_cfg = _to_native_launch_config(config)
         if stream is not None:
             drv_cfg.hStream = stream.handle
@@ -351,7 +419,7 @@ class Kernel:
 
     @property
     def occupancy(self) -> KernelOccupancy:
-        """Get the read-only attributes of this kernel."""
+        """Get the occupancy information for launching this kernel."""
         if self._occupancy is None:
             self._occupancy = KernelOccupancy._init(self._handle)
         return self._occupancy
