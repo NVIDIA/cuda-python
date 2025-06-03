@@ -260,7 +260,7 @@ def test_num_args_error_handling(deinit_all_contexts_function, cuda12_prerequisi
 
 @pytest.mark.parametrize("block_size", [32, 64, 96, 120, 128, 256])
 @pytest.mark.parametrize("smem_size_per_block", [0, 32, 4096])
-def test_saxpy_occupancy_max_active_block_per_multiprocessor(get_saxpy_kernel, block_size, smem_size_per_block):
+def test_occupancy_max_active_block_per_multiprocessor(get_saxpy_kernel, block_size, smem_size_per_block):
     kernel, _ = get_saxpy_kernel
     dev_props = Device().properties
     assert block_size <= dev_props.max_threads_per_block
@@ -277,7 +277,7 @@ def test_saxpy_occupancy_max_active_block_per_multiprocessor(get_saxpy_kernel, b
 
 @pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 256, 0])
 @pytest.mark.parametrize("smem_size_per_block", [0, 32, 4096])
-def test_saxpy_occupancy_max_potential_block_size_constant(get_saxpy_kernel, block_size_limit, smem_size_per_block):
+def test_occupancy_max_potential_block_size_constant(get_saxpy_kernel, block_size_limit, smem_size_per_block):
     """Tests use case when shared memory needed is independent on the block size"""
     kernel, _ = get_saxpy_kernel
     dev_props = Device().properties
@@ -304,7 +304,7 @@ def test_saxpy_occupancy_max_potential_block_size_constant(get_saxpy_kernel, blo
 
 @pytest.mark.skipif(numba is None, reason="Test requires numba to be installed")
 @pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 277, 0])
-def test_saxpy_occupancy_max_potential_block_size_b2dsize(get_saxpy_kernel, block_size_limit):
+def test_occupancy_max_potential_block_size_b2dsize(get_saxpy_kernel, block_size_limit):
     """Tests use case when shared memory needed depends on the block size"""
     kernel, _ = get_saxpy_kernel
 
@@ -331,7 +331,7 @@ def test_saxpy_occupancy_max_potential_block_size_b2dsize(get_saxpy_kernel, bloc
 
 
 @pytest.mark.parametrize("num_blocks_per_sm, block_size", [(4, 32), (2, 64), (2, 96), (3, 120), (2, 128), (1, 256)])
-def test_saxpy_occupancy_available_dynamic_shared_memory_per_block(get_saxpy_kernel, num_blocks_per_sm, block_size):
+def test_occupancy_available_dynamic_shared_memory_per_block(get_saxpy_kernel, num_blocks_per_sm, block_size):
     kernel, _ = get_saxpy_kernel
     dev_props = Device().properties
     assert block_size <= dev_props.max_threads_per_block
@@ -342,7 +342,7 @@ def test_saxpy_occupancy_available_dynamic_shared_memory_per_block(get_saxpy_ker
 
 
 @pytest.mark.parametrize("cluster", [None, 2])
-def test_saxpy_occupancy_max_active_clusters(get_saxpy_kernel, cluster):
+def test_occupancy_max_active_clusters(get_saxpy_kernel, cluster):
     kernel, _ = get_saxpy_kernel
     dev = Device()
     if (cluster) and (dev.compute_capability < (9, 0)):
@@ -357,7 +357,7 @@ def test_saxpy_occupancy_max_active_clusters(get_saxpy_kernel, cluster):
     assert max_active_clusters >= 0
 
 
-def test_saxpy_occupancy_max_potential_cluster_size(get_saxpy_kernel):
+def test_occupancy_max_potential_cluster_size(get_saxpy_kernel):
     kernel, _ = get_saxpy_kernel
     dev = Device()
     launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64)
