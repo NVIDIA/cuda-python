@@ -1,9 +1,7 @@
 # Copyright 2024 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import glob
 import os
-import sys
 
 try:
     from cuda.bindings import driver
@@ -65,21 +63,6 @@ def deinit_all_contexts_function():
             raise RuntimeError(f"Number of iterations popping current CUDA contexts, exceded {max_iters}")
 
     return pop_all_contexts
-
-
-# samples relying on cffi could fail as the modules cannot be imported
-sys.path.append(os.getcwd())
-
-
-@pytest.fixture(scope="session", autouse=True)
-def clean_up_cffi_files():
-    yield
-    files = glob.glob(os.path.join(os.getcwd(), "_cpu_obj*"))
-    for f in files:
-        try:  # noqa: SIM105
-            os.remove(f)
-        except FileNotFoundError:
-            pass  # noqa: SIM105
 
 
 skipif_testing_with_compute_sanitizer = pytest.mark.skipif(
