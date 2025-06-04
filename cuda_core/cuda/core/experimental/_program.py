@@ -242,12 +242,12 @@ class ProgramOptions:
         if self.device_code_optimize is not None:
             self._formatted_options.append(f"--dopt={'on' if self.device_code_optimize else 'off'}")
         if self.ptxas_options is not None:
-            self._formatted_options.append("--ptxas-options")
+            opt_name = "--ptxas-options"
             if isinstance(self.ptxas_options, str):
-                self._formatted_options.append(self.ptxas_options)
+                self._formatted_options.append(f"{opt_name}={self.ptxas_options}")
             elif is_sequence(self.ptxas_options):
-                for option in self.ptxas_options:
-                    self._formatted_options.append(option)
+                for opt_value in self.ptxas_options:
+                    self._formatted_options.append(f"{opt_name}={opt_value}")
         if self.max_register_count is not None:
             self._formatted_options.append(f"--maxrregcount={self.max_register_count}")
         if self.ftz is not None:
