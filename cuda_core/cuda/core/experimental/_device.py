@@ -1021,7 +1021,7 @@ class Device:
 
         """
         driver_ver = handle_return(driver.cuDriverGetVersion())
-        if driver_ver >= 11040:
+        if 11040 <= driver_ver < 13000:
             uuid = handle_return(driver.cuDeviceGetUuid_v2(self._id))
         else:
             uuid = handle_return(driver.cuDeviceGetUuid(self._id))
