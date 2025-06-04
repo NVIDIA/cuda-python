@@ -6,6 +6,8 @@ from collections import namedtuple
 from typing import Optional, Union
 from warnings import warn
 
+from cuda.core.experimental._launch_config import LaunchConfig, _to_native_launch_config
+from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.clear_error_support import (
     assert_type,
     assert_type_str_or_bytes,
@@ -184,6 +186,170 @@ class KernelAttributes:
         )
 
 
+MaxPotentialBlockSizeOccupancyResult = namedtuple("MaxPotential", ("min_grid_size", "max_block_size"))
+
+
+class KernelOccupancy:
+    """ """
+
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("KernelOccupancy cannot be instantiated directly. Please use Kernel APIs.")
+
+    slots = ("_handle",)
+
+    @classmethod
+    def _init(cls, handle):
+        self = super().__new__(cls)
+        self._handle = handle
+
+        return self
+
+    def max_active_blocks_per_multiprocessor(self, block_size: int, dynamic_shared_memory_size: int) -> int:
+        """Occupancy of the kernel.
+
+        Returns the maximum number of active blocks per multiprocessor for this kernel.
+
+        Parameters
+        ----------
+            block_size: int
+                Block size parameter used to launch this kernel.
+            dynamic_shared_memory_size: int
+                The amount of dynamic shared memory in bytes needed by block.
+                Use `0` if block does not need shared memory.
+
+        Returns
+        -------
+        int
+            The maximum number of active blocks per multiprocessor.
+
+        Note
+        ----
+            The fraction of the product of maximum number of active blocks per multiprocessor
+            and the block size to the maximum number of threads per multiprocessor is known as
+            theoretical multiprocessor utilization (occupancy).
+
+        """
+        return handle_return(
+            driver.cuOccupancyMaxActiveBlocksPerMultiprocessor(self._handle, block_size, dynamic_shared_memory_size)
+        )
+
+    def max_potential_block_size(
+        self, dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize], block_size_limit: int
+    ) -> MaxPotentialBlockSizeOccupancyResult:
+        """MaxPotentialBlockSizeOccupancyResult: Suggested launch configuration for reasonable occupancy.
+
+        Returns the minimum grid size needed to achieve the maximum occupancy and
+        the maximum block size that can achieve the maximum occupancy.
+
+        Parameters
+        ----------
+            dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize]
+                The amount of dynamic shared memory in bytes needed by block.
+                Use `0` if block does not need shared memory. Use C-callable
+                represented by :obj:`~driver.CUoccupancyB2DSize` to encode
+                amount of needed dynamic shared memory which varies depending
+                on tne block size.
+            block_size_limit: int
+                Known upper limit on the kernel block size. Use `0` to indicate
+                the maximum block size permitted by the device / kernel instead
+
+        Returns
+        -------
+        :obj:`~MaxPotentialBlockSizeOccupancyResult`
+            An object with `min_grid_size` amd `max_block_size` attributes encoding
+            the suggested launch configuration.
+
+        Note
+        ----
+            Please be advised that use of C-callable that requires Python Global
+            Interpreter Lock may lead to deadlocks.
+
+        """
+        if isinstance(dynamic_shared_memory_needed, int):
+            min_grid_size, max_block_size = handle_return(
+                driver.cuOccupancyMaxPotentialBlockSize(
+                    self._handle, None, dynamic_shared_memory_needed, block_size_limit
+                )
+            )
+        elif isinstance(dynamic_shared_memory_needed, driver.CUoccupancyB2DSize):
+            min_grid_size, max_block_size = handle_return(
+                driver.cuOccupancyMaxPotentialBlockSize(
+                    self._handle, dynamic_shared_memory_needed.getPtr(), 0, block_size_limit
+                )
+            )
+        else:
+            raise TypeError(
+                "dynamic_shared_memory_needed expected to have type int, or CUoccupancyB2DSize, "
+                f"got {type(dynamic_shared_memory_needed)}"
+            )
+        return MaxPotentialBlockSizeOccupancyResult(min_grid_size=min_grid_size, max_block_size=max_block_size)
+
+    def available_dynamic_shared_memory_per_block(self, num_blocks_per_multiprocessor: int, block_size: int) -> int:
+        """Dynamic shared memory available per block for given launch configuration.
+
+        The amount of dynamic shared memory per block, in bytes, for given kernel launch configuration.
+
+        Parameters
+        ----------
+            num_blocks_per_multiprocessor: int
+                Number of blocks to be concurrently executing on a multiprocessor.
+            block_size: int
+                Block size parameter used to launch this kernel.
+
+        Returns
+        -------
+        int
+            Dynamic shared memory available per block for given launch configuration.
+        """
+        return handle_return(
+            driver.cuOccupancyAvailableDynamicSMemPerBlock(self._handle, num_blocks_per_multiprocessor, block_size)
+        )
+
+    def max_potential_cluster_size(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
+        """Maximum potential cluster size.
+
+        The maximum potential cluster size for this kernel and given launch configuration.
+
+        Parameters
+        ----------
+            config: :obj:`~_launch_config.LaunchConfig`
+                Kernel launch configuration. Cluster dimensions in the configuration are ignored.
+            stream: :obj:`~Stream`, optional
+                The stream on which this kernel is to be launched.
+
+        Returns
+        -------
+        int
+            The maximum cluster size that can be launched for this kernel and launch configuration.
+        """
+        drv_cfg = _to_native_launch_config(config)
+        if stream is not None:
+            drv_cfg.hStream = stream.handle
+        return handle_return(driver.cuOccupancyMaxPotentialClusterSize(self._handle, drv_cfg))
+
+    def max_active_clusters(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
+        """Maximum number of active clusters on the target device.
+
+        The maximum number of clusters that could concurrently execute on the target device.
+
+        Parameters
+        ----------
+            config: :obj:`~_launch_config.LaunchConfig`
+                Kernel launch configuration.
+            stream: :obj:`~Stream`, optional
+                The stream on which this kernel is to be launched.
+
+        Returns
+        -------
+        int
+            The maximum number of clusters that could co-exist on the target device.
+        """
+        drv_cfg = _to_native_launch_config(config)
+        if stream is not None:
+            drv_cfg.hStream = stream.handle
+        return handle_return(driver.cuOccupancyMaxActiveClusters(self._handle, drv_cfg))
+
+
 ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
 
 
@@ -198,7 +364,7 @@ class Kernel:
 
     """
 
-    __slots__ = ("_handle", "_module", "_attributes")
+    __slots__ = ("_handle", "_module", "_attributes", "_occupancy")
 
     def __new__(self, *args, **kwargs):
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
@@ -211,6 +377,7 @@ class Kernel:
         ker._handle = obj
         ker._module = mod
         ker._attributes = None
+        ker._occupancy = None
         return ker
 
     @property
@@ -249,6 +416,13 @@ class Kernel:
         """list[ParamInfo]: (offset, size) for each argument of this function"""
         _, param_info = self._get_arguments_info(param_info=True)
         return param_info
+
+    @property
+    def occupancy(self) -> KernelOccupancy:
+        """Get the occupancy information for launching this kernel."""
+        if self._occupancy is None:
+            self._occupancy = KernelOccupancy._init(self._handle)
+        return self._occupancy
 
     # TODO: implement from_handle()
 
