@@ -8,10 +8,25 @@ from Cython.Build import cythonize
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext as _build_ext
 
+
+CUDA_HOME = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH", None))
+if not CUDA_HOME:
+    raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
+
+CUDA_HOME = CUDA_HOME.split(os.pathsep)
+
+include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
+
 ext_modules = (
     Extension(
         "cuda.core.experimental._dlpack",
         sources=["cuda/core/experimental/_dlpack.pyx"],
+        language="c++",
+    ),
+    Extension(
+        "cuda.core.experimental._stream",
+        sources=["cuda/core/experimental/_stream.pyx"],
+        include_dirs=include_path_list,
         language="c++",
     ),
     Extension(
@@ -24,6 +39,12 @@ ext_modules = (
         sources=["cuda/core/experimental/_kernel_arg_handler.pyx"],
         language="c++",
     ),
+    Extension(
+        "cuda.core.experimental._utils._error_utils",
+        sources=["cuda/core/experimental/_utils/_error_utils.pyx"],
+        include_dirs=include_path_list,
+        language="c++",
+    ),
 )
 
 
@@ -34,7 +55,7 @@ class build_ext(_build_ext):
 
 
 setup(
-    ext_modules=cythonize(ext_modules, verbose=True, language_level=3, compiler_directives={"embedsignature": True}),
+    ext_modules=cythonize(ext_modules, verbose=True, emit_linenums=True, language_level=3, compiler_directives={"embedsignature": True}),
     cmdclass={
         "build_ext": build_ext,
     },
