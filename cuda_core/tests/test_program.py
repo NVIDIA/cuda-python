@@ -43,6 +43,8 @@ def ptx_code_object():
         ProgramOptions(diag_error=1234, diag_suppress=1234),
         ProgramOptions(diag_error=[1234, 1223], diag_suppress=(1234, 1223)),
         ProgramOptions(diag_warn=1000),
+        ProgramOptions(std="c++11", ptxas_options=["-v"]),
+        ProgramOptions(std="c++11", ptxas_options=["-v", "-O2"]),
     ],
 )
 def test_cpp_program_with_various_options(init_cuda, options):
