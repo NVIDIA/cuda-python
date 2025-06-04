@@ -16,8 +16,10 @@
 # ################################################################################
 
 import importlib
+import shutil
 import string
 import sys
+import tempfile
 
 try:
     from cffi import FFI
@@ -73,8 +75,15 @@ if FFI:
         source_extension=".cpp",
         extra_compile_args=["-std=c++11"],
     )
-    cpu_prog.compile()
-    cpu_func = getattr(importlib.import_module("_cpu_obj.lib"), func_name)
+    temp_dir = tempfile.mkdtemp()
+    cpu_prog.compile(tmpdir=temp_dir)
+    saved_sys_path = sys.path
+    try:
+        sys.path.append(temp_dir)
+        cpu_func = getattr(importlib.import_module("_cpu_obj.lib"), func_name)
+    finally:
+        sys.path = saved_sys_path
+        shutil.rmtree(temp_dir)
 
 # Here is a concrete (again, very naive!) implementation on GPU:
 if cp:
@@ -140,29 +149,36 @@ def my_func(arr, work_stream):
 
 # This takes the CPU path
 if FFI:
-    # Create input array on CPU
-    arr_cpu = np.zeros(1024, dtype=np.int32)
-    print(f"before: {arr_cpu[:10]=}")
+    try:
+        # Create input array on CPU
+        arr_cpu = np.zeros(1024, dtype=np.int32)
+        print(f"before: {arr_cpu[:10]=}")
 
-    # Run the workload
-    my_func(arr_cpu, None)
+        # Run the workload
+        my_func(arr_cpu, None)
 
-    # Check the result
-    print(f"after: {arr_cpu[:10]=}")
-    assert np.allclose(arr_cpu, np.arange(1024, dtype=np.int32))
+        # Check the result
+        print(f"after: {arr_cpu[:10]=}")
+        assert np.allclose(arr_cpu, np.arange(1024, dtype=np.int32))
+    finally:
+        # clean up temp directory
+        del cpu_func
+        shutil.rmtree(temp_dir)
 
 
 # This takes the GPU path
 if cp:
     s = dev.create_stream()
-    # Create input array on GPU
-    arr_gpu = cp.ones(1024, dtype=cp.int32)
-    print(f"before: {arr_gpu[:10]=}")
+    try:
+        # Create input array on GPU
+        arr_gpu = cp.ones(1024, dtype=cp.int32)
+        print(f"before: {arr_gpu[:10]=}")
 
-    # Run the workload
-    my_func(arr_gpu, s)
+        # Run the workload
+        my_func(arr_gpu, s)
 
-    # Check the result
-    print(f"after: {arr_gpu[:10]=}")
-    assert cp.allclose(arr_gpu, 1 + cp.arange(1024, dtype=cp.int32))
-    s.close()
+        # Check the result
+        print(f"after: {arr_gpu[:10]=}")
+        assert cp.allclose(arr_gpu, 1 + cp.arange(1024, dtype=cp.int32))
+    finally:
+        s.close()
