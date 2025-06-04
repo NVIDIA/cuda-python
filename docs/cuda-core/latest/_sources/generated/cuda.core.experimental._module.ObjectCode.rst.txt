@@ -1,4 +1,6 @@
-﻿cuda.core.experimental.\_module.ObjectCode
+﻿.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.\_module.ObjectCode
 ==========================================
 
 .. currentmodule:: cuda.core.experimental._module
@@ -12,11 +14,22 @@
    
    .. automethod:: __init__
    .. automethod:: from_cubin
+   .. automethod:: from_fatbin
+   .. automethod:: from_library
+   .. automethod:: from_ltoir
+   .. automethod:: from_object
+   .. automethod:: from_ptx
    .. automethod:: get_kernel
 
    
    
 
    
+   
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: code
+   .. autoproperty:: handle
    
    
