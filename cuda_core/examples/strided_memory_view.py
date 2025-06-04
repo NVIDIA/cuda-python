@@ -76,7 +76,10 @@ if FFI:
         extra_compile_args=["-std=c++11"],
     )
     temp_dir = tempfile.mkdtemp()
-    cpu_prog.compile(tmpdir=temp_dir)
+    try:
+        cpu_prog.compile(tmpdir=temp_dir)
+    finally:
+        shutil.rmtree(temp_dir)
     saved_sys_path = sys.path
     try:
         sys.path.append(temp_dir)
@@ -147,25 +150,6 @@ def my_func(arr, work_stream):
         cpu_func(cpu_prog.cast("int*", view.ptr), size)
 
 
-# This takes the CPU path
-if FFI:
-    try:
-        # Create input array on CPU
-        arr_cpu = np.zeros(1024, dtype=np.int32)
-        print(f"before: {arr_cpu[:10]=}")
-
-        # Run the workload
-        my_func(arr_cpu, None)
-
-        # Check the result
-        print(f"after: {arr_cpu[:10]=}")
-        assert np.allclose(arr_cpu, np.arange(1024, dtype=np.int32))
-    finally:
-        # clean up temp directory
-        del cpu_func
-        shutil.rmtree(temp_dir)
-
-
 # This takes the GPU path
 if cp:
     s = dev.create_stream()
@@ -182,3 +166,23 @@ if cp:
         assert cp.allclose(arr_gpu, 1 + cp.arange(1024, dtype=cp.int32))
     finally:
         s.close()
+
+# This takes the CPU path
+if FFI:
+    try:
+        # Create input array on CPU
+        arr_cpu = np.zeros(1024, dtype=np.int32)
+        print(f"before: {arr_cpu[:10]=}")
+
+        # Run the workload
+        my_func(arr_cpu, None)
+
+        # Check the result
+        print(f"after: {arr_cpu[:10]=}")
+        assert np.allclose(arr_cpu, np.arange(1024, dtype=np.int32))
+    finally:
+        # to allow FFI module to unload, we delete references to
+        # to cpu_func
+        del cpu_func, my_func
+        # clean up temp directory
+        shutil.rmtree(temp_dir)
