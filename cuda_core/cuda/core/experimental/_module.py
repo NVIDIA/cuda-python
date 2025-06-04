@@ -289,8 +289,8 @@ class KernelOccupancy:
 
         The amount of dynamic shared memory per block, in bytes, for given kernel launch configuration.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
             num_blocks_per_multiprocessor: int
                 Number of blocks to be concurrently executing on a multiprocessor.
             block_size: int
