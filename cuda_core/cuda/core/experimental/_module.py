@@ -459,9 +459,7 @@ class ObjectCode:
         )
 
     @classmethod
-    def _init(cls, module, code_type, *,
-              name: str = "",
-              symbol_mapping: Optional[dict] = None):
+    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: Optional[dict] = None):
         self = super().__new__(cls)
         assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
@@ -488,9 +486,7 @@ class ObjectCode:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: Union[bytes, str], *,
-                   name: str = "",
-                   symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_cubin(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -508,9 +504,7 @@ class ObjectCode:
         return ObjectCode._init(module, "cubin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: Union[bytes, str], *,
-                 name: str = "",
-                 symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_ptx(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -528,9 +522,7 @@ class ObjectCode:
         return ObjectCode._init(module, "ptx", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: Union[bytes, str], *,
-                   name: str = "",
-                   symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_ltoir(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
@@ -548,9 +540,9 @@ class ObjectCode:
         return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: Union[bytes, str], *,
-                    name: str = "",
-                    symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_fatbin(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
@@ -568,9 +560,9 @@ class ObjectCode:
         return ObjectCode._init(module, "fatbin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_object(module: Union[bytes, str], *,
-                    name: str = "",
-                    symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_object(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing object code.
 
         Parameters
@@ -588,9 +580,9 @@ class ObjectCode:
         return ObjectCode._init(module, "object", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_library(module: Union[bytes, str], *,
-                     name: str = "",
-                     symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_library(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing library.
 
         Parameters
