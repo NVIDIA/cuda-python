@@ -4,6 +4,11 @@
 
 from __future__ import annotations
 
+from cython import NULL
+from libcpp cimport bool
+from libc.stdint cimport intptr_t
+
+
 import os
 import warnings
 import weakref
@@ -13,6 +18,7 @@ from typing import TYPE_CHECKING, Optional, Tuple, Union
 if TYPE_CHECKING:
     import cuda.bindings
     from cuda.core.experimental._device import Device
+
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._utils.clear_error_support import assert_type
@@ -23,6 +29,10 @@ from cuda.core.experimental._utils.cuda_utils import (
     handle_return,
     runtime,
 )
+
+from cuda.bindings cimport cydriver as cdriver
+from cuda.bindings cimport cyruntime as cruntime
+from cuda.core.experimental._utils cimport _error_utils
 
 
 @dataclass
@@ -43,7 +53,7 @@ class StreamOptions:
     priority: Optional[int] = None
 
 
-class Stream:
+cdef class Stream:
     """Represent a queue of GPU operations that are executed in a specific order.
 
     Applications use streams to control the order of execution for
@@ -61,55 +71,42 @@ class Stream:
 
     """
 
-    class _MembersNeededForFinalize:
-        __slots__ = ("handle", "owner", "builtin")
-
-        def __init__(self, stream_obj, handle, owner, builtin):
-            self.handle = handle
-            self.owner = owner
-            self.builtin = builtin
-            weakref.finalize(stream_obj, self.close)
-
-        def close(self):
-            if self.owner is None:
-                if self.handle and not self.builtin:
-                    handle_return(driver.cuStreamDestroy(self.handle))
-            else:
-                self.owner = None
-            self.handle = None
-
-    def __new__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         raise RuntimeError(
             "Stream objects cannot be instantiated directly. "
             "Please use Device APIs (create_stream) or other Stream APIs (from_handle)."
         )
 
-    __slots__ = ("__weakref__", "_mnff", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
+    __slots__ = ("_handle", "_nonblocking", "_priority", "_device_id", "_ctx_handle")
+
+    cdef cdriver.CUstream _handle
+    cdef bool _nonblocking
+    cdef int _priority
+    cdef int _device_id
+    cdef object _ctx_handle  # Python object
+
 
     @classmethod
     def _legacy_default(cls):
-        self = super().__new__(cls)
-        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_LEGACY), None, True)
-        self._nonblocking = None  # delayed
-        self._priority = None  # delayed
-        self._device_id = None  # delayed
+        cdef Stream self = cls.__new__(cls)   # safe allocator
+        self._nonblocking = True  # delayed
+        self._priority = 0  # delayed
+        self._device_id = -1  # delayed
         self._ctx_handle = None  # delayed
         return self
 
     @classmethod
     def _per_thread_default(cls):
-        self = super().__new__(cls)
-        self._mnff = Stream._MembersNeededForFinalize(self, driver.CUstream(driver.CU_STREAM_PER_THREAD), None, True)
-        self._nonblocking = None  # delayed
-        self._priority = None  # delayed
-        self._device_id = None  # delayed
+        cdef Stream self = cls.__new__(cls)   # safe allocator
+        self._nonblocking = True  # delayed
+        self._priority = 0  # delayed
+        self._device_id = -1  # delayed
         self._ctx_handle = None  # delayed
         return self
 
     @classmethod
     def _init(cls, obj=None, *, options: Optional[StreamOptions] = None):
-        self = super().__new__(cls)
-        self._mnff = Stream._MembersNeededForFinalize(self, None, None, False)
+        cdef Stream self = cls.__new__(cls)
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
@@ -142,37 +139,55 @@ class Stream:
                     f"The first element of the sequence returned by obj.__cuda_stream__ must be 0, got {repr(info[0])}"
                 )
 
-            self._mnff.handle = driver.CUstream(info[1])
             # TODO: check if obj is created under the current context/device
-            self._mnff.owner = obj
-            self._nonblocking = None  # delayed
-            self._priority = None  # delayed
-            self._device_id = None  # delayed
+            self._nonblocking = True  # delayed
+            self._priority = 0  # delayed
+            self._device_id = -1  # delayed
             self._ctx_handle = None  # delayed
             return self
 
-        options = check_or_create_options(StreamOptions, options, "Stream options")
-        nonblocking = options.nonblocking
-        priority = options.priority
+        # options = check_or_create_options(StreamOptions, options, "Stream options")
+        cdef int high, low = 0
+        cdef cruntime.cudaError_t r_err = cruntime.cudaDeviceGetStreamPriorityRange(&high, &low)
+        _error_utils._check_runtime_error(r_err)
+        #high, low = result[1:]
+        #high, low = handle_return(runtime.cudaDeviceGetStreamPriorityRange())
 
-        flags = driver.CUstream_flags.CU_STREAM_NON_BLOCKING if nonblocking else driver.CUstream_flags.CU_STREAM_DEFAULT
+        cdef bool nonblocking = False
+        cdef int priority = high
+        if options is not None:
+            nonblocking = options.nonblocking
+            priority = options.priority if options.priority is not None else priority
 
-        high, low = handle_return(runtime.cudaDeviceGetStreamPriorityRange())
+        cdef flags = cdriver.CUstream_flags.CU_STREAM_NON_BLOCKING if nonblocking else cdriver.CUstream_flags.CU_STREAM_DEFAULT
+
+
         if priority is not None:
             if not (low <= priority <= high):
                 raise ValueError(f"{priority=} is out of range {[low, high]}")
-        else:
-            priority = high
 
-        self._mnff.handle = handle_return(driver.cuStreamCreateWithPriority(flags, priority))
-        self._mnff.owner = None
+        #cdef cdriver.CUstream handler = cdriver.CUstream()
+        cdef cdriver.CUresult c_err = cdriver.cuStreamCreateWithPriority(&self._handle, flags, priority)
+        _error_utils._check_driver_error(c_err)
+
+        #self._handle = handler
+
         self._nonblocking = nonblocking
         self._priority = priority
         # don't defer this because we will have to pay a cost for context
         # switch later
-        self._device_id = int(handle_return(driver.cuCtxGetDevice()))
+        cdef int device_id = -1
+        err = cdriver.cuCtxGetDevice(&device_id)
+        _error_utils._check_driver_error(err)
+        self._device_id = device_id
+        #self._device_id = int(handle_return(driver.cuCtxGetDevice()))
         self._ctx_handle = None  # delayed
         return self
+
+    def __dealloc__(self):
+        if self._handle:
+            c_err = cdriver.cuStreamDestroy(self._handle)
+            _error_utils._check_driver_error(c_err)
 
     def close(self):
         """Destroy the stream.
@@ -181,7 +196,9 @@ class Stream:
         object will instead have their references released.
 
         """
-        self._mnff.close()
+        if self.handle:
+            handle_return(driver.cuStreamDestroy(self.handle))
+            self._handle = NULL
 
     def __cuda_stream__(self) -> Tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
@@ -193,16 +210,16 @@ class Stream:
 
         .. caution::
 
-            This handle is a Python object. To get the memory address of the underlying C
-            handle, call ``int(Stream.handle)``.
+            This handle is a Python object. Representing the memory
+            address of the underlying C object.
         """
-        return self._mnff.handle
+        return <intptr_t>self._handle
 
     @property
     def is_nonblocking(self) -> bool:
         """Return True if this is a nonblocking stream, otherwise False."""
         if self._nonblocking is None:
-            flag = handle_return(driver.cuStreamGetFlags(self._mnff.handle))
+            flag = handle_return(driver.cuStreamGetFlags(self.handle))
             if flag == driver.CUstream_flags.CU_STREAM_NON_BLOCKING:
                 self._nonblocking = True
             else:
@@ -213,13 +230,13 @@ class Stream:
     def priority(self) -> int:
         """Return the stream priority."""
         if self._priority is None:
-            prio = handle_return(driver.cuStreamGetPriority(self._mnff.handle))
+            prio = handle_return(driver.cuStreamGetPriority(self.handle))
             self._priority = prio
         return self._priority
 
     def sync(self):
         """Synchronize the stream."""
-        handle_return(driver.cuStreamSynchronize(self._mnff.handle))
+        handle_return(driver.cuStreamSynchronize(self.handle))
 
     def record(self, event: Event = None, options: EventOptions = None) -> Event:
         """Record an event onto the stream.
@@ -246,7 +263,7 @@ class Stream:
         if event is None:
             event = Event._init(self._device_id, self._ctx_handle, options)
         assert_type(event, Event)
-        handle_return(driver.cuEventRecord(event.handle, self._mnff.handle))
+        handle_return(driver.cuEventRecord(event.handle, self.handle))
         return event
 
     def wait(self, event_or_stream: Union[Event, Stream]):
@@ -278,7 +295,7 @@ class Stream:
             discard_event = True
 
         # TODO: support flags other than 0?
-        handle_return(driver.cuStreamWaitEvent(self._mnff.handle, event, 0))
+        handle_return(driver.cuStreamWaitEvent(self.handle, event, 0))
         if discard_event:
             handle_return(driver.cuEventDestroy(event))
 
@@ -298,7 +315,7 @@ class Stream:
         if self._device_id is None:
             # Get the stream context first
             if self._ctx_handle is None:
-                self._ctx_handle = handle_return(driver.cuStreamGetCtx(self._mnff.handle))
+                self._ctx_handle = handle_return(driver.cuStreamGetCtx(self.handle))
             self._device_id = get_device_from_ctx(self._ctx_handle)
         return Device(self._device_id)
 
@@ -306,7 +323,7 @@ class Stream:
     def context(self) -> Context:
         """Return the :obj:`~_context.Context` associated with this stream."""
         if self._ctx_handle is None:
-            self._ctx_handle = handle_return(driver.cuStreamGetCtx(self._mnff.handle))
+            self._ctx_handle = handle_return(driver.cuStreamGetCtx(self.handle))
         if self._device_id is None:
             self._device_id = get_device_from_ctx(self._ctx_handle)
         return Context._from_ctx(self._ctx_handle, self._device_id)
