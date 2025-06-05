@@ -109,6 +109,7 @@ def test_linker_link_ptx_nvjitlink(compile_ltoir_functions):
     linker = Linker(*compile_ltoir_functions, options=options)
     linked_code = linker.link("ptx")
     assert isinstance(linked_code, ObjectCode)
+    assert linked_code.name == options.name
 
 
 @pytest.mark.skipif(not is_culink_backend, reason="nvjitlink requires lto for ptx linking")
@@ -117,6 +118,7 @@ def test_linker_link_ptx_culink(compile_ptx_functions):
     linker = Linker(*compile_ptx_functions, options=options)
     linked_code = linker.link("ptx")
     assert isinstance(linked_code, ObjectCode)
+    assert linked_code.name == options.name
 
 
 def test_linker_link_cubin(compile_ptx_functions):
@@ -124,6 +126,7 @@ def test_linker_link_cubin(compile_ptx_functions):
     linker = Linker(*compile_ptx_functions, options=options)
     linked_code = linker.link("cubin")
     assert isinstance(linked_code, ObjectCode)
+    assert linked_code.name == options.name
 
 
 def test_linker_link_ptx_multiple(compile_ptx_functions):
@@ -132,6 +135,7 @@ def test_linker_link_ptx_multiple(compile_ptx_functions):
     linker = Linker(*ptxes, options=options)
     linked_code = linker.link("cubin")
     assert isinstance(linked_code, ObjectCode)
+    assert linked_code.name == options.name
 
 
 def test_linker_link_invalid_target_type(compile_ptx_functions):
