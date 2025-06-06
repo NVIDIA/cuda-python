@@ -344,6 +344,7 @@ sources_list = [
     # internal files used by generated bindings
     (["cuda/bindings/_internal/nvjitlink.pyx"], None),
     (["cuda/bindings/_internal/nvvm.pyx"], None),
+    (["cuda/bindings/_internal/cufile.pyx"], None),
     (["cuda/bindings/_internal/utils.pyx"], None),
 ]
 

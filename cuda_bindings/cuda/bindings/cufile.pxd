@@ -32,7 +32,7 @@ ctypedef CUfileOpError _OpError
 ctypedef CUfileDriverStatusFlags_t _DriverStatusFlags
 ctypedef CUfileDriverControlFlags_t _DriverControlFlags
 ctypedef CUfileFeatureFlags_t _FeatureFlags
-ctypedef CUfileFileHandleType_t _FileHandleType
+ctypedef CUfileFileHandleType _FileHandleType
 ctypedef CUfileOpcode_t _Opcode
 ctypedef CUfileStatus_t _Status
 ctypedef CUfileBatchMode_t _BatchMode

@@ -28,181 +28,183 @@ cdef extern from *:
 
         ctypedef _Bool bool
 
-# enums
-ctypedef enum CUfileOpError "CUfileOpError":
-    CU_FILE_SUCCESS "CU_FILE_SUCCESS" = 0
-    CU_FILE_DRIVER_NOT_INITIALIZED "CU_FILE_DRIVER_NOT_INITIALIZED" = (5000 + 1)
-    CU_FILE_DRIVER_INVALID_PROPS "CU_FILE_DRIVER_INVALID_PROPS" = (5000 + 2)
-    CU_FILE_DRIVER_UNSUPPORTED_LIMIT "CU_FILE_DRIVER_UNSUPPORTED_LIMIT" = (5000 + 3)
-    CU_FILE_DRIVER_VERSION_MISMATCH "CU_FILE_DRIVER_VERSION_MISMATCH" = (5000 + 4)
-    CU_FILE_DRIVER_VERSION_READ_ERROR "CU_FILE_DRIVER_VERSION_READ_ERROR" = (5000 + 5)
-    CU_FILE_DRIVER_CLOSING "CU_FILE_DRIVER_CLOSING" = (5000 + 6)
-    CU_FILE_PLATFORM_NOT_SUPPORTED "CU_FILE_PLATFORM_NOT_SUPPORTED" = (5000 + 7)
-    CU_FILE_IO_NOT_SUPPORTED "CU_FILE_IO_NOT_SUPPORTED" = (5000 + 8)
-    CU_FILE_DEVICE_NOT_SUPPORTED "CU_FILE_DEVICE_NOT_SUPPORTED" = (5000 + 9)
-    CU_FILE_NVFS_DRIVER_ERROR "CU_FILE_NVFS_DRIVER_ERROR" = (5000 + 10)
-    CU_FILE_CUDA_DRIVER_ERROR "CU_FILE_CUDA_DRIVER_ERROR" = (5000 + 11)
-    CU_FILE_CUDA_POINTER_INVALID "CU_FILE_CUDA_POINTER_INVALID" = (5000 + 12)
-    CU_FILE_CUDA_MEMORY_TYPE_INVALID "CU_FILE_CUDA_MEMORY_TYPE_INVALID" = (5000 + 13)
-    CU_FILE_CUDA_POINTER_RANGE_ERROR "CU_FILE_CUDA_POINTER_RANGE_ERROR" = (5000 + 14)
-    CU_FILE_CUDA_CONTEXT_MISMATCH "CU_FILE_CUDA_CONTEXT_MISMATCH" = (5000 + 15)
-    CU_FILE_INVALID_MAPPING_SIZE "CU_FILE_INVALID_MAPPING_SIZE" = (5000 + 16)
-    CU_FILE_INVALID_MAPPING_RANGE "CU_FILE_INVALID_MAPPING_RANGE" = (5000 + 17)
-    CU_FILE_INVALID_FILE_TYPE "CU_FILE_INVALID_FILE_TYPE" = (5000 + 18)
-    CU_FILE_INVALID_FILE_OPEN_FLAG "CU_FILE_INVALID_FILE_OPEN_FLAG" = (5000 + 19)
-    CU_FILE_DIO_NOT_SET "CU_FILE_DIO_NOT_SET" = (5000 + 20)
-    CU_FILE_INVALID_VALUE "CU_FILE_INVALID_VALUE" = (5000 + 22)
-    CU_FILE_MEMORY_ALREADY_REGISTERED "CU_FILE_MEMORY_ALREADY_REGISTERED" = (5000 + 23)
-    CU_FILE_MEMORY_NOT_REGISTERED "CU_FILE_MEMORY_NOT_REGISTERED" = (5000 + 24)
-    CU_FILE_PERMISSION_DENIED "CU_FILE_PERMISSION_DENIED" = (5000 + 25)
-    CU_FILE_DRIVER_ALREADY_OPEN "CU_FILE_DRIVER_ALREADY_OPEN" = (5000 + 26)
-    CU_FILE_HANDLE_NOT_REGISTERED "CU_FILE_HANDLE_NOT_REGISTERED" = (5000 + 27)
-    CU_FILE_HANDLE_ALREADY_REGISTERED "CU_FILE_HANDLE_ALREADY_REGISTERED" = (5000 + 28)
-    CU_FILE_DEVICE_NOT_FOUND "CU_FILE_DEVICE_NOT_FOUND" = (5000 + 29)
-    CU_FILE_INTERNAL_ERROR "CU_FILE_INTERNAL_ERROR" = (5000 + 30)
-    CU_FILE_GETNEWFD_FAILED "CU_FILE_GETNEWFD_FAILED" = (5000 + 31)
-    CU_FILE_NVFS_SETUP_ERROR "CU_FILE_NVFS_SETUP_ERROR" = (5000 + 33)
-    CU_FILE_IO_DISABLED "CU_FILE_IO_DISABLED" = (5000 + 34)
-    CU_FILE_BATCH_SUBMIT_FAILED "CU_FILE_BATCH_SUBMIT_FAILED" = (5000 + 35)
-    CU_FILE_GPU_MEMORY_PINNING_FAILED "CU_FILE_GPU_MEMORY_PINNING_FAILED" = (5000 + 36)
-    CU_FILE_BATCH_FULL "CU_FILE_BATCH_FULL" = (5000 + 37)
-    CU_FILE_ASYNC_NOT_SUPPORTED "CU_FILE_ASYNC_NOT_SUPPORTED" = (5000 + 38)
-    CU_FILE_IO_MAX_ERROR "CU_FILE_IO_MAX_ERROR" = (5000 + 39)
 
-ctypedef enum CUfileDriverStatusFlags_t "CUfileDriverStatusFlags_t":
-    CU_FILE_LUSTRE_SUPPORTED "CU_FILE_LUSTRE_SUPPORTED" = 0
-    CU_FILE_WEKAFS_SUPPORTED "CU_FILE_WEKAFS_SUPPORTED" = 1
-    CU_FILE_NFS_SUPPORTED "CU_FILE_NFS_SUPPORTED" = 2
-    CU_FILE_GPFS_SUPPORTED "CU_FILE_GPFS_SUPPORTED" = 3
-    CU_FILE_NVME_SUPPORTED "CU_FILE_NVME_SUPPORTED" = 4
-    CU_FILE_NVMEOF_SUPPORTED "CU_FILE_NVMEOF_SUPPORTED" = 5
-    CU_FILE_SCSI_SUPPORTED "CU_FILE_SCSI_SUPPORTED" = 6
-    CU_FILE_SCALEFLUX_CSD_SUPPORTED "CU_FILE_SCALEFLUX_CSD_SUPPORTED" = 7
-    CU_FILE_NVMESH_SUPPORTED "CU_FILE_NVMESH_SUPPORTED" = 8
-    CU_FILE_BEEGFS_SUPPORTED "CU_FILE_BEEGFS_SUPPORTED" = 9
-    CU_FILE_NVME_P2P_SUPPORTED "CU_FILE_NVME_P2P_SUPPORTED" = 11
-    CU_FILE_SCATEFS_SUPPORTED "CU_FILE_SCATEFS_SUPPORTED" = 12
+cdef extern from '<cufile.h>':
+    # enums
+    ctypedef enum CUfileOpError:
+        CU_FILE_SUCCESS
+        CU_FILE_DRIVER_NOT_INITIALIZED
+        CU_FILE_DRIVER_INVALID_PROPS
+        CU_FILE_DRIVER_UNSUPPORTED_LIMIT
+        CU_FILE_DRIVER_VERSION_MISMATCH
+        CU_FILE_DRIVER_VERSION_READ_ERROR
+        CU_FILE_DRIVER_CLOSING
+        CU_FILE_PLATFORM_NOT_SUPPORTED
+        CU_FILE_IO_NOT_SUPPORTED
+        CU_FILE_DEVICE_NOT_SUPPORTED
+        CU_FILE_NVFS_DRIVER_ERROR
+        CU_FILE_CUDA_DRIVER_ERROR
+        CU_FILE_CUDA_POINTER_INVALID
+        CU_FILE_CUDA_MEMORY_TYPE_INVALID
+        CU_FILE_CUDA_POINTER_RANGE_ERROR
+        CU_FILE_CUDA_CONTEXT_MISMATCH
+        CU_FILE_INVALID_MAPPING_SIZE
+        CU_FILE_INVALID_MAPPING_RANGE
+        CU_FILE_INVALID_FILE_TYPE
+        CU_FILE_INVALID_FILE_OPEN_FLAG
+        CU_FILE_DIO_NOT_SET
+        CU_FILE_INVALID_VALUE
+        CU_FILE_MEMORY_ALREADY_REGISTERED
+        CU_FILE_MEMORY_NOT_REGISTERED
+        CU_FILE_PERMISSION_DENIED
+        CU_FILE_DRIVER_ALREADY_OPEN
+        CU_FILE_HANDLE_NOT_REGISTERED
+        CU_FILE_HANDLE_ALREADY_REGISTERED
+        CU_FILE_DEVICE_NOT_FOUND
+        CU_FILE_INTERNAL_ERROR
+        CU_FILE_GETNEWFD_FAILED
+        CU_FILE_NVFS_SETUP_ERROR
+        CU_FILE_IO_DISABLED
+        CU_FILE_BATCH_SUBMIT_FAILED
+        CU_FILE_GPU_MEMORY_PINNING_FAILED
+        CU_FILE_BATCH_FULL
+        CU_FILE_ASYNC_NOT_SUPPORTED
+        CU_FILE_IO_MAX_ERROR
 
-ctypedef enum CUfileDriverControlFlags_t "CUfileDriverControlFlags_t":
-    CU_FILE_USE_POLL_MODE "CU_FILE_USE_POLL_MODE" = 0
-    CU_FILE_ALLOW_COMPAT_MODE "CU_FILE_ALLOW_COMPAT_MODE" = 1
+    ctypedef enum CUfileDriverStatusFlags_t:
+        CU_FILE_LUSTRE_SUPPORTED
+        CU_FILE_WEKAFS_SUPPORTED
+        CU_FILE_NFS_SUPPORTED
+        CU_FILE_GPFS_SUPPORTED
+        CU_FILE_NVME_SUPPORTED
+        CU_FILE_NVMEOF_SUPPORTED
+        CU_FILE_SCSI_SUPPORTED
+        CU_FILE_SCALEFLUX_CSD_SUPPORTED
+        CU_FILE_NVMESH_SUPPORTED
+        CU_FILE_BEEGFS_SUPPORTED
+        CU_FILE_NVME_P2P_SUPPORTED
+        CU_FILE_SCATEFS_SUPPORTED
 
-ctypedef enum CUfileFeatureFlags_t "CUfileFeatureFlags_t":
-    CU_FILE_DYN_ROUTING_SUPPORTED "CU_FILE_DYN_ROUTING_SUPPORTED" = 0
-    CU_FILE_BATCH_IO_SUPPORTED "CU_FILE_BATCH_IO_SUPPORTED" = 1
-    CU_FILE_STREAMS_SUPPORTED "CU_FILE_STREAMS_SUPPORTED" = 2
-    CU_FILE_PARALLEL_IO_SUPPORTED "CU_FILE_PARALLEL_IO_SUPPORTED" = 3
+    ctypedef enum CUfileDriverControlFlags_t:
+        CU_FILE_USE_POLL_MODE
+        CU_FILE_ALLOW_COMPAT_MODE
 
-ctypedef enum CUfileFileHandleType_t "CUfileFileHandleType_t":
-    CU_FILE_HANDLE_TYPE_OPAQUE_FD "CU_FILE_HANDLE_TYPE_OPAQUE_FD" = 1
-    CU_FILE_HANDLE_TYPE_OPAQUE_WIN32 "CU_FILE_HANDLE_TYPE_OPAQUE_WIN32" = 2
-    CU_FILE_HANDLE_TYPE_USERSPACE_FS "CU_FILE_HANDLE_TYPE_USERSPACE_FS" = 3
+    ctypedef enum CUfileFeatureFlags_t:
+        CU_FILE_DYN_ROUTING_SUPPORTED
+        CU_FILE_BATCH_IO_SUPPORTED
+        CU_FILE_STREAMS_SUPPORTED
+        CU_FILE_PARALLEL_IO_SUPPORTED
 
-ctypedef enum CUfileOpcode_t "CUfileOpcode_t":
-    CUFILE_READ "CUFILE_READ" = 0
-    CUFILE_WRITE "CUFILE_WRITE"
+    ctypedef enum CUfileFileHandleType:
+        CU_FILE_HANDLE_TYPE_OPAQUE_FD
+        CU_FILE_HANDLE_TYPE_OPAQUE_WIN32
+        CU_FILE_HANDLE_TYPE_USERSPACE_FS
 
-ctypedef enum CUfileStatus_t "CUfileStatus_t":
-    CUFILE_WAITING "CUFILE_WAITING" = 0x000001
-    CUFILE_PENDING "CUFILE_PENDING" = 0x000002
-    CUFILE_INVALID "CUFILE_INVALID" = 0x000004
-    CUFILE_CANCELED "CUFILE_CANCELED" = 0x000008
-    CUFILE_COMPLETE "CUFILE_COMPLETE" = 0x0000010
-    CUFILE_TIMEOUT "CUFILE_TIMEOUT" = 0x0000020
-    CUFILE_FAILED "CUFILE_FAILED" = 0x0000040
+    ctypedef enum CUfileOpcode_t:
+        CUFILE_READ
+        CUFILE_WRITE
 
-ctypedef enum CUfileBatchMode_t "CUfileBatchMode_t":
-    CUFILE_BATCH "CUFILE_BATCH" = 1
+    ctypedef enum CUfileStatus_t:
+        CUFILE_WAITING
+        CUFILE_PENDING
+        CUFILE_INVALID
+        CUFILE_CANCELED
+        CUFILE_COMPLETE
+        CUFILE_TIMEOUT
+        CUFILE_FAILED
 
-ctypedef enum CUFileSizeTConfigParameter_t "CUFileSizeTConfigParameter_t":
-    CUFILE_PARAM_PROFILE_STATS "CUFILE_PARAM_PROFILE_STATS"
-    CUFILE_PARAM_EXECUTION_MAX_IO_QUEUE_DEPTH "CUFILE_PARAM_EXECUTION_MAX_IO_QUEUE_DEPTH"
-    CUFILE_PARAM_EXECUTION_MAX_IO_THREADS "CUFILE_PARAM_EXECUTION_MAX_IO_THREADS"
-    CUFILE_PARAM_EXECUTION_MIN_IO_THRESHOLD_SIZE_KB "CUFILE_PARAM_EXECUTION_MIN_IO_THRESHOLD_SIZE_KB"
-    CUFILE_PARAM_EXECUTION_MAX_REQUEST_PARALLELISM "CUFILE_PARAM_EXECUTION_MAX_REQUEST_PARALLELISM"
-    CUFILE_PARAM_PROPERTIES_MAX_DIRECT_IO_SIZE_KB "CUFILE_PARAM_PROPERTIES_MAX_DIRECT_IO_SIZE_KB"
-    CUFILE_PARAM_PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB "CUFILE_PARAM_PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB"
-    CUFILE_PARAM_PROPERTIES_PER_BUFFER_CACHE_SIZE_KB "CUFILE_PARAM_PROPERTIES_PER_BUFFER_CACHE_SIZE_KB"
-    CUFILE_PARAM_PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB "CUFILE_PARAM_PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB"
-    CUFILE_PARAM_PROPERTIES_IO_BATCHSIZE "CUFILE_PARAM_PROPERTIES_IO_BATCHSIZE"
-    CUFILE_PARAM_POLLTHRESHOLD_SIZE_KB "CUFILE_PARAM_POLLTHRESHOLD_SIZE_KB"
-    CUFILE_PARAM_PROPERTIES_BATCH_IO_TIMEOUT_MS "CUFILE_PARAM_PROPERTIES_BATCH_IO_TIMEOUT_MS"
+    ctypedef enum CUfileBatchMode_t:
+        CUFILE_BATCH
 
-ctypedef enum CUFileBoolConfigParameter_t "CUFileBoolConfigParameter_t":
-    CUFILE_PARAM_PROPERTIES_USE_POLL_MODE "CUFILE_PARAM_PROPERTIES_USE_POLL_MODE"
-    CUFILE_PARAM_PROPERTIES_ALLOW_COMPAT_MODE "CUFILE_PARAM_PROPERTIES_ALLOW_COMPAT_MODE"
-    CUFILE_PARAM_FORCE_COMPAT_MODE "CUFILE_PARAM_FORCE_COMPAT_MODE"
-    CUFILE_PARAM_FS_MISC_API_CHECK_AGGRESSIVE "CUFILE_PARAM_FS_MISC_API_CHECK_AGGRESSIVE"
-    CUFILE_PARAM_EXECUTION_PARALLEL_IO "CUFILE_PARAM_EXECUTION_PARALLEL_IO"
-    CUFILE_PARAM_PROFILE_NVTX "CUFILE_PARAM_PROFILE_NVTX"
-    CUFILE_PARAM_PROPERTIES_ALLOW_SYSTEM_MEMORY "CUFILE_PARAM_PROPERTIES_ALLOW_SYSTEM_MEMORY"
-    CUFILE_PARAM_USE_PCIP2PDMA "CUFILE_PARAM_USE_PCIP2PDMA"
-    CUFILE_PARAM_PREFER_IO_URING "CUFILE_PARAM_PREFER_IO_URING"
-    CUFILE_PARAM_FORCE_ODIRECT_MODE "CUFILE_PARAM_FORCE_ODIRECT_MODE"
-    CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION "CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION"
-    CUFILE_PARAM_STREAM_MEMOPS_BYPASS "CUFILE_PARAM_STREAM_MEMOPS_BYPASS"
+    ctypedef enum CUFileSizeTConfigParameter_t:
+        CUFILE_PARAM_PROFILE_STATS
+        CUFILE_PARAM_EXECUTION_MAX_IO_QUEUE_DEPTH
+        CUFILE_PARAM_EXECUTION_MAX_IO_THREADS
+        CUFILE_PARAM_EXECUTION_MIN_IO_THRESHOLD_SIZE_KB
+        CUFILE_PARAM_EXECUTION_MAX_REQUEST_PARALLELISM
+        CUFILE_PARAM_PROPERTIES_MAX_DIRECT_IO_SIZE_KB
+        CUFILE_PARAM_PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB
+        CUFILE_PARAM_PROPERTIES_PER_BUFFER_CACHE_SIZE_KB
+        CUFILE_PARAM_PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB
+        CUFILE_PARAM_PROPERTIES_IO_BATCHSIZE
+        CUFILE_PARAM_POLLTHRESHOLD_SIZE_KB
+        CUFILE_PARAM_PROPERTIES_BATCH_IO_TIMEOUT_MS
 
-ctypedef enum CUFileStringConfigParameter_t "CUFileStringConfigParameter_t":
-    CUFILE_PARAM_LOGGING_LEVEL "CUFILE_PARAM_LOGGING_LEVEL"
-    CUFILE_PARAM_ENV_LOGFILE_PATH "CUFILE_PARAM_ENV_LOGFILE_PATH"
-    CUFILE_PARAM_LOG_DIR "CUFILE_PARAM_LOG_DIR"
+    ctypedef enum CUFileBoolConfigParameter_t:
+        CUFILE_PARAM_PROPERTIES_USE_POLL_MODE
+        CUFILE_PARAM_PROPERTIES_ALLOW_COMPAT_MODE
+        CUFILE_PARAM_FORCE_COMPAT_MODE
+        CUFILE_PARAM_FS_MISC_API_CHECK_AGGRESSIVE
+        CUFILE_PARAM_EXECUTION_PARALLEL_IO
+        CUFILE_PARAM_PROFILE_NVTX
+        CUFILE_PARAM_PROPERTIES_ALLOW_SYSTEM_MEMORY
+        CUFILE_PARAM_USE_PCIP2PDMA
+        CUFILE_PARAM_PREFER_IO_URING
+        CUFILE_PARAM_FORCE_ODIRECT_MODE
+        CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION
+        CUFILE_PARAM_STREAM_MEMOPS_BYPASS
 
+    ctypedef enum CUFileStringConfigParameter_t:
+        CUFILE_PARAM_LOGGING_LEVEL
+        CUFILE_PARAM_ENV_LOGFILE_PATH
+        CUFILE_PARAM_LOG_DIR
 
-# types
-ctypedef void* CUfileHandle_t 'CUfileHandle_t'
-ctypedef void* CUfileBatchHandle_t 'CUfileBatchHandle_t'
-ctypedef struct CUfileError_t 'CUfileError_t':
-    CUfileOpError err
-    CUresult cu_err
-ctypedef struct _anon_pod0 '_anon_pod0':
-    unsigned int major_version
-    unsigned int minor_version
-    size_t poll_thresh_size
-    size_t max_direct_io_size
-    unsigned int dstatusflags
-    unsigned int dcontrolflags
-ctypedef struct cufileRDMAInfo_t 'cufileRDMAInfo_t':
-    int version
-    int desc_len
-    char* desc_str
-ctypedef struct CUfileFSOps_t 'CUfileFSOps_t':
-    char* (*fs_type)(void*)
-    int (*getRDMADeviceList)(void*, sockaddr_t**)
-    int (*getRDMADevicePriority)(void*, char*, size_t, loff_t, sockaddr_t*)
-    ssize_t (*read)(void*, char*, size_t, loff_t, cufileRDMAInfo_t*)
-    ssize_t (*write)(void*, const char*, size_t, loff_t, cufileRDMAInfo_t*)
-ctypedef union _anon_pod1 '_anon_pod1':
-    int fd
-    void* handle
-ctypedef struct _anon_pod3 '_anon_pod3':
-    void* devPtr_base
-    off_t file_offset
-    off_t devPtr_offset
-    size_t size
-ctypedef struct CUfileIOEvents_t 'CUfileIOEvents_t':
-    void* cookie
-    CUfileStatus_t status
-    size_t ret
-ctypedef struct CUfileDrvProps_t 'CUfileDrvProps_t':
-    _anon_pod0 nvfs
-    unsigned int fflags
-    unsigned int max_device_cache_size
-    unsigned int per_buffer_cache_size
-    unsigned int max_device_pinned_mem_size
-    unsigned int max_batch_io_size
-    unsigned int max_batch_io_timeout_msecs
-ctypedef struct CUfileDescr_t 'CUfileDescr_t':
-    CUfileFileHandleType_t type
-    _anon_pod1 handle
-    CUfileFSOps_t* fs_ops
-ctypedef union _anon_pod2 '_anon_pod2':
-    _anon_pod3 batch
-ctypedef struct CUfileIOParams_t 'CUfileIOParams_t':
-    CUfileBatchMode_t mode
-    _anon_pod2 u
-    CUfileHandle_t fh
-    CUfileOpcode_t opcode
-    void* cookie
+    # types
+    ctypedef void* CUfileHandle_t 'CUfileHandle_t'
+    ctypedef void* CUfileBatchHandle_t 'CUfileBatchHandle_t'
+    ctypedef struct CUfileError_t 'CUfileError_t':
+        CUfileOpError err
+        CUresult cu_err
+    ctypedef struct _anon_pod0 '_anon_pod0':
+        unsigned int major_version
+        unsigned int minor_version
+        size_t poll_thresh_size
+        size_t max_direct_io_size
+        unsigned int dstatusflags
+        unsigned int dcontrolflags
+    ctypedef struct cufileRDMAInfo_t 'cufileRDMAInfo_t':
+        int version
+        int desc_len
+        char* desc_str
+    ctypedef struct CUfileFSOps_t 'CUfileFSOps_t':
+        char* (*fs_type)(void*)
+        int (*getRDMADeviceList)(void*, sockaddr_t**)
+        int (*getRDMADevicePriority)(void*, char*, size_t, loff_t, sockaddr_t*)
+        ssize_t (*read)(void*, char*, size_t, loff_t, cufileRDMAInfo_t*)
+        ssize_t (*write)(void*, const char*, size_t, loff_t, cufileRDMAInfo_t*)
+    ctypedef union _anon_pod1 '_anon_pod1':
+        int fd
+        void* handle
+    ctypedef struct _anon_pod3 '_anon_pod3':
+        void* devPtr_base
+        off_t file_offset
+        off_t devPtr_offset
+        size_t size
+    ctypedef struct CUfileIOEvents_t 'CUfileIOEvents_t':
+        void* cookie
+        CUfileStatus_t status
+        size_t ret
+    ctypedef struct CUfileDrvProps_t 'CUfileDrvProps_t':
+        _anon_pod0 nvfs
+        unsigned int fflags
+        unsigned int max_device_cache_size
+        unsigned int per_buffer_cache_size
+        unsigned int max_device_pinned_mem_size
+        unsigned int max_batch_io_size
+        unsigned int max_batch_io_timeout_msecs
+    ctypedef struct CUfileDescr_t 'CUfileDescr_t':
+        CUfileFileHandleType type
+        _anon_pod1 handle
+        CUfileFSOps_t* fs_ops
+    ctypedef union _anon_pod2 '_anon_pod2':
+        _anon_pod3 batch
+    ctypedef struct CUfileIOParams_t 'CUfileIOParams_t':
+        CUfileBatchMode_t mode
+        _anon_pod2 u
+        CUfileHandle_t fh
+        CUfileOpcode_t opcode
+        void* cookie
+
 
 cdef extern from *:
     """
@@ -210,40 +212,42 @@ cdef extern from *:
     inline bool operator==(const CUfileError_t& lhs, const CUfileError_t& rhs) {
         return (lhs.err == rhs.err) && (lhs.cu_err == rhs.cu_err);
     }
-    static CUfileError_t CUFILE_LOADING_ERROR{-1, -1};
+    static CUfileError_t CUFILE_LOADING_ERROR{(CUfileOpError)-1, (CUresult)-1};
     """
     const CUfileError_t CUFILE_LOADING_ERROR
+    ctypedef void* CUstream "CUstream"
+
 
 ###############################################################################
 # Functions
 ###############################################################################
 
-cdef CUfileError_t cuFileHandleRegister(CUfileHandle_t* fh, CUfileDescr_t* descr) except?CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileHandleRegister(CUfileHandle_t* fh, CUfileDescr_t* descr) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef void cuFileHandleDeregister(CUfileHandle_t fh) except* nogil
-cdef CUfileError_t cuFileBufRegister(const void* bufPtr_base, size_t length, int flags) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileBufDeregister(const void* bufPtr_base) except?CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileBufRegister(const void* bufPtr_base, size_t length, int flags) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileBufDeregister(const void* bufPtr_base) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef ssize_t cuFileRead(CUfileHandle_t fh, void* bufPtr_base, size_t size, off_t file_offset, off_t bufPtr_offset) except* nogil
 cdef ssize_t cuFileWrite(CUfileHandle_t fh, const void* bufPtr_base, size_t size, off_t file_offset, off_t bufPtr_offset) except* nogil
-cdef CUfileError_t cuFileDriverOpen() except?CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef long cuFileUseCount() except* nogil
-cdef CUfileError_t cuFileDriverGetProperties(CUfileDrvProps_t* props) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileDriverSetPollMode(bool poll, size_t poll_threshold_size) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileDriverSetMaxDirectIOSize(size_t max_direct_io_size) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileDriverSetMaxCacheSize(size_t max_cache_size) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileDriverSetMaxPinnedMemSize(size_t max_pinned_size) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileBatchIOSetUp(CUfileBatchHandle_t* batch_idp, unsigned nr) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileBatchIOSubmit(CUfileBatchHandle_t batch_idp, unsigned nr, CUfileIOParams_t* iocbp, unsigned int flags) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileBatchIOGetStatus(CUfileBatchHandle_t batch_idp, unsigned min_nr, unsigned* nr, CUfileIOEvents_t* iocbp, timespec* timeout) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileBatchIOCancel(CUfileBatchHandle_t batch_idp) except?CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileDriverGetProperties(CUfileDrvProps_t* props) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileDriverSetPollMode(bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileDriverSetMaxDirectIOSize(size_t max_direct_io_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileDriverSetMaxCacheSize(size_t max_cache_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileDriverSetMaxPinnedMemSize(size_t max_pinned_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileBatchIOSetUp(CUfileBatchHandle_t* batch_idp, unsigned nr) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileBatchIOSubmit(CUfileBatchHandle_t batch_idp, unsigned nr, CUfileIOParams_t* iocbp, unsigned int flags) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileBatchIOGetStatus(CUfileBatchHandle_t batch_idp, unsigned min_nr, unsigned* nr, CUfileIOEvents_t* iocbp, timespec* timeout) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileBatchIOCancel(CUfileBatchHandle_t batch_idp) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef void cuFileBatchIODestroy(CUfileBatchHandle_t batch_idp) except* nogil
-cdef CUfileError_t cuFileReadAsync(CUfileHandle_t fh, void* bufPtr_base, size_t* size_p, off_t* file_offset_p, off_t* bufPtr_offset_p, ssize_t* bytes_read_p, CUstream stream) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileWriteAsync(CUfileHandle_t fh, void* bufPtr_base, size_t* size_p, off_t* file_offset_p, off_t* bufPtr_offset_p, ssize_t* bytes_written_p, CUstream stream) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileStreamRegister(CUstream stream, unsigned flags) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileStreamDeregister(CUstream stream) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetVersion(int* version) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t* value) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetParameterBool(CUFileBoolConfigParameter_t param, bool* value) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetParameterString(CUFileStringConfigParameter_t param, char* desc_str, int len) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t value) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, bool value) except?CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileSetParameterString(CUFileStringConfigParameter_t param, const char* desc_str) except?CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileReadAsync(CUfileHandle_t fh, void* bufPtr_base, size_t* size_p, off_t* file_offset_p, off_t* bufPtr_offset_p, ssize_t* bytes_read_p, CUstream stream) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileWriteAsync(CUfileHandle_t fh, void* bufPtr_base, size_t* size_p, off_t* file_offset_p, off_t* bufPtr_offset_p, ssize_t* bytes_written_p, CUstream stream) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileStreamRegister(CUstream stream, unsigned flags) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileStreamDeregister(CUstream stream) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileGetVersion(int* version) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileGetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileGetParameterBool(CUFileBoolConfigParameter_t param, bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileGetParameterString(CUFileStringConfigParameter_t param, char* desc_str, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileSetParameterString(CUFileStringConfigParameter_t param, const char* desc_str) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
