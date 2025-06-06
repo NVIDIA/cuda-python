@@ -31,6 +31,7 @@ cuda.core.experimental.\_device.DeviceProperties
    .. autoproperty:: compute_preemption_supported
    .. autoproperty:: concurrent_kernels
    .. autoproperty:: concurrent_managed_access
+   .. autoproperty:: cooperative_launch
    .. autoproperty:: deferred_mapping_cuda_array_supported
    .. autoproperty:: direct_managed_mem_access_from_host
    .. autoproperty:: ecc_enabled

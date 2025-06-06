@@ -25,5 +25,6 @@ cuda.core.experimental.\_module.Kernel
    .. autoproperty:: arguments_info
    .. autoproperty:: attributes
    .. autoproperty:: num_arguments
+   .. autoproperty:: occupancy
    
    
