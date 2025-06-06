@@ -13,6 +13,7 @@ from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     ComputeCapability,
     CUDAError,
+    _check_driver_error,
     driver,
     handle_return,
     precondition,
@@ -948,7 +949,7 @@ class Device:
 
     __slots__ = ("_id", "_mr", "_has_inited", "_properties")
 
-    def __new__(cls, device_id=None):
+    def __new__(cls, device_id: int = None):
         global _is_cuInit
         if _is_cuInit is False:
             with _lock:
@@ -960,14 +961,14 @@ class Device:
             err, dev = driver.cuCtxGetDevice()
             if err == 0:
                 device_id = int(dev)
-            else:
+            elif err == 201:  # CUDA_ERROR_INVALID_CONTEXT
                 ctx = handle_return(driver.cuCtxGetCurrent())
                 assert int(ctx) == 0
                 device_id = 0  # cudart behavior
-        else:
-            total = handle_return(driver.cuDeviceGetCount())
-            if not isinstance(device_id, int) or not (0 <= device_id < total):
-                raise ValueError(f"device_id must be within [0, {total}), got {device_id}")
+            else:
+                _check_driver_error(err)
+        elif device_id < 0:
+            raise ValueError(f"device_id must be >= 0, got {device_id}")
 
         # ensure Device is singleton
         try:
@@ -995,7 +996,10 @@ class Device:
                 dev._properties = None
                 devices.append(dev)
 
-        return devices[device_id]
+        try:
+            return devices[device_id]
+        except IndexError:
+            raise ValueError(f"device_id must be within [0, {len(devices)}), got {device_id}") from None
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
