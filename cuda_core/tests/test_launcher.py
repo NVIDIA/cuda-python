@@ -7,11 +7,10 @@ import pathlib
 
 import numpy as np
 import pytest
+from conftest import skipif_need_cuda_headers
 
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 from cuda.core.experimental._memory import _DefaultPinnedMemorySource
-
-from conftest import skipif_need_cuda_headers
 
 
 def test_launch_config_init(init_cuda):

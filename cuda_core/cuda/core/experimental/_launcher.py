@@ -9,7 +9,7 @@ from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
-    _reduce_tuple,
+    _reduce_3_tuple,
     check_or_create_options,
     driver,
     get_binding_version,
@@ -95,9 +95,9 @@ def _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Stre
     dev = stream.device
     num_sm = dev.properties.multiprocessor_count
     max_grid_size = (
-        kernel.occupancy.max_active_blocks_per_multiprocessor(_reduce_tuple(config.block), config.shmem_size) * num_sm
+        kernel.occupancy.max_active_blocks_per_multiprocessor(_reduce_3_tuple(config.block), config.shmem_size) * num_sm
     )
-    if _reduce_tuple(config.grid) > max_grid_size:
+    if _reduce_3_tuple(config.grid) > max_grid_size:
         # For now let's try not to be smart and adjust the grid size behind users' back.
         # We explicitly ask users to adjust.
         x, y, z = config.grid

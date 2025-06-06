@@ -7,13 +7,11 @@ import time
 
 import numpy as np
 import pytest
-from conftest import skipif_testing_with_compute_sanitizer
+from conftest import skipif_need_cuda_headers, skipif_testing_with_compute_sanitizer
 
 import cuda.core.experimental
 from cuda.core.experimental import Device, EventOptions, LaunchConfig, Program, ProgramOptions, launch
 from cuda.core.experimental._memory import _DefaultPinnedMemorySource
-
-from conftest import skipif_need_cuda_headers
 
 
 def test_event_init_disabled():

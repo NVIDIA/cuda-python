@@ -48,8 +48,8 @@ def cast_to_3_tuple(label, cfg):
     return cfg + (1,) * (3 - len(cfg))
 
 
-def _reduce_tuple(t: tuple):
-    return functools.reduce(lambda x, y: x * y, t, 1)
+def _reduce_3_tuple(t: tuple):
+    return t[0] * t[1] * t[2]
 
 
 def _check_driver_error(error):
