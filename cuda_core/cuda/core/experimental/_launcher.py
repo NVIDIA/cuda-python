@@ -100,6 +100,5 @@ def _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Stre
     if _reduce_tuple(config.grid) > max_grid_size:
         # For now let's try not to be smart and adjust the grid size behind users' back.
         # We explicitly ask users to adjust.
-        raise ValueError(
-            "The specified grid size ({} * {} * {}) exceeds the limit ({}).".format(*config.grid, max_grid_size)
-        )
+        x, y, z = config.grid
+        raise ValueError(f"The specified grid size ({x} * {y} * {z}) exceeds the limit ({max_grid_size})")
