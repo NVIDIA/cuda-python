@@ -11,6 +11,8 @@ import pytest
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 from cuda.core.experimental._memory import _DefaultPinnedMemorySource
 
+from conftest import skipif_need_cuda_headers
+
 
 def test_launch_config_init(init_cuda):
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), shmem_size=0)
@@ -154,7 +156,7 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
     assert arr[0] == init_value, f"Expected {init_value}, got {arr[0]}"
 
 
-@pytest.mark.skipif(os.environ.get("CUDA_PATH") is None, reason="need cg header")
+@skipif_need_cuda_headers  # cg
 def test_cooperative_launch():
     dev = Device()
     dev.set_current()
