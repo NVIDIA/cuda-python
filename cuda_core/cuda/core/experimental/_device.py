@@ -702,6 +702,17 @@ class DeviceProperties:
             )
         )
 
+    # TODO: A few attrs are missing here (NVIDIA/cuda-python#675)
+
+    @property
+    def cooperative_launch(self) -> bool:
+        """
+        True if device supports launching cooperative kernels, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COOPERATIVE_LAUNCH))
+
+    # TODO: A few attrs are missing here (NVIDIA/cuda-python#675)
+
     @property
     def max_shared_memory_per_block_optin(self) -> int:
         """

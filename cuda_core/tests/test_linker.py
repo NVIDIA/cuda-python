@@ -109,6 +109,7 @@ def test_linker_link_ptx_nvjitlink(compile_ltoir_functions):
     linker = Linker(*compile_ltoir_functions, options=options)
     linked_code = linker.link("ptx")
     assert isinstance(linked_code, ObjectCode)
+    assert linked_code.name == options.name
 
 
 @pytest.mark.skipif(not is_culink_backend, reason="nvjitlink requires lto for ptx linking")
@@ -117,6 +118,7 @@ def test_linker_link_ptx_culink(compile_ptx_functions):
     linker = Linker(*compile_ptx_functions, options=options)
     linked_code = linker.link("ptx")
     assert isinstance(linked_code, ObjectCode)
+    assert linked_code.name == options.name
 
 
 def test_linker_link_cubin(compile_ptx_functions):
@@ -124,6 +126,7 @@ def test_linker_link_cubin(compile_ptx_functions):
     linker = Linker(*compile_ptx_functions, options=options)
     linked_code = linker.link("cubin")
     assert isinstance(linked_code, ObjectCode)
+    assert linked_code.name == options.name
 
 
 def test_linker_link_ptx_multiple(compile_ptx_functions):
@@ -132,6 +135,7 @@ def test_linker_link_ptx_multiple(compile_ptx_functions):
     linker = Linker(*ptxes, options=options)
     linked_code = linker.link("cubin")
     assert isinstance(linked_code, ObjectCode)
+    assert linked_code.name == options.name
 
 
 def test_linker_link_invalid_target_type(compile_ptx_functions):
@@ -144,14 +148,16 @@ def test_linker_link_invalid_target_type(compile_ptx_functions):
 # this test causes an API error when using the culink API
 @skipif_testing_with_compute_sanitizer
 def test_linker_get_error_log(compile_ptx_functions):
-    options = LinkerOptions(arch=ARCH)
+    options = LinkerOptions(name="ABC", arch=ARCH)
 
     replacement_kernel = """
 extern __device__ int Z();
 extern __device__ int C(int a, int b);
 __global__ void A() { int result = C(Z(), 1);}
 """
-    dummy_program = Program(replacement_kernel, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    dummy_program = Program(
+        replacement_kernel, "c++", ProgramOptions(name="CBA", relocatable_device_code=True)
+    ).compile("ptx")
     linker = Linker(dummy_program, *(compile_ptx_functions[1:]), options=options)
     try:
         linker.link("cubin")
@@ -160,8 +166,9 @@ __global__ void A() { int result = C(Z(), 1);}
         log = linker.get_error_log()
         assert isinstance(log, str)
         # TODO when 4902246 is addressed, we can update this to cover nvjitlink as well
+        # The error is coming from the input object that's being linked (CBA), not the output object (ABC).
         if is_culink_backend:
-            assert log.rstrip("\x00") == "error   : Undefined reference to '_Z1Zv' in 'None_ptx'"
+            assert log.rstrip("\x00") == "error   : Undefined reference to '_Z1Zv' in 'CBA'"
 
 
 def test_linker_get_info_log(compile_ptx_functions):

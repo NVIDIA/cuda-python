@@ -6,6 +6,8 @@ from collections import namedtuple
 from typing import Optional, Union
 from warnings import warn
 
+from cuda.core.experimental._launch_config import LaunchConfig, _to_native_launch_config
+from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.clear_error_support import (
     assert_type,
     assert_type_str_or_bytes,
@@ -184,6 +186,170 @@ class KernelAttributes:
         )
 
 
+MaxPotentialBlockSizeOccupancyResult = namedtuple("MaxPotential", ("min_grid_size", "max_block_size"))
+
+
+class KernelOccupancy:
+    """ """
+
+    def __new__(self, *args, **kwargs):
+        raise RuntimeError("KernelOccupancy cannot be instantiated directly. Please use Kernel APIs.")
+
+    slots = ("_handle",)
+
+    @classmethod
+    def _init(cls, handle):
+        self = super().__new__(cls)
+        self._handle = handle
+
+        return self
+
+    def max_active_blocks_per_multiprocessor(self, block_size: int, dynamic_shared_memory_size: int) -> int:
+        """Occupancy of the kernel.
+
+        Returns the maximum number of active blocks per multiprocessor for this kernel.
+
+        Parameters
+        ----------
+            block_size: int
+                Block size parameter used to launch this kernel.
+            dynamic_shared_memory_size: int
+                The amount of dynamic shared memory in bytes needed by block.
+                Use `0` if block does not need shared memory.
+
+        Returns
+        -------
+        int
+            The maximum number of active blocks per multiprocessor.
+
+        Note
+        ----
+            The fraction of the product of maximum number of active blocks per multiprocessor
+            and the block size to the maximum number of threads per multiprocessor is known as
+            theoretical multiprocessor utilization (occupancy).
+
+        """
+        return handle_return(
+            driver.cuOccupancyMaxActiveBlocksPerMultiprocessor(self._handle, block_size, dynamic_shared_memory_size)
+        )
+
+    def max_potential_block_size(
+        self, dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize], block_size_limit: int
+    ) -> MaxPotentialBlockSizeOccupancyResult:
+        """MaxPotentialBlockSizeOccupancyResult: Suggested launch configuration for reasonable occupancy.
+
+        Returns the minimum grid size needed to achieve the maximum occupancy and
+        the maximum block size that can achieve the maximum occupancy.
+
+        Parameters
+        ----------
+            dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize]
+                The amount of dynamic shared memory in bytes needed by block.
+                Use `0` if block does not need shared memory. Use C-callable
+                represented by :obj:`~driver.CUoccupancyB2DSize` to encode
+                amount of needed dynamic shared memory which varies depending
+                on tne block size.
+            block_size_limit: int
+                Known upper limit on the kernel block size. Use `0` to indicate
+                the maximum block size permitted by the device / kernel instead
+
+        Returns
+        -------
+        :obj:`~MaxPotentialBlockSizeOccupancyResult`
+            An object with `min_grid_size` amd `max_block_size` attributes encoding
+            the suggested launch configuration.
+
+        Note
+        ----
+            Please be advised that use of C-callable that requires Python Global
+            Interpreter Lock may lead to deadlocks.
+
+        """
+        if isinstance(dynamic_shared_memory_needed, int):
+            min_grid_size, max_block_size = handle_return(
+                driver.cuOccupancyMaxPotentialBlockSize(
+                    self._handle, None, dynamic_shared_memory_needed, block_size_limit
+                )
+            )
+        elif isinstance(dynamic_shared_memory_needed, driver.CUoccupancyB2DSize):
+            min_grid_size, max_block_size = handle_return(
+                driver.cuOccupancyMaxPotentialBlockSize(
+                    self._handle, dynamic_shared_memory_needed.getPtr(), 0, block_size_limit
+                )
+            )
+        else:
+            raise TypeError(
+                "dynamic_shared_memory_needed expected to have type int, or CUoccupancyB2DSize, "
+                f"got {type(dynamic_shared_memory_needed)}"
+            )
+        return MaxPotentialBlockSizeOccupancyResult(min_grid_size=min_grid_size, max_block_size=max_block_size)
+
+    def available_dynamic_shared_memory_per_block(self, num_blocks_per_multiprocessor: int, block_size: int) -> int:
+        """Dynamic shared memory available per block for given launch configuration.
+
+        The amount of dynamic shared memory per block, in bytes, for given kernel launch configuration.
+
+        Parameters
+        ----------
+            num_blocks_per_multiprocessor: int
+                Number of blocks to be concurrently executing on a multiprocessor.
+            block_size: int
+                Block size parameter used to launch this kernel.
+
+        Returns
+        -------
+        int
+            Dynamic shared memory available per block for given launch configuration.
+        """
+        return handle_return(
+            driver.cuOccupancyAvailableDynamicSMemPerBlock(self._handle, num_blocks_per_multiprocessor, block_size)
+        )
+
+    def max_potential_cluster_size(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
+        """Maximum potential cluster size.
+
+        The maximum potential cluster size for this kernel and given launch configuration.
+
+        Parameters
+        ----------
+            config: :obj:`~_launch_config.LaunchConfig`
+                Kernel launch configuration. Cluster dimensions in the configuration are ignored.
+            stream: :obj:`~Stream`, optional
+                The stream on which this kernel is to be launched.
+
+        Returns
+        -------
+        int
+            The maximum cluster size that can be launched for this kernel and launch configuration.
+        """
+        drv_cfg = _to_native_launch_config(config)
+        if stream is not None:
+            drv_cfg.hStream = stream.handle
+        return handle_return(driver.cuOccupancyMaxPotentialClusterSize(self._handle, drv_cfg))
+
+    def max_active_clusters(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
+        """Maximum number of active clusters on the target device.
+
+        The maximum number of clusters that could concurrently execute on the target device.
+
+        Parameters
+        ----------
+            config: :obj:`~_launch_config.LaunchConfig`
+                Kernel launch configuration.
+            stream: :obj:`~Stream`, optional
+                The stream on which this kernel is to be launched.
+
+        Returns
+        -------
+        int
+            The maximum number of clusters that could co-exist on the target device.
+        """
+        drv_cfg = _to_native_launch_config(config)
+        if stream is not None:
+            drv_cfg.hStream = stream.handle
+        return handle_return(driver.cuOccupancyMaxActiveClusters(self._handle, drv_cfg))
+
+
 ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
 
 
@@ -198,7 +364,7 @@ class Kernel:
 
     """
 
-    __slots__ = ("_handle", "_module", "_attributes")
+    __slots__ = ("_handle", "_module", "_attributes", "_occupancy")
 
     def __new__(self, *args, **kwargs):
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
@@ -211,6 +377,7 @@ class Kernel:
         ker._handle = obj
         ker._module = mod
         ker._attributes = None
+        ker._occupancy = None
         return ker
 
     @property
@@ -250,6 +417,13 @@ class Kernel:
         _, param_info = self._get_arguments_info(param_info=True)
         return param_info
 
+    @property
+    def occupancy(self) -> KernelOccupancy:
+        """Get the occupancy information for launching this kernel."""
+        if self._occupancy is None:
+            self._occupancy = KernelOccupancy._init(self._handle)
+        return self._occupancy
+
     # TODO: implement from_handle()
 
 
@@ -275,8 +449,8 @@ class ObjectCode:
     context.
     """
 
-    __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
-    _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin")
+    __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map", "_name")
+    _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
 
     def __new__(self, *args, **kwargs):
         raise RuntimeError(
@@ -285,7 +459,7 @@ class ObjectCode:
         )
 
     @classmethod
-    def _init(cls, module, code_type, *, symbol_mapping: Optional[dict] = None):
+    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: Optional[dict] = None):
         self = super().__new__(cls)
         assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
@@ -299,11 +473,20 @@ class ObjectCode:
         self._code_type = code_type
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
+        self._name = name
 
         return self
 
+    @classmethod
+    def _reduce_helper(self, module, code_type, name, symbol_mapping):
+        # just for forwarding kwargs
+        return ObjectCode._init(module, code_type, name=name, symbol_mapping=symbol_mapping)
+
+    def __reduce__(self):
+        return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
+
     @staticmethod
-    def from_cubin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_cubin(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -311,15 +494,17 @@ class ObjectCode:
         module : Union[bytes, str]
             Either a bytes object containing the in-memory cubin to load, or
             a file path string pointing to the on-disk cubin to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "cubin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_ptx(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -327,12 +512,92 @@ class ObjectCode:
         module : Union[bytes, str]
             Either a bytes object containing the in-memory ptx code to load, or
             a file path string pointing to the on-disk ptx file to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ptx", symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "ptx", name=name, symbol_mapping=symbol_mapping)
+
+    @staticmethod
+    def from_ltoir(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing LTOIR.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory ltoir code to load, or
+            a file path string pointing to the on-disk ltoir file to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
+
+    @staticmethod
+    def from_fatbin(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing fatbin.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory fatbin to load, or
+            a file path string pointing to the on-disk fatbin to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "fatbin", name=name, symbol_mapping=symbol_mapping)
+
+    @staticmethod
+    def from_object(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing object code.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory object code to load, or
+            a file path string pointing to the on-disk object code to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "object", name=name, symbol_mapping=symbol_mapping)
+
+    @staticmethod
+    def from_library(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
+        """Create an :class:`ObjectCode` instance from an existing library.
+
+        Parameters
+        ----------
+        module : Union[bytes, str]
+            Either a bytes object containing the in-memory library to load, or
+            a file path string pointing to the on-disk library to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
+        symbol_mapping : Optional[dict]
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+        """
+        return ObjectCode._init(module, "library", name=name, symbol_mapping=symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
@@ -385,6 +650,11 @@ class ObjectCode:
     def code(self) -> CodeTypeT:
         """Return the underlying code object."""
         return self._module
+
+    @property
+    def name(self) -> str:
+        """Return a human-readable name of this code object."""
+        return self._name
 
     @property
     @precondition(_lazy_load_module)

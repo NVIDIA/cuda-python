@@ -256,8 +256,6 @@ SUPPORTED_WINDOWS_DLLS = {
     "cufft": (
         "cufft64_10.dll",
         "cufft64_11.dll",
-        "cufftw64_10.dll",
-        "cufftw64_11.dll",
     ),
     "cufftw": (
         "cufftw64_10.dll",
