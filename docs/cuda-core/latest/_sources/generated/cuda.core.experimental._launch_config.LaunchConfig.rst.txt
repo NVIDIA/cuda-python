@@ -24,6 +24,7 @@ cuda.core.experimental.\_launch\_config.LaunchConfig
    
    .. autoproperty:: block
    .. autoproperty:: cluster
+   .. autoproperty:: cooperative_launch
    .. autoproperty:: grid
    .. autoproperty:: shmem_size
    

@@ -31,5 +31,6 @@ cuda.core.experimental.\_module.ObjectCode
    
    .. autoproperty:: code
    .. autoproperty:: handle
+   .. autoproperty:: name
    
    
