@@ -148,7 +148,7 @@ def test_linker_link_invalid_target_type(compile_ptx_functions):
 # this test causes an API error when using the culink API
 @skipif_testing_with_compute_sanitizer
 def test_linker_get_error_log(compile_ptx_functions):
-    options = LinkerOptions(arch=ARCH)
+    options = LinkerOptions(name="ABC", arch=ARCH)
 
     replacement_kernel = """
 extern __device__ int Z();
@@ -165,7 +165,7 @@ __global__ void A() { int result = C(Z(), 1);}
         assert isinstance(log, str)
         # TODO when 4902246 is addressed, we can update this to cover nvjitlink as well
         if is_culink_backend:
-            assert log.rstrip("\x00") == "error   : Undefined reference to '_Z1Zv' in 'None_ptx'"
+            assert log.rstrip("\x00") == "error   : Undefined reference to '_Z1Zv' in 'ABC'"
 
 
 def test_linker_get_info_log(compile_ptx_functions):
