@@ -25,6 +25,11 @@ CUDA runtime
    StreamOptions
    LaunchConfig
 
+   Buffer
+   MemoryResource
+   DeviceMemoryResource
+   LegacyPinnedMemoryResource
+
 
 CUDA compilation toolchain
 --------------------------

@@ -338,3 +338,7 @@ class _SynchronousMemoryResource(MemoryResource):
     @property
     def device_id(self) -> int:
         return self._dev_id
+
+
+DeviceMemoryResource = _DefaultAsyncMempool
+LegacyPinnedMemoryResource = _DefaultPinnedMemorySource

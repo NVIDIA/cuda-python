@@ -15,7 +15,6 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   _memory.Buffer
    _stream.Stream
    _event.Event
    _device.DeviceProperties
