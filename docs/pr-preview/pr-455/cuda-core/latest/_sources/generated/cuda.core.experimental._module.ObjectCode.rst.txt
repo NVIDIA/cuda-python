@@ -1,9 +1,9 @@
 ﻿.. SPDX-License-Identifier: Apache-2.0
 
-cuda.core.experimental.ObjectCode
-=================================
+cuda.core.experimental.\_module.ObjectCode
+==========================================
 
-.. currentmodule:: cuda.core.experimental
+.. currentmodule:: cuda.core.experimental._module
 
 .. autoclass:: ObjectCode
 
