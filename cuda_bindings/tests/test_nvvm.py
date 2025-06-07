@@ -194,6 +194,20 @@ def get_program_log(prog):
     return buffer.decode(errors="backslashreplace")
 
 
+def test_get_error_string():
+    num_success = 0
+    num_errors = 0
+    for enum_obj in nvvm.Result:
+        es = nvvm.get_error_string(enum_obj)
+        if enum_obj is nvvm.Result.SUCCESS:
+            num_success += 1
+        else:
+            assert es.startswith("NVVM_ERROR")
+            num_errors += 1
+    assert num_success == 1
+    assert num_errors > 1  # smoke check is sufficient
+
+
 def test_nvvm_version():
     ver = nvvm.version()
     assert len(ver) == 2
