@@ -16,8 +16,6 @@ if [[ "${SETUP_SANITIZER}" == 1 ]]; then
   if [[ "$COMPUTE_SANITIZER_VERSION" -ge 202111 ]]; then
     SANITIZER_CMD="${SANITIZER_CMD} --padding=32"
   fi
-  # TODO: remove me
-  echo "CUDA_PYTHON_TESTING_WITH_COMPUTE_SANITIZER=1" >> $GITHUB_ENV
 else
   SANITIZER_CMD=""
 fi
