@@ -8,6 +8,7 @@ import weakref
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
+from cuda.core.experimental._context import Context
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     check_or_create_options,
@@ -20,6 +21,7 @@ from cuda.core.experimental._utils.cuda_utils import (
 
 if TYPE_CHECKING:
     import cuda.bindings
+    from cuda.core.experimental._device import Device
 
 
 @dataclass
@@ -91,10 +93,10 @@ class Event:
     def __new__(self, *args, **kwargs):
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
 
-    __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited")
+    __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited", "_device_id", "_ctx_handle")
 
     @classmethod
-    def _init(cls, options: Optional[EventOptions] = None):
+    def _init(cls, device_id: int, ctx_handle: Context, options: Optional[EventOptions] = None):
         self = super().__new__(cls)
         self._mnff = Event._MembersNeededForFinalize(self, None)
 
@@ -111,6 +113,8 @@ class Event:
         if options.support_ipc:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
         self._mnff.handle = handle_return(driver.cuEventCreate(flags))
+        self._device_id = device_id
+        self._ctx_handle = ctx_handle
         return self
 
     def close(self):
@@ -198,3 +202,24 @@ class Event:
             handle, call ``int(Event.handle)``.
         """
         return self._mnff.handle
+
+    @property
+    def device(self) -> Device:
+        """Return the :obj:`~_device.Device` singleton associated with this event.
+
+        Note
+        ----
+        The current context on the device may differ from this
+        event's context. This case occurs when a different CUDA
+        context is set current after a event is created.
+
+        """
+
+        from cuda.core.experimental._device import Device  # avoid circular import
+
+        return Device(self._device_id)
+
+    @property
+    def context(self) -> Context:
+        """Return the :obj:`~_context.Context` associated with this event."""
+        return Context._from_ctx(self._ctx_handle, self._device_id)

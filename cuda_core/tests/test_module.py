@@ -2,14 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import pickle  # nosec B403, B301
 import warnings
 
 import pytest
-from conftest import skipif_testing_with_compute_sanitizer
 
 import cuda.core.experimental
-from cuda.core.experimental import ObjectCode, Program, ProgramOptions, system
+from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions, system
 from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
+
+try:
+    import numba
+except ImportError:
+    numba = None
 
 SAXPY_KERNEL = r"""
 template<typename T>
@@ -38,6 +43,11 @@ def cuda12_prerequisite_check():
 def test_kernel_attributes_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelAttributes cannot be instantiated directly\."):
         cuda.core.experimental._module.KernelAttributes()  # Ensure back door is locked.
+
+
+def test_kernel_occupancy_init_disabled():
+    with pytest.raises(RuntimeError, match=r"^KernelOccupancy cannot be instantiated directly\."):
+        cuda.core.experimental._module.KernelOccupancy()  # Ensure back door is locked.
 
 
 def test_kernel_init_disabled():
@@ -170,7 +180,6 @@ def test_object_code_handle(get_saxpy_object_code):
     assert mod.handle is not None
 
 
-@skipif_testing_with_compute_sanitizer
 def test_saxpy_arguments(get_saxpy_kernel, cuda12_prerequisite_check):
     if not cuda12_prerequisite_check:
         pytest.skip("Test requires CUDA 12")
@@ -201,7 +210,6 @@ def test_saxpy_arguments(get_saxpy_kernel, cuda12_prerequisite_check):
     assert all(actual == expected for actual, expected in zip(sizes, expected_sizes))
 
 
-@skipif_testing_with_compute_sanitizer
 @pytest.mark.parametrize("nargs", [0, 1, 2, 3, 16])
 @pytest.mark.parametrize("c_type_name,c_type", [("int", ctypes.c_int), ("short", ctypes.c_short)], ids=["int", "short"])
 def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_prerequisite_check):
@@ -227,7 +235,6 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_prerequisit
     assert all([actual.size == expected.size for actual, expected in zip(arg_info, members)])
 
 
-@skipif_testing_with_compute_sanitizer
 def test_num_args_error_handling(deinit_all_contexts_function, cuda12_prerequisite_check):
     if not cuda12_prerequisite_check:
         pytest.skip("Test requires CUDA 12")
@@ -245,3 +252,125 @@ def test_num_args_error_handling(deinit_all_contexts_function, cuda12_prerequisi
     with pytest.raises(CUDAError):
         # assignment resolves linter error "B018: useless expression"
         _ = krn.num_arguments
+
+
+@pytest.mark.parametrize("block_size", [32, 64, 96, 120, 128, 256])
+@pytest.mark.parametrize("smem_size_per_block", [0, 32, 4096])
+def test_occupancy_max_active_block_per_multiprocessor(get_saxpy_kernel, block_size, smem_size_per_block):
+    kernel, _ = get_saxpy_kernel
+    dev_props = Device().properties
+    assert block_size <= dev_props.max_threads_per_block
+    assert smem_size_per_block <= dev_props.max_shared_memory_per_block
+    num_blocks_per_sm = kernel.occupancy.max_active_blocks_per_multiprocessor(block_size, smem_size_per_block)
+    assert isinstance(num_blocks_per_sm, int)
+    assert num_blocks_per_sm > 0
+    kernel_threads_per_sm = num_blocks_per_sm * block_size
+    kernel_smem_size_per_sm = num_blocks_per_sm * smem_size_per_block
+    assert kernel_threads_per_sm <= dev_props.max_threads_per_multiprocessor
+    assert kernel_smem_size_per_sm <= dev_props.max_shared_memory_per_multiprocessor
+    assert kernel.attributes.num_regs() * num_blocks_per_sm <= dev_props.max_registers_per_multiprocessor
+
+
+@pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 256, 0])
+@pytest.mark.parametrize("smem_size_per_block", [0, 32, 4096])
+def test_occupancy_max_potential_block_size_constant(get_saxpy_kernel, block_size_limit, smem_size_per_block):
+    """Tests use case when shared memory needed is independent on the block size"""
+    kernel, _ = get_saxpy_kernel
+    dev_props = Device().properties
+    assert block_size_limit <= dev_props.max_threads_per_block
+    assert smem_size_per_block <= dev_props.max_shared_memory_per_block
+    config_data = kernel.occupancy.max_potential_block_size(smem_size_per_block, block_size_limit)
+    assert isinstance(config_data, tuple)
+    assert len(config_data) == 2
+    min_grid_size, max_block_size = config_data
+    assert isinstance(min_grid_size, int)
+    assert isinstance(max_block_size, int)
+    assert min_grid_size > 0
+    assert max_block_size > 0
+    if block_size_limit > 0:
+        assert max_block_size <= block_size_limit
+    else:
+        assert max_block_size <= dev_props.max_threads_per_block
+    assert min_grid_size == config_data.min_grid_size
+    assert max_block_size == config_data.max_block_size
+    invalid_dsmem = Ellipsis
+    with pytest.raises(TypeError):
+        kernel.occupancy.max_potential_block_size(invalid_dsmem, block_size_limit)
+
+
+@pytest.mark.skipif(numba is None, reason="Test requires numba to be installed")
+@pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 277, 0])
+def test_occupancy_max_potential_block_size_b2dsize(get_saxpy_kernel, block_size_limit):
+    """Tests use case when shared memory needed depends on the block size"""
+    kernel, _ = get_saxpy_kernel
+
+    def shared_memory_needed(block_size: numba.intc) -> numba.size_t:
+        "Size of dynamic shared memory needed by kernel of this block size"
+        return 1024 * (block_size // 32)
+
+    b2dsize_sig = numba.size_t(numba.intc)
+    dsmem_needed_cfunc = numba.cfunc(b2dsize_sig)(shared_memory_needed)
+    fn_ptr = ctypes.cast(dsmem_needed_cfunc.ctypes, ctypes.c_void_p).value
+    b2dsize_fn = driver.CUoccupancyB2DSize(_ptr=fn_ptr)
+    config_data = kernel.occupancy.max_potential_block_size(b2dsize_fn, block_size_limit)
+    dev_props = Device().properties
+    assert block_size_limit <= dev_props.max_threads_per_block
+    min_grid_size, max_block_size = config_data
+    assert isinstance(min_grid_size, int)
+    assert isinstance(max_block_size, int)
+    assert min_grid_size > 0
+    assert max_block_size > 0
+    if block_size_limit > 0:
+        assert max_block_size <= block_size_limit
+    else:
+        assert max_block_size <= dev_props.max_threads_per_block
+
+
+@pytest.mark.parametrize("num_blocks_per_sm, block_size", [(4, 32), (2, 64), (2, 96), (3, 120), (2, 128), (1, 256)])
+def test_occupancy_available_dynamic_shared_memory_per_block(get_saxpy_kernel, num_blocks_per_sm, block_size):
+    kernel, _ = get_saxpy_kernel
+    dev_props = Device().properties
+    assert block_size <= dev_props.max_threads_per_block
+    assert num_blocks_per_sm * block_size <= dev_props.max_threads_per_multiprocessor
+    smem_size = kernel.occupancy.available_dynamic_shared_memory_per_block(num_blocks_per_sm, block_size)
+    assert smem_size <= dev_props.max_shared_memory_per_block
+    assert num_blocks_per_sm * smem_size <= dev_props.max_shared_memory_per_multiprocessor
+
+
+@pytest.mark.parametrize("cluster", [None, 2])
+def test_occupancy_max_active_clusters(get_saxpy_kernel, cluster):
+    kernel, _ = get_saxpy_kernel
+    dev = Device()
+    if (cluster) and (dev.compute_capability < (9, 0)):
+        pytest.skip("Device with compute capability 90 or higher is required for cluster support")
+    launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64, cluster=cluster)
+    query_fn = kernel.occupancy.max_active_clusters
+    max_active_clusters = query_fn(launch_config)
+    assert isinstance(max_active_clusters, int)
+    assert max_active_clusters >= 0
+    max_active_clusters = query_fn(launch_config, stream=dev.default_stream)
+    assert isinstance(max_active_clusters, int)
+    assert max_active_clusters >= 0
+
+
+def test_occupancy_max_potential_cluster_size(get_saxpy_kernel):
+    kernel, _ = get_saxpy_kernel
+    dev = Device()
+    launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64)
+    query_fn = kernel.occupancy.max_potential_cluster_size
+    max_potential_cluster_size = query_fn(launch_config)
+    assert isinstance(max_potential_cluster_size, int)
+    assert max_potential_cluster_size >= 0
+    max_potential_cluster_size = query_fn(launch_config, stream=dev.default_stream)
+    assert isinstance(max_potential_cluster_size, int)
+    assert max_potential_cluster_size >= 0
+
+
+def test_module_serialization_roundtrip(get_saxpy_kernel):
+    _, objcode = get_saxpy_kernel
+    result = pickle.loads(pickle.dumps(objcode))  # nosec B403, B301
+
+    assert isinstance(result, ObjectCode)
+    assert objcode.code == result.code
+    assert objcode._sym_map == result._sym_map
+    assert objcode._code_type == result._code_type

@@ -14,6 +14,7 @@ from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     ComputeCapability,
     CUDAError,
+    _check_driver_error,
     driver,
     handle_return,
     precondition,
@@ -702,6 +703,17 @@ class DeviceProperties:
             )
         )
 
+    # TODO: A few attrs are missing here (NVIDIA/cuda-python#675)
+
+    @property
+    def cooperative_launch(self) -> bool:
+        """
+        True if device supports launching cooperative kernels, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COOPERATIVE_LAUNCH))
+
+    # TODO: A few attrs are missing here (NVIDIA/cuda-python#675)
+
     @property
     def max_shared_memory_per_block_optin(self) -> int:
         """
@@ -920,6 +932,10 @@ class DeviceProperties:
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED))
 
 
+_SUCCESS = driver.CUresult.CUDA_SUCCESS
+_INVALID_CTX = driver.CUresult.CUDA_ERROR_INVALID_CONTEXT
+
+
 class Device:
     """Represent a GPU and act as an entry point for cuda.core features.
 
@@ -949,7 +965,7 @@ class Device:
 
     __slots__ = ("_id", "_mr", "_has_inited", "_properties")
 
-    def __new__(cls, device_id=None):
+    def __new__(cls, device_id: Optional[int] = None):
         global _is_cuInit
         if _is_cuInit is False:
             with _lock:
@@ -958,18 +974,24 @@ class Device:
 
         # important: creating a Device instance does not initialize the GPU!
         if device_id is None:
-            device_id = handle_return(runtime.cudaGetDevice())
-            assert_type(device_id, int)
-        else:
-            total = handle_return(runtime.cudaGetDeviceCount())
-            assert_type(device_id, int)
-            if not (0 <= device_id < total):
-                raise ValueError(f"device_id must be within [0, {total}), got {device_id}")
+            err, dev = driver.cuCtxGetDevice()
+            if err == _SUCCESS:
+                device_id = int(dev)
+            elif err == _INVALID_CTX:
+                ctx = handle_return(driver.cuCtxGetCurrent())
+                assert int(ctx) == 0
+                device_id = 0  # cudart behavior
+            else:
+                _check_driver_error(err)
+        elif device_id < 0:
+            raise ValueError(f"device_id must be >= 0, got {device_id}")
 
         # ensure Device is singleton
-        if not hasattr(_tls, "devices"):
-            total = handle_return(runtime.cudaGetDeviceCount())
-            _tls.devices = []
+        try:
+            devices = _tls.devices
+        except AttributeError:
+            total = handle_return(driver.cuDeviceGetCount())
+            devices = _tls.devices = []
             for dev_id in range(total):
                 dev = super().__new__(cls)
                 dev._id = dev_id
@@ -977,7 +999,9 @@ class Device:
                 # use the SynchronousMemoryResource which does not use memory pools.
                 if (
                     handle_return(
-                        runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
+                        driver.cuDeviceGetAttribute(
+                            driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev_id
+                        )
                     )
                 ) == 1:
                     dev._mr = _DefaultAsyncMempool(dev_id)
@@ -986,9 +1010,12 @@ class Device:
 
                 dev._has_inited = False
                 dev._properties = None
-                _tls.devices.append(dev)
+                devices.append(dev)
 
-        return _tls.devices[device_id]
+        try:
+            return devices[device_id]
+        except IndexError:
+            raise ValueError(f"device_id must be within [0, {len(devices)}), got {device_id}") from None
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
@@ -1229,7 +1256,7 @@ class Device:
             Newly created event object.
 
         """
-        return Event._init(options)
+        return Event._init(self._id, self.context._handle, options)
 
     @precondition(_check_context_initialized)
     def allocate(self, size, stream=None) -> Buffer:
