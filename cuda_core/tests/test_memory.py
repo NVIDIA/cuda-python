@@ -10,8 +10,8 @@ import ctypes
 
 import pytest
 
-from cuda.core.experimental import Device
-from cuda.core.experimental._memory import Buffer, DLDeviceType, MemoryResource
+from cuda.core.experimental import Buffer, Device, MemoryResource
+from cuda.core.experimental._memory import DLDeviceType
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
 

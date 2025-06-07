@@ -9,8 +9,7 @@ import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
 
-from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
-from cuda.core.experimental._memory import _DefaultPinnedMemorySource
+from cuda.core.experimental import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, launch
 
 
 def test_launch_config_init(init_cuda):
@@ -111,7 +110,7 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
     dev.set_current()
 
     # Prepare pinned host array
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(np.dtype(python_type).itemsize)
     arr = np.from_dlpack(b).view(python_type)
     arr[:] = 0
