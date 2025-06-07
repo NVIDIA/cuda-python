@@ -25,6 +25,16 @@ CUDA runtime
    StreamOptions
    LaunchConfig
 
+   _memory.Buffer
+   _stream.Stream
+   _event.Event
+   _device.DeviceProperties
+   _launch_config.LaunchConfig
+   _module.KernelAttributes
+   _module.KernelOccupancy
+   _module.ParamInfo
+   _module.MaxPotentialBlockSizeOccupancyResult
+
 
 CUDA compilation toolchain
 --------------------------
@@ -40,6 +50,9 @@ CUDA compilation toolchain
 
    ProgramOptions
    LinkerOptions
+
+   _module.Kernel
+   _module.ObjectCode
 
 
 CUDA system information
