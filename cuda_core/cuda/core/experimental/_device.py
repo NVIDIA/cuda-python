@@ -931,6 +931,10 @@ class DeviceProperties:
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED))
 
 
+_SUCCESS = driver.CUresult.CUDA_SUCCESS
+_INVALID_CTX = driver.CUresult.CUDA_ERROR_INVALID_CONTEXT
+
+
 class Device:
     """Represent a GPU and act as an entry point for cuda.core features.
 
@@ -960,7 +964,7 @@ class Device:
 
     __slots__ = ("_id", "_mr", "_has_inited", "_properties")
 
-    def __new__(cls, device_id: int = None):
+    def __new__(cls, device_id: Optional[int] = None):
         global _is_cuInit
         if _is_cuInit is False:
             with _lock:
@@ -970,9 +974,9 @@ class Device:
         # important: creating a Device instance does not initialize the GPU!
         if device_id is None:
             err, dev = driver.cuCtxGetDevice()
-            if err == 0:
+            if err == _SUCCESS:
                 device_id = int(dev)
-            elif err == 201:  # CUDA_ERROR_INVALID_CONTEXT
+            elif err == _INVALID_CTX:
                 ctx = handle_return(driver.cuCtxGetCurrent())
                 assert int(ctx) == 0
                 device_id = 0  # cudart behavior
