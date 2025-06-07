@@ -23,6 +23,7 @@ LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
 cdef bint __py_nvvm_init = False
 cdef void* __cuDriverGetVersion = NULL
 
+cdef void* __nvvmGetErrorString = NULL
 cdef void* __nvvmVersion = NULL
 cdef void* __nvvmIRVersion = NULL
 cdef void* __nvvmCreateProgram = NULL
@@ -62,6 +63,12 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         handle = path_finder._load_nvidia_dynamic_library("nvvm").handle
 
         # Load function
+        global __nvvmGetErrorString
+        try:
+            __nvvmGetErrorString = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmGetErrorString')
+        except:
+            pass
+
         global __nvvmVersion
         try:
             __nvvmVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmVersion')
@@ -149,6 +156,9 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_nvvm()
     cdef dict data = {}
 
+    global __nvvmGetErrorString
+    data["__nvvmGetErrorString"] = <intptr_t>__nvvmGetErrorString
+
     global __nvvmVersion
     data["__nvvmVersion"] = <intptr_t>__nvvmVersion
 
@@ -199,6 +209,16 @@ cpdef _inspect_function_pointer(str name):
 ###############################################################################
 # Wrapper functions
 ###############################################################################
+
+cdef const char* _nvvmGetErrorString(nvvmResult result) except?NULL nogil:
+    global __nvvmGetErrorString
+    _check_or_init_nvvm()
+    if __nvvmGetErrorString == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmGetErrorString is not found")
+    return (<const char* (*)(nvvmResult) noexcept nogil>__nvvmGetErrorString)(
+        result)
+
 
 cdef nvvmResult _nvvmVersion(int* major, int* minor) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmVersion

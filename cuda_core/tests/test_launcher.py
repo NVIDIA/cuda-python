@@ -7,6 +7,7 @@ import pathlib
 
 import numpy as np
 import pytest
+from conftest import skipif_need_cuda_headers
 
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 from cuda.core.experimental._memory import _DefaultPinnedMemorySource
@@ -152,3 +153,48 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
 
     # Check result
     assert arr[0] == init_value, f"Expected {init_value}, got {arr[0]}"
+
+
+@skipif_need_cuda_headers  # cg
+def test_cooperative_launch():
+    dev = Device()
+    dev.set_current()
+    s = dev.create_stream(options={"nonblocking": True})
+
+    # CUDA kernel templated on type T
+    code = r"""
+    #include <cooperative_groups.h>
+
+    extern "C" __global__ void test_grid_sync() {
+        namespace cg = cooperative_groups;
+        auto grid = cg::this_grid();
+        grid.sync();
+    }
+    """
+
+    # Compile and force instantiation for this type
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    include_path = str(pathlib.Path(os.environ["CUDA_PATH"]) / pathlib.Path("include"))
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=include_path)
+    prog = Program(code, code_type="c++", options=pro_opts)
+    ker = prog.compile("cubin").get_kernel("test_grid_sync")
+
+    # # Launch without setting cooperative_launch
+    # # Commented out as this seems to be a sticky error...
+    # config = LaunchConfig(grid=1, block=1)
+    # launch(s, config, ker)
+    # from cuda.core.experimental._utils.cuda_utils import CUDAError
+    # with pytest.raises(CUDAError) as e:
+    #     s.sync()
+    # assert "CUDA_ERROR_LAUNCH_FAILED" in str(e)
+
+    # Crazy grid sizes would not work
+    block = 128
+    config = LaunchConfig(grid=dev.properties.max_grid_dim_x // block + 1, block=block, cooperative_launch=True)
+    with pytest.raises(ValueError):
+        launch(s, config, ker)
+
+    # This works just fine
+    config = LaunchConfig(grid=1, block=1, cooperative_launch=True)
+    launch(s, config, ker)
+    s.sync()

@@ -11,6 +11,7 @@ from ..cynvvm cimport *
 # Wrapper functions
 ###############################################################################
 
+cdef const char* _nvvmGetErrorString(nvvmResult result) except?NULL nogil
 cdef nvvmResult _nvvmVersion(int* major, int* minor) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
 cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil
 cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil

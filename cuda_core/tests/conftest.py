@@ -1,9 +1,7 @@
 # Copyright 2024 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import glob
 import os
-import sys
 
 try:
     from cuda.bindings import driver
@@ -67,22 +65,5 @@ def deinit_all_contexts_function():
     return pop_all_contexts
 
 
-# samples relying on cffi could fail as the modules cannot be imported
-sys.path.append(os.getcwd())
-
-
-@pytest.fixture(scope="session", autouse=True)
-def clean_up_cffi_files():
-    yield
-    files = glob.glob(os.path.join(os.getcwd(), "_cpu_obj*"))
-    for f in files:
-        try:  # noqa: SIM105
-            os.remove(f)
-        except FileNotFoundError:
-            pass  # noqa: SIM105
-
-
-skipif_testing_with_compute_sanitizer = pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_TESTING_WITH_COMPUTE_SANITIZER", "0") == "1",
-    reason="The compute-sanitizer is running, and this test causes an API error.",
-)
+# TODO: make the fixture more sophisticated using path finder
+skipif_need_cuda_headers = pytest.mark.skipif(os.environ.get("CUDA_PATH") is None, reason="need CUDA header")

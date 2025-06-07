@@ -73,6 +73,19 @@ cpdef destroy_program(intptr_t prog):
     check_status(status)
 
 
+cpdef str get_error_string(int result):
+    """Get the message string for the given ``nvvmResult`` code.
+
+    Args:
+        result (Result): NVVM API result code.
+
+    .. seealso:: `nvvmGetErrorString`
+    """
+    cdef bytes _output_
+    _output_ = nvvmGetErrorString(<_Result>result)
+    return _output_.decode()
+
+
 cpdef tuple version():
     """Get the NVVM version.
 

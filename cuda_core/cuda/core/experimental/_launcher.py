@@ -9,6 +9,7 @@ from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
+    _reduce_3_tuple,
     check_or_create_options,
     driver,
     get_binding_version,
@@ -78,6 +79,8 @@ def launch(stream, config, kernel, *kernel_args):
     if _use_ex:
         drv_cfg = _to_native_launch_config(config)
         drv_cfg.hStream = stream.handle
+        if config.cooperative_launch:
+            _check_cooperative_launch(kernel, config, stream)
         handle_return(driver.cuLaunchKernelEx(drv_cfg, int(kernel._handle), args_ptr, 0))
     else:
         # TODO: check if config has any unsupported attrs
@@ -86,3 +89,16 @@ def launch(stream, config, kernel, *kernel_args):
                 int(kernel._handle), *config.grid, *config.block, config.shmem_size, stream.handle, args_ptr, 0
             )
         )
+
+
+def _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Stream):
+    dev = stream.device
+    num_sm = dev.properties.multiprocessor_count
+    max_grid_size = (
+        kernel.occupancy.max_active_blocks_per_multiprocessor(_reduce_3_tuple(config.block), config.shmem_size) * num_sm
+    )
+    if _reduce_3_tuple(config.grid) > max_grid_size:
+        # For now let's try not to be smart and adjust the grid size behind users' back.
+        # We explicitly ask users to adjust.
+        x, y, z = config.grid
+        raise ValueError(f"The specified grid size ({x} * {y} * {z}) exceeds the limit ({max_grid_size})")

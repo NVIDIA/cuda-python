@@ -27,6 +27,7 @@ ctypedef nvvmResult _Result
 # Functions
 ###############################################################################
 
+cpdef str get_error_string(int result)
 cpdef tuple version()
 cpdef tuple ir_version()
 cpdef intptr_t create_program() except? 0
