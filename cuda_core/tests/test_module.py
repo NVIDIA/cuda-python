@@ -6,7 +6,6 @@ import pickle  # nosec B403, B301
 import warnings
 
 import pytest
-from conftest import skipif_testing_with_compute_sanitizer
 
 import cuda.core.experimental
 from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions, system
@@ -181,7 +180,6 @@ def test_object_code_handle(get_saxpy_object_code):
     assert mod.handle is not None
 
 
-@skipif_testing_with_compute_sanitizer
 def test_saxpy_arguments(get_saxpy_kernel, cuda12_prerequisite_check):
     if not cuda12_prerequisite_check:
         pytest.skip("Test requires CUDA 12")
@@ -212,7 +210,6 @@ def test_saxpy_arguments(get_saxpy_kernel, cuda12_prerequisite_check):
     assert all(actual == expected for actual, expected in zip(sizes, expected_sizes))
 
 
-@skipif_testing_with_compute_sanitizer
 @pytest.mark.parametrize("nargs", [0, 1, 2, 3, 16])
 @pytest.mark.parametrize("c_type_name,c_type", [("int", ctypes.c_int), ("short", ctypes.c_short)], ids=["int", "short"])
 def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_prerequisite_check):
@@ -238,7 +235,6 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_prerequisit
     assert all([actual.size == expected.size for actual, expected in zip(arg_info, members)])
 
 
-@skipif_testing_with_compute_sanitizer
 def test_num_args_error_handling(deinit_all_contexts_function, cuda12_prerequisite_check):
     if not cuda12_prerequisite_check:
         pytest.skip("Test requires CUDA 12")

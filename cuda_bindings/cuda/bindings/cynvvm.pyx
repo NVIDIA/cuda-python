@@ -11,6 +11,10 @@ from ._internal cimport nvvm as _nvvm
 # Wrapper functions
 ###############################################################################
 
+cdef const char* nvvmGetErrorString(nvvmResult result) except?NULL nogil:
+    return _nvvm._nvvmGetErrorString(result)
+
+
 cdef nvvmResult nvvmVersion(int* major, int* minor) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmVersion(major, minor)
 
