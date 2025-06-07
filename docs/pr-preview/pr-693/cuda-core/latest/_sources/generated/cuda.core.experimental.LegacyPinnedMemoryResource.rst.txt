@@ -1,0 +1,6 @@
+﻿cuda.core.experimental.LegacyPinnedMemoryResource
+=================================================
+
+.. currentmodule:: cuda.core.experimental
+
+.. autoclass:: LegacyPinnedMemoryResource

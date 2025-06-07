@@ -1,0 +1,6 @@
+﻿cuda.core.experimental.DeviceMemoryResource
+===========================================
+
+.. currentmodule:: cuda.core.experimental
+
+.. autoclass:: DeviceMemoryResource
