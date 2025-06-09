@@ -449,13 +449,8 @@ class GraphBuilder:
         """Return an instance of a __cuda_stream__ protocol."""
         return self.stream.__cuda_stream__()
 
-    def _get_conditional_context(self):
-        driver_ver = handle_return(driver.cuDriverGetVersion())
-        if driver_ver < 12050:
-            # Pre 12.5 drivers don't allow querying the stream context during capture.
-            return handle_return(driver.cuCtxGetCurrent())
-        else:
-            return handle_return(driver.cuStreamGetCtx(self._mnff.stream.handle))
+    def _get_conditional_context(self) -> driver.CUcontext:
+        return self._mnff.stream.context._handle
 
     def create_conditional_handle(self, default_value=None) -> int:
         """Creates a conditional handle for the graph builder.
