@@ -7,7 +7,7 @@ from typing import Optional, Union
 
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
+from cuda.core.experimental._memory import Buffer, DeviceMemoryResource, MemoryResource, _SynchronousMemoryResource
 from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
@@ -1003,7 +1003,7 @@ class Device:
                         )
                     )
                 ) == 1:
-                    dev._mr = _DefaultAsyncMempool(dev_id)
+                    dev._mr = DeviceMemoryResource(dev_id)
                 else:
                     dev._mr = _SynchronousMemoryResource(dev_id)
 

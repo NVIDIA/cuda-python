@@ -44,8 +44,6 @@ class Buffer:
 
         def close(self, stream=None):
             if self.ptr and self.mr is not None:
-                if stream is None:
-                    stream = default_stream()
                 self.mr.deallocate(self.ptr, self.size, stream)
                 self.ptr = 0
                 self.mr = None
@@ -71,8 +69,8 @@ class Buffer:
         Parameters
         ----------
         stream : Stream, optional
-            The stream object to use for asynchronous deallocation. If not set,
-            the current default is to the default stream.
+            The stream object to use for asynchronous deallocation. If None,
+            the behavior depends on the underlying memory resource.
         """
         self._mnff.close(stream)
 
@@ -256,9 +254,10 @@ class MemoryResource(abc.ABC):
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : object, optional
+        stream : Stream, optional
             The stream on which to perform the allocation asynchronously.
-            If None, allocation is synchronous.
+            If None, it is up to each memory resource implementation to decide
+            and document the behavior.
 
         Returns
         -------
@@ -274,13 +273,14 @@ class MemoryResource(abc.ABC):
 
         Parameters
         ----------
-        ptr : object
+        ptr : :obj:`~_memory.DevicePointerT`
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : object, optional
+        stream : Stream, optional
             The stream on which to perform the deallocation asynchronously.
-            If None, deallocation is synchronous.
+            If None, it is up to each memory resource implementation to decide
+            and document the behavior.
         """
         ...
 
@@ -309,68 +309,144 @@ class MemoryResource(abc.ABC):
         ...
 
 
-class _DefaultAsyncMempool(MemoryResource):
+class DeviceMemoryResource(MemoryResource):
+    """Create a device memory resource that uses the driver's stream-ordered memory pool.
+
+    Parameters
+    ----------
+    device_id : int
+        Device ordinal for which a memory resource is constructed. The mempool that is
+        set to *current* on ``device_id`` is used. If no mempool is set to current yet,
+        the driver would use the *default* mempool on the device.
+    """
+
     __slots__ = ("_dev_id",)
 
-    def __init__(self, dev_id: int):
-        self._handle = handle_return(driver.cuDeviceGetMemPool(dev_id))
-        self._dev_id = dev_id
+    def __init__(self, device_id: int):
+        self._handle = handle_return(driver.cuDeviceGetMemPool(device_id))
+        self._dev_id = device_id
 
     def allocate(self, size: int, stream: Stream = None) -> Buffer:
+        """Allocate a buffer of the requested size.
+
+        Parameters
+        ----------
+        size : int
+            The size of the buffer to allocate, in bytes.
+        stream : Stream, optional
+            The stream on which to perform the allocation asynchronously.
+            If None, an internal stream is used.
+
+        Returns
+        -------
+        Buffer
+            The allocated buffer object, which is accessible on the device that this memory
+            resource was created for.
+        """
         if stream is None:
             stream = default_stream()
         ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, self._handle, stream.handle))
         return Buffer._init(ptr, size, self)
 
     def deallocate(self, ptr: DevicePointerT, size: int, stream: Stream = None):
+        """Deallocate a buffer previously allocated by this resource.
+
+        Parameters
+        ----------
+        ptr : :obj:`~_memory.DevicePointerT`
+            The pointer or handle to the buffer to deallocate.
+        size : int
+            The size of the buffer to deallocate, in bytes.
+        stream : Stream, optional
+            The stream on which to perform the deallocation asynchronously.
+            If None, an internal stream is used.
+        """
         if stream is None:
             stream = default_stream()
         handle_return(driver.cuMemFreeAsync(ptr, stream.handle))
 
     @property
     def is_device_accessible(self) -> bool:
+        """bool: this memory resource provides device-accessible buffers."""
         return True
 
     @property
     def is_host_accessible(self) -> bool:
+        """bool: this memory resource does not provides host-accessible buffers."""
         return False
 
     @property
     def device_id(self) -> int:
+        """int: the associated device ordinal."""
         return self._dev_id
 
 
-class _DefaultPinnedMemorySource(MemoryResource):
+class LegacyPinnedMemoryResource(MemoryResource):
+    """Create a pinned memory resource that uses legacy cuMemAllocHost/cudaMallocHost
+    APIs.
+    """
+
     def __init__(self):
         # TODO: support flags from cuMemHostAlloc?
         self._handle = None
 
     def allocate(self, size: int, stream: Stream = None) -> Buffer:
+        """Allocate a buffer of the requested size.
+
+        Parameters
+        ----------
+        size : int
+            The size of the buffer to allocate, in bytes.
+        stream : Stream, optional
+            Currently ignored
+
+        Returns
+        -------
+        Buffer
+            The allocated buffer object, which is accessible on both host and device.
+        """
         ptr = handle_return(driver.cuMemAllocHost(size))
         return Buffer._init(ptr, size, self)
 
     def deallocate(self, ptr: DevicePointerT, size: int, stream: Stream = None):
+        """Deallocate a buffer previously allocated by this resource.
+
+        Parameters
+        ----------
+        ptr : :obj:`~_memory.DevicePointerT`
+            The pointer or handle to the buffer to deallocate.
+        size : int
+            The size of the buffer to deallocate, in bytes.
+        stream : Stream, optional
+            The stream on which to perform the deallocation asynchronously.
+            If None, no synchronization would happen.
+        """
+        if stream:
+            stream.sync()
         handle_return(driver.cuMemFreeHost(ptr))
 
     @property
     def is_device_accessible(self) -> bool:
+        """bool: this memory resource provides device-accessible buffers."""
         return True
 
     @property
     def is_host_accessible(self) -> bool:
+        """bool: this memory resource provides host-accessible buffers."""
         return True
 
     @property
     def device_id(self) -> int:
+        """This memory resource is not bound to any GPU."""
         raise RuntimeError("a pinned memory resource is not bound to any GPU")
 
 
 class _SynchronousMemoryResource(MemoryResource):
     __slots__ = ("_dev_id",)
 
-    def __init__(self, dev_id):
+    def __init__(self, device_id):
         self._handle = None
-        self._dev_id = dev_id
+        self._dev_id = device_id
 
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAlloc(size))
@@ -393,7 +469,3 @@ class _SynchronousMemoryResource(MemoryResource):
     @property
     def device_id(self) -> int:
         return self._dev_id
-
-
-DeviceMemoryResource = _DefaultAsyncMempool
-LegacyPinnedMemoryResource = _DefaultPinnedMemorySource
