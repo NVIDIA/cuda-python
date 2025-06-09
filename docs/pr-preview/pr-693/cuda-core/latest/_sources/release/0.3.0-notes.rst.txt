@@ -17,7 +17,10 @@ Highlights
 Breaking Changes
 ----------------
 
-- The internal ``Buffer`` object's ``__init__()`` method is removed, see below.
+- The :class:`Buffer` object's ``__init__()`` method is removed, see below.
+- The :class:`Buffer` object's :meth:`~Buffer.close` method and destructor now always defer to the underlying memory resource implementation
+  to decide the behavior if a stream is not explicitly passed. Previously, in this case it always uses the default stream, which could
+  interfere with the memory resource's assumptions.
 
 
 New features

@@ -316,7 +316,10 @@
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>The internal <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> object’s <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method is removed, see below.</p></li>
+<li><p>The <a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> object’s <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method is removed, see below.</p></li>
+<li><p>The <a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> object’s <a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer.close" title="cuda.core.experimental.Buffer.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> method and destructor now always defer to the underlying memory resource implementation
+to decide the behavior if a stream is not explicitly passed. Previously, in this case it always uses the default stream, which could
+interfere with the memory resource’s assumptions.</p></li>
 </ul>
 </section>
 <section id="new-features">

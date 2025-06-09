@@ -328,8 +328,8 @@ allocations.</p>
 asynchronously on the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – The stream object to use for asynchronous deallocation. If not set,
-the current default is to the default stream.</p>
+<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – The stream object to use for asynchronous deallocation. If None,
+the behavior depends on the underlying memory resource.</p>
 </dd>
 </dl>
 </dd></dl>

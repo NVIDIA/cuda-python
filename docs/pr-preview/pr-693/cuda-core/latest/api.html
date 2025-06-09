@@ -326,11 +326,11 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource" title="cuda.core.experimental.MemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Abstract base class for memory resources that manage allocation and deallocation of buffers.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a></p></td>
-<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">_DefaultAsyncMempool</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>(device_id)</p></td>
+<td><p>Create a device memory resource that uses the driver's stream-ordered memory pool.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html#cuda.core.experimental.LegacyPinnedMemoryResource" title="cuda.core.experimental.LegacyPinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a></p></td>
-<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">_DefaultPinnedMemorySource</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html#cuda.core.experimental.LegacyPinnedMemoryResource" title="cuda.core.experimental.LegacyPinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a>()</p></td>
+<td><p>Create a pinned memory resource that uses legacy cuMemAllocHost/cudaMallocHost APIs.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions" title="cuda.core.experimental.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([enable_timing, ...])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> options.</p></td>
