@@ -34,7 +34,7 @@ in Python. While we encourage new Python projects to start using streams (and ot
 CUDA types) from ``cuda.core``, we understand that there are already several projects
 exposing their own stream types.
 
-To address this issue, we propose the ``__cuda_stream__`` protocol (currently version
+To address this issue, we propose the :attr:`~_stream.IsStreamT.__cuda_stream__` protocol (currently version
 0) as follows: For any Python objects that are meant to be interpreted as a stream, they
 should add a ``__cuda_stream__`` method that returns a 2-tuple: The version number
 (``0``) and the address of ``cudaStream_t`` (both as Python `int`):
@@ -52,7 +52,8 @@ Then such objects can be understood by ``cuda.core`` anywhere a stream-like obje
 is needed.
 
 We suggest all existing Python projects that expose a stream class to also support this
-protocol wherever a function takes a stream.
+protocol wherever a function takes a stream. For new Python projects that need to access
+CUDA streams, we encourage you to use :class:`~_stream.Stream` directly.
 
 
 Memory view utilities for CPU/GPU buffers
