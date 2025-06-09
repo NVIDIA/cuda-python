@@ -768,6 +768,10 @@ def launch_graph(parent_graph: GraphBuilder, child_graph: GraphBuilder):
     if not parent_graph.is_building:
         raise ValueError("Parent graph is being built.")
 
+    _, _, graph_out, dependencies_out, num_dependencies_out = handle_return(
+        driver.cuStreamGetCaptureInfo(parent_graph.stream.handle)
+    )
+
     child_node = handle_return(
         driver.cuGraphAddChildGraphNode(graph_out, dependencies_out, num_dependencies_out, child_graph._mnff.graph)
     )

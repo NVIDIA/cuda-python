@@ -10,10 +10,10 @@ try:
 except ImportError:
     from cuda import nvrtc
 from cuda.core.experimental import (
-    GraphCompleteOptions,
-    GraphDebugPrintOptions,
     Device,
     GraphBuilder,
+    GraphCompleteOptions,
+    GraphDebugPrintOptions,
     LaunchConfig,
     Program,
     ProgramOptions,
