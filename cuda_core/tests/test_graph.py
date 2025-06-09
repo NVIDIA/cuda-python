@@ -194,7 +194,14 @@ def test_graph_repeat_capture(init_cuda):
     with pytest.raises(RuntimeError, match="^Cannot resume building after building has ended."):
         gb.begin_building()
 
-    # Close the memroy resource now because the garbage collected might
+    # Graph can be re-launched
+    graph.launch(launch_stream)
+    graph.launch(launch_stream)
+    graph.launch(launch_stream)
+    launch_stream.sync()
+    assert arr[0] == 4
+
+    # Close the memory resource now because the garbage collected might
     # de-allocate it during the next graph builder process
     b.close()
 
@@ -239,7 +246,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
         pytest.skip("Driver does not support conditional handle")
     launch(gb, LaunchConfig(grid=1, block=1), set_handle, handle, condition_value)
 
-    # # Add Node B (if condition)
+    # Add Node B (if condition)
     gb_if = gb.if_cond(handle).begin_building()
     launch(gb_if, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
     gb_if_0, gb_if_1 = gb_if.split(2)
@@ -267,7 +274,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
         assert arr[0] == 1
         assert arr[1] == 0
 
-    # Close the memroy resource now because the garbage collected might
+    # Close the memory resource now because the garbage collected might
     # de-allocate it during the next graph builder process
     b.close()
 
@@ -339,7 +346,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
         assert arr[0] == 1
         assert arr[1] == 3
 
-    # Close the memroy resource now because the garbage collected might
+    # Close the memory resource now because the garbage collected might
     # de-allocate it during the next graph builder process
     b.close()
 
@@ -430,7 +437,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
         assert arr[1] == 0
         assert arr[2] == 0
 
-    # Close the memroy resource now because the garbage collected might
+    # Close the memory resource now because the garbage collected might
     # de-allocate it during the next graph builder process
     b.close()
 
@@ -479,7 +486,7 @@ def test_graph_conditional_while(init_cuda, condition_value):
     else:
         assert arr[0] == 0
 
-    # Close the memroy resource now because the garbage collected might
+    # Close the memory resource now because the garbage collected might
     # de-allocate it during the next graph builder process
     b.close()
 
@@ -532,7 +539,7 @@ def test_graph_child_graph(init_cuda):
     assert arr[0] == 2
     assert arr[1] == 3
 
-    # Close the memroy resource now because the garbage collected might
+    # Close the memory resource now because the garbage collected might
     # de-allocate it during the next graph builder process
     b.close()
 
@@ -625,7 +632,7 @@ def test_graph_update(init_cuda):
     assert arr[1] == 3
     assert arr[2] == 3
 
-    # Close the memroy resource now because the garbage collected might
+    # Close the memory resource now because the garbage collected might
     # de-allocate it during the next graph builder process
     b.close()
 
@@ -673,7 +680,7 @@ def test_graph_dot_print_options(init_cuda, tmp_path):
     handle = gb.create_conditional_handle()
     launch(gb, LaunchConfig(grid=1, block=1), set_handle, handle, False)
 
-    # # Add Node B (if condition)
+    # Add Node B (if condition)
     gb_if = gb.if_cond(handle).begin_building()
     launch(gb_if, LaunchConfig(grid=1, block=1), empty_kernel)
     gb_if_0, gb_if_1 = gb_if.split(2)
