@@ -50,7 +50,8 @@ class LaunchConfig:
     shmem_size : int, optional
         Dynamic shared-memory size per thread block in bytes.
         (Default to size 0)
-
+    cooperative_launch : bool, optional
+        Whether this config can be used to launch a cooperative kernel.
     """
 
     # TODO: expand LaunchConfig to include other attributes

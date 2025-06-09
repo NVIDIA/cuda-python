@@ -40,6 +40,7 @@ extensions = [
     "myst_nb",
     "enum_tools.autoenum",
     "sphinx_copybutton",
+    "sphinx_toolbox.more_autodoc.autoprotocol",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

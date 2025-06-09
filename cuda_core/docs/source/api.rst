@@ -18,17 +18,16 @@ CUDA runtime
 
    Device
    launch
+   Buffer
+   MemoryResource
+   DeviceMemoryResource
+   LegacyPinnedMemoryResource
 
    :template: dataclass.rst
 
    EventOptions
    StreamOptions
    LaunchConfig
-
-   Buffer
-   MemoryResource
-   DeviceMemoryResource
-   LegacyPinnedMemoryResource
 
 
 CUDA compilation toolchain

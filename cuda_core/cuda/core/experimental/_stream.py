@@ -8,7 +8,7 @@ import os
 import warnings
 import weakref
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Optional, Protocol, Tuple, Union
 
 if TYPE_CHECKING:
     import cuda.bindings
@@ -41,6 +41,47 @@ class StreamOptions:
 
     nonblocking: bool = True
     priority: Optional[int] = None
+
+
+class IsStreamT(Protocol):
+    def __cuda_stream__(self) -> Tuple[int, int]:
+        """
+        For any Python objects that are meant to be interpreted as a CUDA stream, they
+        can do so by implementing this protocol that returns a 2-tuple: The protocol
+        version number (currently ``0``) and the address of ``cudaStream_t``. Both values
+        should be Python `int`.
+        """
+        ...
+
+
+def _try_to_get_stream_ptr(obj: IsStreamT):
+    try:
+        cuda_stream_attr = obj.__cuda_stream__
+    except AttributeError:
+        raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' attribute") from None
+
+    if callable(cuda_stream_attr):
+        info = cuda_stream_attr()
+    else:
+        info = cuda_stream_attr
+        warnings.simplefilter("once", DeprecationWarning)
+        warnings.warn(
+            "Implementing __cuda_stream__ as an attribute is deprecated; it must be implemented as a method",
+            stacklevel=3,
+            category=DeprecationWarning,
+        )
+
+    try:
+        len_info = len(info)
+    except Exception as e:
+        raise RuntimeError(f"obj.__cuda_stream__ must return a sequence with 2 elements, got {type(info)}") from e
+    if len_info != 2:
+        raise RuntimeError(f"obj.__cuda_stream__ must return a sequence with 2 elements, got {len_info} elements")
+    if info[0] != 0:
+        raise RuntimeError(
+            f"The first element of the sequence returned by obj.__cuda_stream__ must be 0, got {repr(info[0])}"
+        )
+    return driver.CUstream(info[1])
 
 
 class Stream:
@@ -107,42 +148,14 @@ class Stream:
         return self
 
     @classmethod
-    def _init(cls, obj=None, *, options: Optional[StreamOptions] = None):
+    def _init(cls, obj: Optional[IsStreamT] = None, *, options: Optional[StreamOptions] = None):
         self = super().__new__(cls)
         self._mnff = Stream._MembersNeededForFinalize(self, None, None, False)
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
         if obj is not None:
-            cuda_stream_attr = getattr(obj, "__cuda_stream__", None)
-            if cuda_stream_attr is None:
-                raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' attribute")
-            if callable(cuda_stream_attr):
-                info = cuda_stream_attr()
-            else:
-                info = cuda_stream_attr
-                warnings.simplefilter("once", DeprecationWarning)
-                warnings.warn(
-                    "Implementing __cuda_stream__ as an attribute is deprecated; it must be implemented as a method",
-                    stacklevel=3,
-                    category=DeprecationWarning,
-                )
-            try:
-                len_info = len(info)
-            except Exception as e:
-                raise RuntimeError(
-                    f"obj.__cuda_stream__ must return a sequence with 2 elements, got {type(info)}"
-                ) from e
-            if len_info != 2:
-                raise RuntimeError(
-                    f"obj.__cuda_stream__ must return a sequence with 2 elements, got {len_info} elements"
-                )
-            if info[0] != 0:
-                raise RuntimeError(
-                    f"The first element of the sequence returned by obj.__cuda_stream__ must be 0, got {repr(info[0])}"
-                )
-
-            self._mnff.handle = driver.CUstream(info[1])
+            self._mnff.handle = _try_to_get_stream_ptr(obj)
             # TODO: check if obj is created under the current context/device
             self._mnff.owner = obj
             self._nonblocking = None  # delayed

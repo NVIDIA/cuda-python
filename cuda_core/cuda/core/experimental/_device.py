@@ -8,7 +8,7 @@ from typing import Optional, Union
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
-from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
+from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     ComputeCapability,
@@ -1206,7 +1206,7 @@ class Device:
         raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
     @precondition(_check_context_initialized)
-    def create_stream(self, obj=None, options: StreamOptions = None) -> Stream:
+    def create_stream(self, obj: Optional[IsStreamT] = None, options: StreamOptions = None) -> Stream:
         """Create a Stream object.
 
         New stream objects can be created in two different ways:
@@ -1258,7 +1258,7 @@ class Device:
         return Event._init(self._id, self.context._handle, options)
 
     @precondition(_check_context_initialized)
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size, stream: Optional[Stream] = None) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
