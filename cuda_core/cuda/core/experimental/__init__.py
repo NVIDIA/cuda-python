@@ -5,7 +5,7 @@
 from cuda.core.experimental import utils
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._graph import CompleteOptions, DebugPrintOptions, Graph, GraphBuilder, launch_graph
+from cuda.core.experimental._graph import GraphCompleteOptions, GraphDebugPrintOptions, Graph, GraphBuilder, launch_graph
 from cuda.core.experimental._launch_config import LaunchConfig
 from cuda.core.experimental._launcher import launch
 from cuda.core.experimental._linker import Linker, LinkerOptions

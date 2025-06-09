@@ -33,7 +33,7 @@ def _lazy_init():
 
 
 @dataclass
-class DebugPrintOptions:
+class GraphDebugPrintOptions:
     """Customizable options for :obj:`_graph.GraphBuilder.debug_dot_print()`
 
     Attributes
@@ -92,7 +92,7 @@ class DebugPrintOptions:
 
 
 @dataclass
-class CompleteOptions:
+class GraphCompleteOptions:
     """Customizable options for :obj:`_graph.GraphBuilder.complete()`
 
     Attributes
@@ -262,12 +262,12 @@ class GraphBuilder:
         self._building_ended = True
         return self
 
-    def complete(self, options: Optional[CompleteOptions] = None) -> Graph:
+    def complete(self, options: Optional[GraphCompleteOptions] = None) -> Graph:
         """Completes the graph builder and returns the built :obj:`~_graph.Graph` object.
 
         Parameters
         ----------
-        options : :obj:`~_graph.CompleteOptions`, optional
+        options : :obj:`~_graph.GraphCompleteOptions`, optional
             Customizable dataclass for the graph builder completion options.
 
         Returns
@@ -324,14 +324,14 @@ class GraphBuilder:
             raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
         return graph
 
-    def debug_dot_print(self, path, options: Optional[DebugPrintOptions] = None):
+    def debug_dot_print(self, path, options: Optional[GraphDebugPrintOptions] = None):
         """Generates a DOT debug file for the graph builder.
 
         Parameters
         ----------
         path : str
             File path to use for writting debug DOT output
-        options : :obj:`~_graph.DebugPrintOptions`, optional
+        options : :obj:`~_graph.GraphDebugPrintOptions`, optional
             Customizable dataclass for the debug print options.
 
         """
@@ -767,12 +767,6 @@ def launch_graph(parent_graph: GraphBuilder, child_graph: GraphBuilder):
 
     if not parent_graph.is_building:
         raise ValueError("Parent graph is being built.")
-
-    status, _, graph_out, dependencies_out, num_dependencies_out = handle_return(
-        driver.cuStreamGetCaptureInfo(parent_graph.stream.handle)
-    )
-    if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
-        raise ValueError("Parent graph is not in an active capture state")
 
     child_node = handle_return(
         driver.cuGraphAddChildGraphNode(graph_out, dependencies_out, num_dependencies_out, child_graph._mnff.graph)

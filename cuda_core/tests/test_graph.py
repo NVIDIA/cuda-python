@@ -10,8 +10,8 @@ try:
 except ImportError:
     from cuda import nvrtc
 from cuda.core.experimental import (
-    CompleteOptions,
-    DebugPrintOptions,
+    GraphCompleteOptions,
+    GraphDebugPrintOptions,
     Device,
     GraphBuilder,
     LaunchConfig,
@@ -690,7 +690,7 @@ def test_graph_dot_print_options(init_cuda, tmp_path):
 
     # Print using all options
     path = bytes(str(tmp_path / "vlad.dot"), "utf-8")
-    options = DebugPrintOptions(**{field: True for field in DebugPrintOptions.__dataclass_fields__})
+    options = GraphDebugPrintOptions(**{field: True for field in GraphDebugPrintOptions.__dataclass_fields__})
     gb.debug_dot_print(path, options)
 
 
@@ -706,13 +706,13 @@ def test_graph_complete_options(init_cuda):
     launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
     gb.end_building()
 
-    options = CompleteOptions(auto_free_on_launch=True)
+    options = GraphCompleteOptions(auto_free_on_launch=True)
     gb.complete(options).close()
-    options = CompleteOptions(upload_stream=launch_stream)
+    options = GraphCompleteOptions(upload_stream=launch_stream)
     gb.complete(options).close()
-    options = CompleteOptions(device_launch=True)
+    options = GraphCompleteOptions(device_launch=True)
     gb.complete(options).close()
-    options = CompleteOptions(use_node_priority=True)
+    options = GraphCompleteOptions(use_node_priority=True)
     gb.complete(options).close()
 
 
