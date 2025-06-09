@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import weakref
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from cuda.core.experimental._stream import Stream
@@ -165,7 +165,7 @@ class GraphBuilder:
     def __init__(self):
         raise NotImplementedError(
             "directly creating a Graph object can be ambiguous. Please either "
-            "call Device.create_graph_builder() or stream.creating_graph_builder()"
+            "call Device.create_graph_builder() or stream.create_graph_builder()"
         )
 
     @classmethod
@@ -374,7 +374,7 @@ class GraphBuilder:
 
         handle_return(driver.cuGraphDebugDotPrint(self._mnff.graph, path, flags))
 
-    def split(self, count) -> Tuple[GraphBuilder, ...]:
+    def split(self, count: int) -> tuple[GraphBuilder, ...]:
         """Splits the original graph builder into multiple graph builders.
 
         The new builders inherit work dependencies from the original builder.
@@ -387,7 +387,7 @@ class GraphBuilder:
 
         Returns
         -------
-        graph_builders : Tuple[:obj:`~_graph.GraphBuilder`, ...]
+        graph_builders : tuple[:obj:`~_graph.GraphBuilder`, ...]
             A tuple of split graph builders. The first graph builder in the tuple
             is always the original graph builder.
 
@@ -423,7 +423,7 @@ class GraphBuilder:
             The newly joined graph builder.
 
         """
-        if not all(isinstance(builder, GraphBuilder) for builder in graph_builders):
+        if any(not isinstance(builder, GraphBuilder) for builder in graph_builders):
             raise TypeError("All arguments must be GraphBuilder instances")
         if len(graph_builders) < 2:
             raise ValueError("Must join with at least two graph builders")
@@ -436,15 +436,16 @@ class GraphBuilder:
                 break
 
         # Join all onto the root builder
+        root_bdr = graph_builders[root_idx]
         for idx, builder in enumerate(graph_builders):
             if idx == root_idx:
                 continue
-            graph_builders[root_idx].stream.wait(builder.stream)
+            root_bdr.stream.wait(builder.stream)
             builder.close()
 
-        return graph_builders[root_idx]
+        return root_bdr
 
-    def __cuda_stream__(self) -> Tuple[int, int]:
+    def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
         return self.stream.__cuda_stream__()
 
@@ -555,7 +556,7 @@ class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return self._cond_with_params(node_params)[0]
 
-    def if_else(self, handle: int) -> Tuple[GraphBuilder, GraphBuilder]:
+    def if_else(self, handle: int) -> tuple[GraphBuilder, GraphBuilder]:
         """Adds an if-else condition branch and returns new graph builders for both branches.
 
         The resulting if graph will execute the branch if the conditional handle
@@ -570,7 +571,7 @@ class GraphBuilder:
 
         Returns
         -------
-        graph_builders : Tuple[:obj:`~_graph.GraphBuilder`, :obj:`~_graph.GraphBuilder`]
+        graph_builders : tuple[:obj:`~_graph.GraphBuilder`, :obj:`~_graph.GraphBuilder`]
             A tuple of two new graph builders, one for the if branch and one for the else branch.
 
         """
@@ -586,7 +587,7 @@ class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return self._cond_with_params(node_params)
 
-    def switch(self, handle: int, count: int) -> Tuple[GraphBuilder, ...]:
+    def switch(self, handle: int, count: int) -> tuple[GraphBuilder, ...]:
         """Adds a switch condition branch and returns new graph builders for all cases.
 
         The resulting switch graph will execute the branch that matches the
@@ -604,7 +605,7 @@ class GraphBuilder:
 
         Returns
         -------
-        graph_builders : Tuple[:obj:`~_graph.GraphBuilder`, ...]
+        graph_builders : tuple[:obj:`~_graph.GraphBuilder`, ...]
             A tuple of new graph builders, one for each branch.
 
         """

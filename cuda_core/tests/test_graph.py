@@ -244,7 +244,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
     launch(gb_if, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
     gb_if_0, gb_if_1 = gb_if.split(2)
     launch(gb_if_0, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
-    launch(gb_if_1, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
+    launch(gb_if_1, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
     gb_if = GraphBuilder.join(gb_if_0, gb_if_1)
     launch(gb_if, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
     gb_if.end_building()
@@ -309,16 +309,16 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
     launch(gb_if, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
     gb_if_0, gb_if_1 = gb_if.split(2)
     launch(gb_if_0, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
-    launch(gb_if_1, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
+    launch(gb_if_1, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
     gb_if = GraphBuilder.join(gb_if_0, gb_if_1)
     launch(gb_if, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
     gb_if.end_building()
 
     ## ELSE nodes
     gb_else = gb_else.begin_building()
-    launch(gb_else, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
-    launch(gb_else, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
-    launch(gb_else, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
+    launch(gb_else, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
+    launch(gb_else, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
+    launch(gb_else, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
     gb_else.end_building()
 
     # Add Node C (...)
@@ -386,18 +386,18 @@ def test_graph_conditional_switch(init_cuda, condition_value):
 
     ## Case 1
     gb_case[1].begin_building()
-    launch(gb_case[1], LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
+    launch(gb_case[1], LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
     gb_case_1_left, gb_case_1_right = gb_case[1].split(2)
-    launch(gb_case_1_left, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
-    launch(gb_case_1_right, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 8)
+    launch(gb_case_1_left, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
+    launch(gb_case_1_right, LaunchConfig(grid=1, block=1), add_one, arr[2:].ctypes.data)
     gb_case[1] = GraphBuilder.join(gb_case_1_left, gb_case_1_right)
     gb_case[1].end_building()
 
     ## Case 2
     gb_case[2].begin_building()
-    launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 8)
-    launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 8)
-    launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 8)
+    launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr[2:].ctypes.data)
+    launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr[2:].ctypes.data)
+    launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr[2:].ctypes.data)
     gb_case[2].end_building()
 
     # Add Node C (...)
@@ -499,9 +499,9 @@ def test_graph_child_graph(init_cuda):
 
     # Capture the child graph
     gb_child = Device().create_graph_builder().begin_building()
-    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
-    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
-    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
+    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
+    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
+    launch(gb_child, LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
     gb_child.end_building()
 
     # Capture the parent graph
@@ -576,16 +576,16 @@ def test_graph_update(init_cuda):
 
         ## Case 1
         gb_case[1].begin_building()
-        launch(gb_case[1], LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
-        launch(gb_case[1], LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
-        launch(gb_case[1], LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 4)
+        launch(gb_case[1], LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
+        launch(gb_case[1], LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
+        launch(gb_case[1], LaunchConfig(grid=1, block=1), add_one, arr[1:].ctypes.data)
         gb_case[1].end_building()
 
         ## Case 2
         gb_case[2].begin_building()
-        launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 8)
-        launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 8)
-        launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data + 8)
+        launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr[2:].ctypes.data)
+        launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr[2:].ctypes.data)
+        launch(gb_case[2], LaunchConfig(grid=1, block=1), add_one, arr[2:].ctypes.data)
         gb_case[2].end_building()
 
         return gb.end_building()
