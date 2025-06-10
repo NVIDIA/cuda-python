@@ -47,8 +47,8 @@ class StreamOptions:
 class IsStreamT(Protocol):
     def __cuda_stream__(self) -> Tuple[int, int]:
         """
-        For any Python objects that are meant to be interpreted as a CUDA stream, they
-        can do so by implementing this protocol that returns a 2-tuple: The protocol
+        For any Python object that is meant to be interpreted as a CUDA stream, the intent
+        can be communicated by implementing this protocol that returns a 2-tuple: The protocol
         version number (currently ``0``) and the address of ``cudaStream_t``. Both values
         should be Python `int`.
         """
