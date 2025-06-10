@@ -674,7 +674,7 @@ class GraphBuilder:
             raise ValueError("Child graph has not finished building.")
 
         if not self.is_building:
-            raise ValueError("Parent graph is being built.")
+            raise ValueError("Parent graph is not being built.")
 
         stream_handle = self._mnff.stream.handle
         _, _, graph_out, dependencies_out, num_dependencies_out = handle_return(
