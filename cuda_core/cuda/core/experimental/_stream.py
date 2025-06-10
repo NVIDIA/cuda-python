@@ -73,7 +73,7 @@ def _try_to_get_stream_ptr(obj: IsStreamT):
 
     try:
         len_info = len(info)
-    except Exception as e:
+    except TypeError as e:
         raise RuntimeError(f"obj.__cuda_stream__ must return a sequence with 2 elements, got {type(info)}") from e
     if len_info != 2:
         raise RuntimeError(f"obj.__cuda_stream__ must return a sequence with 2 elements, got {len_info} elements")
