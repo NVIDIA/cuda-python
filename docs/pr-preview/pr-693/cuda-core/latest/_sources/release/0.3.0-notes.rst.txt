@@ -11,7 +11,10 @@ Released on MM DD, 2025
 Highlights
 ----------
 
-- Starting this release ``cuda.core`` is licensed under Apache 2.0. The biggest implication of this change is that we are open to external contribution now! Please kindly follow the :ref:`Contributor Guide <contributer_guide>` for detailed instructions.
+- Starting this release ``cuda.core`` is licensed under Apache 2.0. The biggest implication of this change is that we are open to external contribution now! Please kindly follow the :ref:`Contributor Guide <contributor_guide>` for detailed instructions.
+- Initial support for CUDA graphs (phase 1).
+   - In this release, we support building a CUDA graph that captures kernel launches. The captured graph can be replayed to reduce
+     latency. Graph split/join and conditional nodes are supported.
 
 
 Breaking Changes

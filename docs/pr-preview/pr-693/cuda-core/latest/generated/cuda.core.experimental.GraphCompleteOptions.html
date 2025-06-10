@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
-        <link rel="canonical" href="docs/generated/cuda.core.experimental._module.ParamInfo.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cuda.core.experimental.GraphDebugPrintOptions" href="cuda.core.experimental.GraphDebugPrintOptions.html" /><link rel="prev" title="cuda.core.experimental.EventOptions" href="cuda.core.experimental.EventOptions.html" />
+        <link rel="canonical" href="docs/generated/cuda.core.experimental.GraphCompleteOptions.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>cuda.core.experimental._module.ParamInfo - cuda.core 0.2.0 documentation</title>
+        <title>cuda.core.experimental.GraphCompleteOptions - cuda.core 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -210,7 +210,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
@@ -220,7 +220,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
@@ -230,7 +230,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.StreamOptions.html">cuda.core.experimental.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
@@ -288,7 +288,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/generated/cuda.core.experimental._module.ParamInfo.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/generated/cuda.core.experimental.GraphCompleteOptions.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -308,31 +308,59 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="cuda-core-experimental-module-paraminfo">
-<h1>cuda.core.experimental._module.ParamInfo<a class="headerlink" href="#cuda-core-experimental-module-paraminfo" title="Link to this heading">¶</a></h1>
+          <section id="cuda-core-experimental-graphcompleteoptions">
+<h1>cuda.core.experimental.GraphCompleteOptions<a class="headerlink" href="#cuda-core-experimental-graphcompleteoptions" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.ParamInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._module.</span></span><span class="sig-name descname"><span class="pre">ParamInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.ParamInfo" title="Link to this definition">¶</a></dt>
-<dd><p class="rubric">Methods</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.ParamInfo.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.ParamInfo.__init__" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.ParamInfo.count">
-<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.ParamInfo.count" title="Link to this definition">¶</a></dt>
-<dd><p>Return number of occurrences of value.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.GraphCompleteOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">GraphCompleteOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auto_free_on_launch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_launch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_node_priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.GraphCompleteOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Customizable options for <code class="xref py py-obj docutils literal notranslate"><span class="pre">_graph.GraphBuilder.complete()</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.GraphCompleteOptions.auto_free_on_launch">
+<span class="sig-name descname"><span class="pre">auto_free_on_launch</span></span><a class="headerlink" href="#cuda.core.experimental.GraphCompleteOptions.auto_free_on_launch" title="Link to this definition">¶</a></dt>
+<dd><p>Automatically free memory allocated in a graph before relaunching. (Default to False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._module.ParamInfo.index">
-<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9223372036854775807</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._module.ParamInfo.index" title="Link to this definition">¶</a></dt>
-<dd><p>Return first index of value.</p>
-<p>Raises ValueError if the value is not present.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.GraphCompleteOptions.upload_stream">
+<span class="sig-name descname"><span class="pre">upload_stream</span></span><a class="headerlink" href="#cuda.core.experimental.GraphCompleteOptions.upload_stream" title="Link to this definition">¶</a></dt>
+<dd><p>Stream to use to automatically upload the graph after completion. (Default to None)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream">Stream</a>, optional</p>
+</dd>
+</dl>
 </dd></dl>
 
-<p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.GraphCompleteOptions.device_launch">
+<span class="sig-name descname"><span class="pre">device_launch</span></span><a class="headerlink" href="#cuda.core.experimental.GraphCompleteOptions.device_launch" title="Link to this definition">¶</a></dt>
+<dd><p>Configure the graph to be launchable from the device. This flag can only
+be used on platforms which support unified addressing. This flag cannot be
+used in conjunction with auto_free_on_launch. (Default to False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.GraphCompleteOptions.use_node_priority">
+<span class="sig-name descname"><span class="pre">use_node_priority</span></span><a class="headerlink" href="#cuda.core.experimental.GraphCompleteOptions.use_node_priority" title="Link to this definition">¶</a></dt>
+<dd><p>Run the graph using the per-node priority attributes rather than the
+priority of the stream it is launched into. (Default to False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -342,8 +370,26 @@
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="cuda.core.experimental.GraphDebugPrintOptions.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">cuda.core.experimental.GraphDebugPrintOptions</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="cuda.core.experimental.EventOptions.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">cuda.core.experimental.EventOptions</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -374,11 +420,12 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">cuda.core.experimental._module.ParamInfo</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental._module.ParamInfo"><code class="docutils literal notranslate"><span class="pre">ParamInfo</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental._module.ParamInfo.__init__"><code class="docutils literal notranslate"><span class="pre">ParamInfo.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.ParamInfo.count"><code class="docutils literal notranslate"><span class="pre">ParamInfo.count()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._module.ParamInfo.index"><code class="docutils literal notranslate"><span class="pre">ParamInfo.index()</span></code></a></li>
+<li><a class="reference internal" href="#">cuda.core.experimental.GraphCompleteOptions</a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.GraphCompleteOptions"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.GraphCompleteOptions.auto_free_on_launch"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.auto_free_on_launch</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.GraphCompleteOptions.upload_stream"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.upload_stream</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.GraphCompleteOptions.device_launch"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.device_launch</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.GraphCompleteOptions.use_node_priority"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.use_node_priority</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -1,6 +1,6 @@
 .. SPDX-License-Identifier: Apache-2.0
 
-.. _contributer_guide:
+.. _contributor_guide:
 
 Contributing
 ------------
