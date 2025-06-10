@@ -16,6 +16,7 @@ import ctypes
 import numpy
 
 from cuda.core.experimental._memory import Buffer
+from cuda.core.experimental._utils.cuda_utils import driver
 
 
 ctypedef cpp_complex.complex[float] cpp_single_complex
@@ -235,6 +236,10 @@ cdef class ParamHolder:
             if not_prepared:
                 not_prepared = prepare_ctypes_arg(self.data, self.data_addresses, arg, i)
             if not_prepared:
+                # TODO: revisit this treatment if we decide to cythonize cuda.core
+                if isinstance(arg, driver.CUgraphConditionalHandle):
+                    prepare_arg[intptr_t](self.data, self.data_addresses, <intptr_t>int(arg), i)
+                    continue
                 # TODO: support ctypes/numpy struct
                 raise TypeError("the argument is of unsupported type: " + str(type(arg)))
 

@@ -11,6 +11,9 @@ Highlights
 ----------
 
 - Starting this release ``cuda.core`` is licensed under Apache 2.0.
+- Initial support for CUDA graphs (phase 1).
+   - In this release, we support building a CUDA graph that captures kernel launches. The captured graph can be replayed to reduce
+     latency. Graph split/join and conditional nodes are supported.
 
 
 Breaking Changes

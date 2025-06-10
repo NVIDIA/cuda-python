@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from cuda.core.experimental._device import Device
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
+from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     check_or_create_options,
@@ -341,6 +342,19 @@ class Stream:
                 return (0, handle)
 
         return Stream._init(obj=_stream_holder())
+
+    def create_graph_builder(self) -> GraphBuilder:
+        """Create a new :obj:`~_graph.GraphBuilder` object.
+
+        The new graph builder will be associated with this stream.
+
+        Returns
+        -------
+        :obj:`~_graph.GraphBuilder`
+            Newly created graph builder object.
+
+        """
+        return GraphBuilder._init(stream=self, is_stream_owner=False)
 
 
 LEGACY_DEFAULT_STREAM = Stream._legacy_default()
