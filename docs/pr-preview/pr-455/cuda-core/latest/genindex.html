@@ -220,8 +220,12 @@
 <li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.StreamOptions.html">cuda.core.experimental.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
@@ -295,7 +299,7 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a></div>
 </section>
 <section id="_" class="genindex-section">
   <h2>_</h2>
@@ -324,6 +328,10 @@
 </li>
           <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.__init__">(cuda.core.experimental.Device method)</a>
 </li>
+          <li><a href="generated/cuda.core.experimental.Graph.html#cuda.core.experimental.Graph.__init__">(cuda.core.experimental.Graph method)</a>
+</li>
+          <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.__init__">(cuda.core.experimental.GraphBuilder method)</a>
+</li>
           <li><a href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker.__init__">(cuda.core.experimental.Linker method)</a>
 </li>
           <li><a href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode.__init__">(cuda.core.experimental.ObjectCode method)</a>
@@ -339,6 +347,8 @@
   <h2>A</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.add_child">add_child() (cuda.core.experimental.GraphBuilder method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.allocate">allocate() (cuda.core.experimental.Device method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions.arch">arch (cuda.core.experimental.LinkerOptions attribute)</a>
@@ -354,6 +364,8 @@
         <li><a href="generated/cuda.core.experimental._module.Kernel.html#cuda.core.experimental._module.Kernel.arguments_info">arguments_info (cuda.core.experimental._module.Kernel property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._module.Kernel.html#cuda.core.experimental._module.Kernel.attributes">attributes (cuda.core.experimental._module.Kernel property)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphCompleteOptions.html#cuda.core.experimental.GraphCompleteOptions.auto_free_on_launch">auto_free_on_launch (cuda.core.experimental.GraphCompleteOptions attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._module.KernelOccupancy.html#cuda.core.experimental._module.KernelOccupancy.available_dynamic_shared_memory_per_block">available_dynamic_shared_memory_per_block() (cuda.core.experimental._module.KernelOccupancy method)</a>
 </li>
@@ -371,6 +383,10 @@
           <li><a href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program.backend">(cuda.core.experimental.Program property)</a>
 </li>
         </ul></li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.batch_mem_op_node_params">batch_mem_op_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.begin_building">begin_building() (cuda.core.experimental.GraphBuilder method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.binary_version">binary_version() (cuda.core.experimental._module.KernelAttributes method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._launch_config.LaunchConfig.html#cuda.core.experimental._launch_config.LaunchConfig.block">block (cuda.core.experimental._launch_config.LaunchConfig attribute)</a>
@@ -414,6 +430,10 @@
 </li>
           <li><a href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream.close">(cuda.core.experimental._stream.Stream method)</a>
 </li>
+          <li><a href="generated/cuda.core.experimental.Graph.html#cuda.core.experimental.Graph.close">(cuda.core.experimental.Graph method)</a>
+</li>
+          <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.close">(cuda.core.experimental.GraphBuilder method)</a>
+</li>
           <li><a href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker.close">(cuda.core.experimental.Linker method)</a>
 </li>
           <li><a href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program.close">(cuda.core.experimental.Program method)</a>
@@ -437,21 +457,25 @@
         </ul></li>
         <li><a href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program.compile">compile() (cuda.core.experimental.Program method)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.complete">complete() (cuda.core.experimental.GraphBuilder method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.compute_capability">compute_capability (cuda.core.experimental.Device property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.compute_capability_major">compute_capability_major (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.compute_capability_minor">compute_capability_minor (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
-        <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.compute_mode">compute_mode (cuda.core.experimental._device.DeviceProperties property)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.compute_mode">compute_mode (cuda.core.experimental._device.DeviceProperties property)</a>
+</li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.compute_preemption_supported">compute_preemption_supported (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.concurrent_kernels">concurrent_kernels (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.concurrent_managed_access">concurrent_managed_access (cuda.core.experimental._device.DeviceProperties property)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.conditional_node_params">conditional_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.const_size_bytes">const_size_bytes() (cuda.core.experimental._module.KernelAttributes method)</a>
 </li>
@@ -470,6 +494,8 @@
         <li><a href="generated/cuda.core.experimental._memory.Buffer.html#cuda.core.experimental._memory.Buffer.copy_to">copy_to() (cuda.core.experimental._memory.Buffer method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._module.ParamInfo.html#cuda.core.experimental._module.ParamInfo.count">count() (cuda.core.experimental._module.ParamInfo method)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.create_conditional_handle">create_conditional_handle() (cuda.core.experimental.GraphBuilder method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.create_context">create_context() (cuda.core.experimental.Device method)</a>
 </li>
@@ -511,6 +537,8 @@
           <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.debug">(cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
         </ul></li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.debug_dot_print">debug_dot_print() (cuda.core.experimental.GraphBuilder method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.default_stream">default_stream (cuda.core.experimental.Device property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.deferred_mapping_cuda_array_supported">deferred_mapping_cuda_array_supported (cuda.core.experimental._device.DeviceProperties property)</a>
@@ -540,6 +568,8 @@
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.device_int128">device_int128 (cuda.core.experimental.ProgramOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphCompleteOptions.html#cuda.core.experimental.GraphCompleteOptions.device_launch">device_launch (cuda.core.experimental.GraphCompleteOptions attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties">DeviceProperties (class in cuda.core.experimental._device)</a>
 </li>
@@ -571,17 +601,27 @@
 </li>
         <li><a href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions.enable_timing">enable_timing (cuda.core.experimental.EventOptions attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.end_building">end_building() (cuda.core.experimental.GraphBuilder method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event">Event (class in cuda.core.experimental._event)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.event_node_params">event_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions">EventOptions (class in cuda.core.experimental)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions">EventOptions (class in cuda.core.experimental)</a>
-</li>
         <li><a href="generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.exporting_obj">exporting_obj (cuda.core.experimental.utils.StridedMemoryView attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.ext_semas_signal_node_params">ext_semas_signal_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.ext_semas_wait_node_params">ext_semas_wait_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.extensible_whole_program">extensible_whole_program (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.extra_device_vectorization">extra_device_vectorization (cuda.core.experimental.ProgramOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.extra_topo_info">extra_topo_info (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -669,12 +709,12 @@
         </ul></li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.global_l1_cache_supported">global_l1_cache_supported (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.global_memory_bus_width">global_memory_bus_width (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_flush_writes_options">gpu_direct_rdma_flush_writes_options (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_supported">gpu_direct_rdma_supported (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported">gpu_direct_rdma_with_cuda_vmm_supported (cuda.core.experimental._device.DeviceProperties property)</a>
@@ -682,6 +722,14 @@
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.gpu_direct_rdma_writes_ordering">gpu_direct_rdma_writes_ordering (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.gpu_overlap">gpu_overlap (cuda.core.experimental._device.DeviceProperties property)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.Graph.html#cuda.core.experimental.Graph">Graph (class in cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder">GraphBuilder (class in cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphCompleteOptions.html#cuda.core.experimental.GraphCompleteOptions">GraphCompleteOptions (class in cuda.core.experimental)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions">GraphDebugPrintOptions (class in cuda.core.experimental)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._launch_config.LaunchConfig.html#cuda.core.experimental._launch_config.LaunchConfig.grid">grid (cuda.core.experimental._launch_config.LaunchConfig attribute)</a>
 
@@ -721,7 +769,11 @@
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.handle_type_win32_kmt_handle_supported">handle_type_win32_kmt_handle_supported (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.handles">handles (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
+</li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.host_native_atomic_supported">host_native_atomic_supported (cuda.core.experimental._device.DeviceProperties property)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.host_node_params">host_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -731,11 +783,17 @@
   <h2>I</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.if_cond">if_cond() (cuda.core.experimental.GraphBuilder method)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.if_else">if_else() (cuda.core.experimental.GraphBuilder method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.include_path">include_path (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._module.ParamInfo.html#cuda.core.experimental._module.ParamInfo.index">index() (cuda.core.experimental._module.ParamInfo method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.integrated">integrated (cuda.core.experimental._device.DeviceProperties property)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.is_building">is_building (cuda.core.experimental.GraphBuilder property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._memory.Buffer.html#cuda.core.experimental._memory.Buffer.is_device_accessible">is_device_accessible (cuda.core.experimental._memory.Buffer property)</a>
 
@@ -751,11 +809,23 @@
 </li>
         <li><a href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event.is_ipc_supported">is_ipc_supported (cuda.core.experimental._event.Event property)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.is_join_required">is_join_required (cuda.core.experimental.GraphBuilder property)</a>
+</li>
         <li><a href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream.is_nonblocking">is_nonblocking (cuda.core.experimental._stream.Stream property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event.is_sync_busy_waited">is_sync_busy_waited (cuda.core.experimental._event.Event property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event.is_timing_disabled">is_timing_disabled (cuda.core.experimental._event.Event property)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="J" class="genindex-section">
+  <h2>J</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.join">join() (cuda.core.experimental.GraphBuilder static method)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -769,8 +839,12 @@
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.kernel_exec_timeout">kernel_exec_timeout (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.kernel_node_attributes">kernel_node_attributes (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.kernel_node_params">kernel_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
+</li>
         <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes">KernelAttributes (class in cuda.core.experimental._module)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._module.KernelOccupancy.html#cuda.core.experimental._module.KernelOccupancy">KernelOccupancy (class in cuda.core.experimental._module)</a>
@@ -787,8 +861,12 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.l2_cache_size">l2_cache_size (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
-        <li><a href="generated/cuda.core.experimental.launch.html#cuda.core.experimental.launch">launch() (in module cuda.core.experimental)</a>
+        <li><a href="generated/cuda.core.experimental.Graph.html#cuda.core.experimental.Graph.launch">launch() (cuda.core.experimental.Graph method)</a>
+
+        <ul>
+          <li><a href="generated/cuda.core.experimental.launch.html#cuda.core.experimental.launch">(in module cuda.core.experimental)</a>
 </li>
+        </ul></li>
         <li><a href="generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig">LaunchConfig (class in cuda.core.experimental)</a>
 
         <ul>
@@ -907,12 +985,12 @@
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_layered_width">maximum_surfacecubemap_layered_width (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.maximum_surfacecubemap_width">maximum_surfacecubemap_width (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_layered_layers">maximum_texture1d_layered_layers (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_layered_width">maximum_texture1d_layered_width (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.maximum_texture1d_linear_width">maximum_texture1d_linear_width (cuda.core.experimental._device.DeviceProperties property)</a>
@@ -961,6 +1039,12 @@
 </li>
         <li><a href="generated/cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult.html#cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult">MaxPotentialBlockSizeOccupancyResult (in module cuda.core.experimental._module)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.mem_alloc_node_params">mem_alloc_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.mem_free_node_params">mem_free_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.memcpy_node_params">memcpy_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
+</li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.memory_clock_rate">memory_clock_rate (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.memory_pools_supported">memory_pools_supported (cuda.core.experimental._device.DeviceProperties property)</a>
@@ -972,6 +1056,8 @@
 </li>
         </ul></li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.mempool_supported_handle_types">mempool_supported_handle_types (cuda.core.experimental._device.DeviceProperties property)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.memset_node_params">memset_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.minimal">minimal (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
@@ -1140,10 +1226,10 @@
 </li>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.relocatable_device_code">relocatable_device_code (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.required_cluster_depth">required_cluster_depth() (cuda.core.experimental._module.KernelAttributes method)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.required_cluster_height">required_cluster_height() (cuda.core.experimental._module.KernelAttributes method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.required_cluster_width">required_cluster_width() (cuda.core.experimental._module.KernelAttributes method)</a>
@@ -1151,6 +1237,8 @@
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.reserved_shared_memory_per_block">reserved_shared_memory_per_block (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.restrict">restrict (cuda.core.experimental.ProgramOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.runtime_types">runtime_types (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -1178,6 +1266,8 @@
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.sparse_cuda_array_supported">sparse_cuda_array_supported (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.split">split() (cuda.core.experimental.GraphBuilder method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions.split_compile">split_compile (cuda.core.experimental.LinkerOptions attribute)</a>
 
         <ul>
@@ -1186,11 +1276,13 @@
         </ul></li>
         <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions.split_compile_extended">split_compile_extended (cuda.core.experimental.LinkerOptions attribute)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.std">std (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream">Stream (class in cuda.core.experimental._stream)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.stream">stream (cuda.core.experimental.GraphBuilder property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions">StreamOptions (class in cuda.core.experimental)</a>
 </li>
@@ -1199,6 +1291,8 @@
         <li><a href="generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.strides">strides (cuda.core.experimental.utils.StridedMemoryView attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions.support_ipc">support_ipc (cuda.core.experimental.EventOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.switch">switch() (cuda.core.experimental.GraphBuilder method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event.sync">sync() (cuda.core.experimental._event.Event method)</a>
 
@@ -1250,9 +1344,17 @@
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.unified_addressing">unified_addressing (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.Graph.html#cuda.core.experimental.Graph.update">update() (cuda.core.experimental.Graph method)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.Graph.html#cuda.core.experimental.Graph.upload">upload() (cuda.core.experimental.Graph method)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental.GraphCompleteOptions.html#cuda.core.experimental.GraphCompleteOptions.upload_stream">upload_stream (cuda.core.experimental.GraphCompleteOptions attribute)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.use_fast_math">use_fast_math (cuda.core.experimental.ProgramOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphCompleteOptions.html#cuda.core.experimental.GraphCompleteOptions.use_node_priority">use_node_priority (cuda.core.experimental.GraphCompleteOptions attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.uuid">uuid (cuda.core.experimental.Device property)</a>
 </li>
@@ -1266,10 +1368,14 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions.variables_used">variables_used (cuda.core.experimental.LinkerOptions attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.verbose">verbose (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
+
+        <ul>
+          <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions.verbose">(cuda.core.experimental.LinkerOptions attribute)</a>
+</li>
+        </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions.verbose">verbose (cuda.core.experimental.LinkerOptions attribute)</a>
-</li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.virtual_memory_management_supported">virtual_memory_management_supported (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
     </ul></td>
@@ -1285,6 +1391,8 @@
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.warp_size">warp_size (cuda.core.experimental._device.DeviceProperties property)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.while_loop">while_loop() (cuda.core.experimental.GraphBuilder method)</a>
 </li>
     </ul></td>
   </tr></table>

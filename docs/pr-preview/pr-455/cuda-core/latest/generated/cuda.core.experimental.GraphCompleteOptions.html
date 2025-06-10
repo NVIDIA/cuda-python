@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cuda.core.experimental.Program" href="cuda.core.experimental.Program.html" /><link rel="prev" title="cuda.core.experimental.StreamOptions" href="cuda.core.experimental.StreamOptions.html" />
-        <link rel="canonical" href="docs/generated/cuda.core.experimental.LaunchConfig.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cuda.core.experimental.GraphDebugPrintOptions" href="cuda.core.experimental.GraphDebugPrintOptions.html" /><link rel="prev" title="cuda.core.experimental.EventOptions" href="cuda.core.experimental.EventOptions.html" />
+        <link rel="canonical" href="docs/generated/cuda.core.experimental.GraphCompleteOptions.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>cuda.core.experimental.LaunchConfig - cuda.core 0.2.0 documentation</title>
+        <title>cuda.core.experimental.GraphCompleteOptions - cuda.core 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -226,10 +226,10 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.StreamOptions.html">cuda.core.experimental.StreamOptions</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cuda.core.experimental.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
@@ -284,7 +284,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/generated/cuda.core.experimental.LaunchConfig.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/generated/cuda.core.experimental.GraphCompleteOptions.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -304,57 +304,55 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="cuda-core-experimental-launchconfig">
-<h1>cuda.core.experimental.LaunchConfig<a class="headerlink" href="#cuda-core-experimental-launchconfig" title="Link to this heading">¶</a></h1>
+          <section id="cuda-core-experimental-graphcompleteoptions">
+<h1>cuda.core.experimental.GraphCompleteOptions<a class="headerlink" href="#cuda-core-experimental-graphcompleteoptions" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">LaunchConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shmem_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooperative_launch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig" title="Link to this definition">¶</a></dt>
-<dd><p>Customizable launch options.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.GraphCompleteOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">GraphCompleteOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auto_free_on_launch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_launch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_node_priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.GraphCompleteOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Customizable options for <code class="xref py py-obj docutils literal notranslate"><span class="pre">_graph.GraphBuilder.complete()</span></code></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig.grid">
-<span class="sig-name descname"><span class="pre">grid</span></span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig.grid" title="Link to this definition">¶</a></dt>
-<dd><p>Collection of threads that will execute a kernel function.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.GraphCompleteOptions.auto_free_on_launch">
+<span class="sig-name descname"><span class="pre">auto_free_on_launch</span></span><a class="headerlink" href="#cuda.core.experimental.GraphCompleteOptions.auto_free_on_launch" title="Link to this definition">¶</a></dt>
+<dd><p>Automatically free memory allocated in a graph before relaunching. (Default to False)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig.cluster">
-<span class="sig-name descname"><span class="pre">cluster</span></span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig.cluster" title="Link to this definition">¶</a></dt>
-<dd><p>Group of blocks (Thread Block Cluster) that will execute on the same
-GPU Processing Cluster (GPC). Blocks within a cluster have access to
-distributed shared memory and can be explicitly synchronized.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.GraphCompleteOptions.upload_stream">
+<span class="sig-name descname"><span class="pre">upload_stream</span></span><a class="headerlink" href="#cuda.core.experimental.GraphCompleteOptions.upload_stream" title="Link to this definition">¶</a></dt>
+<dd><p>Stream to use to automatically upload the graph after completion. (Default to None)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream">Stream</a>, optional</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig.block">
-<span class="sig-name descname"><span class="pre">block</span></span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig.block" title="Link to this definition">¶</a></dt>
-<dd><p>Group of threads (Thread Block) that will execute on the same
-streaming multiprocessor (SM). Threads within a thread blocks have
-access to shared memory and can be explicitly synchronized.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.GraphCompleteOptions.device_launch">
+<span class="sig-name descname"><span class="pre">device_launch</span></span><a class="headerlink" href="#cuda.core.experimental.GraphCompleteOptions.device_launch" title="Link to this definition">¶</a></dt>
+<dd><p>Configure the graph to be launchable from the device. This flag can only
+be used on platforms which support unified addressing. This flag cannot be
+used in conjunction with auto_free_on_launch. (Default to False)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.LaunchConfig.shmem_size">
-<span class="sig-name descname"><span class="pre">shmem_size</span></span><a class="headerlink" href="#cuda.core.experimental.LaunchConfig.shmem_size" title="Link to this definition">¶</a></dt>
-<dd><p>Dynamic shared-memory size per thread block in bytes.
-(Default to size 0)</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.GraphCompleteOptions.use_node_priority">
+<span class="sig-name descname"><span class="pre">use_node_priority</span></span><a class="headerlink" href="#cuda.core.experimental.GraphCompleteOptions.use_node_priority" title="Link to this definition">¶</a></dt>
+<dd><p>Run the graph using the per-node priority attributes rather than the
+priority of the stream it is launched into. (Default to False)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, optional</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, optional</p>
 </dd>
 </dl>
 </dd></dl>
@@ -368,23 +366,23 @@ access to shared memory and can be explicitly synchronized.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="cuda.core.experimental.Program.html">
+          <a class="next-page" href="cuda.core.experimental.GraphDebugPrintOptions.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">cuda.core.experimental.Program</div>
+                <div class="title">cuda.core.experimental.GraphDebugPrintOptions</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="cuda.core.experimental.StreamOptions.html">
+          <a class="prev-page" href="cuda.core.experimental.EventOptions.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">cuda.core.experimental.StreamOptions</div>
+                <div class="title">cuda.core.experimental.EventOptions</div>
                 
               </div>
             </a>
@@ -418,12 +416,12 @@ access to shared memory and can be explicitly synchronized.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">cuda.core.experimental.LaunchConfig</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig"><code class="docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig.grid"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.grid</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig.cluster"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.cluster</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig.block"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.block</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.LaunchConfig.shmem_size"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.shmem_size</span></code></a></li>
+<li><a class="reference internal" href="#">cuda.core.experimental.GraphCompleteOptions</a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.GraphCompleteOptions"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.GraphCompleteOptions.auto_free_on_launch"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.auto_free_on_launch</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.GraphCompleteOptions.upload_stream"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.upload_stream</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.GraphCompleteOptions.device_launch"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.device_launch</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.GraphCompleteOptions.use_node_priority"><code class="docutils literal notranslate"><span class="pre">GraphCompleteOptions.use_node_priority</span></code></a></li>
 </ul>
 </li>
 </ul>
