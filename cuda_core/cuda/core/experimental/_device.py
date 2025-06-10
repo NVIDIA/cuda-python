@@ -1211,8 +1211,8 @@ class Device:
 
         New stream objects can be created in two different ways:
 
-        1) Create a new CUDA stream with customizable `options`.
-        2) Wrap an existing foreign `obj` supporting the __cuda_stream__ protocol.
+        1) Create a new CUDA stream with customizable ``options``.
+        2) Wrap an existing foreign `obj` supporting the ``__cuda_stream__`` protocol.
 
         Option (2) internally holds a reference to the foreign object
         such that the lifetime is managed.
@@ -1223,8 +1223,8 @@ class Device:
 
         Parameters
         ----------
-        obj : Any, optional
-            Any object supporting the __cuda_stream__ protocol.
+        obj : :obj:`~_stream.IsStreamT`, optional
+            Any object supporting the ``__cuda_stream__`` protocol.
         options : :obj:`~_stream.StreamOptions`, optional
             Customizable dataclass for stream creation options.
 
