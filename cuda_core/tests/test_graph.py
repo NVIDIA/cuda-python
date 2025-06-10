@@ -18,7 +18,6 @@ from cuda.core.experimental import (
     Program,
     ProgramOptions,
     launch,
-    launch_graph,
 )
 from cuda.core.experimental._memory import _DefaultPinnedMemorySource
 from cuda.core.experimental._utils.cuda_utils import NVRTCError, handle_return
@@ -517,7 +516,7 @@ def test_graph_child_graph(init_cuda):
 
     ## Add child
     try:
-        launch_graph(gb_parent, gb_child)
+        gb_parent.add_child(gb_child)
     except NotImplementedError as e:
         with pytest.raises(
             NotImplementedError,

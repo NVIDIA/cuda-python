@@ -654,6 +654,45 @@ class GraphBuilder:
         """
         self._mnff.close()
 
+    def add_child(self, child_graph: GraphBuilder):
+        """Adds the child :obj:`~_graph.GraphBuilder` builder into self.
+
+        The child graph builder will be added as a child node to the parent graph builder.
+
+        Parameters
+        ----------
+        child_graph : :obj:`~_graph.GraphBuilder`
+            The child graph builder. Must have finished building.
+        """
+        if (_driver_ver < 12000) or (_py_major_minor < (12, 0)):
+            raise NotImplementedError(
+                f"Launching child graphs is not implemented for versions older than CUDA 12."
+                f"Found driver version is {_driver_ver} and binding version is {_py_major_minor}"
+            )
+
+        if not child_graph._building_ended:
+            raise ValueError("Child graph has not finished building.")
+
+        if not self.is_building:
+            raise ValueError("Parent graph is being built.")
+
+        stream_handle = self._mnff.stream.handle
+        _, _, graph_out, dependencies_out, num_dependencies_out = handle_return(
+            driver.cuStreamGetCaptureInfo(stream_handle)
+        )
+
+        child_node = handle_return(
+            driver.cuGraphAddChildGraphNode(graph_out, dependencies_out, num_dependencies_out, child_graph._mnff.graph)
+        )
+        handle_return(
+            driver.cuStreamUpdateCaptureDependencies(
+                stream_handle,
+                [child_node],
+                1,
+                driver.CUstreamUpdateCaptureDependencies_flags.CU_STREAM_SET_CAPTURE_DEPENDENCIES,
+            )
+        )
+
 
 class Graph:
     """Represents an executable graph.
@@ -733,46 +772,3 @@ class Graph:
 
         """
         handle_return(driver.cuGraphLaunch(self._mnff.graph, stream.handle))
-
-
-def launch_graph(parent_graph: GraphBuilder, child_graph: GraphBuilder):
-    """Adds the child :obj:`~_graph.GraphBuilder` builder into parent graph builder.
-
-    The child graph builder will be added as a child node to the parent graph builder.
-
-    Parameters
-    ----------
-    parent_graph : :obj:`~_graph.GraphBuilder`
-        The parent graph builder. Must be in building state.
-    child_graph : :obj:`~_graph.GraphBuilder`
-        The child graph builder. Must have finished building.
-
-    """
-
-    if (_driver_ver < 12000) or (_py_major_minor < (12, 0)):
-        raise NotImplementedError(
-            f"Launching child graphs is not implemented for versions older than CUDA 12."
-            f"Found driver version is {_driver_ver} and binding version is {_py_major_minor}"
-        )
-
-    if not child_graph._building_ended:
-        raise ValueError("Child graph has not finished building.")
-
-    if not parent_graph.is_building:
-        raise ValueError("Parent graph is being built.")
-
-    _, _, graph_out, dependencies_out, num_dependencies_out = handle_return(
-        driver.cuStreamGetCaptureInfo(parent_graph.stream.handle)
-    )
-
-    child_node = handle_return(
-        driver.cuGraphAddChildGraphNode(graph_out, dependencies_out, num_dependencies_out, child_graph._mnff.graph)
-    )
-    handle_return(
-        driver.cuStreamUpdateCaptureDependencies(
-            parent_graph.stream.handle,
-            [child_node],
-            1,
-            driver.CUstreamUpdateCaptureDependencies_flags.CU_STREAM_SET_CAPTURE_DEPENDENCIES,
-        )
-    )

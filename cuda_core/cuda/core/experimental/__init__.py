@@ -10,7 +10,6 @@ from cuda.core.experimental._graph import (
     GraphBuilder,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
-    launch_graph,
 )
 from cuda.core.experimental._launch_config import LaunchConfig
 from cuda.core.experimental._launcher import launch
