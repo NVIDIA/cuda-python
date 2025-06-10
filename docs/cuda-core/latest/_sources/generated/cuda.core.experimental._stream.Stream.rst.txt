@@ -14,6 +14,7 @@ cuda.core.experimental.\_stream.Stream
    
    .. automethod:: __init__
    .. automethod:: close
+   .. automethod:: create_graph_builder
    .. automethod:: from_handle
    .. automethod:: record
    .. automethod:: sync

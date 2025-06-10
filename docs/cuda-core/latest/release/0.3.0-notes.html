@@ -222,8 +222,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.StreamOptions.html">cuda.core.experimental.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
@@ -307,6 +311,14 @@
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Starting this release <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> is licensed under Apache 2.0.</p></li>
+<li><dl class="simple">
+<dt>Initial support for CUDA graphs (phase 1).</dt><dd><ul>
+<li><p>In this release, we support building a CUDA graph that captures kernel launches. The captured graph can be replayed to reduce
+latency. Graph split/join and conditional nodes are supported.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
 </ul>
 </section>
 <section id="breaking-changes">
