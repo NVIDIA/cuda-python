@@ -25849,7 +25849,7 @@ def cudaMemcpyBatchAsync(dsts : Optional[Tuple[Any] | List[Any]], srcs : Optiona
     cdef vector[size_t] cyattrsIdxs = attrsIdxs
     if numAttrs > <size_t>len(attrs): raise RuntimeError("List is too small: " + str(len(attrs)) + " < " + str(numAttrs))
     if numAttrs > <size_t>len(attrsIdxs): raise RuntimeError("List is too small: " + str(len(attrsIdxs)) + " < " + str(numAttrs))
-    err = cyruntime.cudaMemcpyBatchAsync(<void**><void_ptr>voidStarHelperdsts.cptr, <void**><void_ptr>voidStarHelpersrcs.cptr, cysizes.data(), count, (<cudaMemcpyAttributes>attrs[0])._pvt_ptr if len(attrs) == 1 else cyattrs, cyattrsIdxs.data(), numAttrs, cystream)
+    err = cyruntime.cudaMemcpyBatchAsync(<const void**><void_ptr>voidStarHelperdsts.cptr, <const void**><void_ptr>voidStarHelpersrcs.cptr, cysizes.data(), count, (<cudaMemcpyAttributes>attrs[0])._pvt_ptr if len(attrs) == 1 else cyattrs, cyattrsIdxs.data(), numAttrs, cystream)
     if cyattrs is not NULL:
         free(cyattrs)
     return (_dict_cudaError_t[err],)
