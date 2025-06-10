@@ -7,6 +7,7 @@ from typing import Optional, Union
 
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
+from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._memory import Buffer, DeviceMemoryResource, MemoryResource, _SynchronousMemoryResource
 from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
@@ -1298,3 +1299,15 @@ class Device:
 
         """
         handle_return(runtime.cudaDeviceSynchronize())
+
+    @precondition(_check_context_initialized)
+    def create_graph_builder(self) -> GraphBuilder:
+        """Create a new :obj:`~_graph.GraphBuilder` object.
+
+        Returns
+        -------
+        :obj:`~_graph.GraphBuilder`
+            Newly created graph builder object.
+
+        """
+        return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
