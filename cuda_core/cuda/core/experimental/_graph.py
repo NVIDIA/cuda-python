@@ -452,7 +452,7 @@ class GraphBuilder:
     def _get_conditional_context(self) -> driver.CUcontext:
         return self._mnff.stream.context._handle
 
-    def create_conditional_handle(self, default_value=None) -> int:
+    def create_conditional_handle(self, default_value=None) -> driver.CUgraphConditionalHandle:
         """Creates a conditional handle for the graph builder.
 
         Parameters
@@ -462,7 +462,7 @@ class GraphBuilder:
 
         Returns
         -------
-        handle : int
+        handle : driver.CUgraphConditionalHandle
             The newly created conditional handle.
 
         """
@@ -480,10 +480,8 @@ class GraphBuilder:
         if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
             raise RuntimeError("Cannot create a conditional handle when graph is not being built")
 
-        return int(
-            handle_return(
-                driver.cuGraphConditionalHandleCreate(graph, self._get_conditional_context(), default_value, flags)
-            )
+        return handle_return(
+            driver.cuGraphConditionalHandleCreate(graph, self._get_conditional_context(), default_value, flags)
         )
 
     def _cond_with_params(self, node_params) -> GraphBuilder:
@@ -520,7 +518,7 @@ class GraphBuilder:
             ]
         )
 
-    def if_cond(self, handle: int) -> GraphBuilder:
+    def if_cond(self, handle: driver.CUgraphConditionalHandle) -> GraphBuilder:
         """Adds an if condition branch and returns a new graph builder for it.
 
         The resulting if graph will only execute the branch if the conditional
@@ -530,7 +528,7 @@ class GraphBuilder:
 
         Parameters
         ----------
-        handle : int
+        handle : driver.CUgraphConditionalHandle
             The handle to use for the if conditional.
 
         Returns
@@ -551,7 +549,7 @@ class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return self._cond_with_params(node_params)[0]
 
-    def if_else(self, handle: int) -> tuple[GraphBuilder, GraphBuilder]:
+    def if_else(self, handle: driver.CUgraphConditionalHandle) -> tuple[GraphBuilder, GraphBuilder]:
         """Adds an if-else condition branch and returns new graph builders for both branches.
 
         The resulting if graph will execute the branch if the conditional handle
@@ -561,7 +559,7 @@ class GraphBuilder:
 
         Parameters
         ----------
-        handle : int
+        handle : driver.CUgraphConditionalHandle
             The handle to use for the if-else conditional.
 
         Returns
@@ -582,7 +580,7 @@ class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return self._cond_with_params(node_params)
 
-    def switch(self, handle: int, count: int) -> tuple[GraphBuilder, ...]:
+    def switch(self, handle: driver.CUgraphConditionalHandle, count: int) -> tuple[GraphBuilder, ...]:
         """Adds a switch condition branch and returns new graph builders for all cases.
 
         The resulting switch graph will execute the branch that matches the
@@ -593,7 +591,7 @@ class GraphBuilder:
 
         Parameters
         ----------
-        handle : int
+        handle : driver.CUgraphConditionalHandle
             The handle to use for the switch conditional.
         count : int
             The number of cases to add to the switch conditional.
@@ -616,7 +614,7 @@ class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return self._cond_with_params(node_params)
 
-    def while_loop(self, handle: int) -> GraphBuilder:
+    def while_loop(self, handle: driver.CUgraphConditionalHandle) -> GraphBuilder:
         """Adds a while loop and returns a new graph builder for it.
 
         The resulting while loop graph will execute the branch repeatedly at runtime
@@ -626,7 +624,7 @@ class GraphBuilder:
 
         Parameters
         ----------
-        handle : int
+        handle : driver.CUgraphConditionalHandle
             The handle to use for the while loop.
 
         Returns
