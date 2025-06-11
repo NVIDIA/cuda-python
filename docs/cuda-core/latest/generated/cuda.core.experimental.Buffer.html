@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cuda.core.experimental.GraphBuilder" href="cuda.core.experimental.GraphBuilder.html" /><link rel="prev" title="cuda.core.experimental.Device" href="cuda.core.experimental.Device.html" />
-        <link rel="canonical" href="docs/generated/cuda.core.experimental.Graph.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cuda.core.experimental.MemoryResource" href="cuda.core.experimental.MemoryResource.html" /><link rel="prev" title="cuda.core.experimental.launch" href="cuda.core.experimental.launch.html" />
+        <link rel="canonical" href="docs/generated/cuda.core.experimental.Buffer.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>cuda.core.experimental.Graph - cuda.core 0.2.0 documentation</title>
+        <title>cuda.core.experimental.Buffer - cuda.core 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -222,10 +222,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cuda.core.experimental.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Buffer.html">cuda.core.experimental.Buffer</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cuda.core.experimental.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
@@ -288,7 +288,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/generated/cuda.core.experimental.Graph.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/generated/cuda.core.experimental.Buffer.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -308,60 +308,124 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="cuda-core-experimental-graph">
-<h1>cuda.core.experimental.Graph<a class="headerlink" href="#cuda-core-experimental-graph" title="Link to this heading">¶</a></h1>
+          <section id="cuda-core-experimental-buffer">
+<h1>cuda.core.experimental.Buffer<a class="headerlink" href="#cuda-core-experimental-buffer" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.experimental.Graph">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Graph</span></span><a class="headerlink" href="#cuda.core.experimental.Graph" title="Link to this definition">¶</a></dt>
-<dd><p>Represents an executable graph.</p>
-<p>A graph groups a set of CUDA kernels and other CUDA operations together and executes
-them with a specified dependency tree. It speeds up the workflow by combining the
-driver activities associated with CUDA kernel launches and CUDA API calls.</p>
-<p>Graphs must be built using a <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> object.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Buffer" title="Link to this definition">¶</a></dt>
+<dd><p>Represent a handle to allocated memory.</p>
+<p>This generic object provides a unified representation for how
+different memory resources are to give access to their memory
+allocations.</p>
+<p>Support for data interchange mechanisms are provided by DLPack.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Graph.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Graph.__init__" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Buffer.__init__" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Graph.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Graph.close" title="Link to this definition">¶</a></dt>
-<dd><p>Destroy the graph.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Graph.launch">
-<span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Graph.launch" title="Link to this definition">¶</a></dt>
-<dd><p>Launches the graph in a stream.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Buffer.close" title="Link to this definition">¶</a></dt>
+<dd><p>Deallocate this buffer asynchronously on the given stream.</p>
+<p>This buffer is released back to their memory resource
+asynchronously on the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>) – The stream in which to launch the graph</p>
+<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – The stream object to use for asynchronous deallocation. If None,
+the behavior depends on the underlying memory resource.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Graph.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Graph.update" title="Link to this definition">¶</a></dt>
-<dd><p>Update the graph using new build configuration from the builder.</p>
-<p>The topology of the provided builder must be identical to this graph.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.copy_from">
+<span class="sig-name descname"><span class="pre">copy_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.core.experimental.Buffer" title="cuda.core.experimental._memory.Buffer"><span class="pre">Buffer</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Buffer.copy_from" title="Link to this definition">¶</a></dt>
+<dd><p>Copy from the src buffer to this buffer asynchronously on the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>builder</strong> (<a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – The builder to update the graph with.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<a class="reference internal" href="#cuda.core.experimental.Buffer" title="cuda.core.experimental._memory.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code></a>) – Source buffer to copy data from</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><em>Stream</em></a>) – Keyword argument specifying the stream for the
+asynchronous copy</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Graph.upload">
-<span class="sig-name descname"><span class="pre">upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Graph.upload" title="Link to this definition">¶</a></dt>
-<dd><p>Uploads the graph in a stream.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.copy_to">
+<span class="sig-name descname"><span class="pre">copy_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.core.experimental.Buffer" title="cuda.core.experimental._memory.Buffer"><span class="pre">Buffer</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.Buffer" title="cuda.core.experimental._memory.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Buffer.copy_to" title="Link to this definition">¶</a></dt>
+<dd><p>Copy from this buffer to the dst buffer asynchronously on the given stream.</p>
+<p>Copies the data from this buffer to the provided dst buffer.
+If the dst buffer is not provided, then a new buffer is first
+allocated using the associated memory resource before the copy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>) – The stream in which to upload the graph</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dst</strong> (<a class="reference internal" href="#cuda.core.experimental.Buffer" title="cuda.core.experimental._memory.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code></a>) – Source buffer to copy data from</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><em>Stream</em></a>) – Keyword argument specifying the stream for the
+asynchronous copy</p></li>
+</ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.from_handle">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUdeviceptr" title="(in cuda.bindings)"><span class="pre">CUdeviceptr</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource" title="cuda.core.experimental._memory.MemoryResource"><span class="pre">MemoryResource</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.Buffer" title="cuda.core.experimental._memory.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Buffer.from_handle" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> object from a pointer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ptr</strong> (<a class="reference internal" href="cuda.core.experimental._memory.DevicePointerT.html#cuda.core.experimental._memory.DevicePointerT" title="cuda.core.experimental._memory.DevicePointerT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code></a>) – Allocated buffer handle object</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Memory size of the buffer</p></li>
+<li><p><strong>mr</strong> (<a class="reference internal" href="cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource" title="cuda.core.experimental._memory.MemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code></a>, optional) – Memory resource associated with the buffer</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Attributes</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.device_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental.Buffer.device_id" title="Link to this definition">¶</a></dt>
+<dd><p>Return the device ordinal of this buffer.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.handle">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUdeviceptr" title="(in cuda.bindings)"><span class="pre">CUdeviceptr</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></em><a class="headerlink" href="#cuda.core.experimental.Buffer.handle" title="Link to this definition">¶</a></dt>
+<dd><p>Return the buffer handle object.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Buffer.handle)</span></code>.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.is_device_accessible">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_device_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.Buffer.is_device_accessible" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if this buffer can be accessed by the GPU, otherwise False.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.is_host_accessible">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_host_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.Buffer.is_host_accessible" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if this buffer can be accessed by the CPU, otherwise False.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.memory_resource">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">memory_resource</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource" title="cuda.core.experimental._memory.MemoryResource"><span class="pre">MemoryResource</span></a></em><a class="headerlink" href="#cuda.core.experimental.Buffer.memory_resource" title="Link to this definition">¶</a></dt>
+<dd><p>Return the memory resource associated with this buffer.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.Buffer.size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental.Buffer.size" title="Link to this definition">¶</a></dt>
+<dd><p>Return the memory size of this buffer.</p>
 </dd></dl>
 
 </dd></dl>
@@ -373,23 +437,23 @@ driver activities associated with CUDA kernel launches and CUDA API calls.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="cuda.core.experimental.GraphBuilder.html">
+          <a class="next-page" href="cuda.core.experimental.MemoryResource.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">cuda.core.experimental.GraphBuilder</div>
+                <div class="title">cuda.core.experimental.MemoryResource</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="cuda.core.experimental.Device.html">
+          <a class="prev-page" href="cuda.core.experimental.launch.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">cuda.core.experimental.Device</div>
+                <div class="title">cuda.core.experimental.launch</div>
                 
               </div>
             </a>
@@ -423,13 +487,19 @@ driver activities associated with CUDA kernel launches and CUDA API calls.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">cuda.core.experimental.Graph</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.Graph"><code class="docutils literal notranslate"><span class="pre">Graph</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.Graph.__init__"><code class="docutils literal notranslate"><span class="pre">Graph.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.Graph.close"><code class="docutils literal notranslate"><span class="pre">Graph.close()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.Graph.launch"><code class="docutils literal notranslate"><span class="pre">Graph.launch()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.Graph.update"><code class="docutils literal notranslate"><span class="pre">Graph.update()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.Graph.upload"><code class="docutils literal notranslate"><span class="pre">Graph.upload()</span></code></a></li>
+<li><a class="reference internal" href="#">cuda.core.experimental.Buffer</a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer"><code class="docutils literal notranslate"><span class="pre">Buffer</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.__init__"><code class="docutils literal notranslate"><span class="pre">Buffer.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.close"><code class="docutils literal notranslate"><span class="pre">Buffer.close()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.copy_from"><code class="docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.copy_to"><code class="docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.from_handle"><code class="docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.device_id"><code class="docutils literal notranslate"><span class="pre">Buffer.device_id</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.handle"><code class="docutils literal notranslate"><span class="pre">Buffer.handle</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_device_accessible</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">Buffer.is_host_accessible</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.memory_resource"><code class="docutils literal notranslate"><span class="pre">Buffer.memory_resource</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Buffer.size"><code class="docutils literal notranslate"><span class="pre">Buffer.size</span></code></a></li>
 </ul>
 </li>
 </ul>

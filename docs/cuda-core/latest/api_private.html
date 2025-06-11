@@ -225,6 +225,10 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Buffer.html">cuda.core.experimental.Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
@@ -309,20 +313,20 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._memory.Buffer.html#cuda.core.experimental._memory.Buffer" title="cuda.core.experimental._memory.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory.Buffer</span></code></a>(ptr, size[, mr])</p></td>
-<td><p>Represent a handle to allocated memory.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream.Stream</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream.Stream</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a queue of GPU operations that are executed in a specific order.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_event.Event</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._memory.PyCapsule.html#cuda.core.experimental._memory.PyCapsule" title="cuda.core.experimental._memory.PyCapsule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory.PyCapsule</span></code></a></p></td>
+<td><p>Represent the capsule type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._memory.DevicePointerT.html#cuda.core.experimental._memory.DevicePointerT" title="cuda.core.experimental._memory.DevicePointerT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory.DevicePointerT</span></code></a></p></td>
+<td><p>A type union of <code class="xref py py-obj docutils literal notranslate"><span class="pre">CUdeviceptr</span></code>, <cite>int</cite> and <cite>None</cite> for hinting <a class="reference internal" href="generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer.handle" title="cuda.core.experimental.Buffer.handle"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.handle</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_event.Event</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a record at a specific point of execution within a CUDA stream.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties" title="cuda.core.experimental._device.DeviceProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_device.DeviceProperties</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties" title="cuda.core.experimental._device.DeviceProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_device.DeviceProperties</span></code></a>(*args, **kwargs)</p></td>
 <td><p>A class to query various attributes of a CUDA device.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._launch_config.LaunchConfig.html#cuda.core.experimental._launch_config.LaunchConfig" title="cuda.core.experimental._launch_config.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_launch_config.LaunchConfig</span></code></a>([grid, cluster, ...])</p></td>
-<td><p>Customizable launch options.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes" title="cuda.core.experimental._module.KernelAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelAttributes</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
@@ -348,8 +352,17 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._module.Kernel.html#cuda.core.experimental._module.Kernel" title="cuda.core.experimental._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.Kernel</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a compiled kernel that had been loaded onto the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.ObjectCode</span></code></a>(*args, **kwargs)</p></td>
-<td><p>Represent a compiled program to be loaded onto the device.</p></td>
+</tbody>
+</table>
+</div>
+</section>
+<section id="cuda-protocols">
+<h1>CUDA protocols<a class="headerlink" href="#cuda-protocols" title="Link to this heading">¶</a></h1>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._stream.IsStreamT.html#cuda.core.experimental._stream.IsStreamT" title="cuda.core.experimental._stream.IsStreamT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stream.IsStreamT</span></code></a></p></td>
+<td><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Protocol</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>

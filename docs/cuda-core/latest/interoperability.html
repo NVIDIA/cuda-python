@@ -225,6 +225,10 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Buffer.html">cuda.core.experimental.Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
@@ -327,10 +331,10 @@ method ensures that the same device/context is picked up by and shared with
 in Python. While we encourage new Python projects to start using streams (and other
 CUDA types) from <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>, we understand that there are already several projects
 exposing their own stream types.</p>
-<p>To address this issue, we propose the <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> protocol (currently version
-0) as follows: For any Python objects that are meant to be interpreted as a stream, they
-should add a <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> method that returns a 2-tuple: The version number
-(<code class="docutils literal notranslate"><span class="pre">0</span></code>) and the address of <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> (both as Python <cite>int</cite>):</p>
+<p>To address this issue, we propose the <a class="reference internal" href="generated/cuda.core.experimental._stream.IsStreamT.html#cuda.core.experimental._stream.IsStreamT.__cuda_stream__" title="cuda.core.experimental._stream.IsStreamT.__cuda_stream__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__cuda_stream__</span></code></a> protocol
+(currently version 0) as follows: For any Python objects that are meant to be interpreted
+as a stream, they should add a <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> <em>method</em> that returns a 2-tuple: The
+version number (<code class="docutils literal notranslate"><span class="pre">0</span></code>) and the address of <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> (both as Python <cite>int</cite>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyStream</span><span class="p">:</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__cuda_stream__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -339,10 +343,10 @@ should add a <code class="docutils literal notranslate"><span class="pre">__cuda
     <span class="o">...</span>
 </pre></div>
 </div>
-<p>Then such objects can be understood by <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> anywhere a stream-like object
-is needed.</p>
-<p>We suggest all existing Python projects that expose a stream class to also support this
-protocol wherever a function takes a stream.</p>
+<p>Then such objects can be understood and wrapped by <a class="reference internal" href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.create_stream" title="cuda.core.experimental.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_stream()</span></code></a>.</p>
+<p>We suggest all existing Python projects that already expose a stream class to also support
+this protocol. For new Python projects that need to access CUDA streams, we encourage you
+to use <a class="reference internal" href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> from <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> directly.</p>
 </section>
 <section id="memory-view-utilities-for-cpu-gpu-buffers">
 <h2>Memory view utilities for CPU/GPU buffers<a class="headerlink" href="#memory-view-utilities-for-cpu-gpu-buffers" title="Link to this heading">¶</a></h2>
