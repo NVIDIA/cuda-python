@@ -5,7 +5,7 @@
 ``cuda.core`` 0.3.0 Release Notes
 =================================
 
-Released on MM DD, 2025
+Released on June 11, 2025
 
 
 Highlights
