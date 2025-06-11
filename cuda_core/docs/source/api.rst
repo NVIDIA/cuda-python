@@ -20,6 +20,10 @@ CUDA runtime
    Graph
    GraphBuilder
    launch
+   Buffer
+   MemoryResource
+   DeviceMemoryResource
+   LegacyPinnedMemoryResource
 
    :template: dataclass.rst
 

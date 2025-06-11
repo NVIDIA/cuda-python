@@ -8,8 +8,8 @@ from typing import Optional, Union
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._graph import GraphBuilder
-from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
-from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
+from cuda.core.experimental._memory import Buffer, DeviceMemoryResource, MemoryResource, _SynchronousMemoryResource
+from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     ComputeCapability,
@@ -1004,7 +1004,7 @@ class Device:
                         )
                     )
                 ) == 1:
-                    dev._mr = _DefaultAsyncMempool(dev_id)
+                    dev._mr = DeviceMemoryResource(dev_id)
                 else:
                     dev._mr = _SynchronousMemoryResource(dev_id)
 
@@ -1207,13 +1207,13 @@ class Device:
         raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
     @precondition(_check_context_initialized)
-    def create_stream(self, obj=None, options: StreamOptions = None) -> Stream:
+    def create_stream(self, obj: Optional[IsStreamT] = None, options: StreamOptions = None) -> Stream:
         """Create a Stream object.
 
         New stream objects can be created in two different ways:
 
-        1) Create a new CUDA stream with customizable `options`.
-        2) Wrap an existing foreign `obj` supporting the __cuda_stream__ protocol.
+        1) Create a new CUDA stream with customizable ``options``.
+        2) Wrap an existing foreign `obj` supporting the ``__cuda_stream__`` protocol.
 
         Option (2) internally holds a reference to the foreign object
         such that the lifetime is managed.
@@ -1224,8 +1224,8 @@ class Device:
 
         Parameters
         ----------
-        obj : Any, optional
-            Any object supporting the __cuda_stream__ protocol.
+        obj : :obj:`~_stream.IsStreamT`, optional
+            Any object supporting the ``__cuda_stream__`` protocol.
         options : :obj:`~_stream.StreamOptions`, optional
             Customizable dataclass for stream creation options.
 
@@ -1259,7 +1259,7 @@ class Device:
         return Event._init(self._id, self.context._handle, options)
 
     @precondition(_check_context_initialized)
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size, stream: Optional[Stream] = None) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`

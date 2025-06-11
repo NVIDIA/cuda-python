@@ -15,11 +15,11 @@ from cuda.core.experimental import (
     GraphCompleteOptions,
     GraphDebugPrintOptions,
     LaunchConfig,
+    LegacyPinnedMemoryResource,
     Program,
     ProgramOptions,
     launch,
 )
-from cuda.core.experimental._memory import _DefaultPinnedMemorySource
 from cuda.core.experimental._utils.cuda_utils import NVRTCError, handle_return
 
 
@@ -174,7 +174,7 @@ def test_graph_repeat_capture(init_cuda):
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
@@ -225,7 +225,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(8)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
@@ -287,7 +287,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(8)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
@@ -359,7 +359,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(12)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
@@ -451,7 +451,7 @@ def test_graph_conditional_while(init_cuda, condition_value):
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
@@ -497,7 +497,7 @@ def test_graph_child_graph(init_cuda):
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(8)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
@@ -550,7 +550,7 @@ def test_graph_update(init_cuda):
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(12)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
