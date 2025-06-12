@@ -379,9 +379,7 @@ SUPPORTED_WINDOWS_DLLS = {
         "nvrtc64_110_0.dll",
         "nvrtc64_111_0.dll",
         "nvrtc64_112_0.dll",
-        "nvrtc64_120_0.alt.dll",
         "nvrtc64_120_0.dll",
-        "nvrtc64_130_0.alt.dll",
         "nvrtc64_130_0.dll",
     ),
     "nvvm": (
