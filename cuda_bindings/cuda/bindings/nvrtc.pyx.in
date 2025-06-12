@@ -350,7 +350,6 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[Tuple[bytes] | 
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     if numOptions > len(options): raise RuntimeError("List is too small: " + str(len(options)) + " < " + str(numOptions))
     cdef vector[const char*] cyoptions = options
-    print(f"\nLOOOK nvrtcCompileProgram CALLS cynvrtc.nvrtcCompileProgram", flush=True)
     err = cynvrtc.nvrtcCompileProgram(cyprog, numOptions, cyoptions.data())
     return (_dict_nvrtcResult[err],)
 {{endif}}

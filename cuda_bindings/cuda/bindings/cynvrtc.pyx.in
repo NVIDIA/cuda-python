@@ -43,8 +43,6 @@ cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INV
 {{if 'nvrtcCompileProgram' in found_functions}}
 
 cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    with gil:
-        print(f"\nLOOOK cynvrtc.nvrtcCompileProgram CALLS cynvrtc._nvrtcCompileProgram", flush=True)
     return cynvrtc._nvrtcCompileProgram(prog, numOptions, options)
 {{endif}}
 
