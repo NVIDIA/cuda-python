@@ -130,7 +130,7 @@ jobs:
             fi
             mv ${p}/*.whl dist/
           done
-          rmdir ${{ inputs.component }}*
+          rm -rf ${{ inputs.component }}*
 
       - name: Publish package distributions to PyPI
         if: ${{ inputs.wheel-dst == 'pypi' }}
