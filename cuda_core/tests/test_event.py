@@ -10,8 +10,15 @@ import pytest
 from conftest import skipif_need_cuda_headers
 
 import cuda.core.experimental
-from cuda.core.experimental import Device, EventOptions, LaunchConfig, Program, ProgramOptions, launch
-from cuda.core.experimental._memory import _DefaultPinnedMemorySource
+from cuda.core.experimental import (
+    Device,
+    EventOptions,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+    Program,
+    ProgramOptions,
+    launch,
+)
 
 
 def test_event_init_disabled():
@@ -143,7 +150,7 @@ __global__ void wait(int* val) {
     mod = prog.compile(target_type="cubin")
     ker = mod.get_kernel("wait")
 
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
@@ -165,6 +172,7 @@ __global__ void wait(int* val) {
     arr[0] = 1
     event3.sync()
     event3 - event1  # this should work
+    b.close()
 
 
 def test_event_device(init_cuda):

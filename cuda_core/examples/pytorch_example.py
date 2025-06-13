@@ -40,7 +40,7 @@ class PyTorchStreamWrapper:
         return (0, stream_id)  # Return format required by CUDA Python
 
 
-s = PyTorchStreamWrapper(pt_stream)
+s = dev.create_stream(PyTorchStreamWrapper(pt_stream))
 
 # prepare program
 arch = "".join(f"{i}" for i in dev.compute_capability)
