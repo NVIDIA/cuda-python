@@ -10,6 +10,11 @@ from setuptools.command.build_ext import build_ext as _build_ext
 
 ext_modules = (
     Extension(
+        "cuda.core.experimental._event",
+        sources=["cuda/core/experimental/_event.pyx"],
+        language="c++",
+    ),
+    Extension(
         "cuda.core.experimental._dlpack",
         sources=["cuda/core/experimental/_dlpack.pyx"],
         language="c++",
