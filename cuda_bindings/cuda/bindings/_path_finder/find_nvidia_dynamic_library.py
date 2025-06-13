@@ -74,7 +74,10 @@ def _find_lib_dir_using_cuda_home(libname):
                 ("nvvm", "bin"),  # CTK 12
             )
         else:
-            subdirs_list = (("bin",),)
+            subdirs_list = (
+                ("bin", "x64"),  # CTK 13
+                ("bin",),  # CTK 12
+            )
     else:
         if libname == "nvvm":  # noqa: SIM108
             subdirs_list = (("nvvm", "lib64"),)
