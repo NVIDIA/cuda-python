@@ -1237,7 +1237,6 @@ class Device:
         """
         return Stream._init(obj=obj, options=options)
 
-    @precondition(_check_context_initialized)
     def create_event(self, options: Optional[EventOptions] = None) -> Event:
         """Create an Event object without recording it to a Stream.
 
@@ -1256,7 +1255,10 @@ class Device:
             Newly created event object.
 
         """
-        return Event._init(self._id, self.context._handle, options)
+        ctx = driver.cuCtxGetCurrent()[1]
+        if int(ctx) == 0:
+            raise CUDAError("No context is bound to the calling CPU thread.")
+        return Event._init(self._id, ctx, options)
 
     @precondition(_check_context_initialized)
     def allocate(self, size, stream: Optional[Stream] = None) -> Buffer:
