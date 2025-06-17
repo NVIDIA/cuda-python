@@ -119,10 +119,12 @@ SUPPORTED_LINUX_SONAMES = {
     "cublas": (
         "libcublas.so.11",
         "libcublas.so.12",
+        "libcublas.so.13",
     ),
     "cublasLt": (
         "libcublasLt.so.11",
         "libcublasLt.so.12",
+        "libcublasLt.so.13",
     ),
     "cudart": (
         "libcudart.so.11.0",
@@ -145,10 +147,12 @@ SUPPORTED_LINUX_SONAMES = {
     "cusolver": (
         "libcusolver.so.10",
         "libcusolver.so.11",
+        "libcusolver.so.12",
     ),
     "cusolverMg": (
         "libcusolverMg.so.10",
         "libcusolverMg.so.11",
+        "libcusolverMg.so.12",
     ),
     "cusparse": (
         "libcusparse.so.11",
@@ -216,6 +220,7 @@ SUPPORTED_LINUX_SONAMES = {
     "nvblas": (
         "libnvblas.so.11",
         "libnvblas.so.12",
+        "libnvblas.so.13",
     ),
     "nvfatbin": (
         "libnvfatbin.so.12",
