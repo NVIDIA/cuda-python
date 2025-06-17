@@ -1896,16 +1896,16 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
         raise NotImplementedError('"getLocalRuntimeVersion" is unsupported on Windows')
     {{else}}
     # Load
-    handle = dlfcn.dlopen('libcudart.so.12', dlfcn.RTLD_NOW)
+    handle = dlfcn.dlopen('libcudart.so.13', dlfcn.RTLD_NOW)
     if handle == NULL:
         with gil:
-            raise RuntimeError(f'Failed to dlopen libcudart.so.12')
+            raise RuntimeError(f'Failed to dlopen libcudart.so.13')
 
     __cudaRuntimeGetVersion = dlfcn.dlsym(handle, 'cudaRuntimeGetVersion')
 
     if __cudaRuntimeGetVersion == NULL:
         with gil:
-            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in libcudart.so.12')
+            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in libcudart.so.13')
 
     # Call
     cdef cudaError_t err = cudaSuccess
