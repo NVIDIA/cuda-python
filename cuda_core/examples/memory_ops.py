@@ -72,7 +72,7 @@ device_original = device_array.copy()
 pinned_original = pinned_array.copy()
 
 # Sync before kernel launch
-dev.sync()
+stream.sync()
 
 # Launch kernel
 block = 256
