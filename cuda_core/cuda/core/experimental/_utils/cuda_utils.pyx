@@ -52,7 +52,7 @@ def _reduce_3_tuple(t: tuple):
     return t[0] * t[1] * t[2]
 
 
-def _check_driver_error(error):
+cpdef inline void _check_driver_error(error) except*:
     if error == driver.CUresult.CUDA_SUCCESS:
         return
     name_err, name = driver.cuGetErrorName(error)
@@ -69,7 +69,7 @@ def _check_driver_error(error):
     raise CUDAError(f"{name}: {desc}")
 
 
-def _check_runtime_error(error):
+cpdef inline void _check_runtime_error(error) except*:
     if error == runtime.cudaError_t.cudaSuccess:
         return
     name_err, name = runtime.cudaGetErrorName(error)
@@ -86,7 +86,7 @@ def _check_runtime_error(error):
     raise CUDAError(f"{name}: {desc}")
 
 
-def _check_error(error, handle=None):
+cdef inline void _check_error(error, handle=None) except*:
     if isinstance(error, driver.CUresult):
         _check_driver_error(error)
     elif isinstance(error, runtime.cudaError_t):
@@ -105,7 +105,7 @@ def _check_error(error, handle=None):
         raise RuntimeError(f"Unknown error type: {error}")
 
 
-def handle_return(result, handle=None):
+def handle_return(tuple result, handle=None):
     _check_error(result[0], handle=handle)
     if len(result) == 1:
         return
