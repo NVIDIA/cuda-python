@@ -3,9 +3,13 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
+
 from libc.time cimport time_t
+from libcpp cimport bool as cpp_bool
+
 cimport cuda.bindings.cydriver
 from cuda.bindings.cydriver cimport CUresult, CUstream
+
 
 ###############################################################################
 # Types (structs, enums, ...)
@@ -23,10 +27,6 @@ cdef extern from "sys/socket.h":
         char sa_data[14]
 
     ctypedef sockaddr sockaddr_t
-cdef extern from *:
-        ctypedef bint _Bool  # bint is a Cython boolean type compatible with C bool
-
-        ctypedef _Bool bool
 
 
 cdef extern from '<cufile.h>':
@@ -155,7 +155,7 @@ cdef extern from '<cufile.h>':
     ctypedef struct CUfileError_t 'CUfileError_t':
         CUfileOpError err
         CUresult cu_err
-    ctypedef struct _anon_pod0 '_anon_pod0':
+    cdef struct _anon_pod0 '_anon_pod0':
         unsigned int major_version
         unsigned int minor_version
         size_t poll_thresh_size
@@ -172,10 +172,10 @@ cdef extern from '<cufile.h>':
         int (*getRDMADevicePriority)(void*, char*, size_t, loff_t, sockaddr_t*)
         ssize_t (*read)(void*, char*, size_t, loff_t, cufileRDMAInfo_t*)
         ssize_t (*write)(void*, const char*, size_t, loff_t, cufileRDMAInfo_t*)
-    ctypedef union _anon_pod1 '_anon_pod1':
+    cdef union _anon_pod1 '_anon_pod1':
         int fd
         void* handle
-    ctypedef struct _anon_pod3 '_anon_pod3':
+    cdef struct _anon_pod3 '_anon_pod3':
         void* devPtr_base
         off_t file_offset
         off_t devPtr_offset
@@ -196,7 +196,7 @@ cdef extern from '<cufile.h>':
         CUfileFileHandleType type
         _anon_pod1 handle
         CUfileFSOps_t* fs_ops
-    ctypedef union _anon_pod2 '_anon_pod2':
+    cdef union _anon_pod2 '_anon_pod2':
         _anon_pod3 batch
     ctypedef struct CUfileIOParams_t 'CUfileIOParams_t':
         CUfileBatchMode_t mode
@@ -217,6 +217,8 @@ cdef extern from *:
     const CUfileError_t CUFILE_LOADING_ERROR
     ctypedef void* CUstream "CUstream"
 
+    const char* cufileop_status_error(CUfileOpError)
+
 
 ###############################################################################
 # Functions
@@ -229,9 +231,10 @@ cdef CUfileError_t cuFileBufDeregister(const void* bufPtr_base) except?<CUfileEr
 cdef ssize_t cuFileRead(CUfileHandle_t fh, void* bufPtr_base, size_t size, off_t file_offset, off_t bufPtr_offset) except* nogil
 cdef ssize_t cuFileWrite(CUfileHandle_t fh, const void* bufPtr_base, size_t size, off_t file_offset, off_t bufPtr_offset) except* nogil
 cdef CUfileError_t cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileDriverClose_v2() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef long cuFileUseCount() except* nogil
 cdef CUfileError_t cuFileDriverGetProperties(CUfileDrvProps_t* props) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileDriverSetPollMode(bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileDriverSetPollMode(cpp_bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileDriverSetMaxDirectIOSize(size_t max_direct_io_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileDriverSetMaxCacheSize(size_t max_cache_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileDriverSetMaxPinnedMemSize(size_t max_pinned_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
@@ -246,8 +249,8 @@ cdef CUfileError_t cuFileStreamRegister(CUstream stream, unsigned flags) except?
 cdef CUfileError_t cuFileStreamDeregister(CUstream stream) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileGetVersion(int* version) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileGetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetParameterBool(CUFileBoolConfigParameter_t param, bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileGetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileGetParameterString(CUFileStringConfigParameter_t param, char* desc_str, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileSetParameterString(CUFileStringConfigParameter_t param, const char* desc_str) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil

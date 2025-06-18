@@ -45,6 +45,7 @@ cdef void* __cuFileBufDeregister = NULL
 cdef void* __cuFileRead = NULL
 cdef void* __cuFileWrite = NULL
 cdef void* __cuFileDriverOpen = NULL
+cdef void* __cuFileDriverClose_v2 = NULL
 cdef void* __cuFileUseCount = NULL
 cdef void* __cuFileDriverGetProperties = NULL
 cdef void* __cuFileDriverSetPollMode = NULL
@@ -149,6 +150,13 @@ cdef int _check_or_init_cufile() except -1 nogil:
         if handle == NULL:
             handle = load_library(driver_ver)
         __cuFileDriverOpen = dlsym(handle, 'cuFileDriverOpen')
+
+    global __cuFileDriverClose_v2
+    __cuFileDriverClose_v2 = dlsym(RTLD_DEFAULT, 'cuFileDriverClose_v2')
+    if __cuFileDriverClose_v2 == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __cuFileDriverClose_v2 = dlsym(handle, 'cuFileDriverClose_v2')
 
     global __cuFileUseCount
     __cuFileUseCount = dlsym(RTLD_DEFAULT, 'cuFileUseCount')
@@ -340,6 +348,9 @@ cpdef dict _inspect_function_pointers():
     global __cuFileDriverOpen
     data["__cuFileDriverOpen"] = <intptr_t>__cuFileDriverOpen
 
+    global __cuFileDriverClose_v2
+    data["__cuFileDriverClose_v2"] = <intptr_t>__cuFileDriverClose_v2
+
     global __cuFileUseCount
     data["__cuFileUseCount"] = <intptr_t>__cuFileUseCount
 
@@ -492,6 +503,16 @@ cdef CUfileError_t _cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERRO
         )
 
 
+cdef CUfileError_t _cuFileDriverClose_v2() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileDriverClose_v2
+    _check_or_init_cufile()
+    if __cuFileDriverClose_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileDriverClose_v2 is not found")
+    return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverClose_v2)(
+        )
+
+
 cdef long _cuFileUseCount() except* nogil:
     global __cuFileUseCount
     _check_or_init_cufile()
@@ -512,13 +533,13 @@ cdef CUfileError_t _cuFileDriverGetProperties(CUfileDrvProps_t* props) except?<C
         props)
 
 
-cdef CUfileError_t _cuFileDriverSetPollMode(bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t _cuFileDriverSetPollMode(cpp_bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     global __cuFileDriverSetPollMode
     _check_or_init_cufile()
     if __cuFileDriverSetPollMode == NULL:
         with gil:
             raise FunctionNotFoundError("function cuFileDriverSetPollMode is not found")
-    return (<CUfileError_t (*)(bool, size_t) noexcept nogil>__cuFileDriverSetPollMode)(
+    return (<CUfileError_t (*)(cpp_bool, size_t) noexcept nogil>__cuFileDriverSetPollMode)(
         poll, poll_threshold_size)
 
 
@@ -663,13 +684,13 @@ cdef CUfileError_t _cuFileGetParameterSizeT(CUFileSizeTConfigParameter_t param, 
         param, value)
 
 
-cdef CUfileError_t _cuFileGetParameterBool(CUFileBoolConfigParameter_t param, bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t _cuFileGetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     global __cuFileGetParameterBool
     _check_or_init_cufile()
     if __cuFileGetParameterBool == NULL:
         with gil:
             raise FunctionNotFoundError("function cuFileGetParameterBool is not found")
-    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, bool*) noexcept nogil>__cuFileGetParameterBool)(
+    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, cpp_bool*) noexcept nogil>__cuFileGetParameterBool)(
         param, value)
 
 
@@ -693,13 +714,13 @@ cdef CUfileError_t _cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, 
         param, value)
 
 
-cdef CUfileError_t _cuFileSetParameterBool(CUFileBoolConfigParameter_t param, bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t _cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     global __cuFileSetParameterBool
     _check_or_init_cufile()
     if __cuFileSetParameterBool == NULL:
         with gil:
             raise FunctionNotFoundError("function cuFileSetParameterBool is not found")
-    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, bool) noexcept nogil>__cuFileSetParameterBool)(
+    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, cpp_bool) noexcept nogil>__cuFileSetParameterBool)(
         param, value)
 
 

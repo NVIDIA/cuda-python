@@ -6,13 +6,301 @@
 
 cimport cython  # NOQA
 from libc cimport errno
-
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
-
+import numpy as _numpy
+from cpython cimport buffer as _buffer
+from cpython.memoryview cimport PyMemoryView_FromMemory
 from enum import IntEnum as _IntEnum
 
 import cython
+
+
+###############################################################################
+# POD
+###############################################################################
+
+_py_anon_pod1_dtype = _numpy.dtype((
+    _numpy.dtype((_numpy.void, sizeof((<CUfileDescr_t*>NULL).handle))),
+    {
+        "fd": (_numpy.int32, 0),
+        "handle": (_numpy.intp, 0),
+    }
+    ))
+
+
+cdef class _py_anon_pod1:
+    """Empty-initialize an array of `_anon_pod1`.
+
+    The resulting object is of length `size` and of dtype `_py_anon_pod1_dtype`.
+    If default-constructed, the instance represents a single union.
+
+    Args:
+        size (int): number of unions, default=1.
+
+
+    .. seealso:: `_anon_pod1`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=_py_anon_pod1_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof((<CUfileDescr_t*>NULL).handle), \
+            f"itemsize {self._data.itemsize} mismatches union size {sizeof((<CUfileDescr_t*>NULL).handle)}"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}._py_anon_pod1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :py:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        if not isinstance(other, _py_anon_pod1):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def fd(self):
+        """fd (~_numpy.int32): """
+        if self._data.size == 1:
+            return int(self._data.fd[0])
+        return self._data.fd
+
+    @fd.setter
+    def fd(self, val):
+        self._data.fd = val
+
+    @property
+    def handle(self):
+        """handle (~_numpy.intp): """
+        if self._data.size == 1:
+            return int(self._data.handle[0])
+        return self._data.handle
+
+    @handle.setter
+    def handle(self, val):
+        self._data.handle = val
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            size = self._data.size
+            if key >= size or key <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key < 0:
+                key += size
+            return _py_anon_pod1.from_data(self._data[key:key+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == _py_anon_pod1_dtype:
+            return _py_anon_pod1.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an _py_anon_pod1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `_py_anon_pod1_dtype` holding the data.
+        """
+        cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != _py_anon_pod1_dtype:
+            raise ValueError("data array must be of dtype _py_anon_pod1_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an _py_anon_pod1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :py:`int` to the data.
+            size (int): number of unions, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof((<CUfileDescr_t*>NULL).handle) * size, flag)
+        data = _numpy.ndarray((size,), buffer=buf,
+                              dtype=_py_anon_pod1_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
+descr_dtype = _numpy.dtype([
+    ("type", _numpy.int32, ),
+    ("handle", _py_anon_pod1_dtype, ),
+    ("fs_ops", _numpy.intp, ),
+    ], align=True)
+
+
+cdef class Descr:
+    """Empty-initialize an array of `CUfileDescr_t`.
+
+    The resulting object is of length `size` and of dtype `descr_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `CUfileDescr_t`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=descr_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileDescr_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfileDescr_t)}"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.Descr_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.Descr object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :py:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        if not isinstance(other, Descr):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def type(self):
+        """type (~_numpy.int32): """
+        if self._data.size == 1:
+            return int(self._data.type[0])
+        return self._data.type
+
+    @type.setter
+    def type(self, val):
+        self._data.type = val
+
+    @property
+    def handle(self):
+        """handle (_py_anon_pod1_dtype): """
+        return self._data.handle
+
+    @handle.setter
+    def handle(self, val):
+        self._data.handle = val
+
+    @property
+    def fs_ops(self):
+        """fs_ops (~_numpy.intp): """
+        if self._data.size == 1:
+            return int(self._data.fs_ops[0])
+        return self._data.fs_ops
+
+    @fs_ops.setter
+    def fs_ops(self, val):
+        self._data.fs_ops = val
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            size = self._data.size
+            if key >= size or key <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key < 0:
+                key += size
+            return Descr.from_data(self._data[key:key+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == descr_dtype:
+            return Descr.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an Descr instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `descr_dtype` holding the data.
+        """
+        cdef Descr obj = Descr.__new__(Descr)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != descr_dtype:
+            raise ValueError("data array must be of dtype descr_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an Descr instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :py:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef Descr obj = Descr.__new__(Descr)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileDescr_t) * size, flag)
+        data = _numpy.ndarray((size,), buffer=buf,
+                              dtype=descr_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
 
 ###############################################################################
 # Enum
@@ -190,19 +478,22 @@ cdef int check_status(ReturnT status) except 1 nogil:
 # Wrapper functions
 ###############################################################################
 
-
-cpdef handle_register(intptr_t fh, intptr_t descr):
+cpdef intptr_t handle_register(intptr_t descr) except? 0:
     """cuFileHandleRegister is required, and performs extra checking that is memoized to provide increased performance on later cuFile operations.
 
     Args:
-        fh (intptr_t): ``CUfileHandle_t`` opaque file handle for IO operations.
         descr (intptr_t): ``CUfileDescr_t`` file descriptor (OS agnostic).
+
+    Returns:
+        intptr_t: ``CUfileHandle_t`` opaque file handle for IO operations.
 
     .. seealso:: `cuFileHandleRegister`
     """
+    cdef Handle fh
     with nogil:
-        status = cuFileHandleRegister(<Handle*>fh, <CUfileDescr_t*>descr)
+        status = cuFileHandleRegister(&fh, <CUfileDescr_t*>descr)
     check_status(status)
+    return <intptr_t>fh
 
 
 cpdef void handle_deregister(intptr_t fh) except*:
@@ -311,17 +602,17 @@ cpdef driver_get_properties(intptr_t props):
     check_status(status)
 
 
-cpdef driver_set_poll_mode(bool poll, size_t poll_threshold_size):
+cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
     """Sets whether the Read/Write APIs use polling to do IO operations.
 
     Args:
-        poll (bool): boolean to indicate whether to use poll mode or not.
+        poll (bint): boolean to indicate whether to use poll mode or not.
         poll_threshold_size (size_t): max IO size to use for POLLING mode in KB.
 
     .. seealso:: `cuFileDriverSetPollMode`
     """
     with nogil:
-        status = cuFileDriverSetPollMode(poll, poll_threshold_size)
+        status = cuFileDriverSetPollMode(<cpp_bool>poll, poll_threshold_size)
     check_status(status)
 
 
@@ -364,10 +655,12 @@ cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
     check_status(status)
 
 
-cpdef batch_io_set_up(intptr_t batch_idp, unsigned nr):
+cpdef intptr_t batch_io_set_up(unsigned nr) except? 0:
+    cdef BatchHandle batch_idp
     with nogil:
-        status = cuFileBatchIOSetUp(<BatchHandle*>batch_idp, nr)
+        status = cuFileBatchIOSetUp(&batch_idp, nr)
     check_status(status)
+    return <intptr_t>batch_idp
 
 
 cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags):
@@ -416,10 +709,12 @@ cpdef stream_deregister(intptr_t stream):
     check_status(status)
 
 
-cpdef get_version(intptr_t version):
+cpdef int get_version() except? 0:
+    cdef int version
     with nogil:
-        status = cuFileGetVersion(<int*>version)
+        status = cuFileGetVersion(&version)
     check_status(status)
+    return version
 
 
 cpdef get_parameter_size_t(int param, intptr_t value):
@@ -430,7 +725,7 @@ cpdef get_parameter_size_t(int param, intptr_t value):
 
 cpdef get_parameter_bool(int param, intptr_t value):
     with nogil:
-        status = cuFileGetParameterBool(<_BoolConfigParameter>param, <bool*>value)
+        status = cuFileGetParameterBool(<_BoolConfigParameter>param, <cpp_bool*>value)
     check_status(status)
 
 
@@ -446,13 +741,34 @@ cpdef set_parameter_size_t(int param, size_t value):
     check_status(status)
 
 
-cpdef set_parameter_bool(int param, bool value):
+cpdef set_parameter_bool(int param, bint value):
     with nogil:
-        status = cuFileSetParameterBool(<_BoolConfigParameter>param, value)
+        status = cuFileSetParameterBool(<_BoolConfigParameter>param, <cpp_bool>value)
     check_status(status)
 
 
 cpdef set_parameter_string(int param, intptr_t desc_str):
     with nogil:
         status = cuFileSetParameterString(<_StringConfigParameter>param, <const char*>desc_str)
+    check_status(status)
+
+
+cpdef str op_status_error(int status):
+    """cufileop status string.
+
+    Args:
+        status (OpError): the error status to query.
+
+    .. seealso:: `cufileop_status_error`
+    """
+    cdef bytes _output_
+    _output_ = cufileop_status_error(<_OpError>status)
+    return _output_.decode()
+
+
+cpdef driver_close():
+    """reset the cuFile library and release the nvidia-fs driver
+    """
+    with nogil:
+        status = cuFileDriverClose_v2()
     check_status(status)

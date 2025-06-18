@@ -41,6 +41,10 @@ cdef CUfileError_t cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERROR
     return _cufile._cuFileDriverOpen()
 
 
+cdef CUfileError_t cuFileDriverClose_v2() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileDriverClose_v2()
+
+
 cdef long cuFileUseCount() except* nogil:
     return _cufile._cuFileUseCount()
 
@@ -49,7 +53,7 @@ cdef CUfileError_t cuFileDriverGetProperties(CUfileDrvProps_t* props) except?<CU
     return _cufile._cuFileDriverGetProperties(props)
 
 
-cdef CUfileError_t cuFileDriverSetPollMode(bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t cuFileDriverSetPollMode(cpp_bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileDriverSetPollMode(poll, poll_threshold_size)
 
 
@@ -110,7 +114,7 @@ cdef CUfileError_t cuFileGetParameterSizeT(CUFileSizeTConfigParameter_t param, s
     return _cufile._cuFileGetParameterSizeT(param, value)
 
 
-cdef CUfileError_t cuFileGetParameterBool(CUFileBoolConfigParameter_t param, bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t cuFileGetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileGetParameterBool(param, value)
 
 
@@ -122,7 +126,7 @@ cdef CUfileError_t cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, s
     return _cufile._cuFileSetParameterSizeT(param, value)
 
 
-cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileSetParameterBool(param, value)
 
 
