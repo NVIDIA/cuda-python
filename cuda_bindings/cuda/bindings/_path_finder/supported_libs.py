@@ -112,7 +112,7 @@ DIRECT_DEPENDENCIES = {
 #   cuda_12.6.2_560.35.03_linux.run
 #   cuda_12.8.0_570.86.10_linux.run
 #   cuda_12.9.0_575.51.03_linux.run
-#   014
+#   025
 #   TODO: Update from posted .run files before merging into public main.
 # Generated with toolshed/build_path_finder_sonames.py
 SUPPORTED_LINUX_SONAMES = {
@@ -263,17 +263,19 @@ SUPPORTED_LINUX_SONAMES = {
 #   cuda_12.6.2_560.94_windows.exe
 #   cuda_12.8.1_572.61_windows.exe
 #   cuda_12.9.0_576.02_windows.txt
-#   014
+#   025
 #   TODO: Update from posted .run files before merging into public main.
 # Generated with toolshed/build_path_finder_dlls.py (WITH MANUAL EDITS)
 SUPPORTED_WINDOWS_DLLS = {
     "cublas": (
         "cublas64_11.dll",
         "cublas64_12.dll",
+        "cublas64_13.dll",
     ),
     "cublasLt": (
         "cublasLt64_11.dll",
         "cublasLt64_12.dll",
+        "cublasLt64_13.dll",
     ),
     "cudart": (
         "cudart32_110.dll",
@@ -299,10 +301,12 @@ SUPPORTED_WINDOWS_DLLS = {
     "cusolver": (
         "cusolver64_10.dll",
         "cusolver64_11.dll",
+        "cusolver64_12.dll",
     ),
     "cusolverMg": (
         "cusolverMg64_10.dll",
         "cusolverMg64_11.dll",
+        "cusolverMg64_12.dll",
     ),
     "cusparse": (
         "cusparse64_11.dll",
@@ -370,6 +374,7 @@ SUPPORTED_WINDOWS_DLLS = {
     "nvblas": (
         "nvblas64_11.dll",
         "nvblas64_12.dll",
+        "nvblas64_13.dll",
     ),
     "nvfatbin": (
         "nvfatbin_120_0.dll",
