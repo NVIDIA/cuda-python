@@ -1,24 +1,31 @@
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import cupy as cp
-import numpy as np
+
 from cuda.core.experimental import (
-    Device, LaunchConfig, Program, ProgramOptions, launch,
-    DeviceMemoryResource, LegacyPinnedMemoryResource, Buffer
+    Device,
+    DeviceMemoryResource,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+    Program,
+    ProgramOptions,
+    launch,
 )
-from cuda.core.experimental._memory import MemoryResource
-from cuda.core.experimental._utils.cuda_utils import handle_return
-from cuda.bindings import driver
+from cuda.core.experimental._dlpack import DLDeviceType
 
 # Kernel for memory operations
 code = """
 extern "C"
-__global__ void memory_ops(float* device_data, 
+__global__ void memory_ops(float* device_data,
                           float* pinned_data,
                           size_t N) {
     const unsigned int tid = threadIdx.x + blockIdx.x * blockDim.x;
     if (tid < N) {
         // Access device memory
         device_data[tid] = device_data[tid] + 1.0f;
-        
+
         // Access pinned memory (zero-copy from GPU)
         pinned_data[tid] = pinned_data[tid] * 3.0f;
     }
@@ -49,19 +56,21 @@ total_size = size * element_size
 # 1. Device Memory (GPU-only)
 device_buffer = device_mr.allocate(total_size, stream=stream)
 device_array = cp.ndarray(
-    size, dtype=dtype,
+    size,
+    dtype=dtype,
     memptr=cp.cuda.MemoryPointer(
         cp.cuda.UnownedMemory(int(device_buffer.handle), device_buffer.size, device_buffer), 0
-    )
+    ),
 )
 
 # 2. Pinned Memory (CPU memory, GPU accessible)
 pinned_buffer = pinned_mr.allocate(total_size, stream=stream)
 pinned_array = cp.ndarray(
-    size, dtype=dtype,
+    size,
+    dtype=dtype,
     memptr=cp.cuda.MemoryPointer(
         cp.cuda.UnownedMemory(int(pinned_buffer.handle), pinned_buffer.size, pinned_buffer), 0
-    )
+    ),
 )
 
 # Initialize data
@@ -81,8 +90,7 @@ block = 256
 grid = (size + block - 1) // block
 config = LaunchConfig(grid=grid, block=block)
 
-launch(stream, config, kernel, 
-       device_buffer, pinned_buffer, cp.uint64(size))
+launch(stream, config, kernel, device_buffer, pinned_buffer, cp.uint64(size))
 stream.sync()
 
 # Verify kernel operations
@@ -113,10 +121,11 @@ assert cp.allclose(pinned_array, device_array), "Device to pinned copy failed"
 # Create a new device buffer and copy from pinned
 new_device_buffer = device_mr.allocate(total_size, stream=stream)
 new_device_array = cp.ndarray(
-    size, dtype=dtype,
+    size,
+    dtype=dtype,
     memptr=cp.cuda.MemoryPointer(
         cp.cuda.UnownedMemory(int(new_device_buffer.handle), new_device_buffer.size, new_device_buffer), 0
-    )
+    ),
 )
 
 pinned_buffer.copy_to(new_device_buffer, stream=stream)
@@ -131,8 +140,6 @@ print(f"Device buffer DLPack device: {device_buffer.__dlpack_device__()}")
 print(f"Pinned buffer DLPack device: {pinned_buffer.__dlpack_device__()}")
 
 # Assert DLPack device types
-from cuda.core.experimental._memory import DLDeviceType
-
 device_dlpack = device_buffer.__dlpack_device__()
 pinned_dlpack = pinned_buffer.__dlpack_device__()
 
@@ -142,7 +149,9 @@ assert pinned_dlpack[0] == DLDeviceType.kDLCUDAHost, "Pinned buffer should have 
 # Test buffer size properties
 assert device_buffer.size == total_size, f"Device buffer size mismatch: expected {total_size}, got {device_buffer.size}"
 assert pinned_buffer.size == total_size, f"Pinned buffer size mismatch: expected {total_size}, got {pinned_buffer.size}"
-assert new_device_buffer.size == total_size, f"New device buffer size mismatch: expected {total_size}, got {new_device_buffer.size}"
+assert new_device_buffer.size == total_size, (
+    f"New device buffer size mismatch: expected {total_size}, got {new_device_buffer.size}"
+)
 
 # Test memory resource properties
 assert device_buffer.memory_resource == device_mr, "Device buffer should use device memory resource"
