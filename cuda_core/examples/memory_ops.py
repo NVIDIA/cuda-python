@@ -2,6 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# ################################################################################
+#
+# This demo illustrates:
+#
+#   1. How to use different memory resources to allocate and manage memory
+#   2. How to copy data between different memory types
+#   3. How to use DLPack to interoperate with other libraries
+#
+# ################################################################################
+
 import cupy as cp
 import numpy as np
 
