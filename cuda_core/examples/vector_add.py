@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# ################################################################################
+#
+# This demo illustrates how to use `cuda.core` to compile and launch a simple
+# vector addition kernel.
+#
+# ################################################################################
+
 import cupy as cp
 
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch

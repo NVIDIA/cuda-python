@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# ################################################################################
+#
+# This demo illustrates how to use `cuda.core` to show the properties of the
+# CUDA devices in the system.
+#
+# ################################################################################
+
 import sys
 
 from cuda.core.experimental import Device, system
