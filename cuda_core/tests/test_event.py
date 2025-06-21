@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import pathlib
 import time
 
+import helpers
 import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
@@ -144,7 +144,7 @@ __global__ void wait(int* val) {
     program_options = ProgramOptions(
         std="c++17",
         arch=f"sm_{arch}",
-        include_path=str(pathlib.Path(os.environ["CUDA_PATH"]) / pathlib.Path("include")),
+        include_path=helpers.CCCL_INCLUDE_PATHS,
     )
     prog = Program(code, code_type="c++", options=program_options)
     mod = prog.compile(target_type="cubin")
