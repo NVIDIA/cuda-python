@@ -1,7 +1,7 @@
 # Copyright 2024 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
+import helpers
 
 try:
     from cuda.bindings import driver
@@ -65,5 +65,4 @@ def deinit_all_contexts_function():
     return pop_all_contexts
 
 
-# TODO: make the fixture more sophisticated using path finder
-skipif_need_cuda_headers = pytest.mark.skipif(os.environ.get("CUDA_PATH") is None, reason="need CUDA header")
+skipif_need_cuda_headers = pytest.mark.skipif(helpers.CUDA_INCLUDE_PATH is None, reason="need CUDA header")
