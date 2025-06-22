@@ -476,7 +476,7 @@ class GraphBuilder:
             default_value = 0
             flags = 0
 
-        status, _, graph, _, _ = handle_return(driver.cuStreamGetCaptureInfo(self._mnff.stream.handle))
+        status, _, graph, *_, _ = handle_return(driver.cuStreamGetCaptureInfo(self._mnff.stream.handle))
         if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
             raise RuntimeError("Cannot create a conditional handle when graph is not being built")
 
@@ -486,20 +486,22 @@ class GraphBuilder:
 
     def _cond_with_params(self, node_params) -> GraphBuilder:
         # Get current capture info to ensure we're in a valid state
-        status, _, graph, dependencies, num_dependencies = handle_return(
+        status, _, graph, *deps_info, num_dependencies = handle_return(
             driver.cuStreamGetCaptureInfo(self._mnff.stream.handle)
         )
         if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
             raise RuntimeError("Cannot add conditional node when not actively capturing")
 
         # Add the conditional node to the graph
-        node = handle_return(driver.cuGraphAddNode(graph, dependencies, num_dependencies, node_params))
+        deps_info_update = [
+            [handle_return(driver.cuGraphAddNode(graph, *deps_info, num_dependencies, node_params))]
+        ] + [None] * (len(deps_info) - 1)
 
         # Update the stream's capture dependencies
         handle_return(
             driver.cuStreamUpdateCaptureDependencies(
                 self._mnff.stream.handle,
-                [node],  # dependencies
+                *deps_info_update,  # dependencies, edgeData
                 1,  # numDependencies
                 driver.CUstreamUpdateCaptureDependencies_flags.CU_STREAM_SET_CAPTURE_DEPENDENCIES,
             )
@@ -677,17 +679,23 @@ class GraphBuilder:
             raise ValueError("Parent graph is not being built.")
 
         stream_handle = self._mnff.stream.handle
-        _, _, graph_out, dependencies_out, num_dependencies_out = handle_return(
+        _, _, graph_out, *deps_info_out, num_dependencies_out = handle_return(
             driver.cuStreamGetCaptureInfo(stream_handle)
         )
 
-        child_node = handle_return(
-            driver.cuGraphAddChildGraphNode(graph_out, dependencies_out, num_dependencies_out, child_graph._mnff.graph)
-        )
+        deps_info_update = [
+            [
+                handle_return(
+                    driver.cuGraphAddChildGraphNode(
+                        graph_out, deps_info_out[0], num_dependencies_out, child_graph._mnff.graph
+                    )
+                )
+            ]
+        ] + [None] * (len(deps_info_out) - 1)
         handle_return(
             driver.cuStreamUpdateCaptureDependencies(
                 stream_handle,
-                [child_node],
+                *deps_info_update,  # dependencies, edgeData
                 1,
                 driver.CUstreamUpdateCaptureDependencies_flags.CU_STREAM_SET_CAPTURE_DEPENDENCIES,
             )
