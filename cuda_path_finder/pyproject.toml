@@ -2,48 +2,36 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 [project]
-name = "cuda-path_finder"
+name = "cuda-path-finder"
 description = "Path Finder for CUDA components (mainly libs, headers)"
-authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
-license = "LicenseRef-NVIDIA-SOFTWARE-LICENSE"
-classifiers = [
-    "Intended Audience :: Developers",
-    "Topic :: Database",
-    "Topic :: Scientific/Engineering",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Environment :: GPU :: NVIDIA CUDA",
-]
-dynamic = [
-    "version",
-    "readme",
-]
+authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" }]
+license = { text = "LicenseRef-NVIDIA-SOFTWARE-LICENSE" }
+requires-python = ">=3.9"
 dependencies = [
-  "pywin32; sys_platform == 'win32'",
+    "pywin32; sys_platform == 'win32'",
 ]
 
 [project.urls]
 Repository = "https://github.com/NVIDIA/cuda-python"
 Documentation = "https://nvidia.github.io/cuda-python/"
 
-[tool.setuptools.packages.find]
-include = ["cuda*"]
+[tool.setuptools]
+packages = { find = { include = ["cuda*"] } }
 
 [tool.setuptools.dynamic]
 version = { attr = "cuda.path_finder._version.__version__" }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [tool.ruff]
 line-length = 120
+preview = true
 
 [tool.ruff.format]
 docstring-code-format = true
-
-exclude = ["cuda/path_finder/_version.py"]
 
 [tool.ruff.lint]
 select = [
@@ -62,26 +50,3 @@ select = [
     # isort
     "I",
 ]
-
-ignore = [
-    "UP006", 
-    "UP007", 
-    "E741", # ambiguous variable name such as I
-    "B007", # rename unsued loop variable to _name 
-    "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
-]
-
-[tool.ruff.lint.per-file-ignores]
-"setup.py" = ["F401"]
-"__init__.py" = ["F401"]
-
-"examples/**/*" = [
-  "E722",
-  "E501" # line too long
-  ]
-
-"tests/**/*" = [
-  "E722", 
-  "UP022",
-  "E402", # module level import not at top of file
-  "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
