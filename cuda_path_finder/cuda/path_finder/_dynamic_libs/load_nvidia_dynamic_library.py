@@ -3,7 +3,9 @@
 
 import functools
 
-from cuda.bindings._path_finder.find_nvidia_dynamic_library import _find_nvidia_dynamic_library
+from cuda.bindings._path_finder.find_nvidia_dynamic_library import (
+    _find_nvidia_dynamic_library,
+)
 from cuda.bindings._path_finder.load_dl_common import LoadedDL, load_dependencies
 from cuda.bindings._path_finder.supported_libs import IS_WINDOWS
 

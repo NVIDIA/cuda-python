@@ -78,7 +78,9 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         except OSError:
             continue
         else:
-            return LoadedDL(handle._handle, abs_path_for_dynamic_library(libname, handle), True)
+            return LoadedDL(
+                handle._handle, abs_path_for_dynamic_library(libname, handle), True
+            )
     return None
 
 
