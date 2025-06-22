@@ -10,6 +10,7 @@ if CUDA_PATH is not None:
     path = os.path.join(CUDA_PATH, "include")
     if os.path.isdir(path):
         CUDA_INCLUDE_PATH = path
+        CCCL_INCLUDE_PATHS = (path,)
         path = os.path.join(path, "cccl")
         if os.path.isdir(path):
-            CCCL_INCLUDE_PATHS = (path, CUDA_INCLUDE_PATH)
+            CCCL_INCLUDE_PATHS = (path,) + CCCL_INCLUDE_PATHS
