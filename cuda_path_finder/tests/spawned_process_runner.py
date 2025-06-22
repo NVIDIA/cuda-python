@@ -5,9 +5,10 @@ import multiprocessing
 import queue  # for Empty
 import sys
 import traceback
+from collections.abc import Sequence
 from dataclasses import dataclass
 from io import StringIO
-from typing import Any, Callable, Optional, Sequence
+from typing import Any, Callable, Optional
 
 PROCESS_KILLED = -9
 PROCESS_NO_RESULT = -999
