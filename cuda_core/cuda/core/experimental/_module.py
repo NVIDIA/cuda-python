@@ -449,7 +449,7 @@ class ObjectCode:
     context.
     """
 
-    __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map")
+    __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map", "_name")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
 
     def __new__(self, *args, **kwargs):
@@ -459,7 +459,7 @@ class ObjectCode:
         )
 
     @classmethod
-    def _init(cls, module, code_type, *, symbol_mapping: Optional[dict] = None):
+    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: Optional[dict] = None):
         self = super().__new__(cls)
         assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
@@ -473,19 +473,20 @@ class ObjectCode:
         self._code_type = code_type
         self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
+        self._name = name
 
         return self
 
     @classmethod
-    def _reduce_helper(self, module, code_type, symbol_mapping):
+    def _reduce_helper(self, module, code_type, name, symbol_mapping):
         # just for forwarding kwargs
-        return ObjectCode._init(module, code_type, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, code_type, name=name, symbol_mapping=symbol_mapping)
 
     def __reduce__(self):
-        return ObjectCode._reduce_helper, (self._module, self._code_type, self._sym_map)
+        return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_cubin(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -493,15 +494,17 @@ class ObjectCode:
         module : Union[bytes, str]
             Either a bytes object containing the in-memory cubin to load, or
             a file path string pointing to the on-disk cubin to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "cubin", symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "cubin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_ptx(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -509,15 +512,17 @@ class ObjectCode:
         module : Union[bytes, str]
             Either a bytes object containing the in-memory ptx code to load, or
             a file path string pointing to the on-disk ptx file to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ptx", symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "ptx", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_ltoir(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
@@ -525,15 +530,19 @@ class ObjectCode:
         module : Union[bytes, str]
             Either a bytes object containing the in-memory ltoir code to load, or
             a file path string pointing to the on-disk ltoir file to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ltoir", symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_fatbin(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
@@ -541,15 +550,19 @@ class ObjectCode:
         module : Union[bytes, str]
             Either a bytes object containing the in-memory fatbin to load, or
             a file path string pointing to the on-disk fatbin to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "fatbin", symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "fatbin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_object(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_object(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing object code.
 
         Parameters
@@ -557,15 +570,19 @@ class ObjectCode:
         module : Union[bytes, str]
             Either a bytes object containing the in-memory object code to load, or
             a file path string pointing to the on-disk object code to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "object", symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "object", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_library(module: Union[bytes, str], *, symbol_mapping: Optional[dict] = None) -> "ObjectCode":
+    def from_library(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing library.
 
         Parameters
@@ -573,12 +590,14 @@ class ObjectCode:
         module : Union[bytes, str]
             Either a bytes object containing the in-memory library to load, or
             a file path string pointing to the on-disk library to load.
+        name : Optional[str]
+            A human-readable identifier representing this code object.
         symbol_mapping : Optional[dict]
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "library", symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "library", name=name, symbol_mapping=symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
@@ -631,6 +650,11 @@ class ObjectCode:
     def code(self) -> CodeTypeT:
         """Return the underlying code object."""
         return self._module
+
+    @property
+    def name(self) -> str:
+        """Return a human-readable name of this code object."""
+        return self._name
 
     @property
     @precondition(_lazy_load_module)

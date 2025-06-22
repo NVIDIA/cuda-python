@@ -57,6 +57,8 @@ class ProgramOptions:
 
     Attributes
     ----------
+    name : str, optional
+        Name of the program. If the compilation succeeds, the name is passed down to the generated `ObjectCode`.
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
@@ -180,6 +182,7 @@ class ProgramOptions:
         Default: False
     """
 
+    name: Optional[str] = "<default program>"
     arch: Optional[str] = None
     relocatable_device_code: Optional[bool] = None
     extensible_whole_program: Optional[bool] = None
@@ -222,6 +225,8 @@ class ProgramOptions:
     minimal: Optional[bool] = None
 
     def __post_init__(self):
+        self._name = self.name.encode()
+
         self._formatted_options = []
         if self.arch is not None:
             self._formatted_options.append(f"--gpu-architecture={self.arch}")
@@ -396,7 +401,7 @@ class Program:
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
-            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
+            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
             self._backend = "NVRTC"
             self._linker = None
 
@@ -413,6 +418,7 @@ class Program:
 
     def _translate_program_options(self, options: ProgramOptions) -> LinkerOptions:
         return LinkerOptions(
+            name=options.name,
             arch=options.arch,
             max_register_count=options.max_register_count,
             time=options.time,
@@ -505,7 +511,7 @@ class Program:
                     handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
                     logs.write(log.decode("utf-8", errors="backslashreplace"))
 
-            return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
+            return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping, name=self._options.name)
 
         supported_backends = ("nvJitLink", "driver")
         if self._backend not in supported_backends:

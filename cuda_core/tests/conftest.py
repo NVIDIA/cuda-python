@@ -65,7 +65,5 @@ def deinit_all_contexts_function():
     return pop_all_contexts
 
 
-skipif_testing_with_compute_sanitizer = pytest.mark.skipif(
-    os.environ.get("CUDA_PYTHON_TESTING_WITH_COMPUTE_SANITIZER", "0") == "1",
-    reason="The compute-sanitizer is running, and this test causes an API error.",
-)
+# TODO: make the fixture more sophisticated using path finder
+skipif_need_cuda_headers = pytest.mark.skipif(os.environ.get("CUDA_PATH") is None, reason="need CUDA header")

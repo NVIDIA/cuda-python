@@ -2,13 +2,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from typing import Union
 
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._launch_config import LaunchConfig, _to_native_launch_config
 from cuda.core.experimental._module import Kernel
-from cuda.core.experimental._stream import Stream
+from cuda.core.experimental._stream import IsStreamT, Stream, _try_to_get_stream_ptr
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
+    _reduce_3_tuple,
     check_or_create_options,
     driver,
     get_binding_version,
@@ -33,7 +35,7 @@ def _lazy_init():
     _inited = True
 
 
-def launch(stream, config, kernel, *kernel_args):
+def launch(stream: Union[Stream, IsStreamT], config: LaunchConfig, kernel: Kernel, *kernel_args):
     """Launches a :obj:`~_module.Kernel`
     object with launch-time configuration.
 
@@ -42,7 +44,7 @@ def launch(stream, config, kernel, *kernel_args):
     stream : :obj:`~_stream.Stream`
         The stream establishing the stream ordering semantic of a
         launch.
-    config : :obj:`~_launcher.LaunchConfig`
+    config : :obj:`LaunchConfig`
         Launch configurations inline with options provided by
         :obj:`~_launcher.LaunchConfig` dataclass.
     kernel : :obj:`~_module.Kernel`
@@ -54,13 +56,15 @@ def launch(stream, config, kernel, *kernel_args):
     """
     if stream is None:
         raise ValueError("stream cannot be None, stream must either be a Stream object or support __cuda_stream__")
-    if not isinstance(stream, Stream):
+    try:
+        stream_handle = stream.handle
+    except AttributeError:
         try:
-            stream = Stream._init(stream)
-        except Exception as e:
+            stream_handle = _try_to_get_stream_ptr(stream)
+        except Exception:
             raise ValueError(
                 f"stream must either be a Stream object or support __cuda_stream__ (got {type(stream)})"
-            ) from e
+            ) from None
     assert_type(kernel, Kernel)
     _lazy_init()
     config = check_or_create_options(LaunchConfig, config, "launch config")
@@ -77,12 +81,27 @@ def launch(stream, config, kernel, *kernel_args):
     # rich.
     if _use_ex:
         drv_cfg = _to_native_launch_config(config)
-        drv_cfg.hStream = stream.handle
+        drv_cfg.hStream = stream_handle
+        if config.cooperative_launch:
+            _check_cooperative_launch(kernel, config, stream)
         handle_return(driver.cuLaunchKernelEx(drv_cfg, int(kernel._handle), args_ptr, 0))
     else:
         # TODO: check if config has any unsupported attrs
         handle_return(
             driver.cuLaunchKernel(
-                int(kernel._handle), *config.grid, *config.block, config.shmem_size, stream.handle, args_ptr, 0
+                int(kernel._handle), *config.grid, *config.block, config.shmem_size, stream_handle, args_ptr, 0
             )
         )
+
+
+def _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Stream):
+    dev = stream.device
+    num_sm = dev.properties.multiprocessor_count
+    max_grid_size = (
+        kernel.occupancy.max_active_blocks_per_multiprocessor(_reduce_3_tuple(config.block), config.shmem_size) * num_sm
+    )
+    if _reduce_3_tuple(config.grid) > max_grid_size:
+        # For now let's try not to be smart and adjust the grid size behind users' back.
+        # We explicitly ask users to adjust.
+        x, y, z = config.grid
+        raise ValueError(f"The specified grid size ({x} * {y} * {z}) exceeds the limit ({max_grid_size})")

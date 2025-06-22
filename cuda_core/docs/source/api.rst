@@ -17,11 +17,19 @@ CUDA runtime
    :toctree: generated/
 
    Device
+   Graph
+   GraphBuilder
    launch
+   Buffer
+   MemoryResource
+   DeviceMemoryResource
+   LegacyPinnedMemoryResource
 
    :template: dataclass.rst
 
    EventOptions
+   GraphCompleteOptions
+   GraphDebugPrintOptions
    StreamOptions
    LaunchConfig
 

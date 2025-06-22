@@ -15,11 +15,11 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   _memory.Buffer
    _stream.Stream
+   _memory.PyCapsule
+   _memory.DevicePointerT
    _event.Event
    _device.DeviceProperties
-   _launch_config.LaunchConfig
    _module.KernelAttributes
    _module.KernelOccupancy
    _module.ParamInfo
@@ -33,4 +33,13 @@ CUDA compilation toolchain
    :toctree: generated/
 
    _module.Kernel
-   _module.ObjectCode
+
+
+CUDA protocols
+--------------
+
+.. autosummary::
+   :toctree: generated/
+   :template: protocol.rst
+
+   _stream.IsStreamT

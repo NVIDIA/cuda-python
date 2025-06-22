@@ -7,12 +7,14 @@ from typing import Optional, Union
 
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._memory import Buffer, MemoryResource, _DefaultAsyncMempool, _SynchronousMemoryResource
-from cuda.core.experimental._stream import Stream, StreamOptions, default_stream
+from cuda.core.experimental._graph import GraphBuilder
+from cuda.core.experimental._memory import Buffer, DeviceMemoryResource, MemoryResource, _SynchronousMemoryResource
+from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions, default_stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     ComputeCapability,
     CUDAError,
+    _check_driver_error,
     driver,
     handle_return,
     precondition,
@@ -701,6 +703,17 @@ class DeviceProperties:
             )
         )
 
+    # TODO: A few attrs are missing here (NVIDIA/cuda-python#675)
+
+    @property
+    def cooperative_launch(self) -> bool:
+        """
+        True if device supports launching cooperative kernels, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COOPERATIVE_LAUNCH))
+
+    # TODO: A few attrs are missing here (NVIDIA/cuda-python#675)
+
     @property
     def max_shared_memory_per_block_optin(self) -> int:
         """
@@ -919,6 +932,10 @@ class DeviceProperties:
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED))
 
 
+_SUCCESS = driver.CUresult.CUDA_SUCCESS
+_INVALID_CTX = driver.CUresult.CUDA_ERROR_INVALID_CONTEXT
+
+
 class Device:
     """Represent a GPU and act as an entry point for cuda.core features.
 
@@ -948,7 +965,7 @@ class Device:
 
     __slots__ = ("_id", "_mr", "_has_inited", "_properties")
 
-    def __new__(cls, device_id=None):
+    def __new__(cls, device_id: Optional[int] = None):
         global _is_cuInit
         if _is_cuInit is False:
             with _lock:
@@ -957,18 +974,24 @@ class Device:
 
         # important: creating a Device instance does not initialize the GPU!
         if device_id is None:
-            device_id = handle_return(runtime.cudaGetDevice())
-            assert_type(device_id, int)
-        else:
-            total = handle_return(runtime.cudaGetDeviceCount())
-            assert_type(device_id, int)
-            if not (0 <= device_id < total):
-                raise ValueError(f"device_id must be within [0, {total}), got {device_id}")
+            err, dev = driver.cuCtxGetDevice()
+            if err == _SUCCESS:
+                device_id = int(dev)
+            elif err == _INVALID_CTX:
+                ctx = handle_return(driver.cuCtxGetCurrent())
+                assert int(ctx) == 0
+                device_id = 0  # cudart behavior
+            else:
+                _check_driver_error(err)
+        elif device_id < 0:
+            raise ValueError(f"device_id must be >= 0, got {device_id}")
 
         # ensure Device is singleton
-        if not hasattr(_tls, "devices"):
-            total = handle_return(runtime.cudaGetDeviceCount())
-            _tls.devices = []
+        try:
+            devices = _tls.devices
+        except AttributeError:
+            total = handle_return(driver.cuDeviceGetCount())
+            devices = _tls.devices = []
             for dev_id in range(total):
                 dev = super().__new__(cls)
                 dev._id = dev_id
@@ -976,18 +999,23 @@ class Device:
                 # use the SynchronousMemoryResource which does not use memory pools.
                 if (
                     handle_return(
-                        runtime.cudaDeviceGetAttribute(runtime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
+                        driver.cuDeviceGetAttribute(
+                            driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev_id
+                        )
                     )
                 ) == 1:
-                    dev._mr = _DefaultAsyncMempool(dev_id)
+                    dev._mr = DeviceMemoryResource(dev_id)
                 else:
                     dev._mr = _SynchronousMemoryResource(dev_id)
 
                 dev._has_inited = False
                 dev._properties = None
-                _tls.devices.append(dev)
+                devices.append(dev)
 
-        return _tls.devices[device_id]
+        try:
+            return devices[device_id]
+        except IndexError:
+            raise ValueError(f"device_id must be within [0, {len(devices)}), got {device_id}") from None
 
     def _check_context_initialized(self, *args, **kwargs):
         if not self._has_inited:
@@ -1179,13 +1207,13 @@ class Device:
         raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
     @precondition(_check_context_initialized)
-    def create_stream(self, obj=None, options: StreamOptions = None) -> Stream:
+    def create_stream(self, obj: Optional[IsStreamT] = None, options: StreamOptions = None) -> Stream:
         """Create a Stream object.
 
         New stream objects can be created in two different ways:
 
-        1) Create a new CUDA stream with customizable `options`.
-        2) Wrap an existing foreign `obj` supporting the __cuda_stream__ protocol.
+        1) Create a new CUDA stream with customizable ``options``.
+        2) Wrap an existing foreign `obj` supporting the ``__cuda_stream__`` protocol.
 
         Option (2) internally holds a reference to the foreign object
         such that the lifetime is managed.
@@ -1196,8 +1224,8 @@ class Device:
 
         Parameters
         ----------
-        obj : Any, optional
-            Any object supporting the __cuda_stream__ protocol.
+        obj : :obj:`~_stream.IsStreamT`, optional
+            Any object supporting the ``__cuda_stream__`` protocol.
         options : :obj:`~_stream.StreamOptions`, optional
             Customizable dataclass for stream creation options.
 
@@ -1231,7 +1259,7 @@ class Device:
         return Event._init(self._id, self.context._handle, options)
 
     @precondition(_check_context_initialized)
-    def allocate(self, size, stream=None) -> Buffer:
+    def allocate(self, size, stream: Optional[Stream] = None) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
@@ -1271,3 +1299,15 @@ class Device:
 
         """
         handle_return(runtime.cudaDeviceSynchronize())
+
+    @precondition(_check_context_initialized)
+    def create_graph_builder(self) -> GraphBuilder:
+        """Create a new :obj:`~_graph.GraphBuilder` object.
+
+        Returns
+        -------
+        :obj:`~_graph.GraphBuilder`
+            Newly created graph builder object.
+
+        """
+        return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)

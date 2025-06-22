@@ -50,7 +50,8 @@ class LaunchConfig:
     shmem_size : int, optional
         Dynamic shared-memory size per thread block in bytes.
         (Default to size 0)
-
+    cooperative_launch : bool, optional
+        Whether this config can be used to launch a cooperative kernel.
     """
 
     # TODO: expand LaunchConfig to include other attributes
@@ -58,11 +59,15 @@ class LaunchConfig:
     cluster: Union[tuple, int] = None
     block: Union[tuple, int] = None
     shmem_size: Optional[int] = None
+    cooperative_launch: Optional[bool] = False
 
     def __post_init__(self):
         _lazy_init()
         self.grid = cast_to_3_tuple("LaunchConfig.grid", self.grid)
         self.block = cast_to_3_tuple("LaunchConfig.block", self.block)
+        # FIXME: Calling Device() strictly speaking is not quite right; we should instead
+        # look up the device from stream. We probably need to defer the checks related to
+        # device compute capability or attributes.
         # thread block clusters are supported starting H100
         if self.cluster is not None:
             if not _use_ex:
@@ -77,6 +82,8 @@ class LaunchConfig:
             self.cluster = cast_to_3_tuple("LaunchConfig.cluster", self.cluster)
         if self.shmem_size is None:
             self.shmem_size = 0
+        if self.cooperative_launch and not Device().properties.cooperative_launch:
+            raise CUDAError("cooperative kernels are not supported on this device")
 
 
 def _to_native_launch_config(config: LaunchConfig) -> driver.CUlaunchConfig:
@@ -91,6 +98,11 @@ def _to_native_launch_config(config: LaunchConfig) -> driver.CUlaunchConfig:
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
         dim = attr.value.clusterDim
         dim.x, dim.y, dim.z = config.cluster
+        attrs.append(attr)
+    if config.cooperative_launch:
+        attr = driver.CUlaunchAttribute()
+        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
+        attr.value.cooperative = 1
         attrs.append(attr)
     drv_cfg.numAttrs = len(attrs)
     drv_cfg.attrs = attrs
