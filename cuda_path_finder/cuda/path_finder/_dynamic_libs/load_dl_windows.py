@@ -30,9 +30,7 @@ def add_dll_directory(dll_abs_path: str) -> None:
     os.add_dll_directory(dirpath)
     # Update PATH as a fallback for dependent DLL resolution
     curr_path = os.environ.get("PATH")
-    os.environ["PATH"] = (
-        dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
-    )
+    os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
 
 
 def abs_path_for_dynamic_library(libname: str, handle: pywintypes.HANDLE) -> str:
@@ -40,9 +38,7 @@ def abs_path_for_dynamic_library(libname: str, handle: pywintypes.HANDLE) -> str
     try:
         return win32api.GetModuleFileName(handle)
     except Exception as e:
-        raise RuntimeError(
-            f"GetModuleFileName failed for {libname!r} (exception type: {type(e)})"
-        ) from e
+        raise RuntimeError(f"GetModuleFileName failed for {libname!r} (exception type: {type(e)})") from e
 
 
 def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
@@ -89,9 +85,7 @@ def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
         except pywintypes.error:
             continue
         else:
-            return LoadedDL(
-                handle, abs_path_for_dynamic_library(libname, handle), False
-            )
+            return LoadedDL(handle, abs_path_for_dynamic_library(libname, handle), False)
 
     return None
 
@@ -116,10 +110,7 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     if libname in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY:
         add_dll_directory(found_path)
 
-    flags = (
-        WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS
-        | WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
-    )
+    flags = WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
     try:
         handle = win32api.LoadLibraryEx(found_path, 0, flags)
     except pywintypes.error as e:

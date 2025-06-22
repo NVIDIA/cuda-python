@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from cuda.bindings._path_finder.find_sub_dirs import (
+from cuda.path_finder._utils import (
     find_sub_dirs,
     find_sub_dirs_all_sitepackages,
     find_sub_dirs_sys_path,

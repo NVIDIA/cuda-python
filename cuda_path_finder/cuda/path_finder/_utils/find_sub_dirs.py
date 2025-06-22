@@ -49,6 +49,4 @@ def find_sub_dirs_sys_path(sub_dirs):
 
 
 def find_sub_dirs_all_sitepackages(sub_dirs):
-    return find_sub_dirs(
-        (site.getusersitepackages(),) + tuple(site.getsitepackages()), sub_dirs
-    )
+    return find_sub_dirs((site.getusersitepackages(),) + tuple(site.getsitepackages()), sub_dirs)

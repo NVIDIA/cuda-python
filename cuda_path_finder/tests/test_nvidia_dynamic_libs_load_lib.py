@@ -7,32 +7,34 @@ import sys
 import pytest
 import spawned_process_runner
 
-from cuda.bindings import path_finder
-from cuda.bindings._path_finder import supported_libs
+from cuda.path_finder import nvidia_dynamic_libs
+from cuda.path_finder._dynamic_libs import supported_nvidia_libs
 
-ALL_LIBNAMES = path_finder._SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES_ALL
-ALL_LIBNAMES_LINUX = path_finder._SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES_LINUX
-ALL_LIBNAMES_WINDOWS = path_finder._SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
-if os.environ.get("CUDA_BINDINGS_PATH_FINDER_TEST_ALL_LIBNAMES", False):
+ALL_LIBNAMES = nvidia_dynamic_libs.SUPPORTED_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_ALL
+ALL_LIBNAMES_LINUX = nvidia_dynamic_libs.SUPPORTED_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_LINUX
+ALL_LIBNAMES_WINDOWS = (
+    nvidia_dynamic_libs.SUPPORTED_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
+)
+if os.environ.get("CUDA_PATH_FINDER_TEST_ALL_LIBNAMES", False):
     if sys.platform == "win32":
         TEST_FIND_OR_LOAD_LIBNAMES = ALL_LIBNAMES_WINDOWS
     else:
         TEST_FIND_OR_LOAD_LIBNAMES = ALL_LIBNAMES_LINUX
 else:
-    TEST_FIND_OR_LOAD_LIBNAMES = path_finder._SUPPORTED_LIBNAMES
+    TEST_FIND_OR_LOAD_LIBNAMES = nvidia_dynamic_libs.SUPPORTED_LIBNAMES
 
 
 def test_all_libnames_linux_sonames_consistency():
-    assert tuple(sorted(ALL_LIBNAMES_LINUX)) == tuple(sorted(supported_libs.SUPPORTED_LINUX_SONAMES.keys()))
+    assert tuple(sorted(ALL_LIBNAMES_LINUX)) == tuple(sorted(supported_nvidia_libs.SUPPORTED_LINUX_SONAMES.keys()))
 
 
 def test_all_libnames_windows_dlls_consistency():
-    assert tuple(sorted(ALL_LIBNAMES_WINDOWS)) == tuple(sorted(supported_libs.SUPPORTED_WINDOWS_DLLS.keys()))
+    assert tuple(sorted(ALL_LIBNAMES_WINDOWS)) == tuple(sorted(supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS.keys()))
 
 
 @pytest.mark.parametrize("dict_name", ["SUPPORTED_LINUX_SONAMES", "SUPPORTED_WINDOWS_DLLS"])
 def test_libname_dict_values_are_unique(dict_name):
-    libname_dict = getattr(supported_libs, dict_name)
+    libname_dict = getattr(supported_nvidia_libs, dict_name)
     libname_for_value = {}
     for libname, values in libname_dict.items():
         for value in values:
@@ -43,11 +45,11 @@ def test_libname_dict_values_are_unique(dict_name):
 
 
 def test_all_libnames_libnames_requiring_os_add_dll_directory_consistency():
-    assert not (set(supported_libs.LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY) - set(ALL_LIBNAMES_WINDOWS))
+    assert not (set(supported_nvidia_libs.LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY) - set(ALL_LIBNAMES_WINDOWS))
 
 
 def test_all_libnames_expected_lib_symbols_consistency():
-    assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_libs.EXPECTED_LIB_SYMBOLS.keys()))
+    assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_nvidia_libs.EXPECTED_LIB_SYMBOLS.keys()))
 
 
 def build_child_process_failed_for_libname_message(libname, result):
@@ -61,18 +63,18 @@ def build_child_process_failed_for_libname_message(libname, result):
 def child_process_func(libname):
     import os
 
-    from cuda.bindings._path_finder.load_nvidia_dynamic_library import _load_nvidia_dynamic_library_no_cache
-    from cuda.bindings.path_finder import _load_nvidia_dynamic_library
+    from cuda.path_finder._dynamic_libs.load_nvidia_dynamic_library import load_lib_no_cache
+    from cuda.path_finder.nvidia_dynamic_libs import load_lib
 
-    loaded_dl_fresh = _load_nvidia_dynamic_library(libname)
+    loaded_dl_fresh = load_lib(libname)
     if loaded_dl_fresh.was_already_loaded_from_elsewhere:
         raise RuntimeError("loaded_dl_fresh.was_already_loaded_from_elsewhere")
 
-    loaded_dl_from_cache = _load_nvidia_dynamic_library(libname)
+    loaded_dl_from_cache = load_lib(libname)
     if loaded_dl_from_cache is not loaded_dl_fresh:
         raise RuntimeError("loaded_dl_from_cache is not loaded_dl_fresh")
 
-    loaded_dl_no_cache = _load_nvidia_dynamic_library_no_cache(libname)
+    loaded_dl_no_cache = load_lib_no_cache(libname)
     if not loaded_dl_no_cache.was_already_loaded_from_elsewhere:
         raise RuntimeError("loaded_dl_no_cache.was_already_loaded_from_elsewhere")
     if not os.path.samefile(loaded_dl_no_cache.abs_path, loaded_dl_fresh.abs_path):
