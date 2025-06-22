@@ -5,8 +5,11 @@ import functools
 import glob
 import os
 
-from cuda.bindings._path_finder.find_sub_dirs import find_sub_dirs_all_sitepackages
-from cuda.bindings._path_finder.supported_libs import IS_WINDOWS, is_suppressed_dll_file
+from cuda.path_finder._dynamic_libs.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.path_finder._dynamic_libs.supported_nvidia_libs import (
+    IS_WINDOWS,
+    is_suppressed_dll_file,
+)
 
 
 def _no_such_file_in_sub_dirs(sub_dirs, file_wild, error_messages, attachments):

@@ -1,23 +1,18 @@
-# `cuda.bindings.path_finder` Module
+# `cuda.path_finder` Module
 
 ## Public API (Work in Progress)
 
 Currently exposes two primary interfaces:
 
 ```
-cuda.bindings.path_finder._SUPPORTED_LIBNAMES  # ('nvJitLink', 'nvrtc', 'nvvm')
-cuda.bindings.path_finder._load_nvidia_dynamic_library(libname: str) -> LoadedDL
+cuda.path_finder.SUPPORTED_LIBNAMES  # ('nvJitLink', 'nvrtc', 'nvvm')
+cuda.path_finder.nvidia_dynamic_libs.load_lib(libname: str) -> LoadedDL
 ```
 
-**Note:**
-These APIs are prefixed with an underscore because they are considered
-experimental while undergoing active development, although already
-reasonably well-tested through CI pipelines.
+## Dynamic Library Loading Search Priority
 
-## Library Loading Search Priority
-
-The `load_nvidia_dynamic_library()` function implements a hierarchical search
-strategy for locating NVIDIA shared libraries:
+The `cuda.path_finder.nvidia_dynamic_libs.load_lib` function implements a
+hierarchical search strategy for locating NVIDIA shared libraries:
 
 0. **Check if a library was loaded into the process already by some other means.**
    - If yes, there is no alternative to skipping the rest of the search logic.
@@ -43,14 +38,14 @@ strategy for locating NVIDIA shared libraries:
    - Relies on `CUDA_HOME` or `CUDA_PATH` environment variables if set
      (in that order).
 
-Note that the search is done on a per-library basis. There is no centralized
-mechanism that ensures all libraries are found in the same way.
+Note that the search is done on a per-library basis. Currently there is no
+centralized mechanism that ensures all libraries are found in the same way.
 
 ## Maintenance Requirements
 
 These key components must be updated for new CUDA Toolkit releases:
 
-- `supported_libs.SUPPORTED_LIBNAMES`
-- `supported_libs.SUPPORTED_WINDOWS_DLLS`
-- `supported_libs.SUPPORTED_LINUX_SONAMES`
-- `supported_libs.EXPECTED_LIB_SYMBOLS`
+- `supported_nvidia_libs.SUPPORTED_LIBNAMES`
+- `supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS`
+- `supported_nvidia_libs.SUPPORTED_LINUX_SONAMES`
+- `supported_nvidia_libs.EXPECTED_LIB_SYMBOLS`

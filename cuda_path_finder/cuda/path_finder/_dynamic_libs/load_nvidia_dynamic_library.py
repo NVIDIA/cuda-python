@@ -3,27 +3,27 @@
 
 import functools
 
-from cuda.bindings._path_finder.find_nvidia_dynamic_library import (
+from cuda.path_finder._dynamic_libs.find_nvidia_dynamic_library import (
     _find_nvidia_dynamic_library,
 )
-from cuda.bindings._path_finder.load_dl_common import LoadedDL, load_dependencies
-from cuda.bindings._path_finder.supported_libs import IS_WINDOWS
+from cuda.path_finder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
+from cuda.path_finder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
 
 if IS_WINDOWS:
-    from cuda.bindings._path_finder.load_dl_windows import (
+    from cuda.path_finder._dynamic_libs.load_dl_windows import (
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
         load_with_system_search,
     )
 else:
-    from cuda.bindings._path_finder.load_dl_linux import (
+    from cuda.path_finder._dynamic_libs.load_dl_linux import (
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
         load_with_system_search,
     )
 
 
-def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
+def _load_lib_no_cache(libname: str) -> LoadedDL:
     # Check whether the library is already loaded into the current process by
     # some other component. This check uses OS-level mechanisms (e.g.,
     # dlopen on Linux, GetModuleHandle on Windows).
@@ -32,7 +32,7 @@ def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
         return loaded
 
     # Load dependencies first
-    load_dependencies(libname, load_nvidia_dynamic_library)
+    load_dependencies(libname, load_lib)
 
     # Find the library path
     found = _find_nvidia_dynamic_library(libname)
@@ -48,7 +48,7 @@ def _load_nvidia_dynamic_library_no_cache(libname: str) -> LoadedDL:
 
 
 @functools.cache
-def load_nvidia_dynamic_library(libname: str) -> LoadedDL:
+def load_lib(libname: str) -> LoadedDL:
     """Load a NVIDIA dynamic library by name.
 
     Args:
@@ -60,4 +60,4 @@ def load_nvidia_dynamic_library(libname: str) -> LoadedDL:
     Raises:
         RuntimeError: If the library cannot be found or loaded
     """
-    return _load_nvidia_dynamic_library_no_cache(libname)
+    return _load_lib_no_cache(libname)

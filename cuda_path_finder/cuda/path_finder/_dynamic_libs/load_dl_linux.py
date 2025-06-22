@@ -6,7 +6,7 @@ import ctypes.util
 import os
 from typing import Optional
 
-from cuda.bindings._path_finder.load_dl_common import LoadedDL
+from cuda.path_finder._dynamic_libs.load_dl_common import LoadedDL
 
 CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
@@ -40,7 +40,7 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> Optional[
     Raises:
         OSError: If dladdr fails to get information about the symbol
     """
-    from cuda.bindings._path_finder.supported_libs import EXPECTED_LIB_SYMBOLS
+    from cuda.path_finder.supported_nvidia_libs import EXPECTED_LIB_SYMBOLS
 
     for symbol_name in EXPECTED_LIB_SYMBOLS[libname]:
         symbol = getattr(handle, symbol_name, None)
@@ -70,7 +70,7 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         >>> if loaded is not None:
         ...     print(f"Library already loaded from {loaded.abs_path}")
     """
-    from cuda.bindings._path_finder.supported_libs import SUPPORTED_LINUX_SONAMES
+    from cuda.path_finder.supported_nvidia_libs import SUPPORTED_LINUX_SONAMES
 
     for soname in SUPPORTED_LINUX_SONAMES.get(libname, ()):
         try:
