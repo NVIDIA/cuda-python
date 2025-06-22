@@ -30,13 +30,7 @@ _py_anon_pod1_dtype = _numpy.dtype((
 
 
 cdef class _py_anon_pod1:
-    """Empty-initialize an array of `_anon_pod1`.
-
-    The resulting object is of length `size` and of dtype `_py_anon_pod1_dtype`.
-    If default-constructed, the instance represents a single union.
-
-    Args:
-        size (int): number of unions, default=1.
+    """Empty-initialize an instance of `_anon_pod1`.
 
 
     .. seealso:: `_anon_pod1`
@@ -44,31 +38,22 @@ cdef class _py_anon_pod1:
     cdef:
         readonly object _data
 
-    def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=_py_anon_pod1_dtype)
+    def __init__(self):
+        arr = _numpy.empty(1, dtype=_py_anon_pod1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof((<CUfileDescr_t*>NULL).handle), \
             f"itemsize {self._data.itemsize} mismatches union size {sizeof((<CUfileDescr_t*>NULL).handle)}"
 
     def __repr__(self):
-        if self._data.size > 1:
-            return f"<{__name__}._py_anon_pod1_Array_{self._data.size} object at {hex(id(self))}>"
-        else:
-            return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
+        return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
-        """Get the pointer address to the data as Python :py:`int`."""
+        """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
         return self._data.ctypes.data
-
-    def __len__(self):
-        return self._data.size
 
     def __eq__(self, other):
         if not isinstance(other, _py_anon_pod1):
@@ -81,10 +66,8 @@ cdef class _py_anon_pod1:
 
     @property
     def fd(self):
-        """fd (~_numpy.int32): """
-        if self._data.size == 1:
-            return int(self._data.fd[0])
-        return self._data.fd
+        """int: """
+        return int(self._data.fd[0])
 
     @fd.setter
     def fd(self, val):
@@ -92,27 +75,12 @@ cdef class _py_anon_pod1:
 
     @property
     def handle(self):
-        """handle (~_numpy.intp): """
-        if self._data.size == 1:
-            return int(self._data.handle[0])
-        return self._data.handle
+        """int: """
+        return int(self._data.handle[0])
 
     @handle.setter
     def handle(self, val):
         self._data.handle = val
-
-    def __getitem__(self, key):
-        if isinstance(key, int):
-            size = self._data.size
-            if key >= size or key <= -(size+1):
-                raise IndexError("index is out of bounds")
-            if key < 0:
-                key += size
-            return _py_anon_pod1.from_data(self._data[key:key+1])
-        out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == _py_anon_pod1_dtype:
-            return _py_anon_pod1.from_data(out)
-        return out
 
     def __setitem__(self, key, val):
         self._data[key] = val
@@ -136,12 +104,11 @@ cdef class _py_anon_pod1:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, bint readonly=False):
         """Create an _py_anon_pod1 instance wrapping the given pointer.
 
         Args:
-            ptr (intptr_t): pointer address as Python :py:`int` to the data.
-            size (int): number of unions, default=1.
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
         """
         if ptr == 0:
@@ -149,8 +116,8 @@ cdef class _py_anon_pod1:
         cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
         cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
         cdef object buf = PyMemoryView_FromMemory(
-            <char*>ptr, sizeof((<CUfileDescr_t*>NULL).handle) * size, flag)
-        data = _numpy.ndarray((size,), buffer=buf,
+            <char*>ptr, sizeof((<CUfileDescr_t*>NULL).handle), flag)
+        data = _numpy.ndarray((1,), buffer=buf,
                               dtype=_py_anon_pod1_dtype)
         obj._data = data.view(_numpy.recarray)
 
@@ -193,7 +160,7 @@ cdef class Descr:
 
     @property
     def ptr(self):
-        """Get the pointer address to the data as Python :py:`int`."""
+        """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
     def __int__(self):
@@ -216,7 +183,7 @@ cdef class Descr:
 
     @property
     def type(self):
-        """type (~_numpy.int32): """
+        """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
             return int(self._data.type[0])
         return self._data.type
@@ -227,7 +194,7 @@ cdef class Descr:
 
     @property
     def handle(self):
-        """handle (_py_anon_pod1_dtype): """
+        """_py_anon_pod1_dtype: """
         return self._data.handle
 
     @handle.setter
@@ -236,7 +203,7 @@ cdef class Descr:
 
     @property
     def fs_ops(self):
-        """fs_ops (~_numpy.intp): """
+        """Union[~_numpy.intp, int]: """
         if self._data.size == 1:
             return int(self._data.fs_ops[0])
         return self._data.fs_ops
@@ -284,7 +251,7 @@ cdef class Descr:
         """Create an Descr instance wrapping the given pointer.
 
         Args:
-            ptr (intptr_t): pointer address as Python :py:`int` to the data.
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
         """
