@@ -343,7 +343,7 @@ sources_list = [
     (["cuda/*.pyx"], None),
     # internal files used by generated bindings
     (["cuda/bindings/_internal/utils.pyx"], None),
-    *(([f], None) for f in dst_files),
+    *(([f], None) for f in dst_files if f.endswith(".pyx")),
 ]
 if sys.platform == "win32":
     # cuFILE does not support Windows
@@ -352,7 +352,7 @@ if sys.platform == "win32":
         file_list, _ = source
         if all("cufile" not in f for f in file_list):
             new_sources_list.append(source)
-    assert len(new_sources_list) == len(sources_list) - 3
+    assert len(new_sources_list) == len(sources_list) - 3, f"{new_sources_list=}, {sources_list=}"
     sources_list = new_sources_list
 
 for sources, libraries in sources_list:
