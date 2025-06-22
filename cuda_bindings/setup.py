@@ -327,6 +327,10 @@ def do_cythonize(extensions):
 
 
 static_runtime_libraries = ["cudart_static", "rt"] if sys.platform == "linux" else ["cudart_static"]
+cuda_bindings_files = glob.glob("cuda/bindings/*.pyx")
+if sys.platform == "win32":
+    # cuFILE does not support Windows
+    cuda_bindings_files = [f for f in cuda_bindings_files if "cufile" not in f]
 sources_list = [
     # private
     (["cuda/bindings/_bindings/cydriver.pyx", "cuda/bindings/_bindings/loader.cpp"], None),
@@ -338,22 +342,13 @@ sources_list = [
     (["cuda/bindings/_lib/cyruntime/cyruntime.pyx"], None),
     (["cuda/bindings/_lib/cyruntime/utils.pyx"], None),
     # public
-    (["cuda/bindings/*.pyx"], None),
+    (cuda_bindings_files, None),
     # public (deprecated, to be removed)
     (["cuda/*.pyx"], None),
     # internal files used by generated bindings
     (["cuda/bindings/_internal/utils.pyx"], None),
     *(([f], None) for f in dst_files if f.endswith(".pyx")),
 ]
-if sys.platform == "win32":
-    # cuFILE does not support Windows
-    new_sources_list = []
-    for source in sources_list:
-        file_list, _ = source
-        if all("cufile" not in f for f in file_list):
-            new_sources_list.append(source)
-    assert len(new_sources_list) == len(sources_list) - 3, f"{new_sources_list=}, {sources_list=}"
-    sources_list = new_sources_list
 
 for sources, libraries in sources_list:
     extensions += prep_extensions(sources, libraries)
