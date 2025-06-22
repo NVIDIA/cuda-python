@@ -25,10 +25,23 @@ runs:
     - name: Set up CTK cache variable
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
-        HASH=$(echo -n "${{ inputs.cuda-components }}" | sha256sum | awk '{print $1}')
+        # Pre-process the component list to ensure hash uniqueness
+        CTK_CACHE_COMPONENTS=${{ inputs.cuda-components }}
+        # Conditionally strip out libnvjitlink for CUDA versions < 12
+        if [[ "$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})" -lt 12 ]]; then
+          CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libnvjitlink/}"
+        fi
+        # Conditionally strip out libcufile since it does not support Windows
+        if [[ "${{ inputs.host-platform }}" == win-* ]]; then
+          CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libcufile/}"
+        fi
+        # Cleanup stray commas after removing components
+        CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//,,/,}"
+
+        HASH=$(echo -n "${CTK_CACHE_COMPONENTS}" | sha256sum | awk '{print $1}')
         echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH" >> $GITHUB_ENV
         echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH.tar.gz" >> $GITHUB_ENV
-        echo "CTK_CACHE_COMPONENTS=${{ inputs.cuda-components }}" >> $GITHUB_ENV
+        echo "CTK_CACHE_COMPONENTS=${CTK_CACHE_COMPONENTS}" >> $GITHUB_ENV
 
     - name: Install dependencies
       uses: ./.github/actions/install_unix_deps
@@ -94,12 +107,6 @@ runs:
           rm $CTK_COMPONENT_COMPONENT_FILENAME
         }
 
-        # Conditionally strip out libnvjitlink for CUDA versions < 12
-        if [[ "$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})" -lt 12 ]]; then
-          CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libnvjitlink/}"
-        fi
-        # Cleanup stray commas after removing components
-        CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//,,/,}"
         # Get headers and shared libraries in place
         for item in $(echo $CTK_CACHE_COMPONENTS | tr ',' ' '); do
             populate_cuda_path "$item"
