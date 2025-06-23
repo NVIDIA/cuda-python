@@ -63,7 +63,7 @@ def build_child_process_failed_for_libname_message(libname, result):
 def child_process_func(libname):
     import os
 
-    from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_library import load_lib_no_cache
+    from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_library import _load_lib_no_cache
     from cuda.pathfinder.nvidia_dynamic_libs import load_lib
 
     loaded_dl_fresh = load_lib(libname)
@@ -74,7 +74,7 @@ def child_process_func(libname):
     if loaded_dl_from_cache is not loaded_dl_fresh:
         raise RuntimeError("loaded_dl_from_cache is not loaded_dl_fresh")
 
-    loaded_dl_no_cache = load_lib_no_cache(libname)
+    loaded_dl_no_cache = _load_lib_no_cache(libname)
     if not loaded_dl_no_cache.was_already_loaded_from_elsewhere:
         raise RuntimeError("loaded_dl_no_cache.was_already_loaded_from_elsewhere")
     if not os.path.samefile(loaded_dl_no_cache.abs_path, loaded_dl_fresh.abs_path):
