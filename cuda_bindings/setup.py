@@ -342,7 +342,7 @@ sources_list = [
     (["cuda/bindings/_lib/cyruntime/cyruntime.pyx"], None),
     (["cuda/bindings/_lib/cyruntime/utils.pyx"], None),
     # public
-    (cuda_bindings_files, None),
+    *(([f], None) for f in cuda_bindings_files),
     # public (deprecated, to be removed)
     (["cuda/*.pyx"], None),
     # internal files used by generated bindings
