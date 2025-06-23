@@ -6,26 +6,26 @@
 
 from libc.time cimport time_t
 from libcpp cimport bool as cpp_bool
+from posix.types cimport off_t
 
 cimport cuda.bindings.cydriver
-from cuda.bindings.cydriver cimport CUresult, CUstream
+from cuda.bindings.cydriver cimport CUresult
 
 
 ###############################################################################
 # Types (structs, enums, ...)
 ###############################################################################
 
-cdef extern from "sys/types.h":
-        ctypedef long off_t
-cdef extern from "time.h":
+# TODO: switch to "from libc.time cimport timespec" once we can use recent
+# Cython to build
+cdef extern from "<time.h>":
     cdef struct timespec:
         time_t tv_sec
         long   tv_nsec
-cdef extern from "sys/socket.h":
+cdef extern from "<sys/socket.h>":
     cdef struct sockaddr:
         unsigned short sa_family
         char sa_data[14]
-
     ctypedef sockaddr sockaddr_t
 
 
