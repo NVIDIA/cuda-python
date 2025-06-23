@@ -4,7 +4,7 @@
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from cuda.path_finder._dynamic_libs.supported_nvidia_libs import (
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     DIRECT_DEPENDENCIES,
     IS_WINDOWS,
 )

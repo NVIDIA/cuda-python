@@ -6,7 +6,7 @@ from typing import Optional
 import pywintypes
 import win32api
 
-from cuda.path_finder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 
 # Mirrors WinBase.h (unfortunately not defined already elsewhere)
 WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
@@ -55,7 +55,7 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         >>> if loaded is not None:
         ...     print(f"Library already loaded from {loaded.abs_path}")
     """
-    from cuda.path_finder.supported_nvidia_libs import SUPPORTED_WINDOWS_DLLS
+    from cuda.pathfinder.supported_nvidia_libs import SUPPORTED_WINDOWS_DLLS
 
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         try:
@@ -77,7 +77,7 @@ def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
-    from cuda.path_finder.supported_nvidia_libs import SUPPORTED_WINDOWS_DLLS
+    from cuda.pathfinder.supported_nvidia_libs import SUPPORTED_WINDOWS_DLLS
 
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         try:
@@ -103,7 +103,7 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     Raises:
         RuntimeError: If the DLL cannot be loaded
     """
-    from cuda.path_finder.supported_nvidia_libs import (
+    from cuda.pathfinder.supported_nvidia_libs import (
         LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
     )
 

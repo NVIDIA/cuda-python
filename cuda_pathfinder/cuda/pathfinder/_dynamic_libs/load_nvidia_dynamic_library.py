@@ -3,20 +3,20 @@
 
 import functools
 
-from cuda.path_finder._dynamic_libs.find_nvidia_dynamic_library import (
+from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_library import (
     _find_nvidia_dynamic_library,
 )
-from cuda.path_finder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
-from cuda.path_finder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
 
 if IS_WINDOWS:
-    from cuda.path_finder._dynamic_libs.load_dl_windows import (
+    from cuda.pathfinder._dynamic_libs.load_dl_windows import (
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
         load_with_system_search,
     )
 else:
-    from cuda.path_finder._dynamic_libs.load_dl_linux import (
+    from cuda.pathfinder._dynamic_libs.load_dl_linux import (
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
         load_with_system_search,

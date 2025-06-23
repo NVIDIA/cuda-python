@@ -7,15 +7,15 @@ import sys
 import pytest
 import spawned_process_runner
 
-from cuda.path_finder import nvidia_dynamic_libs
-from cuda.path_finder._dynamic_libs import supported_nvidia_libs
+from cuda.pathfinder import nvidia_dynamic_libs
+from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 
 ALL_LIBNAMES = nvidia_dynamic_libs.SUPPORTED_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_ALL
 ALL_LIBNAMES_LINUX = nvidia_dynamic_libs.SUPPORTED_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_LINUX
 ALL_LIBNAMES_WINDOWS = (
     nvidia_dynamic_libs.SUPPORTED_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
 )
-if os.environ.get("CUDA_PATH_FINDER_TEST_ALL_LIBNAMES", False):
+if os.environ.get("CUDA_PATHFINDER_TEST_ALL_LIBNAMES", False):
     if sys.platform == "win32":
         TEST_FIND_OR_LOAD_LIBNAMES = ALL_LIBNAMES_WINDOWS
     else:
@@ -63,8 +63,8 @@ def build_child_process_failed_for_libname_message(libname, result):
 def child_process_func(libname):
     import os
 
-    from cuda.path_finder._dynamic_libs.load_nvidia_dynamic_library import load_lib_no_cache
-    from cuda.path_finder.nvidia_dynamic_libs import load_lib
+    from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_library import load_lib_no_cache
+    from cuda.pathfinder.nvidia_dynamic_libs import load_lib
 
     loaded_dl_fresh = load_lib(libname)
     if loaded_dl_fresh.was_already_loaded_from_elsewhere:

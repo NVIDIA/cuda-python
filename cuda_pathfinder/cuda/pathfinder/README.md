@@ -1,17 +1,17 @@
-# `cuda.path_finder` Module
+# `cuda.pathfinder` Module
 
 ## Public API (Work in Progress)
 
 Currently exposes two primary interfaces:
 
 ```
-cuda.path_finder.SUPPORTED_LIBNAMES  # ('nvJitLink', 'nvrtc', 'nvvm')
-cuda.path_finder.nvidia_dynamic_libs.load_lib(libname: str) -> LoadedDL
+cuda.pathfinder.SUPPORTED_LIBNAMES  # ('nvJitLink', 'nvrtc', 'nvvm')
+cuda.pathfinder.nvidia_dynamic_libs.load_lib(libname: str) -> LoadedDL
 ```
 
 ## Dynamic Library Loading Search Priority
 
-The `cuda.path_finder.nvidia_dynamic_libs.load_lib` function implements a
+The `cuda.pathfinder.nvidia_dynamic_libs.load_lib` function implements a
 hierarchical search strategy for locating NVIDIA shared libraries:
 
 0. **Check if a library was loaded into the process already by some other means.**

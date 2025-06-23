@@ -1,5 +1,1 @@
-# The `cuda.bindings.path_finder` module was moved!
-
-## New location
-
-`cuda.path_finder`
+# The `cuda.bindings.path_finder` module was moved → `cuda.pathfinder`
