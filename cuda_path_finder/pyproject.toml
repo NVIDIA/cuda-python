@@ -5,7 +5,7 @@
 name = "cuda-path-finder"
 description = "Path Finder for CUDA components (mainly libs, headers)"
 authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" }]
-license = { text = "LicenseRef-NVIDIA-SOFTWARE-LICENSE" }
+license = "LicenseRef-NVIDIA-SOFTWARE-LICENSE"
 requires-python = ">=3.9"
 dependencies = [
     "pywin32; sys_platform == 'win32'",
