@@ -14,7 +14,6 @@ from cuda.core.experimental import (
     ProgramOptions,
     launch,
 )
-from cuda.core.experimental._dlpack import DLDeviceType
 
 # Kernel for memory operations
 code = """
@@ -36,6 +35,8 @@ __global__ void memory_ops(float* device_data,
 dev = Device()
 dev.set_current()
 stream = dev.create_stream()
+# tell CuPy to use our stream as the current stream:
+cp.cuda.ExternalStream(int(stream.handle)).use()
 
 # Compile kernel
 arch = "".join(f"{i}" for i in dev.compute_capability)
@@ -106,23 +107,12 @@ stream.sync()
 # Verify the copy operation
 assert cp.allclose(new_device_array, pinned_array), "Pinned to device copy failed"
 
-# Demonstrate DLPack integration
-print("\nDLPack device information:")
-print(f"Device buffer DLPack device: {device_buffer.__dlpack_device__()}")
-print(f"Pinned buffer DLPack device: {pinned_buffer.__dlpack_device__()}")
-
-# Assert DLPack device types
-device_dlpack = device_buffer.__dlpack_device__()
-pinned_dlpack = pinned_buffer.__dlpack_device__()
-
-assert device_dlpack[0] == DLDeviceType.kDLCUDA, "Device buffer should have CUDA device type"
-assert pinned_dlpack[0] == DLDeviceType.kDLCUDAHost, "Pinned buffer should have CUDA host device type"
-
 # Clean up
 device_buffer.close(stream)
 pinned_buffer.close(stream)
 new_device_buffer.close(stream)
 stream.close()
+cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
 
 # Verify buffers are properly closed
 assert device_buffer.handle == 0, "Device buffer should be closed"
