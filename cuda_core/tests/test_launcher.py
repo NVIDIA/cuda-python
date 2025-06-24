@@ -5,6 +5,7 @@ import ctypes
 import os
 import pathlib
 
+import cupy as cp
 import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
@@ -219,6 +220,8 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     dev = Device()
     dev.set_current()
     stream = dev.create_stream()
+    # tell CuPy to use our stream as the current stream:
+    cp.cuda.ExternalStream(int(stream.handle)).use()
 
     # Kernel that operates on memory
     code = """
@@ -258,9 +261,6 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
         # For pinned memory, use numpy
         array = np.from_dlpack(buffer).view(dtype=dtype)
     else:
-        # For device memory, use cupy
-        import cupy as cp
-
         array = cp.from_dlpack(buffer).view(dtype=dtype)
 
     # Initialize data with random values
@@ -268,8 +268,6 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
         rng = np.random.default_rng()
         array[:] = rng.random(size, dtype=dtype)
     else:
-        import cupy as cp
-
         rng = cp.random.default_rng()
         array[:] = rng.random(size, dtype=dtype)
 
@@ -288,16 +286,13 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     stream.sync()
 
     # Verify kernel operations
-    if mr.is_host_accessible:
-        assert np.allclose(array, original * 3.0), f"{memory_resource_class.__name__} operation failed"
-    else:
-        import cupy as cp
-
-        assert cp.allclose(array, original * 3.0), f"{memory_resource_class.__name__} operation failed"
+    assert cp.allclose(array, original * 3.0), f"{memory_resource_class.__name__} operation failed"
 
     # Clean up
     buffer.close(stream)
     stream.close()
+
+    cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
 
     # Verify buffer is properly closed
     assert buffer.handle == 0, f"{memory_resource_class.__name__} buffer should be closed"
