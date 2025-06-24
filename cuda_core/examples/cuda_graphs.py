@@ -49,6 +49,8 @@ def main():
     dev = Device()
     dev.set_current()
     stream = dev.create_stream()
+    # tell CuPy to use our stream as the current stream:
+    cp.cuda.ExternalStream(int(stream.handle)).use()
 
     # Compile the program
     arch = "".join(f"{i}" for i in dev.compute_capability)
@@ -160,6 +162,8 @@ def main():
     assert cp.allclose(result1, expected_result1, rtol=1e-5, atol=1e-5), "Result 1 mismatch"
     assert cp.allclose(result2, expected_result2, rtol=1e-5, atol=1e-5), "Result 2 mismatch"
     assert cp.allclose(result3, expected_result3, rtol=1e-5, atol=1e-5), "Result 3 mismatch"
+
+    cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
 
     print("\nExample completed successfully!")
 
