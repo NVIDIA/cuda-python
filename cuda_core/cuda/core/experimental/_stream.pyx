@@ -262,6 +262,7 @@ cdef class Stream:
         # on the stream. Event flags such as disabling timing, nonblocking,
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
         if event is None:
+            self._get_device_and_context()
             event = Event._init(self._device_id, self._ctx_handle, options)
         err, = driver.cuEventRecord(event.handle, self._handle)
         raise_if_driver_error(err)
