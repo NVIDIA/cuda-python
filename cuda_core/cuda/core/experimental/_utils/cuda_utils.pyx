@@ -1,12 +1,12 @@
 # Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 import functools
 import importlib.metadata
 from collections import namedtuple
 from collections.abc import Sequence
-from typing import Callable, Dict
+from typing import Callable
 
 try:
     from cuda.bindings import driver, nvrtc, runtime
@@ -123,26 +123,24 @@ def handle_return(tuple result, handle=None):
         return result[1:]
 
 
-def check_or_create_options(cls, options, options_description, *, keep_none=False):
+cpdef check_or_create_options(type cls, options, str options_description="", bint keep_none=False):
     """
     Create the specified options dataclass from a dictionary of options or None.
     """
-
     if options is None:
         if keep_none:
             return options
-        options = cls()
-    elif isinstance(options, Dict):
-        options = cls(**options)
-
-    if not isinstance(options, cls):
+        return cls()
+    elif isinstance(options, cls):
+        return options
+    elif isinstance(options, dict):
+        return cls(**options)
+    else:
         raise TypeError(
             f"The {options_description} must be provided as an object "
             f"of type {cls.__name__} or as a dict with valid {options_description}. "
             f"The provided object is '{options}'."
         )
-
-    return options
 
 
 def _handle_boolean_option(option: bool) -> str:

@@ -4,6 +4,11 @@
 
 from __future__ import annotations
 
+from cuda.core.experimental._utils.cuda_utils cimport (
+    _check_driver_error as raise_if_driver_error,
+    check_or_create_options,
+)
+
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
@@ -12,9 +17,6 @@ from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     driver,
     handle_return,
-)
-from cuda.core.experimental._utils.cuda_utils import (
-    _check_driver_error as raise_if_driver_error,
 )
 
 if TYPE_CHECKING:
@@ -45,26 +47,6 @@ cdef class EventOptions:
     enable_timing: Optional[bool] = False
     busy_waited_sync: Optional[bool] = False
     support_ipc: Optional[bool] = False
-
-
-cdef inline EventOptions check_or_create_options(options, str options_description):
-    """
-    Create the specified options dataclass from a dictionary of options or None.
-    """
-    cdef EventOptions opts
-    if options is None:
-        opts = EventOptions()
-    elif isinstance(options, dict):
-        opts = EventOptions(**options)
-    elif not isinstance(options, EventOptions):
-        raise TypeError(
-            f"The {options_description} must be provided as an object "
-            f"of type {EventOptions.__name__} or as a dict with valid {options_description}. "
-            f"The provided object is '{options}'."
-        )
-
-    return opts
-
 
 
 cdef class Event:
@@ -108,7 +90,7 @@ cdef class Event:
     @classmethod
     def _init(cls, device_id: int, ctx_handle: Context, opts=None):
         cdef Event self = Event.__new__(Event)
-        cdef EventOptions options = check_or_create_options(opts, "Event options")
+        cdef EventOptions options = check_or_create_options(EventOptions, opts, "Event options")
         flags = 0x0
         self._timing_disabled = False
         self._busy_waited = False
