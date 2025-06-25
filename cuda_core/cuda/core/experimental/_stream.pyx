@@ -145,7 +145,7 @@ cdef class Stream:
         return self
 
     @classmethod
-    def _init(cls, obj: Optional[IsStreamT] = None, *, options: Optional[StreamOptions] = None, device_id: int = None):
+    def _init(cls, obj: Optional[IsStreamT] = None, options=None, device_id: int = None):
         cdef Stream self = Stream.__new__(Stream)
         self._handle = None
         self._owner = None

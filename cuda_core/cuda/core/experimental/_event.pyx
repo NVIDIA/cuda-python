@@ -88,7 +88,7 @@ cdef class Event:
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
 
     @classmethod
-    def _init(cls, device_id: int, ctx_handle: Context, options: Optional[EventOptions] = None):
+    def _init(cls, device_id: int, ctx_handle: Context, options=None):
         cdef Event self = Event.__new__(Event)
         cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")
         flags = 0x0

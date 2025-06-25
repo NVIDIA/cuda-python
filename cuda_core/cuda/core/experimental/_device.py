@@ -1222,7 +1222,7 @@ class Device:
         """
         raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
-    def create_stream(self, obj: Optional[IsStreamT] = None, options: StreamOptions = None) -> Stream:
+    def create_stream(self, obj: Optional[IsStreamT] = None, options: Optional[StreamOptions] = None) -> Stream:
         """Create a Stream object.
 
         New stream objects can be created in two different ways:
