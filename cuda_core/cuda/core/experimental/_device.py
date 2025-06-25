@@ -1251,7 +1251,7 @@ class Device:
 
         """
         self._check_context_initialized()
-        return Stream._init(obj=obj, options=options)
+        return Stream._init(obj=obj, options=options, device_id=self._id)
 
     def create_event(self, options: Optional[EventOptions] = None) -> Event:
         """Create an Event object without recording it to a Stream.

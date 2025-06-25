@@ -16,7 +16,7 @@ class ContextOptions:
 cdef class Context:
 
     cdef:
-        object _handle
+        readonly object _handle
         int _device_id
 
     def __init__(self, *args, **kwargs):

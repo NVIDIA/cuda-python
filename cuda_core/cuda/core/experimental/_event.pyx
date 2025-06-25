@@ -88,19 +88,19 @@ cdef class Event:
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
 
     @classmethod
-    def _init(cls, device_id: int, ctx_handle: Context, opts=None):
+    def _init(cls, device_id: int, ctx_handle: Context, options: Optional[EventOptions] = None):
         cdef Event self = Event.__new__(Event)
-        cdef EventOptions options = check_or_create_options(EventOptions, opts, "Event options")
+        cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")
         flags = 0x0
         self._timing_disabled = False
         self._busy_waited = False
-        if not options.enable_timing:
+        if not opts.enable_timing:
             flags |= driver.CUevent_flags.CU_EVENT_DISABLE_TIMING
             self._timing_disabled = True
-        if options.busy_waited_sync:
+        if opts.busy_waited_sync:
             flags |= driver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
             self._busy_waited = True
-        if options.support_ipc:
+        if opts.support_ipc:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
         err, self._handle = driver.cuEventCreate(flags)
         raise_if_driver_error(err)
