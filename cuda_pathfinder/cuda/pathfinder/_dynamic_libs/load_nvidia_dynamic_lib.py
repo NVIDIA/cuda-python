@@ -49,15 +49,4 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
 
 @functools.cache
 def load_lib(libname: str) -> LoadedDL:
-    """Load a NVIDIA dynamic library by name.
-
-    Args:
-        libname: The name of the library to load (e.g. "cudart", "nvvm", etc.)
-
-    Returns:
-        A LoadedDL object containing the library handle and path
-
-    Raises:
-        RuntimeError: If the library cannot be found or loaded
-    """
     return _load_lib_no_cache(libname)
