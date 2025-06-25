@@ -52,26 +52,29 @@ def _reduce_3_tuple(t: tuple):
     return t[0] * t[1] * t[2]
 
 
-cpdef inline void _check_driver_error(error) except*:
-    if error == driver.CUresult.CUDA_SUCCESS:
-        return
+cdef object _DRIVER_SUCCESS = driver.CUresult.CUDA_SUCCESS
+
+
+cpdef inline int _check_driver_error(error) except?-1:
+    if error == _DRIVER_SUCCESS:
+        return 0
     name_err, name = driver.cuGetErrorName(error)
-    if name_err != driver.CUresult.CUDA_SUCCESS:
+    if name_err != _DRIVER_SUCCESS:
         raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
     name = name.decode()
     expl = DRIVER_CU_RESULT_EXPLANATIONS.get(int(error))
     if expl is not None:
         raise CUDAError(f"{name}: {expl}")
     desc_err, desc = driver.cuGetErrorString(error)
-    if desc_err != driver.CUresult.CUDA_SUCCESS:
+    if desc_err != _DRIVER_SUCCESS:
         raise CUDAError(f"{name}")
     desc = desc.decode()
     raise CUDAError(f"{name}: {desc}")
 
 
-cpdef inline void _check_runtime_error(error) except*:
+cpdef inline int _check_runtime_error(error) except?-1:
     if error == runtime.cudaError_t.cudaSuccess:
-        return
+        return 0
     name_err, name = runtime.cudaGetErrorName(error)
     if name_err != runtime.cudaError_t.cudaSuccess:
         raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
@@ -86,30 +89,35 @@ cpdef inline void _check_runtime_error(error) except*:
     raise CUDAError(f"{name}: {desc}")
 
 
-cdef inline void _check_error(error, handle=None) except*:
+cpdef inline int _check_nvrtc_error(error, handle=None) except?-1:
+    if error == nvrtc.nvrtcResult.NVRTC_SUCCESS:
+        return 0
+    err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}"
+    if handle is not None:
+        _, logsize = nvrtc.nvrtcGetProgramLogSize(handle)
+        log = b" " * logsize
+        _ = nvrtc.nvrtcGetProgramLog(handle, log)
+        err += f", compilation log:\n\n{log.decode('utf-8', errors='backslashreplace')}"
+    raise NVRTCError(err)
+
+
+cdef inline int _check_error(error, handle=None) except?-1:
     if isinstance(error, driver.CUresult):
-        _check_driver_error(error)
+        return _check_driver_error(error)
     elif isinstance(error, runtime.cudaError_t):
-        _check_runtime_error(error)
+        return _check_runtime_error(error)
     elif isinstance(error, nvrtc.nvrtcResult):
-        if error == nvrtc.nvrtcResult.NVRTC_SUCCESS:
-            return
-        err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}"
-        if handle is not None:
-            _, logsize = nvrtc.nvrtcGetProgramLogSize(handle)
-            log = b" " * logsize
-            _ = nvrtc.nvrtcGetProgramLog(handle, log)
-            err += f", compilation log:\n\n{log.decode('utf-8', errors='backslashreplace')}"
-        raise NVRTCError(err)
+        return _check_nvrtc_error(error, handle=handle)
     else:
         raise RuntimeError(f"Unknown error type: {error}")
 
 
 def handle_return(tuple result, handle=None):
     _check_error(result[0], handle=handle)
-    if len(result) == 1:
+    cdef int out_len = len(result)
+    if out_len == 1:
         return
-    elif len(result) == 2:
+    elif out_len == 2:
         return result[1]
     else:
         return result[1:]
@@ -144,7 +152,7 @@ def _handle_boolean_option(option: bool) -> str:
     return "true" if bool(option) else "false"
 
 
-def precondition(checker: Callable[..., None], what: str = "") -> Callable:
+def precondition(checker: Callable[..., None], str what="") -> Callable:
     """
     A decorator that adds checks to ensure any preconditions are met.
 
