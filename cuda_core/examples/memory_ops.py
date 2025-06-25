@@ -19,7 +19,6 @@ import numpy as np
 
 from cuda.core.experimental import (
     Device,
-    DeviceMemoryResource,
     LaunchConfig,
     LegacyPinnedMemoryResource,
     Program,
@@ -62,7 +61,7 @@ mod = prog.compile("cubin")
 kernel = mod.get_kernel("memory_ops")
 
 # Create different memory resources
-device_mr = DeviceMemoryResource(dev.device_id)
+device_mr = dev.memory_resource
 pinned_mr = LegacyPinnedMemoryResource()
 
 # Allocate different types of memory

@@ -212,7 +212,13 @@ def test_cooperative_launch():
     "memory_resource_class",
     [
         DeviceMemoryResource,
-        LegacyPinnedMemoryResource,
+        pytest.param(
+            LegacyPinnedMemoryResource,
+            marks=pytest.mark.skipif(
+                tuple(int(i) for i in np.__version__.split(".")[:3]) < (2, 2, 5),
+                reason="need numpy 2.2.5+, numpy GH #28632",
+            ),
+        ),
     ],
 )
 def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_resource_class):
