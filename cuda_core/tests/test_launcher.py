@@ -10,6 +10,7 @@ import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
 
+from cuda.bindings import driver
 from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
@@ -19,6 +20,8 @@ from cuda.core.experimental import (
     ProgramOptions,
     launch,
 )
+from cuda.core.experimental._memory import _SynchronousMemoryResource
+from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 def test_launch_config_init(init_cuda):
@@ -211,7 +214,7 @@ def test_cooperative_launch():
 @pytest.mark.parametrize(
     "memory_resource_class",
     [
-        DeviceMemoryResource,
+        "device_memory_resource",  # kludgy, but can go away after #726 is resolved
         pytest.param(
             LegacyPinnedMemoryResource,
             marks=pytest.mark.skipif(
@@ -249,9 +252,18 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     kernel = mod.get_kernel("memory_ops")
 
     # Create memory resource
-    if memory_resource_class == DeviceMemoryResource:
-        mr = memory_resource_class(dev.device_id)
-    else:  # LegacyPinnedMemoryResource
+    if memory_resource_class == "device_memory_resource":
+        if (
+            handle_return(
+                driver.cuDeviceGetAttribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev.device_id
+                )
+            )
+        ) == 1:
+            mr = DeviceMemoryResource(dev.device_id)
+        else:
+            mr = _SynchronousMemoryResource(dev.device_id)
+    else:
         mr = memory_resource_class()
 
     # Allocate memory
