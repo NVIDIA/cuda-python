@@ -9,21 +9,25 @@ from Cython.Build import cythonize
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext as _build_ext
 
-
 # It seems setuptools' wildcard support has problems for namespace packages,
 # so we explicitly spell out all Extension instances.
 root_module = "cuda.core.experimental"
 root_path = f"{os.path.sep}".join(root_module.split(".")) + os.path.sep
 ext_files = glob.glob(f"{root_path}/**/*.pyx", recursive=True)
+
+
 def strip_prefix_suffix(filename):
-    return filename[len(root_path):-4]
+    return filename[len(root_path) : -4]
+
+
 module_names = (strip_prefix_suffix(f) for f in ext_files)
 ext_modules = tuple(
     Extension(
         f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
         sources=[f"cuda/core/experimental/{mod}.pyx"],
         language="c++",
-    ) for mod in module_names
+    )
+    for mod in module_names
 )
 
 

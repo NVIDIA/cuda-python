@@ -1026,7 +1026,7 @@ class Device:
         err, ctx = driver.cuCtxGetCurrent()
 
         # TODO: We want to just call this:
-        #_check_driver_error(err)
+        # _check_driver_error(err)
         # but even the simplest success check causes 50-100 ns. Wait until we cythonize this file...
         if ctx is None:
             _check_driver_error(err)
