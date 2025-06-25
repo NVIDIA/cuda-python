@@ -125,17 +125,14 @@ cdef class Event:
         self._ctx_handle = ctx_handle
         return self
 
-    cdef _close(self):
+    cpdef close(self):
+        """Destroy the event."""
         if self._handle is not None:
             _ = driver.cuEventDestroy(self._handle)
             self._handle = None
 
-    def close(self):
-        """Destroy the event."""
-        self._close()
-
-    def __dealloc__(self):
-        self._close()
+    def __del__(self):
+        self.close()
 
     def __isub__(self, other):
         return NotImplemented
