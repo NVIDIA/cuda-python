@@ -102,7 +102,8 @@ cdef class Event:
             self._busy_waited = True
         if options.support_ipc:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
-        _, self._handle = driver.cuEventCreate(flags)
+        err, self._handle = driver.cuEventCreate(flags)
+        raise_if_driver_error(err)
         self._device_id = device_id
         self._ctx_handle = ctx_handle
         return self
@@ -110,7 +111,8 @@ cdef class Event:
     cpdef close(self):
         """Destroy the event."""
         if self._handle is not None:
-            _ = driver.cuEventDestroy(self._handle)
+            err, = driver.cuEventDestroy(self._handle)
+            raise_if_driver_error(err)
             self._handle = None
 
     def __del__(self):
@@ -180,7 +182,7 @@ cdef class Event:
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
-        (result,) = driver.cuEventQuery(self._handle)
+        result, = driver.cuEventQuery(self._handle)
         if result == driver.CUresult.CUDA_SUCCESS:
             return True
         if result == driver.CUresult.CUDA_ERROR_NOT_READY:
