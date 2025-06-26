@@ -8,7 +8,6 @@ import sys
 from enum import Enum
 
 import numpy as np
-import pytest
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
 from common.helper_string import checkCmdLineFlag, getCmdLineArgumentInt
@@ -1115,28 +1114,10 @@ def MatrixMultiply(dimsA, dimsB, kernel_number):
     return -1
 
 
-def checkKernelCompiles():
-    kernel_headers = """\
-    #line __LINE__
-    #if __CUDA_ARCH__ >= 700
-    #include <cuda/barrier>
-    #endif
-    #include <cooperative_groups.h>
-    #include <cooperative_groups/reduce.h>
-    #include <cuda/pipeline>
-    """
-    try:
-        common.KernelHelper(kernel_headers, findCudaDevice())
-    except:
-        # Filters out test from automation for two reasons
-        # 1. Headers are not found
-        # 2. Incompatible device
-        return False
-    return True
-
-
-@pytest.mark.skipif(not checkKernelCompiles(), reason="Automation filter against incompatible kernel")
 def main():
+    common.pytest_skipif_cuda_include_not_found()
+    common.pytest_skipif_compute_capability_too_low(findCudaDevice(), (7, 0))
+
     print("[globalToShmemAsyncCopy] - Starting...")
 
     if platform.machine() == "qnx":
