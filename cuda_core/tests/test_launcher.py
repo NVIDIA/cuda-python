@@ -10,7 +10,6 @@ import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
 
-from cuda.bindings import driver
 from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
@@ -21,7 +20,6 @@ from cuda.core.experimental import (
     launch,
 )
 from cuda.core.experimental._memory import _SynchronousMemoryResource
-from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 def test_launch_config_init(init_cuda):
