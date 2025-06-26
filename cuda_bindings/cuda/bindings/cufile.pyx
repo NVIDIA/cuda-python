@@ -270,6 +270,13 @@ cdef class Descr:
         return obj
 
 
+# Hack: Overwrite the generated descr_dtype, which NumPy deduced the offset wrong.
+descr_dtype = _numpy.dtype({
+    "names": ['type', 'handle', 'fs_ops'],
+    "formats": [_numpy.int32, _py_anon_pod1_dtype, _numpy.intp],
+    "offsets": [0, 8, 16],
+}, align=True)
+
 
 ###############################################################################
 # Enum
