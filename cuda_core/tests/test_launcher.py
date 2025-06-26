@@ -253,13 +253,7 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
 
     # Create memory resource
     if memory_resource_class == "device_memory_resource":
-        if (
-            handle_return(
-                driver.cuDeviceGetAttribute(
-                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev.device_id
-                )
-            )
-        ) == 1:
+        if dev.properties.memory_pools_supported:
             mr = DeviceMemoryResource(dev.device_id)
         else:
             mr = _SynchronousMemoryResource(dev.device_id)
