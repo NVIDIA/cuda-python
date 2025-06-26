@@ -94,11 +94,11 @@ s.sync()
 ```
 
 This example demonstrates one of the core workflows enabled by `cuda.core`: compiling and launching CUDA code.
-Note the clean, Pythonic interface, and absense of any direct calls to the CUDA runtime/driver APIs!
+Note the clean, Pythonic interface, and absense of any direct calls to the CUDA runtime/driver APIs.
 
 ## Examples and Recipes
 
-As we mentioned before, `cuda.core` can do much more than just compile and launch kernels!
+As we mentioned before, `cuda.core` can do much more than just compile and launch kernels.
 
 The best way to explore and learn the different features `cuda.core` is through
 our [`examples`][examples]. Find one that matches your use-case, and modify it to fit your needs!
