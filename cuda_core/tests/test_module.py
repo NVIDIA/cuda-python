@@ -344,7 +344,7 @@ def test_occupancy_available_dynamic_shared_memory_per_block(get_saxpy_kernel, n
 def test_occupancy_max_active_clusters(get_saxpy_kernel, cluster):
     kernel, _ = get_saxpy_kernel
     dev = Device()
-    if (cluster) and (dev.compute_capability < (9, 0)):
+    if dev.compute_capability < (9, 0):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64, cluster=cluster)
     query_fn = kernel.occupancy.max_active_clusters
@@ -359,6 +359,8 @@ def test_occupancy_max_active_clusters(get_saxpy_kernel, cluster):
 def test_occupancy_max_potential_cluster_size(get_saxpy_kernel):
     kernel, _ = get_saxpy_kernel
     dev = Device()
+    if dev.compute_capability < (9, 0):
+        pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64)
     query_fn = kernel.occupancy.max_potential_cluster_size
     max_potential_cluster_size = query_fn(launch_config)
