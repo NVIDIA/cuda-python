@@ -15,6 +15,8 @@ from enum import IntEnum as _IntEnum
 
 import cython
 
+from cuda.bindings.driver import CUresult as pyCUresult
+
 
 ###############################################################################
 # POD
@@ -418,9 +420,10 @@ class cuFileError(Exception):
         self.status = status
         self.cuda_error = cu_err
         s = OpError(status)
-        cdef str err = f"{s.name} ({s.value})"
+        cdef str err = f"{s.name} ({s.value}): {op_status_error(status)}"
         if cu_err is not None:
-            err += "; CUDA status: {cu_err}"
+            e = pyCUresult(cu_err)
+            err += f"; CUDA status: {e.name} ({e.value})"
         super(cuFileError, self).__init__(err)
 
     def __reduce__(self):
