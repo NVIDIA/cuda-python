@@ -12,6 +12,7 @@ import ctypes
 from contextlib import contextmanager
 import numpy as _numpy
 import stat
+import numpy as np
 
 import pytest
 
@@ -100,7 +101,7 @@ def test_buf_register_simple():
     cufile.driver_open()
 
     # Allocate CUDA memory
-    buffer_size = 4096
+    buffer_size = 4096  # 4KB, aligned to 4096 bytes
     err, buf_ptr = cuda.cuMemAlloc(buffer_size)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -133,7 +134,7 @@ def test_buf_register_host_memory():
     cufile.driver_open()
 
     # Allocate host memory
-    buffer_size = 4096
+    buffer_size = 4096  # 4KB, aligned to 4096 bytes
     err, buf_ptr = cuda.cuMemHostAlloc(buffer_size, 0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -166,7 +167,7 @@ def test_buf_register_multiple_buffers():
     cufile.driver_open()
 
     # Allocate multiple CUDA buffers
-    buffer_sizes = [512, 4096, 65536]
+    buffer_sizes = [4096, 16384, 65536]  # All aligned to 4096 bytes
     buffers = []
     
     for size in buffer_sizes:
@@ -243,8 +244,8 @@ def test_buf_register_large_buffer():
     # Open cuFile driver
     cufile.driver_open()
 
-    # Allocate large CUDA memory (1MB)
-    buffer_size = 1024 * 1024
+    # Allocate large CUDA memory (1MB, aligned to 4096 bytes)
+    buffer_size = 1024 * 1024  # 1MB, aligned to 4096 bytes (1048576 % 4096 == 0)
     err, buf_ptr = cuda.cuMemAlloc(buffer_size)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -277,7 +278,7 @@ def test_buf_register_already_registered():
     cufile.driver_open()
 
     # Allocate CUDA memory
-    buffer_size = 1024
+    buffer_size = 4096  # 4KB, aligned to 4096 bytes
     err, buf_ptr = cuda.cuMemAlloc(buffer_size)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -321,7 +322,7 @@ def test_cufile_read_write():
     file_path = "test_cufile_rw.bin"
     
     # Allocate CUDA memory for write and read
-    write_size = 65536
+    write_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
     err, write_buf = cuda.cuMemAlloc(write_size)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -352,9 +353,12 @@ def test_cufile_read_write():
         handle = cufile.handle_register(descr.ptr)
 
         # Prepare test data
-        test_data = b"Hello cuFile! This is test data for read/write operations. " * 20
-        test_data = test_data[:write_size]
-        ctypes.memmove(host_buf, test_data, len(test_data))
+        test_string = b"Hello cuFile! This is test data for read/write operations. "
+        test_string_len = len(test_string)
+        repetitions = write_size // test_string_len
+        test_data = test_string * repetitions
+        test_data = test_data[:write_size]  # Ensure it fits exactly in buffer
+        host_buf = ctypes.create_string_buffer(test_data, write_size)
 
         # Copy test data to CUDA write buffer
         cuda.cuMemcpyHtoD(write_buf, host_buf, write_size)
@@ -413,7 +417,7 @@ def test_cufile_read_write_host_memory():
     file_path = "test_cufile_rw_host.bin"
     
     # Allocate host memory for write and read
-    write_size = 65536
+    write_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
     err, write_buf = cuda.cuMemHostAlloc(write_size, 0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -441,14 +445,15 @@ def test_cufile_read_write_host_memory():
         handle = cufile.handle_register(descr.ptr)
 
         # Prepare test data
-        test_data = b"Host memory test data for cuFile operations! " * 20
-        test_data = test_data[:write_size]
+        test_string = b"Host memory test data for cuFile operations! "
+        test_string_len = len(test_string)
+        repetitions = write_size // test_string_len
+        test_data = test_string * repetitions
+        test_data = test_data[:write_size]  # Ensure it fits exactly in buffer
         
         # Copy test data to host write buffer
-        ctypes.memmove(write_buf, test_data, len(test_data))
-
-        # Get the actual data that was written
-        write_buffer_content = ctypes.string_at(write_buf, write_size)
+        host_buf = ctypes.create_string_buffer(test_data, write_size)
+        write_buf_content = ctypes.string_at(write_buf, write_size)
 
         # Write data using cuFile
         bytes_written = cufile.write(handle, write_buf_int, write_size, 0, 0)
@@ -461,7 +466,7 @@ def test_cufile_read_write_host_memory():
 
         # Verify the data
         read_data = ctypes.string_at(read_buf, write_size)
-        expected_data = write_buffer_content
+        expected_data = write_buf_content
         assert read_data == expected_data, "Read data doesn't match written data"
 
         # Deregister file handle
@@ -504,8 +509,8 @@ def test_cufile_read_write_large():
     # Create test file
     file_path = "test_cufile_rw_large.bin"
     
-    # Allocate large CUDA memory (1MB)
-    write_size = 1024 * 1024
+    # Allocate large CUDA memory (1MB, aligned to 4096 bytes)
+    write_size = 1024 * 1024  # 1MB, aligned to 4096 bytes (1048576 % 4096 == 0)
     err, write_buf = cuda.cuMemAlloc(write_size)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -538,7 +543,7 @@ def test_cufile_read_write_large():
         # Generate large test data
         import random
         test_data = bytes(random.getrandbits(8) for _ in range(write_size))
-        ctypes.memmove(host_buf, test_data, write_size)
+        host_buf = ctypes.create_string_buffer(test_data, write_size)
 
         # Copy test data to CUDA write buffer
         cuda.cuMemcpyHtoD(write_buf, host_buf, write_size)
@@ -581,4 +586,352 @@ def test_cufile_read_write_large():
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
+
+def test_cufile_write_async():
+    """Test cuFile asynchronous write operations."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    # Create test file
+    file_path = "test_cufile_write_async.bin"
+    fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+    print(f"DEBUG: File descriptor: {fd}")
+    
+    try:
+        # Register file handle
+        descr = cufile.Descr()
+        descr.type = cufile.FileHandleType.OPAQUE_FD
+        descr.handle.fd = fd
+        descr.fs_ops = 0
+        handle = cufile.handle_register(descr.ptr)
+        print(f"DEBUG: File handle: {handle} (0x{handle:x})")
+
+        # Allocate and register device buffer
+        buf_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
+        err, buf_ptr = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        print(f"DEBUG: CUDA buffer pointer: {buf_ptr} (0x{int(buf_ptr):x})")
+        cufile.buf_register(int(buf_ptr), buf_size, 0)
+
+        # Create CUDA stream
+        err, stream = cuda.cuStreamCreate(0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        print(f"DEBUG: CUDA stream: {stream} (0x{int(stream):x})")
+
+        # Register stream with cuFile
+        cufile.stream_register(int(stream), 0)
+
+        # Prepare test data in device buffer
+        test_string = b"Async write test data for cuFile!"
+        test_string_len = len(test_string)
+        repetitions = buf_size // test_string_len
+        test_data = test_string * repetitions
+        test_data = test_data[:buf_size]  # Ensure it fits exactly in buffer
+        host_buf = ctypes.create_string_buffer(test_data, buf_size)
+        cuda.cuMemcpyHtoD(buf_ptr, host_buf, buf_size)
+
+        # Create parameter arrays for async write
+        size_p = ctypes.c_size_t(buf_size)
+        file_offset_p = ctypes.c_int64(0)
+        buf_ptr_offset_p = ctypes.c_int64(0)
+        bytes_written_p = ctypes.c_ssize_t(0)
+
+        print(f"DEBUG: size_p address: {ctypes.addressof(size_p)} (0x{ctypes.addressof(size_p):x})")
+        print(f"DEBUG: file_offset_p address: {ctypes.addressof(file_offset_p)} (0x{ctypes.addressof(file_offset_p):x})")
+        print(f"DEBUG: buf_ptr_offset_p address: {ctypes.addressof(buf_ptr_offset_p)} (0x{ctypes.addressof(buf_ptr_offset_p):x})")
+        print(f"DEBUG: bytes_written_p address: {ctypes.addressof(bytes_written_p)} (0x{ctypes.addressof(bytes_written_p):x})")
+
+        # Perform async write
+        #print(f"DEBUG: Calling write_async with handle={int(handle)}, buf_ptr={int(buf_ptr)}, stream={int(stream)}")
+        cufile.write_async(
+            int(handle),
+            int(buf_ptr),
+            ctypes.addressof(size_p),
+            ctypes.addressof(file_offset_p),
+            ctypes.addressof(buf_ptr_offset_p),
+            ctypes.addressof(bytes_written_p),
+            int(stream)
+        )
+
+        # Synchronize stream to wait for completion
+        cuda.cuStreamSynchronize(stream)
+
+        # Verify bytes written
+        assert bytes_written_p.value == buf_size, f"Expected {buf_size} bytes written, got {bytes_written_p.value}"
+
+        # Deregister stream
+        cufile.stream_deregister(int(stream))
+
+        # Deregister and cleanup
+        cufile.buf_deregister(int(buf_ptr))
+        cufile.handle_deregister(handle)
+        cuda.cuStreamDestroy(stream)
+        cuda.cuMemFree(buf_ptr)
+        
+    finally:
+        os.close(fd)
+        #try:
+        #    os.unlink(file_path)
+        #except OSError:
+        #    pass
+
+def test_cufile_read_async():
+    """Test cuFile asynchronous read operations."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    # Create test file
+    file_path = "test_cufile_read_async.bin"
+    
+    # First create and write test data without O_DIRECT
+    fd_temp = os.open(file_path, os.O_CREAT | os.O_RDWR, 0o644)
+    # Create test data that's aligned to 4096 bytes
+    test_string = b"Async read test data for cuFile!"
+    test_string_len = len(test_string)
+    buf_size = 65536  # 64KB, aligned to 4096 bytes
+    repetitions = buf_size // test_string_len
+    test_data = test_string * repetitions
+    test_data = test_data[:buf_size]  # Ensure exact 64KB
+    os.write(fd_temp, test_data)
+    os.fsync(fd_temp)
+    os.close(fd_temp)
+    
+    # Now open with O_DIRECT for cuFile operations
+    fd = os.open(file_path, os.O_RDWR | os.O_DIRECT)
+    print(f"DEBUG: File descriptor: {fd}")
+    
+    try:
+        # Register file handle
+        descr = cufile.Descr()
+        descr.type = cufile.FileHandleType.OPAQUE_FD
+        descr.handle.fd = fd
+        descr.fs_ops = 0
+        handle = cufile.handle_register(descr.ptr)
+        print(f"DEBUG: File handle: {handle} (0x{handle:x})")
+
+        # Allocate and register device buffer
+        buf_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
+        err, buf_ptr = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        print(f"DEBUG: CUDA buffer pointer: {buf_ptr} (0x{int(buf_ptr):x})")
+        cufile.buf_register(int(buf_ptr), buf_size, 0)
+
+        # Create CUDA stream
+        err, stream = cuda.cuStreamCreate(0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        print(f"DEBUG: CUDA stream: {stream} (0x{int(stream):x})")
+
+        # Register stream with cuFile
+        cufile.stream_register(int(stream), 0)
+
+        # Create parameter arrays for async read
+        size_p = ctypes.c_size_t(buf_size)
+        file_offset_p = ctypes.c_int64(0)
+        buf_ptr_offset_p = ctypes.c_int64(0)
+        bytes_read_p = ctypes.c_ssize_t(0)
+
+        print(f"DEBUG: size_p address: {ctypes.addressof(size_p)} (0x{ctypes.addressof(size_p):x})")
+        print(f"DEBUG: file_offset_p address: {ctypes.addressof(file_offset_p)} (0x{ctypes.addressof(file_offset_p):x})")
+        print(f"DEBUG: buf_ptr_offset_p address: {ctypes.addressof(buf_ptr_offset_p)} (0x{ctypes.addressof(buf_ptr_offset_p):x})")
+        print(f"DEBUG: bytes_read_p address: {ctypes.addressof(bytes_read_p)} (0x{ctypes.addressof(bytes_read_p):x})")
+
+        # Perform async read
+        print(f"DEBUG: Calling read_async with handle={int(handle)}, buf_ptr={int(buf_ptr)}, stream={int(stream)}")
+        cufile.read_async(
+            int(handle),
+            int(buf_ptr),
+            ctypes.addressof(size_p),
+            ctypes.addressof(file_offset_p),
+            ctypes.addressof(buf_ptr_offset_p),
+            ctypes.addressof(bytes_read_p),
+            int(stream)
+        )
+
+        # Synchronize stream to wait for completion
+        cuda.cuStreamSynchronize(stream)
+
+        # Verify bytes read
+        assert bytes_read_p.value > 0, f"Expected bytes read, got {bytes_read_p.value}"
+
+        # Copy read data back to host and verify
+        host_buf = ctypes.create_string_buffer(buf_size)
+        cuda.cuMemcpyDtoH(host_buf, buf_ptr, buf_size)
+        read_data = host_buf.value[:bytes_read_p.value]
+        expected_data = test_data[:bytes_read_p.value]
+        assert read_data == expected_data, "Read data doesn't match written data"
+
+        # Deregister stream
+        cufile.stream_deregister(int(stream))
+
+        # Deregister and cleanup
+        cufile.buf_deregister(int(buf_ptr))
+        cufile.handle_deregister(handle)
+        cuda.cuStreamDestroy(stream)
+        cuda.cuMemFree(buf_ptr)
+        
+    finally:
+        os.close(fd)
+        try:
+            os.unlink(file_path)
+        except OSError:
+            pass
+
+def test_cufile_async_read_write():
+    """Test cuFile asynchronous read and write operations in sequence."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    # Create test file
+    file_path = "test_cufile_async_rw.bin"
+    fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+    print(f"DEBUG: File descriptor: {fd}")
+    
+    try:
+        # Register file handle
+        descr = cufile.Descr()
+        descr.type = cufile.FileHandleType.OPAQUE_FD
+        descr.handle.fd = fd
+        descr.fs_ops = 0
+        handle = cufile.handle_register(descr.ptr)
+        print(f"DEBUG: File handle: {handle} (0x{handle:x})")
+
+        # Allocate and register device buffers
+        buf_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
+        err, write_buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        print(f"DEBUG: Write buffer pointer: {write_buf} (0x{int(write_buf):x})")
+        cufile.buf_register(int(write_buf), buf_size, 0)
+
+        err, read_buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        print(f"DEBUG: Read buffer pointer: {read_buf} (0x{int(read_buf):x})")
+        cufile.buf_register(int(read_buf), buf_size, 0)
+
+        # Create CUDA stream
+        err, stream = cuda.cuStreamCreate(0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        print(f"DEBUG: CUDA stream: {stream} (0x{int(stream):x})")
+
+        # Register stream with cuFile
+        cufile.stream_register(int(stream), 0)
+
+        # Prepare test data in write buffer
+        test_string = b"Async RW test data for cuFile!"
+        test_string_len = len(test_string)
+        repetitions = buf_size // test_string_len
+        test_data = test_string * repetitions
+        test_data = test_data[:buf_size]  # Ensure it fits exactly in buffer
+        host_buf = ctypes.create_string_buffer(test_data, buf_size)
+        cuda.cuMemcpyHtoD(write_buf, host_buf, buf_size)
+
+        # Create parameter arrays for async write
+        write_size_p = ctypes.c_size_t(buf_size)
+        write_file_offset_p = ctypes.c_int64(0)
+        write_buf_ptr_offset_p = ctypes.c_int64(0)
+        bytes_written_p = ctypes.c_ssize_t(0)
+
+        print(f"DEBUG: write_size_p address: {ctypes.addressof(write_size_p)} (0x{ctypes.addressof(write_size_p):x})")
+        print(f"DEBUG: write_file_offset_p address: {ctypes.addressof(write_file_offset_p)} (0x{ctypes.addressof(write_file_offset_p):x})")
+        print(f"DEBUG: write_buf_ptr_offset_p address: {ctypes.addressof(write_buf_ptr_offset_p)} (0x{ctypes.addressof(write_buf_ptr_offset_p):x})")
+        print(f"DEBUG: bytes_written_p address: {ctypes.addressof(bytes_written_p)} (0x{ctypes.addressof(bytes_written_p):x})")
+
+        # Perform async write
+        print(f"DEBUG: Calling write_async with handle={int(handle)}, write_buf={int(write_buf)}, stream={int(stream)}")
+        cufile.write_async(
+            int(handle),
+            int(write_buf),
+            ctypes.addressof(write_size_p),
+            ctypes.addressof(write_file_offset_p),
+            ctypes.addressof(write_buf_ptr_offset_p),
+            ctypes.addressof(bytes_written_p),
+            int(stream)
+        )
+
+        # Synchronize stream to wait for write completion
+        cuda.cuStreamSynchronize(stream)
+
+        # Verify bytes written
+        assert bytes_written_p.value == buf_size, f"Expected {buf_size} bytes written, got {bytes_written_p.value}"
+
+        # Create parameter arrays for async read
+        read_size_p = ctypes.c_size_t(buf_size)
+        read_file_offset_p = ctypes.c_int64(0)
+        read_buf_ptr_offset_p = ctypes.c_int64(0)
+        bytes_read_p = ctypes.c_ssize_t(0)
+
+        print(f"DEBUG: read_size_p address: {ctypes.addressof(read_size_p)} (0x{ctypes.addressof(read_size_p):x})")
+        print(f"DEBUG: read_file_offset_p address: {ctypes.addressof(read_file_offset_p)} (0x{ctypes.addressof(read_file_offset_p):x})")
+        print(f"DEBUG: read_buf_ptr_offset_p address: {ctypes.addressof(read_buf_ptr_offset_p)} (0x{ctypes.addressof(read_buf_ptr_offset_p):x})")
+        print(f"DEBUG: bytes_read_p address: {ctypes.addressof(bytes_read_p)} (0x{ctypes.addressof(bytes_read_p):x})")
+
+        # Perform async read
+        print(f"DEBUG: Calling read_async with handle={int(handle)}, read_buf={int(read_buf)}, stream={int(stream)}")
+        cufile.read_async(
+            int(handle),
+            int(read_buf),
+            ctypes.addressof(read_size_p),
+            ctypes.addressof(read_file_offset_p),
+            ctypes.addressof(read_buf_ptr_offset_p),
+            ctypes.addressof(bytes_read_p),
+            int(stream)
+        )
+
+        # Synchronize stream to wait for read completion
+        cuda.cuStreamSynchronize(stream)
+
+        # Verify bytes read
+        assert bytes_read_p.value == buf_size, f"Expected {buf_size} bytes read, got {bytes_read_p.value}"
+
+        # Copy read data back to host and verify
+        cuda.cuMemcpyDtoH(host_buf, read_buf, buf_size)
+        read_data = host_buf.value
+        assert read_data == test_data, "Read data doesn't match written data"
+
+        # Deregister stream
+        cufile.stream_deregister(int(stream))
+
+        # Deregister and cleanup
+        cufile.buf_deregister(int(write_buf))
+        cufile.buf_deregister(int(read_buf))
+        cufile.handle_deregister(handle)
+        cuda.cuStreamDestroy(stream)
+        cuda.cuMemFree(write_buf)
+        cuda.cuMemFree(read_buf)
+        
+    finally:
+        os.close(fd)
+        try:
+            os.unlink(file_path)
+        except OSError:
+            pass
 
