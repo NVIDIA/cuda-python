@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# ################################################################################
+#
+# This demo illustrates how to use `cuda.core` to compile and launch kernels
+# on multiple GPUs.
+#
+# ################################################################################
+
 import sys
 
 import cupy as cp
