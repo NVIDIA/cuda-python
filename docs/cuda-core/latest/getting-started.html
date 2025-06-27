@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Overview" href="getting-started.html" />
-        <link rel="canonical" href="docs/index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Installation" href="install.html" /><link rel="prev" title="cuda.core: Pythonic access to CUDA core functionality" href="index.html" />
+        <link rel="canonical" href="docs/getting-started.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>cuda.core 0.3.0 documentation</title>
+        <title>Overview - cuda.core 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -173,7 +173,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">cuda.core 0.3.0 documentation</div></a>
+      <a href="index.html"><div class="brand">cuda.core 0.3.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -185,7 +185,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -194,7 +194,7 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   <div class="sidebar-logo-container">
     <img class="sidebar-logo only-light" src="_static/logo-light-mode.png" alt="Light Logo"/>
@@ -210,8 +210,8 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Overview</a></li>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -295,7 +295,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/index.rst.txt" title="View this page">
+  <a class="muted-link" href="_sources/getting-started.md.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -309,72 +309,106 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="cuda-core-pythonic-access-to-cuda-core-functionality">
-<h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>: Pythonic access to CUDA core functionality<a class="headerlink" href="#cuda-core-pythonic-access-to-cuda-core-functionality" title="Link to this heading">¶</a></h1>
-<p>Welcome to the documentation for <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>.</p>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="getting-started.html#what-is-cuda-core">What is <code class="docutils literal notranslate"><span class="pre">cuda</span> <span class="pre">core</span></code>?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting-started.html#example-compiling-and-launching-a-cuda-kernel">Example: Compiling and Launching a CUDA kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting-started.html#examples-and-recipes">Examples and Recipes</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html#runtime-requirements">Runtime Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#installing-from-pypi">Installing from PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#installing-from-conda-conda-forge">Installing from Conda (conda-forge)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#installing-from-source">Installing from Source</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="interoperability.html#current-device-context">Current device/context</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interoperability.html#cuda-stream-protocol"><code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> protocol</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interoperability.html#memory-view-utilities-for-cpu-gpu-buffers">Memory view utilities for CPU/GPU buffers</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#cuda-runtime">CUDA runtime</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#cuda-compilation-toolchain">CUDA compilation toolchain</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#cuda-system-information">CUDA system information</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#utility-functions">Utility functions</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
-</ul>
-</div>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
-<li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
-</ul>
-</div>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="release.html">Release Notes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h1>
+          <section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h1>
+<section id="what-is-cuda-core">
+<h2>What is <code class="docutils literal notranslate"><span class="pre">cuda</span> <span class="pre">core</span></code>?<a class="headerlink" href="#what-is-cuda-core" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> provides a Pythonic interface to the CUDA runtime and other functionality,
+including:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+<li><p>Compiling and launching CUDA kernels</p></li>
+<li><p>Asynchronous concurrent execution with CUDA graphs, streams and events</p></li>
+<li><p>Coordinating work across multiple CUDA devices</p></li>
+<li><p>Allocating, transfering, and managing device memory</p></li>
+<li><p>Runtime linking of device code with Link-Time Optimization (LTO)</p></li>
+<li><p>and much more!</p></li>
 </ul>
+<p>Rather than providing 1:1 equivalents of the CUDA driver and runtime APIs
+(for that, see <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code></a>), <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> provides high-level constructs such as:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> class for GPU device operations and context management.</p></li>
+<li><p><a class="reference internal" href="generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> and <a class="reference internal" href="generated/cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource" title="cuda.core.experimental.MemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryResource</span></code></a> classes for memory allocation and management.</p></li>
+<li><p><a class="reference internal" href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> for JIT compilation of CUDA kernels.</p></li>
+<li><p><a class="reference internal" href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> for building and executing CUDA graphs.</p></li>
+<li><p><a class="reference internal" href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> and <a class="reference internal" href="generated/cuda.core.experimental.Event.html#cuda.core.experimental.Event" title="cuda.core.experimental.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> for asynchronous execution and timing.</p></li>
+</ul>
+</section>
+<section id="example-compiling-and-launching-a-cuda-kernel">
+<h2>Example: Compiling and Launching a CUDA kernel<a class="headerlink" href="#example-compiling-and-launching-a-cuda-kernel" title="Link to this heading">¶</a></h2>
+<p>To get a taste for <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>, let’s walk through a simple example that compiles and launches a vector addition kernel.
+You can find the complete example in <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples/vector_add.py"><code class="docutils literal notranslate"><span class="pre">vector_add.py</span></code></a>.</p>
+<p>First, we define a string containing the CUDA C++ kernel. Note that this is a templated kernel:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># compute c = a + b</span>
+<span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">template&lt;typename T&gt;</span>
+<span class="s2">__global__ void vector_add(const T* A,</span>
+<span class="s2">                           const T* B,</span>
+<span class="s2">                           T* C,</span>
+<span class="s2">                           size_t N) {</span>
+<span class="s2">    const unsigned int tid = threadIdx.x + blockIdx.x * blockDim.x;</span>
+<span class="s2">    for (size_t i=tid; i&lt;N; i+=gridDim.x*blockDim.x) {</span>
+<span class="s2">        C[tid] = A[tid] + B[tid];</span>
+<span class="s2">    }</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>Next, we create a <a class="reference internal" href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> object
+and a corresponding <a class="reference internal" href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>.
+Don’t forget to use <a class="reference internal" href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.set_current" title="cuda.core.experimental.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a>!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core.experimental</span><span class="w"> </span><span class="kn">import</span> <span class="n">Device</span><span class="p">,</span> <span class="n">LaunchConfig</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">ProgramOptions</span><span class="p">,</span> <span class="n">launch</span>
+
+<span class="n">dev</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span>
+<span class="n">dev</span><span class="o">.</span><span class="n">set_current</span><span class="p">()</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_stream</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Next, we compile the CUDA C++ kernel from earlier using the <a class="reference internal" href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> class.
+The result of the compilation  is saved as a CUBIN.
+Note the use of the <code class="docutils literal notranslate"><span class="pre">name_expressions</span></code> parameter to the <a class="reference internal" href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program.compile" title="cuda.core.experimental.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code></a> method to specify which kernel template instantiations to compile:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">arch</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dev</span><span class="o">.</span><span class="n">compute_capability</span><span class="p">)</span>
+<span class="n">program_options</span> <span class="o">=</span> <span class="n">ProgramOptions</span><span class="p">(</span><span class="n">std</span><span class="o">=</span><span class="s2">&quot;c++17&quot;</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;sm_</span><span class="si">{</span><span class="n">arch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">program_options</span><span class="p">)</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">,</span> <span class="n">name_expressions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;vector_add&lt;float&gt;&quot;</span><span class="p">,))</span>
+</pre></div>
+</div>
+<p>Next, we retrieve the compiled kernel from the CUBIN and prepare the arguments and kernel configuration.
+We’re using <a class="reference external" href="https://cupy.dev/">CuPy</a> arrays as inputs for this example, but you can use PyTorch tensors too
+(we show how to do this in one of our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples">examples</a>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ker</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">get_kernel</span><span class="p">(</span><span class="s2">&quot;vector_add&lt;float&gt;&quot;</span><span class="p">)</span>
+
+<span class="c1"># Prepare input/output arrays (using CuPy)</span>
+<span class="n">size</span> <span class="o">=</span> <span class="mi">50000</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+<span class="c1"># Configure launch parameters</span>
+<span class="n">block</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span> <span class="o">+</span> <span class="n">block</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">block</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">LaunchConfig</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, we use the <a class="reference internal" href="generated/cuda.core.experimental.launch.html#cuda.core.experimental.launch" title="cuda.core.experimental.launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">launch</span></code></a> function to execute our kernel on the specified stream with the given configuration and arguments. Note the use of <code class="docutils literal notranslate"><span class="pre">.data.ptr</span></code> to get the pointer to the array data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">launch</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">ker</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
+<span class="n">s</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This example demonstrates one of the core workflows enabled by <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>: compiling and launching CUDA code.
+Note the clean, Pythonic interface, and absense of any direct calls to the CUDA runtime/driver APIs.</p>
+</section>
+<section id="examples-and-recipes">
+<h2>Examples and Recipes<a class="headerlink" href="#examples-and-recipes" title="Link to this heading">¶</a></h2>
+<p>As we mentioned before, <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> can do much more than just compile and launch kernels.</p>
+<p>The best way to explore and learn the different features <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> is through
+our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples"><code class="docutils literal notranslate"><span class="pre">examples</span></code></a>. Find one that matches your use-case, and modify it to fit your needs!</p>
+</section>
 </section>
 
         </article>
@@ -382,16 +416,26 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="getting-started.html">
+          <a class="next-page" href="install.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Overview</div>
+                <div class="title">Installation</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -410,8 +454,29 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Overview</a><ul>
+<li><a class="reference internal" href="#what-is-cuda-core">What is <code class="docutils literal notranslate"><span class="pre">cuda</span> <span class="pre">core</span></code>?</a></li>
+<li><a class="reference internal" href="#example-compiling-and-launching-a-cuda-kernel">Example: Compiling and Launching a CUDA kernel</a></li>
+<li><a class="reference internal" href="#examples-and-recipes">Examples and Recipes</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
