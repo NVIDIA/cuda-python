@@ -1,11 +1,11 @@
-# Copyright 2025 NVIDIA Corporation.  All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 import os
 
 import pytest
 
-from cuda.bindings._path_finder.find_sub_dirs import (
+from cuda.pathfinder._utils.find_sub_dirs import (
     find_sub_dirs,
     find_sub_dirs_all_sitepackages,
     find_sub_dirs_sys_path,

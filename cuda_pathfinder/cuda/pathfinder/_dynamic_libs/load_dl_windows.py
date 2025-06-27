@@ -1,12 +1,12 @@
-# Copyright 2025 NVIDIA Corporation.  All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 from typing import Optional
 
 import pywintypes
 import win32api
 
-from cuda.bindings._path_finder.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 
 # Mirrors WinBase.h (unfortunately not defined already elsewhere)
 WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
@@ -55,7 +55,7 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         >>> if loaded is not None:
         ...     print(f"Library already loaded from {loaded.abs_path}")
     """
-    from cuda.bindings._path_finder.supported_libs import SUPPORTED_WINDOWS_DLLS
+    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_WINDOWS_DLLS
 
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         try:
@@ -77,7 +77,7 @@ def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
-    from cuda.bindings._path_finder.supported_libs import SUPPORTED_WINDOWS_DLLS
+    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_WINDOWS_DLLS
 
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         try:
@@ -103,7 +103,9 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     Raises:
         RuntimeError: If the DLL cannot be loaded
     """
-    from cuda.bindings._path_finder.supported_libs import LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY
+    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
+        LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
+    )
 
     if libname in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY:
         add_dll_directory(found_path)
