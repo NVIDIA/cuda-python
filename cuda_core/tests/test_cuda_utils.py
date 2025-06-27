@@ -44,7 +44,7 @@ def test_check_driver_error():
     num_unexpected = 0
     for error in driver.CUresult:
         if error == driver.CUresult.CUDA_SUCCESS:
-            assert cuda_utils._check_driver_error(error) is None
+            assert cuda_utils._check_driver_error(error) == 0
         else:
             with pytest.raises(cuda_utils.CUDAError) as e:
                 cuda_utils._check_driver_error(error)
@@ -63,7 +63,7 @@ def test_check_runtime_error():
     num_unexpected = 0
     for error in runtime.cudaError_t:
         if error == runtime.cudaError_t.cudaSuccess:
-            assert cuda_utils._check_runtime_error(error) is None
+            assert cuda_utils._check_runtime_error(error) == 0
         else:
             with pytest.raises(cuda_utils.CUDAError) as e:
                 cuda_utils._check_runtime_error(error)

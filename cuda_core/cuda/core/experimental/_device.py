@@ -17,7 +17,6 @@ from cuda.core.experimental._utils.cuda_utils import (
     _check_driver_error,
     driver,
     handle_return,
-    precondition,
     runtime,
 )
 
@@ -1017,11 +1016,30 @@ class Device:
         except IndexError:
             raise ValueError(f"device_id must be within [0, {len(devices)}), got {device_id}") from None
 
-    def _check_context_initialized(self, *args, **kwargs):
+    def _check_context_initialized(self):
         if not self._has_inited:
             raise CUDAError(
                 f"Device {self._id} is not yet initialized, perhaps you forgot to call .set_current() first?"
             )
+
+    def _get_current_context(self, check_consistency=False) -> driver.CUcontext:
+        err, ctx = driver.cuCtxGetCurrent()
+
+        # TODO: We want to just call this:
+        # _check_driver_error(err)
+        # but even the simplest success check causes 50-100 ns. Wait until we cythonize this file...
+        if ctx is None:
+            _check_driver_error(err)
+
+        if int(ctx) == 0:
+            raise CUDAError("No context is bound to the calling CPU thread.")
+        if check_consistency:
+            err, dev = driver.cuCtxGetDevice()
+            if err != _SUCCESS:
+                handle_return((err,))
+            if int(dev) != self._id:
+                raise CUDAError("Internal error (current device is not equal to Device.device_id)")
+        return ctx
 
     @property
     def device_id(self) -> int:
@@ -1083,7 +1101,6 @@ class Device:
         return cc
 
     @property
-    @precondition(_check_context_initialized)
     def context(self) -> Context:
         """Return the current :obj:`~_context.Context` associated with this device.
 
@@ -1092,9 +1109,8 @@ class Device:
         Device must be initialized.
 
         """
-        ctx = handle_return(driver.cuCtxGetCurrent())
-        if int(ctx) == 0:
-            raise CUDAError("No context is bound to the calling CPU thread.")
+        self._check_context_initialized()
+        ctx = self._get_current_context(check_consistency=True)
         return Context._from_ctx(ctx, self._id)
 
     @property
@@ -1206,8 +1222,7 @@ class Device:
         """
         raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
-    @precondition(_check_context_initialized)
-    def create_stream(self, obj: Optional[IsStreamT] = None, options: StreamOptions = None) -> Stream:
+    def create_stream(self, obj: Optional[IsStreamT] = None, options: Optional[StreamOptions] = None) -> Stream:
         """Create a Stream object.
 
         New stream objects can be created in two different ways:
@@ -1235,9 +1250,9 @@ class Device:
             Newly created stream object.
 
         """
-        return Stream._init(obj=obj, options=options)
+        self._check_context_initialized()
+        return Stream._init(obj=obj, options=options, device_id=self._id)
 
-    @precondition(_check_context_initialized)
     def create_event(self, options: Optional[EventOptions] = None) -> Event:
         """Create an Event object without recording it to a Stream.
 
@@ -1256,9 +1271,10 @@ class Device:
             Newly created event object.
 
         """
-        return Event._init(self._id, self.context._handle, options)
+        self._check_context_initialized()
+        ctx = self._get_current_context()
+        return Event._init(self._id, ctx, options)
 
-    @precondition(_check_context_initialized)
     def allocate(self, size, stream: Optional[Stream] = None) -> Buffer:
         """Allocate device memory from a specified stream.
 
@@ -1285,11 +1301,11 @@ class Device:
             Newly created buffer object.
 
         """
+        self._check_context_initialized()
         if stream is None:
             stream = default_stream()
         return self._mr.allocate(size, stream)
 
-    @precondition(_check_context_initialized)
     def sync(self):
         """Synchronize the device.
 
@@ -1298,9 +1314,9 @@ class Device:
         Device must be initialized.
 
         """
+        self._check_context_initialized()
         handle_return(runtime.cudaDeviceSynchronize())
 
-    @precondition(_check_context_initialized)
     def create_graph_builder(self) -> GraphBuilder:
         """Create a new :obj:`~_graph.GraphBuilder` object.
 
@@ -1310,4 +1326,5 @@ class Device:
             Newly created graph builder object.
 
         """
+        self._check_context_initialized()
         return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
