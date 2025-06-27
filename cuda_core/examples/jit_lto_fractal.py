@@ -4,7 +4,7 @@
 
 # ################################################################################
 #
-# This demo aims to illustrate a couple takeaways:
+# This demo illustrates:
 #
 #   1. How to use the JIT LTO feature provided by the Linker class to link multiple objects together
 #   2. That linking allows for libraries to modify workflows dynamically at runtime
