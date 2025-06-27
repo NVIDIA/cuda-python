@@ -18,9 +18,7 @@ ctypedef CUfileBatchHandle_t BatchHandle
 ctypedef CUfileError_t Error
 ctypedef cufileRDMAInfo_t RDMAInfo
 ctypedef CUfileFSOps_t FSOps
-ctypedef CUfileIOEvents_t IOEvents
 ctypedef CUfileDrvProps_t DrvProps
-ctypedef CUfileIOParams_t IOParams
 
 
 ###############################################################################

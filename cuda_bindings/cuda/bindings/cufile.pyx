@@ -126,6 +126,273 @@ cdef class _py_anon_pod1:
         return obj
 
 
+_py_anon_pod3_dtype = _numpy.dtype([
+    ("dev_ptr_base", _numpy.intp, ),
+    ("file_offset", _numpy.int64, ),
+    ("dev_ptr_offset", _numpy.int64, ),
+    ("size_", _numpy.uint64, ),
+    ], align=True)
+
+
+cdef class _py_anon_pod3:
+    """Empty-initialize an instance of `_anon_pod3`.
+
+
+    .. seealso:: `_anon_pod3`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self):
+        arr = _numpy.empty(1, dtype=_py_anon_pod3_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof((<CUfileIOParams_t*>NULL).u.batch), \
+            f"itemsize {self._data.itemsize} mismatches struct size {sizeof((<CUfileIOParams_t*>NULL).u.batch)}"
+
+    def __repr__(self):
+        return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        return self._data.ctypes.data
+
+    def __eq__(self, other):
+        if not isinstance(other, _py_anon_pod3):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def dev_ptr_base(self):
+        """int: """
+        return int(self._data.dev_ptr_base[0])
+
+    @dev_ptr_base.setter
+    def dev_ptr_base(self, val):
+        self._data.dev_ptr_base = val
+
+    @property
+    def file_offset(self):
+        """int: """
+        return int(self._data.file_offset[0])
+
+    @file_offset.setter
+    def file_offset(self, val):
+        self._data.file_offset = val
+
+    @property
+    def dev_ptr_offset(self):
+        """int: """
+        return int(self._data.dev_ptr_offset[0])
+
+    @dev_ptr_offset.setter
+    def dev_ptr_offset(self, val):
+        self._data.dev_ptr_offset = val
+
+    @property
+    def size_(self):
+        """int: """
+        return int(self._data.size_[0])
+
+    @size_.setter
+    def size_(self, val):
+        self._data.size_ = val
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an _py_anon_pod3 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `_py_anon_pod3_dtype` holding the data.
+        """
+        cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != _py_anon_pod3_dtype:
+            raise ValueError("data array must be of dtype _py_anon_pod3_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False):
+        """Create an _py_anon_pod3 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch), flag)
+        data = _numpy.ndarray((1,), buffer=buf,
+                              dtype=_py_anon_pod3_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
+io_events_dtype = _numpy.dtype([
+    ("cookie", _numpy.intp, ),
+    ("status", _numpy.int32, ),
+    ("ret", _numpy.uint64, ),
+    ], align=True)
+
+
+cdef class IOEvents:
+    """Empty-initialize an array of `CUfileIOEvents_t`.
+
+    The resulting object is of length `size` and of dtype `io_events_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `CUfileIOEvents_t`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=io_events_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileIOEvents_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfileIOEvents_t)}"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.IOEvents_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.IOEvents object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        if not isinstance(other, IOEvents):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def cookie(self):
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data.cookie[0])
+        return self._data.cookie
+
+    @cookie.setter
+    def cookie(self, val):
+        self._data.cookie = val
+
+    @property
+    def status(self):
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.status[0])
+        return self._data.status
+
+    @status.setter
+    def status(self, val):
+        self._data.status = val
+
+    @property
+    def ret(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.ret[0])
+        return self._data.ret
+
+    @ret.setter
+    def ret(self, val):
+        self._data.ret = val
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            size = self._data.size
+            if key >= size or key <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key < 0:
+                key += size
+            return IOEvents.from_data(self._data[key:key+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == io_events_dtype:
+            return IOEvents.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an IOEvents instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `io_events_dtype` holding the data.
+        """
+        cdef IOEvents obj = IOEvents.__new__(IOEvents)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != io_events_dtype:
+            raise ValueError("data array must be of dtype io_events_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an IOEvents instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef IOEvents obj = IOEvents.__new__(IOEvents)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileIOEvents_t) * size, flag)
+        data = _numpy.ndarray((size,), buffer=buf,
+                              dtype=io_events_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
 descr_dtype = _numpy.dtype([
     ("type", _numpy.int32, ),
     ("handle", _py_anon_pod1_dtype, ),
@@ -265,6 +532,270 @@ cdef class Descr:
             <char*>ptr, sizeof(CUfileDescr_t) * size, flag)
         data = _numpy.ndarray((size,), buffer=buf,
                               dtype=descr_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
+_py_anon_pod2_dtype = _numpy.dtype((
+    _numpy.dtype((_numpy.void, sizeof((<CUfileIOParams_t*>NULL).u))),
+    {
+        "batch": (_py_anon_pod3_dtype, 0),
+    }
+    ))
+
+
+cdef class _py_anon_pod2:
+    """Empty-initialize an instance of `_anon_pod2`.
+
+
+    .. seealso:: `_anon_pod2`
+    """
+    cdef:
+        readonly object _data
+
+        readonly object _batch
+
+    def __init__(self):
+        arr = _numpy.empty(1, dtype=_py_anon_pod2_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof((<CUfileIOParams_t*>NULL).u), \
+            f"itemsize {self._data.itemsize} mismatches union size {sizeof((<CUfileIOParams_t*>NULL).u)}"
+
+    def __repr__(self):
+        return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        return self._data.ctypes.data
+
+    def __eq__(self, other):
+        if not isinstance(other, _py_anon_pod2):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def batch(self):
+        """_py_anon_pod3: """
+        return self._batch
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an _py_anon_pod2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `_py_anon_pod2_dtype` holding the data.
+        """
+        cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != _py_anon_pod2_dtype:
+            raise ValueError("data array must be of dtype _py_anon_pod2_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        batch_addr = obj._data.batch[0].__array_interface__['data'][0]
+        obj._batch = _py_anon_pod3.from_ptr(batch_addr)
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False):
+        """Create an _py_anon_pod2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof((<CUfileIOParams_t*>NULL).u), flag)
+        data = _numpy.ndarray((1,), buffer=buf,
+                              dtype=_py_anon_pod2_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        batch_addr = obj._data.batch[0].__array_interface__['data'][0]
+        obj._batch = _py_anon_pod3.from_ptr(batch_addr)
+        return obj
+
+
+io_params_dtype = _numpy.dtype([
+    ("mode", _numpy.int32, ),
+    ("u", _py_anon_pod2_dtype, ),
+    ("fh", _numpy.intp, ),
+    ("opcode", _numpy.int32, ),
+    ("cookie", _numpy.intp, ),
+    ], align=True)
+
+
+cdef class IOParams:
+    """Empty-initialize an array of `CUfileIOParams_t`.
+
+    The resulting object is of length `size` and of dtype `io_params_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `CUfileIOParams_t`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=io_params_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileIOParams_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfileIOParams_t)}"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.IOParams_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.IOParams object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        if not isinstance(other, IOParams):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def mode(self):
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.mode[0])
+        return self._data.mode
+
+    @mode.setter
+    def mode(self, val):
+        self._data.mode = val
+
+    @property
+    def u(self):
+        """_py_anon_pod2_dtype: """
+        return self._data.u
+
+    @u.setter
+    def u(self, val):
+        self._data.u = val
+
+    @property
+    def fh(self):
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data.fh[0])
+        return self._data.fh
+
+    @fh.setter
+    def fh(self, val):
+        self._data.fh = val
+
+    @property
+    def opcode(self):
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.opcode[0])
+        return self._data.opcode
+
+    @opcode.setter
+    def opcode(self, val):
+        self._data.opcode = val
+
+    @property
+    def cookie(self):
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data.cookie[0])
+        return self._data.cookie
+
+    @cookie.setter
+    def cookie(self, val):
+        self._data.cookie = val
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            size = self._data.size
+            if key >= size or key <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key < 0:
+                key += size
+            return IOParams.from_data(self._data[key:key+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == io_params_dtype:
+            return IOParams.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an IOParams instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `io_params_dtype` holding the data.
+        """
+        cdef IOParams obj = IOParams.__new__(IOParams)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != io_params_dtype:
+            raise ValueError("data array must be of dtype io_params_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an IOParams instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef IOParams obj = IOParams.__new__(IOParams)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileIOParams_t) * size, flag)
+        data = _numpy.ndarray((size,), buffer=buf,
+                              dtype=io_params_dtype)
         obj._data = data.view(_numpy.recarray)
 
         return obj
