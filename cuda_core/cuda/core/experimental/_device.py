@@ -955,6 +955,13 @@ class Device:
     ----
     Will not initialize the GPU.
 
+    Note
+    ----
+    Internal implementation depends on the CUDA Driver API error handling, that
+    may cause ``compute-sanitizer`` to fail. In order to avoid this, you can use
+    ``--report-api-errors=no`` `compute-sanitizer argument 
+    <https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html>`__.
+
     Parameters
     ----------
     device_id : int, optional
