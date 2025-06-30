@@ -605,7 +605,6 @@ def test_cufile_write_async():
     # Create test file
     file_path = "test_cufile_write_async.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
-    print(f"DEBUG: File descriptor: {fd}")
     
     try:
         # Register file handle
@@ -614,19 +613,16 @@ def test_cufile_write_async():
         descr.handle.fd = fd
         descr.fs_ops = 0
         handle = cufile.handle_register(descr.ptr)
-        print(f"DEBUG: File handle: {handle} (0x{handle:x})")
 
         # Allocate and register device buffer
         buf_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
         err, buf_ptr = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
-        print(f"DEBUG: CUDA buffer pointer: {buf_ptr} (0x{int(buf_ptr):x})")
         cufile.buf_register(int(buf_ptr), buf_size, 0)
 
         # Create CUDA stream
         err, stream = cuda.cuStreamCreate(0)
         assert err == cuda.CUresult.CUDA_SUCCESS
-        print(f"DEBUG: CUDA stream: {stream} (0x{int(stream):x})")
 
         # Register stream with cuFile
         cufile.stream_register(int(stream), 0)
@@ -646,13 +642,7 @@ def test_cufile_write_async():
         buf_ptr_offset_p = ctypes.c_int64(0)
         bytes_written_p = ctypes.c_ssize_t(0)
 
-        print(f"DEBUG: size_p address: {ctypes.addressof(size_p)} (0x{ctypes.addressof(size_p):x})")
-        print(f"DEBUG: file_offset_p address: {ctypes.addressof(file_offset_p)} (0x{ctypes.addressof(file_offset_p):x})")
-        print(f"DEBUG: buf_ptr_offset_p address: {ctypes.addressof(buf_ptr_offset_p)} (0x{ctypes.addressof(buf_ptr_offset_p):x})")
-        print(f"DEBUG: bytes_written_p address: {ctypes.addressof(bytes_written_p)} (0x{ctypes.addressof(bytes_written_p):x})")
-
         # Perform async write
-        #print(f"DEBUG: Calling write_async with handle={int(handle)}, buf_ptr={int(buf_ptr)}, stream={int(stream)}")
         cufile.write_async(
             int(handle),
             int(buf_ptr),
@@ -718,7 +708,6 @@ def test_cufile_read_async():
     
     # Now open with O_DIRECT for cuFile operations
     fd = os.open(file_path, os.O_RDWR | os.O_DIRECT)
-    print(f"DEBUG: File descriptor: {fd}")
     
     try:
         # Register file handle
@@ -727,19 +716,16 @@ def test_cufile_read_async():
         descr.handle.fd = fd
         descr.fs_ops = 0
         handle = cufile.handle_register(descr.ptr)
-        print(f"DEBUG: File handle: {handle} (0x{handle:x})")
 
         # Allocate and register device buffer
         buf_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
         err, buf_ptr = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
-        print(f"DEBUG: CUDA buffer pointer: {buf_ptr} (0x{int(buf_ptr):x})")
         cufile.buf_register(int(buf_ptr), buf_size, 0)
 
         # Create CUDA stream
         err, stream = cuda.cuStreamCreate(0)
         assert err == cuda.CUresult.CUDA_SUCCESS
-        print(f"DEBUG: CUDA stream: {stream} (0x{int(stream):x})")
 
         # Register stream with cuFile
         cufile.stream_register(int(stream), 0)
@@ -750,13 +736,7 @@ def test_cufile_read_async():
         buf_ptr_offset_p = ctypes.c_int64(0)
         bytes_read_p = ctypes.c_ssize_t(0)
 
-        print(f"DEBUG: size_p address: {ctypes.addressof(size_p)} (0x{ctypes.addressof(size_p):x})")
-        print(f"DEBUG: file_offset_p address: {ctypes.addressof(file_offset_p)} (0x{ctypes.addressof(file_offset_p):x})")
-        print(f"DEBUG: buf_ptr_offset_p address: {ctypes.addressof(buf_ptr_offset_p)} (0x{ctypes.addressof(buf_ptr_offset_p):x})")
-        print(f"DEBUG: bytes_read_p address: {ctypes.addressof(bytes_read_p)} (0x{ctypes.addressof(bytes_read_p):x})")
-
         # Perform async read
-        print(f"DEBUG: Calling read_async with handle={int(handle)}, buf_ptr={int(buf_ptr)}, stream={int(stream)}")
         cufile.read_async(
             int(handle),
             int(buf_ptr),
@@ -814,7 +794,6 @@ def test_cufile_async_read_write():
     # Create test file
     file_path = "test_cufile_async_rw.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
-    print(f"DEBUG: File descriptor: {fd}")
     
     try:
         # Register file handle
@@ -823,24 +802,20 @@ def test_cufile_async_read_write():
         descr.handle.fd = fd
         descr.fs_ops = 0
         handle = cufile.handle_register(descr.ptr)
-        print(f"DEBUG: File handle: {handle} (0x{handle:x})")
 
         # Allocate and register device buffers
         buf_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
         err, write_buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
-        print(f"DEBUG: Write buffer pointer: {write_buf} (0x{int(write_buf):x})")
         cufile.buf_register(int(write_buf), buf_size, 0)
 
         err, read_buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
-        print(f"DEBUG: Read buffer pointer: {read_buf} (0x{int(read_buf):x})")
         cufile.buf_register(int(read_buf), buf_size, 0)
 
         # Create CUDA stream
         err, stream = cuda.cuStreamCreate(0)
         assert err == cuda.CUresult.CUDA_SUCCESS
-        print(f"DEBUG: CUDA stream: {stream} (0x{int(stream):x})")
 
         # Register stream with cuFile
         cufile.stream_register(int(stream), 0)
@@ -860,13 +835,7 @@ def test_cufile_async_read_write():
         write_buf_ptr_offset_p = ctypes.c_int64(0)
         bytes_written_p = ctypes.c_ssize_t(0)
 
-        print(f"DEBUG: write_size_p address: {ctypes.addressof(write_size_p)} (0x{ctypes.addressof(write_size_p):x})")
-        print(f"DEBUG: write_file_offset_p address: {ctypes.addressof(write_file_offset_p)} (0x{ctypes.addressof(write_file_offset_p):x})")
-        print(f"DEBUG: write_buf_ptr_offset_p address: {ctypes.addressof(write_buf_ptr_offset_p)} (0x{ctypes.addressof(write_buf_ptr_offset_p):x})")
-        print(f"DEBUG: bytes_written_p address: {ctypes.addressof(bytes_written_p)} (0x{ctypes.addressof(bytes_written_p):x})")
-
         # Perform async write
-        print(f"DEBUG: Calling write_async with handle={int(handle)}, write_buf={int(write_buf)}, stream={int(stream)}")
         cufile.write_async(
             int(handle),
             int(write_buf),
@@ -889,13 +858,7 @@ def test_cufile_async_read_write():
         read_buf_ptr_offset_p = ctypes.c_int64(0)
         bytes_read_p = ctypes.c_ssize_t(0)
 
-        print(f"DEBUG: read_size_p address: {ctypes.addressof(read_size_p)} (0x{ctypes.addressof(read_size_p):x})")
-        print(f"DEBUG: read_file_offset_p address: {ctypes.addressof(read_file_offset_p)} (0x{ctypes.addressof(read_file_offset_p):x})")
-        print(f"DEBUG: read_buf_ptr_offset_p address: {ctypes.addressof(read_buf_ptr_offset_p)} (0x{ctypes.addressof(read_buf_ptr_offset_p):x})")
-        print(f"DEBUG: bytes_read_p address: {ctypes.addressof(bytes_read_p)} (0x{ctypes.addressof(bytes_read_p):x})")
-
         # Perform async read
-        print(f"DEBUG: Calling read_async with handle={int(handle)}, read_buf={int(read_buf)}, stream={int(stream)}")
         cufile.read_async(
             int(handle),
             int(read_buf),
@@ -934,4 +897,661 @@ def test_cufile_async_read_write():
             os.unlink(file_path)
         except OSError:
             pass
+
+def test_batch_io_basic():
+    """Test basic batch IO operations with multiple read/write operations."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    # Create test file
+    file_path = "test_batch_io.bin"
+    
+    # Allocate CUDA memory for multiple operations
+    buf_size = 4096  # 4KB, aligned to 4096 bytes
+    num_operations = 4
+    
+    buffers = []
+    read_buffers = []  # Initialize read_buffers to avoid UnboundLocalError
+    
+    for i in range(num_operations):
+        err, buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        buffers.append(buf)
+
+    # Allocate host memory for data verification
+    host_buf = ctypes.create_string_buffer(buf_size)
+    
+    try:
+        # Create file with O_DIRECT
+        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+
+        # Register buffers with cuFile
+        for buf in buffers:
+            buf_int = int(buf)
+            cufile.buf_register(buf_int, buf_size, 0)
+
+        # Create file descriptor
+        descr = cufile.Descr()
+        descr.type = cufile.FileHandleType.OPAQUE_FD
+        descr.handle.fd = fd
+        descr.fs_ops = 0
+
+        # Register file handle
+        handle = cufile.handle_register(descr.ptr)
+
+        # Set up batch IO
+        batch_handle = cufile.batch_io_set_up(num_operations)
+
+        # Create IOParams array for batch operations
+        io_params = cufile.IOParams(num_operations)
+        io_events = cufile.IOEvents(num_operations)
+
+        # Prepare test data for each operation
+        test_strings = [
+            b"Batch operation 1 data for testing cuFile! ",
+            b"Batch operation 2 data for testing cuFile! ",
+            b"Batch operation 3 data for testing cuFile! ",
+            b"Batch operation 4 data for testing cuFile! "
+        ]
+
+        # Set up write operations
+        for i in range(num_operations):
+            # Prepare test data
+            test_string = test_strings[i]
+            test_string_len = len(test_string)
+            repetitions = buf_size // test_string_len
+            test_data = test_string * repetitions
+            test_data = test_data[:buf_size]  # Ensure it fits exactly in buffer
+            host_buf = ctypes.create_string_buffer(test_data, buf_size)
+
+            # Copy test data to CUDA buffer
+            cuda.cuMemcpyHtoD(buffers[i], host_buf, buf_size)
+
+            # Set up IOParams for this operation
+            io_params[i].mode = cufile.BatchMode.BATCH  # Batch mode
+            io_params[i].fh = handle
+            io_params[i].opcode = cufile.Opcode.WRITE  # Write opcode
+            io_params[i].cookie = i  # Use index as cookie for identification
+            io_params[i].u.batch.dev_ptr_base = int(buffers[i])
+            io_params[i].u.batch.file_offset = i * buf_size  # Sequential file offsets
+            io_params[i].u.batch.dev_ptr_offset = 0
+            io_params[i].u.batch.size_ = buf_size
+
+        # Submit batch write operations
+        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)
+
+        # Get batch status
+        min_nr = num_operations  # Wait for all operations to complete
+        nr_completed = ctypes.c_uint(num_operations)  # Initialize to max operations posted
+        timeout = ctypes.c_int(5000)  # 5 second timeout
+        
+        cufile.batch_io_get_status(
+            batch_handle, 
+            min_nr, 
+            ctypes.addressof(nr_completed), 
+            io_events.ptr, 
+            ctypes.addressof(timeout)
+        )
+
+        # Verify all operations completed successfully
+        assert nr_completed.value == num_operations, f"Expected {num_operations} operations, got {nr_completed.value}"
+        
+        # Collect all returned cookies
+        returned_cookies = set()
+        for i in range(num_operations):
+            assert io_events[i].status == cufile.Status.COMPLETE, f"Operation {i} failed with status {io_events[i].status}"
+            assert io_events[i].ret == buf_size, f"Expected {buf_size} bytes, got {io_events[i].ret} for operation {i}"
+            returned_cookies.add(io_events[i].cookie)
+        
+        # Verify all expected cookies are present
+        expected_cookies = set(range(num_operations))  # cookies 0, 1, 2, 3
+        assert returned_cookies == expected_cookies, f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
+
+        # Now test batch read operations
+        read_buffers = []
+        for i in range(num_operations):
+            err, buf = cuda.cuMemAlloc(buf_size)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            read_buffers.append(buf)
+            buf_int = int(buf)
+            cufile.buf_register(buf_int, buf_size, 0)
+
+        # Create fresh io_events array for read operations
+        io_events_read = cufile.IOEvents(num_operations)
+
+        # Set up read operations
+        for i in range(num_operations):
+            io_params[i].mode = cufile.BatchMode.BATCH  # Batch mode
+            io_params[i].fh = handle
+            io_params[i].opcode = cufile.Opcode.READ  # Read opcode
+            io_params[i].cookie = i + 100  # Different cookie for reads
+            io_params[i].u.batch.dev_ptr_base = int(read_buffers[i])
+            io_params[i].u.batch.file_offset = i * buf_size
+            io_params[i].u.batch.dev_ptr_offset = 0
+            io_params[i].u.batch.size_ = buf_size
+
+        # Submit batch read operations
+        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)
+
+        # Get batch status for reads
+        cufile.batch_io_get_status(
+            batch_handle, 
+            min_nr, 
+            ctypes.addressof(nr_completed), 
+            io_events_read.ptr, 
+            ctypes.addressof(timeout)
+        )
+
+        # Verify read operations completed successfully
+        assert nr_completed.value == num_operations, f"Expected {num_operations} read operations, got {nr_completed.value}"
+        
+        # Collect all returned cookies for read operations
+        returned_cookies_read = set()
+        for i in range(num_operations):
+            assert io_events_read[i].status == cufile.Status.COMPLETE, f"Operation {i} failed with status {io_events_read[i].status}"
+            assert io_events_read[i].ret == buf_size, f"Expected {buf_size} bytes read, got {io_events_read[i].ret} for operation {i}"
+            returned_cookies_read.add(io_events_read[i].cookie)
+        
+        # Verify all expected cookies are present
+        expected_cookies_read = set(range(100, 100 + num_operations))  # cookies 100, 101, 102, 103
+        assert returned_cookies_read == expected_cookies_read, f"Cookie mismatch. Expected {expected_cookies_read}, got {returned_cookies_read}"
+
+        # Verify the read data matches the written data
+        for i in range(num_operations):
+            # Copy read data back to host
+            cuda.cuMemcpyDtoH(host_buf, read_buffers[i], buf_size)
+            read_data = host_buf.value
+
+            # Prepare expected data
+            test_string = test_strings[i]
+            test_string_len = len(test_string)
+            repetitions = buf_size // test_string_len
+            expected_data = (test_string * repetitions)[:buf_size]
+
+            assert read_data == expected_data, f"Read data doesn't match written data for operation {i}"
+
+        # Clean up batch IO
+        cufile.batch_io_destroy(batch_handle)
+
+        # Deregister file handle
+        cufile.handle_deregister(handle)
+
+        # Deregister buffers
+        for buf in buffers + read_buffers:
+            buf_int = int(buf)
+            cufile.buf_deregister(buf_int)
+
+    finally:
+        # Close file
+        os.close(fd)
+
+        # Free CUDA memory
+        for buf in buffers + read_buffers:
+            cuda.cuMemFree(buf)
+
+        # Clean up test file
+        try:
+            os.unlink(file_path)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
+
+
+def test_batch_io_mixed_operations():
+    """Test batch IO with mixed read and write operations."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    # Create test file
+    file_path = "test_batch_mixed.bin"
+    
+    # Allocate CUDA memory
+    buf_size = 4096  # 4KB, aligned to 4096 bytes
+    num_operations = 6  # 3 writes + 3 reads
+    
+    write_buffers = []
+    read_buffers = []
+    all_buffers = []  # Initialize all_buffers to avoid UnboundLocalError
+    
+    for i in range(3):  # 3 write buffers
+        err, buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        write_buffers.append(buf)
+        
+    for i in range(3):  # 3 read buffers
+        err, buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        read_buffers.append(buf)
+
+    # Allocate host memory for data verification
+    host_buf = ctypes.create_string_buffer(buf_size)
+    
+    try:
+        # Create file with O_DIRECT
+        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+
+        # Register all buffers with cuFile
+        all_buffers = write_buffers + read_buffers
+        for buf in all_buffers:
+            buf_int = int(buf)
+            cufile.buf_register(buf_int, buf_size, 0)
+
+        # Create file descriptor
+        descr = cufile.Descr()
+        descr.type = cufile.FileHandleType.OPAQUE_FD
+        descr.handle.fd = fd
+        descr.fs_ops = 0
+
+        # Register file handle
+        handle = cufile.handle_register(descr.ptr)
+
+        # Set up batch IO
+        batch_handle = cufile.batch_io_set_up(num_operations)
+
+        # Create IOParams array for batch operations
+        io_params = cufile.IOParams(num_operations)
+        io_events = cufile.IOEvents(num_operations)
+
+        # Prepare test data
+        test_strings = [
+            b"Mixed batch write 1 data! ",
+            b"Mixed batch write 2 data! ",
+            b"Mixed batch write 3 data! "
+        ]
+
+        # Set up mixed operations: Write, Read, Write, Read, Write, Read
+        operation_sequence = [
+            ("write", 0, 0),    # Write buffer 0 to offset 0
+            ("read", 0, 0),     # Read from offset 0 to read buffer 0
+            ("write", 1, 4096), # Write buffer 1 to offset 4096
+            ("read", 1, 4096),  # Read from offset 4096 to read buffer 1
+            ("write", 2, 8192), # Write buffer 2 to offset 8192
+            ("read", 2, 8192)   # Read from offset 8192 to read buffer 2
+        ]
+
+        # Prepare write data
+        for i in range(3):
+            test_string = test_strings[i]
+            test_string_len = len(test_string)
+            repetitions = buf_size // test_string_len
+            test_data = test_string * repetitions
+            test_data = test_data[:buf_size]
+            host_buf = ctypes.create_string_buffer(test_data, buf_size)
+            cuda.cuMemcpyHtoD(write_buffers[i], host_buf, buf_size)
+
+        # Set up IOParams for mixed operations
+        for i, (op_type, buf_idx, file_offset) in enumerate(operation_sequence):
+            if op_type == "write":
+                io_params[i].mode = cufile.BatchMode.BATCH  # Batch mode
+                io_params[i].opcode = cufile.Opcode.WRITE  # Write opcode
+                io_params[i].u.batch.dev_ptr_base = int(write_buffers[buf_idx])
+            else:  # read
+                io_params[i].mode = cufile.BatchMode.BATCH  # Batch mode
+                io_params[i].opcode = cufile.Opcode.READ  # Read opcode
+                io_params[i].u.batch.dev_ptr_base = int(read_buffers[buf_idx])
+            
+            io_params[i].fh = handle
+            io_params[i].cookie = i  # Use index as cookie
+            io_params[i].u.batch.file_offset = file_offset
+            io_params[i].u.batch.dev_ptr_offset = 0
+            io_params[i].u.batch.size_ = buf_size
+
+        # Submit batch operations
+        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)
+
+        # Get batch status
+        min_nr = num_operations  # Wait for all operations to complete
+        nr_completed = ctypes.c_uint(num_operations)  # Initialize to max operations posted
+        timeout = ctypes.c_int(5000)  # 5 second timeout
+        
+        cufile.batch_io_get_status(
+            batch_handle, 
+            min_nr, 
+            ctypes.addressof(nr_completed), 
+            io_events.ptr, 
+            ctypes.addressof(timeout)
+        )
+
+        # Verify all operations completed successfully
+        assert nr_completed.value == num_operations, f"Expected {num_operations} operations, got {nr_completed.value}"
+        
+        # Collect all returned cookies
+        returned_cookies = set()
+        for i in range(num_operations):
+            assert io_events[i].status == cufile.Status.COMPLETE, f"Operation {i} failed with status {io_events[i].status}"
+            assert io_events[i].ret == buf_size, f"Expected {buf_size} bytes, got {io_events[i].ret} for operation {i}"
+            returned_cookies.add(io_events[i].cookie)
+        
+        # Verify all expected cookies are present
+        expected_cookies = set(range(num_operations))  # cookies 0, 1, 2, 3, 4, 5
+        assert returned_cookies == expected_cookies, f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
+
+        # Verify the read data matches the written data
+        for i in range(3):
+            # Copy read data back to host
+            cuda.cuMemcpyDtoH(host_buf, read_buffers[i], buf_size)
+            read_data = host_buf.value
+
+            # Prepare expected data
+            test_string = test_strings[i]
+            test_string_len = len(test_string)
+            repetitions = buf_size // test_string_len
+            expected_data = (test_string * repetitions)[:buf_size]
+
+            assert read_data == expected_data, f"Read data doesn't match written data for operation {i}"
+
+        # Clean up batch IO
+        cufile.batch_io_destroy(batch_handle)
+
+        # Deregister file handle
+        cufile.handle_deregister(handle)
+
+        # Deregister buffers
+        for buf in all_buffers:
+            buf_int = int(buf)
+            cufile.buf_deregister(buf_int)
+
+    finally:
+        # Close file
+        os.close(fd)
+
+        # Free CUDA memory
+        for buf in all_buffers:
+            cuda.cuMemFree(buf)
+
+        # Clean up test file
+        try:
+            os.unlink(file_path)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
+
+
+def test_batch_io_cancel():
+    """Test batch IO cancellation."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    # Create test file
+    file_path = "test_batch_cancel.bin"
+    
+    # Allocate CUDA memory
+    buf_size = 4096  # 4KB, aligned to 4096 bytes
+    num_operations = 2
+    
+    buffers = []
+    for i in range(num_operations):
+        err, buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        buffers.append(buf)
+
+    try:
+        # Create file with O_DIRECT
+        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+
+        # Register buffers with cuFile
+        for buf in buffers:
+            buf_int = int(buf)
+            cufile.buf_register(buf_int, buf_size, 0)
+
+        # Create file descriptor
+        descr = cufile.Descr()
+        descr.type = cufile.FileHandleType.OPAQUE_FD
+        descr.handle.fd = fd
+        descr.fs_ops = 0
+
+        # Register file handle
+        handle = cufile.handle_register(descr.ptr)
+
+        # Set up batch IO
+        batch_handle = cufile.batch_io_set_up(num_operations)
+
+        # Create IOParams array for batch operations
+        io_params = cufile.IOParams(num_operations)
+
+        # Set up write operations
+        for i in range(num_operations):
+            io_params[i].mode = cufile.BatchMode.BATCH  # Batch mode
+            io_params[i].fh = handle
+            io_params[i].opcode = cufile.Opcode.WRITE  # Write opcode
+            io_params[i].cookie = i
+            io_params[i].u.batch.dev_ptr_base = int(buffers[i])
+            io_params[i].u.batch.file_offset = i * buf_size
+            io_params[i].u.batch.dev_ptr_offset = 0
+            io_params[i].u.batch.size_ = buf_size
+
+        # Submit batch operations
+        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)
+
+        # Cancel the batch operations
+        cufile.batch_io_cancel(batch_handle)
+
+        # Clean up batch IO
+        cufile.batch_io_destroy(batch_handle)
+
+        # Deregister file handle
+        cufile.handle_deregister(handle)
+
+        # Deregister buffers
+        for buf in buffers:
+            buf_int = int(buf)
+            cufile.buf_deregister(buf_int)
+
+    finally:
+        # Close file
+        os.close(fd)
+
+        # Free CUDA memory
+        for buf in buffers:
+            cuda.cuMemFree(buf)
+
+        # Clean up test file
+        try:
+            os.unlink(file_path)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
+
+
+def test_batch_io_large_operations():
+    """Test batch IO with large buffer operations."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuCtxCreate(0, device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    # Create test file
+    file_path = "test_batch_large.bin"
+    
+    # Allocate large CUDA memory (1MB, aligned to 4096 bytes)
+    buf_size = 1024 * 1024  # 1MB, aligned to 4096 bytes
+    num_operations = 2
+    
+    write_buffers = []
+    read_buffers = []
+    all_buffers = []  # Initialize all_buffers to avoid UnboundLocalError
+    
+    for i in range(num_operations):
+        err, buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        write_buffers.append(buf)
+        
+        err, buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        read_buffers.append(buf)
+
+    # Allocate host memory for data verification
+    host_buf = ctypes.create_string_buffer(buf_size)
+    
+    try:
+        # Create file with O_DIRECT
+        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+
+        # Register all buffers with cuFile
+        all_buffers = write_buffers + read_buffers
+        for buf in all_buffers:
+            buf_int = int(buf)
+            cufile.buf_register(buf_int, buf_size, 0)
+
+        # Create file descriptor
+        descr = cufile.Descr()
+        descr.type = cufile.FileHandleType.OPAQUE_FD
+        descr.handle.fd = fd
+        descr.fs_ops = 0
+
+        # Register file handle
+        handle = cufile.handle_register(descr.ptr)
+
+        # Set up batch IO
+        batch_handle = cufile.batch_io_set_up(num_operations * 2)  # 2 writes + 2 reads
+
+        # Create IOParams array for batch operations
+        io_params = cufile.IOParams(num_operations * 2)
+        io_events = cufile.IOEvents(num_operations * 2)
+
+        # Prepare test data
+        test_strings = [
+            b"Large batch operation 1 data for testing cuFile with 1MB buffers! ",
+            b"Large batch operation 2 data for testing cuFile with 1MB buffers! "
+        ]
+
+        # Prepare write data
+        for i in range(num_operations):
+            test_string = test_strings[i]
+            test_string_len = len(test_string)
+            repetitions = buf_size // test_string_len
+            test_data = test_string * repetitions
+            test_data = test_data[:buf_size]
+            host_buf = ctypes.create_string_buffer(test_data, buf_size)
+            cuda.cuMemcpyHtoD(write_buffers[i], host_buf, buf_size)
+
+        # Set up write operations
+        for i in range(num_operations):
+            io_params[i].mode = cufile.BatchMode.BATCH  # Batch mode
+            io_params[i].fh = handle
+            io_params[i].opcode = cufile.Opcode.WRITE  # Write opcode
+            io_params[i].cookie = i
+            io_params[i].u.batch.dev_ptr_base = int(write_buffers[i])
+            io_params[i].u.batch.file_offset = i * buf_size
+            io_params[i].u.batch.dev_ptr_offset = 0
+            io_params[i].u.batch.size_ = buf_size
+
+        # Set up read operations
+        for i in range(num_operations):
+            idx = i + num_operations
+            io_params[idx].mode = cufile.BatchMode.BATCH  # Batch mode
+            io_params[idx].fh = handle
+            io_params[idx].opcode = cufile.Opcode.READ  # Read opcode
+            io_params[idx].cookie = i + 100
+            io_params[idx].u.batch.dev_ptr_base = int(read_buffers[i])
+            io_params[idx].u.batch.file_offset = i * buf_size
+            io_params[idx].u.batch.dev_ptr_offset = 0
+            io_params[idx].u.batch.size_ = buf_size
+
+        # Submit batch operations
+        cufile.batch_io_submit(batch_handle, num_operations * 2, io_params.ptr, 0)
+
+        # Get batch status
+        min_nr = num_operations * 2  # Wait for all operations to complete
+        nr_completed = ctypes.c_uint(num_operations * 2)  # Initialize to max operations posted
+        timeout = ctypes.c_int(10000)  # 10 second timeout for large operations
+        
+        cufile.batch_io_get_status(
+            batch_handle, 
+            min_nr, 
+            ctypes.addressof(nr_completed), 
+            io_events.ptr, 
+            ctypes.addressof(timeout)
+        )
+
+        # Verify all operations completed successfully
+        assert nr_completed.value == num_operations * 2, f"Expected {num_operations * 2} operations, got {nr_completed.value}"
+        
+        # Collect all returned cookies
+        returned_cookies = set()
+        for i in range(num_operations * 2):
+            assert io_events[i].status == cufile.Status.COMPLETE, f"Operation {i} failed with status {io_events[i].status}"
+            returned_cookies.add(io_events[i].cookie)
+        
+        # Verify all expected cookies are present
+        expected_cookies = set(range(num_operations)) | set(range(100, 100 + num_operations))  # write cookies 0,1 + read cookies 100,101
+        assert returned_cookies == expected_cookies, f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
+
+        # Verify the read data matches the written data
+        for i in range(num_operations):
+            # Copy read data back to host
+            cuda.cuMemcpyDtoH(host_buf, read_buffers[i], buf_size)
+            read_data = host_buf.value
+
+            # Prepare expected data
+            test_string = test_strings[i]
+            test_string_len = len(test_string)
+            repetitions = buf_size // test_string_len
+            expected_data = (test_string * repetitions)[:buf_size]
+
+            assert read_data == expected_data, f"Read data doesn't match written data for operation {i}"
+
+        # Clean up batch IO
+        cufile.batch_io_destroy(batch_handle)
+
+        # Deregister file handle
+        cufile.handle_deregister(handle)
+
+        # Deregister buffers
+        for buf in all_buffers:
+            buf_int = int(buf)
+            cufile.buf_deregister(buf_int)
+
+    finally:
+        # Close file
+        os.close(fd)
+
+        # Free CUDA memory
+        for buf in all_buffers:
+            cuda.cuMemFree(buf)
+
+        # Clean up test file
+        try:
+            os.unlink(file_path)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
 
