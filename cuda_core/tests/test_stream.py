@@ -80,6 +80,7 @@ def test_stream_context(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
     context = stream.context
     assert context is not None
+    assert context._handle is not None
 
 
 def test_stream_from_foreign_stream(init_cuda):
