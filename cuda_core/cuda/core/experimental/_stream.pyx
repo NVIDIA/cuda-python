@@ -316,18 +316,21 @@ cdef class Stream:
         self._get_device_and_context()
         return Device(self._device_id)
 
-    cdef _get_device_and_context(self):
-        # Get the stream context first
+    cdef void _get_context(Stream self) except *:
         if self._ctx_handle is None:
             err, self._ctx_handle = driver.cuStreamGetCtx(self._handle)
             raise_if_driver_error(err)
+
+    cdef void _get_device_and_context(Stream self) except *:
         if self._device_id is None:
+            # Get the stream context first
+            self._get_context()
             self._device_id = get_device_from_ctx(self._ctx_handle)
-            raise_if_driver_error(err)
 
     @property
     def context(self) -> Context:
         """Return the :obj:`~_context.Context` associated with this stream."""
+        self._get_context()
         self._get_device_and_context()
         return Context._from_ctx(self._ctx_handle, self._device_id)
 
