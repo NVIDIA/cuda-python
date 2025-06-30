@@ -53,6 +53,8 @@ def _reduce_3_tuple(t: tuple):
 
 
 cdef object _DRIVER_SUCCESS = driver.CUresult.CUDA_SUCCESS
+cdef object _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
+cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
 
 
 cpdef inline int _check_driver_error(error) except?-1:
@@ -73,24 +75,24 @@ cpdef inline int _check_driver_error(error) except?-1:
 
 
 cpdef inline int _check_runtime_error(error) except?-1:
-    if error == runtime.cudaError_t.cudaSuccess:
+    if error == _RUNTIME_SUCCESS:
         return 0
     name_err, name = runtime.cudaGetErrorName(error)
-    if name_err != runtime.cudaError_t.cudaSuccess:
+    if name_err != _RUNTIME_SUCCESS:
         raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
     name = name.decode()
     expl = RUNTIME_CUDA_ERROR_EXPLANATIONS.get(int(error))
     if expl is not None:
         raise CUDAError(f"{name}: {expl}")
     desc_err, desc = runtime.cudaGetErrorString(error)
-    if desc_err != runtime.cudaError_t.cudaSuccess:
+    if desc_err != _RUNTIME_SUCCESS:
         raise CUDAError(f"{name}")
     desc = desc.decode()
     raise CUDAError(f"{name}: {desc}")
 
 
 cpdef inline int _check_nvrtc_error(error, handle=None) except?-1:
-    if error == nvrtc.nvrtcResult.NVRTC_SUCCESS:
+    if error == _NVRTC_SUCCESS:
         return 0
     err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}"
     if handle is not None:
