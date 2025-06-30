@@ -309,7 +309,6 @@ RUNTIME_CUDA_ERROR_EXPLANATIONS = {
         " work will return the same error. To continue using CUDA, the process must"
         " be terminated and relaunched."
     ),
-    227: ("This indicates that an NVLink encryption error was detected during the execution."),
     300: "This indicates that the device kernel source is invalid.",
     301: "This indicates that the file specified was not found.",
     302: "This indicates that a link to a shared object failed to resolve.",
