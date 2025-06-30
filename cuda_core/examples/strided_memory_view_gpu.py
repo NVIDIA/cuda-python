@@ -4,14 +4,13 @@
 
 # ################################################################################
 #
-# This demo aims to illustrate two takeaways:
+# This demo illustrates:
 #
 #   1. The similarity between CPU and GPU JIT-compilation with C++ sources
 #   2. How to use StridedMemoryView to interface with foreign C/C++ functions
 #
-# To facilitate this demo, we use cffi (https://cffi.readthedocs.io/) for the CPU
-# path, which can be easily installed from pip or conda following their instructions.
-# We also use NumPy/CuPy as the CPU/GPU array container.
+# This demo uses cffi (https://cffi.readthedocs.io/) for the CPU path, which can be
+# easily installed from pip or conda following their instructions.
 #
 # ################################################################################
 
