@@ -316,16 +316,18 @@ cdef class Stream:
         self._get_device_and_context()
         return Device(self._device_id)
 
-    cdef void _get_context(Stream self) except *:
+    cdef int _get_context(Stream self) except?-1:
         if self._ctx_handle is None:
             err, self._ctx_handle = driver.cuStreamGetCtx(self._handle)
             raise_if_driver_error(err)
+        return 0
 
-    cdef void _get_device_and_context(Stream self) except *:
+    cdef int _get_device_and_context(Stream self) except?-1:
         if self._device_id is None:
             # Get the stream context first
             self._get_context()
             self._device_id = get_device_from_ctx(self._ctx_handle)
+        return 0
 
     @property
     def context(self) -> Context:
