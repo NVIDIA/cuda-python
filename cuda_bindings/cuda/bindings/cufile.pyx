@@ -808,6 +808,12 @@ descr_dtype = _numpy.dtype({
     "offsets": [0, 8, 16],
 }, align=True)
 
+# Hack: Overwrite the generated io_params_dtype, which NumPy deduced the offset wrong.
+io_params_dtype = _numpy.dtype({
+    "names": ['mode', 'u', 'fh', 'opcode', 'cookie'],
+    "formats": [_numpy.int32, _py_anon_pod2_dtype, _numpy.intp, _numpy.int32, _numpy.intp],
+    "offsets": [0, 8, 40, 48, 56],
+}, align=True)
 
 ###############################################################################
 # Enum
