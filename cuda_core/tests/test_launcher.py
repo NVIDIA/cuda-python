@@ -5,7 +5,10 @@ import ctypes
 import os
 import pathlib
 
-import cupy as cp
+try:
+    import cupy as cp
+except ImportError:
+    cp = None
 import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
@@ -209,6 +212,7 @@ def test_cooperative_launch():
     s.sync()
 
 
+@pytest.mark.skipif(cp is None, reason="cupy not installed")
 @pytest.mark.parametrize(
     "memory_resource_class",
     [
