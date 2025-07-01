@@ -63,7 +63,7 @@ def build_child_process_failed_for_libname_message(libname, result):
 def child_process_func(libname):
     import os
 
-    from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_library import _load_lib_no_cache
+    from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import _load_lib_no_cache
     from cuda.pathfinder.nvidia_dynamic_libs import load_lib
 
     loaded_dl_fresh = load_lib(libname)
@@ -84,7 +84,7 @@ def child_process_func(libname):
 
 
 @pytest.mark.parametrize("libname", TEST_FIND_OR_LOAD_LIBNAMES)
-def test_find_or_load_nvidia_dynamic_library(info_summary_append, libname):
+def test_find_or_load_nvidia_dynamic_lib(info_summary_append, libname):
     # We intentionally run each dynamic library operation in a child process
     # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
     # Without child processes, loading/unloading libraries during testing could

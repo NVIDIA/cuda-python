@@ -111,7 +111,7 @@ def _find_dll_using_lib_dir(lib_dir, libname, error_messages, attachments):
     return None
 
 
-class _find_nvidia_dynamic_library:
+class _find_nvidia_dynamic_lib:
     def __init__(self, libname: str):
         self.libname = libname
         self.error_messages = []
@@ -164,5 +164,5 @@ class _find_nvidia_dynamic_library:
 
 
 @functools.cache
-def find_nvidia_dynamic_library(libname: str) -> str:
-    return _find_nvidia_dynamic_library(libname).raise_if_abs_path_is_None()
+def find_nvidia_dynamic_lib(libname: str) -> str:
+    return _find_nvidia_dynamic_lib(libname).raise_if_abs_path_is_None()
