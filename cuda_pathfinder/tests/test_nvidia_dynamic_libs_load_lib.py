@@ -7,19 +7,21 @@ import sys
 import pytest
 import spawned_process_runner
 
-from cuda.pathfinder import SUPPORTED_NVIDIA_LIBNAMES, load_nvidia_dynamic_lib
+from cuda.pathfinder import nvidia_dynamic_libs
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 
-ALL_LIBNAMES = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_ALL
-ALL_LIBNAMES_LINUX = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_LINUX
-ALL_LIBNAMES_WINDOWS = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
-if os.environ.get("CUDA_PATHFINDER_TEST_ALL_NVIDIA_LIBNAMES", False):
+ALL_LIBNAMES = nvidia_dynamic_libs.SUPPORTED_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_ALL
+ALL_LIBNAMES_LINUX = nvidia_dynamic_libs.SUPPORTED_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_LINUX
+ALL_LIBNAMES_WINDOWS = (
+    nvidia_dynamic_libs.SUPPORTED_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
+)
+if os.environ.get("CUDA_PATHFINDER_TEST_ALL_LIBNAMES", False):
     if sys.platform == "win32":
         TEST_FIND_OR_LOAD_LIBNAMES = ALL_LIBNAMES_WINDOWS
     else:
         TEST_FIND_OR_LOAD_LIBNAMES = ALL_LIBNAMES_LINUX
 else:
-    TEST_FIND_OR_LOAD_LIBNAMES = SUPPORTED_NVIDIA_LIBNAMES
+    TEST_FIND_OR_LOAD_LIBNAMES = nvidia_dynamic_libs.SUPPORTED_LIBNAMES
 
 
 def test_all_libnames_linux_sonames_consistency():
@@ -61,13 +63,14 @@ def build_child_process_failed_for_libname_message(libname, result):
 def child_process_func(libname):
     import os
 
-    from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import _load_lib_no_cache
+    from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_library import _load_lib_no_cache
+    from cuda.pathfinder.nvidia_dynamic_libs import load_lib
 
-    loaded_dl_fresh = load_nvidia_dynamic_lib(libname)
+    loaded_dl_fresh = load_lib(libname)
     if loaded_dl_fresh.was_already_loaded_from_elsewhere:
         raise RuntimeError("loaded_dl_fresh.was_already_loaded_from_elsewhere")
 
-    loaded_dl_from_cache = load_nvidia_dynamic_lib(libname)
+    loaded_dl_from_cache = load_lib(libname)
     if loaded_dl_from_cache is not loaded_dl_fresh:
         raise RuntimeError("loaded_dl_from_cache is not loaded_dl_fresh")
 
@@ -81,7 +84,7 @@ def child_process_func(libname):
 
 
 @pytest.mark.parametrize("libname", TEST_FIND_OR_LOAD_LIBNAMES)
-def test_load_nvidia_dynamic_lib(info_summary_append, libname):
+def test_find_or_load_nvidia_dynamic_library(info_summary_append, libname):
     # We intentionally run each dynamic library operation in a child process
     # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
     # Without child processes, loading/unloading libraries during testing could
