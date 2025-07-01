@@ -40,12 +40,3 @@ hierarchical search strategy for locating NVIDIA shared libraries:
 
 Note that the search is done on a per-library basis. Currently there is no
 centralized mechanism that ensures all libraries are found in the same way.
-
-## Maintenance Requirements
-
-These key components must be updated for new CUDA Toolkit releases:
-
-- `supported_nvidia_libs.SUPPORTED_LIBNAMES`
-- `supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS`
-- `supported_nvidia_libs.SUPPORTED_LINUX_SONAMES`
-- `supported_nvidia_libs.EXPECTED_LIB_SYMBOLS`

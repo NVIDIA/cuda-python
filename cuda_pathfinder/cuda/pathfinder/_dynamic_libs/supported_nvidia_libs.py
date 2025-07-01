@@ -2,6 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # THIS FILE NEEDS TO BE REVIEWED/UPDATED FOR EACH CTK RELEASE
+# Likely candidates for updates are:
+#     SUPPORTED_LIBNAMES
+#     SUPPORTED_WINDOWS_DLLS
+#     SUPPORTED_LINUX_SONAMES
+#     EXPECTED_LIB_SYMBOLS
 
 import sys
 
