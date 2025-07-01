@@ -3,7 +3,7 @@
 
 [project]
 name = "cuda-pathfinder"
-description = "Pathfinder for CUDA components (mainly libs, headers)"
+description = "Pathfinder for CUDA components"
 authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" }]
 license = "Apache-2.0"
 requires-python = ">=3.9"
