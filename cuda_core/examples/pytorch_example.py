@@ -2,8 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-## Usage: pip install "cuda-core[cu12]"
-## python python_example.py
+# ################################################################################
+#
+# This demo illustrates how to use `cuda.core` to compile a CUDA kernel
+# and launch it using PyTorch tensors as inputs.
+#
+# ## Usage: pip install "cuda-core[cu12]"
+# ## python pytorch_example.py
+#
+# ################################################################################
+
 import sys
 
 import torch
