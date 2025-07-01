@@ -209,21 +209,17 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Buffer.html">cuda.core.experimental.Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Stream.html">cuda.core.experimental.Stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
@@ -242,8 +238,19 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
+</ul>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
+</ul>
+</li>
 </ul>
 
 </div>
@@ -332,6 +339,8 @@
 </li>
           <li><a href="generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource.__init__">(cuda.core.experimental.DeviceMemoryResource method)</a>
 </li>
+          <li><a href="generated/cuda.core.experimental.Event.html#cuda.core.experimental.Event.__init__">(cuda.core.experimental.Event method)</a>
+</li>
           <li><a href="generated/cuda.core.experimental.Graph.html#cuda.core.experimental.Graph.__init__">(cuda.core.experimental.Graph method)</a>
 </li>
           <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.__init__">(cuda.core.experimental.GraphBuilder method)</a>
@@ -345,6 +354,8 @@
           <li><a href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode.__init__">(cuda.core.experimental.ObjectCode method)</a>
 </li>
           <li><a href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program.__init__">(cuda.core.experimental.Program method)</a>
+</li>
+          <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream.__init__">(cuda.core.experimental.Stream method)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -442,6 +453,8 @@
 </li>
           <li><a href="generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer.close">(cuda.core.experimental.Buffer method)</a>
 </li>
+          <li><a href="generated/cuda.core.experimental.Event.html#cuda.core.experimental.Event.close">(cuda.core.experimental.Event method)</a>
+</li>
           <li><a href="generated/cuda.core.experimental.Graph.html#cuda.core.experimental.Graph.close">(cuda.core.experimental.Graph method)</a>
 </li>
           <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.close">(cuda.core.experimental.GraphBuilder method)</a>
@@ -449,6 +462,8 @@
           <li><a href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker.close">(cuda.core.experimental.Linker method)</a>
 </li>
           <li><a href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program.close">(cuda.core.experimental.Program method)</a>
+</li>
+          <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream.close">(cuda.core.experimental.Stream method)</a>
 </li>
         </ul></li>
         <li><a href="generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig.cluster">cluster (cuda.core.experimental.LaunchConfig attribute)</a>
@@ -469,10 +484,10 @@
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.compute_capability_minor">compute_capability_minor (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
-        <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.compute_mode">compute_mode (cuda.core.experimental._device.DeviceProperties property)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.compute_mode">compute_mode (cuda.core.experimental._device.DeviceProperties property)</a>
+</li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.compute_preemption_supported">compute_preemption_supported (cuda.core.experimental._device.DeviceProperties property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.concurrent_kernels">concurrent_kernels (cuda.core.experimental._device.DeviceProperties property)</a>
@@ -507,6 +522,8 @@
 
         <ul>
           <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.create_graph_builder">(cuda.core.experimental.Device method)</a>
+</li>
+          <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream.create_graph_builder">(cuda.core.experimental.Stream method)</a>
 </li>
         </ul></li>
         <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.create_stream">create_stream() (cuda.core.experimental.Device method)</a>
@@ -617,14 +634,18 @@
 </li>
         <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.end_building">end_building() (cuda.core.experimental.GraphBuilder method)</a>
 </li>
-        <li><a href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event">Event (class in cuda.core.experimental._event)</a>
+        <li><a href="generated/cuda.core.experimental.Event.html#cuda.core.experimental.Event">Event (class in cuda.core.experimental)</a>
+
+        <ul>
+          <li><a href="generated/cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event">(class in cuda.core.experimental._event)</a>
 </li>
+        </ul></li>
         <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.event_node_params">event_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
-</li>
-        <li><a href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions">EventOptions (class in cuda.core.experimental)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions">EventOptions (class in cuda.core.experimental)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.exporting_obj">exporting_obj (cuda.core.experimental.utils.StridedMemoryView attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.ext_semas_signal_node_params">ext_semas_signal_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
@@ -661,6 +682,8 @@
 
         <ul>
           <li><a href="generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer.from_handle">(cuda.core.experimental.Buffer static method)</a>
+</li>
+          <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream.from_handle">(cuda.core.experimental.Stream static method)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -1201,13 +1224,17 @@
         <li><a href="generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.readonly">readonly (cuda.core.experimental.utils.StridedMemoryView attribute)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream.record">record() (cuda.core.experimental._stream.Stream method)</a>
+
+        <ul>
+          <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream.record">(cuda.core.experimental.Stream method)</a>
 </li>
+        </ul></li>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.relocatable_device_code">relocatable_device_code (cuda.core.experimental.ProgramOptions attribute)</a>
-</li>
-        <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.required_cluster_depth">required_cluster_depth() (cuda.core.experimental._module.KernelAttributes method)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.required_cluster_depth">required_cluster_depth() (cuda.core.experimental._module.KernelAttributes method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.required_cluster_height">required_cluster_height() (cuda.core.experimental._module.KernelAttributes method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.required_cluster_width">required_cluster_width() (cuda.core.experimental._module.KernelAttributes method)</a>
@@ -1252,10 +1279,14 @@
 </li>
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.std">std (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream">Stream (class in cuda.core.experimental)</a>
+
+        <ul>
+          <li><a href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream">(class in cuda.core.experimental._stream)</a>
+</li>
+        </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream">Stream (class in cuda.core.experimental._stream)</a>
-</li>
         <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.stream">stream (cuda.core.experimental.GraphBuilder property)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions">StreamOptions (class in cuda.core.experimental)</a>
@@ -1274,6 +1305,10 @@
           <li><a href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream.sync">(cuda.core.experimental._stream.Stream method)</a>
 </li>
           <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.sync">(cuda.core.experimental.Device method)</a>
+</li>
+          <li><a href="generated/cuda.core.experimental.Event.html#cuda.core.experimental.Event.sync">(cuda.core.experimental.Event method)</a>
+</li>
+          <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream.sync">(cuda.core.experimental.Stream method)</a>
 </li>
         </ul></li>
         <li><a href="api.html#cuda.core.experimental._system.System.cuda.core.experimental.system.devices">System.cuda.core.experimental.system.devices (in module cuda.core.experimental._system)</a>
@@ -1361,7 +1396,11 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream.wait">wait() (cuda.core.experimental._stream.Stream method)</a>
+
+        <ul>
+          <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream.wait">(cuda.core.experimental.Stream method)</a>
 </li>
+        </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties.warp_size">warp_size (cuda.core.experimental._device.DeviceProperties property)</a>
