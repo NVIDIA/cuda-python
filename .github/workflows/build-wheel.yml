@@ -70,6 +70,40 @@ jobs:
         run: |
           env
       
+      - name: Build cuda.pathfinder wheel
+        uses: pypa/cibuildwheel@5f22145df44122af0f5a201f93cf0207171beca7  # v3.0.0
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          CIBW_ARCHS_LINUX: "native"
+          CIBW_BUILD_VERBOSITY: 1
+          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
+        with:
+          package-dir: ./cuda_pathfinder/
+          output-dir: ${{ env.CUDA_PATHFINDER_ARTIFACTS_DIR }}
+
+      - name: List the cuda.pathfinder artifacts directory
+        run: |
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
+          fi
+          $CHOWN -R $(whoami) ${{ env.CUDA_PATHFINDER_ARTIFACTS_DIR }}
+          ls -lahR ${{ env.CUDA_PATHFINDER_ARTIFACTS_DIR }}
+
+      - name: Check cuda.pathfinder wheel
+        run: |
+          pip install twine
+          twine check ${{ env.CUDA_PATHFINDER_ARTIFACTS_DIR }}/*.whl
+
+      - name: Upload cuda.pathfinder build artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: ${{ env.CUDA_PATHFINDER_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_PATHFINDER_ARTIFACTS_DIR }}/*.whl
+          if-no-files-found: error
+
       - name: Build cuda.core wheel
         uses: pypa/cibuildwheel@5f22145df44122af0f5a201f93cf0207171beca7  # v3.0.0
         env:
