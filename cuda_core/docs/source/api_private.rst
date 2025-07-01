@@ -15,24 +15,13 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   _stream.Stream
    _memory.PyCapsule
    _memory.DevicePointerT
-   _event.Event
    _device.DeviceProperties
    _module.KernelAttributes
    _module.KernelOccupancy
    _module.ParamInfo
    _module.MaxPotentialBlockSizeOccupancyResult
-
-
-CUDA compilation toolchain
---------------------------
-
-.. autosummary::
-   :toctree: generated/
-
-   _module.Kernel
 
 
 CUDA protocols
