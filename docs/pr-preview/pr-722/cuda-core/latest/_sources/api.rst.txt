@@ -21,6 +21,8 @@ CUDA runtime
    GraphBuilder
    launch
    Buffer
+   Stream
+   Event
    MemoryResource
    DeviceMemoryResource
    LegacyPinnedMemoryResource
