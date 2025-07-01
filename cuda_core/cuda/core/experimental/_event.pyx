@@ -112,8 +112,8 @@ cdef class Event:
         """Destroy the event."""
         if self._handle is not None:
             err, = driver.cuEventDestroy(self._handle)
-            raise_if_driver_error(err)
             self._handle = None
+            raise_if_driver_error(err)
 
     def __del__(self):
         self.close()
