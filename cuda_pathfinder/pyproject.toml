@@ -5,7 +5,7 @@
 name = "cuda-pathfinder"
 description = "Pathfinder for CUDA components (mainly libs, headers)"
 authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" }]
-license = "LicenseRef-NVIDIA-SOFTWARE-LICENSE"
+license = "Apache-2.0"
 requires-python = ">=3.9"
 dynamic = ["version"]
 dependencies = [
