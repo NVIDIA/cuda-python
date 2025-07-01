@@ -52,7 +52,7 @@ def test_stream_record(init_cuda):
 
 def test_stream_record_invalid_event(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
-    with pytest.raises(TypeError):
+    with pytest.raises(AttributeError):
         stream.record(event="invalid_event")
 
 
@@ -80,6 +80,7 @@ def test_stream_context(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
     context = stream.context
     assert context is not None
+    assert context._handle is not None
 
 
 def test_stream_from_foreign_stream(init_cuda):
