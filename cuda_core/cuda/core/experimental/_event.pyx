@@ -4,19 +4,19 @@
 
 from __future__ import annotations
 
-import weakref
+from cuda.core.experimental._utils.cuda_utils cimport (
+    _check_driver_error as raise_if_driver_error,
+    check_or_create_options,
+)
+
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
-    check_or_create_options,
     driver,
     handle_return,
-)
-from cuda.core.experimental._utils.cuda_utils import (
-    _check_driver_error as raise_if_driver_error,
 )
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class EventOptions:
+cdef class EventOptions:
     """Customizable :obj:`~_event.Event` options.
 
     Attributes
@@ -49,7 +49,7 @@ class EventOptions:
     support_ipc: Optional[bool] = False
 
 
-class Event:
+cdef class Event:
     """Represent a record at a specific point of execution within a CUDA stream.
 
     Applications can asynchronously record events at any point in
@@ -77,49 +77,46 @@ class Event:
     and they should instead be created through a :obj:`~_stream.Stream` object.
 
     """
+    cdef:
+        object _handle
+        bint _timing_disabled
+        bint _busy_waited
+        int _device_id
+        object _ctx_handle
 
-    class _MembersNeededForFinalize:
-        __slots__ = ("handle",)
-
-        def __init__(self, event_obj, handle):
-            self.handle = handle
-            weakref.finalize(event_obj, self.close)
-
-        def close(self):
-            if self.handle is not None:
-                handle_return(driver.cuEventDestroy(self.handle))
-                self.handle = None
-
-    def __new__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
 
-    __slots__ = ("__weakref__", "_mnff", "_timing_disabled", "_busy_waited", "_device_id", "_ctx_handle")
-
     @classmethod
-    def _init(cls, device_id: int, ctx_handle: Context, options: Optional[EventOptions] = None):
-        self = super().__new__(cls)
-        self._mnff = Event._MembersNeededForFinalize(self, None)
-
-        options = check_or_create_options(EventOptions, options, "Event options")
+    def _init(cls, device_id: int, ctx_handle: Context, options=None):
+        cdef Event self = Event.__new__(Event)
+        cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")
         flags = 0x0
         self._timing_disabled = False
         self._busy_waited = False
-        if not options.enable_timing:
+        if not opts.enable_timing:
             flags |= driver.CUevent_flags.CU_EVENT_DISABLE_TIMING
             self._timing_disabled = True
-        if options.busy_waited_sync:
+        if opts.busy_waited_sync:
             flags |= driver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
             self._busy_waited = True
-        if options.support_ipc:
+        if opts.support_ipc:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
-        self._mnff.handle = handle_return(driver.cuEventCreate(flags))
+        err, self._handle = driver.cuEventCreate(flags)
+        raise_if_driver_error(err)
         self._device_id = device_id
         self._ctx_handle = ctx_handle
         return self
 
-    def close(self):
+    cpdef close(self):
         """Destroy the event."""
-        self._mnff.close()
+        if self._handle is not None:
+            err, = driver.cuEventDestroy(self._handle)
+            self._handle = None
+            raise_if_driver_error(err)
+
+    def __del__(self):
+        self.close()
 
     def __isub__(self, other):
         return NotImplemented
@@ -129,7 +126,7 @@ class Event:
 
     def __sub__(self, other):
         # return self - other (in milliseconds)
-        err, timing = driver.cuEventElapsedTime(other.handle, self.handle)
+        err, timing = driver.cuEventElapsedTime(other.handle, self._handle)
         try:
             raise_if_driver_error(err)
             return timing
@@ -180,12 +177,12 @@ class Event:
         has been completed.
 
         """
-        handle_return(driver.cuEventSynchronize(self._mnff.handle))
+        handle_return(driver.cuEventSynchronize(self._handle))
 
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
-        (result,) = driver.cuEventQuery(self._mnff.handle)
+        result, = driver.cuEventQuery(self._handle)
         if result == driver.CUresult.CUDA_SUCCESS:
             return True
         if result == driver.CUresult.CUDA_ERROR_NOT_READY:
@@ -201,7 +198,7 @@ class Event:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Event.handle)``.
         """
-        return self._mnff.handle
+        return self._handle
 
     @property
     def device(self) -> Device:
