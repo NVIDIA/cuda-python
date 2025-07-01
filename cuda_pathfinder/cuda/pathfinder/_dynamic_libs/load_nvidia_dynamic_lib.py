@@ -30,7 +30,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
         return loaded
 
     # Load dependencies first
-    load_dependencies(libname, load_lib)
+    load_dependencies(libname, load_nvidia_dynamic_lib)
 
     # Find the library path
     found = _find_nvidia_dynamic_lib(libname)
@@ -46,7 +46,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
 
 
 @functools.cache
-def load_lib(libname: str) -> LoadedDL:
+def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
     """Load a NVIDIA dynamic library by name.
 
     Args:
