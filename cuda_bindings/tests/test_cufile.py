@@ -8,10 +8,44 @@ import os
 import tempfile
 from contextlib import suppress
 
+import pytest
+
 import cuda.bindings.driver as cuda
 from cuda.bindings import cufile
 
 # from cuda.bindings.cycufile import CUfileDescr_t, CUfileFileHandleType
+
+
+def cufileLibraryAvailable():
+    """Check if cuFile library is available on the system."""
+    try:
+        # Try to initialize cuFile driver
+        cufile.driver_open()
+        cufile.driver_close()
+
+        # Check cuFile library version
+        try:
+            # Get cuFile library version
+            version = cufile.get_version()
+            print(f"cuFile library version: {version}")
+
+            # Check if version is 1.14.1 or higher (1140)
+            if version < 1140:
+                print(f"cuFile library version {version} is less than required 1140 (1.14.1)")
+                return False
+
+        except Exception as e:
+            print(f"Error checking cuFile version: {e}")
+            return False
+
+        return True
+    except Exception as e:
+        print(f"cuFile library not available: {e}")
+        return False
+
+
+# Global skip condition for all tests if cuFile library is not available
+pytestmark = pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system")
 
 
 def safe_decode_string(raw_value):
