@@ -211,21 +211,17 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cuda.core.experimental.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Buffer.html">cuda.core.experimental.Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Stream.html">cuda.core.experimental.Stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
@@ -244,8 +240,19 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
+</ul>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
+</ul>
+</li>
 </ul>
 
 </div>
@@ -341,7 +348,7 @@ Default value of <cite>None</cite> return the currently used device.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.Device.allocate">
-<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental._memory.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Device.allocate" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental._memory.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Device.allocate" title="Link to this definition">¶</a></dt>
 <dd><p>Allocate device memory from a specified stream.</p>
 <p>Allocates device memory of <cite>size</cite> bytes on the specified <cite>stream</cite>
 using the memory resource currently associated with this Device.</p>
@@ -354,7 +361,7 @@ using the memory resource currently associated with this Device.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of bytes to allocate.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>, optional) – The stream establishing the stream ordering semantic.
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>, optional) – The stream establishing the stream ordering semantic.
 Default value of <cite>None</cite> uses default stream.</p></li>
 </ul>
 </dd>
@@ -425,7 +432,7 @@ Default value of <cite>None</cite> uses default stream.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.Device.create_stream">
-<span class="sig-name descname"><span class="pre">create_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.IsStreamT.html#cuda.core.experimental._stream.IsStreamT" title="cuda.core.experimental._stream.IsStreamT"><span class="pre">IsStreamT</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions" title="cuda.core.experimental._stream.StreamOptions"><span class="pre">StreamOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Device.create_stream" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">create_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._stream.IsStreamT.html#cuda.core.experimental._stream.IsStreamT" title="cuda.core.experimental._stream.IsStreamT"><span class="pre">IsStreamT</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions" title="cuda.core.experimental._stream.StreamOptions"><span class="pre">StreamOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Device.create_stream" title="Link to this definition">¶</a></dt>
 <dd><p>Create a Stream object.</p>
 <p>New stream objects can be created in two different ways:</p>
 <ol class="arabic simple">
@@ -449,7 +456,7 @@ such that the lifetime is managed.</p>
 <dd class="field-even"><p>Newly created stream object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -518,8 +525,8 @@ calling this method, e.g.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental.Device.default_stream">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></em><a class="headerlink" href="#cuda.core.experimental.Device.default_stream" title="Link to this definition">¶</a></dt>
-<dd><p>Return default CUDA <a class="reference internal" href="cuda.core.experimental._stream.Stream.html#cuda.core.experimental._stream.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> associated with this device.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></em><a class="headerlink" href="#cuda.core.experimental.Device.default_stream" title="Link to this definition">¶</a></dt>
+<dd><p>Return default CUDA <a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> associated with this device.</p>
 <p>The type of default stream returned depends on if the environment
 variable CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set.</p>
 <p>If set, returns a per-thread default stream. Otherwise returns

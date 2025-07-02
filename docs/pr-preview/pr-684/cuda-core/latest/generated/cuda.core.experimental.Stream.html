@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
-        <link rel="canonical" href="docs/generated/cuda.core.experimental._stream.Stream.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cuda.core.experimental.Event" href="cuda.core.experimental.Event.html" /><link rel="prev" title="cuda.core.experimental.Buffer" href="cuda.core.experimental.Buffer.html" />
+        <link rel="canonical" href="docs/generated/cuda.core.experimental.Stream.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>cuda.core.experimental._stream.Stream - cuda.core 0.3.0 documentation</title>
+        <title>cuda.core.experimental.Stream - cuda.core 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -210,17 +210,17 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of cuda.core.experimental API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Buffer.html">cuda.core.experimental.Buffer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Stream.html">cuda.core.experimental.Stream</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cuda.core.experimental.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
@@ -295,7 +295,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/generated/cuda.core.experimental._stream.Stream.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/generated/cuda.core.experimental.Stream.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -315,57 +315,57 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="cuda-core-experimental-stream-stream">
-<h1>cuda.core.experimental._stream.Stream<a class="headerlink" href="#cuda-core-experimental-stream-stream" title="Link to this heading">¶</a></h1>
+          <section id="cuda-core-experimental-stream">
+<h1>cuda.core.experimental.Stream<a class="headerlink" href="#cuda-core-experimental-stream" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._stream.</span></span><span class="sig-name descname"><span class="pre">Stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._stream.Stream" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Stream" title="Link to this definition">¶</a></dt>
 <dd><p>Represent a queue of GPU operations that are executed in a specific order.</p>
 <p>Applications use streams to control the order of execution for
 GPU work. Work within a single stream are executed sequentially.
 Whereas work across multiple streams can be further controlled
-using stream priorities and <code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code> managements.</p>
+using stream priorities and <a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> managements.</p>
 <p>Advanced users can utilize default streams for enforce complex
 implicit synchronization behaviors.</p>
-<p>Directly creating a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> is not supported due to ambiguity.
-New streams should instead be created through a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code>
+<p>Directly creating a <a class="reference internal" href="#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> is not supported due to ambiguity.
+New streams should instead be created through a <a class="reference internal" href="cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a>
 object, or created directly through using an existing handle
 using Stream.from_handle().</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.__init__" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Stream.__init__" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.close" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Stream.close" title="Link to this definition">¶</a></dt>
 <dd><p>Destroy the stream.</p>
 <p>Destroy the stream if we own it. Borrowed foreign stream
 object will instead have their references released.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.create_graph_builder">
-<span class="sig-name descname"><span class="pre">create_graph_builder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.create_graph_builder" title="Link to this definition">¶</a></dt>
-<dd><p>Create a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code> object.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.create_graph_builder">
+<span class="sig-name descname"><span class="pre">create_graph_builder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Stream.create_graph_builder" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> object.</p>
 <p>The new graph builder will be associated with this stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Newly created graph builder object.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></p>
+<dd class="field-even"><p><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.from_handle">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.from_handle" title="Link to this definition">¶</a></dt>
-<dd><p>Create a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> object from a foreign stream handle.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.from_handle">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Stream.from_handle" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object from a foreign stream handle.</p>
 <p>Uses a cudaStream_t pointer address represented as a Python int
-to create a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> object.</p>
+to create a new <a class="reference internal" href="#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Stream lifetime is not managed, foreign object must remain
@@ -380,60 +380,60 @@ stream object.</p>
 <dd class="field-even"><p>Newly created stream object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.record">
-<span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><span class="pre">Event</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions" title="cuda.core.experimental._event.EventOptions"><span class="pre">EventOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><span class="pre">Event</span></a></span></span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.record" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.record">
+<span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><span class="pre">Event</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions" title="cuda.core.experimental._event.EventOptions"><span class="pre">EventOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><span class="pre">Event</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Stream.record" title="Link to this definition">¶</a></dt>
 <dd><p>Record an event onto the stream.</p>
 <p>Creates an Event object (or reuses the given one) by
 recording on the stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>event</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code>, optional) – Optional event object to be reused for recording.</p></li>
-<li><p><strong>options</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code>, optional) – Customizable dataclass for event creation options.</p></li>
+<li><p><strong>event</strong> (<a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>, optional) – Optional event object to be reused for recording.</p></li>
+<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions" title="cuda.core.experimental.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>, optional) – Customizable dataclass for event creation options.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Newly created event object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.sync">
-<span class="sig-name descname"><span class="pre">sync</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.sync" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.sync">
+<span class="sig-name descname"><span class="pre">sync</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Stream.sync" title="Link to this definition">¶</a></dt>
 <dd><p>Synchronize the stream.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.wait">
-<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_or_stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><span class="pre">Event</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._stream.Stream.wait" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.wait">
+<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_or_stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><span class="pre">Event</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Stream.wait" title="Link to this definition">¶</a></dt>
 <dd><p>Wait for a CUDA event or a CUDA stream.</p>
 <p>Waiting for an event or a stream establishes a stream order.</p>
-<p>If a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code> is provided, then wait until the stream’s
-work is completed. This is done by recording a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code>
+<p>If a <a class="reference internal" href="#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> is provided, then wait until the stream’s
+work is completed. This is done by recording a new <a class="reference internal" href="cuda.core.experimental._event.Event.html#cuda.core.experimental._event.Event" title="cuda.core.experimental._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>
 on the stream and then waiting on it.</p>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
 <dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.context">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Context</span></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.context" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.context">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Context</span></em><a class="headerlink" href="#cuda.core.experimental.Stream.context" title="Link to this definition">¶</a></dt>
 <dd><p>Return the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> associated with this stream.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.device">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><span class="pre">Device</span></a></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.device" title="Link to this definition">¶</a></dt>
-<dd><p>Return the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code> singleton associated with this stream.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><span class="pre">Device</span></a></em><a class="headerlink" href="#cuda.core.experimental.Stream.device" title="Link to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> singleton associated with this stream.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The current context on the device may differ from this
@@ -443,8 +443,8 @@ context is set current after a stream is created.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.handle">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUstream" title="(in cuda.bindings)"><span class="pre">cuda.bindings.driver.CUstream</span></a></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.handle" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.handle">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUstream" title="(in cuda.bindings)"><span class="pre">cuda.bindings.driver.CUstream</span></a></em><a class="headerlink" href="#cuda.core.experimental.Stream.handle" title="Link to this definition">¶</a></dt>
 <dd><p>Return the underlying <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> object.</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
@@ -454,14 +454,14 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(St
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.is_nonblocking">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_nonblocking</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.is_nonblocking" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.is_nonblocking">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_nonblocking</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.Stream.is_nonblocking" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if this is a nonblocking stream, otherwise False.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental._stream.Stream.priority">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">priority</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental._stream.Stream.priority" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.Stream.priority">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">priority</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental.Stream.priority" title="Link to this definition">¶</a></dt>
 <dd><p>Return the stream priority.</p>
 </dd></dl>
 
@@ -474,8 +474,26 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(St
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="cuda.core.experimental.Event.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">cuda.core.experimental.Event</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="cuda.core.experimental.Buffer.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">cuda.core.experimental.Buffer</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -506,20 +524,20 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(St
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">cuda.core.experimental._stream.Stream</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream"><code class="docutils literal notranslate"><span class="pre">Stream</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.__init__"><code class="docutils literal notranslate"><span class="pre">Stream.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.close"><code class="docutils literal notranslate"><span class="pre">Stream.close()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.create_graph_builder"><code class="docutils literal notranslate"><span class="pre">Stream.create_graph_builder()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.from_handle"><code class="docutils literal notranslate"><span class="pre">Stream.from_handle()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.record"><code class="docutils literal notranslate"><span class="pre">Stream.record()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.sync"><code class="docutils literal notranslate"><span class="pre">Stream.sync()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.wait"><code class="docutils literal notranslate"><span class="pre">Stream.wait()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.context"><code class="docutils literal notranslate"><span class="pre">Stream.context</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.device"><code class="docutils literal notranslate"><span class="pre">Stream.device</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.handle"><code class="docutils literal notranslate"><span class="pre">Stream.handle</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.is_nonblocking"><code class="docutils literal notranslate"><span class="pre">Stream.is_nonblocking</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental._stream.Stream.priority"><code class="docutils literal notranslate"><span class="pre">Stream.priority</span></code></a></li>
+<li><a class="reference internal" href="#">cuda.core.experimental.Stream</a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream"><code class="docutils literal notranslate"><span class="pre">Stream</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.__init__"><code class="docutils literal notranslate"><span class="pre">Stream.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.close"><code class="docutils literal notranslate"><span class="pre">Stream.close()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.create_graph_builder"><code class="docutils literal notranslate"><span class="pre">Stream.create_graph_builder()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.from_handle"><code class="docutils literal notranslate"><span class="pre">Stream.from_handle()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.record"><code class="docutils literal notranslate"><span class="pre">Stream.record()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.sync"><code class="docutils literal notranslate"><span class="pre">Stream.sync()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.wait"><code class="docutils literal notranslate"><span class="pre">Stream.wait()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.context"><code class="docutils literal notranslate"><span class="pre">Stream.context</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.device"><code class="docutils literal notranslate"><span class="pre">Stream.device</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.handle"><code class="docutils literal notranslate"><span class="pre">Stream.handle</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.is_nonblocking"><code class="docutils literal notranslate"><span class="pre">Stream.is_nonblocking</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Stream.priority"><code class="docutils literal notranslate"><span class="pre">Stream.priority</span></code></a></li>
 </ul>
 </li>
 </ul>
