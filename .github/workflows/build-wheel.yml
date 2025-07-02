@@ -69,18 +69,15 @@ jobs:
       - name: Dump environment
         run: |
           env
-      
-      - name: Build cuda.pathfinder wheel
-        uses: pypa/cibuildwheel@5f22145df44122af0f5a201f93cf0207171beca7  # v3.0.0
-        env:
-          CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_ARCHS_LINUX: "native"
-          CIBW_BUILD_VERBOSITY: 1
-          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
-        with:
-          package-dir: ./cuda_pathfinder/
-          output-dir: ${{ env.CUDA_PATHFINDER_ARTIFACTS_DIR }}
+
+      # We only need/want a single pure python wheel, pick linux-64 index 0.
+      - name: Build and check cuda.pathfinder wheel
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        run: |
+          pushd cuda_pathfinder
+          pip wheel -v --no-deps .
+          twine check *.whl
+          popd
 
       - name: List the cuda.pathfinder artifacts directory
         run: |
