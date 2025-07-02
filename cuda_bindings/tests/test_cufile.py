@@ -13,39 +13,60 @@ import pytest
 import cuda.bindings.driver as cuda
 from cuda.bindings import cufile
 
-# from cuda.bindings.cycufile import CUfileDescr_t, CUfileFileHandleType
-
-
 def cufileLibraryAvailable():
     """Check if cuFile library is available on the system."""
     try:
-        # Try to initialize cuFile driver
-        cufile.driver_open()
-        cufile.driver_close()
-
-        # Check cuFile library version
-        try:
-            # Get cuFile library version
-            version = cufile.get_version()
-            print(f"cuFile library version: {version}")
-
-            # Check if version is 1.14.1 or higher (1140)
-            if version < 1140:
-                print(f"cuFile library version {version} is less than required 1140 (1.14.1)")
-                return False
-
-        except Exception as e:
-            print(f"Error checking cuFile version: {e}")
-            return False
-
+        # Try to get cuFile library version - this will fail if library is not available
+        version = cufile.get_version()
+        print(f"cuFile library available, version: {version}")
         return True
     except Exception as e:
         print(f"cuFile library not available: {e}")
         return False
 
 
+def cufileVersionLessThan(target):
+    """Check if cuFile library version is less than target version."""
+    try:
+        # Get cuFile library version
+        version = cufile.get_version()
+        print(f"cuFile library version: {version}")
+        
+        # Check if version is less than target
+        if version < target:
+            print(f"cuFile library version {version} is less than required {target}")
+            return True
+        return False
+    except Exception as e:
+        print(f"Error checking cuFile version: {e}")
+        return True  # Assume old version if any error occurs
+
+
+def isSupportedFilesystem():
+    """Check if the current filesystem is supported (ext4 or xfs)."""
+    try:
+        # Get the filesystem type of the current directory
+        import subprocess
+        result = subprocess.run(['df', '-T', '.'], capture_output=True, text=True, check=True)
+        lines = result.stdout.strip().split('\n')
+        if len(lines) >= 2:
+            # The second line contains the filesystem info
+            parts = lines[1].split()
+            if len(parts) >= 2:
+                fs_type = parts[1].lower()
+                print(f"Current filesystem type: {fs_type}")
+                return fs_type in ['ext4', 'xfs']
+        return False
+    except Exception as e:
+        print(f"Error checking filesystem type: {e}")
+        return False
+
+
 # Global skip condition for all tests if cuFile library is not available
-pytestmark = pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system")
+pytestmark = pytest.mark.skipif(
+    not cufileLibraryAvailable(), 
+    reason="cuFile library not available on this system"
+)
 
 
 def safe_decode_string(raw_value):
@@ -73,6 +94,10 @@ def test_driver_open():
     cufile.driver_close()
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_handle_register():
     """Test file handle registration with cuFile."""
     # Initialize CUDA
@@ -82,7 +107,10 @@ def test_handle_register():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -126,6 +154,7 @@ def test_handle_register():
         with suppress(OSError):
             os.unlink(file_path)
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
 def test_buf_register_simple():
@@ -137,7 +166,10 @@ def test_buf_register_simple():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -163,6 +195,7 @@ def test_buf_register_simple():
 
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
 def test_buf_register_host_memory():
@@ -174,7 +207,10 @@ def test_buf_register_host_memory():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -200,6 +236,7 @@ def test_buf_register_host_memory():
 
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
 def test_buf_register_multiple_buffers():
@@ -211,7 +248,10 @@ def test_buf_register_multiple_buffers():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -245,6 +285,7 @@ def test_buf_register_multiple_buffers():
 
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
 def test_buf_register_invalid_flags():
@@ -256,7 +297,10 @@ def test_buf_register_invalid_flags():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -283,6 +327,7 @@ def test_buf_register_invalid_flags():
 
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
 def test_buf_register_large_buffer():
@@ -294,7 +339,9 @@ def test_buf_register_large_buffer():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -317,9 +364,9 @@ def test_buf_register_large_buffer():
     finally:
         # Free CUDA memory
         cuda.cuMemFree(buf_ptr)
-
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
 def test_buf_register_already_registered():
@@ -331,7 +378,9 @@ def test_buf_register_already_registered():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -362,11 +411,15 @@ def test_buf_register_already_registered():
     finally:
         # Free CUDA memory
         cuda.cuMemFree(buf_ptr)
-
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_cufile_read_write():
     """Test cuFile read and write operations."""
     # Initialize CUDA
@@ -376,7 +429,9 @@ def test_cufile_read_write():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -450,22 +505,24 @@ def test_cufile_read_write():
     finally:
         # Close file
         os.close(fd)
-
         # Free CUDA memory
         cuda.cuMemFree(write_buf)
         cuda.cuMemFree(read_buf)
-
         # Clean up test file
         try:
             os.unlink(file_path)
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_cufile_read_write_host_memory():
     """Test cuFile read and write operations using host memory."""
     # Initialize CUDA
@@ -475,7 +532,9 @@ def test_cufile_read_write_host_memory():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -547,22 +606,24 @@ def test_cufile_read_write_host_memory():
     finally:
         # Close file
         os.close(fd)
-
         # Free host memory
         cuda.cuMemFreeHost(write_buf)
         cuda.cuMemFreeHost(read_buf)
-
         # Clean up test file
         try:
             os.unlink(file_path)
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_cufile_read_write_large():
     """Test cuFile read and write operations with large data."""
     # Initialize CUDA
@@ -572,7 +633,9 @@ def test_cufile_read_write_large():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -648,22 +711,24 @@ def test_cufile_read_write_large():
     finally:
         # Close file
         os.close(fd)
-
         # Free CUDA memory
         cuda.cuMemFree(write_buf)
         cuda.cuMemFree(read_buf)
-
         # Clean up test file
         try:
             os.unlink(file_path)
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_cufile_write_async():
     """Test cuFile asynchronous write operations."""
     # Initialize CUDA
@@ -673,7 +738,9 @@ def test_cufile_write_async():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -750,8 +817,13 @@ def test_cufile_write_async():
         with suppress(OSError):
             os.unlink(file_path)
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_cufile_read_async():
     """Test cuFile asynchronous read operations."""
     # Initialize CUDA
@@ -761,7 +833,9 @@ def test_cufile_read_async():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -851,8 +925,13 @@ def test_cufile_read_async():
         with suppress(OSError):
             os.unlink(file_path)
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_cufile_async_read_write():
     """Test cuFile asynchronous read and write operations in sequence."""
     # Initialize CUDA
@@ -862,7 +941,9 @@ def test_cufile_async_read_write():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -973,8 +1054,13 @@ def test_cufile_async_read_write():
         with suppress(OSError):
             os.unlink(file_path)
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_batch_io_basic():
     """Test basic batch IO operations with multiple read/write operations."""
     # Initialize CUDA
@@ -984,7 +1070,9 @@ def test_batch_io_basic():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -1175,22 +1263,24 @@ def test_batch_io_basic():
     finally:
         # Close file
         os.close(fd)
-
         # Free CUDA memory
         for buf in buffers + read_buffers:
             cuda.cuMemFree(buf)
-
         # Clean up test file
         try:
             os.unlink(file_path)
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_batch_io_mixed_operations():
     """Test batch IO with mixed read and write operations."""
     # Initialize CUDA
@@ -1200,7 +1290,9 @@ def test_batch_io_mixed_operations():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -1354,22 +1446,24 @@ def test_batch_io_mixed_operations():
     finally:
         # Close file
         os.close(fd)
-
         # Free CUDA memory
         for buf in all_buffers:
             cuda.cuMemFree(buf)
-
         # Clean up test file
         try:
             os.unlink(file_path)
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_batch_io_cancel():
     """Test batch IO cancellation."""
     # Initialize CUDA
@@ -1379,7 +1473,9 @@ def test_batch_io_cancel():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -1453,22 +1549,24 @@ def test_batch_io_cancel():
     finally:
         # Close file
         os.close(fd)
-
         # Free CUDA memory
         for buf in buffers:
             cuda.cuMemFree(buf)
-
         # Clean up test file
         try:
             os.unlink(file_path)
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    not isSupportedFilesystem(),
+    reason="cuFile handle_register requires ext4 or xfs filesystem"
+)
 def test_batch_io_large_operations():
     """Test batch IO with large buffer operations."""
     # Initialize CUDA
@@ -1478,7 +1576,9 @@ def test_batch_io_large_operations():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Open cuFile driver
@@ -1633,22 +1733,24 @@ def test_batch_io_large_operations():
     finally:
         # Close file
         os.close(fd)
-
         # Free CUDA memory
         for buf in all_buffers:
             cuda.cuMemFree(buf)
-
         # Clean up test file
         try:
             os.unlink(file_path)
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-
         # Close cuFile driver
         cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    cufileVersionLessThan(1140),
+    reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
+)
 def test_set_get_parameter_size_t():
     """Test setting and getting size_t parameters with cuFile validation."""
 
@@ -1659,7 +1761,9 @@ def test_set_get_parameter_size_t():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     try:
@@ -1791,9 +1895,13 @@ def test_set_get_parameter_size_t():
         )
 
     finally:
-        pass
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    cufileVersionLessThan(1140),
+    reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
+)
 def test_set_get_parameter_bool():
     """Test setting and getting boolean parameters with cuFile validation."""
 
@@ -1804,7 +1912,9 @@ def test_set_get_parameter_bool():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     try:
@@ -1901,9 +2011,13 @@ def test_set_get_parameter_bool():
         assert retrieved_value is True, f"Stream memops bypass mismatch: set True, got {retrieved_value}"
 
     finally:
-        pass
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
+@pytest.mark.skipif(
+    cufileVersionLessThan(1140),
+    reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
+)
 def test_set_get_parameter_string():
     """Test setting and getting string parameters with cuFile validation."""
 
@@ -1914,7 +2028,9 @@ def test_set_get_parameter_string():
     err, device = cuda.cuDeviceGet(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     try:
@@ -1980,4 +2096,4 @@ def test_set_get_parameter_string():
             print(f"Log directory test failed: {e}")
 
     finally:
-        pass
+        cuda.cuDevicePrimaryCtxRelease(device)
