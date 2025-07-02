@@ -28,11 +28,17 @@ runs:
         # Pre-process the component list to ensure hash uniqueness
         CTK_CACHE_COMPONENTS=${{ inputs.cuda-components }}
         # Conditionally strip out libnvjitlink for CUDA versions < 12
-        if [[ "$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})" -lt 12 ]]; then
+        CUDA_MAJOR_VER="$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})"
+        if [[ "$CUDA_MAJOR_VER" -lt 12 ]]; then
           CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libnvjitlink/}"
         fi
         # Conditionally strip out libcufile since it does not support Windows
         if [[ "${{ inputs.host-platform }}" == win-* ]]; then
+          CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libcufile/}"
+        fi
+        # Conditionally strip out libcufile for CUDA versions < 12.2.0 + aarch64 (redist not available)
+        CUDA_MINOR_VER="$(cut -d '.' -f 2 <<< ${{ inputs.cuda-version }})"
+        if [[ ("$CUDA_MAJOR_VER" -lt 12 || "$CUDA_MINOR_VER" -lt 2) && "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
           CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libcufile/}"
         fi
         # Cleanup stray commas after removing components
