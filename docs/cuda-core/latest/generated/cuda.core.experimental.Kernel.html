@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cuda.core.experimental.LegacyPinnedMemoryResource" href="cuda.core.experimental.LegacyPinnedMemoryResource.html" /><link rel="prev" title="cuda.core.experimental.MemoryResource" href="cuda.core.experimental.MemoryResource.html" />
-        <link rel="canonical" href="docs/generated/cuda.core.experimental.DeviceMemoryResource.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="cuda.core.experimental.ProgramOptions" href="cuda.core.experimental.ProgramOptions.html" /><link rel="prev" title="cuda.core.experimental.ObjectCode" href="cuda.core.experimental.ObjectCode.html" />
+        <link rel="canonical" href="docs/generated/cuda.core.experimental.Kernel.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>cuda.core.experimental.DeviceMemoryResource - cuda.core 0.3.1 documentation</title>
+        <title>cuda.core.experimental.Kernel - cuda.core 0.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -223,7 +223,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Stream.html">cuda.core.experimental.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cuda.core.experimental.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
@@ -233,7 +233,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Kernel.html">cuda.core.experimental.Kernel</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">cuda.core.experimental.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
@@ -297,7 +297,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/generated/cuda.core.experimental.DeviceMemoryResource.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/generated/cuda.core.experimental.Kernel.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -317,70 +317,44 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="cuda-core-experimental-devicememoryresource">
-<h1>cuda.core.experimental.DeviceMemoryResource<a class="headerlink" href="#cuda-core-experimental-devicememoryresource" title="Link to this heading">¶</a></h1>
+          <section id="cuda-core-experimental-kernel">
+<h1>cuda.core.experimental.Kernel<a class="headerlink" href="#cuda-core-experimental-kernel" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">DeviceMemoryResource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource" title="Link to this definition">¶</a></dt>
-<dd><p>Create a device memory resource that uses the driver’s stream-ordered memory pool.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>device_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device ordinal for which a memory resource is constructed. The mempool that is
-set to <em>current</em> on <code class="docutils literal notranslate"><span class="pre">device_id</span></code> is used. If no mempool is set to current yet,
-the driver would use the <em>default</em> mempool on the device.</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.experimental.Kernel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Kernel" title="Link to this definition">¶</a></dt>
+<dd><p>Represent a compiled kernel that had been loaded onto the device.</p>
+<p>Kernel instances can execution when passed directly into the
+<a class="reference internal" href="cuda.core.experimental.launch.html#cuda.core.experimental.launch" title="cuda.core.experimental.launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code></a> function.</p>
+<p>Directly creating a <a class="reference internal" href="#cuda.core.experimental.Kernel" title="cuda.core.experimental._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> is not supported, and they
+should instead be created through a <a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> object.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.__init__" title="Link to this definition">¶</a></dt>
-<dd><p>Initialize the memory resource.</p>
-<p>Subclasses may use additional arguments to configure the resource.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.allocate">
-<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental._memory.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.allocate" title="Link to this definition">¶</a></dt>
-<dd><p>Allocate a buffer of the requested size.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The size of the buffer to allocate, in bytes.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – The stream on which to perform the allocation asynchronously.
-If None, an internal stream is used.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The allocated buffer object, which is accessible on the device that this memory
-resource was created for.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer">Buffer</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.deallocate">
-<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUdeviceptr" title="(in cuda.bindings)"><span class="pre">CUdeviceptr</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><span class="pre">Stream</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.deallocate" title="Link to this definition">¶</a></dt>
-<dd><p>Deallocate a buffer previously allocated by this resource.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ptr</strong> (<a class="reference internal" href="cuda.core.experimental._memory.DevicePointerT.html#cuda.core.experimental._memory.DevicePointerT" title="cuda.core.experimental._memory.DevicePointerT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code></a>) – The pointer or handle to the buffer to deallocate.</p></li>
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The size of the buffer to deallocate, in bytes.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – The stream on which to perform the deallocation asynchronously.
-If None, an internal stream is used.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
+<dt class="sig sig-object py" id="cuda.core.experimental.Kernel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Kernel.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <p class="rubric">Attributes</p>
 <dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.device_id">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.device_id" title="Link to this definition">¶</a></dt>
-<dd><p>the associated device ordinal.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.Kernel.arguments_info">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arguments_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core.experimental._module.ParamInfo.html#cuda.core.experimental._module.ParamInfo" title="cuda.core.experimental._module.ParamInfo"><span class="pre">ParamInfo</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cuda.core.experimental.Kernel.arguments_info" title="Link to this definition">¶</a></dt>
+<dd><p>(offset, size) for each argument of this function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="cuda.core.experimental._module.ParamInfo.html#cuda.core.experimental._module.ParamInfo" title="cuda.core.experimental._module.ParamInfo">ParamInfo</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.Kernel.attributes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attributes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes" title="cuda.core.experimental._module.KernelAttributes"><span class="pre">KernelAttributes</span></a></em><a class="headerlink" href="#cuda.core.experimental.Kernel.attributes" title="Link to this definition">¶</a></dt>
+<dd><p>Get the read-only attributes of this kernel.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.Kernel.num_arguments">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_arguments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental.Kernel.num_arguments" title="Link to this definition">¶</a></dt>
+<dd><p>The number of arguments of this function</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
@@ -389,25 +363,9 @@ If None, an internal stream is used.</p></li>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.is_device_accessible">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_device_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.is_device_accessible" title="Link to this definition">¶</a></dt>
-<dd><p>this memory resource provides device-accessible buffers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.is_host_accessible">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_host_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.is_host_accessible" title="Link to this definition">¶</a></dt>
-<dd><p>this memory resource does not provides host-accessible buffers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.experimental.Kernel.occupancy">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">occupancy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental._module.KernelOccupancy.html#cuda.core.experimental._module.KernelOccupancy" title="cuda.core.experimental._module.KernelOccupancy"><span class="pre">KernelOccupancy</span></a></em><a class="headerlink" href="#cuda.core.experimental.Kernel.occupancy" title="Link to this definition">¶</a></dt>
+<dd><p>Get the occupancy information for launching this kernel.</p>
 </dd></dl>
 
 </dd></dl>
@@ -419,23 +377,23 @@ If None, an internal stream is used.</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">
+          <a class="next-page" href="cuda.core.experimental.ProgramOptions.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">cuda.core.experimental.LegacyPinnedMemoryResource</div>
+                <div class="title">cuda.core.experimental.ProgramOptions</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="cuda.core.experimental.MemoryResource.html">
+          <a class="prev-page" href="cuda.core.experimental.ObjectCode.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">cuda.core.experimental.MemoryResource</div>
+                <div class="title">cuda.core.experimental.ObjectCode</div>
                 
               </div>
             </a>
@@ -469,14 +427,13 @@ If None, an internal stream is used.</p></li>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">cuda.core.experimental.DeviceMemoryResource</a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a><ul>
-<li><a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.allocate()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.deallocate()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.device_id</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.is_device_accessible</span></code></a></li>
-<li><a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource.is_host_accessible</span></code></a></li>
+<li><a class="reference internal" href="#">cuda.core.experimental.Kernel</a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.Kernel"><code class="docutils literal notranslate"><span class="pre">Kernel</span></code></a><ul>
+<li><a class="reference internal" href="#cuda.core.experimental.Kernel.__init__"><code class="docutils literal notranslate"><span class="pre">Kernel.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Kernel.arguments_info"><code class="docutils literal notranslate"><span class="pre">Kernel.arguments_info</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Kernel.attributes"><code class="docutils literal notranslate"><span class="pre">Kernel.attributes</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Kernel.num_arguments"><code class="docutils literal notranslate"><span class="pre">Kernel.num_arguments</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Kernel.occupancy"><code class="docutils literal notranslate"><span class="pre">Kernel.occupancy</span></code></a></li>
 </ul>
 </li>
 </ul>
