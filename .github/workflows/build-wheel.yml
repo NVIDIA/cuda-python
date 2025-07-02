@@ -70,6 +70,10 @@ jobs:
         run: |
           env
 
+      - name: Install twine
+        run: |
+          pip install twine
+
       # We only need/want a single pure python wheel, pick linux-64 index 0.
       - name: Build and check cuda.pathfinder wheel
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
@@ -85,19 +89,19 @@ jobs:
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) ${{ env.CUDA_PATHFINDER_ARTIFACTS_DIR }}
-          ls -lahR ${{ env.CUDA_PATHFINDER_ARTIFACTS_DIR }}
+          $CHOWN -R $(whoami) cuda_pathfinder/*.whl
+          ls -lahR cuda_pathfinder
 
       - name: Check cuda.pathfinder wheel
         run: |
-          pip install twine
-          twine check ${{ env.CUDA_PATHFINDER_ARTIFACTS_DIR }}/*.whl
+          twine check cuda_pathfinder/*.whl
 
       - name: Upload cuda.pathfinder build artifacts
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
-          name: ${{ env.CUDA_PATHFINDER_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_PATHFINDER_ARTIFACTS_DIR }}/*.whl
+          name: cuda-pathfinder-wheel
+          path: cuda_pathfinder/*.whl
           if-no-files-found: error
 
       - name: Build cuda.core wheel
