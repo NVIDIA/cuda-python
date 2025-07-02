@@ -2,48 +2,42 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import binascii
-import re
-import textwrap
-import cuda.bindings.driver as cuda
-import os
-import errno
 import ctypes
-from contextlib import contextmanager
-import numpy as _numpy
-import stat
-import numpy as np
+import errno
+import os
 import tempfile
-import sys
-import time
-import threading
+from contextlib import suppress
 
-import pytest
-
+import cuda.bindings.driver as cuda
 from cuda.bindings import cufile
-#from cuda.bindings.cycufile import CUfileDescr_t, CUfileFileHandleType
+
+# from cuda.bindings.cycufile import CUfileDescr_t, CUfileFileHandleType
+
 
 def safe_decode_string(raw_value):
     """Safely decode a string value from ctypes buffer."""
     # Find null terminator if present
-    null_pos = raw_value.find(b'\x00')
+    null_pos = raw_value.find(b"\x00")
     if null_pos != -1:
         raw_value = raw_value[:null_pos]
     # Decode with error handling
     try:
-        return raw_value.decode('utf-8', errors='ignore')
+        return raw_value.decode("utf-8", errors="ignore")
     except UnicodeDecodeError:
         # If UTF-8 fails, try to decode as bytes
         return str(raw_value)
 
+
 def test_cufile_success_defined():
     """Check if CUFILE_SUCCESS is defined in OpError enum."""
-    assert hasattr(cufile.OpError, 'SUCCESS')
+    assert hasattr(cufile.OpError, "SUCCESS")
+
 
 def test_driver_open():
     """Test cuFile driver initialization."""
     cufile.driver_open()
     cufile.driver_close()
+
 
 def test_handle_register():
     """Test file handle registration with cuFile."""
@@ -62,49 +56,43 @@ def test_handle_register():
 
     # Create test file
     file_path = "test_handle_register.bin"
-    
+
     # Create file with POSIX operations
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR, 0o644)
-    
+
     # Write test data using POSIX write
     test_data = b"Test data for cuFile - POSIX write"
     bytes_written = os.write(fd, test_data)
-    
+
     # Sync to ensure data is on disk
     os.fsync(fd)
-    
+
     # Close and reopen with O_DIRECT for cuFile operations
     os.close(fd)
-    
+
     # Reopen with O_DIRECT
     flags = os.O_RDWR | os.O_DIRECT
     fd = os.open(file_path, flags)
-    
+
     try:
         # Create and initialize the descriptor
         descr = cufile.Descr()
         descr.type = cufile.FileHandleType.OPAQUE_FD
         descr.handle.fd = fd
         descr.fs_ops = 0
-        
+
         # Register the handle
         handle = cufile.handle_register(descr.ptr)
-        
+
         # Deregister the handle
         cufile.handle_deregister(handle)
 
     finally:
         os.close(fd)
-
-        # Clean up the test file
-        try:
+        with suppress(OSError):
             os.unlink(file_path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
-        
-        # Close cuFile driver
         cufile.driver_close()
+
 
 def test_buf_register_simple():
     """Simple test for buffer registration with cuFile."""
@@ -138,9 +126,10 @@ def test_buf_register_simple():
     finally:
         # Free CUDA memory
         cuda.cuMemFree(buf_ptr)
-        
+
         # Close cuFile driver
         cufile.driver_close()
+
 
 def test_buf_register_host_memory():
     """Test buffer registration with host memory."""
@@ -174,9 +163,10 @@ def test_buf_register_host_memory():
     finally:
         # Free host memory
         cuda.cuMemFreeHost(buf_ptr)
-        
+
         # Close cuFile driver
         cufile.driver_close()
+
 
 def test_buf_register_multiple_buffers():
     """Test registering multiple buffers."""
@@ -196,7 +186,7 @@ def test_buf_register_multiple_buffers():
     # Allocate multiple CUDA buffers
     buffer_sizes = [4096, 16384, 65536]  # All aligned to 4096 bytes
     buffers = []
-    
+
     for size in buffer_sizes:
         err, buf_ptr = cuda.cuMemAlloc(size)
         assert err == cuda.CUresult.CUDA_SUCCESS
@@ -218,9 +208,10 @@ def test_buf_register_multiple_buffers():
         # Free all buffers
         for buf_ptr in buffers:
             cuda.cuMemFree(buf_ptr)
-        
+
         # Close cuFile driver
         cufile.driver_close()
+
 
 def test_buf_register_invalid_flags():
     """Test buffer registration with invalid flags."""
@@ -246,21 +237,19 @@ def test_buf_register_invalid_flags():
         # Try to register with invalid flags
         invalid_flags = 999
         buf_ptr_int = int(buf_ptr)
-        
-        try:
+
+        with suppress(Exception):
             cufile.buf_register(buf_ptr_int, buffer_size, invalid_flags)
             # If we get here, deregister to clean up
             cufile.buf_deregister(buf_ptr_int)
-        except Exception:
-            # Expected error with invalid flags
-            pass
 
     finally:
         # Free CUDA memory
         cuda.cuMemFree(buf_ptr)
-        
+
         # Close cuFile driver
         cufile.driver_close()
+
 
 def test_buf_register_large_buffer():
     """Test buffer registration with a large buffer."""
@@ -297,6 +286,7 @@ def test_buf_register_large_buffer():
 
         # Close cuFile driver
         cufile.driver_close()
+
 
 def test_buf_register_already_registered():
     """Test that registering an already registered buffer fails."""
@@ -342,6 +332,7 @@ def test_buf_register_already_registered():
         # Close cuFile driver
         cufile.driver_close()
 
+
 def test_cufile_read_write():
     """Test cuFile read and write operations."""
     # Initialize CUDA
@@ -359,7 +350,7 @@ def test_cufile_read_write():
 
     # Create test file
     file_path = "test_cufile_rw.bin"
-    
+
     # Allocate CUDA memory for write and read
     write_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
     err, write_buf = cuda.cuMemAlloc(write_size)
@@ -370,7 +361,7 @@ def test_cufile_read_write():
 
     # Allocate host memory for data verification
     host_buf = ctypes.create_string_buffer(write_size)
-    
+
     try:
         # Create file with O_DIRECT
         fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
@@ -378,7 +369,7 @@ def test_cufile_read_write():
         # Register buffers with cuFile
         write_buf_int = int(write_buf)
         read_buf_int = int(read_buf)
-        
+
         cufile.buf_register(write_buf_int, write_size, 0)
         cufile.buf_register(read_buf_int, write_size, 0)
 
@@ -436,9 +427,10 @@ def test_cufile_read_write():
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-        
+
         # Close cuFile driver
         cufile.driver_close()
+
 
 def test_cufile_read_write_host_memory():
     """Test cuFile read and write operations using host memory."""
@@ -457,7 +449,7 @@ def test_cufile_read_write_host_memory():
 
     # Create test file
     file_path = "test_cufile_rw_host.bin"
-    
+
     # Allocate host memory for write and read
     write_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
     err, write_buf = cuda.cuMemHostAlloc(write_size, 0)
@@ -473,7 +465,7 @@ def test_cufile_read_write_host_memory():
         # Register host buffers with cuFile
         write_buf_int = int(write_buf)
         read_buf_int = int(read_buf)
-        
+
         cufile.buf_register(write_buf_int, write_size, 0)
         cufile.buf_register(read_buf_int, write_size, 0)
 
@@ -492,7 +484,7 @@ def test_cufile_read_write_host_memory():
         repetitions = write_size // test_string_len
         test_data = test_string * repetitions
         test_data = test_data[:write_size]  # Ensure it fits exactly in buffer
-        
+
         # Copy test data to host write buffer
         host_buf = ctypes.create_string_buffer(test_data, write_size)
         write_buf_content = ctypes.string_at(write_buf, write_size)
@@ -532,9 +524,10 @@ def test_cufile_read_write_host_memory():
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-        
+
         # Close cuFile driver
         cufile.driver_close()
+
 
 def test_cufile_read_write_large():
     """Test cuFile read and write operations with large data."""
@@ -553,7 +546,7 @@ def test_cufile_read_write_large():
 
     # Create test file
     file_path = "test_cufile_rw_large.bin"
-    
+
     # Allocate large CUDA memory (1MB, aligned to 4096 bytes)
     write_size = 1024 * 1024  # 1MB, aligned to 4096 bytes (1048576 % 4096 == 0)
     err, write_buf = cuda.cuMemAlloc(write_size)
@@ -564,7 +557,7 @@ def test_cufile_read_write_large():
 
     # Allocate host memory for data verification
     host_buf = ctypes.create_string_buffer(write_size)
-    
+
     try:
         # Create file with O_DIRECT
         fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
@@ -572,7 +565,7 @@ def test_cufile_read_write_large():
         # Register buffers with cuFile
         write_buf_int = int(write_buf)
         read_buf_int = int(read_buf)
-        
+
         cufile.buf_register(write_buf_int, write_size, 0)
         cufile.buf_register(read_buf_int, write_size, 0)
 
@@ -587,6 +580,7 @@ def test_cufile_read_write_large():
 
         # Generate large test data
         import random
+
         test_data = bytes(random.getrandbits(8) for _ in range(write_size))
         host_buf = ctypes.create_string_buffer(test_data, write_size)
 
@@ -631,9 +625,10 @@ def test_cufile_read_write_large():
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-        
+
         # Close cuFile driver
         cufile.driver_close()
+
 
 def test_cufile_write_async():
     """Test cuFile asynchronous write operations."""
@@ -653,7 +648,7 @@ def test_cufile_write_async():
     # Create test file
     file_path = "test_cufile_write_async.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
-    
+
     try:
         # Register file handle
         descr = cufile.Descr()
@@ -698,7 +693,7 @@ def test_cufile_write_async():
             ctypes.addressof(file_offset_p),
             ctypes.addressof(buf_ptr_offset_p),
             ctypes.addressof(bytes_written_p),
-            int(stream)
+            int(stream),
         )
 
         # Synchronize stream to wait for completion
@@ -715,14 +710,13 @@ def test_cufile_write_async():
         cufile.handle_deregister(handle)
         cuda.cuStreamDestroy(stream)
         cuda.cuMemFree(buf_ptr)
-        
+
     finally:
         os.close(fd)
-        try:
+        with suppress(OSError):
             os.unlink(file_path)
-        except OSError:
-            pass
         cufile.driver_close()
+
 
 def test_cufile_read_async():
     """Test cuFile asynchronous read operations."""
@@ -741,7 +735,7 @@ def test_cufile_read_async():
 
     # Create test file
     file_path = "test_cufile_read_async.bin"
-    
+
     # First create and write test data without O_DIRECT
     fd_temp = os.open(file_path, os.O_CREAT | os.O_RDWR, 0o644)
     # Create test data that's aligned to 4096 bytes
@@ -754,10 +748,10 @@ def test_cufile_read_async():
     os.write(fd_temp, test_data)
     os.fsync(fd_temp)
     os.close(fd_temp)
-    
+
     # Now open with O_DIRECT for cuFile operations
     fd = os.open(file_path, os.O_RDWR | os.O_DIRECT)
-    
+
     try:
         # Register file handle
         descr = cufile.Descr()
@@ -793,7 +787,7 @@ def test_cufile_read_async():
             ctypes.addressof(file_offset_p),
             ctypes.addressof(buf_ptr_offset_p),
             ctypes.addressof(bytes_read_p),
-            int(stream)
+            int(stream),
         )
 
         # Synchronize stream to wait for completion
@@ -805,8 +799,8 @@ def test_cufile_read_async():
         # Copy read data back to host and verify
         host_buf = ctypes.create_string_buffer(buf_size)
         cuda.cuMemcpyDtoH(host_buf, buf_ptr, buf_size)
-        read_data = host_buf.value[:bytes_read_p.value]
-        expected_data = test_data[:bytes_read_p.value]
+        read_data = host_buf.value[: bytes_read_p.value]
+        expected_data = test_data[: bytes_read_p.value]
         assert read_data == expected_data, "Read data doesn't match written data"
 
         # Deregister stream
@@ -817,16 +811,13 @@ def test_cufile_read_async():
         cufile.handle_deregister(handle)
         cuda.cuStreamDestroy(stream)
         cuda.cuMemFree(buf_ptr)
-        
+
     finally:
         os.close(fd)
-        try:
+        with suppress(OSError):
             os.unlink(file_path)
-        except OSError:
-            pass
-        
-        # Close cuFile driver
         cufile.driver_close()
+
 
 def test_cufile_async_read_write():
     """Test cuFile asynchronous read and write operations in sequence."""
@@ -846,7 +837,7 @@ def test_cufile_async_read_write():
     # Create test file
     file_path = "test_cufile_async_rw.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
-    
+
     try:
         # Register file handle
         descr = cufile.Descr()
@@ -895,7 +886,7 @@ def test_cufile_async_read_write():
             ctypes.addressof(write_file_offset_p),
             ctypes.addressof(write_buf_ptr_offset_p),
             ctypes.addressof(bytes_written_p),
-            int(stream)
+            int(stream),
         )
 
         # Synchronize stream to wait for write completion
@@ -918,7 +909,7 @@ def test_cufile_async_read_write():
             ctypes.addressof(read_file_offset_p),
             ctypes.addressof(read_buf_ptr_offset_p),
             ctypes.addressof(bytes_read_p),
-            int(stream)
+            int(stream),
         )
 
         # Synchronize stream to wait for read completion
@@ -942,16 +933,13 @@ def test_cufile_async_read_write():
         cuda.cuStreamDestroy(stream)
         cuda.cuMemFree(write_buf)
         cuda.cuMemFree(read_buf)
-        
+
     finally:
         os.close(fd)
-        try:
+        with suppress(OSError):
             os.unlink(file_path)
-        except OSError:
-            pass
-        
-        # Close cuFile driver
         cufile.driver_close()
+
 
 def test_batch_io_basic():
     """Test basic batch IO operations with multiple read/write operations."""
@@ -970,14 +958,14 @@ def test_batch_io_basic():
 
     # Create test file
     file_path = "test_batch_io.bin"
-    
+
     # Allocate CUDA memory for multiple operations
     buf_size = 65536  # 64KB
     num_operations = 4
-    
+
     buffers = []
     read_buffers = []  # Initialize read_buffers to avoid UnboundLocalError
-    
+
     for i in range(num_operations):
         err, buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
@@ -985,7 +973,7 @@ def test_batch_io_basic():
 
     # Allocate host memory for data verification
     host_buf = ctypes.create_string_buffer(buf_size)
-    
+
     try:
         # Create file with O_DIRECT
         fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
@@ -1016,7 +1004,7 @@ def test_batch_io_basic():
             b"Batch operation 1 data for testing cuFile! ",
             b"Batch operation 2 data for testing cuFile! ",
             b"Batch operation 3 data for testing cuFile! ",
-            b"Batch operation 4 data for testing cuFile! "
+            b"Batch operation 4 data for testing cuFile! ",
         ]
 
         # Set up write operations
@@ -1049,28 +1037,28 @@ def test_batch_io_basic():
         min_nr = num_operations  # Wait for all operations to complete
         nr_completed = ctypes.c_uint(num_operations)  # Initialize to max operations posted
         timeout = ctypes.c_int(5000)  # 5 second timeout
-        
+
         cufile.batch_io_get_status(
-            batch_handle, 
-            min_nr, 
-            ctypes.addressof(nr_completed), 
-            io_events.ptr, 
-            ctypes.addressof(timeout)
+            batch_handle, min_nr, ctypes.addressof(nr_completed), io_events.ptr, ctypes.addressof(timeout)
         )
 
         # Verify all operations completed successfully
         assert nr_completed.value == num_operations, f"Expected {num_operations} operations, got {nr_completed.value}"
-        
+
         # Collect all returned cookies
         returned_cookies = set()
         for i in range(num_operations):
-            assert io_events[i].status == cufile.Status.COMPLETE, f"Operation {i} failed with status {io_events[i].status}"
+            assert io_events[i].status == cufile.Status.COMPLETE, (
+                f"Operation {i} failed with status {io_events[i].status}"
+            )
             assert io_events[i].ret == buf_size, f"Expected {buf_size} bytes, got {io_events[i].ret} for operation {i}"
             returned_cookies.add(io_events[i].cookie)
-        
+
         # Verify all expected cookies are present
         expected_cookies = set(range(num_operations))  # cookies 0, 1, 2, 3
-        assert returned_cookies == expected_cookies, f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
+        assert returned_cookies == expected_cookies, (
+            f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
+        )
 
         # Now test batch read operations
         read_buffers = []
@@ -1100,26 +1088,30 @@ def test_batch_io_basic():
 
         # Get batch status for reads
         cufile.batch_io_get_status(
-            batch_handle, 
-            min_nr, 
-            ctypes.addressof(nr_completed), 
-            io_events_read.ptr, 
-            ctypes.addressof(timeout)
+            batch_handle, min_nr, ctypes.addressof(nr_completed), io_events_read.ptr, ctypes.addressof(timeout)
         )
 
         # Verify read operations completed successfully
-        assert nr_completed.value == num_operations, f"Expected {num_operations} read operations, got {nr_completed.value}"
-        
+        assert nr_completed.value == num_operations, (
+            f"Expected {num_operations} read operations, got {nr_completed.value}"
+        )
+
         # Collect all returned cookies for read operations
         returned_cookies_read = set()
         for i in range(num_operations):
-            assert io_events_read[i].status == cufile.Status.COMPLETE, f"Operation {i} failed with status {io_events_read[i].status}"
-            assert io_events_read[i].ret == buf_size, f"Expected {buf_size} bytes read, got {io_events_read[i].ret} for operation {i}"
+            assert io_events_read[i].status == cufile.Status.COMPLETE, (
+                f"Operation {i} failed with status {io_events_read[i].status}"
+            )
+            assert io_events_read[i].ret == buf_size, (
+                f"Expected {buf_size} bytes read, got {io_events_read[i].ret} for operation {i}"
+            )
             returned_cookies_read.add(io_events_read[i].cookie)
-        
+
         # Verify all expected cookies are present
         expected_cookies_read = set(range(100, 100 + num_operations))  # cookies 100, 101, 102, 103
-        assert returned_cookies_read == expected_cookies_read, f"Cookie mismatch. Expected {expected_cookies_read}, got {returned_cookies_read}"
+        assert returned_cookies_read == expected_cookies_read, (
+            f"Cookie mismatch. Expected {expected_cookies_read}, got {returned_cookies_read}"
+        )
 
         # Verify the read data matches the written data
         for i in range(num_operations):
@@ -1160,7 +1152,7 @@ def test_batch_io_basic():
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-        
+
         # Close cuFile driver
         cufile.driver_close()
 
@@ -1182,20 +1174,20 @@ def test_batch_io_mixed_operations():
 
     # Create test file
     file_path = "test_batch_mixed.bin"
-    
+
     # Allocate CUDA memory
     buf_size = 65536  # 64KB
     num_operations = 6  # 3 writes + 3 reads
-    
+
     write_buffers = []
     read_buffers = []
     all_buffers = []  # Initialize all_buffers to avoid UnboundLocalError
-    
+
     for i in range(3):  # 3 write buffers
         err, buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
         write_buffers.append(buf)
-        
+
     for i in range(3):  # 3 read buffers
         err, buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1203,7 +1195,7 @@ def test_batch_io_mixed_operations():
 
     # Allocate host memory for data verification
     host_buf = ctypes.create_string_buffer(buf_size)
-    
+
     try:
         # Create file with O_DIRECT
         fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
@@ -1231,20 +1223,16 @@ def test_batch_io_mixed_operations():
         io_events = cufile.IOEvents(num_operations)
 
         # Prepare test data
-        test_strings = [
-            b"Mixed batch write 1 data! ",
-            b"Mixed batch write 2 data! ",
-            b"Mixed batch write 3 data! "
-        ]
+        test_strings = [b"Mixed batch write 1 data! ", b"Mixed batch write 2 data! ", b"Mixed batch write 3 data! "]
 
         # Set up mixed operations: Write, Read, Write, Read, Write, Read
         operation_sequence = [
-            ("write", 0, 0),    # Write buffer 0 to offset 0
-            ("read", 0, 0),     # Read from offset 0 to read buffer 0
-            ("write", 1, 4096), # Write buffer 1 to offset 4096
+            ("write", 0, 0),  # Write buffer 0 to offset 0
+            ("read", 0, 0),  # Read from offset 0 to read buffer 0
+            ("write", 1, 4096),  # Write buffer 1 to offset 4096
             ("read", 1, 4096),  # Read from offset 4096 to read buffer 1
-            ("write", 2, 8192), # Write buffer 2 to offset 8192
-            ("read", 2, 8192)   # Read from offset 8192 to read buffer 2
+            ("write", 2, 8192),  # Write buffer 2 to offset 8192
+            ("read", 2, 8192),  # Read from offset 8192 to read buffer 2
         ]
 
         # Prepare write data
@@ -1267,7 +1255,7 @@ def test_batch_io_mixed_operations():
                 io_params[i].mode = cufile.BatchMode.BATCH  # Batch mode
                 io_params[i].opcode = cufile.Opcode.READ  # Read opcode
                 io_params[i].u.batch.dev_ptr_base = int(read_buffers[buf_idx])
-            
+
             io_params[i].fh = handle
             io_params[i].cookie = i  # Use index as cookie
             io_params[i].u.batch.file_offset = file_offset
@@ -1281,28 +1269,28 @@ def test_batch_io_mixed_operations():
         min_nr = num_operations  # Wait for all operations to complete
         nr_completed = ctypes.c_uint(num_operations)  # Initialize to max operations posted
         timeout = ctypes.c_int(5000)  # 5 second timeout
-        
+
         cufile.batch_io_get_status(
-            batch_handle, 
-            min_nr, 
-            ctypes.addressof(nr_completed), 
-            io_events.ptr, 
-            ctypes.addressof(timeout)
+            batch_handle, min_nr, ctypes.addressof(nr_completed), io_events.ptr, ctypes.addressof(timeout)
         )
 
         # Verify all operations completed successfully
         assert nr_completed.value == num_operations, f"Expected {num_operations} operations, got {nr_completed.value}"
-        
+
         # Collect all returned cookies
         returned_cookies = set()
         for i in range(num_operations):
-            assert io_events[i].status == cufile.Status.COMPLETE, f"Operation {i} failed with status {io_events[i].status}"
+            assert io_events[i].status == cufile.Status.COMPLETE, (
+                f"Operation {i} failed with status {io_events[i].status}"
+            )
             assert io_events[i].ret == buf_size, f"Expected {buf_size} bytes, got {io_events[i].ret} for operation {i}"
             returned_cookies.add(io_events[i].cookie)
-        
+
         # Verify all expected cookies are present
         expected_cookies = set(range(num_operations))  # cookies 0, 1, 2, 3, 4, 5
-        assert returned_cookies == expected_cookies, f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
+        assert returned_cookies == expected_cookies, (
+            f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
+        )
 
         # Verify the read data matches the written data
         for i in range(3):
@@ -1343,7 +1331,7 @@ def test_batch_io_mixed_operations():
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-        
+
         # Close cuFile driver
         cufile.driver_close()
 
@@ -1365,11 +1353,11 @@ def test_batch_io_cancel():
 
     # Create test file
     file_path = "test_batch_cancel.bin"
-    
+
     # Allocate CUDA memory
     buf_size = 4096  # 4KB, aligned to 4096 bytes
     num_operations = 2
-    
+
     buffers = []
     for i in range(num_operations):
         err, buf = cuda.cuMemAlloc(buf_size)
@@ -1442,7 +1430,7 @@ def test_batch_io_cancel():
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-        
+
         # Close cuFile driver
         cufile.driver_close()
 
@@ -1464,27 +1452,27 @@ def test_batch_io_large_operations():
 
     # Create test file
     file_path = "test_batch_large.bin"
-    
+
     # Allocate large CUDA memory (1MB, aligned to 4096 bytes)
     buf_size = 1024 * 1024  # 1MB, aligned to 4096 bytes
     num_operations = 2
-    
+
     write_buffers = []
     read_buffers = []
     all_buffers = []  # Initialize all_buffers to avoid UnboundLocalError
-    
+
     for i in range(num_operations):
         err, buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
         write_buffers.append(buf)
-        
+
         err, buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
         read_buffers.append(buf)
 
     # Allocate host memory for data verification
     host_buf = ctypes.create_string_buffer(buf_size)
-    
+
     try:
         # Create file with O_DIRECT
         fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
@@ -1514,7 +1502,7 @@ def test_batch_io_large_operations():
         # Prepare test data
         test_strings = [
             b"Large batch operation 1 data for testing cuFile with 1MB buffers! ",
-            b"Large batch operation 2 data for testing cuFile with 1MB buffers! "
+            b"Large batch operation 2 data for testing cuFile with 1MB buffers! ",
         ]
 
         # Prepare write data
@@ -1557,27 +1545,31 @@ def test_batch_io_large_operations():
         min_nr = num_operations * 2  # Wait for all operations to complete
         nr_completed = ctypes.c_uint(num_operations * 2)  # Initialize to max operations posted
         timeout = ctypes.c_int(10000)  # 10 second timeout for large operations
-        
+
         cufile.batch_io_get_status(
-            batch_handle, 
-            min_nr, 
-            ctypes.addressof(nr_completed), 
-            io_events.ptr, 
-            ctypes.addressof(timeout)
+            batch_handle, min_nr, ctypes.addressof(nr_completed), io_events.ptr, ctypes.addressof(timeout)
         )
 
         # Verify all operations completed successfully
-        assert nr_completed.value == num_operations * 2, f"Expected {num_operations * 2} operations, got {nr_completed.value}"
-        
+        assert nr_completed.value == num_operations * 2, (
+            f"Expected {num_operations * 2} operations, got {nr_completed.value}"
+        )
+
         # Collect all returned cookies
         returned_cookies = set()
         for i in range(num_operations * 2):
-            assert io_events[i].status == cufile.Status.COMPLETE, f"Operation {i} failed with status {io_events[i].status}"
+            assert io_events[i].status == cufile.Status.COMPLETE, (
+                f"Operation {i} failed with status {io_events[i].status}"
+            )
             returned_cookies.add(io_events[i].cookie)
-        
+
         # Verify all expected cookies are present
-        expected_cookies = set(range(num_operations)) | set(range(100, 100 + num_operations))  # write cookies 0,1 + read cookies 100,101
-        assert returned_cookies == expected_cookies, f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
+        expected_cookies = set(range(num_operations)) | set(
+            range(100, 100 + num_operations)
+        )  # write cookies 0,1 + read cookies 100,101
+        assert returned_cookies == expected_cookies, (
+            f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
+        )
 
         # Verify the read data matches the written data
         for i in range(num_operations):
@@ -1618,14 +1610,14 @@ def test_batch_io_large_operations():
         except OSError as e:
             if e.errno != errno.ENOENT:
                 raise
-        
+
         # Close cuFile driver
         cufile.driver_close()
 
 
 def test_set_get_parameter_size_t():
     """Test setting and getting size_t parameters with cuFile validation."""
-    
+
     # Initialize CUDA
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1635,94 +1627,134 @@ def test_set_get_parameter_size_t():
 
     err, ctx = cuda.cuCtxCreate(0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    
+
     try:
         # Test setting and getting various size_t parameters
-        
+
         # Test poll threshold size (in KB)
         poll_threshold_kb = 64  # 64KB threshold
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB, poll_threshold_kb)
         value_ptr = ctypes.c_size_t(0)
         cufile.get_parameter_size_t(cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB, int(ctypes.addressof(value_ptr)))
         retrieved_value = value_ptr.value
-        assert retrieved_value == poll_threshold_kb, f"Poll threshold mismatch: set {poll_threshold_kb}, got {retrieved_value}"
-        
+        assert retrieved_value == poll_threshold_kb, (
+            f"Poll threshold mismatch: set {poll_threshold_kb}, got {retrieved_value}"
+        )
+
         # Test max direct IO size (in KB)
         max_direct_io_kb = 1024  # 1MB max direct IO size
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB, max_direct_io_kb)
         value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
-        assert retrieved_value == max_direct_io_kb, f"Max direct IO size mismatch: set {max_direct_io_kb}, got {retrieved_value}"
-        
+        assert retrieved_value == max_direct_io_kb, (
+            f"Max direct IO size mismatch: set {max_direct_io_kb}, got {retrieved_value}"
+        )
+
         # Test max device cache size (in KB)
         max_cache_kb = 512  # 512KB max cache size
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB, max_cache_kb)
         value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
         assert retrieved_value == max_cache_kb, f"Max cache size mismatch: set {max_cache_kb}, got {retrieved_value}"
-        
+
         # Test per buffer cache size (in KB)
         per_buffer_cache_kb = 128  # 128KB per buffer cache
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB, per_buffer_cache_kb)
+        cufile.set_parameter_size_t(
+            cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB, per_buffer_cache_kb
+        )
         value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
-        assert retrieved_value == per_buffer_cache_kb, f"Per buffer cache size mismatch: set {per_buffer_cache_kb}, got {retrieved_value}"
-        
+        assert retrieved_value == per_buffer_cache_kb, (
+            f"Per buffer cache size mismatch: set {per_buffer_cache_kb}, got {retrieved_value}"
+        )
+
         # Test max device pinned memory size (in KB)
         max_pinned_kb = 2048  # 2MB max pinned memory
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB, max_pinned_kb)
         value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
-        assert retrieved_value == max_pinned_kb, f"Max pinned memory size mismatch: set {max_pinned_kb}, got {retrieved_value}"
-        
+        assert retrieved_value == max_pinned_kb, (
+            f"Max pinned memory size mismatch: set {max_pinned_kb}, got {retrieved_value}"
+        )
+
         # Test IO batch size
         batch_size = 16  # 16 operations per batch
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE, batch_size)
         value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
         assert retrieved_value == batch_size, f"IO batch size mismatch: set {batch_size}, got {retrieved_value}"
-        
+
         # Test batch IO timeout (in milliseconds)
         timeout_ms = 5000  # 5 second timeout
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS, timeout_ms)
         value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
         assert retrieved_value == timeout_ms, f"Batch IO timeout mismatch: set {timeout_ms}, got {retrieved_value}"
-        
+
         # Test execution parameters
         max_io_queue_depth = 32  # Max 32 operations in queue
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH, max_io_queue_depth)
         value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
-        assert retrieved_value == max_io_queue_depth, f"Max IO queue depth mismatch: set {max_io_queue_depth}, got {retrieved_value}"
-        
+        assert retrieved_value == max_io_queue_depth, (
+            f"Max IO queue depth mismatch: set {max_io_queue_depth}, got {retrieved_value}"
+        )
+
         max_io_threads = 8  # Max 8 IO threads
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_THREADS, max_io_threads)
         value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_THREADS, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.EXECUTION_MAX_IO_THREADS, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
-        assert retrieved_value == max_io_threads, f"Max IO threads mismatch: set {max_io_threads}, got {retrieved_value}"
-        
+        assert retrieved_value == max_io_threads, (
+            f"Max IO threads mismatch: set {max_io_threads}, got {retrieved_value}"
+        )
+
         min_io_threshold_kb = 4  # 4KB minimum IO threshold
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB, min_io_threshold_kb)
         value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
-        assert retrieved_value == min_io_threshold_kb, f"Min IO threshold mismatch: set {min_io_threshold_kb}, got {retrieved_value}"
-        
+        assert retrieved_value == min_io_threshold_kb, (
+            f"Min IO threshold mismatch: set {min_io_threshold_kb}, got {retrieved_value}"
+        )
+
         max_request_parallelism = 4  # Max 4 parallel requests
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM, max_request_parallelism)
+        cufile.set_parameter_size_t(
+            cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM, max_request_parallelism
+        )
         value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
-        assert retrieved_value == max_request_parallelism, f"Max request parallelism mismatch: set {max_request_parallelism}, got {retrieved_value}"
+        assert retrieved_value == max_request_parallelism, (
+            f"Max request parallelism mismatch: set {max_request_parallelism}, got {retrieved_value}"
+        )
 
     finally:
         pass
@@ -1730,7 +1762,7 @@ def test_set_get_parameter_size_t():
 
 def test_set_get_parameter_bool():
     """Test setting and getting boolean parameters with cuFile validation."""
-    
+
     # Initialize CUDA
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1743,90 +1775,96 @@ def test_set_get_parameter_bool():
 
     try:
         # Test setting and getting various boolean parameters
-        
+
         # Test poll mode
         cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, True)
         value_ptr = ctypes.c_bool(False)
         cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, int(ctypes.addressof(value_ptr)))
         retrieved_value = value_ptr.value
-        assert retrieved_value == True, f"Poll mode mismatch: set True, got {retrieved_value}"
-        
+        assert retrieved_value is True, f"Poll mode mismatch: set True, got {retrieved_value}"
+
         # Test compatibility mode
         cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, False)
         value_ptr = ctypes.c_bool(True)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_bool(
+            cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
-        assert retrieved_value == False, f"Compatibility mode mismatch: set False, got {retrieved_value}"
-        
+        assert retrieved_value is False, f"Compatibility mode mismatch: set False, got {retrieved_value}"
+
         # Test force compatibility mode
         cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE, False)
         value_ptr = ctypes.c_bool(True)
         cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE, int(ctypes.addressof(value_ptr)))
         retrieved_value = value_ptr.value
-        assert retrieved_value == False, f"Force compatibility mode mismatch: set False, got {retrieved_value}"
-        
+        assert retrieved_value is False, f"Force compatibility mode mismatch: set False, got {retrieved_value}"
+
         # Test aggressive API check
         cufile.set_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE, True)
         value_ptr = ctypes.c_bool(False)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_bool(
+            cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
-        assert retrieved_value == True, f"Aggressive API check mismatch: set True, got {retrieved_value}"
-        
+        assert retrieved_value is True, f"Aggressive API check mismatch: set True, got {retrieved_value}"
+
         # Test parallel IO
         cufile.set_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO, True)
         value_ptr = ctypes.c_bool(False)
         cufile.get_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO, int(ctypes.addressof(value_ptr)))
         retrieved_value = value_ptr.value
-        assert retrieved_value == True, f"Parallel IO mismatch: set True, got {retrieved_value}"
-        
+        assert retrieved_value is True, f"Parallel IO mismatch: set True, got {retrieved_value}"
+
         # Test NVTX profiling
         cufile.set_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX, False)
         value_ptr = ctypes.c_bool(True)
         cufile.get_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX, int(ctypes.addressof(value_ptr)))
         retrieved_value = value_ptr.value
-        assert retrieved_value == False, f"NVTX profiling mismatch: set False, got {retrieved_value}"
-        
+        assert retrieved_value is False, f"NVTX profiling mismatch: set False, got {retrieved_value}"
+
         # Test system memory allowance
         cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY, True)
         value_ptr = ctypes.c_bool(False)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY, int(ctypes.addressof(value_ptr)))
+        cufile.get_parameter_bool(
+            cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY, int(ctypes.addressof(value_ptr))
+        )
         retrieved_value = value_ptr.value
-        assert retrieved_value == True, f"System memory allowance mismatch: set True, got {retrieved_value}"
-        
+        assert retrieved_value is True, f"System memory allowance mismatch: set True, got {retrieved_value}"
+
         # Test PCI P2P DMA
         cufile.set_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA, True)
         value_ptr = ctypes.c_bool(False)
         cufile.get_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA, int(ctypes.addressof(value_ptr)))
         retrieved_value = value_ptr.value
-        assert retrieved_value == True, f"PCI P2P DMA mismatch: set True, got {retrieved_value}"
-        
+        assert retrieved_value is True, f"PCI P2P DMA mismatch: set True, got {retrieved_value}"
+
         # Test IO uring preference
         cufile.set_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING, False)
         value_ptr = ctypes.c_bool(True)
         cufile.get_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING, int(ctypes.addressof(value_ptr)))
         retrieved_value = value_ptr.value
-        assert retrieved_value == False, f"IO uring preference mismatch: set False, got {retrieved_value}"
-        
+        assert retrieved_value is False, f"IO uring preference mismatch: set False, got {retrieved_value}"
+
         # Test force O_DIRECT mode
         cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE, True)
         value_ptr = ctypes.c_bool(False)
         cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE, int(ctypes.addressof(value_ptr)))
         retrieved_value = value_ptr.value
-        assert retrieved_value == True, f"Force O_DIRECT mode mismatch: set True, got {retrieved_value}"
-        
+        assert retrieved_value is True, f"Force O_DIRECT mode mismatch: set True, got {retrieved_value}"
+
         # Test topology detection skip
         cufile.set_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, False)
         value_ptr = ctypes.c_bool(True)
         cufile.get_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, int(ctypes.addressof(value_ptr)))
         retrieved_value = value_ptr.value
-        assert retrieved_value == False, f"Topology detection skip mismatch: set False, got {retrieved_value}"
-        
+        assert retrieved_value is False, f"Topology detection skip mismatch: set False, got {retrieved_value}"
+
         # Test stream memops bypass
         cufile.set_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, True)
         value_ptr = ctypes.c_bool(False)
         cufile.get_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, int(ctypes.addressof(value_ptr)))
         retrieved_value = value_ptr.value
-        assert retrieved_value == True, f"Stream memops bypass mismatch: set True, got {retrieved_value}"
+        assert retrieved_value is True, f"Stream memops bypass mismatch: set True, got {retrieved_value}"
 
     finally:
         pass
@@ -1834,7 +1872,7 @@ def test_set_get_parameter_bool():
 
 def test_set_get_parameter_string():
     """Test setting and getting string parameters with cuFile validation."""
-    
+
     # Initialize CUDA
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1845,50 +1883,67 @@ def test_set_get_parameter_string():
     err, ctx = cuda.cuCtxCreate(0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
-    
     try:
         # Test setting and getting various string parameters
         # Note: String parameter tests may have issues with the current implementation
-        
+
         # Test logging level
-        logging_level = b"INFO"
+        logging_level = "INFO"
         try:
-            cufile.set_parameter_string(cufile.StringConfigParameter.LOGGING_LEVEL, int(ctypes.addressof(ctypes.c_char_p(logging_level))))
+            # Convert Python string to null-terminated C string
+            logging_level_bytes = logging_level.encode("utf-8") + b"\x00"
+            logging_level_buffer = ctypes.create_string_buffer(logging_level_bytes)
+            cufile.set_parameter_string(
+                cufile.StringConfigParameter.LOGGING_LEVEL, int(ctypes.addressof(logging_level_buffer))
+            )
             desc_str = ctypes.create_string_buffer(256)
-            cufile.get_parameter_string(cufile.StringConfigParameter.LOGGING_LEVEL, int(ctypes.addressof(desc_str)), 256)
+            cufile.get_parameter_string(
+                cufile.StringConfigParameter.LOGGING_LEVEL, int(ctypes.addressof(desc_str)), 256
+            )
             retrieved_value = safe_decode_string(desc_str.value)
             print(f"Logging level test: set {logging_level}, got {retrieved_value}")
             # Skip assertion due to potential string parameter issues
-            # assert retrieved_value == logging_level.decode('utf-8'), f"Logging level mismatch: set {logging_level}, got {retrieved_value}"
+            assert retrieved_value == logging_level, (
+                f"Logging level mismatch: set {logging_level}, got {retrieved_value}"
+            )
         except Exception as e:
             print(f"Logging level test failed: {e}")
-        
+
         # Test environment log file path
-        logfile_path = b"/tmp/cufile.log"
+        logfile_path = tempfile.gettempdir() + "/cufile.log"
         try:
-            cufile.set_parameter_string(cufile.StringConfigParameter.ENV_LOGFILE_PATH, int(ctypes.addressof(ctypes.c_char_p(logfile_path))))
+            # Convert Python string to null-terminated C string
+            logfile_path_bytes = logfile_path.encode("utf-8") + b"\x00"
+            logfile_buffer = ctypes.create_string_buffer(logfile_path_bytes)
+            cufile.set_parameter_string(
+                cufile.StringConfigParameter.ENV_LOGFILE_PATH, int(ctypes.addressof(logfile_buffer))
+            )
             desc_str = ctypes.create_string_buffer(256)
-            cufile.get_parameter_string(cufile.StringConfigParameter.ENV_LOGFILE_PATH, int(ctypes.addressof(desc_str)), 256)
+            cufile.get_parameter_string(
+                cufile.StringConfigParameter.ENV_LOGFILE_PATH, int(ctypes.addressof(desc_str)), 256
+            )
             retrieved_value = safe_decode_string(desc_str.value)
             print(f"Log file path test: set {logfile_path}, got {retrieved_value}")
             # Skip assertion due to potential string parameter issues
-            # assert retrieved_value == logfile_path.decode('utf-8'), f"Log file path mismatch: set {logfile_path}, got {retrieved_value}"
+            assert retrieved_value == logfile_path, f"Log file path mismatch: set {logfile_path}, got {retrieved_value}"
         except Exception as e:
             print(f"Log file path test failed: {e}")
-        
+
         # Test log directory
-        log_dir = b"/tmp/cufile_logs"
+        log_dir = tempfile.gettempdir() + "/cufile_logs"
         try:
-            cufile.set_parameter_string(cufile.StringConfigParameter.LOG_DIR, int(ctypes.addressof(ctypes.c_char_p(log_dir))))
+            # Convert Python string to null-terminated C string
+            log_dir_bytes = log_dir.encode("utf-8") + b"\x00"
+            log_dir_buffer = ctypes.create_string_buffer(log_dir_bytes)
+            cufile.set_parameter_string(cufile.StringConfigParameter.LOG_DIR, int(ctypes.addressof(log_dir_buffer)))
             desc_str = ctypes.create_string_buffer(256)
             cufile.get_parameter_string(cufile.StringConfigParameter.LOG_DIR, int(ctypes.addressof(desc_str)), 256)
             retrieved_value = safe_decode_string(desc_str.value)
             print(f"Log directory test: set {log_dir}, got {retrieved_value}")
             # Skip assertion due to potential string parameter issues
-            # assert retrieved_value == log_dir.decode('utf-8'), f"Log directory mismatch: set {log_dir}, got {retrieved_value}"
+            assert retrieved_value == log_dir, f"Log directory mismatch: set {log_dir}, got {retrieved_value}"
         except Exception as e:
             print(f"Log directory test failed: {e}")
 
     finally:
         pass
-
