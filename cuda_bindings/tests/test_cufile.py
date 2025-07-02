@@ -13,6 +13,7 @@ import pytest
 import cuda.bindings.driver as cuda
 from cuda.bindings import cufile
 
+
 def cufileLibraryAvailable():
     """Check if cuFile library is available on the system."""
     try:
@@ -31,7 +32,6 @@ def cufileVersionLessThan(target):
         # Get cuFile library version
         version = cufile.get_version()
         print(f"cuFile library version: {version}")
-        
         # Check if version is less than target
         if version < target:
             print(f"cuFile library version {version} is less than required {target}")
@@ -45,17 +45,23 @@ def cufileVersionLessThan(target):
 def isSupportedFilesystem():
     """Check if the current filesystem is supported (ext4 or xfs)."""
     try:
-        # Get the filesystem type of the current directory
-        import subprocess
-        result = subprocess.run(['df', '-T', '.'], capture_output=True, text=True, check=True)
-        lines = result.stdout.strip().split('\n')
-        if len(lines) >= 2:
-            # The second line contains the filesystem info
-            parts = lines[1].split()
-            if len(parts) >= 2:
-                fs_type = parts[1].lower()
-                print(f"Current filesystem type: {fs_type}")
-                return fs_type in ['ext4', 'xfs']
+        # Try to get filesystem type from /proc/mounts
+        with open("/proc/mounts") as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) >= 2:
+                    mount_point = parts[1]
+                    fs_type = parts[2]
+
+                    # Check if current directory is under this mount point
+                    current_dir = os.path.abspath(".")
+                    if current_dir.startswith(mount_point):
+                        fs_type_lower = fs_type.lower()
+                        print(f"Current filesystem type: {fs_type_lower}")
+                        return fs_type_lower in ["ext4", "xfs"]
+
+        # If we get here, we couldn't determine the filesystem type
+        print("Could not determine filesystem type from /proc/mounts")
         return False
     except Exception as e:
         print(f"Error checking filesystem type: {e}")
@@ -63,10 +69,7 @@ def isSupportedFilesystem():
 
 
 # Global skip condition for all tests if cuFile library is not available
-pytestmark = pytest.mark.skipif(
-    not cufileLibraryAvailable(), 
-    reason="cuFile library not available on this system"
-)
+pytestmark = pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system")
 
 
 def safe_decode_string(raw_value):
@@ -94,10 +97,7 @@ def test_driver_open():
     cufile.driver_close()
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_handle_register():
     """Test file handle registration with cuFile."""
     # Initialize CUDA
@@ -416,10 +416,7 @@ def test_buf_register_already_registered():
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_cufile_read_write():
     """Test cuFile read and write operations."""
     # Initialize CUDA
@@ -519,10 +516,7 @@ def test_cufile_read_write():
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_cufile_read_write_host_memory():
     """Test cuFile read and write operations using host memory."""
     # Initialize CUDA
@@ -620,10 +614,7 @@ def test_cufile_read_write_host_memory():
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_cufile_read_write_large():
     """Test cuFile read and write operations with large data."""
     # Initialize CUDA
@@ -725,10 +716,7 @@ def test_cufile_read_write_large():
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_cufile_write_async():
     """Test cuFile asynchronous write operations."""
     # Initialize CUDA
@@ -820,10 +808,7 @@ def test_cufile_write_async():
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_cufile_read_async():
     """Test cuFile asynchronous read operations."""
     # Initialize CUDA
@@ -928,10 +913,7 @@ def test_cufile_read_async():
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_cufile_async_read_write():
     """Test cuFile asynchronous read and write operations in sequence."""
     # Initialize CUDA
@@ -1057,10 +1039,7 @@ def test_cufile_async_read_write():
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_batch_io_basic():
     """Test basic batch IO operations with multiple read/write operations."""
     # Initialize CUDA
@@ -1277,10 +1256,7 @@ def test_batch_io_basic():
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_batch_io_mixed_operations():
     """Test batch IO with mixed read and write operations."""
     # Initialize CUDA
@@ -1460,10 +1436,7 @@ def test_batch_io_mixed_operations():
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_batch_io_cancel():
     """Test batch IO cancellation."""
     # Initialize CUDA
@@ -1563,10 +1536,7 @@ def test_batch_io_cancel():
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.mark.skipif(
-    not isSupportedFilesystem(),
-    reason="cuFile handle_register requires ext4 or xfs filesystem"
-)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_batch_io_large_operations():
     """Test batch IO with large buffer operations."""
     # Initialize CUDA
@@ -1748,8 +1718,7 @@ def test_batch_io_large_operations():
 
 
 @pytest.mark.skipif(
-    cufileVersionLessThan(1140),
-    reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
+    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 def test_set_get_parameter_size_t():
     """Test setting and getting size_t parameters with cuFile validation."""
@@ -1899,8 +1868,7 @@ def test_set_get_parameter_size_t():
 
 
 @pytest.mark.skipif(
-    cufileVersionLessThan(1140),
-    reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
+    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 def test_set_get_parameter_bool():
     """Test setting and getting boolean parameters with cuFile validation."""
@@ -2015,8 +1983,7 @@ def test_set_get_parameter_bool():
 
 
 @pytest.mark.skipif(
-    cufileVersionLessThan(1140),
-    reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
+    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 def test_set_get_parameter_string():
     """Test setting and getting string parameters with cuFile validation."""
