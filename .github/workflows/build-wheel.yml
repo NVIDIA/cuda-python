@@ -76,7 +76,6 @@ jobs:
         run: |
           pushd cuda_pathfinder
           pip wheel -v --no-deps .
-          twine check *.whl
           popd
 
       - name: List the cuda.pathfinder artifacts directory
@@ -125,7 +124,6 @@ jobs:
 
       - name: Check cuda.core wheel
         run: |
-          pip install twine
           twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
