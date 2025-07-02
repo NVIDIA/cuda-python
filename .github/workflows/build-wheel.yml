@@ -83,6 +83,7 @@ jobs:
           popd
 
       - name: List the cuda.pathfinder artifacts directory
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
             export CHOWN=chown
