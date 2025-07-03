@@ -292,12 +292,6 @@ jobs:
       - name: Set up compute-sanitizer
         run: setup-sanitizer
 
-      - name: Run cuda.pathfinder tests
-        env:
-          CUDA_VER: ${{ matrix.CUDA_VER }}
-          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-        run: run-tests pathfinder
-
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
@@ -311,10 +305,17 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests core
 
+      # Run only after cuda.bindings tests, so that all wheels are installed already.
+      - name: Run cuda.pathfinder tests
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests pathfinder
+
       - name: Ensure cuda-python installable
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install cuda_pathfinder*.whl cuda_python*.whl
+            pip install cuda_python*.whl
           else
-            pip install $(ls cuda_pathfinder*.whl) $(ls cuda_python*.whl)[all]
+            pip install $(ls cuda_python*.whl)[all]
           fi

@@ -27,14 +27,15 @@ echo "Installing pathfinder wheel"
 pwd
 ls
 pip install $(ls *.whl)[test]
+popd
+
 if [[ "${test_module}" == "pathfinder" ]]; then
+  pushd ./cuda_pathfinder
   echo "Running pathfinder tests"
   pwd
   pytest -ra -s -v tests/
-fi
-popd
-
-if [[ "${test_module}" == "bindings" ]]; then
+  popd
+elif [[ "${test_module}" == "bindings" ]]; then
   pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
   echo "Installing bindings wheel"
   pwd

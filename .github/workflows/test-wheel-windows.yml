@@ -256,13 +256,6 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
 
-      - name: Run cuda.pathfinder tests
-        env:
-          CUDA_VER: ${{ matrix.CUDA_VER }}
-          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests pathfinder
-
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
@@ -278,14 +271,18 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests core
 
+      # Run only after cuda.bindings tests, so that all wheels are installed already.
+      - name: Run cuda.pathfinder tests
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests pathfinder
+
       - name: Ensure cuda-python installable
         run: |
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-            $pathfinder = (Get-ChildItem -Filter cuda_pathfinder*.whl).FullName
-            $umbrella = (Get-ChildItem -Filter cuda_python*.whl).FullName
-            pip install $pathfinder $umbrella
+            pip install (Get-ChildItem -Filter cuda_python*.whl).FullName
           } else {
-            $pathfinder = (Get-ChildItem -Filter cuda_pathfinder*.whl).FullName
-            $umbrella = (Get-ChildItem -Filter cuda_python*.whl).FullName
-            pip install "$pathfinder" "$umbrella[all]"
+            pip install "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
           }
