@@ -15,11 +15,11 @@ ALL_LIBNAMES_LINUX = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY
 ALL_LIBNAMES_WINDOWS = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
 if os.environ.get("CUDA_PATHFINDER_TEST_ALL_LIBNAMES", False):
     if sys.platform == "win32":
-        TEST_FIND_OR_LOAD_LIBNAMES = ALL_LIBNAMES_WINDOWS
+        TEST_LOAD_LIBNAMES = ALL_LIBNAMES_WINDOWS
     else:
-        TEST_FIND_OR_LOAD_LIBNAMES = ALL_LIBNAMES_LINUX
+        TEST_LOAD_LIBNAMES = ALL_LIBNAMES_LINUX
 else:
-    TEST_FIND_OR_LOAD_LIBNAMES = SUPPORTED_NVIDIA_LIBNAMES
+    TEST_LOAD_LIBNAMES = SUPPORTED_NVIDIA_LIBNAMES
 
 
 def test_all_libnames_linux_sonames_consistency():
@@ -80,8 +80,8 @@ def child_process_func(libname):
     print(f"{loaded_dl_fresh.abs_path!r}")
 
 
-@pytest.mark.parametrize("libname", TEST_FIND_OR_LOAD_LIBNAMES)
-def test_find_or_load_nvidia_dynamic_lib(info_summary_append, libname):
+@pytest.mark.parametrize("libname", TEST_LOAD_LIBNAMES)
+def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     # We intentionally run each dynamic library operation in a child process
     # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
     # Without child processes, loading/unloading libraries during testing could
