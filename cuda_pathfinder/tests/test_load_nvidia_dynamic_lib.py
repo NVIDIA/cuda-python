@@ -13,13 +13,13 @@ from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 ALL_LIBNAMES = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_ALL
 ALL_LIBNAMES_LINUX = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_LINUX
 ALL_LIBNAMES_WINDOWS = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
-if os.environ.get("CUDA_PATHFINDER_TEST_ALL_LIBNAMES", False):
-    if sys.platform == "win32":
-        TEST_LOAD_LIBNAMES = ALL_LIBNAMES_WINDOWS
-    else:
-        TEST_LOAD_LIBNAMES = ALL_LIBNAMES_LINUX
+if sys.platform == "win32":
+    TEST_LOAD_LIBNAMES = ALL_LIBNAMES_WINDOWS
 else:
-    TEST_LOAD_LIBNAMES = SUPPORTED_NVIDIA_LIBNAMES
+    TEST_LOAD_LIBNAMES = ALL_LIBNAMES_LINUX
+
+STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "supported_must_work")
+assert STRICTNESS in ("see_what_works", "supported_must_work", "all_must_work")
 
 
 def test_all_libnames_linux_sonames_consistency():
@@ -90,4 +90,16 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     if result.returncode == 0:
         info_summary_append(f"abs_path={result.stdout.rstrip()}")
     else:
-        raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
+        if STRICTNESS == "all_must_work":
+            strict = True
+        elif STRICTNESS == "supported_must_work":
+            strict = libname in SUPPORTED_NVIDIA_LIBNAMES
+        else:  # "see_what_works"
+            strict = False
+        if (
+            strict
+            or "loaded_dl_fresh = load_nvidia_dynamic_lib(libname)" not in result.stderr
+            or "RuntimeError: Failure finding " not in result.stderr
+        ):
+            raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
+        info_summary_append(f"Not found: {libname=!r}")
