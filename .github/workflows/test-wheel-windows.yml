@@ -121,6 +121,12 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: ./ci/tools/env-vars test
 
+      - name: Download cuda-pathfinder build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          name: cuda-pathfinder-wheel
+          path: .
+
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
@@ -184,7 +190,7 @@ jobs:
           New-Item -Path "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}" -ItemType Directory -Force
           Move-Item -Path "$OLD_BASENAME/*.whl" -Destination "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
           Remove-Item -Path $OLD_BASENAME -Force
-      
+
           gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
           Get-ChildItem -Path cuda-python-wheel
           Move-Item -Path "cuda-python-wheel/*.whl" -Destination .
@@ -249,6 +255,13 @@ jobs:
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
+
+      - name: Run cuda.pathfinder tests
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests pathfinder
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
