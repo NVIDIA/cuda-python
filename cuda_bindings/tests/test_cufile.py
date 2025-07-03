@@ -11,6 +11,7 @@ from contextlib import suppress
 import pytest
 
 import cuda.bindings.driver as cuda
+
 try:
     from cuda.bindings import cufile
 except ImportError:
