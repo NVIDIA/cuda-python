@@ -8,6 +8,7 @@ cufile
 
 The ``cuda.bindings.cufile`` Python module wraps the
 `cuFile C APIs <https://docs.nvidia.com/gpudirect-storage/api-reference-guide/index.html>`_.
+Supported on Linux only.
 
 
 Functions

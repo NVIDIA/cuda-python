@@ -10,7 +10,8 @@ Highlights
 ----------
 
 * The ``cuda.bindings.cufile`` Python module was added, wrapping the
-  `cuFile C APIs <https://docs.nvidia.com/gpudirect-storage/api-reference-guide/index.html>`_
+  `cuFile C APIs <https://docs.nvidia.com/gpudirect-storage/api-reference-guide/index.html>`_.
+  Supported on Linux only.
 
 
 Bug fixes
