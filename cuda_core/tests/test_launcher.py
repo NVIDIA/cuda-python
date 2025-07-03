@@ -2,10 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
-import os
-import pathlib
 
-import cupy as cp
+import helpers
+
+try:
+    import cupy as cp
+except ImportError:
+    cp = None
 import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
@@ -104,7 +107,7 @@ PARAMS = (
     (ctypes.c_float, "float", 3.14),
     (ctypes.c_double, "double", 2.718),
 )
-if os.environ.get("CUDA_PATH"):
+if helpers.CCCL_INCLUDE_PATHS is not None:
     PARAMS += (
         (np.float16, "half", 0.78),
         (np.complex64, "cuda::std::complex<float>", 1 + 2j),
@@ -138,8 +141,7 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
 
     # Compile and force instantiation for this type
     arch = "".join(f"{i}" for i in dev.compute_capability)
-    if os.environ.get("CUDA_PATH"):
-        include_path = str(pathlib.Path(os.environ["CUDA_PATH"]) / pathlib.Path("include"))
+    if helpers.CCCL_INCLUDE_PATHS is not None:
         code = (
             r"""
         #include <cuda_fp16.h>
@@ -147,9 +149,7 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
         """
             + code
         )
-    else:
-        include_path = None
-    pro_opts = ProgramOptions(std="c++11", arch=f"sm_{arch}", include_path=include_path)
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CCCL_INCLUDE_PATHS)
     prog = Program(code, code_type="c++", options=pro_opts)
     ker_name = f"write_scalar<{cpp_type}>"
     mod = prog.compile("cubin", name_expressions=(ker_name,))
@@ -183,8 +183,7 @@ def test_cooperative_launch():
 
     # Compile and force instantiation for this type
     arch = "".join(f"{i}" for i in dev.compute_capability)
-    include_path = str(pathlib.Path(os.environ["CUDA_PATH"]) / pathlib.Path("include"))
-    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=include_path)
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CCCL_INCLUDE_PATHS)
     prog = Program(code, code_type="c++", options=pro_opts)
     ker = prog.compile("cubin").get_kernel("test_grid_sync")
 
@@ -209,6 +208,7 @@ def test_cooperative_launch():
     s.sync()
 
 
+@pytest.mark.skipif(cp is None, reason="cupy not installed")
 @pytest.mark.parametrize(
     "memory_resource_class",
     [
