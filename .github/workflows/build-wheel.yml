@@ -94,6 +94,7 @@ jobs:
           ls -lahR cuda_pathfinder
 
       - name: Check cuda.pathfinder wheel
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           twine check cuda_pathfinder/*.whl
 
