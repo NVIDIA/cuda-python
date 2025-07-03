@@ -74,16 +74,14 @@ jobs:
         run: |
           pip install twine
 
-      # We only need/want a single pure python wheel, pick linux-64 index 0.
+      # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
       - name: Build and check cuda.pathfinder wheel
-        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           pushd cuda_pathfinder
           pip wheel -v --no-deps .
           popd
 
       - name: List the cuda.pathfinder artifacts directory
-        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -93,6 +91,8 @@ jobs:
           $CHOWN -R $(whoami) cuda_pathfinder/*.whl
           ls -lahR cuda_pathfinder
 
+      # We only need/want a single pure python wheel, pick linux-64 index 0.
+      # This is what we will use for testing & releasing.
       - name: Check cuda.pathfinder wheel
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
