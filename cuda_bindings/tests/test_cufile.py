@@ -11,7 +11,14 @@ from contextlib import suppress
 import pytest
 
 import cuda.bindings.driver as cuda
-from cuda.bindings import cufile
+try:
+    from cuda.bindings import cufile
+except ImportError:
+    cufile = None
+
+
+if cufile is None:
+    pytest.skip("skipping tests on Windows", allow_module_level=True)
 
 
 def cufileLibraryAvailable():
