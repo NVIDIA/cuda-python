@@ -9,9 +9,12 @@
 set -euo pipefail
 
 # Check if the script was called with exactly 1 argument
-if [[ ${#} -ne 1 && ( "${1}" == "bindings" || "${1}" == "core" ) ]]; then
-  echo "Error: This script requires exactly 1 argument (what is tested). You provided ${#}"
-  echo "Usage: ${0} test_module[bindings or core]"
+if [[ ${#} -ne 1 ]]; then
+  echo "Error: This script requires exactly 1 argument. You provided ${#}"
+  exit 1
+fi
+if [[ "${1}" != "bindings" && "${1}" != "core" ]]; then
+  echo "Error: Invalid test module '${1}'. Must be 'bindings', or 'core'"
   exit 1
 fi
 
