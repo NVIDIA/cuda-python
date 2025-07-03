@@ -9,6 +9,9 @@ from Cython.Build import cythonize
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext as _build_ext
 
+nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
+
+
 # It seems setuptools' wildcard support has problems for namespace packages,
 # so we explicitly spell out all Extension instances.
 root_module = "cuda.core.experimental"
@@ -33,7 +36,7 @@ ext_modules = tuple(
 
 class build_ext(_build_ext):
     def build_extensions(self):
-        self.parallel = os.cpu_count() // 2
+        self.parallel = nthreads
         super().build_extensions()
 
 
