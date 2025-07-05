@@ -358,7 +358,7 @@ def is_suppressed_dll_file(path_basename: str) -> bool:
         #         nvrtc64_120_0.alt.dll
         #         nvrtc64_120_0.dll
         return path_basename.endswith(".alt.dll") or "-builtins" in path_basename
-    return False
+    return path_basename.startswith(("cudart32_", "nvvm32"))
 
 
 # Based on nm output for Linux x86_64 /usr/local/cuda (12.8.1)
