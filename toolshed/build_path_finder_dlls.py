@@ -9,6 +9,7 @@
 
 # The output of this script
 # requires obvious manual edits to remove duplicates and unwanted dlls.
+# TODO: filter out cudart32_*.dll, nvvm32.dll
 
 import sys
 

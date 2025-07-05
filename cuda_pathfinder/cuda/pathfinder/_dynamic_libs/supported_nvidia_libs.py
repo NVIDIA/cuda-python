@@ -1,7 +1,12 @@
-# Copyright 2025 NVIDIA Corporation.  All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # THIS FILE NEEDS TO BE REVIEWED/UPDATED FOR EACH CTK RELEASE
+# Likely candidates for updates are:
+#     SUPPORTED_LIBNAMES
+#     SUPPORTED_WINDOWS_DLLS
+#     SUPPORTED_LINUX_SONAMES
+#     EXPECTED_LIB_SYMBOLS
 
 import sys
 
@@ -245,9 +250,6 @@ SUPPORTED_WINDOWS_DLLS = {
         "cublasLt64_12.dll",
     ),
     "cudart": (
-        "cudart32_110.dll",
-        "cudart32_65.dll",
-        "cudart32_90.dll",
         "cudart64_101.dll",
         "cudart64_110.dll",
         "cudart64_12.dll",
@@ -335,7 +337,6 @@ SUPPORTED_WINDOWS_DLLS = {
         "nvrtc64_120_0.dll",
     ),
     "nvvm": (
-        "nvvm32.dll",
         "nvvm64.dll",
         "nvvm64_33_0.dll",
         "nvvm64_40_0.dll",
@@ -357,7 +358,7 @@ def is_suppressed_dll_file(path_basename: str) -> bool:
         #         nvrtc64_120_0.alt.dll
         #         nvrtc64_120_0.dll
         return path_basename.endswith(".alt.dll") or "-builtins" in path_basename
-    return False
+    return path_basename.startswith(("cudart32_", "nvvm32"))
 
 
 # Based on nm output for Linux x86_64 /usr/local/cuda (12.8.1)
