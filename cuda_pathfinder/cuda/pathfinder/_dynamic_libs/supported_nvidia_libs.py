@@ -250,9 +250,6 @@ SUPPORTED_WINDOWS_DLLS = {
         "cublasLt64_12.dll",
     ),
     "cudart": (
-        "cudart32_110.dll",
-        "cudart32_65.dll",
-        "cudart32_90.dll",
         "cudart64_101.dll",
         "cudart64_110.dll",
         "cudart64_12.dll",
@@ -340,7 +337,6 @@ SUPPORTED_WINDOWS_DLLS = {
         "nvrtc64_120_0.dll",
     ),
     "nvvm": (
-        "nvvm32.dll",
         "nvvm64.dll",
         "nvvm64_33_0.dll",
         "nvvm64_40_0.dll",
