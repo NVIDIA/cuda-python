@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+import struct
+import sys
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _find_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
@@ -58,4 +60,11 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
     Raises:
         RuntimeError: If the library cannot be found or loaded
     """
+    pointer_size_bits = struct.calcsize("P") * 8
+    if pointer_size_bits != 64:
+        raise RuntimeError(
+            f"cuda.pathfinder.load_nvidia_dynamic_lib() requires 64-bit Python."
+            f" Currently running: {pointer_size_bits}-bit Python"
+            f" {sys.version_info.major}.{sys.version_info.minor}"
+        )
     return _load_lib_no_cache(libname)
