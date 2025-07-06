@@ -33,7 +33,7 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   pushd ./cuda_pathfinder
   echo "Running pathfinder tests"
   pwd
-  if [ -z "${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS}" ]; then
+  if [ ! -v CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS ]; then
     if [ "${SKIP_CUDA_BINDINGS_TEST}" == 0 ]; then
       export CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS=supported_must_work
     else
