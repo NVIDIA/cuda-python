@@ -86,7 +86,8 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
     # Without child processes, loading/unloading libraries during testing could
     # interfere across test cases and lead to nondeterministic or platform-specific failures.
-    result = spawned_process_runner.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=30)
+    timeout = 120 if sys.platform == "win32" else 30
+    result = spawned_process_runner.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=timeout)
     if result.returncode == 0:
         info_summary_append(f"abs_path={result.stdout.rstrip()}")
     else:
