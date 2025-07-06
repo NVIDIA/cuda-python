@@ -7,8 +7,7 @@
 # Input for this script:
 # output of toolshed/find_sonames.sh
 
-# The output of this script
-# is expected to be usable as-is.
+# The output of this script is expected to be usable as-is.
 
 import sys
 
