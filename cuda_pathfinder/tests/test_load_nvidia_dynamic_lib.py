@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import sys
 from unittest.mock import patch
 
 import pytest
@@ -10,6 +9,7 @@ import spawned_process_runner
 
 from cuda.pathfinder import SUPPORTED_NVIDIA_LIBNAMES, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
+from cuda.pathfinder._dynamic_libs.load_dl_common import IS_WINDOWS
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -96,7 +96,7 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
     # Without child processes, loading/unloading libraries during testing could
     # interfere across test cases and lead to nondeterministic or platform-specific failures.
-    timeout = 120 if sys.platform == "win32" else 30
+    timeout = 120 if IS_WINDOWS else 30
     result = spawned_process_runner.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=timeout)
     if result.returncode == 0:
         info_summary_append(f"abs_path={result.stdout.rstrip()}")
