@@ -319,7 +319,7 @@ jobs:
           fi
 
       - name: Install cuda.pathfinder nvidia_wheels_cu12
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
+        if: startsWith(matrix.CUDA_VER, '12.')
         run: |
           pushd cuda_pathfinder
           pip install -v .[nvidia_wheels_cu12]
@@ -327,7 +327,7 @@ jobs:
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
+        if: startsWith(matrix.CUDA_VER, '12.')
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
         run: run-tests pathfinder
