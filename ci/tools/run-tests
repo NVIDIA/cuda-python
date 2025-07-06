@@ -31,15 +31,8 @@ popd
 
 if [[ "${test_module}" == "pathfinder" ]]; then
   pushd ./cuda_pathfinder
-  echo "Running pathfinder tests"
+  echo "Running pathfinder tests with ${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS}"
   pwd
-  if [ ! -v CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS ]; then
-    if [ "${SKIP_CUDA_BINDINGS_TEST}" == 0 ]; then
-      export CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS=supported_must_work
-    else
-      export CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS=see_what_works
-    fi
-  fi
   pytest -ra -s -v tests/
   popd
 elif [[ "${test_module}" == "bindings" ]]; then

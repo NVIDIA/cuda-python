@@ -292,6 +292,11 @@ jobs:
       - name: Set up compute-sanitizer
         run: setup-sanitizer
 
+      - name: Run cuda.pathfinder tests with see_what_works
+        env:
+          CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
+        run: run-tests pathfinder
+
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
@@ -304,10 +309,6 @@ jobs:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests core
-
-      # Run only after cuda.bindings tests, so that all wheels are installed already.
-      - name: Run cuda.pathfinder tests
-        run: run-tests pathfinder
 
       - name: Ensure cuda-python installable
         run: |

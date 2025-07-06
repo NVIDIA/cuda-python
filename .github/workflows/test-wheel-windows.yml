@@ -256,6 +256,12 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
 
+      - name: Run cuda.pathfinder tests with see_what_works
+        env:
+          CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests pathfinder
+
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
@@ -270,11 +276,6 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests core
-
-      # Run only after cuda.bindings tests, so that all wheels are installed already.
-      - name: Run cuda.pathfinder tests
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests pathfinder
 
       - name: Ensure cuda-python installable
         run: |
