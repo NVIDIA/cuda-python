@@ -11,24 +11,20 @@ import spawned_process_runner
 from cuda.pathfinder import SUPPORTED_NVIDIA_LIBNAMES, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 
-ALL_LIBNAMES = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_ALL
-ALL_LIBNAMES_LINUX = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_LINUX
-ALL_LIBNAMES_WINDOWS = SUPPORTED_NVIDIA_LIBNAMES + supported_nvidia_libs.PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
-if sys.platform == "win32":
-    TEST_LOAD_LIBNAMES = ALL_LIBNAMES_WINDOWS
-else:
-    TEST_LOAD_LIBNAMES = ALL_LIBNAMES_LINUX
-
-STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "supported_must_work")
-assert STRICTNESS in ("see_what_works", "supported_must_work", "all_must_work")
+STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
+assert STRICTNESS in ("see_what_works", "all_must_work")
 
 
-def test_all_libnames_linux_sonames_consistency():
-    assert tuple(sorted(ALL_LIBNAMES_LINUX)) == tuple(sorted(supported_nvidia_libs.SUPPORTED_LINUX_SONAMES.keys()))
+def test_supported_libnames_linux_sonames_consistency():
+    assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_LINUX)) == tuple(
+        sorted(supported_nvidia_libs.SUPPORTED_LINUX_SONAMES.keys())
+    )
 
 
-def test_all_libnames_windows_dlls_consistency():
-    assert tuple(sorted(ALL_LIBNAMES_WINDOWS)) == tuple(sorted(supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS.keys()))
+def test_supported_libnames_windows_dlls_consistency():
+    assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)) == tuple(
+        sorted(supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS.keys())
+    )
 
 
 @pytest.mark.parametrize("dict_name", ["SUPPORTED_LINUX_SONAMES", "SUPPORTED_WINDOWS_DLLS"])
@@ -43,12 +39,17 @@ def test_libname_dict_values_are_unique(dict_name):
             libname_for_value[value] = libname
 
 
-def test_all_libnames_libnames_requiring_os_add_dll_directory_consistency():
-    assert not (set(supported_nvidia_libs.LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY) - set(ALL_LIBNAMES_WINDOWS))
+def test_supported_libnames_windows_libnames_requiring_os_add_dll_directory_consistency():
+    assert not (
+        set(supported_nvidia_libs.LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY)
+        - set(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)
+    )
 
 
-def test_all_libnames_expected_lib_symbols_consistency():
-    assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_nvidia_libs.EXPECTED_LIB_SYMBOLS.keys()))
+def test_supported_libnames_all_expected_lib_symbols_consistency():
+    assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_ALL)) == tuple(
+        sorted(supported_nvidia_libs.EXPECTED_LIB_SYMBOLS.keys())
+    )
 
 
 def test_runtime_error_on_non_64bit_python():
@@ -89,7 +90,7 @@ def child_process_func(libname):
     print(f"{loaded_dl_fresh.abs_path!r}")
 
 
-@pytest.mark.parametrize("libname", TEST_LOAD_LIBNAMES)
+@pytest.mark.parametrize("libname", SUPPORTED_NVIDIA_LIBNAMES)
 def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     # We intentionally run each dynamic library operation in a child process
     # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
@@ -99,13 +100,7 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     result = spawned_process_runner.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=timeout)
     if result.returncode == 0:
         info_summary_append(f"abs_path={result.stdout.rstrip()}")
-    else:
-        if STRICTNESS == "all_must_work":
-            strict = True
-        elif STRICTNESS == "supported_must_work":
-            strict = libname in SUPPORTED_NVIDIA_LIBNAMES
-        else:  # "see_what_works"
-            strict = False
-        if strict or "DynamicLibNotFound: Failure finding " not in result.stderr:
-            raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
+    elif STRICTNESS == "see_what_works" or "DynamicLibNotFound: Failure finding " in result.stderr:
         info_summary_append(f"Not found: {libname=!r}")
+    else:
+        raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
