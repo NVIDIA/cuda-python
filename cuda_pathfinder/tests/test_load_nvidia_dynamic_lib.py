@@ -3,6 +3,7 @@
 
 import os
 import sys
+from unittest.mock import patch
 
 import pytest
 import spawned_process_runner
@@ -48,6 +49,14 @@ def test_all_libnames_libnames_requiring_os_add_dll_directory_consistency():
 
 def test_all_libnames_expected_lib_symbols_consistency():
     assert tuple(sorted(ALL_LIBNAMES)) == tuple(sorted(supported_nvidia_libs.EXPECTED_LIB_SYMBOLS.keys()))
+
+
+def test_runtime_error_on_non_64bit_python():
+    with (
+        patch("struct.calcsize", return_value=3),  # fake 24-bit pointer
+        pytest.raises(RuntimeError, match=r"requires 64-bit Python\. Currently running: 24-bit Python"),
+    ):
+        load_nvidia_dynamic_lib("not_used")
 
 
 def build_child_process_failed_for_libname_message(libname, result):
