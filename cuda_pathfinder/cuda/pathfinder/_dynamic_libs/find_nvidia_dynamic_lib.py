@@ -5,6 +5,7 @@ import functools
 import glob
 import os
 
+from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFound
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     IS_WINDOWS,
     is_suppressed_dll_file,
@@ -160,7 +161,7 @@ class _find_nvidia_dynamic_lib:
             return self.abs_path
         err = ", ".join(self.error_messages)
         att = "\n".join(self.attachments)
-        raise RuntimeError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
+        raise DynamicLibNotFound(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
 
 
 @functools.cache

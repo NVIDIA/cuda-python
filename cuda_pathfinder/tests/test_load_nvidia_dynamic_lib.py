@@ -106,10 +106,6 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
             strict = libname in SUPPORTED_NVIDIA_LIBNAMES
         else:  # "see_what_works"
             strict = False
-        if (
-            strict
-            or "loaded_dl_fresh = load_nvidia_dynamic_lib(libname)" not in result.stderr
-            or "RuntimeError: Failure finding " not in result.stderr
-        ):
+        if strict or "DynamicLibNotFound: Failure finding " not in result.stderr:
             raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
         info_summary_append(f"Not found: {libname=!r}")

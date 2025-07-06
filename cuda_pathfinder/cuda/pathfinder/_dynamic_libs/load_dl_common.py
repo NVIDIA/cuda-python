@@ -17,6 +17,10 @@ else:
     HandleType = int
 
 
+class DynamicLibNotFound(RuntimeError):
+    pass
+
+
 @dataclass
 class LoadedDL:
     handle: HandleType
