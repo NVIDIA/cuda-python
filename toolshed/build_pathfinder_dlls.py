@@ -13,7 +13,7 @@
 
 import sys
 
-LIBNAMES_IN_SCOPE_OF_CUDA_BINDINGS_PATH_FINDER = (
+LIBNAMES_IN_SCOPE_OF_CUDA_PATHFINDER = (
     "nvJitLink",
     "nvrtc",
     "nvvm",
@@ -66,10 +66,10 @@ def run(args):
         else:
             raise RuntimeError("------------------- NOT FOUND")
 
-    print("DLLs in scope of cuda.bindings.path_finder")
-    print("==========================================")
+    print("DLLs in scope of cuda.pathfinder")
+    print("================================")
     dlls_in_scope = set()
-    for libname in sorted(LIBNAMES_IN_SCOPE_OF_CUDA_BINDINGS_PATH_FINDER):
+    for libname in sorted(LIBNAMES_IN_SCOPE_OF_CUDA_PATHFINDER):
         print(f'"{libname}": (')
         for dll in sorted(dlls_from_files):
             if dll.startswith(libname):
