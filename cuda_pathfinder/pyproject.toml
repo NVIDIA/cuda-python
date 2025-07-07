@@ -16,6 +16,9 @@ dependencies = [
 test = [
     "pytest>=6.2.4",
 ]
+typing = [
+    "mypy>=1.0.0",
+]
 nvidia_wheels_cu12 = [
     "nvidia-cublas-cu12",
     "nvidia-cuda-nvcc-cu12",

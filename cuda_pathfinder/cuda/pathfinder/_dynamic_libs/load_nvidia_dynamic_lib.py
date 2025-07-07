@@ -44,6 +44,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
         found.raise_if_abs_path_is_None()
 
     # Load the library from the found path
+    assert found.abs_path is not None  # for mypy
     return load_with_abs_path(libname, found.abs_path)
 
 

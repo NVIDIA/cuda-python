@@ -5,9 +5,10 @@ import functools
 import os
 import site
 import sys
+from collections.abc import Sequence
 
 
-def find_sub_dirs_no_cache(parent_dirs, sub_dirs):
+def find_sub_dirs_no_cache(parent_dirs: Sequence[str], sub_dirs: Sequence[str]) -> list[str]:
     results = []
     for base in parent_dirs:
         stack = [(base, 0)]  # (current_path, index into sub_dirs)
@@ -36,17 +37,17 @@ def find_sub_dirs_no_cache(parent_dirs, sub_dirs):
 
 
 @functools.cache
-def find_sub_dirs_cached(parent_dirs, sub_dirs):
+def find_sub_dirs_cached(parent_dirs: Sequence[str], sub_dirs: Sequence[str]) -> list[str]:
     return find_sub_dirs_no_cache(parent_dirs, sub_dirs)
 
 
-def find_sub_dirs(parent_dirs, sub_dirs):
+def find_sub_dirs(parent_dirs: Sequence[str], sub_dirs: Sequence[str]) -> list[str]:
     return find_sub_dirs_cached(tuple(parent_dirs), tuple(sub_dirs))
 
 
-def find_sub_dirs_sys_path(sub_dirs):
+def find_sub_dirs_sys_path(sub_dirs: Sequence[str]) -> list[str]:
     return find_sub_dirs(sys.path, sub_dirs)
 
 
-def find_sub_dirs_all_sitepackages(sub_dirs):
+def find_sub_dirs_all_sitepackages(sub_dirs: Sequence[str]) -> list[str]:
     return find_sub_dirs((site.getusersitepackages(),) + tuple(site.getsitepackages()), sub_dirs)

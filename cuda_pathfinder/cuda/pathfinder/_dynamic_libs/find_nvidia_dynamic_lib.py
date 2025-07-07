@@ -4,6 +4,8 @@
 import functools
 import glob
 import os
+from collections.abc import Sequence
+from typing import Optional
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFound
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
@@ -13,7 +15,9 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 
-def _no_such_file_in_sub_dirs(sub_dirs, file_wild, error_messages, attachments):
+def _no_such_file_in_sub_dirs(
+    sub_dirs: Sequence[str], file_wild: str, error_messages: list[str], attachments: list[str]
+) -> None:
     error_messages.append(f"No such file: {file_wild}")
     for sub_dir in find_sub_dirs_all_sitepackages(sub_dirs):
         attachments.append(f'  listdir("{sub_dir}"):')
@@ -21,7 +25,9 @@ def _no_such_file_in_sub_dirs(sub_dirs, file_wild, error_messages, attachments):
             attachments.append(f"    {node}")
 
 
-def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachments):
+def _find_so_using_nvidia_lib_dirs(
+    libname: str, so_basename: str, error_messages: list[str], attachments: list[str]
+) -> Optional[str]:
     nvidia_sub_dirs = ("nvidia", "*", "nvvm", "lib64") if libname == "nvvm" else ("nvidia", "*", "lib")
     file_wild = so_basename + "*"
     for lib_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
@@ -38,7 +44,7 @@ def _find_so_using_nvidia_lib_dirs(libname, so_basename, error_messages, attachm
     return None
 
 
-def _find_dll_under_dir(dirpath, file_wild):
+def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
     for path in sorted(glob.glob(os.path.join(dirpath, file_wild))):
         if not os.path.isfile(path):
             continue
@@ -47,7 +53,9 @@ def _find_dll_under_dir(dirpath, file_wild):
     return None
 
 
-def _find_dll_using_nvidia_bin_dirs(libname, lib_searched_for, error_messages, attachments):
+def _find_dll_using_nvidia_bin_dirs(
+    libname: str, lib_searched_for: str, error_messages: list[str], attachments: list[str]
+) -> Optional[str]:
     nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin") if libname == "nvvm" else ("nvidia", "*", "bin")
     for bin_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
         dll_name = _find_dll_under_dir(bin_dir, lib_searched_for)
@@ -57,17 +65,18 @@ def _find_dll_using_nvidia_bin_dirs(libname, lib_searched_for, error_messages, a
     return None
 
 
-def _get_cuda_home():
+def _get_cuda_home() -> Optional[str]:
     cuda_home = os.environ.get("CUDA_HOME")
     if cuda_home is None:
         cuda_home = os.environ.get("CUDA_PATH")
     return cuda_home
 
 
-def _find_lib_dir_using_cuda_home(libname):
+def _find_lib_dir_using_cuda_home(libname: str) -> Optional[str]:
     cuda_home = _get_cuda_home()
     if cuda_home is None:
         return None
+    subdirs: tuple[str, ...]
     if IS_WINDOWS:
         subdirs = (os.path.join("nvvm", "bin"),) if libname == "nvvm" else ("bin",)
     else:
@@ -86,7 +95,9 @@ def _find_lib_dir_using_cuda_home(libname):
     return None
 
 
-def _find_so_using_lib_dir(lib_dir, so_basename, error_messages, attachments):
+def _find_so_using_lib_dir(
+    lib_dir: str, so_basename: str, error_messages: list[str], attachments: list[str]
+) -> Optional[str]:
     so_name = os.path.join(lib_dir, so_basename)
     if os.path.isfile(so_name):
         return so_name
@@ -100,7 +111,9 @@ def _find_so_using_lib_dir(lib_dir, so_basename, error_messages, attachments):
     return None
 
 
-def _find_dll_using_lib_dir(lib_dir, libname, error_messages, attachments):
+def _find_dll_using_lib_dir(
+    lib_dir: str, libname: str, error_messages: list[str], attachments: list[str]
+) -> Optional[str]:
     file_wild = libname + "*.dll"
     dll_name = _find_dll_under_dir(lib_dir, file_wild)
     if dll_name is not None:
@@ -115,8 +128,8 @@ def _find_dll_using_lib_dir(lib_dir, libname, error_messages, attachments):
 class _find_nvidia_dynamic_lib:
     def __init__(self, libname: str):
         self.libname = libname
-        self.error_messages = []
-        self.attachments = []
+        self.error_messages: list[str] = []
+        self.attachments: list[str] = []
         self.abs_path = None
 
         if IS_WINDOWS:
@@ -138,7 +151,7 @@ class _find_nvidia_dynamic_lib:
                     self.attachments,
                 )
 
-    def retry_with_cuda_home_priority_last(self):
+    def retry_with_cuda_home_priority_last(self) -> None:
         cuda_home_lib_dir = _find_lib_dir_using_cuda_home(self.libname)
         if cuda_home_lib_dir is not None:
             if IS_WINDOWS:
@@ -156,7 +169,7 @@ class _find_nvidia_dynamic_lib:
                     self.attachments,
                 )
 
-    def raise_if_abs_path_is_None(self):
+    def raise_if_abs_path_is_None(self) -> str:
         if self.abs_path:
             return self.abs_path
         err = ", ".join(self.error_messages)

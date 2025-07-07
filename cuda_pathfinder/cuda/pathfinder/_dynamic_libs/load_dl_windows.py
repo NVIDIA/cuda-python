@@ -27,7 +27,7 @@ def add_dll_directory(dll_abs_path: str) -> None:
     dirpath = os.path.dirname(dll_abs_path)
     assert os.path.isdir(dirpath), dll_abs_path
     # Add the DLL directory to the search path
-    os.add_dll_directory(dirpath)
+    os.add_dll_directory(dirpath)  # type: ignore[attr-defined]
     # Update PATH as a fallback for dependent DLL resolution
     curr_path = os.environ.get("PATH")
     os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
@@ -36,7 +36,7 @@ def add_dll_directory(dll_abs_path: str) -> None:
 def abs_path_for_dynamic_library(libname: str, handle: pywintypes.HANDLE) -> str:
     """Get the absolute path of a loaded dynamic library on Windows."""
     try:
-        return win32api.GetModuleFileName(handle)
+        return win32api.GetModuleFileName(handle)  # type: ignore[no-any-return]
     except Exception as e:
         raise RuntimeError(f"GetModuleFileName failed for {libname!r} (exception type: {type(e)})") from e
 
@@ -67,12 +67,12 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
     return None
 
 
-def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
+def load_with_system_search(libname: str, soname: str) -> Optional[LoadedDL]:
     """Try to load a DLL using system search paths.
 
     Args:
         libname: The name of the library to load
-        _unused: Unused parameter (kept for interface consistency)
+        soname: Unused parameter (kept for interface consistency)
 
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded

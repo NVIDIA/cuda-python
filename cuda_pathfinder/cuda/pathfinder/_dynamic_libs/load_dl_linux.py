@@ -53,7 +53,7 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> Optional[
     info = Dl_info()
     if LIBDL.dladdr(addr, ctypes.byref(info)) == 0:
         raise OSError(f"dladdr failed for {libname=!r}")
-    return info.dli_fname.decode()
+    return info.dli_fname.decode()  # type: ignore[no-any-return]
 
 
 def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:

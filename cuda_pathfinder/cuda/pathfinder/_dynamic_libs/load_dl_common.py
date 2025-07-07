@@ -23,7 +23,7 @@ class DynamicLibNotFound(RuntimeError):
 
 @dataclass
 class LoadedDL:
-    handle: HandleType
+    handle: HandleType  # type: ignore[valid-type]
     abs_path: Optional[str]
     was_already_loaded_from_elsewhere: bool
 
