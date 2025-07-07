@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import weakref
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from cuda.core.experimental._stream import Stream
@@ -112,7 +112,7 @@ class GraphCompleteOptions:
     """
 
     auto_free_on_launch: bool = False
-    upload_stream: Optional[Stream] = None
+    upload_stream: Stream | None = None
     device_launch: bool = False
     use_node_priority: bool = False
 
@@ -262,7 +262,7 @@ class GraphBuilder:
         self._building_ended = True
         return self
 
-    def complete(self, options: Optional[GraphCompleteOptions] = None) -> Graph:
+    def complete(self, options: GraphCompleteOptions | None = None) -> Graph:
         """Completes the graph builder and returns the built :obj:`~_graph.Graph` object.
 
         Parameters
@@ -324,7 +324,7 @@ class GraphBuilder:
             raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
         return graph
 
-    def debug_dot_print(self, path, options: Optional[GraphDebugPrintOptions] = None):
+    def debug_dot_print(self, path, options: GraphDebugPrintOptions | None = None):
         """Generates a DOT debug file for the graph builder.
 
         Parameters
