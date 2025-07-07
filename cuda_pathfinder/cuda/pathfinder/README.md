@@ -1,13 +1,17 @@
 # `cuda.pathfinder` Module
 
-## Public API (Work in Progress)
+## Public API for loading NVIDIA Dynamic Libs
 
-Currently exposes two primary interfaces:
+* `cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES` (`tuple[str]`)
 
-```
-cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES  # ('nvJitLink', 'nvrtc', 'nvvm')
-cuda.pathfinder.load_nvidia_dynamic_lib(libname: str) -> LoadedDL
-```
+* `cuda.pathfinder.load_nvidia_dynamic_lib(libname: str) -> LoadedDL`
+
+* `cuda.pathfinder.LoadedDL`:
+    * `handle` (platform-specific type)
+    * `abs_path` (`str`)
+    * `was_already_loaded_from_elsewhere` (`bool`)
+
+* `cuda.pathfinder.DynamicLibNotFound` (inherits from `RuntimeError`)
 
 ## Dynamic Library Loading Search Priority
 
