@@ -37,5 +37,13 @@ repos:
           - --ini
           - .bandit
 
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        name: mypy-pathfinder
+        files: ^cuda_pathfinder/cuda/.*\.py$  # Exclude tests directory
+        args: [--config-file=cuda_pathfinder/mypy.ini]
+
 default_language_version:
       python: python3
