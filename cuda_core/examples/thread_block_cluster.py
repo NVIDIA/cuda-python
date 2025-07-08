@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# ################################################################################
+#
+# This demo illustrates the use of thread block clusters in the CUDA launch
+# configuration.
+#
+# ################################################################################
+
 import os
 import sys
 

@@ -13,16 +13,21 @@ class ContextOptions:
     pass  # TODO
 
 
-class Context:
-    __slots__ = ("_handle", "_id")
+cdef class Context:
 
-    def __new__(self, *args, **kwargs):
+    cdef:
+        readonly object _handle
+        int _device_id
+
+    def __init__(self, *args, **kwargs):
         raise RuntimeError("Context objects cannot be instantiated directly. Please use Device or Stream APIs.")
 
     @classmethod
-    def _from_ctx(cls, obj, dev_id):
-        assert_type(obj, driver.CUcontext)
-        ctx = super().__new__(cls)
-        ctx._handle = obj
-        ctx._id = dev_id
+    def _from_ctx(cls, handle: driver.CUcontext, int device_id):
+        cdef Context ctx = Context.__new__(Context)
+        ctx._handle = handle
+        ctx._device_id = device_id
         return ctx
+
+    def __eq__(self, other):
+        return int(self._handle) == int(other._handle)
