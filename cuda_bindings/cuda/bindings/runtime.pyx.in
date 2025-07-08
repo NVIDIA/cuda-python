@@ -771,11 +771,6 @@ class cudaError_t(IntEnum):
     #: same error. To continue using CUDA, the process must be terminated
     #: and relaunched.
     cudaErrorContained = cyruntime.cudaError.cudaErrorContained{{endif}}
-    {{if 'cudaErrorNvlinkEncryptionFailed' in found_values}}
-
-    #: This indicates that an NVLink encryption error was detected during
-    #: the execution.
-    cudaErrorNvlinkEncryptionFailed = cyruntime.cudaError.cudaErrorNvlinkEncryptionFailed{{endif}}
     {{if 'cudaErrorInvalidSource' in found_values}}
 
     #: This indicates that the device kernel source is invalid.
@@ -1578,32 +1573,6 @@ class cudaEmulationStrategy(IntEnum):
     CUDA_EMULATION_STRATEGY_EAGER = cyruntime.cudaEmulationStrategy_t.CUDA_EMULATION_STRATEGY_EAGER{{endif}}
 
 _dict_cudaEmulationStrategy = dict(((int(v), v) for k, v in cudaEmulationStrategy.__members__.items()))
-{{endif}}
-{{if 'cudaEmulationMantissaControl_t' in found_types}}
-
-class cudaEmulationMantissaControl(IntEnum):
-    """"""
-    {{if 'CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC' in found_values}}
-    CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC = cyruntime.cudaEmulationMantissaControl_t.CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC{{endif}}
-    {{if 'CUDA_EMULATION_MANTISSA_CONTROL_FIXED' in found_values}}
-    CUDA_EMULATION_MANTISSA_CONTROL_FIXED = cyruntime.cudaEmulationMantissaControl_t.CUDA_EMULATION_MANTISSA_CONTROL_FIXED{{endif}}
-
-_dict_cudaEmulationMantissaControl = dict(((int(v), v) for k, v in cudaEmulationMantissaControl.__members__.items()))
-{{endif}}
-{{if 'cudaEmulationSpecialValuesSupport_t' in found_types}}
-
-class cudaEmulationSpecialValuesSupport(IntEnum):
-    """"""
-    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE' in found_values}}
-    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE{{endif}}
-    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY' in found_values}}
-    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY{{endif}}
-    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN' in found_values}}
-    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN{{endif}}
-    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT' in found_values}}
-    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT{{endif}}
-
-_dict_cudaEmulationSpecialValuesSupport = dict(((int(v), v) for k, v in cudaEmulationSpecialValuesSupport.__members__.items()))
 {{endif}}
 {{if 'libraryPropertyType_t' in found_types}}
 
@@ -35127,7 +35096,9 @@ def cudaGetDriverEntryPointByVersion(char* symbol, unsigned int cudaVersion, uns
     11.2 should be specified as 11020. For a requested driver symbol, if
     the specified CUDA version is greater than or equal to the CUDA version
     in which the driver symbol was introduced, this API will return the
-    function pointer to the corresponding versioned function.
+    function pointer to the corresponding versioned function. If the
+    specified CUDA version is greater than the driver version, the API will
+    return :py:obj:`~.cudaErrorInvalidValue`.
 
     The pointer returned by the API should be cast to a function pointer
     matching the requested driver function's definition in the API header

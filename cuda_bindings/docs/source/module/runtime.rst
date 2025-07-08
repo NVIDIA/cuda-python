@@ -1993,12 +1993,6 @@ Data types used by CUDA Runtime
         This indicates that an exception occurred on the device that is now contained by the GPU's error containment capability. Common causes are - a. Certain types of invalid accesses of peer GPU memory over nvlink b. Certain classes of hardware errors This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
 
 
-    .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorNvlinkEncryptionFailed
-
-
-        This indicates that an NVLink encryption error was detected during the execution.
-
-
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorInvalidSource
 
 

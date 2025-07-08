@@ -2638,12 +2638,6 @@ Data types used by CUDA driver
         Compute device class 10.0.
 
 
-    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_101
-
-
-        Compute device class 10.1.
-
-
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_110
 
 
@@ -2677,12 +2671,6 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_100A
 
 
-        Compute device class 10.1 with accelerated features.
-
-
-    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_101A
-
-
         Compute device class 11.0 with accelerated features.
 
 
@@ -2711,12 +2699,6 @@ Data types used by CUDA driver
 
 
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_100F
-
-
-        Compute device class 10.1 with family features.
-
-
-    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_101F
 
 
         Compute device class 11.0 with family features.
@@ -3689,12 +3671,6 @@ Data types used by CUDA driver
 
 
         This indicates that an exception occurred on the device that is now contained by the GPU's error containment capability. Common causes are - a. Certain types of invalid accesses of peer GPU memory over nvlink b. Certain classes of hardware errors This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
-
-
-    .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_NVLINK_ENCRYPTION_FAILED
-
-
-        This indicates that an NVLink encryption error was detected during the execution.
 
 
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_SOURCE

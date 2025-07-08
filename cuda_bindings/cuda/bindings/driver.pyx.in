@@ -2517,10 +2517,6 @@ class CUjit_target(IntEnum):
 
     #: Compute device class 10.0.
     CU_TARGET_COMPUTE_100 = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_100{{endif}}
-    {{if 'CU_TARGET_COMPUTE_101' in found_values}}
-
-    #: Compute device class 10.1.
-    CU_TARGET_COMPUTE_101 = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_101{{endif}}
     {{if 'CU_TARGET_COMPUTE_103' in found_values}}
 
     #: Compute device class 10.3.
@@ -2544,12 +2540,8 @@ class CUjit_target(IntEnum):
     CU_TARGET_COMPUTE_90A = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_90A{{endif}}
     {{if 'CU_TARGET_COMPUTE_100A' in found_values}}
 
-    #: Compute device class 10.1 with accelerated features.
-    CU_TARGET_COMPUTE_100A = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_100A{{endif}}
-    {{if 'CU_TARGET_COMPUTE_101A' in found_values}}
-
     #: Compute device class 11.0 with accelerated features.
-    CU_TARGET_COMPUTE_101A = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_101A{{endif}}
+    CU_TARGET_COMPUTE_100A = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_100A{{endif}}
     {{if 'CU_TARGET_COMPUTE_103A' in found_values}}
 
     #: Compute device class 12.0. with accelerated features.
@@ -2568,12 +2560,8 @@ class CUjit_target(IntEnum):
     CU_TARGET_COMPUTE_121A = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_121A{{endif}}
     {{if 'CU_TARGET_COMPUTE_100F' in found_values}}
 
-    #: Compute device class 10.1 with family features.
-    CU_TARGET_COMPUTE_100F = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_100F{{endif}}
-    {{if 'CU_TARGET_COMPUTE_101F' in found_values}}
-
     #: Compute device class 11.0 with family features.
-    CU_TARGET_COMPUTE_101F = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_101F{{endif}}
+    CU_TARGET_COMPUTE_100F = cydriver.CUjit_target_enum.CU_TARGET_COMPUTE_100F{{endif}}
     {{if 'CU_TARGET_COMPUTE_103F' in found_values}}
 
     #: Compute device class 12.0. with family features.
@@ -3665,11 +3653,6 @@ class CUresult(IntEnum):
     #: same error. To continue using CUDA, the process must be terminated
     #: and relaunched.
     CUDA_ERROR_CONTAINED = cydriver.cudaError_enum.CUDA_ERROR_CONTAINED{{endif}}
-    {{if 'CUDA_ERROR_NVLINK_ENCRYPTION_FAILED' in found_values}}
-
-    #: This indicates that an NVLink encryption error was detected during
-    #: the execution.
-    CUDA_ERROR_NVLINK_ENCRYPTION_FAILED = cydriver.cudaError_enum.CUDA_ERROR_NVLINK_ENCRYPTION_FAILED{{endif}}
     {{if 'CUDA_ERROR_INVALID_SOURCE' in found_values}}
 
     #: This indicates that the device kernel source is invalid. This
@@ -33717,6 +33700,58 @@ def cuMemGetDefaultMemPool(location : Optional[CUmemLocation], typename not None
 
 @cython.embedsignature(True)
 def cuMemGetMemPool(location : Optional[CUmemLocation], typename not None : CUmemAllocationType):
+    """ Gets the current memory pool for a memory location and of a particular allocation type.
+
+    The memory location can be of one of
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` or
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`. The allocation type can be
+    one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
+    :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`. When the allocation type is
+    :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`, the location type can also
+    be :py:obj:`~.CU_MEM_LOCATION_TYPE_NONE` to indicate no preferred
+    location for the managed memory pool. In all other cases, the call
+    returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+
+    Returns the last pool provided to :py:obj:`~.cuMemSetMemPool` or
+    :py:obj:`~.cuDeviceSetMemPool` for this location and allocation type or
+    the location's default memory pool if :py:obj:`~.cuMemSetMemPool` or
+    :py:obj:`~.cuDeviceSetMemPool` for that allocType and location has
+    never been called. By default the current mempool of a location is the
+    default mempool for a device. Otherwise the returned pool must have
+    been set with :py:obj:`~.cuDeviceSetMemPool`.
+
+    Parameters
+    ----------
+    location : :py:obj:`~.CUmemLocation`
+        None
+    typename : :py:obj:`~.CUmemAllocationType`
+        None
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    pool : :py:obj:`~.CUmemoryPool`
+        None
+
+    See Also
+    --------
+    :py:obj:`~.cuDeviceGetDefaultMemPool`, :py:obj:`~.cuMemPoolCreate`, :py:obj:`~.cuDeviceSetMemPool`, :py:obj:`~.cuMemSetMemPool`
+    """
+    cdef CUmemoryPool pool = CUmemoryPool()
+    cdef cydriver.CUmemLocation* cylocation_ptr = location._pvt_ptr if location != None else NULL
+    cdef cydriver.CUmemAllocationType cytypename = typename.value
+    err = cydriver.cuMemGetMemPool(<cydriver.CUmemoryPool*>pool._pvt_ptr, cylocation_ptr, cytypename)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_dict_CUresult[err], None)
+    return (_dict_CUresult[err], pool)
+{{endif}}
+
+{{if 'cuMemSetMemPool' in found_functions}}
+
+@cython.embedsignature(True)
+def cuMemSetMemPool(location : Optional[CUmemLocation], typename not None : CUmemAllocationType, pool):
     """ Sets the current memory pool for a memory location and allocation type.
 
     The memory location can be of one of
@@ -33748,62 +33783,6 @@ def cuMemGetMemPool(location : Optional[CUmemLocation], typename not None : CUme
         None
     typename : :py:obj:`~.CUmemAllocationType`
         None
-
-    Returns
-    -------
-    CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-    pool : :py:obj:`~.CUmemoryPool`
-        None
-
-    See Also
-    --------
-    :py:obj:`~.cuDeviceGetDefaultMemPool`, :py:obj:`~.cuDeviceGetMemPool`, :py:obj:`~.cuMemGetMemPool`, :py:obj:`~.cuMemPoolCreate`, :py:obj:`~.cuMemPoolDestroy`, :py:obj:`~.cuMemAllocFromPoolAsync`
-
-    Notes
-    -----
-    Use :py:obj:`~.cuMemAllocFromPoolAsync` to specify asynchronous allocations from a device different than the one the stream runs on.
-    """
-    cdef CUmemoryPool pool = CUmemoryPool()
-    cdef cydriver.CUmemLocation* cylocation_ptr = location._pvt_ptr if location != None else NULL
-    cdef cydriver.CUmemAllocationType cytypename = typename.value
-    err = cydriver.cuMemGetMemPool(<cydriver.CUmemoryPool*>pool._pvt_ptr, cylocation_ptr, cytypename)
-    if err != cydriver.CUDA_SUCCESS:
-        return (_dict_CUresult[err], None)
-    return (_dict_CUresult[err], pool)
-{{endif}}
-
-{{if 'cuMemSetMemPool' in found_functions}}
-
-@cython.embedsignature(True)
-def cuMemSetMemPool(location : Optional[CUmemLocation], typename not None : CUmemAllocationType, pool):
-    """ Gets the current memory pool for a memory location and of a particular allocation type.
-
-    The memory location can be of one of
-    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`,
-    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST` or
-    :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`. The allocation type can be
-    one of :py:obj:`~.CU_MEM_ALLOCATION_TYPE_PINNED` or
-    :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`. When the allocation type is
-    :py:obj:`~.CU_MEM_ALLOCATION_TYPE_MANAGED`, the location type can also
-    be :py:obj:`~.CU_MEM_LOCATION_TYPE_NONE` to indicate no preferred
-    location for the managed memory pool. In all other cases, the call
-    returns :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
-
-    Returns the last pool provided to :py:obj:`~.cuMemSetMemPool` or
-    :py:obj:`~.cuDeviceSetMemPool` for this location and allocation type or
-    the location's default memory pool if :py:obj:`~.cuMemSetMemPool` or
-    :py:obj:`~.cuDeviceSetMemPool` for that allocType and location has
-    never been called. By default the current mempool of a location is the
-    default mempool for a device. Otherwise the returned pool must have
-    been set with :py:obj:`~.cuDeviceSetMemPool`.
-
-    Parameters
-    ----------
-    location : :py:obj:`~.CUmemLocation`
-        None
-    typename : :py:obj:`~.CUmemAllocationType`
-        None
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
         None
 
@@ -33814,7 +33793,11 @@ def cuMemSetMemPool(location : Optional[CUmemLocation], typename not None : CUme
 
     See Also
     --------
-    :py:obj:`~.cuDeviceGetDefaultMemPool`, :py:obj:`~.cuMemPoolCreate`, :py:obj:`~.cuDeviceSetMemPool`, :py:obj:`~.cuMemSetMemPool`
+    :py:obj:`~.cuDeviceGetDefaultMemPool`, :py:obj:`~.cuDeviceGetMemPool`, :py:obj:`~.cuMemGetMemPool`, :py:obj:`~.cuMemPoolCreate`, :py:obj:`~.cuMemPoolDestroy`, :py:obj:`~.cuMemAllocFromPoolAsync`
+
+    Notes
+    -----
+    Use :py:obj:`~.cuMemAllocFromPoolAsync` to specify asynchronous allocations from a device different than the one the stream runs on.
     """
     cdef cydriver.CUmemoryPool cypool
     if pool is None:
@@ -49468,7 +49451,9 @@ def cuGetProcAddress(char* symbol, int cudaVersion, flags):
     11.2 should be specified as 11020. For a requested driver symbol, if
     the specified CUDA version is greater than or equal to the CUDA version
     in which the driver symbol was introduced, this API will return the
-    function pointer to the corresponding versioned function.
+    function pointer to the corresponding versioned function. If the
+    specified CUDA version is greater than the driver version, the API will
+    return :py:obj:`~.CUDA_ERROR_INVALID_VALUE`.
 
     The pointer returned by the API should be cast to a function pointer
     matching the requested driver function's definition in the API header
@@ -50147,7 +50132,14 @@ def cuGreenCtxDestroy(hCtx):
     Destroys the green context, releasing the primary context of the device
     that this green context was created for. Any resources provisioned for
     this green context (that were initially available via the resource
-    descriptor) are released as well.
+    descriptor) are released as well. The API does not destroy streams
+    created via :py:obj:`~.cuGreenCtxStreamCreate`,
+    :py:obj:`~.cuStreamCreate`, or :py:obj:`~.cuStreamCreateWithPriority`.
+    Once the green context is destroyed, any subsequent API calls involving
+    these streams (including :py:obj:`~.cuStreamDestroy`) will return
+    :py:obj:`~.CUDA_ERROR_CONTEXT_IS_DESTROYED`. Users must explicitly
+    destroy all such streams before invoking :py:obj:`~.cuGreenCtxDestroy`.
+    Failure to do so will result in a memory leak.
 
     Parameters
     ----------

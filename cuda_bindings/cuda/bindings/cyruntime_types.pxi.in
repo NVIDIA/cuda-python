@@ -86,7 +86,6 @@ cdef extern from "driver_types.h":
         cudaErrorUnsupportedExecAffinity = 224
         cudaErrorUnsupportedDevSideSync = 225
         cudaErrorContained = 226
-        cudaErrorNvlinkEncryptionFailed = 227
         cudaErrorInvalidSource = 300
         cudaErrorFileNotFound = 301
         cudaErrorSharedObjectSymbolNotFound = 302
@@ -1591,20 +1590,6 @@ cdef extern from "library_types.h":
         CUDA_EMULATION_STRATEGY_EAGER = 2
 
     ctypedef cudaEmulationStrategy_t cudaEmulationStrategy
-
-    cdef enum cudaEmulationMantissaControl_t:
-        CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC = 0
-        CUDA_EMULATION_MANTISSA_CONTROL_FIXED = 1
-
-    ctypedef cudaEmulationMantissaControl_t cudaEmulationMantissaControl
-
-    cdef enum cudaEmulationSpecialValuesSupport_t:
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE = 0
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY = 1
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN = 2
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT = 65535
-
-    ctypedef cudaEmulationSpecialValuesSupport_t cudaEmulationSpecialValuesSupport
 
     cdef enum libraryPropertyType_t:
         MAJOR_VERSION = 0
