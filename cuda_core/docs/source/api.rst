@@ -21,6 +21,8 @@ CUDA runtime
    GraphBuilder
    launch
    Buffer
+   Stream
+   Event
    MemoryResource
    DeviceMemoryResource
    LegacyPinnedMemoryResource
@@ -43,6 +45,7 @@ CUDA compilation toolchain
    Program
    Linker
    ObjectCode
+   Kernel
 
    :template: dataclass.rst
 

@@ -46,12 +46,13 @@ def _lazy_init():
             "data": driver.cuLibraryLoadData,
             "kernel": driver.cuLibraryGetKernel,
             "attribute": driver.cuKernelGetAttribute,
-            "paraminfo": driver.cuKernelGetParamInfo,
         }
         _kernel_ctypes = (driver.CUfunction, driver.CUkernel)
     else:
         _kernel_ctypes = (driver.CUfunction,)
     _driver_ver = handle_return(driver.cuDriverGetVersion())
+    if _py_major_ver >= 12 and _driver_ver >= 12040:
+        _backend["new"]["paraminfo"] = driver.cuKernelGetParamInfo
     _inited = True
 
 
@@ -391,6 +392,11 @@ class Kernel:
         attr_impl = self.attributes
         if attr_impl._backend_version != "new":
             raise NotImplementedError("New backend is required")
+        if "paraminfo" not in attr_impl._loader:
+            raise NotImplementedError(
+                "Driver version 12.4 or newer is required for this function. "
+                f"Using driver version {_driver_ver // 1000}.{(_driver_ver % 1000) // 10}"
+            )
         arg_pos = 0
         param_info_data = []
         while True:
