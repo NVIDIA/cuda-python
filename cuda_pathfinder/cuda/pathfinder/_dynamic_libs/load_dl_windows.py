@@ -16,7 +16,7 @@ WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
 POINTER_ADDRESS_SPACE = 2 ** (struct.calcsize("P") * 8)
 
 # Set up kernel32 functions with proper types
-kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
 
 # GetModuleHandleW
 kernel32.GetModuleHandleW.argtypes = [ctypes.wintypes.LPCWSTR]
@@ -45,7 +45,7 @@ kernel32.AddDllDirectory.restype = ctypes.c_void_p  # DLL_DIRECTORY_COOKIE
 
 def ctypes_handle_to_unsigned_int(handle: ctypes.wintypes.HMODULE) -> int:
     """Convert ctypes HMODULE to unsigned int."""
-    handle_uint = handle
+    handle_uint = int(handle)
     if handle_uint < 0:
         # Convert from signed to unsigned representation
         handle_uint += POINTER_ADDRESS_SPACE
@@ -82,7 +82,7 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     length = kernel32.GetModuleFileNameW(handle, buffer, len(buffer))
 
     if length == 0:
-        error_code = ctypes.get_last_error()
+        error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
         raise RuntimeError(f"GetModuleFileNameW failed for {libname!r} (error code: {error_code})")
 
     # If buffer was too small, try with larger buffer
@@ -90,7 +90,7 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
         buffer = ctypes.create_unicode_buffer(32768)  # Extended path length
         length = kernel32.GetModuleFileNameW(handle, buffer, len(buffer))
         if length == 0:
-            error_code = ctypes.get_last_error()
+            error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
             raise RuntimeError(f"GetModuleFileNameW failed for {libname!r} (error code: {error_code})")
 
     return buffer.value
@@ -165,7 +165,7 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     handle = kernel32.LoadLibraryExW(found_path, None, flags)
 
     if not handle:
-        error_code = ctypes.get_last_error()
+        error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
         raise RuntimeError(f"Failed to load DLL at {found_path}: Windows error {error_code}")
 
     return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle))
