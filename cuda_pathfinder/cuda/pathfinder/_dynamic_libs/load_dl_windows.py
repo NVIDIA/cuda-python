@@ -9,9 +9,9 @@ from typing import Optional
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 
-# Windows constants
-LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
-LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+# Mirrors WinBase.h (unfortunately not defined already elsewhere)
+WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
 
 POINTER_ADDRESS_SPACE = 2 ** (struct.calcsize("P") * 8)
 
@@ -161,7 +161,7 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     if libname in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY:
         add_dll_directory(found_path)
 
-    flags = LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
+    flags = WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
     handle = kernel32.LoadLibraryExW(found_path, None, flags)
 
     if not handle:
