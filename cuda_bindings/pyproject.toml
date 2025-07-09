@@ -27,6 +27,7 @@ dynamic = [
     "readme",
 ]
 dependencies = [
+  "cuda-pathfinder ~= 1.0",
   "pywin32; sys_platform == 'win32'",
 ]
 

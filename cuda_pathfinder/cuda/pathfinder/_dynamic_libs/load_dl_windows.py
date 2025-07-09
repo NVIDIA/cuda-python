@@ -1,16 +1,29 @@
-# Copyright 2025 NVIDIA Corporation.  All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
+import struct
 from typing import Optional
 
 import pywintypes
 import win32api
 
-from cuda.bindings._path_finder.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 
 # Mirrors WinBase.h (unfortunately not defined already elsewhere)
 WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
 WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+
+POINTER_ADDRESS_SPACE = 2 ** (struct.calcsize("P") * 8)
+
+
+def pywintypes_handle_to_unsigned_int(pywintypes_handle: pywintypes.HANDLE) -> int:
+    # pywintypes.HANDLE is already an integer representation of a pointer
+    # Just ensure it's treated as unsigned
+    handle_uint = int(pywintypes_handle)
+    if handle_uint < 0:
+        # Convert from signed to unsigned representation
+        handle_uint += POINTER_ADDRESS_SPACE
+    return handle_uint
 
 
 def add_dll_directory(dll_abs_path: str) -> None:
@@ -27,7 +40,7 @@ def add_dll_directory(dll_abs_path: str) -> None:
     dirpath = os.path.dirname(dll_abs_path)
     assert os.path.isdir(dirpath), dll_abs_path
     # Add the DLL directory to the search path
-    os.add_dll_directory(dirpath)
+    os.add_dll_directory(dirpath)  # type: ignore[attr-defined]
     # Update PATH as a fallback for dependent DLL resolution
     curr_path = os.environ.get("PATH")
     os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
@@ -36,7 +49,7 @@ def add_dll_directory(dll_abs_path: str) -> None:
 def abs_path_for_dynamic_library(libname: str, handle: pywintypes.HANDLE) -> str:
     """Get the absolute path of a loaded dynamic library on Windows."""
     try:
-        return win32api.GetModuleFileName(handle)
+        return win32api.GetModuleFileName(handle)  # type: ignore[no-any-return]
     except Exception as e:
         raise RuntimeError(f"GetModuleFileName failed for {libname!r} (exception type: {type(e)})") from e
 
@@ -55,7 +68,7 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         >>> if loaded is not None:
         ...     print(f"Library already loaded from {loaded.abs_path}")
     """
-    from cuda.bindings._path_finder.supported_libs import SUPPORTED_WINDOWS_DLLS
+    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_WINDOWS_DLLS
 
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         try:
@@ -63,21 +76,23 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         except pywintypes.error:
             continue
         else:
-            return LoadedDL(handle, abs_path_for_dynamic_library(libname, handle), True)
+            return LoadedDL(
+                abs_path_for_dynamic_library(libname, handle), True, pywintypes_handle_to_unsigned_int(handle)
+            )
     return None
 
 
-def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
+def load_with_system_search(libname: str, soname: str) -> Optional[LoadedDL]:
     """Try to load a DLL using system search paths.
 
     Args:
         libname: The name of the library to load
-        _unused: Unused parameter (kept for interface consistency)
+        soname: Unused parameter (kept for interface consistency)
 
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
-    from cuda.bindings._path_finder.supported_libs import SUPPORTED_WINDOWS_DLLS
+    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_WINDOWS_DLLS
 
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         try:
@@ -85,7 +100,9 @@ def load_with_system_search(libname: str, _unused: str) -> Optional[LoadedDL]:
         except pywintypes.error:
             continue
         else:
-            return LoadedDL(handle, abs_path_for_dynamic_library(libname, handle), False)
+            return LoadedDL(
+                abs_path_for_dynamic_library(libname, handle), False, pywintypes_handle_to_unsigned_int(handle)
+            )
 
     return None
 
@@ -103,7 +120,9 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     Raises:
         RuntimeError: If the DLL cannot be loaded
     """
-    from cuda.bindings._path_finder.supported_libs import LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY
+    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
+        LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
+    )
 
     if libname in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY:
         add_dll_directory(found_path)
@@ -113,4 +132,4 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
         handle = win32api.LoadLibraryEx(found_path, 0, flags)
     except pywintypes.error as e:
         raise RuntimeError(f"Failed to load DLL at {found_path}: {e}") from e
-    return LoadedDL(handle, found_path, False)
+    return LoadedDL(found_path, False, pywintypes_handle_to_unsigned_int(handle))
