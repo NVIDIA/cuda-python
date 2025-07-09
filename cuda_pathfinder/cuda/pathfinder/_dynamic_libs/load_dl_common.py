@@ -4,17 +4,7 @@
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
-    DIRECT_DEPENDENCIES,
-    IS_WINDOWS,
-)
-
-if IS_WINDOWS:
-    import pywintypes
-
-    HandleType = pywintypes.HANDLE
-else:
-    HandleType = int
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import DIRECT_DEPENDENCIES
 
 
 class DynamicLibNotFound(RuntimeError):
@@ -23,9 +13,9 @@ class DynamicLibNotFound(RuntimeError):
 
 @dataclass
 class LoadedDL:
-    handle: HandleType  # type: ignore[valid-type]
     abs_path: Optional[str]
     was_already_loaded_from_elsewhere: bool
+    handle: int  # Platform-agnostic unsigned pointer value
 
 
 def load_dependencies(libname: str, load_func: Callable[[str], LoadedDL]) -> None:

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import struct
 from typing import Optional
 
 import pywintypes
@@ -11,6 +12,18 @@ from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 # Mirrors WinBase.h (unfortunately not defined already elsewhere)
 WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
 WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+
+POINTER_ADDRESS_SPACE = 2 ** (struct.calcsize("P") * 8)
+
+
+def pywintypes_handle_to_unsigned_int(pywintypes_handle: pywintypes.HANDLE) -> int:
+    # pywintypes.HANDLE is already an integer representation of a pointer
+    # Just ensure it's treated as unsigned
+    handle_uint = int(pywintypes_handle)
+    if handle_uint < 0:
+        # Convert from signed to unsigned representation
+        handle_uint += POINTER_ADDRESS_SPACE
+    return handle_uint
 
 
 def add_dll_directory(dll_abs_path: str) -> None:
@@ -63,7 +76,9 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         except pywintypes.error:
             continue
         else:
-            return LoadedDL(handle, abs_path_for_dynamic_library(libname, handle), True)
+            return LoadedDL(
+                pywintypes_handle_to_unsigned_int(handle), abs_path_for_dynamic_library(libname, handle), True
+            )
     return None
 
 
@@ -85,7 +100,9 @@ def load_with_system_search(libname: str, soname: str) -> Optional[LoadedDL]:
         except pywintypes.error:
             continue
         else:
-            return LoadedDL(handle, abs_path_for_dynamic_library(libname, handle), False)
+            return LoadedDL(
+                pywintypes_handle_to_unsigned_int(handle), abs_path_for_dynamic_library(libname, handle), False
+            )
 
     return None
 
@@ -115,4 +132,4 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
         handle = win32api.LoadLibraryEx(found_path, 0, flags)
     except pywintypes.error as e:
         raise RuntimeError(f"Failed to load DLL at {found_path}: {e}") from e
-    return LoadedDL(handle, found_path, False)
+    return LoadedDL(pywintypes_handle_to_unsigned_int(handle), found_path, False)
