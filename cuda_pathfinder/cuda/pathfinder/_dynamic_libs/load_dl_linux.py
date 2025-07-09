@@ -105,7 +105,7 @@ def load_with_system_search(libname: str, soname: str) -> Optional[LoadedDL]:
         return None
 
 
-def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
+def load_with_abs_path(_libname: str, found_path: str) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:

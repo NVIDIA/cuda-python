@@ -53,19 +53,11 @@ preview = true
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = [
-    # pycodestyle Error
-    "E",
-    # Pyflakes
-    "F",
-    # pycodestyle Warning
-    "W",
-    # pyupgrade
-    "UP",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
-]
+select = ["E", "F", "W", "UP", "B", "SIM", "I", "ARG", "Q"]
+extend-select = ["B9"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*" = ["S101"]
