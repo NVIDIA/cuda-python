@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import abc
 import weakref
-from typing import Optional, Tuple, TypeVar, Union
+from typing import Tuple, TypeVar, Union
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
@@ -55,7 +55,7 @@ class Buffer:
         raise RuntimeError("Buffer objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, ptr: DevicePointerT, size: int, mr: Optional[MemoryResource] = None):
+    def _init(cls, ptr: DevicePointerT, size: int, mr: MemoryResource | None = None):
         self = super().__new__(cls)
         self._mnff = Buffer._MembersNeededForFinalize(self, ptr, size, mr)
         return self
@@ -168,10 +168,10 @@ class Buffer:
     def __dlpack__(
         self,
         *,
-        stream: Optional[int] = None,
-        max_version: Optional[Tuple[int, int]] = None,
-        dl_device: Optional[Tuple[int, int]] = None,
-        copy: Optional[bool] = None,
+        stream: int | None = None,
+        max_version: Tuple[int, int] | None = None,
+        dl_device: Tuple[int, int] | None = None,
+        copy: bool | None = None,
     ) -> PyCapsule:
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
@@ -211,7 +211,7 @@ class Buffer:
         raise NotImplementedError("WIP: Buffer.__release_buffer__ hasn't been implemented yet.")
 
     @staticmethod
-    def from_handle(ptr: DevicePointerT, size: int, mr: Optional[MemoryResource] = None) -> Buffer:
+    def from_handle(ptr: DevicePointerT, size: int, mr: MemoryResource | None = None) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
         Parameters
