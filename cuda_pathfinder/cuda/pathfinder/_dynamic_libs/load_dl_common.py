@@ -7,7 +7,7 @@ from typing import Callable, Optional
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import DIRECT_DEPENDENCIES
 
 
-class DynamicLibNotFound(RuntimeError):
+class DynamicLibNotFoundError(RuntimeError):
     pass
 
 

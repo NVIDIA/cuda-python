@@ -9,7 +9,7 @@ def pytest_configure(config):
     config.custom_info = []
 
 
-def pytest_terminal_summary(terminalreporter, _exitstatus, config):
+def pytest_terminal_summary(terminalreporter, exitstatus, config):  # noqa: ARG001
     if config.custom_info:
         terminalreporter.write_sep("=", "INFO summary")
         for msg in config.custom_info:

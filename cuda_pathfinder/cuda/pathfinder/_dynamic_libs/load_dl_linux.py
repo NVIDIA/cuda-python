@@ -16,15 +16,15 @@ LIBDL.dladdr.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIBDL.dladdr.restype = ctypes.c_int
 
 
-class Dl_info(ctypes.Structure):
+class DlInfo(ctypes.Structure):
     """Structure used by dladdr to return information about a loaded symbol."""
 
-    _fields_ = [
+    _fields_ = (
         ("dli_fname", ctypes.c_char_p),  # path to .so
         ("dli_fbase", ctypes.c_void_p),
         ("dli_sname", ctypes.c_char_p),
         ("dli_saddr", ctypes.c_void_p),
-    ]
+    )
 
 
 def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> Optional[str]:
@@ -50,7 +50,7 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> Optional[
         return None
 
     addr = ctypes.cast(symbol, ctypes.c_void_p)
-    info = Dl_info()
+    info = DlInfo()
     if LIBDL.dladdr(addr, ctypes.byref(info)) == 0:
         raise OSError(f"dladdr failed for {libname=!r}")
     return info.dli_fname.decode()  # type: ignore[no-any-return]

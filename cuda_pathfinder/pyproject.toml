@@ -53,7 +53,24 @@ preview = true
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "UP", "B", "SIM", "I", "ARG", "Q"]
+select = [
+    "E",     # pycodestyle Error
+    "F",     # Pyflakes
+    "W",     # pycodestyle Warning
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+    "I",     # isort
+    "ARG",   # flake8-unused-arguments
+    "Q",     # flake8-quotes
+    "N",     # pep8-naming
+    "C4",    # flake8-comprehensions
+    "PIE",   # flake8-pie
+    "T20",   # flake8-print
+    "RUF",   # Ruff-specific rules
+    "PT",    # flake8-pytest-style
+    "DTZ",   # flake8-datetimez
+]
 extend-select = ["B9"]
 
 [tool.ruff.lint.flake8-quotes]
