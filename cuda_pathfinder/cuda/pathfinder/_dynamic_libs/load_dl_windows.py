@@ -77,7 +77,7 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
             continue
         else:
             return LoadedDL(
-                pywintypes_handle_to_unsigned_int(handle), abs_path_for_dynamic_library(libname, handle), True
+                abs_path_for_dynamic_library(libname, handle), True, pywintypes_handle_to_unsigned_int(handle)
             )
     return None
 
@@ -101,7 +101,7 @@ def load_with_system_search(libname: str, soname: str) -> Optional[LoadedDL]:
             continue
         else:
             return LoadedDL(
-                pywintypes_handle_to_unsigned_int(handle), abs_path_for_dynamic_library(libname, handle), False
+                abs_path_for_dynamic_library(libname, handle), False, pywintypes_handle_to_unsigned_int(handle)
             )
 
     return None
@@ -132,4 +132,4 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
         handle = win32api.LoadLibraryEx(found_path, 0, flags)
     except pywintypes.error as e:
         raise RuntimeError(f"Failed to load DLL at {found_path}: {e}") from e
-    return LoadedDL(pywintypes_handle_to_unsigned_int(handle), found_path, False)
+    return LoadedDL(found_path, False, pywintypes_handle_to_unsigned_int(handle))

@@ -13,9 +13,9 @@ class DynamicLibNotFound(RuntimeError):
 
 @dataclass
 class LoadedDL:
-    _handle_uint: int  # Platform-agnostic unsigned pointer value
     abs_path: Optional[str]
     was_already_loaded_from_elsewhere: bool
+    _handle_uint: int  # Platform-agnostic unsigned pointer value
 
 
 def load_dependencies(libname: str, load_func: Callable[[str], LoadedDL]) -> None:

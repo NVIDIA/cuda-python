@@ -78,7 +78,7 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         except OSError:
             continue
         else:
-            return LoadedDL(handle._handle, abs_path_for_dynamic_library(libname, handle), True)
+            return LoadedDL(abs_path_for_dynamic_library(libname, handle), True, handle._handle)
     return None
 
 
@@ -100,7 +100,7 @@ def load_with_system_search(libname: str, soname: str) -> Optional[LoadedDL]:
         abs_path = abs_path_for_dynamic_library(libname, handle)
         if abs_path is None:
             raise RuntimeError(f"No expected symbol for {libname=!r}")
-        return LoadedDL(handle._handle, abs_path, False)
+        return LoadedDL(abs_path, False, handle._handle)
     except OSError:
         return None
 
@@ -122,4 +122,4 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
         handle = ctypes.CDLL(found_path, CDLL_MODE)
     except OSError as e:
         raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
-    return LoadedDL(handle._handle, found_path, False)
+    return LoadedDL(found_path, False, handle._handle)
