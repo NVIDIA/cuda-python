@@ -19,7 +19,7 @@ from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 if supported_nvidia_libs.IS_WINDOWS:
     import pywintypes
 
-    from cuda.pathfinder._load_dl_windows import POINTER_ADDRESS_SPACE
+    from cuda.pathfinder._dynamic_libs.load_dl_windows import POINTER_ADDRESS_SPACE
 
     def _unsigned_int_to_pywintypes_handle(handle_uint: int) -> pywintypes.HANDLE:
         handle_int = handle_uint - POINTER_ADDRESS_SPACE if handle_uint >= POINTER_ADDRESS_SPACE // 2 else handle_uint
