@@ -25,7 +25,7 @@ repos:
   - repo: local
     hooks:
       - id: check-spdx
-        name: Check SPDX-License-Identifier
+        name: Check SPDX
         entry: python ./toolshed/check_spdx.py
         language: python
         additional_dependencies:
