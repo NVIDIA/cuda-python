@@ -22,14 +22,12 @@ repos:
         args: [--fix, --show-fixes, --target-version=py39]
       - id: ruff-format
 
-  - repo: local
+  - repo: https://github.com/espressif/check-copyright
+    rev: v1.1.1
     hooks:
-      - id: check-spdx
-        name: Check SPDX
-        entry: python ./toolshed/check_spdx.py
-        language: python
-        additional_dependencies:
-          - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
+      - id: check-copyright
+        name: Check SPDX Headers
+        args: ['--config', '.check-copyright-config.yaml', '--dry-run']
 
   - repo: https://github.com/PyCQA/bandit
     rev: 2d0b675b04c80ae42277e10500db06a0a37bae17  # frozen: 1.8.6

@@ -1,0 +1,119 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# Configuration file for espressif/check-copyright tool
+# Used to check and manage SPDX license headers across the NVIDIA CUDA Python repository
+
+DEFAULT:
+  perform_check: yes
+
+  # Allowed licenses for most files
+  allowed_licenses:
+    - Apache-2.0
+    - LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+  # Default license for new files
+  license_for_new_files: Apache-2.0
+
+  # Template for new Python files (# comment style)
+  new_notice_python: |
+    # SPDX-FileCopyrightText: Copyright (c) {years} NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+    # SPDX-License-Identifier: {license}
+
+  # Template for new C/C++ files (// comment style)
+  new_notice_c: |
+    // SPDX-FileCopyrightText: Copyright (c) {years} NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+    // SPDX-License-Identifier: {license}
+
+  # Template for shell/yaml/config files (# comment style)
+  new_notice_shell: |
+    # SPDX-FileCopyrightText: Copyright (c) {years} NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+    # SPDX-License-Identifier: {license}
+
+# Documentation files (RST, MD)
+documentation:
+  include:
+    - '**/*.rst'
+    - '**/*.md'
+  allowed_licenses:
+    - Apache-2.0
+    - LicenseRef-NVIDIA-SOFTWARE-LICENSE
+  license_for_new_files: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+  # Template for RST files (.. comment style)
+  new_notice_rst: |
+    .. SPDX-FileCopyrightText: Copyright (c) {years} NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+    .. SPDX-License-Identifier: {license}
+
+# CUDA bindings - can use NVIDIA proprietary license
+cuda_bindings:
+  include:
+    - 'cuda_bindings/**'
+  allowed_licenses:
+    - Apache-2.0
+    - LicenseRef-NVIDIA-SOFTWARE-LICENSE
+  license_for_new_files: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+# Examples and tests - prefer permissive licenses
+examples_and_tests:
+  include:
+    - 'cuda_bindings/examples/**'
+    - 'cuda_bindings/tests/**'
+    - 'cuda_core/examples/**'
+    - 'cuda_core/tests/**'
+    - '**/test_*.py'
+    - '**/conftest.py'
+    - '**/pytest.ini'
+  allowed_licenses:
+    - Apache-2.0
+    - LicenseRef-NVIDIA-SOFTWARE-LICENSE
+  license_for_new_files: Apache-2.0
+
+# Setup.py files - need to allow NVIDIA license
+setup_files:
+  include:
+    - '**/setup.py'
+  allowed_licenses:
+    - Apache-2.0
+    - LicenseRef-NVIDIA-SOFTWARE-LICENSE
+  license_for_new_files: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+# CI/CD and tooling files
+ci_tooling:
+  include:
+    - '.github/**'
+    - 'ci/**'
+    - 'toolshed/**'
+    - '.pre-commit-config.yaml'
+    - '.bandit'
+    - 'pyproject.toml'
+  allowed_licenses:
+    - Apache-2.0
+  license_for_new_files: Apache-2.0
+
+# Files to ignore (third-party, generated, etc.)
+ignore:
+  perform_check: no
+  include:
+    # Build and cache files
+    - '**/__pycache__/**'
+    - '**/*.pyc'
+    - '**/.git/**'
+    - '**/build/**'
+    - '**/dist/**'
+    - '**/*.egg-info/**'
+    - '.vscode/**'
+    - '**/versions.json'
+    # From original .spdx-ignore
+    - 'LICENSE'
+    - '**/*.html'
+    - '**/*.json'
+    - '**/*.md'
+    - '**/*.png'
+    - '.gitattributes'
+    - '.gitignore'
+    - '.github/BACKPORT_BRANCH'
+    - 'requirements*.txt'
+    - 'cuda_bindings/examples/**'
+    # Vendored files
+    - 'cuda_core/cuda/core/experimental/dlpack.h'
