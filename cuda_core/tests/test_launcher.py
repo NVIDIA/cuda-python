@@ -1,4 +1,4 @@
-# Copyright 2024-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
