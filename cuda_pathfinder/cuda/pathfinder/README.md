@@ -11,7 +11,7 @@
     * `abs_path` (`str`)
     * `was_already_loaded_from_elsewhere` (`bool`)
 
-* `cuda.pathfinder.DynamicLibNotFound` (inherits from `RuntimeError`)
+* `cuda.pathfinder.DynamicLibNotFoundError` (inherits from `RuntimeError`)
 
 ## Dynamic Library Loading Search Priority
 

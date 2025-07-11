@@ -7,7 +7,7 @@ import os
 from collections.abc import Sequence
 from typing import Optional
 
-from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFound
+from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     IS_WINDOWS,
     is_suppressed_dll_file,
@@ -125,7 +125,7 @@ def _find_dll_using_lib_dir(
     return None
 
 
-class _find_nvidia_dynamic_lib:
+class _FindNvidiaDynamicLib:
     def __init__(self, libname: str):
         self.libname = libname
         self.error_messages: list[str] = []
@@ -169,14 +169,14 @@ class _find_nvidia_dynamic_lib:
                     self.attachments,
                 )
 
-    def raise_if_abs_path_is_None(self) -> str:
+    def raise_if_abs_path_is_None(self) -> str:  # noqa: N802
         if self.abs_path:
             return self.abs_path
         err = ", ".join(self.error_messages)
         att = "\n".join(self.attachments)
-        raise DynamicLibNotFound(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
+        raise DynamicLibNotFoundError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
 
 
 @functools.cache
 def find_nvidia_dynamic_lib(libname: str) -> str:
-    return _find_nvidia_dynamic_lib(libname).raise_if_abs_path_is_None()
+    return _FindNvidiaDynamicLib(libname).raise_if_abs_path_is_None()

@@ -8,9 +8,7 @@ authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.co
 license = "Apache-2.0"
 requires-python = ">=3.9"
 dynamic = ["version"]
-dependencies = [
-    "pywin32; sys_platform == 'win32'",
-]
+dependencies = []
 
 [project.optional-dependencies]
 test = [
@@ -56,18 +54,27 @@ docstring-code-format = true
 
 [tool.ruff.lint]
 select = [
-    # pycodestyle Error
-    "E",
-    # Pyflakes
-    "F",
-    # pycodestyle Warning
-    "W",
-    # pyupgrade
-    "UP",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
+    "E",     # pycodestyle Error
+    "F",     # Pyflakes
+    "W",     # pycodestyle Warning
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+    "I",     # isort
+    "ARG",   # flake8-unused-arguments
+    "Q",     # flake8-quotes
+    "N",     # pep8-naming
+    "C4",    # flake8-comprehensions
+    "PIE",   # flake8-pie
+    "T20",   # flake8-print
+    "RUF",   # Ruff-specific rules
+    "PT",    # flake8-pytest-style
+    "DTZ",   # flake8-datetimez
 ]
+extend-select = ["B9"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*" = ["S101"]

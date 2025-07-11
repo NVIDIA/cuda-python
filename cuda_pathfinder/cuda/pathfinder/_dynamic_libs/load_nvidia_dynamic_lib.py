@@ -5,7 +5,7 @@ import functools
 import struct
 import sys
 
-from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _find_nvidia_dynamic_lib
+from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
 
@@ -35,7 +35,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     load_dependencies(libname, load_nvidia_dynamic_lib)
 
     # Find the library path
-    found = _find_nvidia_dynamic_lib(libname)
+    found = _FindNvidiaDynamicLib(libname)
     if found.abs_path is None:
         loaded = load_with_system_search(libname, found.lib_searched_for)
         if loaded is not None:
