@@ -1,6 +1,6 @@
 @echo off
 
-REM SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+REM Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 REM SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 setlocal

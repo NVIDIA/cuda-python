@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -25,7 +25,7 @@ repos:
   - repo: local
     hooks:
       - id: check-spdx
-        name: Check SPDX Headers
+        name: Check SPDX-License-Identifier
         entry: python ./toolshed/check_spdx.py
         language: python
         additional_dependencies:

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -6,12 +6,10 @@ import sys
 
 import pathspec
 
-# Intentionally puzzling together EXPECTED_SPDX_BYTES so that we don't overlook
-# if the identifiers are missing in this file.
-EXPECTED_SPDX_BYTES = (
-    b"-".join((b"SPDX", b"License", b"Identifier: ")),
-    b"-".join((b"SPDX", b"FileCopyrightText: ")),
-)
+# Intentionally puzzling together EXPECTED_SPDX_STR so that we don't overlook
+# if the identifier is missing in this file.
+EXPECTED_SPDX_STR = "-".join(("SPDX", "License", "Identifier: "))
+EXPECTED_SPDX_BYTES = EXPECTED_SPDX_STR.encode()
 
 SPDX_IGNORE_FILENAME = ".spdx-ignore"
 
@@ -29,14 +27,7 @@ def load_spdx_ignore():
 def has_spdx_or_is_empty(filepath):
     with open(filepath, "rb") as f:
         blob = f.read()
-    if len(blob.strip()) == 0:
-        return True
-    good = True
-    for expected_bytes in EXPECTED_SPDX_BYTES:
-        if expected_bytes not in blob:
-            print(f"MISSING {expected_bytes.decode()}{filepath!r}")
-            good = False
-    return good
+    return len(blob.strip()) == 0 or EXPECTED_SPDX_BYTES in blob
 
 
 def main(args):
@@ -46,9 +37,8 @@ def main(args):
 
     returncode = 0
     for filepath in args:
-        if ignore_spec.match_file(filepath):
-            continue
-        if not has_spdx_or_is_empty(filepath):
+        if not ignore_spec.match_file(filepath) and not has_spdx_or_is_empty(filepath):
+            print(f"MISSING {EXPECTED_SPDX_STR}{filepath!r}")
             returncode = 1
     return returncode
 
