@@ -1,4 +1,4 @@
-# Copyright 2024-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 from cuda.pathfinder import SUPPORTED_NVIDIA_LIBNAMES as _SUPPORTED_LIBNAMES
