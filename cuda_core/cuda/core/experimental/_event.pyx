@@ -89,7 +89,7 @@ cdef class Event:
 
     @classmethod
     def _init(cls, device_id: int, ctx_handle: Context, options=None):
-        cdef Event self = Event.__new__(Event)
+        cdef Event self = Event.__new__(cls)
         cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")
         flags = 0x0
         self._timing_disabled = False
