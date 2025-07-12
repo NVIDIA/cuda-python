@@ -57,7 +57,7 @@ jobs:
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         uses: ilammy/msvc-dev-cmd@v1  # TODO: ask admin to allow pinning commits
-      
+
       - name: Set environment variables
         env:
           CUDA_VER: ${{ inputs.cuda-version }}
@@ -69,7 +69,43 @@ jobs:
       - name: Dump environment
         run: |
           env
-      
+
+      - name: Install twine
+        run: |
+          pip install twine
+
+      # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
+      - name: Build and check cuda.pathfinder wheel
+        run: |
+          pushd cuda_pathfinder
+          pip wheel -v --no-deps .
+          popd
+
+      - name: List the cuda.pathfinder artifacts directory
+        run: |
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
+          fi
+          $CHOWN -R $(whoami) cuda_pathfinder/*.whl
+          ls -lahR cuda_pathfinder
+
+      # We only need/want a single pure python wheel, pick linux-64 index 0.
+      # This is what we will use for testing & releasing.
+      - name: Check cuda.pathfinder wheel
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        run: |
+          twine check cuda_pathfinder/*.whl
+
+      - name: Upload cuda.pathfinder build artifacts
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: cuda-pathfinder-wheel
+          path: cuda_pathfinder/*.whl
+          if-no-files-found: error
+
       - name: Build cuda.core wheel
         uses: pypa/cibuildwheel@95d2f3a92fbf80abe066b09418bbf128a8923df2  # v3.0.1
         env:
@@ -96,7 +132,6 @@ jobs:
 
       - name: Check cuda.core wheel
         run: |
-          pip install twine
           twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
@@ -199,6 +234,10 @@ jobs:
           fi
           # For caching
           echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
+
+      - name: Install cuda.pathfinder (required for next step)
+        run: |
+          pip install cuda_pathfinder/*.whl
 
       - name: Build cuda.bindings Cython tests
         run: |
