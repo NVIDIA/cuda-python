@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # This is for TEMPORARY BACKWARD COMPATIBILITY only.
-# cuda.bindings.pathfinder is slated to be removed after the next cuda-bindings release.
+# cuda.bindings.path_finder is deprecated and slated to be removed in the next cuda-bindings major version release.
 
 from dataclasses import dataclass
 from typing import Optional

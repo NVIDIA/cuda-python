@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # This file is for TEMPORARY BACKWARD COMPATIBILITY only.
-# cuda.bindings.pathfinder is slated to be removed after the next cuda-bindings release.
+# cuda.bindings.path_finder is deprecated and slated to be removed in the next cuda-bindings major version release.
 
 from cuda.bindings._path_finder.temporary_backward_compatibility import (
     load_nvidia_dynamic_library as _load_nvidia_dynamic_library,

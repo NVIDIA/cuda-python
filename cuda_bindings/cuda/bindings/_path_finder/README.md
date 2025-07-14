@@ -1,3 +1,3 @@
 # The `cuda.bindings.path_finder` module was moved → `cuda.pathfinder`
 
-`cuda.bindings.pathfinder` is slated to be removed after the next `cuda-bindings` release.
+`cuda.bindings.path_finder` is deprecated and slated to be removed in the next `cuda-bindings` major version release.
