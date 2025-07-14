@@ -78,3 +78,36 @@ inline-quotes = "double"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*" = ["S101"]
+
+[tool.mypy]
+# Basic settings
+python_version = "3.9"
+explicit_package_bases = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+# Start strict, but allow some flexibility
+check_untyped_defs = true
+disallow_any_generics = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+# Allow some common patterns to keep it simple
+allow_redefinition = true
+implicit_reexport = true
+
+# Ignore missing imports for now (you can tighten this later)
+ignore_missing_imports = true
+
+# Only check your package
+[[tool.mypy.overrides]]
+module = "cuda.pathfinder.*"
+disallow_untyped_defs = true
+
+# Be more lenient with test files
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+ignore_errors = true

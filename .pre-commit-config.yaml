@@ -45,7 +45,7 @@ repos:
       - id: mypy
         name: mypy-pathfinder
         files: ^cuda_pathfinder/cuda/.*\.py$  # Exclude tests directory
-        args: [--config-file=cuda_pathfinder/mypy.ini]
+        args: [--config-file=cuda_pathfinder/pyproject.toml]
 
 default_language_version:
       python: python3
