@@ -1,4 +1,4 @@
-# Copyright 2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import os
@@ -28,6 +28,18 @@ def test_all_libnames_linux_sonames_consistency():
 
 def test_all_libnames_windows_dlls_consistency():
     assert tuple(sorted(ALL_LIBNAMES_WINDOWS)) == tuple(sorted(supported_libs.SUPPORTED_WINDOWS_DLLS.keys()))
+
+
+@pytest.mark.parametrize("dict_name", ["SUPPORTED_LINUX_SONAMES", "SUPPORTED_WINDOWS_DLLS"])
+def test_libname_dict_values_are_unique(dict_name):
+    libname_dict = getattr(supported_libs, dict_name)
+    libname_for_value = {}
+    for libname, values in libname_dict.items():
+        for value in values:
+            prev_libname = libname_for_value.get(value)
+            if prev_libname is not None:
+                raise RuntimeError(f"Multiple libnames for {value!r}: {prev_libname}, {libname}")
+            libname_for_value[value] = libname
 
 
 def test_all_libnames_libnames_requiring_os_add_dll_directory_consistency():

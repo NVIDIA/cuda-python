@@ -1,4 +1,4 @@
-# Copyright 2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # THIS FILE NEEDS TO BE REVIEWED/UPDATED FOR EACH CTK RELEASE
@@ -256,8 +256,6 @@ SUPPORTED_WINDOWS_DLLS = {
     "cufft": (
         "cufft64_10.dll",
         "cufft64_11.dll",
-        "cufftw64_10.dll",
-        "cufftw64_11.dll",
     ),
     "cufftw": (
         "cufftw64_10.dll",

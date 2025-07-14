@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -69,7 +69,7 @@ jobs:
               - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'earliest' }
               - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
@@ -154,57 +154,14 @@ jobs:
           dependent_exes: "jq wget"
 
       - name: Set environment variables
-        run: |
-          PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.PY_VER }}' | tr -d '.')
-          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            REPO_DIR=$(pwd)
-          elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-            PWD=$(pwd)
-            REPO_DIR=$(cygpath -w $PWD)
-          fi
-
-          BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ inputs.build-ctk-ver }})"
-          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.CUDA_VER }})"
-          if [[ $BUILD_CUDA_MAJOR != $TEST_CUDA_MAJOR ]]; then
-            SKIP_CUDA_BINDINGS_TEST=1
-            SKIP_CYTHON_TEST=1
-          else
-            SKIP_CUDA_BINDINGS_TEST=0
-            BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${{ inputs.build-ctk-ver }})"
-            TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${{ matrix.CUDA_VER }})"
-            if [[ $BUILD_CUDA_MINOR != $TEST_CUDA_MINOR ]]; then
-              SKIP_CYTHON_TEST=1
-            else
-              SKIP_CYTHON_TEST=0
-            fi
-          fi
-
-          # We don't test compute-sanitizer on CTK<12 because backporting fixes is too much effort
-          # We only test compute-sanitizer on python 3.12 arbitrarily; we don't need to use sanitizer on the entire matrix
-          # Only local ctk installs have compute-sanitizer; there is not wheel for it
-          if [[ "${{ inputs.python-version }}" == "3.12" && "${{ inputs.cuda-version }}" != "11.8.0" && "${{ inputs.local-ctk }}" == 1 ]]; then
-            SETUP_SANITIZER=1
-            echo "LATEST_CUDA_VERSION=$(bash .github/workflows/guess_latest.sh)" >> $GITHUB_ENV
-          else
-            SETUP_SANITIZER=0
-          fi
-          echo "SETUP_SANITIZER=${SETUP_SANITIZER}" >> $GITHUB_ENV
-
-          # make outputs from the previous job as env vars
-          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
-          echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_CORE_CYTHON_TESTS_DIR=$(realpath "$REPO_DIR/cuda_core/tests/cython")" >> $GITHUB_ENV
-          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-${{ inputs.host-platform }}"
-          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/tests/cython")" >> $GITHUB_ENV
-
-          echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
-          echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}" >> $GITHUB_ENV
+        env:
+          BUILD_CUDA_VER: ${{ inputs.build-ctk-ver }}
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          HOST_PLATFORM: ${{ inputs.host-platform }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          PY_VER: ${{ matrix.PY_VER }}
+          SHA: ${{ github.sha }}
+        run: ./ci/tools/env-vars test
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
@@ -327,66 +284,20 @@ jobs:
           cuda-components: "cuda_sanitizer_api"
 
       - name: Set up compute-sanitizer
-        run: |
-          if [[ "${SETUP_SANITIZER}" == 1 ]]; then
-            COMPUTE_SANITIZER="${CUDA_HOME}/bin/compute-sanitizer"
-            COMPUTE_SANITIZER_VERSION=$(${COMPUTE_SANITIZER} --version | grep -Eo "[0-9]{4}\.[0-9]\.[0-9]" | sed -e 's/\.//g')
-            SANITIZER_CMD="${COMPUTE_SANITIZER} --target-processes=all --launch-timeout=0 --tool=memcheck --error-exitcode=1"
-            if [[ "$COMPUTE_SANITIZER_VERSION" -ge 202111 ]]; then
-                SANITIZER_CMD="${SANITIZER_CMD} --padding=32"
-            fi
-            echo "CUDA_PYTHON_TESTING_WITH_COMPUTE_SANITIZER=1" >> $GITHUB_ENV
-          else
-            SANITIZER_CMD=""
-          fi
-          echo "SANITIZER_CMD=${SANITIZER_CMD}" >> $GITHUB_ENV
+        run: setup-sanitizer
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
-        run: |
-          pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-          if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            ls $CUDA_PATH
-            pip install $(ls *.whl)[test]
-          else
-            pip install $(ls *.whl)[all,test]
-          fi
-          popd
-
-          pushd ./cuda_bindings
-          ${SANITIZER_CMD} pytest -rxXs -v tests/
-          if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-            ${SANITIZER_CMD} pytest -rxXs -v tests/cython
-          fi
-          popd
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests bindings
 
       - name: Run cuda.core tests
-        run: |
-          # If build/test majors match: cuda.bindings is installed in the previous step.
-          # If mismatch: cuda.bindings is installed from the backport branch.
-          if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
-            pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-            if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-              pip install *.whl
-            else
-              pip install $(ls *.whl)[all]
-            fi
-            popd
-          fi
-          TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${{ matrix.CUDA_VER }})"
-          pushd "${CUDA_CORE_ARTIFACTS_DIR}"
-          pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}","test-cu${TEST_CUDA_MAJOR}"]
-          popd
-
-          pushd ./cuda_core
-          ${SANITIZER_CMD} pytest -rxXs -v tests/
-
-          # Currently our CI always installs the latest bindings (from either major version).
-          # This is not compatible with the test requirements.
-          if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-            ${SANITIZER_CMD} pytest -rxXs -v tests/cython
-          fi
-          popd
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests core
 
       - name: Ensure cuda-python installable
         run: |

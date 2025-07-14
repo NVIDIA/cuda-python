@@ -1,4 +1,4 @@
-# Copyright 2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
@@ -6,8 +6,8 @@ import gc
 
 import pytest
 
-from cuda.core.experimental import Device
-from cuda.core.experimental._memory import Buffer, DLDeviceType, MemoryResource
+from cuda.core.experimental import Buffer, Device, MemoryResource
+from cuda.core.experimental._memory import DLDeviceType
 from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
 
@@ -17,7 +17,7 @@ class DummyDeviceMemoryResource(MemoryResource):
 
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAlloc(size))
-        return Buffer(ptr=ptr, size=size, mr=self)
+        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
         handle_return(driver.cuMemFree(ptr))
@@ -42,7 +42,7 @@ class DummyHostMemoryResource(MemoryResource):
     def allocate(self, size, stream=None) -> Buffer:
         # Allocate a ctypes buffer of size `size`
         ptr = (ctypes.c_byte * size)()
-        return Buffer(ptr=ptr, size=size, mr=self)
+        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
         # the memory is deallocated per the ctypes deallocation at garbage collection time
@@ -67,7 +67,7 @@ class DummyUnifiedMemoryResource(MemoryResource):
 
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAllocManaged(size, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
-        return Buffer(ptr=ptr, size=size, mr=self)
+        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
         handle_return(driver.cuMemFree(ptr))
@@ -91,7 +91,7 @@ class DummyPinnedMemoryResource(MemoryResource):
 
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAllocHost(size))
-        return Buffer(ptr=ptr, size=size, mr=self)
+        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
         handle_return(driver.cuMemFreeHost(ptr))

@@ -1,4 +1,4 @@
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
@@ -36,6 +36,7 @@ cdef extern from "<dlfcn.h>" nogil:
 cdef bint __py_nvvm_init = False
 cdef void* __cuDriverGetVersion = NULL
 
+cdef void* __nvvmGetErrorString = NULL
 cdef void* __nvvmVersion = NULL
 cdef void* __nvvmIRVersion = NULL
 cdef void* __nvvmCreateProgram = NULL
@@ -82,6 +83,13 @@ cdef int _check_or_init_nvvm() except -1 nogil:
     handle = NULL
 
     # Load function
+    global __nvvmGetErrorString
+    __nvvmGetErrorString = dlsym(RTLD_DEFAULT, 'nvvmGetErrorString')
+    if __nvvmGetErrorString == NULL:
+        if handle == NULL:
+            handle = load_library(driver_ver)
+        __nvvmGetErrorString = dlsym(handle, 'nvvmGetErrorString')
+
     global __nvvmVersion
     __nvvmVersion = dlsym(RTLD_DEFAULT, 'nvvmVersion')
     if __nvvmVersion == NULL:
@@ -181,6 +189,9 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_nvvm()
     cdef dict data = {}
 
+    global __nvvmGetErrorString
+    data["__nvvmGetErrorString"] = <intptr_t>__nvvmGetErrorString
+
     global __nvvmVersion
     data["__nvvmVersion"] = <intptr_t>__nvvmVersion
 
@@ -231,6 +242,16 @@ cpdef _inspect_function_pointer(str name):
 ###############################################################################
 # Wrapper functions
 ###############################################################################
+
+cdef const char* _nvvmGetErrorString(nvvmResult result) except?NULL nogil:
+    global __nvvmGetErrorString
+    _check_or_init_nvvm()
+    if __nvvmGetErrorString == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvvmGetErrorString is not found")
+    return (<const char* (*)(nvvmResult) noexcept nogil>__nvvmGetErrorString)(
+        result)
+
 
 cdef nvvmResult _nvvmVersion(int* major, int* minor) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmVersion

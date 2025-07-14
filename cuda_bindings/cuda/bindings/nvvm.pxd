@@ -1,4 +1,4 @@
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
@@ -27,6 +27,7 @@ ctypedef nvvmResult _Result
 # Functions
 ###############################################################################
 
+cpdef str get_error_string(int result)
 cpdef tuple version()
 cpdef tuple ir_version()
 cpdef intptr_t create_program() except? 0

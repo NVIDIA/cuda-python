@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -33,7 +33,7 @@ jobs:
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
-                 (inputs.host-platform == 'win-64' && 'windows-2019') }}
+                 (inputs.host-platform == 'win-64' && 'windows-2022') }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -59,40 +59,27 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1  # TODO: ask admin to allow pinning commits
       
       - name: Set environment variables
-        run: |
-          PYTHON_VERSION_FORMATTED=$(echo '${{ matrix.python-version }}' | tr -d '.')
-          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-manylinux*"
-            REPO_DIR=$(pwd)
-          elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-            CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-win_amd64"
-            PWD=$(pwd)
-            REPO_DIR=$(cygpath -w $PWD)
-          fi
-  
-          echo "CUDA_BINDINGS_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
-          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${{ inputs.host-platform }}"
-          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          echo "CUDA_CORE_CYTHON_TESTS_DIR=$(realpath "$REPO_DIR/cuda_core/tests/cython")" >> $GITHUB_ENV
-          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}"
-          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${{ github.sha }}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/tests/cython")" >> $GITHUB_ENV
-          echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
+        env:
+          CUDA_VER: ${{ inputs.cuda-version }}
+          HOST_PLATFORM: ${{ inputs.host-platform }}
+          PY_VER: ${{ matrix.python-version }}
+          SHA: ${{ github.sha }}
+        run: ./ci/tools/env-vars build
 
       - name: Dump environment
         run: |
           env
       
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@faf86a6ed7efa889faf6996aa23820831055001a  # v2.23.3
+        uses: pypa/cibuildwheel@95d2f3a92fbf80abe066b09418bbf128a8923df2  # v3.0.1
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
           CIBW_BUILD_VERBOSITY: 1
+          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
+          CIBW_ENVIRONMENT: >
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -127,7 +114,7 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@faf86a6ed7efa889faf6996aa23820831055001a  # v2.23.3
+        uses: pypa/cibuildwheel@95d2f3a92fbf80abe066b09418bbf128a8923df2  # v3.0.1
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
@@ -136,11 +123,13 @@ jobs:
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             LIBRARY_PATH=/host/${{ env.CUDA_PATH }}/lib
-            CUDA_BINDINGS_PARALLEL_LEVEL=${{ env.CUDA_BINDINGS_PARALLEL_LEVEL }}
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_HOME="$(cygpath -w ${{ env.CUDA_PATH }})"
             LIB="${CUDA_HOME}\\lib\\x64;${LIB}"
-            CUDA_BINDINGS_PARALLEL_LEVEL=${{ env.CUDA_BINDINGS_PARALLEL_LEVEL }}
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -198,7 +187,8 @@ jobs:
         id: setup-python2
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
-          python-version: ${{ matrix.python-version }}
+          # workaround for actions/runner-images#12377 (the cached 3.13.4 is buggy on Windows)
+          python-version: ${{ matrix.python-version == '3.13' && '3.13.5' || matrix.python-version }}
 
       - name: Set up Python include paths
         run: |

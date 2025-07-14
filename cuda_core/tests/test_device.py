@@ -1,4 +1,4 @@
-# Copyright 2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 try:
@@ -191,6 +191,7 @@ cuda_base_properties = [
     ("concurrent_managed_access", bool),
     ("compute_preemption_supported", bool),
     ("can_use_host_pointer_for_registered_mem", bool),
+    ("cooperative_launch", bool),
     ("max_shared_memory_per_block_optin", int),
     ("pageable_memory_access_uses_host_page_tables", bool),
     ("direct_managed_mem_access_from_host", bool),

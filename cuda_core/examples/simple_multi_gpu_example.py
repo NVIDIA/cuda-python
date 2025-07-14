@@ -1,6 +1,13 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+
+# ################################################################################
+#
+# This demo illustrates how to use `cuda.core` to compile and launch kernels
+# on multiple GPUs.
+#
+# ################################################################################
 
 import sys
 
@@ -87,7 +94,7 @@ dev0.set_current()
 a = cp.random.random(size, dtype=dtype)
 b = cp.random.random(size, dtype=dtype)
 c = cp.empty_like(a)
-cp_stream0 = StreamAdaptor(cp.cuda.get_current_stream())
+cp_stream0 = dev0.create_stream(StreamAdaptor(cp.cuda.get_current_stream()))
 
 # Establish a stream order to ensure that memory has been initialized before
 # accessed by the kernel.
@@ -102,7 +109,7 @@ dev1.set_current()
 x = cp.random.random(size, dtype=dtype)
 y = cp.random.random(size, dtype=dtype)
 z = cp.empty_like(a)
-cp_stream1 = StreamAdaptor(cp.cuda.get_current_stream())
+cp_stream1 = dev1.create_stream(StreamAdaptor(cp.cuda.get_current_stream()))
 
 # Establish a stream order
 stream1.wait(cp_stream1)

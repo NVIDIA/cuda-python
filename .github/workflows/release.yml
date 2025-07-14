@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -124,9 +124,13 @@ jobs:
           mkdir dist
           for p in ${{ inputs.component }}*
           do
+            # exclude cython test artifacts
+            if [[ "${p}" == *-tests ]]; then
+              continue
+            fi
             mv ${p}/*.whl dist/
           done
-          rmdir ${{ inputs.component }}*
+          rm -rf ${{ inputs.component }}*
 
       - name: Publish package distributions to PyPI
         if: ${{ inputs.wheel-dst == 'pypi' }}
