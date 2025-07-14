@@ -7,7 +7,6 @@
 * `cuda.pathfinder.load_nvidia_dynamic_lib(libname: str) -> LoadedDL`
 
 * `cuda.pathfinder.LoadedDL`:
-    * `handle` (platform-specific type)
     * `abs_path` (`str`)
     * `was_already_loaded_from_elsewhere` (`bool`)
 
