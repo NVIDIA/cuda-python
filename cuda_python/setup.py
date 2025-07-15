@@ -5,10 +5,10 @@
 import ast
 from setuptools import setup
 
-# We want to keep the version in sync with cuda.bindings, but setuptools would not let
-# us to refer to any files outside of the project root, so we have to employ our own
-# run-time lookup using setup()...
-with open("../cuda_bindings/cuda/bindings/_version.py") as f:
+# We want to keep the version in sync with cuda.bindings, but setuptools does not
+# provide a nice way to construct the dependencies in pyproject.toml, so we need
+# to manually grab the version and do it ourselves.
+with open("_version.py") as f:
     for line in f:
         if line.startswith("__version__"):
             version = ast.parse(line).body[0].value.value
