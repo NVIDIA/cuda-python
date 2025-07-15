@@ -115,6 +115,17 @@ jobs:
           pwd
           ls -lahR .
 
+      - name: Download cuda-pathfinder build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          name: cuda-pathfinder-wheel
+          path: ./cuda_pathfinder
+
+      - name: Display structure of downloaded cuda-pathfinder artifacts
+        run: |
+          pwd
+          ls -lahR cuda_pathfinder
+
       - name: Download cuda.bindings build artifacts
         if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
@@ -161,6 +172,10 @@ jobs:
 
       - name: Install all packages
         run: |
+          pushd cuda_pathfinder
+          pip install *.whl
+          popd
+
           pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
           pip install *.whl
           popd
