@@ -163,6 +163,12 @@ jobs:
           SHA: ${{ github.sha }}
         run: ./ci/tools/env-vars test
 
+      - name: Download cuda-pathfinder build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          name: cuda-pathfinder-wheel
+          path: ./cuda_pathfinder
+
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
@@ -286,6 +292,11 @@ jobs:
       - name: Set up compute-sanitizer
         run: setup-sanitizer
 
+      - name: Run cuda.pathfinder tests with see_what_works
+        env:
+          CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
+        run: run-tests pathfinder
+
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
@@ -306,3 +317,17 @@ jobs:
           else
             pip install $(ls cuda_python*.whl)[all]
           fi
+
+      - name: Install cuda.pathfinder nvidia_wheels_cu12
+        if: startsWith(matrix.CUDA_VER, '12.')
+        run: |
+          pushd cuda_pathfinder
+          pip install -v .[nvidia_wheels_cu12]
+          pip freeze
+          popd
+
+      - name: Run cuda.pathfinder tests with all_must_work
+        if: startsWith(matrix.CUDA_VER, '12.')
+        env:
+          CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
+        run: run-tests pathfinder

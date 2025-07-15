@@ -1,23 +1,24 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 # THIS FILE NEEDS TO BE REVIEWED/UPDATED FOR EACH CTK RELEASE
+# Likely candidates for updates are:
+#     SUPPORTED_LIBNAMES
+#     SUPPORTED_WINDOWS_DLLS
+#     SUPPORTED_LINUX_SONAMES
+#     EXPECTED_LIB_SYMBOLS
 
 import sys
 
 IS_WINDOWS = sys.platform == "win32"
 
-SUPPORTED_LIBNAMES = (
-    # Core CUDA Runtime and Compiler
-    "nvJitLink",
-    "nvrtc",
-    "nvvm",
-)
-
-PARTIALLY_SUPPORTED_LIBNAMES_COMMON = (
+SUPPORTED_LIBNAMES_COMMON = (
     # Core CUDA Runtime and Compiler
     "cudart",
     "nvfatbin",
+    "nvJitLink",
+    "nvrtc",
+    "nvvm",
     # Math Libraries
     "cublas",
     "cublasLt",
@@ -50,27 +51,17 @@ PARTIALLY_SUPPORTED_LIBNAMES_COMMON = (
 # and limited availability. Keeping this as a reference avoids having to
 # reconstruct the information from scratch in the future.
 
-PARTIALLY_SUPPORTED_LIBNAMES_LINUX_ONLY = (
+SUPPORTED_LIBNAMES_LINUX_ONLY = (
     "cufile",
     # "cufile_rdma",  # Requires libmlx5.so
 )
+SUPPORTED_LIBNAMES_LINUX = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ONLY
 
-PARTIALLY_SUPPORTED_LIBNAMES_LINUX = PARTIALLY_SUPPORTED_LIBNAMES_COMMON + PARTIALLY_SUPPORTED_LIBNAMES_LINUX_ONLY
+SUPPORTED_LIBNAMES_WINDOWS_ONLY = ()
+SUPPORTED_LIBNAMES_WINDOWS = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_WINDOWS_ONLY
 
-PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS_ONLY = ()
-
-PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS = PARTIALLY_SUPPORTED_LIBNAMES_COMMON + PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS_ONLY
-
-PARTIALLY_SUPPORTED_LIBNAMES_ALL = (
-    PARTIALLY_SUPPORTED_LIBNAMES_COMMON
-    + PARTIALLY_SUPPORTED_LIBNAMES_LINUX_ONLY
-    + PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS_ONLY
-)
-
-if IS_WINDOWS:
-    PARTIALLY_SUPPORTED_LIBNAMES = PARTIALLY_SUPPORTED_LIBNAMES_WINDOWS
-else:
-    PARTIALLY_SUPPORTED_LIBNAMES = PARTIALLY_SUPPORTED_LIBNAMES_LINUX
+SUPPORTED_LIBNAMES_ALL = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ONLY + SUPPORTED_LIBNAMES_WINDOWS_ONLY
+SUPPORTED_LIBNAMES = SUPPORTED_LIBNAMES_WINDOWS if IS_WINDOWS else SUPPORTED_LIBNAMES_LINUX
 
 # Based on ldd output for Linux x86_64 nvidia-*-cu12 wheels (12.8.1)
 DIRECT_DEPENDENCIES = {
@@ -114,7 +105,7 @@ DIRECT_DEPENDENCIES = {
 #   cuda_12.9.0_575.51.03_linux.run
 #   025
 #   TODO: Update from posted .run files before merging into public main.
-# Generated with toolshed/build_path_finder_sonames.py
+# Generated with toolshed/build_pathfinder_sonames.py
 SUPPORTED_LINUX_SONAMES = {
     "cublas": (
         "libcublas.so.11",
@@ -265,7 +256,7 @@ SUPPORTED_LINUX_SONAMES = {
 #   cuda_12.9.0_576.02_windows.txt
 #   025
 #   TODO: Update from posted .run files before merging into public main.
-# Generated with toolshed/build_path_finder_dlls.py (WITH MANUAL EDITS)
+# Generated with toolshed/build_pathfinder_dlls.py (WITH MANUAL EDITS)
 SUPPORTED_WINDOWS_DLLS = {
     "cublas": (
         "cublas64_11.dll",
@@ -278,9 +269,6 @@ SUPPORTED_WINDOWS_DLLS = {
         "cublasLt64_13.dll",
     ),
     "cudart": (
-        "cudart32_110.dll",
-        "cudart32_65.dll",
-        "cudart32_90.dll",
         "cudart64_101.dll",
         "cudart64_110.dll",
         "cudart64_12.dll",
@@ -393,7 +381,6 @@ SUPPORTED_WINDOWS_DLLS = {
         "nvrtc64_130_0.dll",
     ),
     "nvvm": (
-        "nvvm32.dll",
         "nvvm64.dll",
         "nvvm64_33_0.dll",
         "nvvm64_40_0.dll",
@@ -415,7 +402,7 @@ def is_suppressed_dll_file(path_basename: str) -> bool:
         #         nvrtc64_120_0.alt.dll
         #         nvrtc64_120_0.dll
         return path_basename.endswith(".alt.dll") or "-builtins" in path_basename
-    return False
+    return path_basename.startswith(("cudart32_", "nvvm32"))
 
 
 # Based on nm output for Linux x86_64 /usr/local/cuda (12.8.1)

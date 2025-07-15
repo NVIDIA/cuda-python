@@ -16,6 +16,7 @@ on:
         options:
           - cuda-core
           - cuda-bindings
+          - cuda-pathfinder
           - cuda-python
           - all
       git-tag:

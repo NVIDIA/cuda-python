@@ -5,24 +5,19 @@
 import sys
 import traceback
 
-from cuda.bindings import path_finder
-from cuda.bindings._path_finder import supported_libs
-
-ALL_LIBNAMES = (
-    path_finder._SUPPORTED_LIBNAMES + supported_libs.PARTIALLY_SUPPORTED_LIBNAMES
-)
+from cuda import pathfinder
 
 
 def run(args):
     if args:
         libnames = args
     else:
-        libnames = ALL_LIBNAMES
+        libnames = pathfinder.SUPPORTED_NVIDIA_LIBNAMES
 
     for libname in libnames:
         print(f"{libname=}")
         try:
-            loaded_dl = path_finder._load_nvidia_dynamic_library(libname)
+            loaded_dl = pathfinder.load_nvidia_dynamic_lib(libname)
         except Exception:
             print(f"EXCEPTION for {libname=}:")
             traceback.print_exc(file=sys.stdout)
