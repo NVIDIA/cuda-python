@@ -103,7 +103,7 @@ DIRECT_DEPENDENCIES = {
 #   cuda_12.6.2_560.35.03_linux.run
 #   cuda_12.8.0_570.86.10_linux.run
 #   cuda_12.9.0_575.51.03_linux.run
-#   025
+#   036
 #   TODO: Update from posted .run files before merging into public main.
 # Generated with toolshed/build_pathfinder_sonames.py
 SUPPORTED_LINUX_SONAMES = {
@@ -254,8 +254,8 @@ SUPPORTED_LINUX_SONAMES = {
 #   cuda_12.6.2_560.94_windows.exe
 #   cuda_12.8.1_572.61_windows.exe
 #   cuda_12.9.0_576.02_windows.txt
-#   025
-#   TODO: Update from posted .run files before merging into public main.
+#   036
+#   TODO: Update from posted .exe files before merging into public main.
 # Generated with toolshed/build_pathfinder_dlls.py (WITH MANUAL EDITS)
 SUPPORTED_WINDOWS_DLLS = {
     "cublas": (
