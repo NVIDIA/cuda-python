@@ -1749,9 +1749,7 @@ def test_set_get_parameter_size_t():
         # Test poll threshold size (in KB)
         poll_threshold_kb = 64  # 64KB threshold
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB, poll_threshold_kb)
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB, int(ctypes.addressof(value_ptr)))
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB)
         assert retrieved_value == poll_threshold_kb, (
             f"Poll threshold mismatch: set {poll_threshold_kb}, got {retrieved_value}"
         )
@@ -1759,11 +1757,7 @@ def test_set_get_parameter_size_t():
         # Test max direct IO size (in KB)
         max_direct_io_kb = 1024  # 1MB max direct IO size
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB, max_direct_io_kb)
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB)
         assert retrieved_value == max_direct_io_kb, (
             f"Max direct IO size mismatch: set {max_direct_io_kb}, got {retrieved_value}"
         )
@@ -1771,11 +1765,7 @@ def test_set_get_parameter_size_t():
         # Test max device cache size (in KB)
         max_cache_kb = 512  # 512KB max cache size
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB, max_cache_kb)
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB)
         assert retrieved_value == max_cache_kb, f"Max cache size mismatch: set {max_cache_kb}, got {retrieved_value}"
 
         # Test per buffer cache size (in KB)
@@ -1783,11 +1773,7 @@ def test_set_get_parameter_size_t():
         cufile.set_parameter_size_t(
             cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB, per_buffer_cache_kb
         )
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB)
         assert retrieved_value == per_buffer_cache_kb, (
             f"Per buffer cache size mismatch: set {per_buffer_cache_kb}, got {retrieved_value}"
         )
@@ -1795,11 +1781,7 @@ def test_set_get_parameter_size_t():
         # Test max device pinned memory size (in KB)
         max_pinned_kb = 2048  # 2MB max pinned memory
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB, max_pinned_kb)
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB)
         assert retrieved_value == max_pinned_kb, (
             f"Max pinned memory size mismatch: set {max_pinned_kb}, got {retrieved_value}"
         )
@@ -1807,53 +1789,33 @@ def test_set_get_parameter_size_t():
         # Test IO batch size
         batch_size = 16  # 16 operations per batch
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE, batch_size)
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE)
         assert retrieved_value == batch_size, f"IO batch size mismatch: set {batch_size}, got {retrieved_value}"
 
         # Test batch IO timeout (in milliseconds)
         timeout_ms = 5000  # 5 second timeout
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS, timeout_ms)
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS)
         assert retrieved_value == timeout_ms, f"Batch IO timeout mismatch: set {timeout_ms}, got {retrieved_value}"
 
         # Test execution parameters
         max_io_queue_depth = 32  # Max 32 operations in queue
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH, max_io_queue_depth)
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH)
         assert retrieved_value == max_io_queue_depth, (
             f"Max IO queue depth mismatch: set {max_io_queue_depth}, got {retrieved_value}"
         )
 
         max_io_threads = 8  # Max 8 IO threads
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_THREADS, max_io_threads)
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.EXECUTION_MAX_IO_THREADS, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_THREADS)
         assert retrieved_value == max_io_threads, (
             f"Max IO threads mismatch: set {max_io_threads}, got {retrieved_value}"
         )
 
         min_io_threshold_kb = 4  # 4KB minimum IO threshold
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB, min_io_threshold_kb)
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB)
         assert retrieved_value == min_io_threshold_kb, (
             f"Min IO threshold mismatch: set {min_io_threshold_kb}, got {retrieved_value}"
         )
@@ -1862,11 +1824,7 @@ def test_set_get_parameter_size_t():
         cufile.set_parameter_size_t(
             cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM, max_request_parallelism
         )
-        value_ptr = ctypes.c_size_t(0)
-        cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM)
         assert retrieved_value == max_request_parallelism, (
             f"Max request parallelism mismatch: set {max_request_parallelism}, got {retrieved_value}"
         )
@@ -1898,92 +1856,62 @@ def test_set_get_parameter_bool():
 
         # Test poll mode
         cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, True)
-        value_ptr = ctypes.c_bool(False)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, int(ctypes.addressof(value_ptr)))
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE)
         assert retrieved_value is True, f"Poll mode mismatch: set True, got {retrieved_value}"
 
         # Test compatibility mode
         cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, False)
-        value_ptr = ctypes.c_bool(True)
-        cufile.get_parameter_bool(
-            cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE)
         assert retrieved_value is False, f"Compatibility mode mismatch: set False, got {retrieved_value}"
 
         # Test force compatibility mode
         cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE, False)
-        value_ptr = ctypes.c_bool(True)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE, int(ctypes.addressof(value_ptr)))
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE)
         assert retrieved_value is False, f"Force compatibility mode mismatch: set False, got {retrieved_value}"
 
         # Test aggressive API check
         cufile.set_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE, True)
-        value_ptr = ctypes.c_bool(False)
-        cufile.get_parameter_bool(
-            cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE)
         assert retrieved_value is True, f"Aggressive API check mismatch: set True, got {retrieved_value}"
 
         # Test parallel IO
         cufile.set_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO, True)
-        value_ptr = ctypes.c_bool(False)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO, int(ctypes.addressof(value_ptr)))
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO)
         assert retrieved_value is True, f"Parallel IO mismatch: set True, got {retrieved_value}"
 
         # Test NVTX profiling
         cufile.set_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX, False)
-        value_ptr = ctypes.c_bool(True)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX, int(ctypes.addressof(value_ptr)))
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX)
         assert retrieved_value is False, f"NVTX profiling mismatch: set False, got {retrieved_value}"
 
         # Test system memory allowance
         cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY, True)
-        value_ptr = ctypes.c_bool(False)
-        cufile.get_parameter_bool(
-            cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY, int(ctypes.addressof(value_ptr))
-        )
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY)
         assert retrieved_value is True, f"System memory allowance mismatch: set True, got {retrieved_value}"
 
         # Test PCI P2P DMA
         cufile.set_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA, True)
-        value_ptr = ctypes.c_bool(False)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA, int(ctypes.addressof(value_ptr)))
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA)
         assert retrieved_value is True, f"PCI P2P DMA mismatch: set True, got {retrieved_value}"
 
         # Test IO uring preference
         cufile.set_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING, False)
-        value_ptr = ctypes.c_bool(True)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING, int(ctypes.addressof(value_ptr)))
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING)
         assert retrieved_value is False, f"IO uring preference mismatch: set False, got {retrieved_value}"
 
         # Test force O_DIRECT mode
         cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE, True)
-        value_ptr = ctypes.c_bool(False)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE, int(ctypes.addressof(value_ptr)))
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE)
         assert retrieved_value is True, f"Force O_DIRECT mode mismatch: set True, got {retrieved_value}"
 
         # Test topology detection skip
         cufile.set_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, False)
-        value_ptr = ctypes.c_bool(True)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, int(ctypes.addressof(value_ptr)))
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION)
         assert retrieved_value is False, f"Topology detection skip mismatch: set False, got {retrieved_value}"
 
         # Test stream memops bypass
         cufile.set_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, True)
-        value_ptr = ctypes.c_bool(False)
-        cufile.get_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, int(ctypes.addressof(value_ptr)))
-        retrieved_value = value_ptr.value
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS)
         assert retrieved_value is True, f"Stream memops bypass mismatch: set True, got {retrieved_value}"
 
     finally:
@@ -2021,18 +1949,18 @@ def test_set_get_parameter_string():
             cufile.set_parameter_string(
                 cufile.StringConfigParameter.LOGGING_LEVEL, int(ctypes.addressof(logging_level_buffer))
             )
-            desc_str = ctypes.create_string_buffer(256)
-            cufile.get_parameter_string(
-                cufile.StringConfigParameter.LOGGING_LEVEL, int(ctypes.addressof(desc_str)), 256
-            )
-            retrieved_value = safe_decode_string(desc_str.value)
+            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOGGING_LEVEL, 256)
+            # Use safe_decode_string to handle null terminators and padding
+            retrieved_value = safe_decode_string(retrieved_value_raw.encode('utf-8'))
             print(f"Logging level test: set {logging_level}, got {retrieved_value}")
-            # Skip assertion due to potential string parameter issues
+            # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == logging_level, (
                 f"Logging level mismatch: set {logging_level}, got {retrieved_value}"
             )
         except Exception as e:
             print(f"Logging level test failed: {e}")
+            # Re-raise the exception to make the test fail
+            raise
 
         # Test environment log file path
         logfile_path = tempfile.gettempdir() + "/cufile.log"
@@ -2043,16 +1971,16 @@ def test_set_get_parameter_string():
             cufile.set_parameter_string(
                 cufile.StringConfigParameter.ENV_LOGFILE_PATH, int(ctypes.addressof(logfile_buffer))
             )
-            desc_str = ctypes.create_string_buffer(256)
-            cufile.get_parameter_string(
-                cufile.StringConfigParameter.ENV_LOGFILE_PATH, int(ctypes.addressof(desc_str)), 256
-            )
-            retrieved_value = safe_decode_string(desc_str.value)
+            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.ENV_LOGFILE_PATH, 256)
+            # Use safe_decode_string to handle null terminators and padding
+            retrieved_value = safe_decode_string(retrieved_value_raw.encode('utf-8'))
             print(f"Log file path test: set {logfile_path}, got {retrieved_value}")
-            # Skip assertion due to potential string parameter issues
+            # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == logfile_path, f"Log file path mismatch: set {logfile_path}, got {retrieved_value}"
         except Exception as e:
             print(f"Log file path test failed: {e}")
+            # Re-raise the exception to make the test fail
+            raise
 
         # Test log directory
         log_dir = tempfile.gettempdir() + "/cufile_logs"
@@ -2061,14 +1989,16 @@ def test_set_get_parameter_string():
             log_dir_bytes = log_dir.encode("utf-8") + b"\x00"
             log_dir_buffer = ctypes.create_string_buffer(log_dir_bytes)
             cufile.set_parameter_string(cufile.StringConfigParameter.LOG_DIR, int(ctypes.addressof(log_dir_buffer)))
-            desc_str = ctypes.create_string_buffer(256)
-            cufile.get_parameter_string(cufile.StringConfigParameter.LOG_DIR, int(ctypes.addressof(desc_str)), 256)
-            retrieved_value = safe_decode_string(desc_str.value)
+            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOG_DIR, 256)
+            # Use safe_decode_string to handle null terminators and padding
+            retrieved_value = safe_decode_string(retrieved_value_raw.encode('utf-8'))
             print(f"Log directory test: set {log_dir}, got {retrieved_value}")
-            # Skip assertion due to potential string parameter issues
+            # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == log_dir, f"Log directory mismatch: set {log_dir}, got {retrieved_value}"
         except Exception as e:
             print(f"Log directory test failed: {e}")
+            # Re-raise the exception to make the test fail
+            raise
 
     finally:
         cuda.cuDevicePrimaryCtxRelease(device)

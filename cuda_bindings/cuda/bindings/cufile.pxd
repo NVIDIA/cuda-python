@@ -65,9 +65,9 @@ cpdef write_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t 
 cpdef stream_register(intptr_t stream, unsigned flags)
 cpdef stream_deregister(intptr_t stream)
 cpdef int get_version() except? 0
-cpdef get_parameter_size_t(int param, intptr_t value)
-cpdef get_parameter_bool(int param, intptr_t value)
-cpdef get_parameter_string(int param, intptr_t desc_str, int len)
+cpdef size_t get_parameter_size_t(int param) except? 0
+cpdef bint get_parameter_bool(int param) except? 0
+cpdef str get_parameter_string(int param, int len)
 cpdef set_parameter_size_t(int param, size_t value)
 cpdef set_parameter_bool(int param, bint value)
 cpdef set_parameter_string(int param, intptr_t desc_str)

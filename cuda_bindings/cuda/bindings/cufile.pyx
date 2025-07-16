@@ -815,6 +815,7 @@ io_params_dtype = _numpy.dtype({
     "offsets": [0, 8, 40, 48, 56],
 }, align=True)
 
+
 ###############################################################################
 # Enum
 ###############################################################################
@@ -1231,22 +1232,29 @@ cpdef int get_version() except? 0:
     return version
 
 
-cpdef get_parameter_size_t(int param, intptr_t value):
+cpdef size_t get_parameter_size_t(int param) except? 0:
+    cdef size_t value
     with nogil:
-        status = cuFileGetParameterSizeT(<_SizeTConfigParameter>param, <size_t*>value)
+        status = cuFileGetParameterSizeT(<_SizeTConfigParameter>param, &value)
     check_status(status)
+    return value
 
 
-cpdef get_parameter_bool(int param, intptr_t value):
+cpdef bint get_parameter_bool(int param) except? 0:
+    cdef cpp_bool value
     with nogil:
-        status = cuFileGetParameterBool(<_BoolConfigParameter>param, <cpp_bool*>value)
+        status = cuFileGetParameterBool(<_BoolConfigParameter>param, &value)
     check_status(status)
+    return <bint>value
 
 
-cpdef get_parameter_string(int param, intptr_t desc_str, int len):
+cpdef str get_parameter_string(int param, int len):
+    cdef bytes _desc_str_ = bytes(len)
+    cdef char* desc_str = _desc_str_
     with nogil:
-        status = cuFileGetParameterString(<_StringConfigParameter>param, <char*>desc_str, len)
+        status = cuFileGetParameterString(<_StringConfigParameter>param, desc_str, len)
     check_status(status)
+    return _desc_str_.decode()
 
 
 cpdef set_parameter_size_t(int param, size_t value):
