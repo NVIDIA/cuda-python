@@ -405,10 +405,10 @@ def is_suppressed_dll_file(path_basename: str) -> bool:
     return path_basename.startswith(("cudart32_", "nvvm32"))
 
 
-# Based on nm output for Linux x86_64 /usr/local/cuda (12.8.1)
+# Based on `nm -D --defined-only` output for Linux x86_64 distributions.
 EXPECTED_LIB_SYMBOLS = {
     "nvJitLink": (
-        "__nvJitLinkCreate_12_0",  # 12.0 through 12.8 (at least)
+        "__nvJitLinkCreate_12_0",  # 12.0 through 12.9
         "nvJitLinkVersion",  # 12.3 and up
     ),
     "nvrtc": ("nvrtcVersion",),
@@ -424,16 +424,16 @@ EXPECTED_LIB_SYMBOLS = {
     "cusolverMg": ("cusolverMgCreate",),
     "cusparse": ("cusparseGetVersion",),
     "nppc": ("nppGetLibVersion",),
-    "nppial": ("nppiAdd_32f_C1R",),
-    "nppicc": ("nppiColorToGray_8u_C3C1R",),
-    "nppidei": ("nppiCopy_8u_C1R",),
-    "nppif": ("nppiFilterSobelHorizBorder_8u_C1R",),
-    "nppig": ("nppiResize_8u_C1R",),
-    "nppim": ("nppiErode_8u_C1R",),
-    "nppist": ("nppiMean_8u_C1R",),
+    "nppial": ("nppiAdd_32f_C1R_Ctx",),
+    "nppicc": ("nppiColorToGray_8u_C3C1R_Ctx",),
+    "nppidei": ("nppiCopy_8u_C1R_Ctx",),
+    "nppif": ("nppiFilterSobelHorizBorder_8u_C1R_Ctx",),
+    "nppig": ("nppiResize_8u_C1R_Ctx",),
+    "nppim": ("nppiErode_8u_C1R_Ctx",),
+    "nppist": ("nppiMean_8u_C1R_Ctx",),
     "nppisu": ("nppiFree",),
-    "nppitc": ("nppiThreshold_8u_C1R",),
-    "npps": ("nppsAdd_32f",),
+    "nppitc": ("nppiThreshold_8u_C1R_Ctx",),
+    "npps": ("nppsAdd_32f_Ctx",),
     "nvblas": ("dgemm",),
     "cufile": ("cuFileGetVersion",),
     # "cufile_rdma": ("rdma_buffer_reg",),
