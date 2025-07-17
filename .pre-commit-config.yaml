@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -12,30 +12,40 @@ ci:
     skip: [bandit]
     submodules: false
 
+# Please update the rev: SHAs below with this command:
+# pre-commit autoupdate --freeze
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 971923581912ef60a6b70dbf0c3e9a39563c9d47  #v0.11.4
+    rev: 0b19ef1fd6ad680ed7752d6daba883ce1265a6de  # frozen: v0.12.2
     hooks:
       - id: ruff
-        args: [--fix, --show-fixes]
+        args: [--fix, --show-fixes, --target-version=py39]
       - id: ruff-format
 
   - repo: local
     hooks:
       - id: check-spdx
-        name: Check SPDX-License-Identifier
+        name: Check SPDX Headers
         entry: python ./toolshed/check_spdx.py
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 8ff25e07e487f143571cc305e56dd0253c60bc7b  #v1.8.3
+    rev: 2d0b675b04c80ae42277e10500db06a0a37bae17  # frozen: 1.8.6
     hooks:
       - id: bandit
         args:
           - --ini
           - .bandit
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 0f86793af5ef5f6dc63c8d04a3cabfa3ea8f9c6a  # frozen: v1.16.1
+    hooks:
+      - id: mypy
+        name: mypy-pathfinder
+        files: ^cuda_pathfinder/cuda/.*\.py$  # Exclude tests directory
+        args: [--config-file=cuda_pathfinder/pyproject.toml]
 
 default_language_version:
       python: python3

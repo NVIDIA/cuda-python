@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 # Input for this script:
 # output of toolshed/find_sonames.sh
 
-# The output of this script
-# is expected to be usable as-is.
+# The output of this script is expected to be usable as-is.
 
 import sys
 
-LIBNAMES_IN_SCOPE_OF_CUDA_BINDINGS_PATH_FINDER = (
+LIBNAMES_IN_SCOPE_OF_CUDA_PATHFINDER = (
     "nvJitLink",
     "nvrtc",
     "nvvm",
@@ -54,10 +53,10 @@ def run(args):
         if flds[-1] != "SONAME_NOT_SET":
             sonames_from_file.add(flds[-1])
 
-    print("SONAMEs in scope of cuda.bindings.path_finder")
-    print("=============================================")
+    print("SONAMEs in scope of cuda.pathfinder")
+    print("===================================")
     sonames_in_scope = set()
-    for libname in sorted(LIBNAMES_IN_SCOPE_OF_CUDA_BINDINGS_PATH_FINDER):
+    for libname in sorted(LIBNAMES_IN_SCOPE_OF_CUDA_PATHFINDER):
         print(f'"{libname}": (')
         lib_so = "lib" + libname + ".so"
         for soname in sorted(sonames_from_file):

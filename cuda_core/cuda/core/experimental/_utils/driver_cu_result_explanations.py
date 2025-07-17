@@ -1,4 +1,4 @@
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # To regenerate the dictionary below run:
@@ -8,6 +8,8 @@
 
 # ruff: noqa: E501
 # CUDA Toolkit v13.0.0
+# 036
+# TODO: Update from posted .run files before merging into public main.
 DRIVER_CU_RESULT_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this"
