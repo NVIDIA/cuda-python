@@ -10,7 +10,7 @@
         <title>cufile - cuda.bindings 12.9.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -374,6 +374,11 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">cuda.bindings.cufile</span></code> Python module wraps the
 <a class="reference external" href="https://docs.nvidia.com/gpudirect-storage/api-reference-guide/index.html">cuFile C APIs</a>.
 Supported on Linux only.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Currently using this module requires NumPy to be present. Any recent NumPy 1.x or 2.x should work.</p></li>
+</ul>
+</div></blockquote>
 <section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper autosummary longtable docutils container">
@@ -448,13 +453,13 @@ Supported on Linux only.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.get_version.html#cuda.bindings.cufile.get_version" title="cuda.bindings.cufile.get_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_version</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_size_t.html#cuda.bindings.cufile.get_parameter_size_t" title="cuda.bindings.cufile.get_parameter_size_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parameter_size_t</span></code></a>(int param, intptr_t value)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_size_t.html#cuda.bindings.cufile.get_parameter_size_t" title="cuda.bindings.cufile.get_parameter_size_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parameter_size_t</span></code></a>(int param)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_bool.html#cuda.bindings.cufile.get_parameter_bool" title="cuda.bindings.cufile.get_parameter_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parameter_bool</span></code></a>(int param, intptr_t value)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_bool.html#cuda.bindings.cufile.get_parameter_bool" title="cuda.bindings.cufile.get_parameter_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parameter_bool</span></code></a>(int param)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_string.html#cuda.bindings.cufile.get_parameter_string" title="cuda.bindings.cufile.get_parameter_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parameter_string</span></code></a>(int param, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_string.html#cuda.bindings.cufile.get_parameter_string" title="cuda.bindings.cufile.get_parameter_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parameter_string</span></code></a>(int param, int len)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.set_parameter_size_t.html#cuda.bindings.cufile.set_parameter_size_t" title="cuda.bindings.cufile.set_parameter_size_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_parameter_size_t</span></code></a>(int param, size_t value)</p></td>
