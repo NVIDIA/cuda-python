@@ -11,7 +11,7 @@ The ``cuda.bindings.cufile`` Python module wraps the
 `cuFile C APIs <https://docs.nvidia.com/gpudirect-storage/api-reference-guide/index.html>`_.
 Supported on Linux only.
 
-  * Currently using this module requires NumPy to be present. Any recent NumPy 1.x or 2.x should work.
+Currently using this module requires NumPy to be present. Any recent NumPy 1.x or 2.x should work.
 
 
 Functions
